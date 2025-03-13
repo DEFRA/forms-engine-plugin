@@ -1,3 +1,5 @@
+import { type Environment } from 'nunjucks'
+
 import { plugin } from '~/src/server/plugins/engine/plugin.js'
 import {
   checkComponentTemplates,
@@ -16,6 +18,16 @@ const globals = {
   evaluate
 }
 
-export { filters }
-export { globals }
+export const VIEW_PATH = 'src/server/plugins/engine/views'
+
+export const prepareNunjucksEnvironment = function (env: Environment) {
+  for (const [name, nunjucksFilter] of Object.entries(filters)) {
+    env.addFilter(name, nunjucksFilter)
+  }
+
+  for (const [name, nunjucksGlobal] of Object.entries(globals)) {
+    env.addGlobal(name, nunjucksGlobal)
+  }
+}
+
 export default plugin
