@@ -13,8 +13,9 @@ on:
           - minor
           - major
       npm_tag:
-        description: 'Custom npm dist-tag (leave empty for auto-detection based on branch)'
+        description: 'Custom npm dist-tag (ALWAYS specify for non-standard branches to avoid overwriting latest)'
         required: false
+        default: 'dev'
         type: string
       dry_run:
         description: 'Dry run (no actual publishing)'
