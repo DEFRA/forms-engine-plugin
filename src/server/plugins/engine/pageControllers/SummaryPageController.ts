@@ -89,7 +89,7 @@ export class SummaryPageController extends QuestionPageController {
       const { params } = request
       const { state } = context
 
-      const { cacheService } = request.server.app
+      const { dxtCacheService: cacheService } = request.server.app
       const { formsService } = this.model.services
       const { getFormMetadata } = formsService
 

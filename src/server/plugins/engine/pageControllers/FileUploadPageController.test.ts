@@ -73,7 +73,7 @@ describe('FileUploadPageController', () => {
       },
       server: {
         app: {
-          cacheService: {
+          dxtCacheService: {
             setFlash: jest.fn(),
             setState: jest
               .fn()
@@ -318,7 +318,7 @@ describe('FileUploadPageController', () => {
         )
         initiateSpy.mockResolvedValue(state as never)
 
-        const { cacheService } = request.server.app
+        const { dxtCacheService: cacheService } = request.server.app
         await controller['checkUploadStatus'](request, state, 1)
 
         expect(cacheService.setFlash).toHaveBeenCalledWith(request, {
@@ -610,7 +610,7 @@ describe('FileUploadPageController', () => {
               Promise.resolve(Object.assign({}, s, { newUpload: true }))
           )
 
-          const { cacheService } = request.server.app
+          const { dxtCacheService: cacheService } = request.server.app
           await controller['checkUploadStatus'](request, state, 1)
 
           expect(cacheService.setFlash).toHaveBeenCalledWith(request, {
@@ -672,7 +672,7 @@ describe('FileUploadPageController', () => {
 
           initiateSpy.mockResolvedValue(state)
 
-          const { cacheService } = request.server.app
+          const { dxtCacheService: cacheService } = request.server.app
           await controller['checkUploadStatus'](request, state, 1)
 
           expect(cacheService.setFlash).toHaveBeenCalledWith(request, {
@@ -731,7 +731,7 @@ describe('FileUploadPageController', () => {
 
           initiateSpy.mockResolvedValue(state)
 
-          const { cacheService } = request.server.app
+          const { dxtCacheService: cacheService } = request.server.app
 
           await controller['checkUploadStatus'](request, state, 1)
 

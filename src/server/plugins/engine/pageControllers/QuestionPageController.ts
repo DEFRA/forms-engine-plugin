@@ -298,7 +298,7 @@ export class QuestionPageController extends PageController {
       return {}
     }
 
-    const { cacheService } = request.server.app
+    const { dxtCacheService: cacheService } = request.server.app
     return cacheService.getState(request)
   }
 
@@ -313,7 +313,7 @@ export class QuestionPageController extends PageController {
       return state
     }
 
-    const { cacheService } = request.server.app
+    const { dxtCacheService: cacheService } = request.server.app
     return cacheService.setState(request, state)
   }
 
@@ -332,7 +332,7 @@ export class QuestionPageController extends PageController {
       return updated
     }
 
-    const { cacheService } = request.server.app
+    const { dxtCacheService: cacheService } = request.server.app
     return cacheService.setState(request, updated)
   }
 

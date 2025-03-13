@@ -72,7 +72,7 @@ export const plugin = {
     const { formsService } = services
     const cacheService = new CacheService(server, cacheName)
 
-    server.app.cacheService = cacheService
+    server.app.dxtCacheService = cacheService
     server.app.model = model
 
     // In-memory cache of FormModel items, exposed
@@ -187,7 +187,7 @@ export const plugin = {
         throw Boom.notFound(`No model found for /${params.path}`)
       }
 
-      const { cacheService } = request.server.app
+      const { dxtCacheService: cacheService } = request.server.app
       const page = getPage(model, request)
       const state = await page.getState(request)
       const flash = cacheService.getFlash(request)

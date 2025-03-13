@@ -55,7 +55,7 @@ async function createRepeatItem(
 
   // Extract the session cookie
   const request = res1.request
-  const { cacheService } = request.server.app
+  const { dxtCacheService: cacheService } = request.server.app
 
   const { name } = repeatPage.repeat.options
   const state = await cacheService.getState(request)

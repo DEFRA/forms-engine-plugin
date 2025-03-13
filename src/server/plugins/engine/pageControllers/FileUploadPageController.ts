@@ -364,7 +364,7 @@ export class FileUploadPageController extends QuestionPageController {
     } else {
       // Flash the error message.
       const { fileUpload } = this
-      const { cacheService } = request.server.app
+      const { dxtCacheService: cacheService } = request.server.app
       const name = fileUpload.name
       const text = file.errorMessage ?? 'Unknown error'
       const errors: FormSubmissionError[] = [

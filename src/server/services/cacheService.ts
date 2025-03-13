@@ -29,7 +29,8 @@ export class CacheService {
 
   constructor(server: Server, cacheName?: string) {
     if (!cacheName) {
-      server.logger.warn(
+      server.log(
+        'warn',
         'You are using the default hapi cache. Please provide a cache name in plugin registration options.'
       )
     }

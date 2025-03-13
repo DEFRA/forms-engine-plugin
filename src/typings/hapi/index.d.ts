@@ -46,7 +46,7 @@ declare module '@hapi/hapi' {
   interface ServerApplicationState {
     model?: FormModel
     models: Map<string, { model: FormModel; updatedAt: Date }>
-    cacheService: CacheService
+    dxtCacheService: CacheService
   }
 }
 
