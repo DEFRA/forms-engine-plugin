@@ -55,7 +55,7 @@ export interface PluginOptions {
   model?: FormModel
   services?: Services
   controllers?: Record<string, typeof PageController>
-  cacheName: string
+  cacheName?: string
 }
 
 export const plugin = {
