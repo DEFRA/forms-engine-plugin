@@ -1,11 +1,31 @@
-name: Publish Engine plugin
+name: Publish Engine Plugin
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      version_bump:
+        description: 'Type of version bump to perform'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      npm_tag:
+        description: 'Custom npm dist-tag (leave empty for auto-detection based on branch)'
+        required: false
+        type: string
+      dry_run:
+        description: 'Dry run (no actual publishing)'
+        required: false
+        default: true
+        type: boolean
 
   push:
     branches:
       - main
+      - 'release/v[0-9]*'
     paths:
       - '.browserslistrc'
       - 'babel.config.*'
@@ -27,6 +47,8 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Cache dependencies
         uses: actions/cache@v4
@@ -68,8 +90,8 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-          ref: main
+          fetch-depth: 2
+          ref: ${{ github.ref }}
 
       - name: Restore dependencies
         uses: actions/cache/restore@v4
@@ -96,16 +118,115 @@ jobs:
           registry-url: https://registry.npmjs.org
           scope: '@defra'
 
-      - name: Update package versions
-        run: npm version patch --git-tag-version false --save
+      - name: Determine version bump type
+        id: version-type
+        run: |
+          BRANCH_NAME=${GITHUB_REF#refs/heads/}
+          
+          # Check if this is a manual trigger with inputs
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION_TYPE="${{ github.event.inputs.version_bump }}"
+            echo "Manual workflow run with version bump: $VERSION_TYPE"
+            
+            # If a custom npm tag was provided, use it
+            if [[ -n "${{ github.event.inputs.npm_tag }}" ]]; then
+              CUSTOM_NPM_TAG="${{ github.event.inputs.npm_tag }}"
+              echo "Using custom npm tag: $CUSTOM_NPM_TAG"
+              echo "CUSTOM_NPM_TAG=$CUSTOM_NPM_TAG" >> $GITHUB_OUTPUT
+            fi
+          else
+            # Automatic trigger via push - use commit message logic
+            COMMIT_MSG=$(git log -1 --pretty=%B)
+            VERSION_TYPE="patch"
+            
+            # Check for MINOR or MAJOR in commit message
+            if [[ "$COMMIT_MSG" == *"MINOR"* ]]; then
+              VERSION_TYPE="minor"
+            elif [[ "$COMMIT_MSG" == *"MAJOR"* ]]; then
+              VERSION_TYPE="major"
+            fi
+          fi
+          
+          # For release branches, respect the branch naming convention
+          if [[ "$BRANCH_NAME" =~ release/v([0-9]+) ]]; then
+            # Extract just the major version number
+            MAJOR_VERSION="${BASH_REMATCH[1]}"
+            
+            # Set the package version to match the major version if needed
+            CURRENT_VERSION=$(npm pkg get version | tr -d \")
+            CURRENT_MAJOR=$(echo $CURRENT_VERSION | cut -d. -f1)
+            
+            # If the major version doesn't match, reset to major.0.0
+            if [[ "$CURRENT_MAJOR" != "$MAJOR_VERSION" ]]; then
+              npm version $MAJOR_VERSION.0.0 --git-tag-version false --allow-same-version
+              
+              # Override to patch since we've already set the version
+              VERSION_TYPE="patch"
+            fi
+          fi
+          
+          echo "VERSION_TYPE=$VERSION_TYPE" >> $GITHUB_OUTPUT
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_OUTPUT
+
+      - name: Update package version
+        run: npm version ${{ steps.version-type.outputs.VERSION_TYPE }} --git-tag-version false --save
 
       - name: Commit and push updates
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git commit -am "v$(npm pkg get version | tr -d \") [skip ci]" && git push
+          NEW_VERSION=$(npm pkg get version | tr -d \")
+          git commit -am "v$NEW_VERSION [skip ci]" && git push
 
-      - name: Publish to npm
-        run: npm publish --access public
+      - name: Publish to npm with appropriate dist-tag
+        run: |
+          BRANCH_NAME="${{ steps.version-type.outputs.BRANCH_NAME }}"
+          NEW_VERSION=$(npm pkg get version | tr -d \")
+          PUBLISH_ARGS="--access public"
+          IS_STANDARD_BRANCH=false
+          
+          # Determine if this is a standard branch
+          if [[ "$BRANCH_NAME" == "main" || "$BRANCH_NAME" =~ release/v([0-9]+) ]]; then
+            IS_STANDARD_BRANCH=true
+          fi
+          
+          # First priority: Check for custom tag from version-type step
+          if [[ -n "${{ steps.version-type.outputs.CUSTOM_NPM_TAG }}" ]]; then
+            DIST_TAG="${{ steps.version-type.outputs.CUSTOM_NPM_TAG }}"
+            PUBLISH_ARGS="$PUBLISH_ARGS --tag $DIST_TAG"
+            echo "Publishing v$NEW_VERSION with custom tag '$DIST_TAG' (from version-type step)"
+          # Second priority: Check for branch-specific tags
+          elif [[ "$BRANCH_NAME" == "main" ]]; then
+            echo "Publishing v$NEW_VERSION from main -> using default 'latest' tag"
+          elif [[ "$BRANCH_NAME" =~ release/v([0-9]+) ]]; then
+            MAJOR_VERSION="${BASH_REMATCH[1]}"
+            DIST_TAG="v${MAJOR_VERSION}"
+            PUBLISH_ARGS="$PUBLISH_ARGS --tag $DIST_TAG"
+            echo "Publishing v$NEW_VERSION from $BRANCH_NAME -> using tag '$DIST_TAG'"
+          else
+            # Safety check for non-standard branches
+            if [[ "${{ github.event_name }}" == "workflow_dispatch" && -z "${{ github.event.inputs.npm_tag }}" ]]; then
+              echo "⚠️ WARNING: Publishing from non-standard branch '$BRANCH_NAME' without a custom npm tag!"
+              echo "⚠️ This will publish as 'latest' and could overwrite your production release."
+              echo "⚠️ Consider canceling and re-running with a custom npm tag like 'beta' or 'dev'."
+              echo "⚠️ Waiting 10 seconds before proceeding..."
+              sleep 10
+            fi
+            echo "Branch $BRANCH_NAME doesn't match expected patterns, using default publishing"
+          fi
+          
+          # Add dry-run flag if specified
+          if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
+            PUBLISH_ARGS="$PUBLISH_ARGS --dry-run"
+            echo "DRY RUN MODE - No actual publishing will occur"
+          fi
+          
+          # TODO: REMOVE THIS LINE BEFORE MERGING TO MAIN
+          # Temporary safety measure for testing
+          PUBLISH_ARGS="$PUBLISH_ARGS --dry-run"
+          echo "⚠️ TEST MODE: Force using --dry-run flag. Remove before merging to main! ⚠️"
+          
+          # Execute npm publish with all arguments
+          npm publish $PUBLISH_ARGS
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
