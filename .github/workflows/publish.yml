@@ -183,18 +183,12 @@ jobs:
           BRANCH_NAME="${{ steps.version-type.outputs.BRANCH_NAME }}"
           NEW_VERSION=$(npm pkg get version | tr -d \")
           PUBLISH_ARGS="--access public"
-          IS_STANDARD_BRANCH=false
-          
-          # Determine if this is a standard branch
-          if [[ "$BRANCH_NAME" == "main" || "$BRANCH_NAME" =~ release/v([0-9]+) ]]; then
-            IS_STANDARD_BRANCH=true
-          fi
           
           # First priority: Check for custom tag from version-type step
           if [[ -n "${{ steps.version-type.outputs.CUSTOM_NPM_TAG }}" ]]; then
             DIST_TAG="${{ steps.version-type.outputs.CUSTOM_NPM_TAG }}"
             PUBLISH_ARGS="$PUBLISH_ARGS --tag $DIST_TAG"
-            echo "Publishing v$NEW_VERSION with custom tag '$DIST_TAG' (from version-type step)"
+            echo "Publishing v$NEW_VERSION with custom tag '$DIST_TAG'"
           # Second priority: Check for branch-specific tags
           elif [[ "$BRANCH_NAME" == "main" ]]; then
             echo "Publishing v$NEW_VERSION from main -> using default 'latest' tag"
@@ -206,11 +200,8 @@ jobs:
           else
             # Safety check for non-standard branches
             if [[ "${{ github.event_name }}" == "workflow_dispatch" && -z "${{ github.event.inputs.npm_tag }}" ]]; then
-              echo "⚠️ WARNING: Publishing from non-standard branch '$BRANCH_NAME' without a custom npm tag!"
-              echo "⚠️ This will publish as 'latest' and could overwrite your production release."
-              echo "⚠️ Consider canceling and re-running with a custom npm tag like 'beta' or 'dev'."
-              echo "⚠️ Waiting 10 seconds before proceeding..."
-              sleep 10
+              echo "⚠️ WARNING: Publishing from non-standard branch '$BRANCH_NAME' without a custom npm tag"
+              echo "⚠️ This will publish as 'latest' and may overwrite your production release"
             fi
             echo "Branch $BRANCH_NAME doesn't match expected patterns, using default publishing"
           fi
