@@ -48,12 +48,14 @@ import {
   stateSchema
 } from '~/src/server/schemas/index.js'
 import * as httpService from '~/src/server/services/httpService.js'
+import { CacheService } from '~/src/server/services/index.js'
 import { type Services } from '~/src/server/types.js'
 
 export interface PluginOptions {
   model?: FormModel
   services?: Services
   controllers?: Record<string, typeof PageController>
+  cacheName: string
 }
 
 export const plugin = {
@@ -61,9 +63,16 @@ export const plugin = {
   dependencies: ['@hapi/vision', '@hapi/crumb', '@hapi/yar', 'hapi-pino'],
   multiple: true,
   register(server, options) {
-    const { model, services = defaultServices, controllers } = options
+    const {
+      model,
+      services = defaultServices,
+      controllers,
+      cacheName
+    } = options
     const { formsService } = services
+    const cacheService = new CacheService(server, cacheName)
 
+    server.app.cacheService = cacheService
     server.app.model = model
 
     // In-memory cache of FormModel items, exposed
@@ -178,7 +187,7 @@ export const plugin = {
         throw Boom.notFound(`No model found for /${params.path}`)
       }
 
-      const { cacheService } = request.services([])
+      const { cacheService } = request.server.app
       const page = getPage(model, request)
       const state = await page.getState(request)
       const flash = cacheService.getFlash(request)

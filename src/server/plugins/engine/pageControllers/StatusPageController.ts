@@ -26,7 +26,7 @@ export class StatusPageController extends QuestionPageController {
     ) => {
       const { viewModel, viewName } = this
 
-      const { cacheService } = request.services([])
+      const { cacheService } = request.server.app
       const confirmationState = await cacheService.getConfirmationState(request)
 
       // If there's no confirmation state, then

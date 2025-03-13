@@ -71,14 +71,16 @@ describe('FileUploadPageController', () => {
         trace: jest.fn(),
         level: 'info'
       },
-      services: jest.fn().mockReturnValue({
-        cacheService: {
-          setFlash: jest.fn(),
-          setState: jest
-            .fn()
-            .mockImplementation((req, updated) => Promise.resolve(updated))
+      server: {
+        app: {
+          cacheService: {
+            setFlash: jest.fn(),
+            setState: jest
+              .fn()
+              .mockImplementation((req, updated) => Promise.resolve(updated))
+          }
         }
-      }),
+      },
       query: {}
     } as unknown as FormRequest
   })
@@ -316,7 +318,7 @@ describe('FileUploadPageController', () => {
         )
         initiateSpy.mockResolvedValue(state as never)
 
-        const { cacheService } = request.services([])
+        const { cacheService } = request.server.app
         await controller['checkUploadStatus'](request, state, 1)
 
         expect(cacheService.setFlash).toHaveBeenCalledWith(request, {
@@ -608,7 +610,7 @@ describe('FileUploadPageController', () => {
               Promise.resolve(Object.assign({}, s, { newUpload: true }))
           )
 
-          const { cacheService } = request.services([])
+          const { cacheService } = request.server.app
           await controller['checkUploadStatus'](request, state, 1)
 
           expect(cacheService.setFlash).toHaveBeenCalledWith(request, {
@@ -670,7 +672,7 @@ describe('FileUploadPageController', () => {
 
           initiateSpy.mockResolvedValue(state)
 
-          const { cacheService } = request.services([])
+          const { cacheService } = request.server.app
           await controller['checkUploadStatus'](request, state, 1)
 
           expect(cacheService.setFlash).toHaveBeenCalledWith(request, {
@@ -729,7 +731,7 @@ describe('FileUploadPageController', () => {
 
           initiateSpy.mockResolvedValue(state)
 
-          const { cacheService } = request.services([])
+          const { cacheService } = request.server.app
 
           await controller['checkUploadStatus'](request, state, 1)
 

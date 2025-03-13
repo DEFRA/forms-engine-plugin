@@ -46,17 +46,7 @@ declare module '@hapi/hapi' {
   interface ServerApplicationState {
     model?: FormModel
     models: Map<string, { model: FormModel; updatedAt: Date }>
-  }
-}
-
-declare module '@hapipal/schmervice' {
-  interface RegisteredServices {
     cacheService: CacheService
-  }
-
-  interface SchmerviceDecorator {
-    (all?: boolean): RegisteredServices
-    (namespace?: string[]): RegisteredServices
   }
 }
 
