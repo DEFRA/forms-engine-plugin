@@ -47,6 +47,7 @@ For nunjucks it is configured through the environment [confgure options](https:/
 The main template layout you use will likely be the govuk-frontend `template.njk` file, so this also needs to be added to the `path`s that nunjucks can look in.
 
 ### Static assets and styles
+TODO
 
 ## Example
 
@@ -58,7 +59,7 @@ import crumb from '@hapi/crumb'
 import inert from '@hapi/inert'
 import pino from 'hapi-pino'
 import nunjucks from 'nunjucks'
-import plugin, { filters, context, globals } from '@defra/forms-engine-plugin'
+import plugin, { prepareNunjucksEnvironment, context, VIEW_PATH } from '@defra/forms-engine-plugin'
 
 const server = hapi.server({
   port: 3000
@@ -66,6 +67,7 @@ const server = hapi.server({
 
 // Register the dependent plugins
 await server.register(pino)
+await server.register(inert)
 await server.register(crumb)
 await server.register({
   plugin: yar,
@@ -77,7 +79,7 @@ await server.register({
 })
 
 const path = [
-  'node_modules/@defra/forms-engine-plugin/src/server/plugins/engine/views',
+  `node_modules/@defra/forms-engine-plugin/${VIEW_PATH}`,
   'server/views'
 ]
 
@@ -94,26 +96,16 @@ await server.register({
           }
         },
         prepare: (options, next) => {
-          const env = nunjucks.configure(
+          const environment = nunjucks.configure(
             [
               ...path,
               'node_modules/govuk-frontend/dist'
-            ],
-            {
-              trimBlocks: true,
-              lstripBlocks: true
-            }
+            ]
           )
 
-          for (const [name, nunjucksFilter] of Object.entries(filters)) {
-            env.addFilter(name, nunjucksFilter)
-          }
+          prepareNunjucksEnvironment(environment)
 
-          for (const [name, nunjucksGlobal] of Object.entries(globals)) {
-            env.addGlobal(name, nunjucksGlobal)
-          }
-
-          options.compileOptions.environment = env
+          options.compileOptions.environment = environment
 
           return next()
         }
@@ -123,8 +115,6 @@ await server.register({
     context
   }
 })
-
-await server.register(inert)
 
 await server.register({
   plugin
