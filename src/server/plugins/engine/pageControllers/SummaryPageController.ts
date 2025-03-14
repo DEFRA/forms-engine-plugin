@@ -6,7 +6,8 @@ import { FileUploadField } from '~/src/server/plugins/engine/components/FileUplo
 import { getAnswer } from '~/src/server/plugins/engine/components/helpers.js'
 import {
   checkEmailAddressForLiveFormSubmission,
-  checkFormStatus
+  checkFormStatus,
+  getCacheService
 } from '~/src/server/plugins/engine/helpers.js'
 import {
   SummaryViewModel,
@@ -88,8 +89,8 @@ export class SummaryPageController extends QuestionPageController {
       const { model } = this
       const { params } = request
       const { state } = context
+      const cacheService = getCacheService(request.server)
 
-      const { cacheService } = request.services([])
       const { formsService } = this.model.services
       const { getFormMetadata } = formsService
 

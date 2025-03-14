@@ -7,6 +7,7 @@ import { StatusCodes } from 'http-status-codes'
 
 import { createServer } from '~/src/server/index.js'
 import { isRepeatState } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { getCacheService } from '~/src/server/plugins/engine/helpers.js'
 import { submit } from '~/src/server/plugins/engine/services/formSubmissionService.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import { FormAction } from '~/src/server/routes/types.js'
@@ -55,7 +56,7 @@ async function createRepeatItem(
 
   // Extract the session cookie
   const request = res1.request
-  const { cacheService } = request.services([])
+  const cacheService = getCacheService(request.server)
 
   const { name } = repeatPage.repeat.options
   const state = await cacheService.getState(request)

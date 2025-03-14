@@ -9,6 +9,7 @@ import {
   type FileUploadField
 } from '~/src/server/plugins/engine/components/FileUploadField.js'
 import {
+  getCacheService,
   getError,
   getExponentialBackoffDelay
 } from '~/src/server/plugins/engine/helpers.js'
@@ -364,7 +365,7 @@ export class FileUploadPageController extends QuestionPageController {
     } else {
       // Flash the error message.
       const { fileUpload } = this
-      const { cacheService } = request.services([])
+      const cacheService = getCacheService(request.server)
       const name = fileUpload.name
       const text = file.errorMessage ?? 'Unknown error'
       const errors: FormSubmissionError[] = [

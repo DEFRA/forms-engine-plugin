@@ -5,7 +5,7 @@ import {
   type Page
 } from '@defra/forms-model'
 import Boom from '@hapi/boom'
-import { type ResponseToolkit } from '@hapi/hapi'
+import { type ResponseToolkit, type Server } from '@hapi/hapi'
 import { format, parseISO } from 'date-fns'
 import { StatusCodes } from 'http-status-codes'
 import { type Schema, type ValidationErrorItem } from 'joi'
@@ -362,6 +362,7 @@ export function getExponentialBackoffDelay(depth: number): number {
   const delay = BASE_DELAY_MS * 2 ** (depth - 1)
   return Math.min(delay, CAP_DELAY_MS)
 }
+
 export function evaluateTemplate(
   template: string,
   context: FormContext
@@ -376,4 +377,8 @@ export function evaluateTemplate(
   return engine.parseAndRenderSync(template, context.relevantState, {
     globals
   })
+}
+
+export function getCacheService(server: Server) {
+  return server.plugins['forms-engine-plugin'].cacheService
 }

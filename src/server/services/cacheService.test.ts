@@ -21,6 +21,7 @@ describe('CacheService', () => {
     }
 
     mockServer = {
+      log: jest.fn(),
       cache: (() => ({
         ...mockCache,
         provision: jest.fn()

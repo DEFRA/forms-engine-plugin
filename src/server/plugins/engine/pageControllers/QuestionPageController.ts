@@ -15,6 +15,7 @@ import { ComponentCollection } from '~/src/server/plugins/engine/components/Comp
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import { type BackLink } from '~/src/server/plugins/engine/components/types.js'
 import {
+  getCacheService,
   getErrors,
   normalisePath,
   proceed
@@ -298,7 +299,8 @@ export class QuestionPageController extends PageController {
       return {}
     }
 
-    const { cacheService } = request.services([])
+    const cacheService = getCacheService(request.server)
+
     return cacheService.getState(request)
   }
 
@@ -313,7 +315,8 @@ export class QuestionPageController extends PageController {
       return state
     }
 
-    const { cacheService } = request.services([])
+    const cacheService = getCacheService(request.server)
+
     return cacheService.setState(request, state)
   }
 
@@ -332,7 +335,8 @@ export class QuestionPageController extends PageController {
       return updated
     }
 
-    const { cacheService } = request.services([])
+    const cacheService = getCacheService(request.server)
+
     return cacheService.setState(request, updated)
   }
 

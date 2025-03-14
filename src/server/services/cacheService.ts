@@ -27,8 +27,15 @@ export class CacheService {
   cache
   logger: Server['logger']
 
-  constructor(server: Server) {
-    this.cache = server.cache({ cache: 'session', segment: 'formSubmission' })
+  constructor(server: Server, cacheName?: string) {
+    if (!cacheName) {
+      server.log(
+        'warn',
+        'You are using the default hapi cache. Please provide a cache name in plugin registration options.'
+      )
+    }
+
+    this.cache = server.cache({ cache: cacheName, segment: 'formSubmission' })
     this.logger = server.logger
   }
 
