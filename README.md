@@ -10,7 +10,7 @@ It is designed to be embedded in the frontend of a digital service and provide a
 
 ## Dependencies
 
-The following are [plugin dependencies](https://hapi.dev/api/?v=21.4.0#server.dependency()) that are required to be registered with hapi:
+The following are [plugin dependencies](<https://hapi.dev/api/?v=21.4.0#server.dependency()>) that are required to be registered with hapi:
 
 `npm install hapi-pino @hapi/crumb @hapi/yar @hapi/vision --save`
 
@@ -18,7 +18,6 @@ The following are [plugin dependencies](https://hapi.dev/api/?v=21.4.0#server.de
 - [@hapi/crumb](https://github.com/hapijs/crumb) - CSRF crumb generation and validation
 - [@hapi/yar](https://github.com/hapijs/yar) - Session manager
 - [@hapi/vision](https://github.com/hapijs/vision) - Template rendering support
-
 
 Additional npm dependencies that you will need are:
 
@@ -47,6 +46,7 @@ For nunjucks it is configured through the environment [confgure options](https:/
 The main template layout you use will likely be the govuk-frontend `template.njk` file, so this also needs to be added to the `path`s that nunjucks can look in.
 
 ### Static assets and styles
+
 TODO
 
 ## Example
@@ -136,9 +136,8 @@ The forms plugin is configured with [registration options](https://hapi.dev/api/
 
 ### Services
 
-
-
 ### Custom controllers
+
 TODO
 
 ### Custom cache
@@ -167,6 +166,7 @@ const server = new Hapi.Server({
 ```
 
 ## Exemplar
+
 TODO: Link to exemplar
 
 ## Templates
