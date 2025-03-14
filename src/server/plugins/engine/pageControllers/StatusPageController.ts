@@ -1,6 +1,7 @@
 import { type PageStatus } from '@defra/forms-model'
 import { type ResponseToolkit } from '@hapi/hapi'
 
+import { getCacheService } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import { type FormContext } from '~/src/server/plugins/engine/types.js'
@@ -26,7 +27,7 @@ export class StatusPageController extends QuestionPageController {
     ) => {
       const { viewModel, viewName } = this
 
-      const { dxtCacheService: cacheService } = request.server.app
+      const cacheService = getCacheService(request.server)
       const confirmationState = await cacheService.getConfirmationState(request)
 
       // If there's no confirmation state, then

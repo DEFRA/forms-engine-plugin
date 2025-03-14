@@ -4,7 +4,10 @@ import { type ResponseToolkit } from '@hapi/hapi'
 import { type ValidationErrorItem, type ValidationResult } from 'joi'
 
 import { tempItemSchema } from '~/src/server/plugins/engine/components/FileUploadField.js'
-import { getError } from '~/src/server/plugins/engine/helpers.js'
+import {
+  getCacheService,
+  getError
+} from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   FileUploadPageController,
@@ -72,12 +75,14 @@ describe('FileUploadPageController', () => {
         level: 'info'
       },
       server: {
-        app: {
-          dxtCacheService: {
-            setFlash: jest.fn(),
-            setState: jest
-              .fn()
-              .mockImplementation((req, updated) => Promise.resolve(updated))
+        plugins: {
+          'forms-engine-plugin': {
+            cacheService: {
+              setFlash: jest.fn(),
+              setState: jest
+                .fn()
+                .mockImplementation((req, updated) => Promise.resolve(updated))
+            }
           }
         }
       },
@@ -318,7 +323,7 @@ describe('FileUploadPageController', () => {
         )
         initiateSpy.mockResolvedValue(state as never)
 
-        const { dxtCacheService: cacheService } = request.server.app
+        const cacheService = getCacheService(request.server)
         await controller['checkUploadStatus'](request, state, 1)
 
         expect(cacheService.setFlash).toHaveBeenCalledWith(request, {
@@ -610,7 +615,8 @@ describe('FileUploadPageController', () => {
               Promise.resolve(Object.assign({}, s, { newUpload: true }))
           )
 
-          const { dxtCacheService: cacheService } = request.server.app
+          const cacheService = getCacheService(request.server)
+
           await controller['checkUploadStatus'](request, state, 1)
 
           expect(cacheService.setFlash).toHaveBeenCalledWith(request, {
@@ -672,7 +678,7 @@ describe('FileUploadPageController', () => {
 
           initiateSpy.mockResolvedValue(state)
 
-          const { dxtCacheService: cacheService } = request.server.app
+          const cacheService = getCacheService(request.server)
           await controller['checkUploadStatus'](request, state, 1)
 
           expect(cacheService.setFlash).toHaveBeenCalledWith(request, {
@@ -731,7 +737,7 @@ describe('FileUploadPageController', () => {
 
           initiateSpy.mockResolvedValue(state)
 
-          const { dxtCacheService: cacheService } = request.server.app
+          const cacheService = getCacheService(request.server)
 
           await controller['checkUploadStatus'](request, state, 1)
 

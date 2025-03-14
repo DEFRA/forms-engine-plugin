@@ -18,6 +18,9 @@ declare module '@hapi/hapi' {
     crumb: {
       generate?: (request: Request | FormRequest | FormRequestPayload) => string
     }
+    'forms-engine-plugin': {
+      cacheService: CacheService
+    }
   }
 
   interface PluginsStates {
@@ -46,7 +49,6 @@ declare module '@hapi/hapi' {
   interface ServerApplicationState {
     model?: FormModel
     models: Map<string, { model: FormModel; updatedAt: Date }>
-    dxtCacheService: CacheService
   }
 }
 

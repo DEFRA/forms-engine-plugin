@@ -14,6 +14,7 @@ import {
   checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
   findPage,
+  getCacheService,
   getPage,
   getStartPath,
   normalisePath,
@@ -72,7 +73,8 @@ export const plugin = {
     const { formsService } = services
     const cacheService = new CacheService(server, cacheName)
 
-    server.app.dxtCacheService = cacheService
+    server.expose('cacheService', cacheService)
+
     server.app.model = model
 
     // In-memory cache of FormModel items, exposed
@@ -187,7 +189,7 @@ export const plugin = {
         throw Boom.notFound(`No model found for /${params.path}`)
       }
 
-      const { dxtCacheService: cacheService } = request.server.app
+      const cacheService = getCacheService(request.server)
       const page = getPage(model, request)
       const state = await page.getState(request)
       const flash = cacheService.getFlash(request)
