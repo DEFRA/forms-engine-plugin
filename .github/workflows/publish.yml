@@ -220,12 +220,10 @@ jobs:
             CURRENT_VERSION=$(npm pkg get version | tr -d \")
             CURRENT_MAJOR=$(echo $CURRENT_VERSION | cut -d. -f1)
             
-            # If the major version doesn't match, reset to major.0.0
             if [[ "$CURRENT_MAJOR" != "$MAJOR_VERSION" ]]; then
-              npm version $MAJOR_VERSION.0.0 --git-tag-version false --allow-same-version
-              
-              # Override to patch since we've already set the version
-              VERSION_TYPE="patch"
+              echo "::error::🚫 Major version mismatch: package.json version $CURRENT_VERSION does not match release/v${MAJOR_VERSION} branch."
+              echo "::error::Please update the package.json manually to match major version ${MAJOR_VERSION}, or rename the branch if you intended a different major."
+              exit 1
             fi
           fi
           
@@ -245,7 +243,7 @@ jobs:
 
       - name: Publish to npm with appropriate dist-tag
         run: |
-          BRANCH_NAME="${BRANCH_NAME}"
+          # Fix redundant variable assignment
           NEW_VERSION=$(npm pkg get version | tr -d \")
           PUBLISH_ARGS="--access public"
           
@@ -277,6 +275,10 @@ jobs:
             PUBLISH_ARGS="$PUBLISH_ARGS --dry-run"
             echo "DRY RUN MODE - No actual publishing will occur"
           fi
+
+          # Temporary safety measure for testing
+          # PUBLISH_ARGS="$PUBLISH_ARGS --dry-run"
+          # echo "⚠️ TEST MODE: Force using --dry-run flag. Remove before merging to main! ⚠️"
           
           # Execute npm publish with all arguments
           npm publish $PUBLISH_ARGS
