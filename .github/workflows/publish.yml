@@ -27,22 +27,94 @@ on:
     branches:
       - main
       - 'release/v[0-9]*'
-    paths:
-      - '.browserslistrc'
-      - 'babel.config.*'
-      - 'src/**'
-      - '!**/*.test.*'
 
 concurrency:
-  group: publish-engine-plugin
+  group: publish-engine-plugin-${{ github.ref }}
 
 permissions:
   contents: write
   packages: write
 
 jobs:
+  determine-path:
+    name: Determine Workflow Path
+    runs-on: ubuntu-24.04
+    outputs:
+      workflow-path: ${{ steps.check-path.outputs.workflow-path }}
+      version-bump: ${{ steps.check-path.outputs.version-bump }}
+      npm-tag: ${{ steps.check-path.outputs.npm-tag }}
+      
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      
+      - name: Determine workflow path
+        id: check-path
+        run: |
+          # Default values
+          WORKFLOW_PATH="unknown"
+          SHOULD_BUILD="false"
+          VERSION_BUMP="patch"
+          NPM_TAG=""
+          
+          # Manual workflow dispatch
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "🔵 Manual workflow trigger detected"
+            WORKFLOW_PATH="manual"
+            SHOULD_BUILD="true"
+            VERSION_BUMP="${{ github.event.inputs.version_bump }}"
+            NPM_TAG="${{ github.event.inputs.npm_tag }}"
+          
+          # Automatic triggers from push events
+          elif [[ "${{ github.event_name }}" == "push" ]]; then
+            # Check for version bump commit first
+            COMMIT_MSG=$(git log -1 --pretty=%B)
+            if [[ "$COMMIT_MSG" == *"MINOR"* || "$COMMIT_MSG" == *"MAJOR"* ]]; then
+              echo "🟢 Version bump commit detected!"
+              WORKFLOW_PATH="version-bump"
+              SHOULD_BUILD="true"
+              
+              if [[ "$COMMIT_MSG" == *"MINOR"* ]]; then
+                echo "Minor version bump"
+                VERSION_BUMP="minor"
+              elif [[ "$COMMIT_MSG" == *"MAJOR"* ]]; then
+                echo "Major version bump"
+                VERSION_BUMP="major"
+              fi
+              
+            # Next, check if any relevant files changed (matching the original path filters)
+            elif git diff --name-only HEAD^ HEAD | grep -v "\.test\." | grep -q -E "(^\.browserslistrc$|^babel\.config\.|^src/)"; then
+              echo "🟠 Relevant file changes detected"
+              WORKFLOW_PATH="file-changes"
+              SHOULD_BUILD="true"
+              
+            # No relevant changes - skip publishing
+            else
+              echo "⚪ No publishing-relevant changes detected"
+              WORKFLOW_PATH="skip"
+            fi
+          fi
+          
+          # Set outputs for downstream jobs
+          echo "workflow-path=$WORKFLOW_PATH" >> $GITHUB_OUTPUT
+          echo "should-build=$SHOULD_BUILD" >> $GITHUB_OUTPUT
+          echo "version-bump=$VERSION_BUMP" >> $GITHUB_OUTPUT
+          echo "npm-tag=$NPM_TAG" >> $GITHUB_OUTPUT
+          
+          # Summary for logs
+          echo "===========================================" 
+          echo "Workflow Path: $WORKFLOW_PATH"
+          echo "Should Build: $SHOULD_BUILD"
+          echo "Version Bump: $VERSION_BUMP"
+          echo "NPM Tag: ${NPM_TAG:-<auto-detect>}"
+          echo "==========================================="
+
   build:
     name: Build
+    needs: [determine-path]
+    if: needs.determine-path.outputs.workflow-path != 'skip'
     runs-on: ubuntu-24.04
 
     steps:
@@ -83,8 +155,9 @@ jobs:
 
   publish:
     name: Publish
+    needs: [determine-path, build]
+    if: needs.determine-path.outputs.workflow-path != 'skip'
     runs-on: ubuntu-24.04
-    needs: [build]
     environment: production
 
     steps:
@@ -94,19 +167,23 @@ jobs:
           fetch-depth: 2
           ref: ${{ github.ref }}
 
+      - name: Display workflow path
+        run: |
+          echo "⭐ Executing ${{ needs.determine-path.outputs.workflow-path }} workflow path"
+          echo "Version bump type: ${{ needs.determine-path.outputs.version-bump }}"
+          echo "NPM Tag: ${{ needs.determine-path.outputs.npm-tag || '<auto-detect>' }}"
+
       - name: Restore dependencies
         uses: actions/cache/restore@v4
         with:
           enableCrossOsArchive: true
-          fail-on-cache-miss: true
           key: npm-install-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
           path: node_modules
 
-      - name: Restore build
+      - name: Restore build artifacts
         uses: actions/cache/restore@v4
         with:
           enableCrossOsArchive: true
-          fail-on-cache-miss: true
           key: npm-build-${{ runner.os }}-${{ github.sha }}
           path: |
             .server
@@ -119,39 +196,25 @@ jobs:
           registry-url: https://registry.npmjs.org
           scope: '@defra'
 
-      - name: Determine version bump type
-        id: version-type
+      - name: Determine version bump details 
+        id: version-details
         run: |
-          BRANCH_NAME=${GITHUB_REF#refs/heads/}
+          BRANCH_NAME="${{ github.ref_name }}"
+          VERSION_TYPE="${{ needs.determine-path.outputs.version-bump }}"
           
-          # Check if this is a manual trigger with inputs
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            VERSION_TYPE="${{ github.event.inputs.version_bump }}"
-            echo "Manual workflow run with version bump: $VERSION_TYPE"
-            
-            # If a custom npm tag was provided, use it
-            if [[ -n "${{ github.event.inputs.npm_tag }}" ]]; then
-              CUSTOM_NPM_TAG="${{ github.event.inputs.npm_tag }}"
-              echo "Using custom npm tag: $CUSTOM_NPM_TAG"
-              echo "CUSTOM_NPM_TAG=$CUSTOM_NPM_TAG" >> $GITHUB_OUTPUT
-            fi
-          else
-            # Automatic trigger via push - use commit message logic
-            COMMIT_MSG=$(git log -1 --pretty=%B)
-            VERSION_TYPE="patch"
-            
-            # Check for MINOR or MAJOR in commit message
-            if [[ "$COMMIT_MSG" == *"MINOR"* ]]; then
-              VERSION_TYPE="minor"
-            elif [[ "$COMMIT_MSG" == *"MAJOR"* ]]; then
-              VERSION_TYPE="major"
-            fi
-          fi
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
           
-          # For release branches, respect the branch naming convention
+          # Check for invalid version bumps on release branches
           if [[ "$BRANCH_NAME" =~ release/v([0-9]+) ]]; then
-            # Extract just the major version number
             MAJOR_VERSION="${BASH_REMATCH[1]}"
+            
+            # Fail if a major bump was requested on a release branch
+            if [[ "$VERSION_TYPE" == "major" ]]; then
+              echo "::error::⛔ MAJOR VERSION BUMP NOT ALLOWED ON RELEASE BRANCH"
+              echo "::error::Branch release/v${MAJOR_VERSION} is locked to major version ${MAJOR_VERSION}."
+              echo "::error::To publish a new major version, create a new branch named release/v$((MAJOR_VERSION+1))."
+              exit 1
+            fi
             
             # Set the package version to match the major version if needed
             CURRENT_VERSION=$(npm pkg get version | tr -d \")
@@ -166,11 +229,12 @@ jobs:
             fi
           fi
           
-          echo "VERSION_TYPE=$VERSION_TYPE" >> $GITHUB_OUTPUT
-          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_OUTPUT
+          echo "VERSION_TYPE=$VERSION_TYPE" >> $GITHUB_ENV
 
       - name: Update package version
-        run: npm version ${{ steps.version-type.outputs.VERSION_TYPE }} --git-tag-version false --save
+        run: |
+          echo "Bumping version: $VERSION_TYPE"
+          npm version $VERSION_TYPE --git-tag-version false --save
 
       - name: Commit and push updates
         run: |
@@ -181,13 +245,13 @@ jobs:
 
       - name: Publish to npm with appropriate dist-tag
         run: |
-          BRANCH_NAME="${{ steps.version-type.outputs.BRANCH_NAME }}"
+          BRANCH_NAME="${BRANCH_NAME}"
           NEW_VERSION=$(npm pkg get version | tr -d \")
           PUBLISH_ARGS="--access public"
           
-          # First priority: Check for custom tag from version-type step
-          if [[ -n "${{ steps.version-type.outputs.CUSTOM_NPM_TAG }}" ]]; then
-            DIST_TAG="${{ steps.version-type.outputs.CUSTOM_NPM_TAG }}"
+          # First priority: Check for custom tag from inputs
+          if [[ -n "${{ needs.determine-path.outputs.npm-tag }}" ]]; then
+            DIST_TAG="${{ needs.determine-path.outputs.npm-tag }}"
             PUBLISH_ARGS="$PUBLISH_ARGS --tag $DIST_TAG"
             echo "Publishing v$NEW_VERSION with custom tag '$DIST_TAG'"
           # Second priority: Check for branch-specific tags
@@ -195,28 +259,24 @@ jobs:
             echo "Publishing v$NEW_VERSION from main -> using default 'latest' tag"
           elif [[ "$BRANCH_NAME" =~ release/v([0-9]+) ]]; then
             MAJOR_VERSION="${BASH_REMATCH[1]}"
-            DIST_TAG="v${MAJOR_VERSION}"
+            # Using Mongoose-style tag format: 1x, 2x, 3x
+            DIST_TAG="${MAJOR_VERSION}x"
             PUBLISH_ARGS="$PUBLISH_ARGS --tag $DIST_TAG"
             echo "Publishing v$NEW_VERSION from $BRANCH_NAME -> using tag '$DIST_TAG'"
           else
             # Safety check for non-standard branches
-            if [[ "${{ github.event_name }}" == "workflow_dispatch" && -z "${{ github.event.inputs.npm_tag }}" ]]; then
+            if [[ "${{ github.event_name }}" == "workflow_dispatch" && -z "${{ needs.determine-path.outputs.npm-tag }}" ]]; then
               echo "⚠️ WARNING: Publishing from non-standard branch '$BRANCH_NAME' without a custom npm tag"
               echo "⚠️ This will publish as 'latest' and may overwrite your production release"
             fi
             echo "Branch $BRANCH_NAME doesn't match expected patterns, using default publishing"
           fi
           
-          # Add dry-run flag if specified
+          # Add dry-run flag if specified (for manual workflow)
           if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
             PUBLISH_ARGS="$PUBLISH_ARGS --dry-run"
             echo "DRY RUN MODE - No actual publishing will occur"
           fi
-          
-          # TODO: REMOVE THIS LINE BEFORE MERGING TO MAIN
-          # Temporary safety measure for testing
-          PUBLISH_ARGS="$PUBLISH_ARGS --dry-run"
-          echo "⚠️ TEST MODE: Force using --dry-run flag. Remove before merging to main! ⚠️"
           
           # Execute npm publish with all arguments
           npm publish $PUBLISH_ARGS
