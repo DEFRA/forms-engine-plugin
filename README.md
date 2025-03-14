@@ -36,14 +36,74 @@ Optional dependencies
 
 ### Templates and views
 
-Vision and nunjucks both need to be configured to search in the forms plugin module directory when looking for views.
-
-The path is `node_modules/@defra/forms-engine/src/server/plugins/engine/views`.
+Vision and nunjucks both need to be configured to search in the `forms-engine-plugin` views directory when looking for template files.
 
 For vision this is done through the `path` [plugin option](https://github.com/hapijs/vision/blob/master/API.md#options)
-For nunjucks it is configured through the environment [confgure options](https://mozilla.github.io/nunjucks/api.html#configure).
+For nunjucks it is configured through the environment [configure options](https://mozilla.github.io/nunjucks/api.html#configure).
 
-The main template layout you use will likely be the govuk-frontend `template.njk` file, so this also needs to be added to the `path`s that nunjucks can look in.
+The `forms-engine-plugin` path to add can be imported from:
+
+`import { VIEW_PATH } from '@defra/forms-engine-plugin'`
+
+Which can then be appended to the `node_modules` path `node_modules/@defra/forms-engine`.
+
+The main template layout is `govuk-frontend`'s `template.njk` file, this also needs to be added to the `path`s that nunjucks can look in.
+
+See example below for more detail.
+
+### Form config
+
+The `form-engine-plugin` uses JSON configuration files to serve form journeys.
+These files are called `Form definitions` and are built up of:
+
+- `pages` - includes a `path`, `title`
+- `components` - one or more questions on a page
+- `conditions` - used to conditionally show and hide pages and
+- `lists` - data used to in selection fields like [Select](https://design-system.service.gov.uk/components/select/), [Checkboxes](https://design-system.service.gov.uk/components/checkboxes/) and [Radios](https://design-system.service.gov.uk/components/radios/)
+
+The [types](https://github.com/DEFRA/forms-designer/blob/main/model/src/form/form-definition/types.ts), `joi` [schema](https://github.com/DEFRA/forms-designer/blob/main/model/src/form/form-definition/index.ts) and the [examples](test/form/definitions) folder are a good place to learn about the structure of these files.
+
+TODO - Link to wiki for `Form metadata`
+TODO - Link to wiki for `Form definition`
+
+#### Providing form config to the engine
+
+The engine plugin registers several [routes](https://hapi.dev/tutorials/routing/?lang=en_US) on the hapi server.
+
+They look like this:
+
+```
+GET     /{slug}/{path}
+POST    /{slug}/{path}
+```
+
+A unique `slug` is used to route the user to the correct form, and the `path` used to identify the correct page within the form to show.
+The [plugin registration options](#options) have a `services` setting to provide a `formsService` that is responsible for returning `form definition` data.
+
+
+WARNING: This below is subject to change
+
+A `formsService` has two methods, one for returning `formMetadata` and another to return `formDefinition`s.
+
+```
+const formsService = {
+  getFormMetadata: async function (slug) {
+    // Returns the metadata for the slug
+  },
+  getFormDefinition: async function (id, state) {
+    // Returns the form definition for the given id
+  }
+}
+```
+
+The reason for the two separate methods is caching.
+`formMetadata` is a lightweight record designed to give top level information about a form.
+This method is invoked for every page request.
+
+Only when the `formMetadata` indicates that the definition has changed is a call to `getFormDefinition` is made.
+The response from this can be quite big as it contains the entire form definition.
+
+See [example](#example) below for more detail
 
 ### Static assets and styles
 
@@ -78,6 +138,8 @@ await server.register({
   }
 })
 
+// Paths array to tell `vision` and `nunjucks` where template files are stored.
+// This can include `server/views`, or change it to where your local template are stored.
 const path = [
   `node_modules/@defra/forms-engine-plugin/${VIEW_PATH}`,
   'server/views'
@@ -96,6 +158,8 @@ await server.register({
           }
         },
         prepare: (options, next) => {
+          // Nunjucks also needs an additional path configuration
+          // to use the templates and macros from `govuk-frontend`
           const environment = nunjucks.configure(
             [
               ...path,
@@ -103,6 +167,8 @@ await server.register({
             ]
           )
 
+          // Applies custom filters and globals for nunjucks
+          // that are required by the `forms-engine-plugin`
           prepareNunjucksEnvironment(environment)
 
           options.compileOptions.environment = environment
@@ -116,6 +182,7 @@ await server.register({
   }
 })
 
+// Registers the `forms-engine-plugin`
 await server.register({
   plugin
 })
@@ -129,12 +196,16 @@ await server.start()
 
 The forms plugin is configured with [registration options](https://hapi.dev/api/?v=21.4.0#plugins)
 
-- `model` (optional) -
-- `services` (optional) -
-- `controllers` (optional) -
-- `cacheName` (optional) -
+- `services` (optional) - object containing `formsService`, `formSubmissionService` and `outputService`
+  - `formsService` - used to load `formMetadata` and `formDefinition`
+  - `formSubmissionService` - used prepare the form during submission (ignore - subject to change)
+  - `outputService` - used to save the submission
+- `controllers` (optional) - Object map of custom page controllers used to override the default. See [custom controllers](#custom-controllers)
+- `cacheName` (optional) - The cache name to use. Defaults to hapi's [default server cache]. Recommended for production. See [here](#custom-cache) for more details
 
 ### Services
+
+TODO
 
 ### Custom controllers
 
@@ -167,14 +238,14 @@ const server = new Hapi.Server({
 
 ## Exemplar
 
-TODO: Link to exemplar
+TODO: Link to CDP exemplar
 
 ## Templates
 
 The following elements support [LiquidJS templates](https://liquidjs.com/):
 
 - Page **title**
-- Form component **titles**
+- Form component **title**
   - Support for fieldset legend text or label text
   - This includes when the title is used in **error messages**
 - Html (guidance) component **content**
