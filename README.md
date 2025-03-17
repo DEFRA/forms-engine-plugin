@@ -209,7 +209,7 @@ The following elements support [LiquidJS templates](https://liquidjs.com/):
 - Html (guidance) component **content**
 - Summary component **row** key title (check answers and repeater summary)
 
-### Template data
+### Template Data
 
 The data the templates are evaluated against is the raw answers the user has provided up to the page they're currently on.
 For example, given a YesNoField component called `TKsWbP`, the template `{{ TKsWbP }}` would render "true" or "false" depending on how the user answered the question.
