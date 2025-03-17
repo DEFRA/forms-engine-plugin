@@ -336,6 +336,7 @@ Our GitHub Actions workflow (`publish.yml`) is set up to make publishing a breez
   - Use `MAJOR` for a major version bump.
 
 **Example Commands**:
+
 ```bash
 git commit --allow-empty -m "chore(release): MINOR" # Minor bump
 git commit --allow-empty -m "chore(release): MAJOR" # Major bump
