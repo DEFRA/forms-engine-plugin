@@ -354,7 +354,7 @@ git commit --allow-empty -m "chore(release): #major" # Major bump
 
 ### Workflow Triggers
 
-1. **Standard Development Flow**: Merging PRs to `main` automatically triggers a patch bump and publishes with the `latest` tag.
+1. **Standard Development Flow**: Merging PRs to `main` automatically triggers a patch bump and publishes with the `beta` tag.
 2. **Backporting**: Cherry-pick fixes to release branches for patch bumps with specific tags (like `2x`).
 3. **Version Bumps**: Use empty commits for minor or major bumps.
 4. **Manual Releases**: Trigger these manually for special cases like beta or release candidates.
@@ -362,4 +362,4 @@ git commit --allow-empty -m "chore(release): #major" # Major bump
 ### Safety and Consistency
 
 - **Build Process**: Every publishing scenario includes a full build to ensure everything is in top shape, except for files like tests and lint rules.
-- **Tagging Safety**: We prevent overwriting the `latest` tag by enforcing custom tags for non-standard branches. The default is set to `dev`.
+- **Tagging Safety**: We prevent overwriting the `beta` tag by enforcing custom tags for non-standard branches. The default is set to `beta`. For release branches, the tag will be picked up from the release branch itself.

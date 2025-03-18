@@ -19,7 +19,9 @@ if [[ -n "$NPM_TAG" && "$USING_DEFAULT_TAG" == "false" ]]; then
   PUBLISH_ARGS="$PUBLISH_ARGS --tag $DIST_TAG"
   echo "Publishing v$NEW_VERSION with custom tag '$DIST_TAG'"
 elif [[ "$BRANCH_NAME" == "main" ]]; then
-  echo "Publishing v$NEW_VERSION from main -> using default 'latest' tag"
+  DIST_TAG="beta"
+  PUBLISH_ARGS="$PUBLISH_ARGS --tag $DIST_TAG"
+  echo "Publishing v$NEW_VERSION from main -> using 'beta' tag"
 elif [[ "$BRANCH_NAME" =~ release/v([0-9]+) ]]; then
   MAJOR_VERSION="${BASH_REMATCH[1]}"
   DIST_TAG="${MAJOR_VERSION}x"
