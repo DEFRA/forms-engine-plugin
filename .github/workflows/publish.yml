@@ -13,9 +13,9 @@ on:
           - minor
           - major
       npm_tag:
-        description: 'Custom npm dist-tag (ALWAYS specify for non-standard branches to avoid overwriting latest)'
+        description: 'Custom npm tag (only needed for non-standard branches; release branches will use their major version tag automatically)'
         required: false
-        default: 'dev'
+        default: 'beta'
         type: string
       dry_run:
         description: 'Dry run (no actual publishing)'
@@ -43,73 +43,16 @@ jobs:
       workflow-path: ${{ steps.check-path.outputs.workflow-path }}
       version-bump: ${{ steps.check-path.outputs.version-bump }}
       npm-tag: ${{ steps.check-path.outputs.npm-tag }}
-
+      
     steps:
       - name: Check out code
         uses: actions/checkout@v4
         with:
           fetch-depth: 2
-
+      
       - name: Determine workflow path
         id: check-path
-        run: |
-          # Default values
-          WORKFLOW_PATH="unknown"
-          SHOULD_BUILD="false"
-          VERSION_BUMP="patch"
-          NPM_TAG=""
-
-          # Manual workflow dispatch
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "🔵 Manual workflow trigger detected"
-            WORKFLOW_PATH="manual"
-            SHOULD_BUILD="true"
-            VERSION_BUMP="${{ github.event.inputs.version_bump }}"
-            NPM_TAG="${{ github.event.inputs.npm_tag }}"
-
-          # Automatic triggers from push events
-          elif [[ "${{ github.event_name }}" == "push" ]]; then
-            # Check for version bump commit first
-            COMMIT_MSG=$(git log -1 --pretty=%B)
-            if [[ "$COMMIT_MSG" == *"MINOR"* || "$COMMIT_MSG" == *"MAJOR"* ]]; then
-              echo "🟢 Version bump commit detected!"
-              WORKFLOW_PATH="version-bump"
-              SHOULD_BUILD="true"
-
-              if [[ "$COMMIT_MSG" == *"MINOR"* ]]; then
-                echo "Minor version bump"
-                VERSION_BUMP="minor"
-              elif [[ "$COMMIT_MSG" == *"MAJOR"* ]]; then
-                echo "Major version bump"
-                VERSION_BUMP="major"
-              fi
-
-            # Next, check if any relevant files changed (matching the original path filters)
-            elif git diff --name-only HEAD^ HEAD | grep -v "\.test\." | grep -q -E "(^\.browserslistrc$|^babel\.config\.|^src/)"; then
-              echo "🟠 Relevant file changes detected"
-              WORKFLOW_PATH="file-changes"
-              SHOULD_BUILD="true"
-
-            # No relevant changes - skip publishing
-            else
-              echo "⚪ No publishing-relevant changes detected"
-              WORKFLOW_PATH="skip"
-            fi
-          fi
-
-          # Set outputs for downstream jobs
-          echo "workflow-path=$WORKFLOW_PATH" >> $GITHUB_OUTPUT
-          echo "should-build=$SHOULD_BUILD" >> $GITHUB_OUTPUT
-          echo "version-bump=$VERSION_BUMP" >> $GITHUB_OUTPUT
-          echo "npm-tag=$NPM_TAG" >> $GITHUB_OUTPUT
-
-          # Summary for logs
-          echo "==========================================="
-          echo "Workflow Path: $WORKFLOW_PATH"
-          echo "Should Build: $SHOULD_BUILD"
-          echo "Version Bump: $VERSION_BUMP"
-          echo "NPM Tag: ${NPM_TAG:-<auto-detect>}"
-          echo "==========================================="
+        run: .github/scripts/publish/determine-workflow-path.sh "${{ github.event_name }}" "${{ github.event.inputs.version_bump }}" "${{ github.event.inputs.npm_tag }}"
 
   build:
     name: Build
@@ -198,36 +141,7 @@ jobs:
 
       - name: Determine version bump details
         id: version-details
-        run: |
-          BRANCH_NAME="${{ github.ref_name }}"
-          VERSION_TYPE="${{ needs.determine-path.outputs.version-bump }}"
-
-          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
-
-          # Check for invalid version bumps on release branches
-          if [[ "$BRANCH_NAME" =~ release/v([0-9]+) ]]; then
-            MAJOR_VERSION="${BASH_REMATCH[1]}"
-
-            # Fail if a major bump was requested on a release branch
-            if [[ "$VERSION_TYPE" == "major" ]]; then
-              echo "::error::⛔ MAJOR VERSION BUMP NOT ALLOWED ON RELEASE BRANCH"
-              echo "::error::Branch release/v${MAJOR_VERSION} is locked to major version ${MAJOR_VERSION}."
-              echo "::error::To publish a new major version, create a new branch named release/v$((MAJOR_VERSION+1))."
-              exit 1
-            fi
-
-            # Set the package version to match the major version if needed
-            CURRENT_VERSION=$(npm pkg get version | tr -d \")
-            CURRENT_MAJOR=$(echo $CURRENT_VERSION | cut -d. -f1)
-
-            if [[ "$CURRENT_MAJOR" != "$MAJOR_VERSION" ]]; then
-              echo "::error::🚫 Major version mismatch: package.json version $CURRENT_VERSION does not match release/v${MAJOR_VERSION} branch."
-              echo "::error::Please update the package.json manually to match major version ${MAJOR_VERSION}, or rename the branch if you intended a different major."
-              exit 1
-            fi
-          fi
-
-          echo "VERSION_TYPE=$VERSION_TYPE" >> $GITHUB_ENV
+        run: .github/scripts/publish/version-bump-details.sh "${{ github.ref_name }}" "${{ needs.determine-path.outputs.version-bump }}"
 
       - name: Update package version
         run: |
@@ -242,45 +156,6 @@ jobs:
           git commit -am "v$NEW_VERSION [skip ci]" && git push
 
       - name: Publish to npm with appropriate dist-tag
-        run: |
-          # Fix redundant variable assignment
-          NEW_VERSION=$(npm pkg get version | tr -d \")
-          PUBLISH_ARGS="--access public"
-
-          # First priority: Check for custom tag from inputs
-          if [[ -n "${{ needs.determine-path.outputs.npm-tag }}" ]]; then
-            DIST_TAG="${{ needs.determine-path.outputs.npm-tag }}"
-            PUBLISH_ARGS="$PUBLISH_ARGS --tag $DIST_TAG"
-            echo "Publishing v$NEW_VERSION with custom tag '$DIST_TAG'"
-          # Second priority: Check for branch-specific tags
-          elif [[ "$BRANCH_NAME" == "main" ]]; then
-            echo "Publishing v$NEW_VERSION from main -> using default 'latest' tag"
-          elif [[ "$BRANCH_NAME" =~ release/v([0-9]+) ]]; then
-            MAJOR_VERSION="${BASH_REMATCH[1]}"
-            # Using Mongoose-style tag format: 1x, 2x, 3x
-            DIST_TAG="${MAJOR_VERSION}x"
-            PUBLISH_ARGS="$PUBLISH_ARGS --tag $DIST_TAG"
-            echo "Publishing v$NEW_VERSION from $BRANCH_NAME -> using tag '$DIST_TAG'"
-          else
-            # Safety check for non-standard branches
-            if [[ "${{ github.event_name }}" == "workflow_dispatch" && -z "${{ needs.determine-path.outputs.npm-tag }}" ]]; then
-              echo "⚠️ WARNING: Publishing from non-standard branch '$BRANCH_NAME' without a custom npm tag"
-              echo "⚠️ This will publish as 'latest' and may overwrite your production release"
-            fi
-            echo "Branch $BRANCH_NAME doesn't match expected patterns, using default publishing"
-          fi
-
-          # Add dry-run flag if specified (for manual workflow)
-          if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
-            PUBLISH_ARGS="$PUBLISH_ARGS --dry-run"
-            echo "DRY RUN MODE - No actual publishing will occur"
-          fi
-
-          # Temporary safety measure for testing
-          # PUBLISH_ARGS="$PUBLISH_ARGS --dry-run"
-          # echo "⚠️ TEST MODE: Force using --dry-run flag. Remove before merging to main! ⚠️"
-
-          # Execute npm publish with all arguments
-          npm publish $PUBLISH_ARGS
+        run: .github/scripts/publish/publish-to-npm.sh "${{ github.ref_name }}" "${{ needs.determine-path.outputs.workflow-path }}" "${{ needs.determine-path.outputs.npm-tag }}" "${{ github.event.inputs.dry_run }}"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
