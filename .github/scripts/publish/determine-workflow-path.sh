@@ -1,10 +1,12 @@
 #!/bin/bash
 set -e
 
+# Arguments
 EVENT_NAME="$1"
 INPUT_VERSION_BUMP="$2"
 INPUT_NPM_TAG="$3"
 
+# Default values
 WORKFLOW_PATH="unknown"
 SHOULD_BUILD="false"
 VERSION_BUMP="patch"
@@ -19,15 +21,15 @@ if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
 
 elif [[ "$EVENT_NAME" == "push" ]]; then
   COMMIT_MSG=$(git log -1 --pretty=%B)
-  if [[ "$COMMIT_MSG" == *"MINOR"* || "$COMMIT_MSG" == *"MAJOR"* ]]; then
+  if [[ "$COMMIT_MSG" == *"#minor"* || "$COMMIT_MSG" == *"#major"* ]]; then
     echo "🟢 Version bump commit detected!"
     WORKFLOW_PATH="version-bump"
     SHOULD_BUILD="true"
-
-    if [[ "$COMMIT_MSG" == *"MINOR"* ]]; then
+    
+    if [[ "$COMMIT_MSG" == *"#minor"* ]]; then
       echo "Minor version bump"
       VERSION_BUMP="minor"
-    elif [[ "$COMMIT_MSG" == *"MAJOR"* ]]; then
+    elif [[ "$COMMIT_MSG" == *"#major"* ]]; then
       echo "Major version bump"
       VERSION_BUMP="major"
     fi

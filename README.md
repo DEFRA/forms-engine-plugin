@@ -331,15 +331,15 @@ Our GitHub Actions workflow (`publish.yml`) is set up to make publishing a breez
 ### Semantic Versioning Control
 
 - **Patch Versioning**: This happens automatically whenever you merge code changes into `main` or any release branch.
-- **Minor and Major Bumps**: You can control these by making empty commits with specific keywords:
-  - Use `MINOR` for a minor version bump.
-  - Use `MAJOR` for a major version bump.
+- **Minor and Major Bumps**: You can control these by making empty commits with specific hashtags:
+  - Use `#minor` for a minor version bump.
+  - Use `#major` for a major version bump.
 
 **Example Commands**:
 
 ```bash
-git commit --allow-empty -m "chore(release): MINOR" # Minor bump
-git commit --allow-empty -m "chore(release): MAJOR" # Major bump
+git commit --allow-empty -m "chore(release): #minor" # Minor bump
+git commit --allow-empty -m "chore(release): #major" # Major bump
 ```
 
 ### Major-Version Release Branches
