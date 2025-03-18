@@ -41,7 +41,7 @@ if [[ "$DRY_RUN" == "true" ]]; then
 fi
 
 # Temporary guards for testing
-# PUBLISH_ARGS="$PUBLISH_ARGS --dry-run"
-# echo "⚠️ TEST MODE: Force using --dry-run flag. Remove before merging to main! ⚠️"
+PUBLISH_ARGS="$PUBLISH_ARGS --dry-run"
+echo "⚠️ TEST MODE: Force using --dry-run flag. Remove before merging to main! ⚠️"
 
 npm publish $PUBLISH_ARGS

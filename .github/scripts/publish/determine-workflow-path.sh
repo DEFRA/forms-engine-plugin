@@ -25,7 +25,7 @@ elif [[ "$EVENT_NAME" == "push" ]]; then
     echo "🟢 Version bump commit detected!"
     WORKFLOW_PATH="version-bump"
     SHOULD_BUILD="true"
-    
+
     if [[ "$COMMIT_MSG" == *"#minor"* ]]; then
       echo "Minor version bump"
       VERSION_BUMP="minor"

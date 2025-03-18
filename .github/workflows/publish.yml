@@ -43,13 +43,13 @@ jobs:
       workflow-path: ${{ steps.check-path.outputs.workflow-path }}
       version-bump: ${{ steps.check-path.outputs.version-bump }}
       npm-tag: ${{ steps.check-path.outputs.npm-tag }}
-      
+
     steps:
       - name: Check out code
         uses: actions/checkout@v4
         with:
           fetch-depth: 2
-      
+
       - name: Determine workflow path
         id: check-path
         run: .github/scripts/publish/determine-workflow-path.sh "${{ github.event_name }}" "${{ github.event.inputs.version_bump }}" "${{ github.event.inputs.npm_tag }}"
