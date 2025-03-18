@@ -52,7 +52,7 @@ jobs:
 
       - name: Determine workflow path
         id: check-path
-        run: .github/scripts/publish/determine-workflow-path.sh "${{ github.event_name }}" "${{ github.event.inputs.version_bump }}" "${{ github.event.inputs.npm_tag }}"
+        run: bash .github/scripts/publish/determine-workflow-path.sh "${{ github.event_name }}" "${{ github.event.inputs.version_bump }}" "${{ github.event.inputs.npm_tag }}"
 
   build:
     name: Build
@@ -141,7 +141,7 @@ jobs:
 
       - name: Determine version bump details
         id: version-details
-        run: .github/scripts/publish/version-bump-details.sh "${{ github.ref_name }}" "${{ needs.determine-path.outputs.version-bump }}"
+        run: bash .github/scripts/publish/version-bump-details.sh "${{ github.ref_name }}" "${{ needs.determine-path.outputs.version-bump }}"
 
       - name: Update package version
         run: |
@@ -156,6 +156,6 @@ jobs:
           git commit -am "v$NEW_VERSION [skip ci]" && git push
 
       - name: Publish to npm with appropriate dist-tag
-        run: .github/scripts/publish/publish-to-npm.sh "${{ github.ref_name }}" "${{ needs.determine-path.outputs.workflow-path }}" "${{ needs.determine-path.outputs.npm-tag }}" "${{ github.event.inputs.dry_run }}"
+        run: bash .github/scripts/publish/publish-to-npm.sh "${{ github.ref_name }}" "${{ needs.determine-path.outputs.workflow-path }}" "${{ needs.determine-path.outputs.npm-tag }}" "${{ github.event.inputs.dry_run }}"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
