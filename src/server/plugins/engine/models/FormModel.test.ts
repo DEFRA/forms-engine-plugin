@@ -18,7 +18,10 @@ describe('FormModel', () => {
         basePath: '/components'
       })
 
-      const state = { checkboxesSingle: ['Arabian', 'Shetland'] }
+      const state = {
+        $$__referenceNumber: 'foobar',
+        checkboxesSingle: ['Arabian', 'Shetland']
+      }
       const pageUrl = new URL('http://example.com/components/fields-required')
 
       const request: FormContextRequest = {

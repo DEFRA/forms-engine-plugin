@@ -167,13 +167,13 @@ describe('PageController', () => {
 
       await controller1.makeGetRouteHandler()(
         request,
-        model.getFormContext(request, {}),
+        model.getFormContext(request, { $$__referenceNumber: 'foobar' }),
         h
       )
 
       await controller2.makeGetRouteHandler()(
         request,
-        model.getFormContext(request, {}),
+        model.getFormContext(request, { $$__referenceNumber: 'foobar' }),
         h
       )
 

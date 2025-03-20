@@ -275,7 +275,8 @@ export class FormModel {
       listDefMap: this.listDefMap,
       componentDefMap: this.componentDefMap,
       pageMap: this.pageMap,
-      componentMap: this.componentMap
+      componentMap: this.componentMap,
+      referenceNumber: getReferenceNumber(state)
     }
 
     // Validate current page
@@ -440,4 +441,15 @@ function validateFormState(
   }
 
   return context
+}
+
+function getReferenceNumber(state: FormState): string {
+  if (
+    !state.$$__referenceNumber ||
+    typeof state.$$__referenceNumber !== 'string'
+  ) {
+    throw Error('Reference number not found in form state')
+  }
+
+  return state.$$__referenceNumber
 }

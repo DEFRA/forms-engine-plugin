@@ -146,6 +146,7 @@ export interface FormContext {
   componentDefMap: Map<string, ComponentDef>
   pageMap: Map<string, PageControllerClass>
   componentMap: Map<string, Component>
+  referenceNumber: string
 }
 
 export type FormContextRequest = (

@@ -178,12 +178,12 @@ describe('QuestionPageController', () => {
     beforeEach(() => {
       viewModel1 = controller1.getViewModel(
         requestPage1,
-        model.getFormContext(requestPage1, {})
+        model.getFormContext(requestPage1, { $$__referenceNumber: 'foobar' })
       )
 
       viewModel2 = controller2.getViewModel(
         requestPage2,
-        model.getFormContext(requestPage2, {})
+        model.getFormContext(requestPage2, { $$__referenceNumber: 'foobar' })
       )
     })
 
@@ -267,6 +267,7 @@ describe('QuestionPageController', () => {
 
       // The state below shows we said we had a UKPassport and entered details for an applicant
       const state: FormSubmissionState = {
+        $$__referenceNumber: 'foobar',
         ukPassport: true,
         numberOfApplicants: 2,
         applicantOneFirstName: 'Enrique',
@@ -384,6 +385,7 @@ describe('QuestionPageController', () => {
       } satisfies FormContextRequest
 
       const context = controller.model.getFormContext(request, {
+        $$__referenceNumber: 'foobar',
         dateField__day: 5,
         dateField__month: 1,
         dateField__year: 2024
@@ -411,7 +413,7 @@ describe('QuestionPageController', () => {
       const controller = new QuestionPageController(model, pages[0])
 
       // The state below shows we said we had a UKPassport and entered details for an applicant
-      const state: FormSubmissionState = {}
+      const state: FormSubmissionState = { $$__referenceNumber: 'foobar' }
 
       const request = {
         method: 'get',
@@ -467,7 +469,7 @@ describe('QuestionPageController', () => {
       const controller = new QuestionPageController(model, pages[0])
 
       // The state below shows we said we had a UKPassport and entered details for an applicant
-      const state: FormSubmissionState = {}
+      const state: FormSubmissionState = { $$__referenceNumber: 'foobar' }
 
       const request = {
         method: 'get',
@@ -531,15 +533,19 @@ describe('QuestionPageController', () => {
 
     beforeEach(() => {
       // Empty state
-      context = model.getFormContext(requestPage1, {})
+      context = model.getFormContext(requestPage1, {
+        $$__referenceNumber: 'foobar'
+      })
 
       // Question 1: Selected 'No'
       contextNo = model.getFormContext(requestPage1, {
+        $$__referenceNumber: 'foobar',
         yesNoField: false
       })
 
       // Question 1: Selected 'Yes'
       contextYes = model.getFormContext(requestPage1, {
+        $$__referenceNumber: 'foobar',
         yesNoField: true
       })
     })
@@ -619,13 +625,13 @@ describe('QuestionPageController', () => {
 
       await controller1.makeGetRouteHandler()(
         requestPage1,
-        model.getFormContext(requestPage1, {}),
+        model.getFormContext(requestPage1, { $$__referenceNumber: 'foobar' }),
         h
       )
 
       await controller2.makeGetRouteHandler()(
         requestPage2,
-        model.getFormContext(requestPage2, {}),
+        model.getFormContext(requestPage2, { $$__referenceNumber: 'foobar' }),
         h
       )
 
@@ -856,12 +862,12 @@ describe('QuestionPageController V2', () => {
     beforeEach(() => {
       viewModel1 = controller1.getViewModel(
         requestPage1,
-        model.getFormContext(requestPage1, {})
+        model.getFormContext(requestPage1, { $$__referenceNumber: 'foobar' })
       )
 
       viewModel2 = controller2.getViewModel(
         requestPage2,
-        model.getFormContext(requestPage2, {})
+        model.getFormContext(requestPage2, { $$__referenceNumber: 'foobar' })
       )
     })
 
@@ -945,6 +951,7 @@ describe('QuestionPageController V2', () => {
 
       // The state below shows we said we had a UKPassport and entered details for an applicant
       const state: FormSubmissionState = {
+        $$__referenceNumber: 'foobar',
         ukPassport: true,
         numberOfApplicants: 2,
         applicantOneFirstName: 'Enrique',
@@ -1062,6 +1069,7 @@ describe('QuestionPageController V2', () => {
       } satisfies FormContextRequest
 
       const context = controller.model.getFormContext(request, {
+        $$__referenceNumber: 'foobar',
         dateField__day: 5,
         dateField__month: 1,
         dateField__year: 2024
@@ -1097,15 +1105,19 @@ describe('QuestionPageController V2', () => {
 
     beforeEach(() => {
       // Empty state
-      context = model.getFormContext(requestPage1, {})
+      context = model.getFormContext(requestPage1, {
+        $$__referenceNumber: 'foobar'
+      })
 
       // Question 1: Selected 'No'
       contextNo = model.getFormContext(requestPage1, {
+        $$__referenceNumber: 'foobar',
         yesNoField: false
       })
 
       // Question 1: Selected 'Yes'
       contextYes = model.getFormContext(requestPage1, {
+        $$__referenceNumber: 'foobar',
         yesNoField: true
       })
     })
@@ -1174,13 +1186,13 @@ describe('QuestionPageController V2', () => {
 
       await controller1.makeGetRouteHandler()(
         requestPage1,
-        model.getFormContext(requestPage1, {}),
+        model.getFormContext(requestPage1, { $$__referenceNumber: 'foobar' }),
         h
       )
 
       await controller2.makeGetRouteHandler()(
         requestPage2,
-        model.getFormContext(requestPage2, {}),
+        model.getFormContext(requestPage2, { $$__referenceNumber: 'foobar' }),
         h
       )
 

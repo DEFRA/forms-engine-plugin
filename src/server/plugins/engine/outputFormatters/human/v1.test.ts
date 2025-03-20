@@ -31,6 +31,7 @@ const model = new FormModel(definition, {
 })
 
 const state = {
+  $$__referenceNumber: 'foobar',
   orderType: 'delivery',
   pizza: [
     {

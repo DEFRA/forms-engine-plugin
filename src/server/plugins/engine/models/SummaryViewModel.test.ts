@@ -51,6 +51,7 @@ describe('SummaryViewModel', () => {
     {
       description: '0 items',
       state: {
+        $$__referenceNumber: 'foobar',
         orderType: 'collection',
         pizza: []
       } satisfies FormState,
@@ -60,6 +61,7 @@ describe('SummaryViewModel', () => {
     {
       description: '1 item',
       state: {
+        $$__referenceNumber: 'foobar',
         orderType: 'delivery',
         pizza: [
           {
@@ -75,6 +77,7 @@ describe('SummaryViewModel', () => {
     {
       description: '2 items',
       state: {
+        $$__referenceNumber: 'foobar',
         orderType: 'delivery',
         pizza: [
           {

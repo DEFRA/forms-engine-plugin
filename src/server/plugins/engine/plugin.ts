@@ -40,6 +40,7 @@ import { type PageController } from '~/src/server/plugins/engine/pageControllers
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { getFormSubmissionData } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
+import { generateUniqueReference } from '~/src/server/plugins/engine/referenceNumbers.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import { getUploadStatus } from '~/src/server/plugins/engine/services/uploadService.js'
 import {
@@ -265,7 +266,23 @@ export const plugin = {
 
       const cacheService = getCacheService(request.server)
       const page = getPage(model, request)
-      const state = await page.getState(request)
+      let state = await page.getState(request)
+
+      if (!state.$$__referenceNumber) {
+        const prefix = model.def.metadata?.referenceNumberPrefix ?? ''
+
+        if (typeof prefix !== 'string') {
+          throw Boom.badImplementation(
+            'Reference number prefix must be a string or undefined'
+          )
+        }
+
+        const referenceNumber = generateUniqueReference(prefix)
+        state = await page.mergeState(request, state, {
+          $$__referenceNumber: referenceNumber
+        })
+      }
+
       const flash = cacheService.getFlash(request)
       const context = model.getFormContext(request, state, flash?.errors)
       const relevantPath = page.getRelevantPath(request, context)

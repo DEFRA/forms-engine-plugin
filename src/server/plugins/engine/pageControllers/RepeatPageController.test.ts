@@ -128,7 +128,7 @@ describe('RepeatPageController', () => {
     beforeEach(() => {
       viewModel = controller.getViewModel(
         requestPageItem,
-        model.getFormContext(requestPageItem, {})
+        model.getFormContext(requestPageItem, { $$__referenceNumber: 'foobar' })
       )
     })
 
@@ -190,7 +190,9 @@ describe('RepeatPageController', () => {
       beforeEach(() => {
         viewModel = controller.getListSummaryViewModel(
           requestPageSummary,
-          model.getFormContext(requestPageSummary, {}),
+          model.getFormContext(requestPageSummary, {
+            $$__referenceNumber: 'foobar'
+          }),
           list
         )
       })
