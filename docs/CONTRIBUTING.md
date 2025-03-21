@@ -48,6 +48,8 @@ Our specific coding standards are primarily enforced by our GitHub workflows. Th
 
 Our GitHub Workflows will mark each pull request with a pass/fail based on tests, linting, type checking and analysis by SonarQube. **Pull requests that fail these checks will not be accepted.**
 
+Draft pull requests are accepted if you are not yet finished, but would like early feedback. Pull requests remain as a draft for over 30 days will be closed.
+
 ## Fixing bugs
 
 If you would like to fix the bug yourself, contributions are accepted through pull requests.

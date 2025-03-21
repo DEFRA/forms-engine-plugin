@@ -30,6 +30,9 @@ Azure DevOps work item:
 <!--
   Mark each completed item with an X, e.g. "[X] You have....".
   Feel free to chat to us on Slack if you have any questions.
+
+  If you have not completed all of this, you are welcome to submit your pull request in a draft state
+  to give us visibility and gather early feedback until it is ready for review.
 -->
 
 - [] You have executed this code locally and it performs as expected.
