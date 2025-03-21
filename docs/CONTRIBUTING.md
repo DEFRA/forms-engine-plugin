@@ -23,7 +23,7 @@ If your bug is with the plugin, ensure you are running the plugin in a supported
 
 **What we need from you:**
 
-- A short and clear description of the issue
+- A short and clear description of the issue. Explain the current behaviour along with the expected behaviour.
 - A step-by-step guide that details how we can reproduce your issue
 - A text copy (not a screenshot) of any error messages and stack traces
 - The version of your runtime (e.g. Node 22.11.0)
