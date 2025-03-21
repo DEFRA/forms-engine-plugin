@@ -28,7 +28,8 @@ Azure DevOps work item:
 ## Checklist
 
 <!--
-  Mark each completed item with an X.
+  Mark each completed item with an X, e.g. "[X] You have....".
+  Feel free to chat to us on Slack if you have any questions.
 -->
 
 - [] You have executed this code locally and it performs as expected.

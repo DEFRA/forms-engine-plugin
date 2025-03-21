@@ -42,6 +42,10 @@ A clear and concise description of what you expected to happen.
 
 # Checklist
 
+<!--
+  Mark each completed item with an X, e.g. "[X] You have....".
+-->
+
 - [] You have verified this is affecting the latest version of `@defra/forms-engine-plugin` or the production version of our service `https://forms-designer.prod.cdp-int.defra.cloud/`
 - [] You have filled out the required sections above
 - [] You have uploaded a copy of your JSON form definition to this issue
