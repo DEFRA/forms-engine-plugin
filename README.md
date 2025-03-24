@@ -6,8 +6,8 @@ It is designed to be embedded in the frontend of a digital service and provide a
 
 ## Table of Contents
 
-- [Installation](#installation)
 - [Demo of DXT](#demo-of-dxt)
+- [Installation](#installation)
 - [Documentation](#documentation)
 - [Publishing the Package](#publishing-the-package)
   - [Semantic Versioning Control](#semantic-versioning-control)
@@ -16,17 +16,17 @@ It is designed to be embedded in the frontend of a digital service and provide a
   - [Workflow Triggers](#workflow-triggers)
   - [Safety and Consistency](#safety-and-consistency)
 
-## Installation
-
-[See our getting started developer guide](./docs/GETTING_STARTED.md).
-
 ## Demo of DXT
 
 TODO: Link to CDP exemplar
 
+## Installation
+
+[See our getting started developer guide](./docs/GETTING_STARTED.md).
+
 ## Documentation
 
-See our [documentation folder](./docs/INDEX.md) to learn more about the features of DXT.
+See our [documentation folder](./docs/INDEX.md) to learn more about the features of DXT, including our [getting started guide](./docs/GETTING_STARTED.md).
 
 ## Publishing the package
 
