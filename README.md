@@ -30,6 +30,10 @@ DXT has a mix of configuration-driven and code-based features that developers ca
 
 [See our documentation folder](./docs/INDEX.md) to learn more about the features of DXT.
 
+## Contributing
+
+[See our contribution guide](./docs/CONTRIBUTING.md).
+
 ## Publishing the package
 
 Our GitHub Actions workflow (`publish.yml`) is set up to make publishing a breeze, using semantic versioning and a variety of release strategies. Here's how you can make the most of it:
