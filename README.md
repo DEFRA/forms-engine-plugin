@@ -11,19 +11,11 @@ It is designed to be embedded in the frontend of a digital service and provide a
 - [Setup](#setup)
   - [Form Config](#form-config)
   - [Static Assets and Styles](#static-assets-and-styles)
+  - [Environment Variables](#environment-variables)
 - [Example](#example)
-- [Environment Variables](#environment-variables)
-- [Options](#options)
-  - [Services](#services)
-  - [Custom Controllers](#custom-controllers)
-  - [Custom Filters](#custom-filters)
-  - [Custom Cache](#custom-cache)
+- [Plugin options](#plugin-options)
 - [Exemplar](#exemplar)
-- [Templates](#templates)
-  - [Template Data](#template-data)
-  - [Liquid Filters](#liquid-filters)
-  - [Examples](#examples)
-- [Templates and Views: Extending the Default Layout](#templates-and-views-extending-the-default-layout)
+- [Feature list](#feature-list)
 - [Publishing the Package](#publishing-the-package)
   - [Semantic Versioning Control](#semantic-versioning-control)
   - [Major-Version Release Branches](#major-version-release-branches)
@@ -153,183 +145,20 @@ await server.register({
 await server.start()
 ```
 
-## Environment variables
-
-## Options
-
-The forms plugin is configured with [registration options](https://hapi.dev/api/?v=21.4.0#plugins)
-
-- `services` (optional) - object containing `formsService`, `formSubmissionService` and `outputService`
-  - `formsService` - used to load `formMetadata` and `formDefinition`
-  - `formSubmissionService` - used prepare the form during submission (ignore - subject to change)
-  - `outputService` - used to save the submission
-- `controllers` (optional) - Object map of custom page controllers used to override the default. See [custom controllers](#custom-controllers)
-- `filters` (optional) - A map of custom template filters to include
-- `cacheName` (optional) - The cache name to use. Defaults to hapi's [default server cache]. Recommended for production. See [here]
-  (#custom-cache) for more details
-- `viewPaths` (optional) - Include additional view paths when using custom `page.view`s
-- `pluginPath` (optional) - The location of the plugin (defaults to `node_modules/@defra/forms-engine-plugin`)
-
-### Services
+### Environment variables
 
 TODO
 
-### Custom controllers
-
-TODO
-
-### Custom filters
-
-Use the `filter` plugin option to provide custom template filters.
-Filters are available in both [nunjucks](https://mozilla.github.io/nunjucks/templating.html#filters) and [liquid](https://liquidjs.com/filters/overview.html) templates.
-
-```
-const formatter = new Intl.NumberFormat('en-GB')
-
-await server.register({
-  plugin,
-  options: {
-    filters: {
-      money: value => formatter.format(value),
-      upper: value => typeof value === 'string' ? value.toUpperCase() : value
-    }
-  }
-})
-```
-
-### Custom cache
-
-The plugin will use the [default server cache](https://hapi.dev/api/?v=21.4.0#-serveroptionscache) to store form answers on the server.
-This is just an in-memory cache which is fine for development.
-
-In production you should create a custom cache one of the available `@hapi/catbox` adapters.
-
-E.g. [Redis](https://github.com/hapijs/catbox-redis)
-
-```
-import { Engine as CatboxRedis } from '@hapi/catbox-redis'
-
-const server = new Hapi.Server({
-  cache : [
-    {
-      name: 'my_cache',
-      provider: {
-        constructor: CatboxRedis,
-        options: {}
-      }
-    }
-  ]
-})
-```
-
-## Exemplar
+## Demo of DXT
 
 TODO: Link to CDP exemplar
 
-## Templates
+## Feature list
 
-The following elements support [LiquidJS templates](https://liquidjs.com/):
+- Page templates (dynamic content): [docs/FEATURE_PAGE_TEMPLATES.md](./docs/PAGE_TEMPLATES.md)
+- Customisable views with Nunjucks: [docs/FEATURE_PAGE_TEMPLATES.md](./docs/PAGE_VIEWS.md)
 
-- Page **title**
-- Form component **title**
-  - Support for fieldset legend text or label text
-  - This includes when the title is used in **error messages**
-- Html (guidance) component **content**
-- Summary component **row** key title (check answers and repeater summary)
-
-### Template Data
-
-The data the templates are evaluated against is the raw answers the user has provided up to the page they're currently on.
-For example, given a YesNoField component called `TKsWbP`, the template `{{ TKsWbP }}` would render "true" or "false" depending on how the user answered the question.
-
-The current FormContext is also available as `context` in the templates. This allows access to the full data including the path the user has taken in their journey and any miscellaneous data returned from `Page event`s in `context.data`.
-
-### Liquid Filters
-
-There are a number of `LiquidJS` filters available to you from within the templates:
-
-- `page` - returns the page definition for the given path
-- `field` - returns the component definition for the given name
-- `href` - returns the page href for the given page path
-- `answer` - returns the user's answer for a given component
-- `evaluate` - evaluates and returns a Liquid template using the current context
-
-### Examples
-
-```json
-"pages": [
-  {
-    "title": "What's your name?",
-    "path": "/full-name",
-    "components": [
-      {
-        "name": "WmHfSb",
-        "title": "What's your full name?",
-        "type": "TextField"
-      }
-    ]
-  },
-  // This example shows how a component can use an answer to a previous question (What's your full name) in it's title
-  {
-    "title": "Are you in England?",
-    "path": "/are-you-in-england",
-    "components": [
-      {
-        "name": "TKsWbP",
-        "title": "Are you in England, {{ WmHfSb }}?",
-        "type": "YesNoField"
-      }
-    ]
-  },
-  // This example shows how a Html (guidance) component can use the available filters to get the form definition and user answers and display them
-  {
-    "title": "Template example for {{ WmHfSb }}?",
-    "path": "/example",
-    "components": [
-      {
-        "title": "Html",
-        "type": "Html",
-        "content": "<p class=\"govuk-body\">
-          // Use Liquid's `assign` to create a variable that holds reference to the \"/are-you-in-england\" page
-          {%- assign inEngland = \"/are-you-in-england\" | page -%}
-
-          // Use the reference to `evaluate` the title
-          {{ inEngland.title | evaluate }}<br>
-
-          // Use the href filter to display the full page path
-          {{ \"/are-you-in-england\" | href }}<br>
-
-          // Use the `answer` filter to render the user provided answer to a question
-          {{ 'TKsWbP' | answer }}
-        </p>\n"
-      }
-    ]
-  }
-]
-```
-
-## Templates and views
-
-### Extending the default layout
-
-TODO
-
-To override the default page template, vision and nunjucks both need to be configured to search in the `forms-engine-plugin` views directory when looking for template files.
-
-For vision this is done through the `path` [plugin option](https://github.com/hapijs/vision/blob/master/API.md#options)
-For nunjucks it is configured through the environment [configure options](https://mozilla.github.io/nunjucks/api.html#configure).
-
-The `forms-engine-plugin` path to add can be imported from:
-
-`import { VIEW_PATH } from '@defra/forms-engine-plugin'`
-
-Which can then be appended to the `node_modules` path `node_modules/@defra/forms-engine`.
-
-The main template layout is `govuk-frontend`'s `template.njk` file, this also needs to be added to the `path`s that nunjucks can look in.
-
-### Custom page view
-
-## Publishing the Package
+## Publishing the ackage
 
 Our GitHub Actions workflow (`publish.yml`) is set up to make publishing a breeze, using semantic versioning and a variety of release strategies. Here's how you can make the most of it:
 
