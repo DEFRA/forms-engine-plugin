@@ -26,7 +26,9 @@ TODO: Link to CDP exemplar
 
 ## Documentation
 
-See our [documentation folder](./docs/INDEX.md) to learn more about the features of DXT, including our [getting started guide](./docs/GETTING_STARTED.md).
+DXT has a mix of configuration-driven and code-based features that developers can utilise.
+
+[See our documentation folder](./docs/INDEX.md) to learn more about the features of DXT.
 
 ## Publishing the package
 
