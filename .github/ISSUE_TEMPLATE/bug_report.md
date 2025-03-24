@@ -1,3 +1,12 @@
+---
+name: Bug report
+about: Create a report to help us improve
+title: ''
+labels: ''
+assignees: ''
+
+---
+
 <!--
   Thank you for reporting a bug to DXT! Please follow the instructions in the comment tags.
   Unless you have been instructed, do not delete any text in this template.
