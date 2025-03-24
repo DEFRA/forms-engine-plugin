@@ -39,6 +39,7 @@ Azure DevOps work item:
 - [] You have added tests to verify your code works.
 - [] You have added code comments and JSDoc, where appropriate.
 - [] There is no commented-out code.
+- [] You have added developer docs in `README.md` and `docs/*` (where appropriate, e.g. new features).
 - [] The tests are passing (`npm run test`).
 - [] The linting checks are passing (`npm run lint`).
 - [] The code has been formatted (`npm run format`).

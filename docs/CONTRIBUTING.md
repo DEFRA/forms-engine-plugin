@@ -44,11 +44,11 @@ Feature suggestions are welcomed from teams within Defra Group only. Our roadmap
 
 All code contributed to this repository should meet the [Defra software development standards](https://defra.github.io/software-development-standards/). Our codebase, by exception, allows modification of Typescript files where appropriate. However, new code that is contributed should be Javascript with types via JSDoc, not Typescript.
 
-Our specific coding standards are primarily enforced by our GitHub workflows. These workflows will verify type checking and formatting using tsc, ESLint, Prettier, EditorConfig and Stylelint. See the `lint` job within [.github/workflows/check-pull-request.yml](.github/workflows/check-pull-request.yml) for more details.
+Our specific coding standards are primarily enforced by our GitHub workflows. These workflows will verify using tsc, ESLint, Prettier, EditorConfig and Stylelint. See the `lint` job within [.github/workflows/check-pull-request.yml](.github/workflows/check-pull-request.yml) for more details.
 
 Our GitHub Workflows will mark each pull request with a pass/fail based on tests, linting, type checking and analysis by SonarQube. **Pull requests that fail these checks will not be accepted.**
 
-Draft pull requests are accepted if you are not yet finished, but would like early feedback. Pull requests remain as a draft for over 30 days will be closed.
+Draft pull requests are accepted if you are not yet finished, but would like early feedback. Pull requests that remain as a draft for over 30 days will be closed.
 
 ## Fixing bugs
 
