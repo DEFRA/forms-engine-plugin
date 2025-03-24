@@ -3,7 +3,7 @@
 - [Getting started with DXT](./GETTING_STARTED.md)
 - [Plugin registration options](./PLUGIN_OPTIONS.md)
 - Configuration-based features
-  - [Page templates (dynamic content)](./features/PAGE_TEMPLATES.md)
+  - [Page templates (dynamic content)](./features/configuration-based/PAGE_TEMPLATES.md)
 - Code-based features
   - [Page views (customisable views with Nunjucks)](./features/code-based/PAGE_VIEWS.md)
   - [Custom Nunjucks/liquid filters](./PLUGIN_OPTIONS.md#custom-filters)
