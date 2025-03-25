@@ -1,6 +1,6 @@
 # Page templates
 
-Page templates are a configuration-way of adding dynamic content to the form UI, such as displaying the answer to a question, or some data from your API. This feature is only used for presentation purposes.
+Page templates are a configuration-based way of adding dynamic content to the form UI, such as displaying the answer to a question, or some data from your API. This feature is only used for presentation purposes.
 
 Certain elements of your form, such as content blocks or page titles, allow for the use of LiquidJS. LiquidJS is a templating engine that runs alongside Nunjucks to dynamically insert data into the rendered page.
 
@@ -148,3 +148,7 @@ Full example of the minified and escaped component, which can be appended to [th
 ## Providing your own filters
 
 Whilst DXT offers some out of the box filters, teams using the plugin have the capability to provide their own. See [PLUGIN_OPTIONS.md](../../PLUGIN_OPTIONS.md#custom-filters) for more information.
+
+## Using page templates with data from your own API
+
+Page templates have access to `{{ context.data }}`, which is an attribute made available when a page event is triggered. It represents the entire response body from your API. To learn more about this, [see our guidance on page events](./PAGE_EVENTS.md).

@@ -16,3 +16,7 @@ The `forms-engine-plugin` path to add can be imported from:
 Which can then be appended to the `node_modules` path `node_modules/@defra/forms-engine`.
 
 The main template layout is `govuk-frontend`'s `template.njk` file, this also needs to be added to the `path`s that nunjucks can look in.
+
+## Using page views with data from your own API
+
+Page templates have access to `{{ context.data }}`, which is an attribute made available when a page event is triggered. It represents the entire response body from your API. To learn more about this, [see our guidance on page events](./PAGE_EVENTS.md).

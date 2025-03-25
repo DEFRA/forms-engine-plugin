@@ -4,6 +4,7 @@
 - [Plugin registration options](./PLUGIN_OPTIONS.md)
 - Configuration-based features
   - [Page templates (dynamic content)](./features/configuration-based/PAGE_TEMPLATES.md)
+  - [Page events (triggering an action on an event)](./features/configuration-based/PAGE_EVENTS.md)
 - Code-based features
   - [Page views (customisable views with Nunjucks)](./features/code-based/PAGE_VIEWS.md)
   - [Custom Nunjucks/liquid filters](./PLUGIN_OPTIONS.md#custom-filters)
