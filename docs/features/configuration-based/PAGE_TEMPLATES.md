@@ -58,7 +58,7 @@ For example, given a YesNoField component called `TKsWbP`, the template `{{ TKsW
 
 The current FormContext is also available as `context` in the templates. This allows access to the full data including the path the user has taken in their journey and any miscellaneous data returned from `Page event`s in `context.data`.
 
-Templates should be single line JSON strings, where line breaks are not rendered and are defined as `\n`. Our reccomendation is that template strings are edited separately to the form JSON, before being minified and copied into the JSON.
+Templates should be single line JSON strings, where line breaks are not rendered and are defined as `\n`. Our recommendation is that template strings are edited separately to the form JSON, before being minified and copied into the JSON.
 
 ## DXT filters
 
