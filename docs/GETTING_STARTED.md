@@ -13,15 +13,15 @@ DXT's forms engine is a plugin for a frontend service, which allows development 
 
 You should aim, wherever possible, to utilise the existing behaviours of DXT. Our team puts a lot of effort into development, user testing and accessibility testing to ensure the forms created with it will be of a consistently high quality. Where your team introduces custom behaviour, such as custom components or custom pages, this work will now need to be done by your team. Where possible, favour fixing something upstream in the plugin so many teams can benefit from the work we do. Then, if you still need custom behaviour - go for it! DXT is designed to be extended, just be wise with how you spend your efforts.
 
-When developing new things with DXT, you should favour development using the below priority order. This will ensure your team is writing the minimum amount of code, focusing your efforts on custom code where the requirements are niche and there is value.
+When developing with DXT, you should favour development using the below priority order. This will ensure your team is writing the minimum amount of code, focusing your efforts on custom code where the requirements are niche and there is value.
 
 1. Use out-of-the box DXT components and page types (components, controllers)
 2. Use configuration-driven advanced functionality to integrate with backends and dynamically change page content (page events, page templates)
-3. Use custom views and page controllers to implement highly tailored and niche requirements (custom Nunjucks, custom Javascript)
+3. Use custom views, custom components and page controllers to implement highly tailored and niche logic (custom Nunjucks, custom Javascript)
 
 ### Contributing back to DXT
 
-When you build custom components and page types, they might be useful for other teams in Defra to utilise. For example, many teams utilise the CPH number and would benefit from a component to validate this number, rather than it sitting only in your codebas for just your team. See our [contribution guide](./CONTRIBUTING.md) to learn how to contribute code back to DXT.
+When you build custom components and page controllers, they might be useful for other teams in Defra to utilise. For example, many teams collect CPH numbers but have no way to validate it's correct. Rather than creating a new CPH number component and letting it sit in your codebase for just your team, see our [contribution guide](./CONTRIBUTING.md) to learn how to contribute this back to DXT for everyone to benefit from.
 
 ## Step 1: Add forms-engine-plugin as a dependency
 
@@ -123,4 +123,5 @@ These files are called `Form definitions` and are built up of:
 The [types](https://github.com/DEFRA/forms-designer/blob/main/model/src/form/form-definition/types.ts), `joi` [schema](https://github.com/DEFRA/forms-designer/blob/main/model/src/form/form-definition/index.ts) and the [examples](test/form/definitions) folder are a good place to learn about the structure of these files.
 
 TODO - Link to wiki for `Form metadata`
+
 TODO - Link to wiki for `Form definition`
