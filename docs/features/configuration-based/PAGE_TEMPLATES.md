@@ -110,7 +110,7 @@ You may want to do more than just add a dynamic value to the page title. Using t
 
 Here is an example of a Liquid template that renders a page title, displays a link to a page called "are you in england" and prints out the answer to a question.
 
-```jinja
+```jinja2
 <p class="govuk-body">
   {# Use Liquid's `assign` to create a variable that holds reference to the \"/are-you-in-england\" page #}
   {%- assign inEngland = "/are-you-in-england" | page -%}
