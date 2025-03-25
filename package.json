@@ -22,6 +22,7 @@
     "./file-upload.min.js.map": "./.public/javascripts/file-upload.min.js.map",
     "./application.min.css": "./.public/stylesheets/application.min.css",
     "./controllers/*": "./.server/server/plugins/engine/pageControllers/*",
+    "./services/*": "./.server/server/plugins/engine/services/*",
     "./package.json": "./package.json"
   },
   "scripts": {
