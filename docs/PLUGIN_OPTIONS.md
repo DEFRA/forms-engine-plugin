@@ -13,15 +13,15 @@ The forms plugin is configured with [registration options](https://hapi.dev/api/
 - `viewPaths` (optional) - Include additional view paths when using custom `page.view`s
 - `pluginPath` (optional) - The location of the plugin (defaults to `node_modules/@defra/forms-engine-plugin`)
 
-### Services
+## Services
 
 TODO
 
-### Custom controllers
+## Custom controllers
 
 TODO
 
-### Custom filters
+## Custom filters
 
 Use the `filter` plugin option to provide custom template filters.
 Filters are available in both [nunjucks](https://mozilla.github.io/nunjucks/templating.html#filters) and [liquid](https://liquidjs.com/filters/overview.html) templates.
@@ -40,7 +40,7 @@ await server.register({
 })
 ```
 
-### Custom cache
+## Custom cache
 
 The plugin will use the [default server cache](https://hapi.dev/api/?v=21.4.0#-serveroptionscache) to store form answers on the server.
 This is just an in-memory cache which is fine for development.
