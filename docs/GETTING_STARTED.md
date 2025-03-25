@@ -55,7 +55,7 @@ Optional dependencies
 
 ## Step 2: Register DXT as a hapi plugin
 
-```
+```javascript
 import plugin from '@defra/forms-engine-plugin'
 await server.register({
   plugin,
@@ -67,7 +67,7 @@ await server.register({
 
 Full example:
 
-```
+```javascript
 import hapi from '@hapi/hapi'
 import yar from '@hapi/yar'
 import crumb from '@hapi/crumb'

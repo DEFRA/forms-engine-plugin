@@ -76,7 +76,7 @@ There are a number of filters available to you from within the templates:
 
 Below is what a form may look like using page templates. It asks the user for their full name, then renders the following page with their name in the title. For example, "Are you in England, Joe Bloggs?".
 
-```json
+```jsonc
 "pages": [
   {
     "title": "What's your name?",
@@ -90,8 +90,8 @@ Below is what a form may look like using page templates. It asks the user for th
     ]
   },
   {
-    "_comment": "This example shows how a component can use an answer to a previous question (What's your full name) in it's title",
-    "title": "Are you in England?",
+    // This example shows how a page/component can use an answer to a previous question (What's your full name) in its title
+    "title": "Are you in England, {{ WmHfSb }}?",
     "path": "/are-you-in-england",
     "components": [
       {
@@ -130,9 +130,9 @@ The above template should be minified and inserted into the content field in the
 
 Full example of the minified and escaped component, which can be appended to [the first example's JSON snippet](#substituting-a-page-title).
 
-```json
+```jsonc
 {
-  "_comment": "This example shows how a Html (guidance) component can use the available filters to get the form definition and user answers and display them",
+  // This example shows how a Html (guidance) component can use the available filters to get the form definition and user answers and display them
   "title": "Template example for {{ WmHfSb }}?",
   "path": "/example",
   "components": [

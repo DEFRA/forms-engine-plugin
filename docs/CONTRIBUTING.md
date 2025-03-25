@@ -7,13 +7,13 @@ Thank you for considering making a contribution to DXT! Our goal is to make DXT 
 
 This guide aims to set clear expectations for everyone involved in our project, to make collaborating a smooth and enjoyable experience.
 
-# I have a question
+## I have a question
 
 If you are within Department for Environment, Food & Rural Affairs, please primarily direct your questions to our Slack channel [#defra-forms-support](https://defra-digital-team.slack.com). Our team monitors this channel during working hours and will provide assistance.
 
-# I want to request something
+## I want to request something
 
-## Reporting bugs
+### Reporting bugs
 
 Report bugs on the [#defra-forms-support](https://defra-digital-team.slack.com) slack channel. If you are not a member of Defra, [submit a GitHub issue](https://github.com/DEFRA/forms-engine-plugin/issues).
 
@@ -36,11 +36,11 @@ If your bug is with the plugin, ensure you are running the plugin in a supported
 - An estimated timeframe for a resolution
 - An update once the issue is resolved
 
-## Suggesting features
+### Suggesting features
 
 Feature suggestions are welcomed from teams within Defra Group only. Our roadmap is continually updated as new requirements emerge. Suggest new features on our [#defra-forms-support](https://defra-digital-team.slack.com) slack channel.
 
-# I want to contribute something
+## I want to contribute something
 
 All code contributed to this repository should meet the [Defra software development standards](https://defra.github.io/software-development-standards/). Our codebase, by exception, allows modification of Typescript files where appropriate. However, new code that is contributed should be Javascript with types via JSDoc, not Typescript.
 
@@ -50,10 +50,10 @@ Our GitHub Workflows will mark each pull request with a pass/fail based on tests
 
 Draft pull requests are accepted if you are not yet finished, but would like early feedback. Pull requests that remain as a draft for over 30 days will be closed.
 
-## Fixing bugs
+### Fixing bugs
 
 If you would like to fix the bug yourself, contributions are accepted through pull requests.
 
-## Adding features
+### Adding features
 
 Features should be discussed with the Defra Forms team prior to implementation. This is to prevent wasted effort if the Defra Forms team decides not to accept it, or if we suggest any significant amendments. Reach out to us on [#defra-forms-support](https://defra-digital-team.slack.com) to discuss your requirements. If accepted by the product owner, we welcome a pull request.

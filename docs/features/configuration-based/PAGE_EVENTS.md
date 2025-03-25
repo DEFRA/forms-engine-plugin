@@ -57,13 +57,13 @@ DXT sends a standardised payload to each API configured with page events. The la
 
 As of 2025-03-25, the payload would look something like this:
 
-```json
+```jsonc
 {
   "meta": {
     "schemaVersion": "2",
     "timestamp": "2025-03-25T10:00:00Z",
     "definition": {
-      "_comment": "This object would be a full copy of the form definition at the time of submission. It is excluded for brevity."
+      // This object would be a full copy of the form definition at the time of submission. It is excluded for brevity.
     }
   },
   "data": {
@@ -134,7 +134,7 @@ POST https://my-api.defra.gov.uk/page-submit`
     "X-Signature": "9d17656adf3654f2579fb49b7dcb53556df08e166cad84f8646a497fc75746bd"
   },
   "payload": {
-    "_comment": "See the page event payload."
+    // See the page event payload schema for details.
   }
 }
 ```

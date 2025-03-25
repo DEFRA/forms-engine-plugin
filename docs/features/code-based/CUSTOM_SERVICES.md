@@ -19,7 +19,7 @@ WARNING: This below is subject to change
 
 A `formsService` has two methods, one for returning `formMetadata` and another to return `formDefinition`s.
 
-```
+```javascript
 const formsService = {
   getFormMetadata: async function (slug) {
     // Returns the metadata for the slug
