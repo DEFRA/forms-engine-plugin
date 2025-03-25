@@ -137,8 +137,8 @@ POST https://my-api.defra.gov.uk/page-submit`
     "_comment": "See the page event payload."
   }
 }
+```
 
 The signature would be verified by comparing it against the payload and DXT's public key. A successful verification would mean the request originated from DXT and can be trusted.
 
 See our [current sample implementation](https://github.com/alexluckett/js-signed-webhooks-demo/blob/master/index.js) to understand this in practice.
-```
