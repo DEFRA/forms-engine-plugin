@@ -18,7 +18,7 @@ If DXT is the only consumer of your API, it may make sense to omit the BFF and h
 
 ## Setting up a page event
 
-A page event is configured by definining the event trigger, then the action configuration. For example, to call an API on page load:
+A page event is configured by defining the event trigger, then the action configuration. For example, to call an API on page load:
 
 ```json
 {
