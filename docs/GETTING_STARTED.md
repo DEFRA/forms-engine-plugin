@@ -1,14 +1,27 @@
 # Getting started with DXT
 
-1. [Add forms-engine-plugin as a dependency](#step-1-add-forms-engine-plugin-as-a-dependency)
-2. [Register DXT as a hapi plugin](#step-2-register-dxt-as-a-hapi-plugin)
-3. [Handling static assets](#step-3-handling-static-assets)
-4. [Environment variables](#step-4-environment-variables)
-5. [Creating and loading a form](#step-5-creating-and-loading-a-form)
+1. [Foundational knowledge](#foundational-knowledge)
+2. [Add forms-engine-plugin as a dependency](#step-1-add-forms-engine-plugin-as-a-dependency)
+3. [Register DXT as a hapi plugin](#step-2-register-dxt-as-a-hapi-plugin)
+4. [Handling static assets](#step-3-handling-static-assets)
+5. [Environment variables](#step-4-environment-variables)
+6. [Creating and loading a form](#step-5-creating-and-loading-a-form)
 
 ## Foundational knowledge
 
-TODO
+DXT's forms engine is a plugin for a frontend service, which allows development teams to construct forms using configuration and minimal code. Forms are closely based on the knowledge, components and patterns from the GDS Design System. Forms should remain as lightweight as possible, with business logic being implemented in a backend/BFF API and DXT used as a simple presentation layer.
+
+You should aim, wherever possible, to utilise the existing behaviours of DXT. Our team puts a lot of effort into development, user testing and accessibility testing to ensure the forms created with it will be of a consistently high quality. Where your team introduces custom behaviour, such as custom components or custom pages, this work will now need to be done by your team. Where possible, favour fixing something upstream in the plugin so many teams can benefit from the work we do. Then, if you still need custom behaviour - go for it! DXT is designed to be extended, just be wise with how you spend your efforts.
+
+When developing new things with DXT, you should favour development using the below priority order. This will ensure your team is writing the minimum amount of code, focusing your efforts on custom code where the requirements are niche and there is value.
+
+1. Use out-of-the box DXT components and page types (components, controllers)
+2. Use configuration-driven advanced functionality to integrate with backends and dynamically change page content (page events, page templates)
+3. Use custom views and page controllers to implement highly tailored and niche requirements (custom Nunjucks, custom Javascript)
+
+### Contributing back to DXT
+
+When you build custom components and page types, they might be useful for other teams in Defra to utilise. For example, many teams utilise the CPH number and would benefit from a component to validate this number, rather than it sitting only in your codebas for just your team. See our [contribution guide](./CONTRIBUTING.md) to learn how to contribute code back to DXT.
 
 ## Step 1: Add forms-engine-plugin as a dependency
 
