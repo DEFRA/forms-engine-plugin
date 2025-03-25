@@ -109,9 +109,9 @@ Page template:
 
 ```jinja2
 {% if context.data.awardedGrantValue %}
-<p class="govuk-body">Congratulations. You are likely to receive up to £{{ context.data.awardedGrantValue }}.</p>
+  <p class="govuk-body">Congratulations. You are likely to receive up to £{{ context.data.awardedGrantValue }}.</p>
 {% endif %}
-<p class="govuk-body">You have not been awarded any funding for this application.</p>
+  <p class="govuk-body">You have not been awarded any funding for this application.</p>
 {% endif %}
 ```
 
