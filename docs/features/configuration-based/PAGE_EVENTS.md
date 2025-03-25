@@ -49,7 +49,7 @@ Planned event types:
 
 - `http`: Makes a HTTP(S) call to a web service. This service must be routable on DXT (e.g. by configuring CDP's squid proxy), must accept DXT's standardised payload, return HTTP 200 and a valid JSON document.
   - Options:
-    - `url`: A fully formed HTTP(S) URL, e.g. "https://my-api.defra.gov.uk` or `https://my-api.prod.cdp-int.defra.cloud`
+    - `url`: A fully formed HTTP(S) URL, e.g. `https://my-api.defra.gov.uk` or `https://my-api.prod.cdp-int.defra.cloud`
 
 ## Payload
 
