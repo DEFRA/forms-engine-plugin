@@ -31,7 +31,7 @@ A page event is configured by definining the event trigger, then the action conf
 }
 ```
 
-See [supported behaviours](#supported-behaviours) to learn more about the supported triggers and actions.
+See [supported events](#supported-events) to learn more about the supported triggers and actions.
 
 ## Supported events
 
