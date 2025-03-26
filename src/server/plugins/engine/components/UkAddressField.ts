@@ -72,6 +72,17 @@ export class UkAddressField extends FormComponent {
         },
         {
           type: ComponentType.TextField,
+          name: `${name}__county`,
+          title: 'County',
+          schema: { max: 100 },
+          options: {
+            autocomplete: 'county',
+            required: false,
+            optionalText: !isRequired && (hideOptional || !hideTitle)
+          }
+        },
+        {
+          type: ComponentType.TextField,
           name: `${name}__postcode`,
           title: 'Postcode',
           schema: {
@@ -168,5 +179,6 @@ export interface UkAddressState extends Record<string, string> {
   addressLine1: string
   addressLine2: string
   town: string
+  county: string
   postcode: string
 }

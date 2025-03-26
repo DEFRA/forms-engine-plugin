@@ -93,6 +93,7 @@ describe('Form fields (optional)', () => {
               addressField__addressLine1: '',
               addressField__addressLine2: '',
               addressField__town: '',
+              addressField__county: '',
               addressField__postcode: ''
             }
           }

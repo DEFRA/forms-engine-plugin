@@ -57,6 +57,7 @@ describe('Title and section title', () => {
           address1__addressLine1: 'Richard Fairclough House',
           address1__addressLine2: 'Knutsford Road',
           address1__town: 'Warrington',
+          address1__county: 'Cheshire',
           address1__postcode: 'WA4 1HT'
         }
       },
@@ -76,6 +77,7 @@ describe('Title and section title', () => {
           address2__addressLine1: '',
           address2__addressLine2: '',
           address2__town: '',
+          address2__county: '',
           address2__postcode: ''
         }
       }

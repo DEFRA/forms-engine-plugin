@@ -177,6 +177,7 @@ describe('Submission journey test', () => {
           Address line 1
           Address line 2
           Town or city
+          Cheshire
           CW1 1AB
 
           ---
@@ -283,7 +284,7 @@ describe('Submission journey test', () => {
         {
           name: 'addressField',
           title: 'Address field',
-          value: 'Address line 1,Address line 2,Town or city,CW1 1AB'
+          value: 'Address line 1,Address line 2,Town or city,Cheshire,CW1 1AB'
         },
         {
           name: 'radiosField',
@@ -354,6 +355,7 @@ describe('Submission journey test', () => {
       addressField__addressLine1: 'Address line 1',
       addressField__addressLine2: 'Address line 2',
       addressField__town: 'Town or city',
+      addressField__county: 'Cheshire',
       addressField__postcode: 'CW1 1AB',
       radiosField: 'privateLimitedCompany',
       selectField: '910400000',

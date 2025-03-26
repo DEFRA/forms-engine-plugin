@@ -109,12 +109,14 @@ describe('Form fields (required)', () => {
               addressField__addressLine1: '',
               addressField__addressLine2: '',
               addressField__town: '',
+              addressField__county: '',
               addressField__postcode: ''
             },
             valid: {
               addressField__addressLine1: 'Richard Fairclough House',
               addressField__addressLine2: 'Knutsford Road',
               addressField__town: 'Warrington',
+              addressField__county: 'Cheshire',
               addressField__postcode: 'WA4 1HT'
             }
           }
