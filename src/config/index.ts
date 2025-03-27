@@ -90,13 +90,13 @@ export const config = convict({
     doc: 'The service version, this variable is injected into your docker container in CDP environments',
     format: String,
     nullable: true,
-    default: null,
+    default: '',
     env: 'SERVICE_VERSION'
   } as SchemaObj<string>,
   feedbackLink: {
     doc: 'Used in your phase banner. Can be a URL or more commonly mailto mailto:feedback@department.gov.uk',
     format: String,
-    default: null,
+    default: '',
     env: 'FEEDBACK_LINK'
   } as SchemaObj<string>,
   phaseTag: {
@@ -121,7 +121,7 @@ export const config = convict({
   },
   sessionCookiePassword: {
     format: String,
-    default: null,
+    default: '',
     sensitive: true,
     env: 'SESSION_COOKIE_PASSWORD'
   } as SchemaObj<string>,
@@ -129,26 +129,26 @@ export const config = convict({
     host: {
       doc: 'Redis cache host',
       format: String,
-      default: null,
+      default: '',
       env: 'REDIS_HOST'
     } as SchemaObj<string>,
     username: {
       doc: 'Redis cache username',
       format: String,
-      default: null,
+      default: '',
       env: 'REDIS_USERNAME'
     } as SchemaObj<string>,
     password: {
       doc: 'Redis cache password',
       format: '*',
-      default: null,
+      default: '',
       sensitive: true,
       env: 'REDIS_PASSWORD'
     } as SchemaObj<string>,
     keyPrefix: {
       doc: 'Redis cache key prefix name used to isolate the cached results across multiple clients',
       format: String,
-      default: null,
+      default: '',
       env: 'REDIS_KEY_PREFIX'
     } as SchemaObj<string>
   },
@@ -167,12 +167,12 @@ export const config = convict({
    */
   notifyTemplateId: {
     format: String,
-    default: null,
+    default: '',
     env: 'NOTIFY_TEMPLATE_ID'
   } as SchemaObj<string>,
   notifyAPIKey: {
     format: String,
-    default: null,
+    default: '',
     env: 'NOTIFY_API_KEY'
   } as SchemaObj<string>,
 
@@ -181,25 +181,25 @@ export const config = convict({
    */
   managerUrl: {
     format: String,
-    default: null,
+    default: 'http://localhost:3001',
     env: 'MANAGER_URL'
   } as SchemaObj<string>,
 
   designerUrl: {
     format: String,
-    default: null,
+    default: 'http://localhost:3000',
     env: 'DESIGNER_URL'
   } as SchemaObj<string>,
 
   submissionUrl: {
     format: String,
-    default: null,
+    default: 'http://localhost:3002',
     env: 'SUBMISSION_URL'
   } as SchemaObj<string>,
 
   uploaderUrl: {
     format: String,
-    default: null,
+    default: 'http://localhost:7337',
     env: 'UPLOADER_URL'
   } as SchemaObj<string>,
 

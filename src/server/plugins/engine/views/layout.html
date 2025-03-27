@@ -132,7 +132,7 @@
   {% set feedbackLink = feedbackLink or config.feedbackLink -%}
   {% set phaseTag = phaseTag or config.phaseTag -%}
 
-  {% if phaseTag %}
+  {% if phaseTag and feedbackLink %}
     {% set feedbackLinkHtml -%}
       <a href="{{ currentPath if context.isForceAccess else feedbackLink }}" class="govuk-link" {%- if not context.isForceAccess %} target="_blank" rel="noopener noreferrer" {%- endif %}>
         {%- if "mailto:" in feedbackLink -%}
