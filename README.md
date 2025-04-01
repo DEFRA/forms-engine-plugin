@@ -18,7 +18,9 @@ It is designed to be embedded in the frontend of a digital service and provide a
 
 ## Demo of DXT
 
-TODO: Link to CDP exemplar
+If you are within the Defra network, [see a live demo](https://forms-engine-plugin-example-ui.dev.cdp-int.defra.cloud/example-form).
+
+If you aren't within the Defra network, [see our example UI and run it locally](https://github.com/DEFRA/forms-engine-plugin-example-ui).
 
 ## Installation
 
