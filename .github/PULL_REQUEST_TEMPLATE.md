@@ -20,10 +20,10 @@ Azure DevOps work item:
   If your change covers multiple categories, please split the pull request up to make it easier to review.
 -->
 
-- [] Bug fix
-- [] New feature
-- [] Breaking change
-- [] Misc. (documentation, build updates, etc)
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Breaking change
+- [ ] Misc. (documentation, build updates, etc)
 
 ## Checklist
 
@@ -35,11 +35,11 @@ Azure DevOps work item:
   to give us visibility and gather early feedback until it is ready for review.
 -->
 
-- [] You have executed this code locally and it performs as expected.
-- [] You have added tests to verify your code works.
-- [] You have added code comments and JSDoc, where appropriate.
-- [] There is no commented-out code.
-- [] You have added developer docs in `README.md` and `docs/*` (where appropriate, e.g. new features).
-- [] The tests are passing (`npm run test`).
-- [] The linting checks are passing (`npm run lint`).
-- [] The code has been formatted (`npm run format`).
+- [ ] You have executed this code locally and it performs as expected.
+- [ ] You have added tests to verify your code works.
+- [ ] You have added code comments and JSDoc, where appropriate.
+- [ ] There is no commented-out code.
+- [ ] You have added developer docs in `README.md` and `docs/*` (where appropriate, e.g. new features).
+- [ ] The tests are passing (`npm run test`).
+- [ ] The linting checks are passing (`npm run lint`).
+- [ ] The code has been formatted (`npm run format`).
