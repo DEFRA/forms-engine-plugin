@@ -61,19 +61,26 @@ jobs:
           rm -rf _site
           mkdir -p _site
           
+          # First create the _config.yml
+          cat > _site/_config.yml << EOF
+          title: DEFRA Forms Engine Plugin
+          description: Documentation for the DEFRA Forms Engine Plugin
+          markdown: kramdown
+          kramdown:
+            input: GFM
+            syntax_highlighter: rouge
+          theme: minima
+          plugins:
+            - jekyll-relative-links
+          relative_links:
+            enabled: true
+          EOF
+          
           # Copy all docs recursively
           cp -r docs/* _site/
           
           # Rename main entry point to lowercase (Jekyll requirement)
           cp _site/INDEX.md _site/index.md
-          
-          # Create minimal _config.yml
-          cat > _site/_config.yml << EOF
-          title: DEFRA Forms Engine Plugin
-          description: Documentation for the DEFRA Forms Engine Plugin
-          markdown: kramdown
-          theme: minima
-          EOF
           
           echo "Jekyll site preparation complete!"
 
@@ -83,12 +90,7 @@ jobs:
           find _site -type f | sort
           
           # Check key files
-          echo "Key files check:"
-          ls -la _site/index*
-          ls -la _site/_config.yml || echo "_config.yml not found"
-          
-          # Peek at the content of the config file
-          echo "Content of _config.yml:"
+          echo "Check _config.yml:"
           cat _site/_config.yml
 
       - name: Setup Pages
