@@ -159,3 +159,44 @@ jobs:
         run: bash .github/scripts/publish/publish-to-npm.sh "${{ github.ref_name }}" "${{ needs.determine-path.outputs.workflow-path }}" "${{ needs.determine-path.outputs.npm-tag }}" "${{ github.event.inputs.dry_run }}"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+
+  generate-docs:
+    name: Generate and Publish Documentation
+    needs: [publish]
+    if: needs.determine-path.outputs.workflow-path != 'skip' && (startsWith(github.ref, 'refs/heads/release/v') || github.ref == 'refs/heads/main')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Restore dependencies
+        uses: actions/cache/restore@v4
+        with:
+          enableCrossOsArchive: true
+          key: npm-install-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          path: node_modules
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Generate and process documentation
+        run: bash .github/scripts/docs/generate-and-publish-docs.sh "${{ github.ref_name }}" "$(npm pkg get version | tr -d \")"
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+        
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './docs-site'
+          
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
