@@ -24,7 +24,7 @@ jobs:
     environment:
       name: github-pages-test
       url: ${{ steps.deployment.outputs.page_url }}
-    
+
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -41,11 +41,11 @@ jobs:
         run: |
           mkdir -p .github/scripts/docs
           bash .github/scripts/docs/generate-and-publish-docs.sh "${{ github.event.inputs.branch_type }}" "1.2.3"
-          
+
           # Move to Jekyll expected structure
           mkdir -p _site
           cp -r docs-site/* _site/
-          
+
           # Create .nojekyll file to bypass Jekyll processing
           touch _site/.nojekyll
 
