@@ -82,8 +82,8 @@ jobs:
             filename="site-src/features/configuration-based/PAGE_TEMPLATES.md"
             
             # Replace problematic jinja2 code block
-            cat > "${filename}.awk1" << 'AWKSCRIPT'
-            BEGIN { in_block = 0 }
+            cat << 'EOFSCRIPT' > "${filename}.awk1"
+            BEGIN { in_block = 0; block_count = 0 }
             /^```jinja2/ {
               in_block = !in_block;
               if (in_block == 1 && block_count == 0) {
@@ -110,11 +110,11 @@ jobs:
               next;
             }
             { print }
-            AWKSCRIPT
+            EOFSCRIPT
             awk -f "${filename}.awk1" "$filename" > "${filename}.tmp1"
             
             # Replace problematic jsonc code block
-            cat > "${filename}.awk2" << 'AWKSCRIPT'
+            cat << 'EOFSCRIPT' > "${filename}.awk2"
             BEGIN { in_block = 0; block_count = 0 }
             /^```jsonc/ {
               in_block = !in_block;
@@ -139,7 +139,7 @@ jobs:
               next;
             }
             { print }
-            AWKSCRIPT
+            EOFSCRIPT
             awk -f "${filename}.awk2" "${filename}.tmp1" > "${filename}.tmp2"
             
             # Replace the original file
