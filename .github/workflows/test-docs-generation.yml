@@ -63,13 +63,6 @@ jobs:
 
       - name: Build Jekyll site
         run: |
-          # Install Jekyll and necessary plugins
-              gem install bundler
-              gem install jekyll
-              gem install jekyll-relative-links
-              gem install jekyll-sass-converter -v "~> 3.0.0"
-              gem install jekyll-remote-theme
-
           # Create Jekyll source directory
           mkdir -p site-src
           cp -r docs/* site-src/
@@ -120,9 +113,27 @@ jobs:
               values:
                 layout: default
           EOF
-
-          # Build the site using Jekyll
-          jekyll build --source site-src --destination _site
+          
+          # Create Gemfile with exact dependencies
+          cat > site-src/Gemfile << EOF
+          source 'https://rubygems.org'
+          
+          gem 'jekyll', '~> 4.4.0'
+          gem 'jekyll-remote-theme', '0.4.3'
+          gem 'jekyll-relative-links'
+          gem 'jekyll-sass-converter', '~> 3.0.0'
+          gem 'webrick' # required for Ruby 3.x
+          EOF
+          
+          # Install dependencies using Bundler
+          cd site-src
+          bundle config set deployment 'true'
+          bundle config set without 'development'
+          bundle install
+          
+          # Build the site using Jekyll with bundler
+          bundle exec jekyll build --destination ../_site
+          cd ..
           
           # Display final build structure for debugging
           echo "Final site structure:"
