@@ -64,7 +64,11 @@ jobs:
       - name: Build Jekyll site
         run: |
           # Install Jekyll and necessary plugins
-          gem install bundler jekyll jekyll-relative-links jekyll-remote-theme
+              gem install bundler
+              gem install jekyll
+              gem install jekyll-relative-links
+              gem install jekyll-sass-converter -v "~> 3.0.0"
+              gem install jekyll-remote-theme
 
           # Create Jekyll source directory
           mkdir -p site-src
