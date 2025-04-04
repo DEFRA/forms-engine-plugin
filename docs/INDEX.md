@@ -1,4 +1,6 @@
-# DXT documentation
+---
+layout: default
+---
 
 - [Getting started with DXT](./GETTING_STARTED.md)
 - [Plugin registration options](./PLUGIN_OPTIONS.md)
@@ -10,3 +12,4 @@
   - [Custom Nunjucks/liquid filters](./PLUGIN_OPTIONS.md#custom-filters)
   - [Custom services (modifying the out-of-the-box behaviour of DXT)](./features/code-based/CUSTOM_SERVICES.md)
 - [Contributing to DXT](./CONTRIBUTING.md)
+- [Schema Reference Documentation](./schemas/README.md)

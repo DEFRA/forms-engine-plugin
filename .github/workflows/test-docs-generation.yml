@@ -1,0 +1,272 @@
+name: Test Documentation Generation
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch_type:
+        description: 'Type of branch to simulate'
+        required: true
+        default: 'main'
+        type: choice
+        options:
+          - main
+          - release/v1
+          - release/v2
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  test-docs-generation:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages-test
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Set branch type based on trigger
+        id: set-branch
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "BRANCH_TYPE=${{ github.event.inputs.branch_type }}" >> $GITHUB_ENV
+          else
+            echo "BRANCH_TYPE=main" >> $GITHUB_ENV
+          fi
+          echo "VERSION=1.2.3" >> $GITHUB_ENV
+
+      - name: Generate documentation
+        run: |
+          mkdir -p .github/scripts/docs
+          bash .github/scripts/docs/generate-and-publish-docs.sh "$BRANCH_TYPE" "$VERSION"
+
+      - name: Build Jekyll site
+        run: |
+          # Create Jekyll source directory
+          mkdir -p site-src
+          
+          # First, copy all docs to site-src
+          cp -r docs/* site-src/
+          
+          # Fix specific problematic files first before general processing
+          
+          # 1. Fix PAGE_TEMPLATES.md - it has complex Liquid syntax
+          if [ -f site-src/features/configuration-based/PAGE_TEMPLATES.md ]; then
+            echo "🔧 Processing PAGE_TEMPLATES.md file with special handling..."
+            
+            # Instead of complex awk/heredoc processing, just use simple sed commands
+            # to comment out the problematic sections and escape liquid syntax
+            
+            # 1. Escape Liquid syntax in examples by adding backslashes
+            sed -i 's/{{ /\\{{ /g; s/ }}/\\}}/g' site-src/features/configuration-based/PAGE_TEMPLATES.md
+            
+            # 2. Comment out the entire jinja2 code block content with HTML comments
+            sed -i '/```jinja2/,/```/ {
+              /```jinja2/ a <!-- Liquid template example (commented out for Jekyll compatibility) -->
+              /```jinja2/ a <!--
+              /^```$/ i -->
+            }' site-src/features/configuration-based/PAGE_TEMPLATES.md
+            
+            # 3. Update the jsonc example to have safe content
+            sed -i 's/"title": "Template example for {{ /"title": "Template example for <!-- \\{{ /g' site-src/features/configuration-based/PAGE_TEMPLATES.md
+            sed -i 's/}}?",/}} -->?",/g' site-src/features/configuration-based/PAGE_TEMPLATES.md
+            
+            # 4. Replace complex HTML content with simplified version
+            sed -i 's/"content": "<p class=\\"govuk-body\\">[^"]*"/"content": "<p class=\\"govuk-body\\">Example content (Liquid syntax removed for docs)"/' site-src/features/configuration-based/PAGE_TEMPLATES.md
+          fi
+          
+          # 2. Fix PAGE_EVENTS.md - it has an extra endif
+          if [ -f site-src/features/configuration-based/PAGE_EVENTS.md ]; then
+            echo "🔧 Processing PAGE_EVENTS.md to fix endif issue..."
+            sed -i '/You have not been awarded any funding for this application/,+2 s/{% endif %}//' site-src/features/configuration-based/PAGE_EVENTS.md
+          fi
+          
+          # Process INDEX.md - replace .md with .html
+          echo "🔄 Processing index.md file..."
+          sed 's/\.md/\.html/g' docs/INDEX.md > site-src/index.md
+          
+          # Ensure proper front matter in index.md
+          if ! grep -q "^---" site-src/index.md; then
+            sed -i '1s/^/---\nlayout: default\ntitle: DXT Documentation\n---\n\n/' site-src/index.md
+          fi
+          
+          # Process all markdown files for general fixes
+          echo "🔄 Processing all markdown files..."
+          find site-src -type f -name "*.md" | while read file; do
+            echo "  - Processing $file"
+            
+            # Replace .md with .html only in links (not in code blocks or paths)
+            # This regex targets markdown links [text](link.md) and also bare links like path/to/file.md
+            sed -i -E ':a;N;$!ba;s/(\[[^\]]*\]\([^)]*)(\.md)([^)]*\))/\1.html\3/g;s/(\][[:space:]]*:.*)(\.md)([[:space:]]*$)/\1.html\3/g' "$file"
+            
+            # Ensure every file has front matter
+            if ! grep -q "^---" "$file"; then
+              echo "    ✏️ Adding front matter to $file"
+              sed -i '1s/^/---\nlayout: default\n---\n\n/' "$file"
+            fi
+            
+            # Fix any 'layout: home' references
+            sed -i 's/layout: home/layout: default/g' "$file"
+            
+            # Escape all Liquid syntax outside of code blocks
+            # This is complex, we'll use a temp file approach
+            cp "$file" "${file}.tmp"
+            
+            # Process with awk to handle code blocks differently
+            awk '
+            BEGIN {in_code=0; in_front_matter=0; front_matter_count=0;}
+            
+            # Front matter handling
+            /^---/ {
+              if (in_front_matter == 0 && front_matter_count == 0) {
+                in_front_matter = 1;
+                front_matter_count++;
+                print; next;
+              } else if (in_front_matter == 1) {
+                in_front_matter = 0;
+                print; next;
+              }
+            }
+            
+            # Code block handling
+            /^```/ {
+              in_code = !in_code;
+              print; next;
+            }
+            
+            # Escape Liquid tags outside code blocks and front matter
+            !in_code && !in_front_matter && /{{|{%/ {
+              gsub(/{{/, "\\{{ ");
+              gsub(/}}/, " \\}}");
+              gsub(/{%/, "\\{% ");
+              gsub(/%}/, " \\%}");
+            }
+            
+            # Print the line
+            { print }
+            ' "${file}.tmp" > "$file"
+            
+            rm "${file}.tmp" 2>/dev/null || true
+          done
+          
+          # Create _config.yml with settings to process all files
+          echo "📝 Creating Jekyll config files..."
+          cat > site-src/_config.yml << EOF
+          title: DXT Documentation
+          description: Documentation for the DEFRA Forms Engine Plugin
+          
+          # Ensure all files are included
+          include:
+            - "**/*.html"
+          
+          # Basic settings
+          markdown: kramdown
+          kramdown:
+            input: GFM
+            syntax_highlighter: rouge
+            
+          # Use remote GitHub-hosted theme
+          remote_theme: pages-themes/minimal@v0.2.0
+          
+          plugins:
+            - jekyll-remote-theme
+            - jekyll-relative-links
+            - jekyll-seo-tag
+            
+          relative_links:
+            enabled: true
+            collections: true
+            
+          defaults:
+            - scope:
+                path: ""
+                type: "pages"
+              values:
+                layout: default
+          EOF
+          
+          # Create Gemfile with exact dependencies
+          cat > site-src/Gemfile << EOF
+          source 'https://rubygems.org'
+          
+          gem 'jekyll', '~> 4.4.0'
+          gem 'jekyll-remote-theme', '0.4.3'
+          gem 'jekyll-relative-links'
+          gem 'jekyll-sass-converter', '~> 3.0.0'
+          gem 'jekyll-seo-tag'
+          gem 'webrick' # required for Ruby 3.x
+          EOF
+          
+          # Install dependencies and build
+          echo "🔨 Building Jekyll site..."
+          cd site-src
+          bundle install
+          JEKYLL_ENV=production bundle exec jekyll build --verbose --destination ../_site
+          cd ..
+          
+          # Thorough verification
+          echo "🔍 Verifying build results..."
+          
+          # Check for HTML files
+          echo "✓ HTML files generated from markdown:"
+          find _site -name "*.html" | grep -v "assets" | head -n 15
+          html_count=$(find _site -name "*.html" | wc -l)
+          echo "  Total HTML files: $html_count"
+          
+          # Check if any markdown files remain in output (there shouldn't be any)
+          md_files=$(find _site -name "*.md" | wc -l)
+          if [ "$md_files" -gt 0 ]; then
+            echo "⚠️ WARNING: Found $md_files markdown files in output (should be 0):"
+            find _site -name "*.md" | head -n 10
+          else
+            echo "✅ No markdown files found in output (good!)"
+          fi
+          
+          # Check for specific problematic files to make sure they were converted
+          for check_file in "features/configuration-based/PAGE_TEMPLATES.html" "features/configuration-based/PAGE_EVENTS.html" "features/code-based/PAGE_VIEWS.html"; do
+            if [ -f "_site/$check_file" ]; then
+              echo "✅ Successfully converted: $check_file"
+            else
+              echo "❌ FAILED to convert: $check_file"
+            fi
+          done
+          
+          # Final output structure
+          echo "📊 Final site structure:"
+          find _site -type f | grep -v ".git" | grep -e "index.html" -e "features" | sort | head -n 15
+          echo "... (and more files)"
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '_site'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        with:
+          timeout: 600000 # 10 minutes in milliseconds

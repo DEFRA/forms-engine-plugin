@@ -33,6 +33,7 @@
     "dev:debug": "concurrently \"npm run client:watch\" \"npm run server:watch:debug\" --kill-others --names \"client,server\" --prefix-colors \"red.dim,blue.dim\"",
     "format": "npm run format:check -- --write",
     "format:check": "prettier --cache --cache-location .cache/prettier --cache-strategy content --check \"**/*.{cjs,js,json,md,mjs,scss,ts}\"",
+    "generate-schema-docs": "node scripts/generate-schema-docs.js",
     "postinstall": "npm run setup:husky",
     "lint": "npm run lint:editorconfig && npm run lint:js && npm run lint:types",
     "lint:editorconfig": "editorconfig-checker",
