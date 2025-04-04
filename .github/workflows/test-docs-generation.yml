@@ -75,76 +75,25 @@ jobs:
           if [ -f site-src/features/configuration-based/PAGE_TEMPLATES.md ]; then
             echo "🔧 Processing PAGE_TEMPLATES.md file with special handling..."
             
-            # Create a backup
-            cp site-src/features/configuration-based/PAGE_TEMPLATES.md site-src/features/configuration-based/PAGE_TEMPLATES.md.bak
+            # Instead of complex awk/heredoc processing, just use simple sed commands
+            # to comment out the problematic sections and escape liquid syntax
             
-            # Extract the filename
-            filename="site-src/features/configuration-based/PAGE_TEMPLATES.md"
+            # 1. Escape Liquid syntax in examples by adding backslashes
+            sed -i 's/{{ /\\{{ /g; s/ }}/\\}}/g' site-src/features/configuration-based/PAGE_TEMPLATES.md
             
-            # Replace problematic jinja2 code block
-            cat << 'EOFSCRIPT' > "${filename}.awk1"
-            BEGIN { in_block = 0; block_count = 0 }
-            /^```jinja2/ {
-              in_block = !in_block;
-              if (in_block == 1 && block_count == 0) {
-                block_count = 1;
-                print $0;
-                print "<!-- Liquid template example (commented out for Jekyll compatibility):";
-                print "<p class=\"govuk-body\">";
-                print "  {# Use Liquid's `assign` to create a variable... #}";
-                print "  {%- assign inEngland = \"/are-you-in-england\" | page -%}";
-                print "";
-                print "  {# Use the reference to `evaluate` the title #}";
-                print "  {{ inEngland.title | evaluate }}<br>";
-                print "";
-                print "  {# Use the href filter to display the full page path #}";
-                print "  {{ \"/are-you-in-england\" | href }}<br>";
-                print "";
-                print "  {# Use the `answer` filter to render the user provided answer to a question #}";
-                print "  {{ 'TKsWbP' | answer }}";
-                print "</p>";
-                print "-->";
-                next;
-              }
-              print $0;
-              next;
-            }
-            { print }
-            EOFSCRIPT
-            awk -f "${filename}.awk1" "$filename" > "${filename}.tmp1"
+            # 2. Comment out the entire jinja2 code block content with HTML comments
+            sed -i '/```jinja2/,/```/ {
+              /```jinja2/ a <!-- Liquid template example (commented out for Jekyll compatibility) -->
+              /```jinja2/ a <!--
+              /^```$/ i -->
+            }' site-src/features/configuration-based/PAGE_TEMPLATES.md
             
-            # Replace problematic jsonc code block
-            cat << 'EOFSCRIPT' > "${filename}.awk2"
-            BEGIN { in_block = 0; block_count = 0 }
-            /^```jsonc/ {
-              in_block = !in_block;
-              if (in_block == 1 && block_count == 0) {
-                block_count = 1;
-                print $0;
-                print "{";
-                print "  // This example shows how a Html (guidance) component can use the available filters";
-                print "  \"title\": \"Template example for <!-- {{ WmHfSb }} -->?\",";
-                print "  \"path\": \"/example\",";
-                print "  \"components\": [";
-                print "    {";
-                print "      \"title\": \"Html\",";
-                print "      \"type\": \"Html\",";
-                print "      \"content\": \"<p class=\\\"govuk-body\\\">Example content (Liquid syntax removed for docs)</p>\"";
-                print "    }";
-                print "  ]";
-                print "}";
-                next;
-              }
-              print $0;
-              next;
-            }
-            { print }
-            EOFSCRIPT
-            awk -f "${filename}.awk2" "${filename}.tmp1" > "${filename}.tmp2"
+            # 3. Update the jsonc example to have safe content
+            sed -i 's/"title": "Template example for {{ /"title": "Template example for <!-- \\{{ /g' site-src/features/configuration-based/PAGE_TEMPLATES.md
+            sed -i 's/}}?",/}} -->?",/g' site-src/features/configuration-based/PAGE_TEMPLATES.md
             
-            # Replace the original file
-            mv "${filename}.tmp2" "$filename"
-            rm "${filename}.tmp1" "${filename}.awk1" "${filename}.awk2" 2>/dev/null || true
+            # 4. Replace complex HTML content with simplified version
+            sed -i 's/"content": "<p class=\\"govuk-body\\">[^"]*"/"content": "<p class=\\"govuk-body\\">Example content (Liquid syntax removed for docs)"/' site-src/features/configuration-based/PAGE_TEMPLATES.md
           fi
           
           # 2. Fix PAGE_EVENTS.md - it has an extra endif
