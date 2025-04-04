@@ -66,73 +66,30 @@ jobs:
           # Create Jekyll source directory
           mkdir -p site-src
           
-          # Copy all docs to site-src
+          # First, copy all docs to site-src
           cp -r docs/* site-src/
           
-          # Fix specific problematic files directly using simpler methods
+          # Fix specific problematic files first before general processing
           
-          # 1. For PAGE_TEMPLATES.md - replace the problematic jinja2 code block
+          # 1. Fix PAGE_TEMPLATES.md - it has complex Liquid syntax
           if [ -f site-src/features/configuration-based/PAGE_TEMPLATES.md ]; then
             echo "🔧 Processing PAGE_TEMPLATES.md file with special handling..."
             
-            # Create a temporary file with our replacement content
-            cat > replacement_jinja2.txt << 'EOT'
-```jinja2
-<!-- Liquid template example (commented out for Jekyll compatibility):
-<p class="govuk-body">
-  {# Use Liquid's `assign` to create a variable that holds reference to the "/are-you-in-england" page #}
-  {# assign inEngland = "/are-you-in-england" | page #}
-
-  {# Use the reference to `evaluate` the title #}
-  {# inEngland.title | evaluate #}<br>
-
-  {# Use the href filter to display the full page path #}
-  {# "/are-you-in-england" | href #}<br>
-
-  {# Use the `answer` filter to render the user provided answer to a question #}
-  {# 'TKsWbP' | answer #}
-</p>
--->
-```
-EOT
+            # Create a backup
+            cp site-src/features/configuration-based/PAGE_TEMPLATES.md site-src/features/configuration-based/PAGE_TEMPLATES.md.bak
             
-            # Create a temporary file for the jsonc replacement
-            cat > replacement_jsonc.txt << 'EOT'
-```jsonc
-{
-  // This example shows how a Html (guidance) component can use the available filters
-  "title": "Template example for <!-- {{ WmHfSb }} -->?",
-  "path": "/example",
-  "components": [
-    {
-      "title": "Html",
-      "type": "Html",
-      "content": "<p class=\"govuk-body\">Example content (Liquid syntax removed for docs)</p>"
-    }
-  ]
-}
-```
-EOT
+            # Extract the filename
+            filename="site-src/features/configuration-based/PAGE_TEMPLATES.md"
             
-            # Use sed to replace the blocks - this is much safer than complex awk commands
-            # First find line numbers of the start and end of the blocks
-            jinja_start=$(grep -n '```jinja2' site-src/features/configuration-based/PAGE_TEMPLATES.md | head -1 | cut -d':' -f1)
-            jinja_end=$(tail -n +$jinja_start site-src/features/configuration-based/PAGE_TEMPLATES.md | grep -n '```' | head -1 | cut -d':' -f1)
-            jinja_end=$((jinja_start + jinja_end - 1))
+            # Replace problematic jinja2 code block
+            awk -v RS='```jinja2' -v ORS='```jinja2' 'NR==1{print} NR==2{print "\n<!-- Liquid template example (commented out for Jekyll compatibility):\n<p class=\"govuk-body\">\n  {# Use Liquid\\'s `assign` to create a variable... #}\n  {%- assign inEngland = \"/are-you-in-england\" | page -%}\n\n  {# Use the reference to `evaluate` the title #}\n  {{ inEngland.title | evaluate }}<br>\n\n  {# Use the href filter to display the full page path #}\n  {{ \"/are-you-in-england\" | href }}<br>\n\n  {# Use the `answer` filter to render the user provided answer to a question #}\n  {{ \\'TKsWbP\\' | answer }}\n</p>\n-->"; next} 1' "$filename" > "${filename}.tmp1"
             
-            jsonc_start=$(grep -n '```jsonc' site-src/features/configuration-based/PAGE_TEMPLATES.md | head -1 | cut -d':' -f1)
-            jsonc_end=$(tail -n +$jsonc_start site-src/features/configuration-based/PAGE_TEMPLATES.md | grep -n '```' | head -1 | cut -d':' -f1)
-            jsonc_end=$((jsonc_start + jsonc_end - 1))
-            
-            # Create a new file with replacements
-            head -n $((jinja_start - 1)) site-src/features/configuration-based/PAGE_TEMPLATES.md > site-src/features/configuration-based/PAGE_TEMPLATES.md.new
-            cat replacement_jinja2.txt >> site-src/features/configuration-based/PAGE_TEMPLATES.md.new
-            tail -n +$((jinja_end + 1)) site-src/features/configuration-based/PAGE_TEMPLATES.md | head -n $((jsonc_start - jinja_end - 1)) >> site-src/features/configuration-based/PAGE_TEMPLATES.md.new
-            cat replacement_jsonc.txt >> site-src/features/configuration-based/PAGE_TEMPLATES.md.new
-            tail -n +$((jsonc_end + 1)) site-src/features/configuration-based/PAGE_TEMPLATES.md >> site-src/features/configuration-based/PAGE_TEMPLATES.md.new
+            # Replace problematic jsonc code block
+            awk -v RS='```jsonc' -v ORS='```jsonc' 'NR==1{print} NR==2{print "\n{\n  // This example shows how a Html (guidance) component can use the available filters\n  \"title\": \"Template example for <!-- {{ WmHfSb }} -->?\",\n  \"path\": \"/example\",\n  \"components\": [\n    {\n      \"title\": \"Html\",\n      \"type\": \"Html\",\n      \"content\": \"<p class=\\\"govuk-body\\\">Example content (Liquid syntax removed for docs)</p>\"\n    }\n  ]\n}"; next} NR==3{print} NR>3{print RS $0}' "${filename}.tmp1" > "${filename}.tmp2"
             
             # Replace the original file
-            mv site-src/features/configuration-based/PAGE_TEMPLATES.md.new site-src/features/configuration-based/PAGE_TEMPLATES.md
+            mv "${filename}.tmp2" "$filename"
+            rm "${filename}.tmp1" 2>/dev/null || true
           fi
           
           # 2. Fix PAGE_EVENTS.md - it has an extra endif
@@ -155,8 +112,9 @@ EOT
           find site-src -type f -name "*.md" | while read file; do
             echo "  - Processing $file"
             
-            # Replace .md with .html in links
-            sed -i 's/\.md/\.html/g' "$file"
+            # Replace .md with .html only in links (not in code blocks or paths)
+            # This regex targets markdown links [text](link.md) and also bare links like path/to/file.md
+            sed -i -E ':a;N;$!ba;s/(\[[^\]]*\]\([^)]*)(\.md)([^)]*\))/\1.html\3/g;s/(\][[:space:]]*:.*)(\.md)([[:space:]]*$)/\1.html\3/g' "$file"
             
             # Ensure every file has front matter
             if ! grep -q "^---" "$file"; then
@@ -167,12 +125,45 @@ EOT
             # Fix any 'layout: home' references
             sed -i 's/layout: home/layout: default/g' "$file"
             
-            # Escape Liquid tags but preserve code blocks
-            sed -i 's/{{/\\{{ /g; s/}}/\\}} /g; s/{%/\\{% /g; s/%}/\\%} /g' "$file"
+            # Escape all Liquid syntax outside of code blocks
+            # This is complex, we'll use a temp file approach
+            cp "$file" "${file}.tmp"
             
-            # Un-escape within code blocks (between ``` markers)
-            # This is complex so we'll use a marker-based approach
-            sed -i '/^```/,/^```/ s/\\{{ /{{/g; /^```/,/^```/ s/\\}} /}}/g; /^```/,/^```/ s/\\{% /{%/g; /^```/,/^```/ s/\\%} /%}/g' "$file"
+            # Process with awk to handle code blocks differently
+            awk '
+            BEGIN {in_code=0; in_front_matter=0; front_matter_count=0;}
+            
+            # Front matter handling
+            /^---/ {
+              if (in_front_matter == 0 && front_matter_count == 0) {
+                in_front_matter = 1;
+                front_matter_count++;
+                print; next;
+              } else if (in_front_matter == 1) {
+                in_front_matter = 0;
+                print; next;
+              }
+            }
+            
+            # Code block handling
+            /^```/ {
+              in_code = !in_code;
+              print; next;
+            }
+            
+            # Escape Liquid tags outside code blocks and front matter
+            !in_code && !in_front_matter && /{{|{%/ {
+              gsub(/{{/, "\\{{ ");
+              gsub(/}}/, " \\}}");
+              gsub(/{%/, "\\{% ");
+              gsub(/%}/, " \\%}");
+            }
+            
+            # Print the line
+            { print }
+            ' "${file}.tmp" > "$file"
+            
+            rm "${file}.tmp" 2>/dev/null || true
           done
           
           # Create _config.yml with settings to process all files
