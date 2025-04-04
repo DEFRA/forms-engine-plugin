@@ -55,11 +55,8 @@ jobs:
           mkdir -p .github/scripts/docs
           bash .github/scripts/docs/generate-and-publish-docs.sh "$BRANCH_TYPE" "$VERSION"
 
-      - name: Generate and convert documentation
+      - name: Prepare Jekyll site
         run: |
-          # Install markdown converter
-          npm install -g marked
-          
           # Clean and setup output folder
           rm -rf _site
           mkdir -p _site
@@ -67,38 +64,32 @@ jobs:
           # Copy all docs recursively
           cp -r docs/* _site/
           
-          # Touch .nojekyll to disable Jekyll processing
-          touch _site/.nojekyll
+          # Rename main entry point to lowercase (Jekyll requirement)
+          cp _site/INDEX.md _site/index.md
           
-          # Convert all .md files to .html
-          find _site -name '*.md' | while read -r file; do
-            html_file="${file%.md}.html"
-            echo "Converting $file → $html_file"
-            npx marked -i "$file" -o "$html_file"
-          done
+          # Create minimal _config.yml
+          cat > _site/_config.yml << EOF
+          title: DEFRA Forms Engine Plugin
+          description: Documentation for the DEFRA Forms Engine Plugin
+          markdown: kramdown
+          theme: minima
+          EOF
           
-          # Rename main entry point
-          if [ -f _site/INDEX.html ]; then
-            cp _site/INDEX.html _site/index.html
-          fi
-          
-          # Remove all .md files after converting (optional)
-          find _site -name '*.md' -delete
-          
-          echo "Conversion complete!"
+          echo "Jekyll site preparation complete!"
 
       - name: List _site contents
         run: |
-          echo "Files in _site after conversion:"
+          echo "Files in _site:"
           find _site -type f | sort
           
-          # Check index file specifically
-          echo "Index file check:"
+          # Check key files
+          echo "Key files check:"
           ls -la _site/index*
+          ls -la _site/_config.yml || echo "_config.yml not found"
           
-          # Peek at the content of the index file
-          echo "First 20 lines of index.html:"
-          head -n 20 _site/index.html || echo "index.html not found"
+          # Peek at the content of the config file
+          echo "Content of _config.yml:"
+          cat _site/_config.yml
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
