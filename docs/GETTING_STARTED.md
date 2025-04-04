@@ -102,11 +102,48 @@ await server.start()
 
 ## Step 3: Handling static assets
 
-TODO
+1. [Update webpack to bundle the DXT application assets (CSS, JavaScript, etc)](https://github.com/DEFRA/forms-engine-plugin-example-ui/pull/1/files#diff-1fb26bc12ac780c7ad7325730ed09fc4c2c3d757c276c3dacc44bfe20faf166f)
+2. [Serve the newly bundled assets from your web server](https://github.com/DEFRA/forms-engine-plugin-example-ui/pull/1/files#diff-e5b183306056f90c7f606b526dbc0d0b7e17bccd703945703a0811b6e6bb3503)
+
+DXT plans to prefix to these asset paths to prevent collisions with your assets. Contact [#defra-forms-support](https://defra-digital-team.slack.com) if this is a blocker for you.
 
 ## Step 4: Environment variables
 
-TODO
+Blocks marked with `# FEATURE: <name>` are optional and can be omitted if the feature is not used.
+
+```shell
+# Feedback link shown in the phase banner. Supports `mailto:` links.
+FEEDBACK_LINK=http://test.com
+
+# Session configuration
+SESSION_COOKIE_PASSWORD="a-random-value-longer-a-minimum-of-32-characters"
+SESSION_TIMEOUT=604800000
+
+# Redis configuration
+REDIS_PASSWORD=my-password
+REDIS_USERNAME=default
+REDIS_HOST=localhost
+REDIS_KEY_PREFIX=forms-runner
+
+# START FEATURE: DXT -- used if using DXT's infrastructure to store your forms and file uploads
+MANAGER_URL=http://localhost:3001
+DESIGNER_URL=http://localhost:3000
+SUBMISSION_URL=http://localhost:3002
+
+# S3 bucket and URL of the CDP uploader. Bucket is owned by DXT, uploader is your service's URL.
+UPLOADER_BUCKET_NAME=my-bucket
+UPLOADER_URL=http://localhost:7337
+# END FEATURE: DXT
+
+# START FEATURE: GOV.UK Notify -- used if using DXT's default GOV.UK Notify email sender
+NOTIFY_TEMPLATE_ID="your-gov-notify-api-key"
+NOTIFY_API_KEY="your-gov-notify-api-key"
+# END FEATURE: GOV.UK Notify
+
+# START FEATURE: Google Analytics -- if enabled, shows a cookie banner and includes GA on the cookies/privacy policy
+GOOGLE_ANALYTICS_TRACKING_ID='12345'
+# END FEATURE: Google Analytics
+```
 
 ## Step 5: Creating and loading a form
 
@@ -122,6 +159,6 @@ These files are called `Form definitions` and are built up of:
 
 The [types](https://github.com/DEFRA/forms-designer/blob/main/model/src/form/form-definition/types.ts), `joi` [schema](https://github.com/DEFRA/forms-designer/blob/main/model/src/form/form-definition/index.ts) and the [examples](test/form/definitions) folder are a good place to learn about the structure of these files.
 
-TODO - Link to wiki for `Form metadata`
+TODO - Link to documentation for `Form metadata`
 
-TODO - Link to wiki for `Form definition`
+TODO - Link to documentation for `Form definition`
