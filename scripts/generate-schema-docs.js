@@ -93,7 +93,9 @@ export function processSchemaFile(file, tempDir, schemaTitleMap) {
   const schemaPath = path.join(schemasDir, file)
   const schema = readSchemaFile(schemaPath)
 
-  if (!schema) return
+  if (!schema) {
+    return
+  }
 
   const processedSchema = processSchemaContent(schema, file, schemaTitleMap)
   const newFilename = file.replace('.json', '.schema.json')
@@ -188,7 +190,7 @@ export function processStandardMarkdownFiles(docsDir, titleMap) {
     const schemaBase = file.replace('.md', '')
 
     // Fix numeric type headings (e.g., "## 0 Type" -> "## Component Type")
-    content = content.replace(/## (\d+) Type/g, (match, index) => {
+    content = content.replace(/## (\d+) Type/g, (_match, index) => {
       const pathToCheck = `${schemaBase}/oneOf/${index}`
       const title =
         titleMap[pathToCheck] ||
@@ -200,7 +202,7 @@ export function processStandardMarkdownFiles(docsDir, titleMap) {
     })
 
     // Fix numeric properties headings
-    content = content.replace(/# (\d+) Properties/g, (match, index) => {
+    content = content.replace(/# (\d+) Properties/g, (_match, index) => {
       const pathToCheck = `${schemaBase}/oneOf/${index}`
       const title =
         titleMap[pathToCheck] ||
@@ -212,7 +214,7 @@ export function processStandardMarkdownFiles(docsDir, titleMap) {
     })
 
     // Fix definitions headings
-    content = content.replace(/## ([\w-]+) Type/g, (match, defName) => {
+    content = content.replace(/## ([\w-]+) Type/g, (_match, defName) => {
       const title =
         titleMap[`${schemaBase}/definitions/${defName}`] ??
         formatPropertyName(String(defName))
@@ -224,7 +226,7 @@ export function processStandardMarkdownFiles(docsDir, titleMap) {
     content = content.replace(/## Type Type/g, '## Type')
 
     // Fix other redundant headings (when property name and title are identical)
-    content = content.replace(/## (\w+) \1\b/gi, (match, word) => {
+    content = content.replace(/## (\w+) \1\b/gi, (_match, word) => {
       return `## ${word}`
     })
 
@@ -281,6 +283,7 @@ export function applyReplacements(content, replacements) {
 export function fixConditionFileHeadings(content, filename) {
   const replacements = []
 
+  // Handle specific condition file types first
   if (filename.includes('static-value')) {
     replacements.push(
       { pattern: /## Item 0 Type/g, replacement: '## Static Value Type' },
@@ -289,7 +292,9 @@ export function fixConditionFileHeadings(content, filename) {
         replacement: '# Static Value Properties'
       }
     )
-  } else if (filename.includes('condition-definition')) {
+  }
+
+  if (filename.includes('condition-definition')) {
     replacements.push(
       {
         pattern: /## Item 0 Type/g,
@@ -311,6 +316,25 @@ export function fixConditionFileHeadings(content, filename) {
       {
         pattern: /# Item 1 Properties/g,
         replacement: '# Condition Reference Properties'
+      }
+    )
+  }
+
+  // If no specific patterns were added, use generic replacements
+  if (replacements.length === 0) {
+    replacements.push(
+      { pattern: /## Item 0 Type/g, replacement: '## Condition Item Type' },
+      {
+        pattern: /# Item 0 Properties/g,
+        replacement: '# Condition Item Properties'
+      },
+      {
+        pattern: /## Item 1 Type/g,
+        replacement: '## Secondary Condition Type'
+      },
+      {
+        pattern: /# Item 1 Properties/g,
+        replacement: '# Secondary Condition Properties'
       }
     )
   }
