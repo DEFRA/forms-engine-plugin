@@ -22,9 +22,12 @@ permissions:
   id-token: write
 
 jobs:
-  # Build job
   test-docs-generation:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages-test
+      url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -58,35 +61,60 @@ jobs:
           mkdir -p .github/scripts/docs
           bash .github/scripts/docs/generate-and-publish-docs.sh "$BRANCH_TYPE" "$VERSION"
 
-      - name: Setup Pages
-        id: pages
-        uses: actions/configure-pages@v5
-
       - name: Build Jekyll site
         run: |
-          # Install Jekyll and necessary plugins (including minima theme)
-          gem install bundler jekyll jekyll-relative-links minima
+          # Install Jekyll and necessary plugins
+          gem install bundler jekyll jekyll-relative-links jekyll-remote-theme
 
           # Create Jekyll source directory
           mkdir -p site-src
           cp -r docs/* site-src/
           
           # Create lowercase index.md (Jekyll requirement)
-          cp site-src/INDEX.md site-src/index.md
+          cat > site-src/index.md << EOF
+          ---
+          layout: default
+          title: DXT Documentation
+          ---
+          
+          $(grep -v "^# DXT documentation" site-src/INDEX.md)
+          EOF
 
-          # Write Jekyll configuration
+          # Write Jekyll _config.yml with remote theme
           cat > site-src/_config.yml << EOF
-          title: DEFRA Forms Engine Plugin
+          title: DXT Documentation
           description: Documentation for the DEFRA Forms Engine Plugin
           markdown: kramdown
           kramdown:
             input: GFM
             syntax_highlighter: rouge
-          theme: minima
+            
+          # Use remote GitHub-hosted theme
+          remote_theme: pages-themes/minimal
+          
           plugins:
+            - jekyll-remote-theme
             - jekyll-relative-links
+            
           relative_links:
             enabled: true
+            
+          defaults:
+            - scope:
+                path: "schemas"
+                type: "pages"
+              values:
+                layout: default
+            - scope:
+                path: "features"
+                type: "pages"
+              values:
+                layout: default
+            - scope:
+                path: ""
+                type: "pages"
+              values:
+                layout: default
           EOF
 
           # Build the site using Jekyll
@@ -94,15 +122,17 @@ jobs:
           
           # Display final build structure for debugging
           echo "Final site structure:"
-          find _site -type f | grep -v ".git" | sort | head -n 20
+          find _site -type f | grep -v ".git" | grep -e "index.html" -e "assets" | head -n 10
           echo "... (and more files)"
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: '_site'
 
-      # Deployment job
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
