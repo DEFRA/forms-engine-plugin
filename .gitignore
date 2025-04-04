@@ -11,3 +11,4 @@ coverage
 .env
 tsconfig.tsbuildinfo
 docs/schemas
+temp-schemas
