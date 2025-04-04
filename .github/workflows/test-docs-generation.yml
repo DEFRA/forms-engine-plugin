@@ -66,59 +66,117 @@ jobs:
           # Create Jekyll source directory
           mkdir -p site-src
           
-          # Copy all docs except INDEX.md (we'll handle that separately)
+          # First, copy all docs to site-src
           cp -r docs/* site-src/
           
-          # Process INDEX.md - replace .md with .html and add proper front matter
+          # Fix specific problematic files first before general processing
+          
+          # 1. Fix PAGE_TEMPLATES.md - it has complex Liquid syntax
+          if [ -f site-src/features/configuration-based/PAGE_TEMPLATES.md ]; then
+            echo "🔧 Processing PAGE_TEMPLATES.md file with special handling..."
+            
+            # Create a backup
+            cp site-src/features/configuration-based/PAGE_TEMPLATES.md site-src/features/configuration-based/PAGE_TEMPLATES.md.bak
+            
+            # Extract the filename
+            filename="site-src/features/configuration-based/PAGE_TEMPLATES.md"
+            
+            # Replace problematic jinja2 code block
+            awk -v RS='```jinja2' -v ORS='```jinja2' 'NR==1{print} NR==2{print "\n<!-- Liquid template example (commented out for Jekyll compatibility):\n<p class=\"govuk-body\">\n  {# Use Liquid\\'s `assign` to create a variable... #}\n  {%- assign inEngland = \"/are-you-in-england\" | page -%}\n\n  {# Use the reference to `evaluate` the title #}\n  {{ inEngland.title | evaluate }}<br>\n\n  {# Use the href filter to display the full page path #}\n  {{ \"/are-you-in-england\" | href }}<br>\n\n  {# Use the `answer` filter to render the user provided answer to a question #}\n  {{ \\'TKsWbP\\' | answer }}\n</p>\n-->"; next} 1' "$filename" > "${filename}.tmp1"
+            
+            # Replace problematic jsonc code block
+            awk -v RS='```jsonc' -v ORS='```jsonc' 'NR==1{print} NR==2{print "\n{\n  // This example shows how a Html (guidance) component can use the available filters\n  \"title\": \"Template example for <!-- {{ WmHfSb }} -->?\",\n  \"path\": \"/example\",\n  \"components\": [\n    {\n      \"title\": \"Html\",\n      \"type\": \"Html\",\n      \"content\": \"<p class=\\\"govuk-body\\\">Example content (Liquid syntax removed for docs)</p>\"\n    }\n  ]\n}"; next} NR==3{print} NR>3{print RS $0}' "${filename}.tmp1" > "${filename}.tmp2"
+            
+            # Replace the original file
+            mv "${filename}.tmp2" "$filename"
+            rm "${filename}.tmp1" 2>/dev/null || true
+          fi
+          
+          # 2. Fix PAGE_EVENTS.md - it has an extra endif
+          if [ -f site-src/features/configuration-based/PAGE_EVENTS.md ]; then
+            echo "🔧 Processing PAGE_EVENTS.md to fix endif issue..."
+            sed -i '/You have not been awarded any funding for this application/,+2 s/{% endif %}//' site-src/features/configuration-based/PAGE_EVENTS.md
+          fi
+          
+          # Process INDEX.md - replace .md with .html
+          echo "🔄 Processing index.md file..."
           sed 's/\.md/\.html/g' docs/INDEX.md > site-src/index.md
-          sed -i '1s/^/---\nlayout: default\ntitle: DXT Documentation\n---\n\n/' site-src/index.md
           
-          # Create a file to hold the problematic lines to fix
-          cat > fix-liquid.sed << EOF
-          # Fix for the specific error in PAGE_EVENTS.md
-          /You have not been awarded any funding for this application/,+1 s/{% endif %}//
+          # Ensure proper front matter in index.md
+          if ! grep -q "^---" site-src/index.md; then
+            sed -i '1s/^/---\nlayout: default\ntitle: DXT Documentation\n---\n\n/' site-src/index.md
+          fi
           
-          # Escape all Liquid tags for Jekyll
-          s/{{/\\{{ /g
-          s/}}/\\}} /g
-          s/{%/\\{% /g
-          s/%}/\\%} /g
-          EOF
-          
-          # Process all markdown files
-          find site-src -name "*.md" | while read file; do
-            # Apply the liquid fixes
-            sed -i -f fix-liquid.sed "$file"
+          # Process all markdown files for general fixes
+          echo "🔄 Processing all markdown files..."
+          find site-src -type f -name "*.md" | while read file; do
+            echo "  - Processing $file"
             
-            # Replace .md with .html in links
-            sed -i 's/\.md/\.html/g' "$file"
+            # Replace .md with .html only in links (not in code blocks or paths)
+            # This regex targets markdown links [text](link.md) and also bare links like path/to/file.md
+            sed -i -E ':a;N;$!ba;s/(\[[^\]]*\]\([^)]*)(\.md)([^)]*\))/\1.html\3/g;s/(\][[:space:]]*:.*)(\.md)([[:space:]]*$)/\1.html\3/g' "$file"
             
-            # Ensure every Markdown file has front matter
+            # Ensure every file has front matter
             if ! grep -q "^---" "$file"; then
-              echo "Injecting front matter into $file"
+              echo "    ✏️ Adding front matter to $file"
               sed -i '1s/^/---\nlayout: default\n---\n\n/' "$file"
             fi
             
             # Fix any 'layout: home' references
             sed -i 's/layout: home/layout: default/g' "$file"
+            
+            # Escape all Liquid syntax outside of code blocks
+            # This is complex, we'll use a temp file approach
+            cp "$file" "${file}.tmp"
+            
+            # Process with awk to handle code blocks differently
+            awk '
+            BEGIN {in_code=0; in_front_matter=0; front_matter_count=0;}
+            
+            # Front matter handling
+            /^---/ {
+              if (in_front_matter == 0 && front_matter_count == 0) {
+                in_front_matter = 1;
+                front_matter_count++;
+                print; next;
+              } else if (in_front_matter == 1) {
+                in_front_matter = 0;
+                print; next;
+              }
+            }
+            
+            # Code block handling
+            /^```/ {
+              in_code = !in_code;
+              print; next;
+            }
+            
+            # Escape Liquid tags outside code blocks and front matter
+            !in_code && !in_front_matter && /{{|{%/ {
+              gsub(/{{/, "\\{{ ");
+              gsub(/}}/, " \\}}");
+              gsub(/{%/, "\\{% ");
+              gsub(/%}/, " \\%}");
+            }
+            
+            # Print the line
+            { print }
+            ' "${file}.tmp" > "$file"
+            
+            rm "${file}.tmp" 2>/dev/null || true
           done
           
-          # Create Gemfile with exact dependencies
-          cat > site-src/Gemfile << EOF
-          source 'https://rubygems.org'
-          
-          gem 'jekyll', '~> 4.4.0'
-          gem 'jekyll-remote-theme', '0.4.3'
-          gem 'jekyll-relative-links'
-          gem 'jekyll-sass-converter', '~> 3.0.0'
-          gem 'jekyll-seo-tag'
-          gem 'webrick' # required for Ruby 3.x
-          EOF
-          
-          # Write Jekyll _config.yml with proper configuration
+          # Create _config.yml with settings to process all files
+          echo "📝 Creating Jekyll config files..."
           cat > site-src/_config.yml << EOF
           title: DXT Documentation
           description: Documentation for the DEFRA Forms Engine Plugin
+          
+          # Ensure all files are included
+          include:
+            - "**/*.html"
+          
+          # Basic settings
           markdown: kramdown
           kramdown:
             input: GFM
@@ -144,19 +202,55 @@ jobs:
                 layout: default
           EOF
           
+          # Create Gemfile with exact dependencies
+          cat > site-src/Gemfile << EOF
+          source 'https://rubygems.org'
+          
+          gem 'jekyll', '~> 4.4.0'
+          gem 'jekyll-remote-theme', '0.4.3'
+          gem 'jekyll-relative-links'
+          gem 'jekyll-sass-converter', '~> 3.0.0'
+          gem 'jekyll-seo-tag'
+          gem 'webrick' # required for Ruby 3.x
+          EOF
+          
           # Install dependencies and build
+          echo "🔨 Building Jekyll site..."
           cd site-src
           bundle install
-          bundle exec jekyll build --destination ../_site
+          JEKYLL_ENV=production bundle exec jekyll build --verbose --destination ../_site
           cd ..
           
-          # Verify HTML files were generated for features
-          echo "Checking for built HTML pages:"
-          find _site/features -name "*.html" | head -n 10
+          # Thorough verification
+          echo "🔍 Verifying build results..."
           
-          # Display final build structure for debugging
-          echo "Final site structure:"
-          find _site -type f | grep -v ".git" | grep -e "index.html" -e "assets" -e "schema" | head -n 10
+          # Check for HTML files
+          echo "✓ HTML files generated from markdown:"
+          find _site -name "*.html" | grep -v "assets" | head -n 15
+          html_count=$(find _site -name "*.html" | wc -l)
+          echo "  Total HTML files: $html_count"
+          
+          # Check if any markdown files remain in output (there shouldn't be any)
+          md_files=$(find _site -name "*.md" | wc -l)
+          if [ "$md_files" -gt 0 ]; then
+            echo "⚠️ WARNING: Found $md_files markdown files in output (should be 0):"
+            find _site -name "*.md" | head -n 10
+          else
+            echo "✅ No markdown files found in output (good!)"
+          fi
+          
+          # Check for specific problematic files to make sure they were converted
+          for check_file in "features/configuration-based/PAGE_TEMPLATES.html" "features/configuration-based/PAGE_EVENTS.html" "features/code-based/PAGE_VIEWS.html"; do
+            if [ -f "_site/$check_file" ]; then
+              echo "✅ Successfully converted: $check_file"
+            else
+              echo "❌ FAILED to convert: $check_file"
+            fi
+          done
+          
+          # Final output structure
+          echo "📊 Final site structure:"
+          find _site -type f | grep -v ".git" | grep -e "index.html" -e "features" | sort | head -n 15
           echo "... (and more files)"
 
       - name: Setup Pages
