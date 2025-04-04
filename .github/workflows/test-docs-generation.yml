@@ -71,20 +71,36 @@ jobs:
           
           # Process INDEX.md - replace .md with .html and add proper front matter
           sed 's/\.md/\.html/g' docs/INDEX.md > site-src/index.md
-          # Make sure front matter is formatted correctly (with empty line after)
           sed -i '1s/^/---\nlayout: default\ntitle: DXT Documentation\n---\n\n/' site-src/index.md
           
-          # Process all other markdown files to fix links
-          find site-src -name "*.md" | while read file; do
-            sed -i 's/\.md/\.html/g' "$file"
-          done
+          # Create a file to hold the problematic lines to fix
+          cat > fix-liquid.sed << EOF
+          # Fix for the specific error in PAGE_EVENTS.md
+          /You have not been awarded any funding for this application/,+1 s/{% endif %}//
           
-          # Inject front matter into all markdown files that are missing it
+          # Escape all Liquid tags for Jekyll
+          s/{{/\\{{ /g
+          s/}}/\\}} /g
+          s/{%/\\{% /g
+          s/%}/\\%} /g
+          EOF
+          
+          # Process all markdown files
           find site-src -name "*.md" | while read file; do
+            # Apply the liquid fixes
+            sed -i -f fix-liquid.sed "$file"
+            
+            # Replace .md with .html in links
+            sed -i 's/\.md/\.html/g' "$file"
+            
+            # Ensure every Markdown file has front matter
             if ! grep -q "^---" "$file"; then
               echo "Injecting front matter into $file"
               sed -i '1s/^/---\nlayout: default\n---\n\n/' "$file"
             fi
+            
+            # Fix any 'layout: home' references
+            sed -i 's/layout: home/layout: default/g' "$file"
           done
           
           # Create Gemfile with exact dependencies
@@ -122,27 +138,15 @@ jobs:
             
           defaults:
             - scope:
-                path: "schemas"
-                type: "pages"
-              values:
-                layout: default
-            - scope:
-                path: "features"
-                type: "pages"
-              values:
-                layout: default
-            - scope:
                 path: ""
                 type: "pages"
               values:
                 layout: default
           EOF
           
-          # Install dependencies using Bundler
+          # Install dependencies and build
           cd site-src
           bundle install
-          
-          # Build the site using Jekyll with bundler
           bundle exec jekyll build --destination ../_site
           cd ..
           

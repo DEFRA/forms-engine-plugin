@@ -1,5 +1,5 @@
 ---
-layout: home
+layout: default
 ---
 
 - [Getting started with DXT](./GETTING_STARTED.md)
