@@ -2,8 +2,7 @@ name: Test Documentation Generation
 
 on:
   pull_request:
-    branches:
-      - this-branch-does-not-exist-so-trigger-never-fires
+    types: [opened, synchronize]
   
   workflow_dispatch:
     inputs:
@@ -24,6 +23,7 @@ permissions:
 
 jobs:
   test-docs-generation:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     environment:
       name: github-pages-test
