@@ -65,18 +65,20 @@ jobs:
         run: |
           # Create Jekyll source directory
           mkdir -p site-src
+          
+          # Copy all docs except INDEX.md (we'll handle that separately)
           cp -r docs/* site-src/
           
-          # Create lowercase index.md (Jekyll requirement)
-          cat > site-src/index.md << EOF
-          ---
-          layout: default
-          title: DXT Documentation
-          ---
+          # Process INDEX.md - replace .md with .html and add proper front matter
+          sed 's/\.md/\.html/g' docs/INDEX.md > site-src/index.md
+          # Make sure front matter is formatted correctly (with empty line after)
+          sed -i '1s/^/---\nlayout: default\ntitle: DXT Documentation\n---\n\n/' site-src/index.md
           
-          $(grep -v "^# DXT documentation" site-src/INDEX.md)
-          EOF
-
+          # Process all other markdown files to fix links
+          find site-src -name "*.md" | while read file; do
+            sed -i 's/\.md/\.html/g' "$file"
+          done
+          
           # Create Gemfile with exact dependencies
           cat > site-src/Gemfile << EOF
           source 'https://rubygems.org'
@@ -89,7 +91,7 @@ jobs:
           gem 'webrick' # required for Ruby 3.x
           EOF
           
-          # Write Jekyll _config.yml with remote theme
+          # Write Jekyll _config.yml with proper configuration
           cat > site-src/_config.yml << EOF
           title: DXT Documentation
           description: Documentation for the DEFRA Forms Engine Plugin
@@ -99,7 +101,7 @@ jobs:
             syntax_highlighter: rouge
             
           # Use remote GitHub-hosted theme
-          remote_theme: pages-themes/minimal
+          remote_theme: pages-themes/minimal@v0.2.0
           
           plugins:
             - jekyll-remote-theme
@@ -108,6 +110,7 @@ jobs:
             
           relative_links:
             enabled: true
+            collections: true
             
           defaults:
             - scope:
@@ -137,7 +140,7 @@ jobs:
           
           # Display final build structure for debugging
           echo "Final site structure:"
-          find _site -type f | grep -v ".git" | grep -e "index.html" -e "assets" | head -n 10
+          find _site -type f | grep -v ".git" | grep -e "index.html" -e "assets" -e "schema" | head -n 10
           echo "... (and more files)"
 
       - name: Setup Pages
