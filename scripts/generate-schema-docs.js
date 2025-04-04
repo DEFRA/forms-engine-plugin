@@ -112,15 +112,36 @@ export function processSchemaFile(file, tempDir, schemaTitleMap) {
  */
 export function runJsonSchema2Md(tempDir) {
   console.log('🛠️ Running jsonschema2md and processing markdown...')
+
+  if (!tempDir || typeof tempDir !== 'string') {
+    throw new Error('Invalid temporary directory path provided')
+  }
+
+  tempDir = path.normalize(tempDir)
+
+  const dangerousChars = /[;&|`$(){}[\]*?<>]/
+  if (dangerousChars.test(tempDir) || dangerousChars.test(docsOutputDir)) {
+    throw new Error('Directory path contains potentially unsafe characters')
+  }
+
+  const absoluteTempDir = path.resolve(tempDir)
+  const projectRoot = path.resolve(__dirname, '..')
+  if (!absoluteTempDir.startsWith(projectRoot)) {
+    throw new Error('Temporary directory must be within the project')
+  }
+
+  const tempDirArg = `"${tempDir.replace(/"/g, '\\"')}"`
+  const docsOutputDirArg = `"${docsOutputDir.replace(/"/g, '\\"')}"`
+
   execSync(
-    `npx jsonschema2md -d "${tempDir}" -o "${docsOutputDir}" --schema-extension schema.json -h false`,
+    `npx --yes @adobe/jsonschema2md -d ${tempDirArg} -o ${docsOutputDirArg} --schema-extension schema.json -h false`,
     { stdio: ['inherit', 'ignore', 'inherit'] }
   )
 }
 
 /**
  * Create index file listing all schemas
- * @param {string[]} schemaFiles - List of schema files
+ * @param {string[]} schemaFiles - List of schema filesa
  */
 export function createIndexFile(schemaFiles) {
   const indexContent = `# Defra Forms Model Schema Reference
