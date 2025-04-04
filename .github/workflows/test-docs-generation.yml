@@ -82,14 +82,69 @@ jobs:
             filename="site-src/features/configuration-based/PAGE_TEMPLATES.md"
             
             # Replace problematic jinja2 code block
-            awk -v RS='```jinja2' -v ORS='```jinja2' 'NR==1{print} NR==2{print "\n<!-- Liquid template example (commented out for Jekyll compatibility):\n<p class=\"govuk-body\">\n  {# Use Liquid\\'s `assign` to create a variable... #}\n  {%- assign inEngland = \"/are-you-in-england\" | page -%}\n\n  {# Use the reference to `evaluate` the title #}\n  {{ inEngland.title | evaluate }}<br>\n\n  {# Use the href filter to display the full page path #}\n  {{ \"/are-you-in-england\" | href }}<br>\n\n  {# Use the `answer` filter to render the user provided answer to a question #}\n  {{ \\'TKsWbP\\' | answer }}\n</p>\n-->"; next} 1' "$filename" > "${filename}.tmp1"
+            cat > "${filename}.awk1" << 'AWKSCRIPT'
+            BEGIN { in_block = 0 }
+            /^```jinja2/ {
+              in_block = !in_block;
+              if (in_block == 1 && block_count == 0) {
+                block_count = 1;
+                print $0;
+                print "<!-- Liquid template example (commented out for Jekyll compatibility):";
+                print "<p class=\"govuk-body\">";
+                print "  {# Use Liquid's `assign` to create a variable... #}";
+                print "  {%- assign inEngland = \"/are-you-in-england\" | page -%}";
+                print "";
+                print "  {# Use the reference to `evaluate` the title #}";
+                print "  {{ inEngland.title | evaluate }}<br>";
+                print "";
+                print "  {# Use the href filter to display the full page path #}";
+                print "  {{ \"/are-you-in-england\" | href }}<br>";
+                print "";
+                print "  {# Use the `answer` filter to render the user provided answer to a question #}";
+                print "  {{ 'TKsWbP' | answer }}";
+                print "</p>";
+                print "-->";
+                next;
+              }
+              print $0;
+              next;
+            }
+            { print }
+            AWKSCRIPT
+            awk -f "${filename}.awk1" "$filename" > "${filename}.tmp1"
             
             # Replace problematic jsonc code block
-            awk -v RS='```jsonc' -v ORS='```jsonc' 'NR==1{print} NR==2{print "\n{\n  // This example shows how a Html (guidance) component can use the available filters\n  \"title\": \"Template example for <!-- {{ WmHfSb }} -->?\",\n  \"path\": \"/example\",\n  \"components\": [\n    {\n      \"title\": \"Html\",\n      \"type\": \"Html\",\n      \"content\": \"<p class=\\\"govuk-body\\\">Example content (Liquid syntax removed for docs)</p>\"\n    }\n  ]\n}"; next} NR==3{print} NR>3{print RS $0}' "${filename}.tmp1" > "${filename}.tmp2"
+            cat > "${filename}.awk2" << 'AWKSCRIPT'
+            BEGIN { in_block = 0; block_count = 0 }
+            /^```jsonc/ {
+              in_block = !in_block;
+              if (in_block == 1 && block_count == 0) {
+                block_count = 1;
+                print $0;
+                print "{";
+                print "  // This example shows how a Html (guidance) component can use the available filters";
+                print "  \"title\": \"Template example for <!-- {{ WmHfSb }} -->?\",";
+                print "  \"path\": \"/example\",";
+                print "  \"components\": [";
+                print "    {";
+                print "      \"title\": \"Html\",";
+                print "      \"type\": \"Html\",";
+                print "      \"content\": \"<p class=\\\"govuk-body\\\">Example content (Liquid syntax removed for docs)</p>\"";
+                print "    }";
+                print "  ]";
+                print "}";
+                next;
+              }
+              print $0;
+              next;
+            }
+            { print }
+            AWKSCRIPT
+            awk -f "${filename}.awk2" "${filename}.tmp1" > "${filename}.tmp2"
             
             # Replace the original file
             mv "${filename}.tmp2" "$filename"
-            rm "${filename}.tmp1" 2>/dev/null || true
+            rm "${filename}.tmp1" "${filename}.awk1" "${filename}.awk2" 2>/dev/null || true
           fi
           
           # 2. Fix PAGE_EVENTS.md - it has an extra endif
