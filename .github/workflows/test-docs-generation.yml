@@ -77,6 +77,18 @@ jobs:
           $(grep -v "^# DXT documentation" site-src/INDEX.md)
           EOF
 
+          # Create Gemfile with exact dependencies
+          cat > site-src/Gemfile << EOF
+          source 'https://rubygems.org'
+          
+          gem 'jekyll', '~> 4.4.0'
+          gem 'jekyll-remote-theme', '0.4.3'
+          gem 'jekyll-relative-links'
+          gem 'jekyll-sass-converter', '~> 3.0.0'
+          gem 'jekyll-seo-tag'
+          gem 'webrick' # required for Ruby 3.x
+          EOF
+          
           # Write Jekyll _config.yml with remote theme
           cat > site-src/_config.yml << EOF
           title: DXT Documentation
@@ -92,6 +104,7 @@ jobs:
           plugins:
             - jekyll-remote-theme
             - jekyll-relative-links
+            - jekyll-seo-tag
             
           relative_links:
             enabled: true
@@ -114,18 +127,7 @@ jobs:
                 layout: default
           EOF
           
-          # Create Gemfile with exact dependencies
-          cat > site-src/Gemfile << EOF
-          source 'https://rubygems.org'
-          
-          gem 'jekyll', '~> 4.4.0'
-          gem 'jekyll-remote-theme', '0.4.3'
-          gem 'jekyll-relative-links'
-          gem 'jekyll-sass-converter', '~> 3.0.0'
-          gem 'webrick' # required for Ruby 3.x
-          EOF
-          
-          # Install dependencies using Bundler (without deployment setting)
+          # Install dependencies using Bundler
           cd site-src
           bundle install
           
