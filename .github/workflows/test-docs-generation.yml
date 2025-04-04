@@ -55,30 +55,50 @@ jobs:
           mkdir -p .github/scripts/docs
           bash .github/scripts/docs/generate-and-publish-docs.sh "$BRANCH_TYPE" "$VERSION"
 
-          # Create proper structure for GitHub Pages
+      - name: Generate and convert documentation
+        run: |
+          # Install markdown converter
+          npm install -g marked
+          
+          # Clean and setup output folder
+          rm -rf _site
           mkdir -p _site
           
-          # Copy all docs
+          # Copy all docs recursively
           cp -r docs/* _site/
           
-          # Rename entry point (GitHub Pages needs lowercase index.md)
-          cp docs/INDEX.md _site/index.md
-          
-          # Create .nojekyll file to bypass Jekyll processing
+          # Touch .nojekyll to disable Jekyll processing
           touch _site/.nojekyll
+          
+          # Convert all .md files to .html
+          find _site -name '*.md' | while read -r file; do
+            html_file="${file%.md}.html"
+            echo "Converting $file → $html_file"
+            npx marked -i "$file" -o "$html_file"
+          done
+          
+          # Rename main entry point
+          if [ -f _site/INDEX.html ]; then
+            cp _site/INDEX.html _site/index.html
+          fi
+          
+          # Remove all .md files after converting (optional)
+          find _site -name '*.md' -delete
+          
+          echo "Conversion complete!"
 
       - name: List _site contents
         run: |
-          echo "Files in _site:"
+          echo "Files in _site after conversion:"
           find _site -type f | sort
-
+          
           # Check index file specifically
           echo "Index file check:"
           ls -la _site/index*
-
+          
           # Peek at the content of the index file
-          echo "First 10 lines of index.md:"
-          head -n 10 _site/index.md || echo "index.md not found"
+          echo "First 20 lines of index.html:"
+          head -n 20 _site/index.html || echo "index.html not found"
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
