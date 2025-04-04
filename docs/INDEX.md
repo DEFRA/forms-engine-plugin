@@ -1,9 +1,6 @@
 ---
-layout: default
-title: DXT Documentation
+layout: home
 ---
-
-# DXT documentation
 
 - [Getting started with DXT](./GETTING_STARTED.md)
 - [Plugin registration options](./PLUGIN_OPTIONS.md)
