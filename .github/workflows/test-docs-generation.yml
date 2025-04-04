@@ -125,10 +125,8 @@ jobs:
           gem 'webrick' # required for Ruby 3.x
           EOF
           
-          # Install dependencies using Bundler
+          # Install dependencies using Bundler (without deployment setting)
           cd site-src
-          bundle config set deployment 'true'
-          bundle config set without 'development'
           bundle install
           
           # Build the site using Jekyll with bundler
