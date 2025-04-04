@@ -1,9 +1,6 @@
 name: Test Documentation Generation
 
 on:
-  pull_request:
-    types: [opened, synchronize]
-  
   workflow_dispatch:
     inputs:
       branch_type:
@@ -15,6 +12,9 @@ on:
           - main
           - release/v1
           - release/v2
+  pull_request:`
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -23,12 +23,11 @@ permissions:
 
 jobs:
   test-docs-generation:
-    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     environment:
       name: github-pages-test
       url: ${{ steps.deployment.outputs.page_url }}
-    
+
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -41,16 +40,45 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Set branch type based on trigger
+        id: set-branch
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "BRANCH_TYPE=${{ github.event.inputs.branch_type }}" >> $GITHUB_ENV
+          else
+            echo "BRANCH_TYPE=main" >> $GITHUB_ENV
+          fi
+          echo "VERSION=1.2.3" >> $GITHUB_ENV
+
       - name: Generate documentation
         run: |
-          bash .github/scripts/docs/generate-and-publish-docs.sh "${{ github.event.inputs.branch_type }}" "1.2.3"
-          
-          # Move to Jekyll expected structure
+          mkdir -p .github/scripts/docs
+          bash .github/scripts/docs/generate-and-publish-docs.sh "$BRANCH_TYPE" "$VERSION"
+
+          # Create proper structure for GitHub Pages
           mkdir -p _site
-          cp -r docs-site/* _site/
+          
+          # Copy all docs
+          cp -r docs/* _site/
+          
+          # Rename entry point (GitHub Pages needs lowercase index.md)
+          cp docs/INDEX.md _site/index.md
           
           # Create .nojekyll file to bypass Jekyll processing
           touch _site/.nojekyll
+
+      - name: List _site contents
+        run: |
+          echo "Files in _site:"
+          find _site -type f | sort
+
+          # Check index file specifically
+          echo "Index file check:"
+          ls -la _site/index*
+
+          # Peek at the content of the index file
+          echo "First 10 lines of index.md:"
+          head -n 10 _site/index.md || echo "index.md not found"
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -59,7 +87,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: '_site'
-          
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
