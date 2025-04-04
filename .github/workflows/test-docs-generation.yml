@@ -79,6 +79,14 @@ jobs:
             sed -i 's/\.md/\.html/g' "$file"
           done
           
+          # Inject front matter into all markdown files that are missing it
+          find site-src -name "*.md" | while read file; do
+            if ! grep -q "^---" "$file"; then
+              echo "Injecting front matter into $file"
+              sed -i '1s/^/---\nlayout: default\n---\n\n/' "$file"
+            fi
+          done
+          
           # Create Gemfile with exact dependencies
           cat > site-src/Gemfile << EOF
           source 'https://rubygems.org'
@@ -137,6 +145,10 @@ jobs:
           # Build the site using Jekyll with bundler
           bundle exec jekyll build --destination ../_site
           cd ..
+          
+          # Verify HTML files were generated for features
+          echo "Checking for built HTML pages:"
+          find _site/features -name "*.html" | head -n 10
           
           # Display final build structure for debugging
           echo "Final site structure:"
