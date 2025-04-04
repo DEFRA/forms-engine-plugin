@@ -1,3 +1,8 @@
+---
+layout: default
+title: DXT Documentation
+---
+
 # DXT documentation
 
 - [Getting started with DXT](./GETTING_STARTED.md)
