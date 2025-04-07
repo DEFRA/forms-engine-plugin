@@ -141,13 +141,13 @@ table {
   width: 100%;
   margin-bottom: 1rem;
   border-collapse: collapse;
-  
+
   th, td {
     padding: 0.75rem;
     vertical-align: top;
     border: 1px solid #e3e3e3;
   }
-  
+
   th {
     background-color: #f5f5f5;
   }

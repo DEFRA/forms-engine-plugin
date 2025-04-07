@@ -24,7 +24,7 @@ find "$BASE_DIR" -type f -name "*.md" | while read file; do
   # === Fix all .md links to match Jekyll's pretty permalinks ===
   sed "${SED_INPLACE[@]}" -E 's|\[([^]]+)\]\(([^)]+)\.md(#[^)]+)?\)|\[\1\]\(/forms-engine-plugin/\2\3\)|g' "$file"
   sed "${SED_INPLACE[@]}" -E 's|\[([^]]+)\]\(([^)]+)\.md\)|\[\1\]\(/forms-engine-plugin/\2\)|g' "$file"
-  
+
   # === Specific handling for schema files ===
   if [[ "$file" == *"/schemas/"* ]]; then
     if grep -q "^---" "$file" && ! grep -q "parent:" "$file" && [[ "$file" != *"/schemas/index.md" ]]; then
@@ -36,7 +36,7 @@ parent: SCHEMA REFERENCE' "$file"
     if grep -q "parent: Schema Reference" "$file"; then
       sed "${SED_INPLACE[@]}" 's/parent: Schema Reference/parent: SCHEMA REFERENCE/g' "$file"
     fi
-    
+
     # Fix common schema reference patterns
     sed "${SED_INPLACE[@]}" -E 's/\[([^\]]+)\]\(([a-zA-Z0-9_-]+-schema[a-zA-Z0-9_-]*)(\.md)?\)/[\1](\2)/g' "$file"
     sed "${SED_INPLACE[@]}" -E 's/\[([^\]]+)\]\(([a-zA-Z0-9_-]+-schema-[a-zA-Z0-9_-]*)(\.md)?\)/[\1](\2)/g' "$file"
@@ -98,11 +98,11 @@ echo "🔧 Special handling for files with code examples..."
 for special_file in "./features/configuration-based/PAGE_TEMPLATES.md" "./CONTRIBUTING.md"; do
   if [ -f "$special_file" ]; then
     echo "  Processing special file: $special_file"
-    
+
     # Create a temporary file
     temp_file="${special_file}.tmp"
     > "$temp_file" # Create empty temporary file
-    
+
     # Process the file line-by-line, tracking if we're in a code block
     in_code_block=false
     while IFS= read -r line; do
@@ -124,7 +124,7 @@ for special_file in "./features/configuration-based/PAGE_TEMPLATES.md" "./CONTRI
         echo "$fixed_line" >> "$temp_file"
       fi
     done < "$special_file"
-    
+
     # Replace original with fixed version
     mv "$temp_file" "$special_file"
   fi
@@ -172,13 +172,13 @@ done
 if [ -f "./schemas/README.md" ] && [ ! -f "./schemas/index.md" ]; then
   echo "📝 Creating schemas/index.md from README.md..."
   cp "./schemas/README.md" "./schemas/index.md"
-  
+
   sed "${SED_INPLACE[@]}" '/^---/,/^---/d' "./schemas/index.md"
 
   # Add new front matter
   front_matter="---\nlayout: default\ntitle: SCHEMA REFERENCE\nnav_order: 5\nhas_children: true\npermalink: /schemas/\n---\n\n"
   sed "${SED_INPLACE[@]}" "1s/^/$front_matter/" "./schemas/index.md"
-  
+
   echo "✅ Created schemas/index.md with proper front matter"
 fi
 
