@@ -101,6 +101,13 @@ jobs:
           JEKYLL_ENV=production bundle exec jekyll build --verbose --destination ../_site
           cd ..
           
+          # Fix index file location if it's in the wrong place
+          if [ -f "_site/INDEX/index.html" ] && [ ! -f "_site/index.html" ]; then
+            echo "🔄 Moving index.html from INDEX folder to root..."
+            cp "_site/INDEX/index.html" "_site/index.html"
+            # Optional: you may want to update any relative links in the index file
+          fi
+          
           # Verification steps
           echo "🔍 Verifying build results..."
           
@@ -109,6 +116,10 @@ jobs:
           find _site -name "*.html" | grep -v "assets" | head -n 15
           html_count=$(find _site -name "*.html" | wc -l)
           echo "  Total HTML files: $html_count"
+          
+          # Show root files explicitly
+          echo "📄 Files at site root:"
+          ls -la _site/
           
           # Check if any markdown files remain in output (there shouldn't be any)
           md_files=$(find _site -name "*.md" | wc -l)

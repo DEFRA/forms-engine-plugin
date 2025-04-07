@@ -37,10 +37,9 @@ remote_theme: just-the-docs/just-the-docs@v0.5.3
 # Use this instead of remote_theme when running locally
 # theme: just-the-docs
 
-# URL configuration
+# URL configuration - ensure these are correct for GitHub Pages
 url: ""
-baseurl: ""
-permalink: pretty
+baseurl: "/forms-engine-plugin"  # Use repo name for GitHub Pages
 
 # Search and heading configuration
 search_enabled: true
