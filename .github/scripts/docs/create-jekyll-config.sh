@@ -21,6 +21,8 @@ source 'https://rubygems.org'
 gem 'jekyll', '~> 4.3.2'
 gem 'just-the-docs', '~> 0.5.3'
 gem 'jekyll-seo-tag'
+gem 'jekyll-remote-theme'
+gem 'jekyll-relative-links'
 gem 'webrick' # required for Ruby 3.x
 EOF
 
