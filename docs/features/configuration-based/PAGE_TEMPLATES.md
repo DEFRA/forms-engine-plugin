@@ -61,7 +61,7 @@ The following elements support [LiquidJS templates](https://liquidjs.com/):
 ## Template data
 
 The data the templates are evaluated against is the raw answers the user has provided up to the page they're currently on.
-For example, given a YesNoField component called `TKsWbP`, the template `{{ TKsWbP }}` would render "true" or "false" depending on how the user answered the question.
+For example, given a YesNoField component called `TKsWbP`, the template `&#123;&#123; TKsWbP &#125;&#125;` would render "true" or "false" depending on how the user answered the question.
 
 The current FormContext is also available as `context` in the templates. This allows access to the full data including the path the user has taken in their journey and any miscellaneous data returned from `Page event`s in `context.data`.
 
@@ -158,4 +158,4 @@ Whilst DXT offers some out of the box filters, teams using the plugin have the c
 
 ## Using page templates with data from your own API
 
-Page templates have access to `{{ context.data }}`, which is an attribute made available when a page event is triggered. It represents the entire response body from your API. To learn more about this, [see our guidance on page events](./PAGE_EVENTS.md).
+Page templates have access to`&#123;&#123; context.data  &#125;&#125;` , which is an attribute made available when a page event is triggered. It represents the entire response body from your API. To learn more about this, [see our guidance on page events](./PAGE_EVENTS.md).
