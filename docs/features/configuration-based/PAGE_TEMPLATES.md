@@ -1,3 +1,10 @@
+---
+layout: default
+title: Page Templates
+parent: Configuration-based Features
+grand_parent: Features
+---
+
 # Page templates
 
 Page templates are a configuration-based way of adding dynamic content to the form UI, such as displaying the answer to a question, or some data from your API. This feature is only used for presentation purposes.

@@ -90,6 +90,14 @@ jobs:
           ../.github/scripts/docs/fix-schema-links.sh
           cd ..
 
+      - name: Fix Liquid templates and create lowercase files
+        run: |
+          echo "🔄 Fixing Liquid templates and creating lowercase files..."
+          cd site-src
+          chmod +x ../.github/scripts/docs/fix-docs.sh
+          ../.github/scripts/docs/fix-docs.sh
+          cd ..
+
       - name: Create Jekyll configuration
         run: |
           echo "🔄 Creating Jekyll configuration files..."
