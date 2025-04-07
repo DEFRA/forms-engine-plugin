@@ -162,4 +162,33 @@ table {
 }
 EOF
 
+# Add Javascript to fix any remaining links
+echo "📝 Creating link-fixer JavaScript..."
+mkdir -p site-src/assets/js
+cat > site-src/assets/js/fix-links.js << 'EOF'
+document.addEventListener('DOMContentLoaded', function() {
+  // Fix all links that should have the baseurl
+  document.querySelectorAll('a[href^="/"]').forEach(function(link) {
+    if (!link.href.includes('/forms-engine-plugin') && 
+        !link.href.match(/^https?:\/\//) && 
+        !link.getAttribute('href').startsWith('/forms-engine-plugin')) {
+      const href = link.getAttribute('href');
+      link.href = '/forms-engine-plugin' + href;
+    }
+  });
+});
+EOF
+
+# Add it to the config
+echo "" >> site-src/_config.yml
+echo "# Custom scripts" >> site-src/_config.yml
+echo "head_scripts:" >> site-src/_config.yml
+echo "  - /assets/js/fix-links.js" >> site-src/_config.yml
+
+# Create custom includes directory to add baseurl meta tag
+mkdir -p site-src/_includes
+cat > site-src/_includes/head_custom.html << 'EOF'
+<meta name="baseurl" content="{{ site.baseurl }}">
+EOF
+
 echo "✅ Jekyll configuration files created successfully!"

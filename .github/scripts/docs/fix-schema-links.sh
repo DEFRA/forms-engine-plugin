@@ -6,24 +6,27 @@ else
   SED_INPLACE=(-i "")
 fi
 
-# Use relative path from script directory
-BASE_DIR="../../../site-src"
-cd $(dirname "$0")
-echo "Working from $(pwd)"
+# Working directly in the site-src directory
+BASE_DIR="."
+echo "Working from $(pwd) - processing files in $BASE_DIR"
 
 echo "🔍 Starting comprehensive schema link fixing process..."
 
 # 1. Process all files recursively, with special handling for schema files
-find "$BASE_DIR" -type f -name "*.md" | while read file; do
+find "$BASE_DIR" -type f -name "*.md" | grep -v "node_modules" | while read file; do
   if [[ "$file" == *"/schemas/"* ]]; then
     echo -n "."
   else
     echo "Processing: $file"
   fi
 
-  # === Fix all .md links to match Jekyll's pretty permalinks ===
+  # === Fix all .md links to match Jekyll's pretty permalinks AND add baseurl ===
   sed "${SED_INPLACE[@]}" -E 's|\[([^]]+)\]\(([^)]+)\.md(#[^)]+)?\)|\[\1\]\(/forms-engine-plugin/\2\3\)|g' "$file"
   sed "${SED_INPLACE[@]}" -E 's|\[([^]]+)\]\(([^)]+)\.md\)|\[\1\]\(/forms-engine-plugin/\2\)|g' "$file"
+  # Fix plain / roots to include baseurl
+  sed "${SED_INPLACE[@]}" -E 's|\[([^]]+)\]\(\/([^)]+)\)|\[\1\]\(/forms-engine-plugin/\2\)|g' "$file"
+  # Fix relative links to be absolute with baseurl
+  sed "${SED_INPLACE[@]}" -E 's|\[([^]]+)\]\(\./([^)]+)\)|\[\1\]\(/forms-engine-plugin/\2\)|g' "$file"
 
   # === Specific handling for schema files ===
   if [[ "$file" == *"/schemas/"* ]]; then

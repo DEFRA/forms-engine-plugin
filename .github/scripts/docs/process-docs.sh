@@ -13,7 +13,7 @@ fi
 echo "🔄 Processing documentation files..."
 
 # Set the correct base path
-BASE_DIR="site-src"
+BASE_DIR="."
 
 # Define core schemas - these will be shown in navigation
 CORE_SCHEMAS=(
@@ -26,6 +26,80 @@ CORE_SCHEMAS=(
   "page-schema-v2"
 )
 
+# ====== NEW: Process root documentation files ======
+echo "🔧 Processing root documentation files..."
+# Convert INDEX.md to index.md for Jekyll compatibility
+if [ -f "INDEX.md" ] && [ ! -f "index.md" ]; then
+  echo "  Converting INDEX.md to index.md..."
+  cp "INDEX.md" "index.md"
+  
+  # Ensure index.md has proper front matter
+  if ! grep -q "^---" "index.md"; then
+    echo "  Adding front matter to index.md..."
+    temp_file="index.md.tmp"
+    echo "---" > "$temp_file"
+    echo "layout: default" >> "$temp_file"
+    echo "title: DXT Documentation" >> "$temp_file" 
+    echo "nav_order: 1" >> "$temp_file"
+    echo "permalink: /" >> "$temp_file"
+    echo "---" >> "$temp_file"
+    echo "" >> "$temp_file"
+    cat "index.md" >> "$temp_file"
+    mv "$temp_file" "index.md"
+  fi
+fi
+
+# Process all root markdown files
+for doc_file in $(find . -maxdepth 1 -name "*.md"); do
+  base_name=$(basename "$doc_file" .md)
+  
+  # Skip files that already have front matter
+  if grep -q "^---" "$doc_file"; then
+    echo "  Front matter exists in $doc_file"
+    continue
+  fi
+  
+  # Add front matter based on filename
+  case "$base_name" in
+    "index"|"INDEX")
+      nav_order=1
+      title="DXT Documentation"
+      ;;
+    "GETTING_STARTED")
+      nav_order=2
+      title="Getting Started"
+      ;;
+    "PLUGIN_OPTIONS")
+      nav_order=3
+      title="Plugin Options"
+      ;;
+    "CONTRIBUTING")
+      nav_order=4
+      title="Contributing"
+      ;;
+    "SCHEMA_REFERENCE")
+      nav_order=5
+      title="Schema Reference"
+      ;;
+    *)
+      nav_order=10
+      title=$(echo "$base_name" | sed 's/_/ /g')
+      ;;
+  esac
+  
+  echo "  Adding front matter to $doc_file..."
+  temp_file="${doc_file}.tmp"
+  echo "---" > "$temp_file"
+  echo "layout: default" >> "$temp_file"
+  echo "title: $title" >> "$temp_file"
+  echo "nav_order: $nav_order" >> "$temp_file"
+  echo "---" >> "$temp_file"
+  echo "" >> "$temp_file"
+  cat "$doc_file" >> "$temp_file"
+  mv "$temp_file" "$doc_file"
+done
+
+# ===== Continue with existing schema processing =====
 # Check if directories exist and display useful messages
 if [ ! -d "$BASE_DIR/schemas" ]; then
   echo "⚠️ Directory $BASE_DIR/schemas not found. Skipping schema processing."
