@@ -15,19 +15,35 @@ for dir in code-based configuration-based; do
       echo "  Creating lowercase copy: $lowercase"
       cp "$file" "$lowercase"
       
-      # Fix the Liquid templates in both files
+      # Fix the Liquid templates in both files using HTML entities
       for target in "$file" "$lowercase"; do
         # Create a temporary file
         temp_file="${target}.tmp"
         > "$temp_file" # Create empty file
         
-        # Process line by line to properly wrap Liquid tags
+        # Process line by line to HTML-encode Liquid tags
+        in_code_block=false
         while IFS= read -r line; do
-          if [[ "$line" == *"{{"*"}}"* ]]; then
-            # Line contains Liquid syntax, wrap it
-            echo "{% raw %}${line}{% endraw %}" >> "$temp_file"
+          # Check if line starts/ends a code block
+          if [[ "$line" =~ ^\`\`\`.* ]]; then
+            in_code_block=!$in_code_block
+            echo "$line" >> "$temp_file"
+            continue
+          fi
+          
+          if $in_code_block; then
+            # Inside code blocks, replace Liquid syntax with HTML entities
+            # Replace {{ with &#123;&#123;
+            line=$(echo "$line" | sed 's/{{\|{{/\&#123;\&#123;/g')
+            # Replace }} with &#125;&#125;
+            line=$(echo "$line" | sed 's/}}\|}}/\&#125;\&#125;/g')
+            # Replace {% with &#123;%
+            line=$(echo "$line" | sed 's/{%\|{%/\&#123;%/g')
+            # Replace %} with %&#125;
+            line=$(echo "$line" | sed 's/%}\|%}/\%\&#125;/g')
+            echo "$line" >> "$temp_file"
           else
-            # No Liquid syntax, keep as is
+            # Outside code blocks, no encoding (use backticks for inline code)
             echo "$line" >> "$temp_file"
           fi
         done < "$target"
