@@ -1,16 +1,20 @@
 #!/bin/bash
 
-
 if sed --version 2>&1 | grep -q GNU; then
   SED_INPLACE=(-i)
 else
   SED_INPLACE=(-i "")
 fi
 
+# Use relative path from script directory
+BASE_DIR="../../../site-src"
+cd $(dirname "$0")
+echo "Working from $(pwd)"
+
 echo "🔍 Starting comprehensive schema link fixing process..."
 
 # 1. Process all files recursively, with special handling for schema files
-find . -type f -name "*.md" | while read file; do
+find "$BASE_DIR" -type f -name "*.md" | while read file; do
   if [[ "$file" == *"/schemas/"* ]]; then
     echo -n "."
   else
@@ -18,8 +22,8 @@ find . -type f -name "*.md" | while read file; do
   fi
 
   # === Fix all .md links to match Jekyll's pretty permalinks ===
-  sed "${SED_INPLACE[@]}" -E 's/\(([^)]+)\.md(#[^)]+)?\)/(\1\2)/g' "$file"
-  sed "${SED_INPLACE[@]}" -E 's/\(([^)]+)\.md\)/(\1)/g' "$file"
+  sed "${SED_INPLACE[@]}" -E 's|\[([^]]+)\]\(([^)]+)\.md(#[^)]+)?\)|\[\1\]\(/forms-engine-plugin/\2\3\)|g' "$file"
+  sed "${SED_INPLACE[@]}" -E 's|\[([^]]+)\]\(([^)]+)\.md\)|\[\1\]\(/forms-engine-plugin/\2\)|g' "$file"
   
   # === Specific handling for schema files ===
   if [[ "$file" == *"/schemas/"* ]]; then

@@ -77,8 +77,10 @@ jobs:
       - name: Process schema documentation and prepare for Jekyll
         run: |
           echo "🔄 Processing documentation files..."
-          chmod +x .github/scripts/docs/process-docs.sh
-          .github/scripts/docs/process-docs.sh
+          cd site-src
+          chmod +x ../.github/scripts/docs/process-docs.sh
+          ../.github/scripts/docs/process-docs.sh
+          cd ..
 
       - name: Fix documentation links
         run: |
@@ -98,7 +100,7 @@ jobs:
           echo "🔨 Building Jekyll site..."
           cd site-src
           bundle install
-          JEKYLL_ENV=production bundle exec jekyll build --verbose --destination ../_site
+          JEKYLL_ENV=production bundle exec jekyll build --destination ../_site
           cd ..
           
           # Fix capitalization issues
@@ -108,7 +110,7 @@ jobs:
             cp "_site/INDEX.html" "_site/index.html"
           fi
           
-          # Fix unconverted markdown files
+          # Fix unconverted markdown files - with proper paths
           echo "🔧 Handling unconverted markdown files..."
           for md_file in $(find _site -name "*.md"); do
             html_file="${md_file%.md}.html"
@@ -117,17 +119,43 @@ jobs:
             
             echo "  Converting $md_file to HTML..."
             
-            # Create a minimal HTML version of the markdown file
-            echo "<html><head><title>$base_name</title>" > "$html_file"
-            echo "<meta http-equiv=\"refresh\" content=\"0; url='$base_name'\">" >> "$html_file"
-            echo "</head><body>" >> "$html_file"
-            echo "<h1>$base_name</h1>" >> "$html_file"
-            echo "<p>This page should redirect automatically. If not, <a href=\"$base_name\">click here</a>.</p>" >> "$html_file"
-            echo "</body></html>" >> "$html_file"
+            # Create a minimal HTML version of the markdown file that uses the baseurl
+            cat > "$html_file" << EOF
+          <html>
+          <head>
+            <title>$base_name</title>
+            <meta http-equiv="refresh" content="0; url='/forms-engine-plugin$dir_name/$base_name/'">
+          </head>
+          <body>
+            <h1>$base_name</h1>
+            <p>Redirecting to <a href="/forms-engine-plugin$dir_name/$base_name/">/forms-engine-plugin$dir_name/$base_name/</a></p>
+          </body>
+          </html>
+          EOF
             
-            # Create index.html in a directory with the same name for proper paths
-            mkdir -p "$dir_name/$base_name"
-            cp "$html_file" "$dir_name/$base_name/index.html"
+            # Create directory and index.html for pretty URLs
+            mkdir -p "_site$dir_name/$base_name"
+            
+            # Create an index.html in the subdirectory with the actual content
+            cat > "_site$dir_name/$base_name/index.html" << EOF
+          <html>
+          <head>
+            <title>$base_name</title>
+            <link rel="stylesheet" href="/forms-engine-plugin/assets/css/just-the-docs-default.css">
+          </head>
+          <body>
+            <div class="main-content">
+              <h1>$base_name</h1>
+              <div class="content">
+                $(cat "$md_file" | sed 's|](/|](/forms-engine-plugin/|g')
+              </div>
+            </div>
+          </body>
+          </html>
+          EOF
+            
+            # Remove the original markdown file
+            rm "$md_file"
           done
           
           # Ensure lowercase 'index' directory exists for assets
@@ -186,3 +214,14 @@ jobs:
         uses: actions/deploy-pages@v4
         with:
           timeout: 600000 # 10 minutes in milliseconds
+
+        run: |
+          echo "🔧 Verifying Jekyll baseurl configuration..."
+          if ! grep -q "baseurl: \"/forms-engine-plugin\"" site-src/_config.yml; then
+            sed -i.bak 's|baseurl: ""|baseurl: "/forms-engine-plugin"|g' site-src/_config.yml
+            sed -i.bak 's|baseurl: "/"|baseurl: "/forms-engine-plugin"|g' site-src/_config.yml
+            rm -f site-src/_config.yml.bak
+            echo "✅ Updated baseurl in _config.yml"
+          else
+            echo "✅ baseurl already correctly configured"
+          fi
