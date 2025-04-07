@@ -140,11 +140,50 @@ export function runJsonSchema2Md(tempDir) {
 }
 
 /**
- * Create index file listing all schemas
- * @param {string[]} schemaFiles - List of schema filesa
+ * Create index and README files listing all schemas
+ * @param {string[]} schemaFiles - List of schema files
  */
 export function createIndexFile(schemaFiles) {
-  const indexContent = `# Defra Forms Model Schema Reference
+  // Define exact core schema names (without the .json extension)
+  const exactCoreSchemas = [
+    'component-schema-v2',
+    'component-schema',
+    'form-definition-schema',
+    'form-definition-v2-payload-schema',
+    'form-metadata-schema',
+    'page-schema',
+    'page-schema-v2'
+  ]
+
+  // Separate schemas into core and advanced categories
+  const core = /** @type {string[]} */ ([])
+  const advanced = /** @type {string[]} */ ([])
+
+  schemaFiles.forEach((file) => {
+    const baseName = path.basename(file, '.json')
+    const link = `* [${baseName}](${baseName}.md)`
+
+    // Exact match for core schemas
+    if (exactCoreSchemas.includes(baseName)) {
+      core.push(link)
+    } else {
+      advanced.push(link)
+    }
+  })
+
+  // Sort both arrays alphabetically
+  core.sort()
+  advanced.sort()
+
+  const content = `---
+layout: default
+title: SCHEMA REFERENCE
+nav_order: 5
+has_children: true
+permalink: /schemas/
+---
+
+# Defra Forms Model Schema Reference
 
 This reference documentation details the data structures and validation rules for the Defra Forms Model.
 
@@ -158,18 +197,27 @@ Key schema categories include:
 - Form definitions (structure of form configurations)
 - Component schemas (input fields, buttons, etc.)
 - Metadata schemas (form properties, versioning)
-- Validation rule schemas (min/max values, length constraints)
 
-## Available Schemas
+## Core Schemas
 
-${schemaFiles
-  .map((file) => {
-    const baseName = path.basename(file, '.json')
-    return `* [${baseName}](${baseName}.md)`
-  })
-  .join('\n')}
+The following schemas are the most commonly used for form configuration:
+
+${core.join('\n')}
+
+## Advanced Schemas
+
+These schemas are primarily for internal use or advanced customisation:
+
+${advanced.join('\n')}
 `
-  fs.writeFileSync(path.join(docsOutputDir, 'README.md'), indexContent)
+
+  // Write both files with the same content
+  fs.writeFileSync(path.join(docsOutputDir, 'README.md'), content)
+  fs.writeFileSync(path.join(docsOutputDir, 'index.md'), content)
+
+  console.log(
+    '📝 Created README.md and index.md files with precisely categorised schemas'
+  )
 }
 
 /**
@@ -490,6 +538,39 @@ export function formatPropertyName(str) {
 }
 
 /**
+ * Process markdown files to add front matter
+ */
+export function addFrontMatterToSchemaFiles() {
+  const mdFiles = fs
+    .readdirSync(docsOutputDir)
+    .filter((file) => file.endsWith('.md') && file !== 'README.md')
+
+  for (const file of mdFiles) {
+    const filePath = path.join(docsOutputDir, file)
+    let content = fs.readFileSync(filePath, 'utf8')
+
+    // Skip if already has front matter
+    if (content.startsWith('---')) continue
+
+    // Generate title from filename
+    const title = file
+      .replace('.md', '')
+      .replace(/-/g, ' ')
+      .replace(/\b\w/g, (l) => l.toUpperCase())
+
+    // Add front matter
+    const frontMatter = `---
+layout: default
+title: ${title}
+parent: Schema Reference
+---
+
+`
+    fs.writeFileSync(filePath, frontMatter + content)
+  }
+}
+
+/**
  * Generates documentation from JSON schemas
  * @returns {boolean} True if documentation was successfully generated
  */
@@ -505,6 +586,7 @@ export function generateSchemaDocs() {
     processSchemaFiles(schemaFiles, tempDir, schemaTitleMap)
 
     generateMarkdownDocumentation(tempDir, schemaTitleMap, schemaFiles)
+    addFrontMatterToSchemaFiles()
 
     cleanupFiles(tempDir)
 
