@@ -115,11 +115,12 @@ Your API response:
 Page template:
 
 ```text
+{% raw %}
 {% if context.data.awardedGrantValue %}
   <p class="govuk-body">Congratulations. You are likely to receive up to £{{ context.data.awardedGrantValue }}.</p>
 {% endif %}
   <p class="govuk-body">You have not been awarded any funding for this application.</p>
-{% endif %}
+{% endraw %}
 ```
 
 Results in:
