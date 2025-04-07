@@ -17,9 +17,23 @@ for dir in code-based configuration-based; do
       
       # Fix the Liquid templates in both files
       for target in "$file" "$lowercase"; do
-        # Replace {{ with {% raw %}{{ and }} with }}{% endraw %}
-        sed -i.bak -E 's/\{\{([^}]*)\}\}/\{% raw %\}\{\{\1\}\}\{% endraw %\}/g' "$target"
-        rm -f "$target.bak"
+        # Create a temporary file
+        temp_file="${target}.tmp"
+        > "$temp_file" # Create empty file
+        
+        # Process line by line to properly wrap Liquid tags
+        while IFS= read -r line; do
+          if [[ "$line" == *"{{"*"}}"* ]]; then
+            # Line contains Liquid syntax, wrap it
+            echo "{% raw %}${line}{% endraw %}" >> "$temp_file"
+          else
+            # No Liquid syntax, keep as is
+            echo "$line" >> "$temp_file"
+          fi
+        done < "$target"
+        
+        # Replace original with fixed version
+        mv "$temp_file" "$target"
       done
     fi
   done
