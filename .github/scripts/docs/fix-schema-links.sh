@@ -102,16 +102,16 @@ for special_file in "./features/configuration-based/PAGE_TEMPLATES.md" "./CONTRI
     # Process the file line-by-line, tracking if we're in a code block
     in_code_block=false
     while IFS= read -r line; do
-      # Check if line starts/ends a code block
-      if [[ "$line" =~ ^```.*$ ]]; then
+      # Check if line starts/ends a code block (backticks escaped)
+      if [[ "$line" =~ ^\`\`\`.*$ ]]; then
         # Toggle code block state
-        if $in_code_block; then
+        if [ "$in_code_block" = true ]; then
           in_code_block=false
         else
           in_code_block=true
         fi
         echo "$line" >> "$temp_file"
-      elif $in_code_block; then
+      elif [ "$in_code_block" = true ]; then
         # In code block, leave as is
         echo "$line" >> "$temp_file"
       else
@@ -158,10 +158,9 @@ if [ -f "./features/code-based/PAGE_VIEWS.md" ]; then
   sed "${SED_INPLACE[@]}" -E 's|\[([^]]+)\]\(PAGE_EVENTS\.?m?d?\)|\[\1\]\(\/features\/configuration-based\/PAGE_EVENTS\)|g' "./features/code-based/PAGE_VIEWS.md"
 fi
 
-# 2. Completely remove .md from all schema files (super aggressive fix)
+# 2. Completely remove .md from all schema files
 echo "  Aggressively cleaning .md from schema files"
 find "./schemas" -type f -name "*.md" | while read schema_file; do
-  # Just remove all .md instances from schema files
   sed "${SED_INPLACE[@]}" -E 's/\.md//g' "$schema_file"
 done
 
@@ -170,9 +169,8 @@ if [ -f "./schemas/README.md" ] && [ ! -f "./schemas/index.md" ]; then
   echo "📝 Creating schemas/index.md from README.md..."
   cp "./schemas/README.md" "./schemas/index.md"
   
-  # Ensure front matter is correct
-  sed "${SED_INPLACE[@]}" '/^---/,/^---/d' "./schemas/index.md"  # Remove existing front matter
-  
+  sed "${SED_INPLACE[@]}" '/^---/,/^---/d' "./schemas/index.md"
+
   # Add new front matter
   front_matter="---\nlayout: default\ntitle: SCHEMA REFERENCE\nnav_order: 5\nhas_children: true\npermalink: /schemas/\n---\n\n"
   sed "${SED_INPLACE[@]}" "1s/^/$front_matter/" "./schemas/index.md"
