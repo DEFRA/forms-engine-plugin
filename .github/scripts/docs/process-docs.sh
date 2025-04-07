@@ -30,6 +30,43 @@ CORE_SCHEMAS=(
 if [ ! -d "$BASE_DIR/schemas" ]; then
   echo "⚠️ Directory $BASE_DIR/schemas not found. Skipping schema processing."
 else
+  # Add this improved front matter fixing section
+  echo "🔧 Super aggressive front matter fix for schema files..."
+  find "$BASE_DIR/schemas" -type f -name "*.md" | while read file; do
+    filename=$(basename "$file" .md)
+    
+    # Skip index.md
+    if [[ "$filename" == "index" ]]; then
+      continue
+    fi
+    
+    echo "  Fixing front matter in $filename"
+    
+    # Check if this is a core schema
+    is_core=false
+    for core_schema in "${CORE_SCHEMAS[@]}"; do
+      if [[ "$filename" == "$core_schema" ]]; then
+        is_core=true
+        break
+      fi
+    done
+    
+    # Extract content without any current front matter
+    content=$(sed -e '1{/^---$/!q0}' -e '1,/^---$/d' "$file" 2>/dev/null || cat "$file")
+    
+    # Generate title from filename
+    title=$(echo "$filename" | sed 's/-/ /g' | awk '{for(i=1;i<=NF;i++)sub(/./,toupper(substr($i,1,1)),$i)}1')
+    
+    # Create a completely new file with proper front matter
+    if [ "$is_core" = true ]; then
+      # Core schema - visible in navigation
+      echo -e "---\nlayout: default\ntitle: \"$title\"\nparent: SCHEMA REFERENCE\n---\n\n$content" > "$file"
+    else
+      # Non-core schema - hidden from navigation
+      echo -e "---\nlayout: default\ntitle: \"$title\"\nparent: SCHEMA REFERENCE\nnav_exclude: true\n---\n\n$content" > "$file"
+    fi
+  done
+
   # Fix broken front matter AND set navigation visibility
   echo "🔧 Fixing front matter and configuring navigation..."
   find "$BASE_DIR/schemas" -type f -name "*.md" | while read file; do
@@ -204,7 +241,7 @@ else
       in_code_block=false
       while IFS= read -r line; do
         # Check if line starts/ends a code block
-        if [[ "$line" =~ ^```.*$ ]]; then
+        if [[ "$line" =~ ^\`\`\`.*$ ]]; then
           # Toggle code block state
           if $in_code_block; then
             in_code_block=false
@@ -217,7 +254,7 @@ else
         
         if $in_code_block; then
           # Inside code blocks, wrap any {{ }} in raw tags
-          if [[ "$line" =~ \{\{ || "$line" =~ \}\} ]]; then
+          if [[ "$line" =~ (\{\{|\}\}) ]]; then
             # Replace any existing escape sequences
             line=$(echo "$line" | sed 's/\\{{ /{{ /g' | sed 's/ \\}}/ }}/g' | sed 's/\\{{/{{/g' | sed 's/\\}}/}}/g')
             # Wrap the entire line in raw tags if it contains liquid syntax
