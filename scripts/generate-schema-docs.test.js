@@ -73,19 +73,27 @@ jest.mock('path', () => {
 
       if (typeof args[0] === 'string') {
         if (args[0] === '/mock/schemas/dir' && args[1]) {
-          return `/mock/schemas/dir/${args[1]}`
+          const arg1String =
+            typeof args[1] === 'string' ? args[1] : JSON.stringify(args[1])
+          return `/mock/schemas/dir/${arg1String}`
         }
 
         if (args[0] === '/mock/docs/dir' && args[1]) {
-          return `/mock/docs/dir/${args[1]}`
+          const arg1String =
+            typeof args[1] === 'string' ? args[1] : JSON.stringify(args[1])
+          return `/mock/docs/dir/${arg1String}`
         }
 
         if (args[0] === '/mock/temp/dir' && args[1]) {
-          return `/mock/temp/dir/${args[1]}`
+          const arg1String =
+            typeof args[1] === 'string' ? args[1] : JSON.stringify(args[1])
+          return `/mock/temp/dir/${arg1String}`
         }
 
         if (args[0].includes('/docs/dir') && args[1]) {
-          return `/mock/docs/dir/${args[1]}`
+          const arg1String =
+            typeof args[1] === 'string' ? args[1] : JSON.stringify(args[1])
+          return `/mock/docs/dir/${arg1String}`
         }
       }
 
@@ -365,6 +373,42 @@ describe('Schema Documentation Generator', () => {
       expect(capturedContent).toContain('* [schema1](schema1.md)')
       expect(capturedContent).toContain('* [schema2](schema2.md)')
     })
+
+    it('categorizes schemas correctly into core and advanced', () => {
+      path.basename.mockImplementation((filename) =>
+        filename.replace('.json', '')
+      )
+      let capturedContent = ''
+      fs.writeFileSync.mockImplementation((path, content) => {
+        capturedContent = content
+      })
+
+      const schemaFiles = [
+        'component-schema-v2.json', // core
+        'form-metadata-author-schema.json', // advanced
+        'uncategorized-schema.json' // neither
+      ]
+
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation()
+
+      createIndexFile(schemaFiles)
+
+      expect(capturedContent).toContain(
+        '* [component-schema-v2](component-schema-v2.md)'
+      )
+
+      expect(capturedContent).toContain(
+        '* [form-metadata-author-schema](form-metadata-author-schema.md)'
+      )
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining(
+          "Schema 'uncategorized-schema' is not categorised"
+        )
+      )
+
+      consoleSpy.mockRestore()
+    })
   })
 
   describe('cleanupFiles', () => {
@@ -565,6 +609,67 @@ describe('Schema Documentation Generator', () => {
       expect(titleMap['component-schema-v2/properties/name/oneOf/0']).toBe(
         'Display Component Name'
       )
+    })
+
+    it('handles array items in schema', () => {
+      const schemaWithArrayItems = {
+        title: 'Array Items Schema',
+        items: [
+          {
+            title: 'First Item',
+            properties: { prop: { title: 'Property' } }
+          },
+          {
+            type: 'string'
+          }
+        ]
+      }
+
+      const titleMap = {}
+      buildTitleMap(schemaWithArrayItems, 'array-items', titleMap)
+
+      expect(titleMap['array-items']).toBe('Array Items Schema')
+      expect(titleMap['array-items/items/0']).toBe('First Item')
+      expect(titleMap['array-items/items/1']).toBe('Item 2')
+      expect(titleMap['array-items/items/0/properties/prop']).toBe('Property')
+    })
+
+    it('handles single item schema', () => {
+      const schemaWithSingleItem = {
+        title: 'Single Item Schema',
+        items: {
+          title: 'The Item',
+          properties: {
+            name: { title: 'Name Property' },
+            age: { type: 'number' }
+          }
+        }
+      }
+
+      const titleMap = {}
+      buildTitleMap(schemaWithSingleItem, 'single-item', titleMap)
+
+      expect(titleMap['single-item']).toBe('Single Item Schema')
+      expect(titleMap['single-item/items']).toBe('The Item')
+      expect(titleMap['single-item/items/properties/name']).toBe(
+        'Name Property'
+      )
+      expect(titleMap['single-item/items/properties/age']).toBe('Age')
+    })
+
+    it('handles item without a title', () => {
+      const schemaWithoutItemTitle = {
+        title: 'No Item Title Schema',
+        items: {
+          type: 'string',
+          properties: { prop: { type: 'string' } }
+        }
+      }
+
+      const titleMap = {}
+      buildTitleMap(schemaWithoutItemTitle, 'no-item-title', titleMap)
+
+      expect(titleMap['no-item-title/items']).toBe('Item')
     })
   })
 
