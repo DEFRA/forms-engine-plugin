@@ -112,12 +112,12 @@ defaults:
       path: "assets/js/**/*.js"
     values:
       layout: null
-      render_with_liquid: true
+      render_with_liquid: false
   - scope:
       path: "assets/css"
     values:
       layout: null
-      render_with_liquid: true
+      render_with_liquid: false
   - scope:
       path: ""
       type: "pages"
