@@ -3,6 +3,7 @@ layout: default
 title: Custom Services
 parent: Code-based Features
 grand_parent: Features
+render_with_liquid: false
 ---
 
 # Overriding DXT logic with custom services

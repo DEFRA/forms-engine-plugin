@@ -45,7 +45,11 @@ baseurl: "/forms-engine-plugin"  # Use repo name for GitHub Pages
 search_enabled: true
 heading_anchors: true
 search:
-  heading_level: 3
+  heading_level: 2
+  previews: 3
+  preview_words_before: 5
+  preview_words_after: 10
+  rel_url: true
 
 # Navigation configuration
 nav_external_links:
@@ -183,12 +187,27 @@ EOF
 echo "" >> site-src/_config.yml
 echo "# Custom scripts" >> site-src/_config.yml
 echo "head_scripts:" >> site-src/_config.yml
-echo "  - /assets/js/fix-links.js" >> site-src/_config.yml
+echo "  - {{ site.baseurl }}/assets/js/fix-links.js" >> site-src/_config.yml
 
 # Create custom includes directory to add baseurl meta tag
 mkdir -p site-src/_includes
 cat > site-src/_includes/head_custom.html << 'EOF'
 <meta name="baseurl" content="{{ site.baseurl }}">
+<!-- Fix for search functionality -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Only run this if search doesn't initialize properly
+  setTimeout(function() {
+    const searchInput = document.getElementById('search-input');
+    if (searchInput && typeof window.jtd === 'undefined') {
+      console.log('Search not initialized, fixing path to just-the-docs.js');
+      const script = document.createElement('script');
+      script.src = '/forms-engine-plugin/assets/js/just-the-docs.js';
+      document.head.appendChild(script);
+    }
+  }, 1000);
+});
+</script>
 EOF
 
 echo "✅ Jekyll configuration files created successfully!"

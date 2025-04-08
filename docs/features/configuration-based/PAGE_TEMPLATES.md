@@ -3,6 +3,7 @@ layout: default
 title: Page Templates
 parent: Configuration-based Features
 grand_parent: Features
+render_with_liquid: false
 ---
 
 # Page templates

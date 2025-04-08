@@ -3,6 +3,7 @@ layout: default
 title: Page Events
 parent: Configuration-based Features
 grand_parent: Features
+render_with_liquid: false
 ---
 
 # Page events

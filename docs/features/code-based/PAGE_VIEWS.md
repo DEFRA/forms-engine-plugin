@@ -1,3 +1,11 @@
+---
+layout: default
+title: Page Views
+parent: Code-based Features
+grand_parent: Features
+render_with_liquid: false
+---
+
 # Templates and views
 
 ## Extending the default layout

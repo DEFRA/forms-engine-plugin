@@ -358,6 +358,63 @@ else
   fi
 fi
 
+echo "🔄 Converting GitHub admonitions to Just the Docs callouts..."
+find "$BASE_DIR" -type f -name "*.md" | while read file; do
+  echo "  Processing admonitions in $file"
+  
+  # Create temporary file
+  temp_file="${file}.tmp"
+  > "$temp_file"
+  
+  # Process line by line to handle admonition blocks
+  in_admonition=false
+  while IFS= read -r line; do
+    # Check for admonition start
+    if [[ "$line" =~ ^\>\ \[\!NOTE\] ]]; then
+      echo "{: .note }" >> "$temp_file"
+      in_admonition=true
+      continue
+    elif [[ "$line" =~ ^\>\ \[\!TIP\] ]]; then
+      echo "{: .highlight }" >> "$temp_file"
+      in_admonition=true
+      continue
+    elif [[ "$line" =~ ^\>\ \[\!IMPORTANT\] ]]; then
+      echo "{: .important }" >> "$temp_file"
+      in_admonition=true
+      continue
+    elif [[ "$line" =~ ^\>\ \[\!WARNING\] ]]; then
+      echo "{: .warning }" >> "$temp_file"
+      in_admonition=true
+      continue
+    elif [[ "$line" =~ ^\>\ \[\!CAUTION\] ]]; then
+      echo "{: .warning }" >> "$temp_file"
+      in_admonition=true
+      continue
+    fi
+    
+    # Check if we're in an admonition
+    if $in_admonition; then
+      # Check if still in admonition (line starts with >)
+      if [[ "$line" =~ ^\>\ (.*) ]]; then
+        # Output the line without the > prefix
+        echo "${BASH_REMATCH[1]}" >> "$temp_file"
+      else
+        # End of admonition
+        in_admonition=false
+        echo "$line" >> "$temp_file"
+      fi
+    else
+      # Regular line
+      echo "$line" >> "$temp_file"
+    fi
+  done < "$file"
+  
+  # Replace original with fixed version
+  mv "$temp_file" "$file"
+done
+
+echo "✅ Converted admonitions to Just the Docs callouts!"
+
 # Fix remaining .md extensions in all files
 echo "🔄 Final pass to fix any remaining links..."
 find "$BASE_DIR" -type f -name "*.md" | while read file; do
