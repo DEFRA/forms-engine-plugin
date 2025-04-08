@@ -6,6 +6,3 @@ has_children: true
 ---
 
 # Configuration-based Features
-
-- [Page Events](page_events)
-- [Page Templates](page_templates)

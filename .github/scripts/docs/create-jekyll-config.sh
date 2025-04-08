@@ -95,6 +95,10 @@ relative_links:
 # Default layouts and configurations
 defaults:
   - scope:
+      path: "assets/js/**/*.js"
+    values:
+      layout: null
+  - scope:
       path: ""
       type: "pages"
     values:
@@ -119,19 +123,30 @@ toc:
   min_level: 1
   max_level: 2  # Only show h1 and h2 in TOC
 
+assets:
+  self_contained: false
+  js_directory: /assets/js
+  compress:
+    js: false
+
 # Custom scripts
 head_scripts:
   - /assets/js/fix-links.js
 
-# Exclude JS files from processing
-exclude:
-  - assets/js/just-the-docs.js
-  - assets/js/vendor/lunr.min.js
-
 # Handle assets correctly
 keep_files:
   - assets
-EOF
+
+exclude:
+  - "/assets/js/just-the-docs.js"  # Exclude from processing, not from output
+  - "/assets/js/vendor/lunr.min.js"
+  - "vendor"
+  - "Gemfile"
+  - "Gemfile.lock"
+
+# Explicitly tell Jekyll NOT to process certain file types
+keep_files:
+  - assets
 
 # Add custom CSS for better styling
 echo "📝 Creating custom CSS file..."
@@ -210,7 +225,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Fix all links that should have the baseurl
   document.querySelectorAll('a[href^="/"]').forEach(function(link) {
     if (!link.href.includes('/forms-engine-plugin') && 
-        !link.href.match(/^https?:\/\//) && 
+        !link.href.match(/^https?:\/\//) && a
         !link.getAttribute('href').startsWith('/forms-engine-plugin')) {
       const href = link.getAttribute('href');
       link.href = '/forms-engine-plugin' + href;
