@@ -117,7 +117,7 @@ defaults:
       path: "assets/css"
     values:
       layout: null
-      render_with_liquid: false
+      render_with_liquid: true
   - scope:
       path: ""
       type: "pages"
