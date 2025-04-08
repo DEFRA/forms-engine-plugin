@@ -122,6 +122,15 @@ toc:
 # Custom scripts
 head_scripts:
   - /assets/js/fix-links.js
+
+# Exclude JS files from processing
+exclude:
+  - assets/js/just-the-docs.js
+  - assets/js/vendor/lunr.min.js
+
+# Handle assets correctly
+keep_files:
+  - assets
 EOF
 
 # Add custom CSS for better styling
@@ -173,6 +182,23 @@ table {
   padding: 1rem;
   background-color: #f8f9fa;
   border-radius: 4px;
+}
+
+// Custom styles for Just the Docs callouts
+.note, .warning, .important, .highlight {
+  border-radius: 0.25rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.note {
+  background-color: #e6f3ff;
+  border-left: 0.25rem solid #2869e6;
+}
+
+.warning {
+  background-color: #ffeeee;
+  border-left: 0.25rem solid #ee0000;
 }
 EOF
 
