@@ -54,7 +54,7 @@ jobs:
         run: |
           # Create Jekyll source directory
           mkdir -p site-src
-          
+
           # First, copy all docs to site-src
           cp -r docs/* site-src/
 
@@ -101,20 +101,20 @@ jobs:
           bundle install
           JEKYLL_ENV=production bundle exec jekyll build --destination ../_site
           cd ..
-          
+
           # Verification steps
           echo "🔍 Verifying build results..."
-          
+
           # Show root files explicitly
           echo "📄 Files at site root:"
           ls -la _site/
-          
+
           # Check for HTML files
           echo "✓ HTML files generated from markdown:"
           find _site -name "*.html" | grep -v "assets" | head -n 15
           html_count=$(find _site -name "*.html" | wc -l)
           echo "  Total HTML files: $html_count"
-          
+
           # Check if any markdown files remain in output (there shouldn't be any)
           md_files=$(find _site -name "*.md" | wc -l)
           if [ "$md_files" -gt 0 ]; then
@@ -123,7 +123,7 @@ jobs:
           else
             echo "✅ No markdown files found in output (good!)"
           fi
-          
+
           # Check for specific problematic files to make sure they were converted
           for check_file in "features/configuration-based/PAGE_TEMPLATES.html" "features/configuration-based/PAGE_EVENTS.html" "features/code-based/PAGE_VIEWS.html"; do
             if [ -f "_site/$check_file" ]; then
