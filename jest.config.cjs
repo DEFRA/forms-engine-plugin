@@ -12,7 +12,8 @@ module.exports = {
   silent: true,
   testMatch: [
     '<rootDir>/src/**/*.test.{cjs,js,mjs,ts}',
-    '<rootDir>/test/**/*.test.{cjs,js,mjs,ts}'
+    '<rootDir>/test/**/*.test.{cjs,js,mjs,ts}',
+    '<rootDir>/scripts/**/*.test.{js,ts}'
   ],
   reporters: CI
     ? [['github-actions', { silent: false }], 'summary']

@@ -112,13 +112,13 @@ relative_links:
 
 # Default layouts and configurations
 defaults:
-  # Process JS files as static assets - notice the path is simpler
+  # Process JS files with Liquid but no layout
   - scope:
       path: "assets/js"
     values:
       layout: null
       sitemap: false
-      render_with_liquid: false
+      render_with_liquid: true
   # Then define all other defaults below
   - scope:
       path: "assets/css"
