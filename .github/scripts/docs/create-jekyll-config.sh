@@ -96,6 +96,7 @@ relative_links:
 defaults:
   - scope:
       path: ""
+      type: "pages"
     values:
       layout: default
   - scope:
@@ -117,6 +118,10 @@ defaults:
 toc:
   min_level: 1
   max_level: 2  # Only show h1 and h2 in TOC
+
+# Custom scripts
+head_scripts:
+  - /assets/js/fix-links.js
 EOF
 
 # Add custom CSS for better styling
@@ -188,33 +193,10 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 EOF
 
-# Add it to the config
-cat >> site-src/_config.yml << EOF
-
-# Custom scripts
-head_scripts:
-  - /assets/js/fix-links.js
-EOF
-
 # Create custom includes directory to add baseurl meta tag
 mkdir -p site-src/_includes
 cat > site-src/_includes/head_custom.html << 'EOF'
 <meta name="baseurl" content="{{ site.baseurl }}">
-<!-- Fix for search functionality -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Only run this if search doesn't initialize properly
-  setTimeout(function() {
-    const searchInput = document.getElementById('search-input');
-    if (searchInput && typeof window.jtd === 'undefined') {
-      console.log('Search not initialized, fixing path to just-the-docs.js');
-      const script = document.createElement('script');
-      script.src = '/forms-engine-plugin/assets/js/just-the-docs.js';
-      document.head.appendChild(script);
-    }
-  }, 1000);
-});
-</script>
 EOF
 
 echo "✅ Jekyll configuration files created successfully!"
