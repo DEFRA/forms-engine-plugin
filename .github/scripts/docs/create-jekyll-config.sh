@@ -68,6 +68,7 @@ include:
   - "**/*.json"
   - "**/*.schema.json"
   - "schemas/**/*"
+  - "assets/js/*.js"
 
 # Tell Jekyll to EXCLUDE JS files from processing as pages
 exclude:
@@ -111,11 +112,18 @@ defaults:
       path: "assets/js/**/*.js"
     values:
       layout: null
+      render_with_liquid: true
+  - scope:
+      path: "assets/css"
+    values:
+      layout: null
+      render_with_liquid: true
   - scope:
       path: ""
       type: "pages"
     values:
       layout: default
+      render_with_liquid: false
   - scope:
       path: "schemas"
     values:
