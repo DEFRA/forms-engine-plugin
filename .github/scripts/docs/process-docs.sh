@@ -358,58 +358,6 @@ else
   fi
 fi
 
-echo "🔄 Converting GitHub admonitions to Just the Docs callouts..."
-find "$BASE_DIR" -type f -name "*.md" | while read file; do
-  echo "  Processing admonitions in $file"
-  
-  # Create temporary file
-  temp_file="${file}.tmp"
-  
-  # Process the file line by line without complex state tracking
-  awk '
-  /^> \[!NOTE\]/ { 
-    print "{: .note }"; 
-    in_note = 1; 
-    next; 
-  }
-  /^> \[!TIP\]/ { 
-    print "{: .highlight }"; 
-    in_note = 1; 
-    next; 
-  }
-  /^> \[!IMPORTANT\]/ { 
-    print "{: .important }"; 
-    in_note = 1; 
-    next; 
-  }
-  /^> \[!WARNING\]/ { 
-    print "{: .warning }"; 
-    in_note = 1; 
-    next; 
-  }
-  /^> \[!CAUTION\]/ { 
-    print "{: .warning }"; 
-    in_note = 1; 
-    next; 
-  }
-  /^> / {
-    if(in_note) {
-      print substr($0, 3);
-      next;
-    }
-  }
-  {
-    in_note = 0;
-    print;
-  }
-  ' "$file" > "$temp_file"
-  
-  # Replace original with fixed version
-  mv "$temp_file" "$file"
-done
-
-echo "✅ Converted admonitions to Just the Docs callouts!"
-
 # Fix remaining .md extensions in all files
 echo "🔄 Final pass to fix any remaining links..."
 find "$BASE_DIR" -type f -name "*.md" | while read file; do
