@@ -18,7 +18,7 @@ The following elements support [LiquidJS templates](https://liquidjs.com/):
 ### Template data
 
 The data the templates are evaluated against is the raw answers the user has provided up to the page they're currently on.
-For example, given a YesNoField component called `TKsWbP`, the template `&#123;&#123; TKsWbP &#125;&#125;` would render "true" or "false" depending on how the user answered the question.
+For example, given a YesNoField component called `TKsWbP`, the template `{{ TKsWbP }}` would render "true" or "false" depending on how the user answered the question.
 
 The current FormContext is also available as `context` in the templates. This allows access to the full data including the path the user has taken in their journey and any miscellaneous data returned from `Page event`s in `context.data`.
 

@@ -70,8 +70,13 @@ for dir in code-based configuration-based; do
         # Replace %} with %&#125;
         line="${line//%\}/%&#125;}"
         echo "$line" >> "$temp_file"
+      # Check for inline code with Liquid syntax (surrounded by single backticks)
+      elif [[ "$line" =~ \`[^\`]*(\{\{|\{%).*\` ]]; then
+        # Replace single backticks containing Liquid syntax with double backticks
+        line=$(echo "$line" | sed -E 's/`([^`]*(\{\{|\{%).*?)`/``\1``/g')
+        echo "$line" >> "$temp_file"
       else
-        # Outside code blocks, keep as is
+        # Outside code blocks and no inline code, keep as is
         echo "$line" >> "$temp_file"
       fi
     done < "$file"

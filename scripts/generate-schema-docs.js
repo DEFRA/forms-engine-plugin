@@ -177,7 +177,7 @@ export function createIndexFile(schemaFiles) {
 
   const content = `---
 layout: default
-title: SCHEMA REFERENCE
+title: Schema Reference
 nav_order: 5
 has_children: true
 permalink: /schemas/

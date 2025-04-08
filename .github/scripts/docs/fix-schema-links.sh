@@ -32,12 +32,12 @@ find "$BASE_DIR" -type f -name "*.md" | grep -v "node_modules" | while read file
   if [[ "$file" == *"/schemas/"* ]]; then
     if grep -q "^---" "$file" && ! grep -q "parent:" "$file" && [[ "$file" != *"/schemas/index.md" ]]; then
       sed "${SED_INPLACE[@]}" '/^layout:/a\
-parent: SCHEMA REFERENCE' "$file"
+parent: Schema Reference' "$file"
     fi
 
-    # Make case consistent in existing parent references (Schema Reference -> SCHEMA REFERENCE)
+    # Make case consistent in existing parent references (Schema Reference -> Schema Reference)
     if grep -q "parent: Schema Reference" "$file"; then
-      sed "${SED_INPLACE[@]}" 's/parent: Schema Reference/parent: SCHEMA REFERENCE/g' "$file"
+      sed "${SED_INPLACE[@]}" 's/parent: Schema Reference/parent: Schema Reference/g' "$file"
     fi
 
     # Fix common schema reference patterns
@@ -141,7 +141,7 @@ if [ ! -f "./SCHEMA_REFERENCE.md" ]; then
   cat > "./SCHEMA_REFERENCE.md" << EOF
 ---
 layout: default
-title: SCHEMA REFERENCE
+title: Schema Reference
 nav_order: 5
 has_children: true
 permalink: /schemas/
@@ -179,7 +179,7 @@ if [ -f "./schemas/README.md" ] && [ ! -f "./schemas/index.md" ]; then
   sed "${SED_INPLACE[@]}" '/^---/,/^---/d' "./schemas/index.md"
 
   # Add new front matter
-  front_matter="---\nlayout: default\ntitle: SCHEMA REFERENCE\nnav_order: 5\nhas_children: true\npermalink: /schemas/\n---\n\n"
+  front_matter="---\nlayout: default\ntitle: Schema Reference\nnav_order: 5\nhas_children: true\npermalink: /schemas/\n---\n\n"
   sed "${SED_INPLACE[@]}" "1s/^/$front_matter/" "./schemas/index.md"
 
   echo "✅ Created schemas/index.md with proper front matter"

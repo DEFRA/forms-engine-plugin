@@ -134,10 +134,10 @@ else
     # Create a completely new file with proper front matter
     if [ "$is_core" = true ]; then
       # Core schema - visible in navigation
-      echo -e "---\nlayout: default\ntitle: \"$title\"\nparent: SCHEMA REFERENCE\n---\n\n$content" > "$file"
+      echo -e "---\nlayout: default\ntitle: \"$title\"\nparent: Schema Reference\n---\n\n$content" > "$file"
     else
       # Non-core schema - hidden from navigation
-      echo -e "---\nlayout: default\ntitle: \"$title\"\nparent: SCHEMA REFERENCE\nnav_exclude: true\n---\n\n$content" > "$file"
+      echo -e "---\nlayout: default\ntitle: \"$title\"\nparent: Schema Reference\nnav_exclude: true\n---\n\n$content" > "$file"
     fi
   done
 
@@ -167,10 +167,10 @@ else
       
       if [ "$is_core" = true ]; then
         # Core schema - visible in navigation
-        sed "${SED_INPLACE[@]}" "1s/^/---\nlayout: default\ntitle: \"$title\"\nparent: SCHEMA REFERENCE\n---\n\n/" "$file"
+        sed "${SED_INPLACE[@]}" "1s/^/---\nlayout: default\ntitle: \"$title\"\nparent: Schema Reference\n---\n\n/" "$file"
       else
         # Non-core schema - hidden from navigation
-        sed "${SED_INPLACE[@]}" "1s/^/---\nlayout: default\ntitle: \"$title\"\nparent: SCHEMA REFERENCE\nnav_exclude: true\n---\n\n/" "$file"
+        sed "${SED_INPLACE[@]}" "1s/^/---\nlayout: default\ntitle: \"$title\"\nparent: Schema Reference\nnav_exclude: true\n---\n\n/" "$file"
       fi
       continue
     fi
@@ -189,10 +189,10 @@ else
       # Add proper front matter with correct line breaks
       if [ "$is_core" = true ]; then
         # Core schema - visible in navigation
-        sed "${SED_INPLACE[@]}" "1s/^/---\nlayout: default\ntitle: \"$title\"\nparent: SCHEMA REFERENCE\n---\n\n/" "$file"
+        sed "${SED_INPLACE[@]}" "1s/^/---\nlayout: default\ntitle: \"$title\"\nparent: Schema Reference\n---\n\n/" "$file"
       else
         # Non-core schema - hidden from navigation
-        sed "${SED_INPLACE[@]}" "1s/^/---\nlayout: default\ntitle: \"$title\"\nparent: SCHEMA REFERENCE\nnav_exclude: true\n---\n\n/" "$file"
+        sed "${SED_INPLACE[@]}" "1s/^/---\nlayout: default\ntitle: \"$title\"\nparent: Schema Reference\nnav_exclude: true\n---\n\n/" "$file"
       fi
       continue
     fi
@@ -247,7 +247,7 @@ nav_exclude: true' "$file"
     cat > "$BASE_DIR/temp_schema_ref.md" << EOF
 ---
 layout: default
-title: SCHEMA REFERENCE
+title: Schema Reference
 nav_order: 5
 has_children: true
 permalink: /schemas/
