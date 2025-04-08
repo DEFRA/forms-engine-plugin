@@ -184,10 +184,12 @@ document.addEventListener('DOMContentLoaded', function() {
 EOF
 
 # Add it to the config
-echo "" >> site-src/_config.yml
-echo "# Custom scripts" >> site-src/_config.yml
-echo "head_scripts:" >> site-src/_config.yml
-echo "  - {{ site.baseurl }}/assets/js/fix-links.js" >> site-src/_config.yml
+cat >> site-src/_config.yml << EOF
+
+# Custom scripts
+head_scripts:
+  - /assets/js/fix-links.js
+EOF
 
 # Create custom includes directory to add baseurl meta tag
 mkdir -p site-src/_includes

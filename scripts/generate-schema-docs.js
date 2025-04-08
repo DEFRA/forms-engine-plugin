@@ -144,15 +144,31 @@ export function runJsonSchema2Md(tempDir) {
  * @param {string[]} schemaFiles - List of schema files
  */
 export function createIndexFile(schemaFiles) {
-  // Define exact core schema names (without the .json extension)
-  const exactCoreSchemas = [
+  // Replace the current exactCoreSchemas array with this more comprehensive list
+  const coreSchemas = [
+    // Main schemas
     'component-schema-v2',
     'component-schema',
     'form-definition-schema',
     'form-definition-v2-payload-schema',
     'form-metadata-schema',
     'page-schema',
-    'page-schema-v2'
+    'page-schema-v2',
+    'list-schema',
+    'list-schema-v2'
+  ]
+
+  // Add this array to define exactly which schemas should be considered "advanced"
+  const advancedSchemas = [
+    // Core supporting schemas
+    'form-metadata-author-schema',
+    'form-metadata-input-schema',
+    'form-metadata-state-schema',
+    'form-metadata-contact-schema',
+    'form-metadata-email-schema',
+    'form-metadata-online-schema',
+    'page-schema-payload-v2',
+    'question-schema'
   ]
 
   // Separate schemas into core and advanced categories
@@ -164,9 +180,9 @@ export function createIndexFile(schemaFiles) {
     const link = `* [${baseName}](${baseName}.md)`
 
     // Exact match for core schemas
-    if (exactCoreSchemas.includes(baseName)) {
+    if (coreSchemas.includes(baseName)) {
       core.push(link)
-    } else {
+    } else if (advancedSchemas.includes(baseName)) {
       advanced.push(link)
     }
   })
