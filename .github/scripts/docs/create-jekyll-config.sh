@@ -69,6 +69,12 @@ include:
   - "**/*.schema.json"
   - "schemas/**/*"
 
+# Tell Jekyll to EXCLUDE JS files from processing as pages
+exclude:
+  - "vendor"
+  - "Gemfile"
+  - "Gemfile.lock"
+
 # Markdown processing
 markdown: kramdown
 kramdown:
@@ -86,6 +92,13 @@ plugins:
   - jekyll-remote-theme
   - jekyll-relative-links
   - jekyll-seo-tag
+
+# Asset configuration
+assets:
+  self_contained: false
+  js_directory: /assets/js
+  compress:
+    js: false
 
 # Link handling
 relative_links:
@@ -123,12 +136,6 @@ toc:
   min_level: 1
   max_level: 2  # Only show h1 and h2 in TOC
 
-assets:
-  self_contained: false
-  js_directory: /assets/js
-  compress:
-    js: false
-
 # Custom scripts
 head_scripts:
   - /assets/js/fix-links.js
@@ -136,19 +143,9 @@ head_scripts:
 # Handle assets correctly
 keep_files:
   - assets
+EOF
 
-exclude:
-  - "/assets/js/just-the-docs.js"  # Exclude from processing, not from output
-  - "/assets/js/vendor/lunr.min.js"
-  - "vendor"
-  - "Gemfile"
-  - "Gemfile.lock"
-
-# Explicitly tell Jekyll NOT to process certain file types
-keep_files:
-  - assets
-
-# Add custom CSS for better styling
+# Create custom CSS file
 echo "📝 Creating custom CSS file..."
 mkdir -p site-src/assets/css
 cat > site-src/assets/css/custom.scss << 'EOF'
@@ -224,8 +221,8 @@ cat > site-src/assets/js/fix-links.js << 'EOF'
 document.addEventListener('DOMContentLoaded', function() {
   // Fix all links that should have the baseurl
   document.querySelectorAll('a[href^="/"]').forEach(function(link) {
-    if (!link.href.includes('/forms-engine-plugin') && 
-        !link.href.match(/^https?:\/\//) && a
+    if (!link.href.includes('/forms-engine-plugin') &&
+        !link.href.match(/^https?:\/\//) &&
         !link.getAttribute('href').startsWith('/forms-engine-plugin')) {
       const href = link.getAttribute('href');
       link.href = '/forms-engine-plugin' + href;
