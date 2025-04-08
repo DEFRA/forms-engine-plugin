@@ -1,18 +1,7 @@
-name: Test Documentation Generation
+name: Documentation Generation
 
 on:
-  workflow_dispatch:
-    inputs:
-      branch_type:
-        description: 'Type of branch to simulate'
-        required: true
-        default: 'main'
-        type: choice
-        options:
-          - main
-          - release/v1
-          - release/v2
-  pull_request:
+  push:
     branches:
       - main
 
