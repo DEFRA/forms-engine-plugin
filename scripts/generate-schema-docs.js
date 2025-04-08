@@ -178,11 +178,15 @@ export function createIndexFile(schemaFiles) {
       core.push(link)
     } else if (advancedSchemas.includes(baseName)) {
       advanced.push(link)
+    } else {
+      console.log(
+        `Note: Schema '${baseName}' is not categorised as core or advanced`
+      )
     }
   })
 
-  core.sort()
-  advanced.sort()
+  core.sort((a, b) => a.localeCompare(b))
+  advanced.sort((a, b) => a.localeCompare(b))
 
   const content = `---
 layout: default
@@ -556,10 +560,12 @@ export function addFrontMatterToSchemaFiles() {
 
   for (const file of mdFiles) {
     const filePath = path.join(docsOutputDir, file)
-    let content = fs.readFileSync(filePath, 'utf8')
+    const content = fs.readFileSync(filePath, 'utf8')
 
     // Skip if already has front matter
-    if (content.startsWith('---')) continue
+    if (content.startsWith('---')) {
+      continue
+    }
 
     // Generate title from filename
     const title = file
