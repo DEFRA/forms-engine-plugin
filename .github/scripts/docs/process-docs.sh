@@ -364,52 +364,45 @@ find "$BASE_DIR" -type f -name "*.md" | while read file; do
   
   # Create temporary file
   temp_file="${file}.tmp"
-  > "$temp_file"
   
-  # Process line by line to handle admonition blocks
-  in_admonition=false
-  while IFS= read -r line; do
-    # Check for admonition start - this is properly recognizing the pattern
-    if [[ "$line" =~ ^\>\ \[\!NOTE\] ]]; then
-      # Output the correct Just the Docs format
-      echo "{: .note }" >> "$temp_file"
-      in_admonition=true
-      continue
-    elif [[ "$line" =~ ^\>\ \[\!TIP\] ]]; then
-      echo "{: .highlight }" >> "$temp_file"
-      in_admonition=true
-      continue
-    elif [[ "$line" =~ ^\>\ \[\!IMPORTANT\] ]]; then
-      echo "{: .important }" >> "$temp_file"
-      in_admonition=true
-      continue
-    elif [[ "$line" =~ ^\>\ \[\!WARNING\] ]]; then
-      echo "{: .warning }" >> "$temp_file"
-      in_admonition=true
-      continue
-    elif [[ "$line" =~ ^\>\ \[\!CAUTION\] ]]; then
-      echo "{: .warning }" >> "$temp_file"
-      in_admonition=true
-      continue
-    fi
-    
-    # When in an admonition
-    elif $in_admonition; then
-      # Check if still in admonition
-      if [[ "$line" =~ ^\>\ (.*) ]]; then
-        # This correctly extracts the content without the > prefix
-        echo "${BASH_REMATCH[1]}" >> "$temp_file"
-      else
-        # But here's the issue - we need to add a blank line after the note class
-        # to ensure proper formatting in Just the Docs
-        in_admonition=false
-        echo "" >> "$temp_file"  # Add blank line after the note content
-        echo "$line" >> "$temp_file"
-      fi
-    else
-      echo "$line" >> "$temp_file"
-    fi
-  done < "$file"
+  # Process the file line by line without complex state tracking
+  awk '
+  /^> \[!NOTE\]/ { 
+    print "{: .note }"; 
+    in_note = 1; 
+    next; 
+  }
+  /^> \[!TIP\]/ { 
+    print "{: .highlight }"; 
+    in_note = 1; 
+    next; 
+  }
+  /^> \[!IMPORTANT\]/ { 
+    print "{: .important }"; 
+    in_note = 1; 
+    next; 
+  }
+  /^> \[!WARNING\]/ { 
+    print "{: .warning }"; 
+    in_note = 1; 
+    next; 
+  }
+  /^> \[!CAUTION\]/ { 
+    print "{: .warning }"; 
+    in_note = 1; 
+    next; 
+  }
+  /^> / {
+    if(in_note) {
+      print substr($0, 3);
+      next;
+    }
+  }
+  {
+    in_note = 0;
+    print;
+  }
+  ' "$file" > "$temp_file"
   
   # Replace original with fixed version
   mv "$temp_file" "$file"
