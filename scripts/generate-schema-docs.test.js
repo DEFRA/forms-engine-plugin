@@ -23,7 +23,8 @@ import {
   fixMarkdownHeadings,
   buildTitleMap,
   formatPropertyName,
-  generateSchemaDocs
+  generateSchemaDocs,
+  addFrontMatterToSchemaFiles
 } from './generate-schema-docs.js'
 
 jest.mock('fs', () => ({
@@ -566,6 +567,18 @@ describe('Schema Documentation Generator', () => {
       expect(result).toContain('## Condition Reference Type')
       expect(result).toContain('# Condition Reference Properties')
     })
+
+    it('fixes headings in condition-definition files', () => {
+      const content = '## Item 0 Type\n# Item 0 Properties'
+
+      const result = fixConditionFileHeadings(
+        content,
+        'condition-definition.md'
+      )
+
+      expect(result).toContain('## Condition Definition Type')
+      expect(result).toContain('# Condition Definition Properties')
+    })
   })
 
   describe('processConditionMarkdownFiles', () => {
@@ -726,6 +739,179 @@ describe('Schema Documentation Generator', () => {
       fixMarkdownHeadings(docsDir, titleMap)
 
       expect(fs.writeFileSync).toHaveBeenCalledTimes(2)
+    })
+  })
+
+  describe('runJsonSchema2Md', () => {
+    let originalRunJsonSchema2Md
+
+    beforeEach(() => {
+      jest.clearAllMocks()
+
+      // Save a reference to the original (mocked) function
+      originalRunJsonSchema2Md = runJsonSchema2Md
+
+      // Temporarily restore the actual implementation for these tests
+      jest.unmock('./generate-schema-docs.js')
+      const actualModule = jest.requireActual('./generate-schema-docs.js')
+      runJsonSchema2Md.mockImplementation(actualModule.runJsonSchema2Md)
+    })
+
+    afterEach(() => {
+      // Restore the mock after each test
+      runJsonSchema2Md.mockImplementation(originalRunJsonSchema2Md)
+    })
+
+    it('throws error for invalid temp directory path', () => {
+      expect(() => runJsonSchema2Md(null)).toThrow(
+        'Invalid temporary directory path provided'
+      )
+      expect(() => runJsonSchema2Md(undefined)).toThrow(
+        'Invalid temporary directory path provided'
+      )
+      expect(() => runJsonSchema2Md(42)).toThrow(
+        'Invalid temporary directory path provided'
+      )
+      expect(() => runJsonSchema2Md('')).toThrow(
+        'Invalid temporary directory path provided'
+      )
+    })
+
+    it('throws error for dangerous characters in paths', () => {
+      const dangerousPaths = [
+        '/path/with;semicolon',
+        '/path/with&ampersand',
+        '/path/with|pipe',
+        '/path/with`backtick',
+        '/path/with$dollar',
+        '/path/with(parens)',
+        '/path/with{braces}',
+        '/path/with[brackets]',
+        '/path/with*asterisk',
+        '/path/with?question',
+        '/path/with<angle>'
+      ]
+
+      dangerousPaths.forEach((badPath) => {
+        expect(() => runJsonSchema2Md(badPath)).toThrow(
+          'Directory path contains potentially unsafe characters'
+        )
+      })
+    })
+
+    it('throws error for path traversal attempts', () => {
+      const originalResolve = path.resolve
+
+      path.resolve = jest.fn((...args) => {
+        if (args[0] === '/some/path') {
+          return '/outside/project/path'
+        }
+        if (args[0] === '/mock/cwd' && args[1] === '..') {
+          return '/project/root'
+        }
+        return originalResolve(...args)
+      })
+
+      expect(() => runJsonSchema2Md('/some/path')).toThrow(
+        'Temporary directory must be within the project'
+      )
+
+      path.resolve = originalResolve
+    })
+  })
+
+  describe('addFrontMatterToSchemaFiles', () => {
+    beforeEach(() => {
+      jest.clearAllMocks()
+      jest.resetAllMocks()
+
+      path.join.mockImplementation((...args) => args.join('/'))
+    })
+
+    it('adds front matter to markdown files without it', () => {
+      fs.readdirSync.mockReturnValueOnce([
+        'test-schema.md',
+        'another-schema.md',
+        'README.md',
+        'already-has-frontmatter.md'
+      ])
+
+      const mockFiles = {
+        '/mock/docs/dir/test-schema.md': '# Content without frontmatter',
+        '/mock/docs/dir/another-schema.md': '# Content without frontmatter',
+        '/mock/docs/dir/README.md': '# README content',
+        '/mock/docs/dir/already-has-frontmatter.md':
+          '---\ntitle: Existing\n---\n# Content'
+      }
+
+      fs.readFileSync.mockImplementation((filePath, encoding) => {
+        const path = String(filePath)
+        return mockFiles[path] || '# Default content'
+      })
+
+      addFrontMatterToSchemaFiles()
+
+      const writtenFiles = fs.writeFileSync.mock.calls.map((call) =>
+        String(call[0])
+      )
+
+      expect(writtenFiles).toContain('/mock/docs/dir/test-schema.md')
+      expect(writtenFiles).toContain('/mock/docs/dir/another-schema.md')
+      expect(writtenFiles).not.toContain('/mock/docs/dir/README.md')
+      expect(writtenFiles).not.toContain(
+        '/mock/docs/dir/already-has-frontmatter.md'
+      )
+      expect(fs.writeFileSync).toHaveBeenCalledTimes(2)
+
+      fs.writeFileSync.mock.calls.forEach((call) => {
+        const path = String(call[0])
+        const content = call[1]
+
+        if (path.includes('test-schema.md')) {
+          expect(content).toContain('title: Test Schema')
+        } else if (path.includes('another-schema.md')) {
+          expect(content).toContain('title: Another Schema')
+        }
+
+        expect(content).toMatch(/^---\nlayout: default/)
+        expect(content).toContain('parent: Schema Reference')
+      })
+    })
+
+    it('handles complex file names with mixed case and multiple hyphens', () => {
+      jest.clearAllMocks()
+
+      fs.readdirSync.mockReturnValueOnce([
+        'complex-file-name-with-multiple-parts.md'
+      ])
+
+      fs.readFileSync.mockReturnValueOnce('# Complex content')
+
+      addFrontMatterToSchemaFiles()
+
+      expect(fs.writeFileSync).toHaveBeenCalledTimes(1)
+
+      const content = fs.writeFileSync.mock.calls[0][1]
+      expect(content).toContain('title: Complex File Name With Multiple Parts')
+    })
+
+    it('skips files that already have frontmatter', () => {
+      jest.clearAllMocks()
+
+      fs.readdirSync.mockReturnValueOnce([
+        'has-frontmatter1.md',
+        'has-frontmatter2.md',
+        'has-frontmatter3.md'
+      ])
+
+      fs.readFileSync
+        .mockReturnValueOnce('---\ntitle: First\n---\n# Content')
+        .mockReturnValueOnce('---\nlayout: default\n---\n# Content')
+        .mockReturnValueOnce('---\nempty\n---\n')
+
+      addFrontMatterToSchemaFiles()
+
+      expect(fs.writeFileSync).not.toHaveBeenCalled()
     })
   })
 })
