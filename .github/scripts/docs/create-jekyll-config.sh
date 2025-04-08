@@ -112,6 +112,11 @@ defaults:
       path: "features"
     values:
       parent: "Features"
+
+# Table of contents configuration
+toc:
+  min_level: 1
+  max_level: 2  # Only show h1 and h2 in TOC
 EOF
 
 # Add custom CSS for better styling

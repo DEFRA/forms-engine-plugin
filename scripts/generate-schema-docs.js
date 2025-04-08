@@ -579,6 +579,7 @@ export function addFrontMatterToSchemaFiles() {
 layout: default
 title: ${title}
 parent: Schema Reference
+toc: false
 ---
 
 `

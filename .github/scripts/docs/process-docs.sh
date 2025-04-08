@@ -369,8 +369,9 @@ find "$BASE_DIR" -type f -name "*.md" | while read file; do
   # Process line by line to handle admonition blocks
   in_admonition=false
   while IFS= read -r line; do
-    # Check for admonition start
+    # Check for admonition start - this is properly recognizing the pattern
     if [[ "$line" =~ ^\>\ \[\!NOTE\] ]]; then
+      # Output the correct Just the Docs format
       echo "{: .note }" >> "$temp_file"
       in_admonition=true
       continue
@@ -392,19 +393,20 @@ find "$BASE_DIR" -type f -name "*.md" | while read file; do
       continue
     fi
     
-    # Check if we're in an admonition
-    if $in_admonition; then
-      # Check if still in admonition (line starts with >)
+    # When in an admonition
+    elif $in_admonition; then
+      # Check if still in admonition
       if [[ "$line" =~ ^\>\ (.*) ]]; then
-        # Output the line without the > prefix
+        # This correctly extracts the content without the > prefix
         echo "${BASH_REMATCH[1]}" >> "$temp_file"
       else
-        # End of admonition
+        # But here's the issue - we need to add a blank line after the note class
+        # to ensure proper formatting in Just the Docs
         in_admonition=false
+        echo "" >> "$temp_file"  # Add blank line after the note content
         echo "$line" >> "$temp_file"
       fi
     else
-      # Regular line
       echo "$line" >> "$temp_file"
     fi
   done < "$file"
