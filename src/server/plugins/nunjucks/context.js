@@ -57,6 +57,10 @@ export function context(request) {
       serviceName: config.get('serviceName'),
       serviceVersion: config.get('serviceVersion')
     },
+    pluginOptions: {
+      baseLayoutPath:
+        request?.server.plugins['forms-engine-plugin'].baseLayoutPath
+    },
     crumb: safeGenerateCrumb(request),
     cspNonce: request?.plugins.blankie?.nonces?.script,
     currentPath: request ? `${request.path}${request.url.search}` : undefined,

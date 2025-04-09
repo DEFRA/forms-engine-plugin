@@ -20,6 +20,7 @@ declare module '@hapi/hapi' {
     }
     'forms-engine-plugin': {
       cacheService: CacheService
+      baseLayoutPath: string
     }
   }
 
