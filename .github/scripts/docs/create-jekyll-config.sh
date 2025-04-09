@@ -136,15 +136,7 @@ defaults:
     values:
       layout: default
       parent: "Schema Reference"
-  - scope:
-      path: "schemas/index.html"
-    values:
-      nav_order: 5
-      has_children: true
-  - scope:
-      path: "features"
-    values:
-      parent: "Features"
+
 
 # Table of contents configuration
 toc:
@@ -158,76 +150,6 @@ head_scripts:
 # Handle assets correctly
 keep_files:
   - assets
-EOF
-
-# Create custom CSS file
-echo "📝 Creating custom CSS file..."
-mkdir -p site-src/assets/css
-cat > site-src/assets/css/custom.scss << 'EOF'
-@import "./just-the-docs-default.scss";
-
-// Improve readability
-body {
-  font-size: 16px;
-  line-height: 1.6;
-}
-
-// Better code blocks
-div.highlighter-rouge {
-  padding: 0.75rem;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-  background-color: #f5f5f5;
-  border-radius: 4px;
-}
-
-// Fix navigation for nested items
-.navigation-list-item {
-  margin: 0.5rem 0;
-}
-
-// Improve table styling
-table {
-  width: 100%;
-  margin-bottom: 1rem;
-  border-collapse: collapse;
-
-  th, td {
-    padding: 0.75rem;
-    vertical-align: top;
-    border: 1px solid #e3e3e3;
-  }
-
-  th {
-    background-color: #f5f5f5;
-  }
-}
-
-// Schema documentation styling
-.schema-section {
-  margin-top: 2rem;
-  padding: 1rem;
-  background-color: #f8f9fa;
-  border-radius: 4px;
-}
-
-// Custom styles for Just the Docs callouts
-.note, .warning, .important, .highlight {
-  border-radius: 0.25rem;
-  padding: 1rem;
-  margin-bottom: 1rem;
-}
-
-.note {
-  background-color: #e6f3ff;
-  border-left: 0.25rem solid #2869e6;
-}
-
-.warning {
-  background-color: #ffeeee;
-  border-left: 0.25rem solid #ee0000;
-}
-EOF
 
 # Add Javascript to fix any remaining links
 echo "📝 Creating link-fixer JavaScript..."
@@ -251,5 +173,41 @@ mkdir -p site-src/_includes
 cat > site-src/_includes/head_custom.html << 'EOF'
 <meta name="baseurl" content="{{ site.baseurl }}">
 EOF
+
+# Features section - explicit configuration
+- scope:
+    path: "features"
+  values:
+    nav_exclude: false
+
+- scope:
+    path: "features/index.md"
+  values:
+    layout: default
+    title: "Features"
+    nav_order: 4
+    has_children: true
+    permalink: /features/
+    nav_exclude: false
+
+- scope:
+    path: "features/code-based/index.md"
+  values:
+    layout: default
+    title: "Code-based Features"
+    parent: "Features"
+    has_children: true
+    nav_order: 1
+    nav_exclude: false
+
+- scope:
+    path: "features/configuration-based/index.md"
+  values:
+    layout: default
+    title: "Configuration-based Features"
+    parent: "Features"
+    has_children: true
+    nav_order: 2
+    nav_exclude: false
 
 echo "✅ Jekyll configuration files created successfully!"

@@ -1,7 +1,6 @@
 name: Documentation Generation
 
 on:
-  pull_request:
   push:
 
 permissions:
