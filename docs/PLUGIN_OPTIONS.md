@@ -15,7 +15,7 @@ The forms plugin is configured with [registration options](https://hapi.dev/api/
 
 ## Services
 
-TODO
+See [our services documentation](./features/code-based/CUSTOM_SERVICES.md).
 
 ## Custom controllers
 

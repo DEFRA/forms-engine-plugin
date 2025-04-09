@@ -1,8 +1,7 @@
 # Templates and views
 
-## Extending the default layout
-
-TODO
+> [!NOTE]
+> DXT currently handles the page layout internally within the plugin and cannot be customised. We plan to offer this customisation as a feature, please contact us on Slack if this is urgent for you.
 
 To override the default page template, vision and nunjucks both need to be configured to search in the `forms-engine-plugin` views directory when looking for template files.
 
