@@ -155,8 +155,8 @@ Full example of the minified and escaped component, which can be appended to [th
 
 ## Providing your own filters
 
-Whilst DXT offers some out of the box filters, teams using the plugin have the capability to provide their own. See [PLUGIN_OPTIONS.md](/PLUGIN_OPTIONS) for more information.
+Whilst DXT offers some out of the box filters, teams using the plugin have the capability to provide their own. See [PLUGIN_OPTIONS.md](/forms-engine-plugin/PLUGIN_OPTIONS) for more information.
 
 ## Using page templates with data from your own API
 
-Page templates have access to``{{ context.data  }}` , which is an attribute made available when a page event is triggered. It represents the entire response body from your API. To learn more about this, [see our guidance on page events](/features/configuration-based/PAGE_EVENTS).
+Page templates have access to``{{ context.data  }}` , which is an attribute made available when a page event is triggered. It represents the entire response body from your API. To learn more about this, [see our guidance on page events](/forms-engine-plugin/features/configuration-based/PAGE_EVENTS).
