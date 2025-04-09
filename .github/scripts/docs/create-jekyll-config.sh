@@ -156,24 +156,14 @@ echo "📝 Copying link-fixer JavaScript..."
 mkdir -p site-src/assets/js
 cp .github/scripts/docs/assets/js/fix-links.js site-src/assets/js/
 
-# Create custom includes directory to add baseurl meta tag
 mkdir -p site-src/_includes
 cat > site-src/_includes/head_custom.html << 'EOF'
 <meta name="baseurl" content="{{ site.baseurl }}">
 EOF
 
-# Create custom SCSS for styling overrides
-echo "📝 Creating custom SCSS for styling overrides..."
+echo "📝 Copying custom SCSS styling overrides..."
 mkdir -p site-src/_sass/custom
-cat > site-src/_sass/custom/custom.scss << 'EOF'
-// Custom styles for the site title
-@media (min-width: 50rem) {
-  .site-title {
-    padding-right: 1rem;
-    padding-left: 1rem;
-  }
-}
-EOF
+cp .github/scripts/docs/assets/scss/custom.scss site-src/_sass/custom/custom.scss
 
 # Features section - explicit configuration
 - scope:

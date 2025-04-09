@@ -226,8 +226,6 @@ These schemas are primarily for internal use or advanced customisation:
 ${advanced.join('\n')}
 `
 
-  // Write both files with the same content
-  fs.writeFileSync(path.join(docsOutputDir, 'README.md'), content)
   fs.writeFileSync(path.join(docsOutputDir, 'index.md'), content)
 
   console.log(
