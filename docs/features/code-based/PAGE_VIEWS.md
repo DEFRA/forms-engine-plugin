@@ -27,4 +27,4 @@ The main template layout is `govuk-frontend`'s `template.njk` file, this also ne
 
 ## Using page views with data from your own API
 
-Page templates have access to `{{ context.data }}`, which is an attribute made available when a page event is triggered. It represents the entire response body from your API. To learn more about this, [see our guidance on page events](/features/configuration-based/PAGE_EVENTS).
+Page templates have access to `{{ context.data }}`, which is an attribute made available when a page event is triggered. It represents the entire response body from your API. To learn more about this, [see our guidance on page events](/forms-engine-plugin/features/configuration-based/PAGE_EVENTS).

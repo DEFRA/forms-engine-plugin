@@ -132,3 +132,14 @@ EOF
 fi
 
 echo "✅ All schema links fixed and documentation prepared!"
+
+# Special fix for schema links
+echo "🔧 Fixing schema links to ensure they have the correct prefix..."
+find "$BASE_DIR" -type f -name "*.md" | while read file; do
+  # Fix schema links by ensuring they have the /forms-engine-plugin prefix
+  sed "${SED_INPLACE[@]}" -E 's|\[([^]]+)\]\((/schemas/[^)]+)\)|\[\1\]\(/forms-engine-plugin\2\)|g' "$file"
+  sed "${SED_INPLACE[@]}" -E 's|\[([^]]+)\]\((schemas/[^)]+)\)|\[\1\]\(/forms-engine-plugin/\2\)|g' "$file"
+  
+  # Also catch schema links that might appear in full URL form but incorrectly
+  sed "${SED_INPLACE[@]}" -E 's|https://defra.github.io/schemas/|https://defra.github.io/forms-engine-plugin/schemas/|g' "$file"
+done
