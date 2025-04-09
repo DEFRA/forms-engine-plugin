@@ -29,7 +29,7 @@ EOF
 # Create _config.yml
 echo "📄 Creating _config.yml..."
 cat > site-src/_config.yml << EOF
-title: DXT Docs
+title: DXT Documentation
 description: Documentation for the DEFRA Forms Engine Plugin
 
 # Theme configuration
@@ -160,6 +160,19 @@ cp .github/scripts/docs/assets/js/fix-links.js site-src/assets/js/
 mkdir -p site-src/_includes
 cat > site-src/_includes/head_custom.html << 'EOF'
 <meta name="baseurl" content="{{ site.baseurl }}">
+EOF
+
+# Create custom SCSS for styling overrides
+echo "📝 Creating custom SCSS for styling overrides..."
+mkdir -p site-src/_sass/custom
+cat > site-src/_sass/custom/custom.scss << 'EOF'
+// Custom styles for the site title
+@media (min-width: 50rem) {
+  .site-title {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+}
 EOF
 
 # Features section - explicit configuration

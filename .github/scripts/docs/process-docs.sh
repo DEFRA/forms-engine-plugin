@@ -52,7 +52,7 @@ for doc_file in $(find . -maxdepth 1 -name "*.md"); do
   case "$base_name" in
     "index"|"INDEX")
       nav_order=1
-      title="DXT Docs"
+      title="DXT Documentation"
       ;;
     "GETTING_STARTED")
       nav_order=2
