@@ -10,6 +10,11 @@
  */
 
 /**
+ * @typedef {object} PluginOptions
+ * @property {string} [baseLayoutPath] - Page layout to extend
+ */
+
+/**
  * @typedef {object} ViewContext - Nunjucks view context
  * @property {string} appVersion - Application version
  * @property {string} assetPath - Asset path
@@ -22,6 +27,7 @@
  * @property {string} [slug] - Form slug
  * @property {(asset?: string) => string} getAssetPath - Asset path resolver
  * @property {FormContext} [context] - the current form context
+ * @property {PluginOptions} [pluginOptions] - the current form context
  */
 
 /**
