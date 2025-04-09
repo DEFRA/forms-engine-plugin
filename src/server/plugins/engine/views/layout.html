@@ -45,85 +45,11 @@
 {% endblock %}
 
 {% block header %}
-  {% if config.googleAnalyticsTrackingId and slug %}
-    <form method="post" action="/help/cookie-preferences/{{ slug }}?returnUrl={{ currentPath | urlencode }}">
-      <input type="hidden" name="crumb" value="{{ crumb }}">
-
-    {% set acceptHtml %}
-      <p class="govuk-body">You’ve accepted analytics cookies. You can <a class="govuk-link" href="/help/cookies/{{ slug }}">change your cookie settings</a> at any time.</p>
-    {% endset %}
-
-    {% set rejectedHtml %}
-      <p class="govuk-body">You’ve rejected analytics cookies. You can <a class="govuk-link" href="/help/cookies/{{ slug }}">change your cookie settings</a> at any time.</p>
-    {% endset %}
-
-    {% if cookieConsent.analytics !== true and cookieConsent.analytics !== false and cookieConsent.dismissed !== true %}
-      {% set html %}
-        <p class="govuk-body">We use some essential cookies to make this service work.</p>
-        <p class="govuk-body">We’d like to set analytics cookies so we can understand how people use the service and make improvements.</p>
-      {% endset %}
-
-      {{ govukCookieBanner({
-        ariaLabel: "Cookies on " + config.serviceName,
-        messages: [
-          {
-            headingText: config.serviceName,
-            html: html,
-            actions: [
-              {
-                text: "Accept analytics cookies",
-                type: "submit",
-                name: "cookies[analytics]",
-                value: "yes"
-              },
-              {
-                text: "Reject analytics cookies",
-                type: "submit",
-                name: "cookies[analytics]",
-                value: "no"
-              },
-              {
-                text: "View cookies",
-                href: "/help/cookies/" + slug
-              }
-            ]
-          }
-        ]
-      }) }}
-    {% elif cookieConsent.dismissed === false %}
-      {{ govukCookieBanner({
-        ariaLabel: "Cookies on " + config.serviceName,
-        messages: [
-          {
-            html: acceptHtml if cookieConsent.analytics === true else rejectedHtml,
-            actions: [
-              {
-                text: "Hide cookie message",
-                type: "submit",
-                name: "cookies[dismissed]",
-                value: "yes"
-              }
-            ]
-          }
-        ]
-      }) }}
-    {% endif %}
-
-    </form>
-  {% endif %}
-
-  {% if config.serviceBannerText | length %}
-    {{ appServiceBanner({
-      title: "Service status",
-      text: config.serviceBannerText
-    }) }}
-  {% endif %}
-
   {{ govukHeader({
     homepageUrl: currentPath if context.isForceAccess else "https://www.gov.uk",
     containerClasses: "govuk-width-container",
     productName: productName | safe | trim,
-    serviceName: name if name else config.serviceName,
+    serviceName: "DXT development server",
     serviceUrl: currentPath if context.isForceAccess else serviceUrl
   }) }}
 {% endblock %}
