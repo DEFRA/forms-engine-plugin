@@ -73,7 +73,9 @@ export interface PluginOptions {
   viewPaths?: string[]
   filters?: Record<string, FilterFunction>
   pluginPath?: string
-  baseLayoutPath: string
+  viewContext: {
+    baseLayoutPath: string
+  }
 }
 
 export const plugin = {
@@ -89,7 +91,7 @@ export const plugin = {
       viewPaths,
       filters,
       pluginPath = PLUGIN_PATH,
-      baseLayoutPath
+      viewContext
     } = options
     const { formsService } = services
     const cacheService = new CacheService(server, cacheName)
@@ -150,7 +152,7 @@ export const plugin = {
       }
     })
 
-    server.expose('baseLayoutPath', baseLayoutPath)
+    server.expose('viewContext', viewContext)
     server.expose('cacheService', cacheService)
 
     server.app.model = model

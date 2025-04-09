@@ -46,6 +46,7 @@ export function context(request) {
 
   /** @type {ViewContext} */
   const ctx = {
+    ...request?.server.plugins['forms-engine-plugin'].viewContext, // take consumers props first so we can override it
     appVersion: pkg.version,
     assetPath: '/assets',
     config: {
@@ -56,10 +57,6 @@ export function context(request) {
       serviceBannerText: config.get('serviceBannerText'),
       serviceName: config.get('serviceName'),
       serviceVersion: config.get('serviceVersion')
-    },
-    pluginOptions: {
-      baseLayoutPath:
-        request?.server.plugins['forms-engine-plugin'].baseLayoutPath
     },
     crumb: safeGenerateCrumb(request),
     cspNonce: request?.plugins.blankie?.nonces?.script,
