@@ -21,11 +21,20 @@ find "$BASE_DIR" -type f -name "*.md" | grep -v "node_modules" | while read file
   fi
 
   # === Fix all .md links to match Jekyll's pretty permalinks AND add baseurl ===
+  # Examples:
+  # [Link Text](some-page.md) becomes [Link Text](/forms-engine-plugin/some-page)
+  # [Link Text](some-page.md#section) becomes [Link Text](/forms-engine-plugin/some-page#section)
   sed "${SED_INPLACE[@]}" -E 's|\[([^]]+)\]\(([^)]+)\.md(#[^)]+)?\)|\[\1\]\(/forms-engine-plugin/\2\3\)|g' "$file"
+
+  # [Link Text](some-page.md) becomes [Link Text](/forms-engine-plugin/some-page)
   sed "${SED_INPLACE[@]}" -E 's|\[([^]]+)\]\(([^)]+)\.md\)|\[\1\]\(/forms-engine-plugin/\2\)|g' "$file"
+
   # Fix plain / roots to include baseurl
+  # [Link Text](/some-path) becomes [Link Text](/forms-engine-plugin/some-path)
   sed "${SED_INPLACE[@]}" -E 's|\[([^]]+)\]\(\/([^)]+)\)|\[\1\]\(/forms-engine-plugin/\2\)|g' "$file"
+
   # Fix relative links to be absolute with baseurl
+  # [Link Text](./some-path) becomes [Link Text](/forms-engine-plugin/some-path)
   sed "${SED_INPLACE[@]}" -E 's|\[([^]]+)\]\(\./([^)]+)\)|\[\1\]\(/forms-engine-plugin/\2\)|g' "$file"
 
   # === Specific handling for schema files ===
@@ -41,20 +50,36 @@ parent: Schema Reference' "$file"
     fi
 
     # Fix common schema reference patterns
+    # This removes .md extensions from schema links and standardizes paths
+    # Example: [Component Schema](component-schema.md) → [Component Schema](component-schema)
+    # Example: [Form Schema](form-schema) → [Form Schema](form-schema)
     sed "${SED_INPLACE[@]}" -E 's/\[([^\]]+)\]\(([a-zA-Z0-9_-]+-schema[a-zA-Z0-9_-]*)(\.md)?\)/[\1](\2)/g' "$file"
     sed "${SED_INPLACE[@]}" -E 's/\[([^\]]+)\]\(([a-zA-Z0-9_-]+-schema-[a-zA-Z0-9_-]*)(\.md)?\)/[\1](\2)/g' "$file"
 
-    # Handle properties references
+    # This handles schemas with a hyphen in the middle of the name pattern
+    # Example: [Page Schema V2](page-schema-v2.md) → [Page Schema V2](page-schema-v2)
+    # Example: [Component Schema V2](component-schema-v2) → [Component Schema V2](component-schema-v2)
     sed "${SED_INPLACE[@]}" -E 's/\[([^\]]+)\]\(([a-zA-Z0-9_-]+-properties-[a-zA-Z0-9_-]*)(\.md)?\)/[\1](\2)/g' "$file"
 
-    # Fix references to validation schemas
+    # Fix references to validation-related schemas
+    # Example: [Min Length](min-length.md) → [Min Length](min-length)
+    # Example: [Max Schema](max-schema.md) → [Max Schema](max-schema)
+    # Example: [Min Future](min-future.md) → [Min Future](min-future)
     sed "${SED_INPLACE[@]}" -E 's/\[([^\]]+)\]\((min|max)(-length|-schema|-future|-past)?(\.md)?\)/[\1](\2\3)/g' "$file"
 
     # Handle other schema patterns
+    # Example: [Search Options](search-options-schema.md) → [Search Options](search-options-schema)
+    # Example: [Query Options Schema V2](query-options-schema-v2.md) → [Query Options Schema V2](query-options-schema-v2)
     sed "${SED_INPLACE[@]}" -E 's/\[([^\]]+)\]\((search|sorting|query|list)-options-schema(-[a-zA-Z0-9_-]*)?(\.md)?\)/[\1](\2-options-schema\3)/g' "$file"
+
+    # Fix references to page, form, and component documentation
+    # Example: [Page Config](page-config.md) → [Page Config](page-config)
+    # Example: [Form Definition](form-definition-v2.md) → [Form Definition](form-definition-v2)
     sed "${SED_INPLACE[@]}" -E 's/\[([^\]]+)\]\((page|form|component)-([a-zA-Z0-9_-]+)(-[a-zA-Z0-9_-]*)?(\.md)?\)/[\1](\2-\3\4)/g' "$file"
 
     # Extra pass for nested property references
+    # Example: [Nested Property](nested-property.md) → [Nested Property](nested-property)
+    # Example: [Nested Property V2](nested-property-v2.md) → [Nested Property V2](nested-property-v2)
     sed "${SED_INPLACE[@]}" -E 's/\[([^\]]+)\]\(([a-zA-Z0-9_-]+)-schema-properties-([a-zA-Z0-9_-]+)(-[a-zA-Z0-9_-]*)?(\.md)?\)/[\1](\2-schema-properties-\3\4)/g' "$file"
   fi
 done
@@ -62,18 +87,7 @@ done
 # Fix specific documentation links that are causing issues
 echo "🔧 Fixing specific problematic links..."
 
-# 1. Fix PAGE links between documentation sections
-if [ -f "./features/code-based/PAGE_VIEWS.md" ]; then
-  echo "  Fixing PAGE_VIEWS.md links"
-  sed "${SED_INPLACE[@]}" -E 's|\[see our guidance on page events\]([^)]*)/PAGE_EVENTS\.md|\[see our guidance on page events\]\(\.\.\/configuration-based\/PAGE_EVENTS\)|g' "./features/code-based/PAGE_VIEWS.md"
-fi
-
-if [ -f "./features/configuration-based/PAGE_TEMPLATES.md" ]; then
-  echo "  Fixing PAGE_TEMPLATES.md links"
-  sed "${SED_INPLACE[@]}" -E 's|\[see our guidance on page events\]([^)]*)/PAGE_EVENTS\.md|\[see our guidance on page events\]\(\.\.\/configuration-based\/PAGE_EVENTS\)|g' "./features/configuration-based/PAGE_TEMPLATES.md"
-fi
-
-# 2. Deep clean schema files - more aggressive approach
+# Deep clean schema files - more aggressive approach
 echo "  Deep cleaning schema files to remove all .md references"
 find "./schemas" -type f -name "*.md" | while read schema_file; do
   # Super aggressive - just remove .md from the entire file
@@ -96,44 +110,6 @@ else
   echo "✨ No remaining .md references found. All links appear to be fixed!"
 fi
 
-# Advanced fixing for specific files with code blocks
-echo "🔧 Special handling for files with code examples..."
-for special_file in "./features/configuration-based/PAGE_TEMPLATES.md" "./CONTRIBUTING.md"; do
-  if [ -f "$special_file" ]; then
-    echo "  Processing special file: $special_file"
-
-    # Create a temporary file
-    temp_file="${special_file}.tmp"
-    > "$temp_file" # Create empty temporary file
-
-    # Process the file line-by-line, tracking if we're in a code block
-    in_code_block=false
-    while IFS= read -r line; do
-      # Check if line starts/ends a code block (backticks escaped)
-      if [[ "$line" =~ ^\`\`\`.*$ ]]; then
-        # Toggle code block state
-        if [ "$in_code_block" = true ]; then
-          in_code_block=false
-        else
-          in_code_block=true
-        fi
-        echo "$line" >> "$temp_file"
-      elif [ "$in_code_block" = true ]; then
-        # In code block, leave as is
-        echo "$line" >> "$temp_file"
-      else
-        # Outside code block, fix .md links
-        fixed_line=$(echo "$line" | sed -E 's/\(([^)]+)\.md\)/(\1)/g' | sed -E 's/\[([^\]]+)\]\(([^)]+)\.md\)/[\1](\2)/g')
-        echo "$fixed_line" >> "$temp_file"
-      fi
-    done < "$special_file"
-
-    # Replace original with fixed version
-    mv "$temp_file" "$special_file"
-  fi
-done
-
-echo "✅ Special file handling complete!"
 
 # Create a root-level SCHEMA_REFERENCE.md file if it doesn't exist
 if [ ! -f "./SCHEMA_REFERENCE.md" ]; then
@@ -152,37 +128,6 @@ permalink: /schemas/
 The schema reference documentation is available in the [schemas directory](/schemas/).
 EOF
   echo "✅ Created SCHEMA_REFERENCE.md for left navigation"
-fi
-
-# Fix cross-directory links that are causing issues
-echo "🔧 Fixing cross-directory links..."
-
-# 1. Fix specifically PAGE_VIEWS.md linking to PAGE_EVENTS.md
-if [ -f "./features/code-based/PAGE_VIEWS.md" ]; then
-  echo "  Fixing cross-directory links in PAGE_VIEWS.md"
-  # Fix relative path from code-based to configuration-based
-  sed "${SED_INPLACE[@]}" -E 's|\[([^]]+)\]\(\.\./configuration-based/PAGE_EVENTS\.?m?d?\)|\[\1\]\(\/features\/configuration-based\/PAGE_EVENTS\)|g' "./features/code-based/PAGE_VIEWS.md"
-  sed "${SED_INPLACE[@]}" -E 's|\[([^]]+)\]\(PAGE_EVENTS\.?m?d?\)|\[\1\]\(\/features\/configuration-based\/PAGE_EVENTS\)|g' "./features/code-based/PAGE_VIEWS.md"
-fi
-
-# 2. Completely remove .md from all schema files
-echo "  Aggressively cleaning .md from schema files"
-find "./schemas" -type f -name "*.md" | while read schema_file; do
-  sed "${SED_INPLACE[@]}" -E 's/\.md//g' "$schema_file"
-done
-
-# Ensure index.md exists in schemas directory and is properly formatted
-if [ -f "./schemas/README.md" ] && [ ! -f "./schemas/index.md" ]; then
-  echo "📝 Creating schemas/index.md from README.md..."
-  cp "./schemas/README.md" "./schemas/index.md"
-
-  sed "${SED_INPLACE[@]}" '/^---/,/^---/d' "./schemas/index.md"
-
-  # Add new front matter
-  front_matter="---\nlayout: default\ntitle: Schema Reference\nnav_order: 5\nhas_children: true\npermalink: /schemas/\n---\n\n"
-  sed "${SED_INPLACE[@]}" "1s/^/$front_matter/" "./schemas/index.md"
-
-  echo "✅ Created schemas/index.md with proper front matter"
 fi
 
 echo "✅ All schema links fixed and documentation prepared!"

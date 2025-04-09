@@ -14,7 +14,7 @@ echo "🔄 Processing root markdown files..."
 for location in "." "docs"; do
   if [ -d "$location" ]; then
     echo "  Checking $location directory"
-    for file in "$location"/*.md "$location"/GETTING_STARTED.md "$location"/PLUGIN_OPTIONS.md "$location"/CONTRIBUTING.md; do
+    for file in "$location"/*.md; do
       if [ -f "$file" ]; then
         echo "  Processing $file"
         temp_file="${file}.tmp"
