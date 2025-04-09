@@ -150,6 +150,7 @@ head_scripts:
 # Handle assets correctly
 keep_files:
   - assets
+EOF
 
 # Add Javascript to fix any remaining links
 echo "📝 Creating link-fixer JavaScript..."
