@@ -152,22 +152,9 @@ keep_files:
   - assets
 EOF
 
-# Add Javascript to fix any remaining links
-echo "📝 Creating link-fixer JavaScript..."
+echo "📝 Copying link-fixer JavaScript..."
 mkdir -p site-src/assets/js
-cat > site-src/assets/js/fix-links.js << 'EOF'
-document.addEventListener('DOMContentLoaded', function() {
-  // Fix all links that should have the baseurl
-  document.querySelectorAll('a[href^="/"]').forEach(function(link) {
-    if (!link.href.includes('/forms-engine-plugin') &&
-        !link.href.match(/^https?:\/\//) &&
-        !link.getAttribute('href').startsWith('/forms-engine-plugin')) {
-      const href = link.getAttribute('href');
-      link.href = '/forms-engine-plugin' + href;
-    }
-  });
-});
-EOF
+cp .github/scripts/docs/assets/js/fix-links.js site-src/assets/js/
 
 # Create custom includes directory to add baseurl meta tag
 mkdir -p site-src/_includes

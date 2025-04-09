@@ -226,13 +226,6 @@ EOF
 
     echo "✅ Updated SCHEMA_REFERENCE.md with full schema listing"
   fi
-
-  # Set schemas/index.md to be excluded from navigation
-  if [ -f "$BASE_DIR/schemas/index.md" ]; then
-    echo "  Updating schemas/index.md to be excluded from navigation"
-    sed "${SED_INPLACE[@]}" '/^---/a\
-nav_exclude: true' "$BASE_DIR/schemas/index.md"
-  fi
 fi
 
 # Check for features directory before processing

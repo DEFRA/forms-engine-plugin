@@ -194,6 +194,8 @@ title: Schema Reference
 nav_order: 5
 has_children: true
 permalink: /schemas/
+nav_exclude: true
+toc: false
 ---
 
 # Defra Forms Model Schema Reference

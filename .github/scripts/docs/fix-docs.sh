@@ -138,18 +138,6 @@ for dir in code-based configuration-based; do
     }
     ' "$file" > "$temp_file"
 
-    if [[ "$file" == "PAGE_VIEWS.md" ]]; then
-      sed "${SED_INPLACE[@]}" 's|\(see our guidance on page events\)(\.\./configuration-based/PAGE_EVENTS.md)|\1(/features/configuration-based/PAGE_EVENTS)|g' "$temp_file"
-      sed "${SED_INPLACE[@]}" 's|\[plugin option\](/forms-engine-plugin/https://|[plugin option](https://|g' "$temp_file"
-    fi
-
-    if [[ "$file" == "PAGE_TEMPLATES.md" ]]; then
-      sed "${SED_INPLACE[@]}" 's|\[PLUGIN_OPTIONS.md\](../../PLUGIN_OPTIONS.md#custom-filters)|\[Plugin Options](/PLUGIN_OPTIONS#custom-filters)|g' "$temp_file"
-    fi
-
-    sed "${SED_INPLACE[@]}" 's|/forms-engine-plugin/forms-engine-plugin/|/forms-engine-plugin/|g' "$temp_file"
-    sed "${SED_INPLACE[@]}" 's|/forms-engine-plugin/https://|https://|g' "$temp_file"
-
     lowercase_file=$(echo "$file" | tr '[:upper:]' '[:lower:]')
     if [ "$file" != "$lowercase_file" ]; then
       echo "  Creating lowercase copy: $lowercase_file"
