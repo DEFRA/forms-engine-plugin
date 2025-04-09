@@ -112,18 +112,9 @@ DXT plans to prefix to these asset paths to prevent collisions with your assets.
 Blocks marked with `# FEATURE: <name>` are optional and can be omitted if the feature is not used.
 
 ```shell
-# Feedback link shown in the phase banner. Supports `mailto:` links.
+# START FEATURE: Phase banner -- supports `https://` and `mailto:` links in the feedback link
 FEEDBACK_LINK=http://test.com
-
-# Session configuration
-SESSION_COOKIE_PASSWORD="a-random-value-longer-a-minimum-of-32-characters"
-SESSION_TIMEOUT=604800000
-
-# Redis configuration
-REDIS_PASSWORD=my-password
-REDIS_USERNAME=default
-REDIS_HOST=localhost
-REDIS_KEY_PREFIX=forms-runner
+# END FEATURE: Phase banner
 
 # START FEATURE: DXT -- used if using DXT's infrastructure to store your forms and file uploads
 MANAGER_URL=http://localhost:3001
