@@ -27,7 +27,14 @@ export const configureEnginePlugin = async ({
 
   return {
     plugin,
-    options: { model, services, controllers, baseLayoutPath: 'layout.html' }
+    options: {
+      model,
+      services,
+      controllers,
+      viewContext: {
+        baseLayoutPath: 'layout.html'
+      }
+    }
   }
 }
 
