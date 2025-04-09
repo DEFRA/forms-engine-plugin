@@ -26,56 +26,41 @@ if [ -f "INDEX.md" ] && [ ! -f "index.md" ]; then
   echo "  Converting INDEX.md to index.md..."
   cp "INDEX.md" "index.md"
 
-  if ! grep -q "^---" "index.md"; then
-    echo "  Adding front matter to index.md..."
-    temp_file="index.md.tmp"
-    echo "---" > "$temp_file"
-    echo "layout: default" >> "$temp_file"
-    echo "title: DXT Documentation" >> "$temp_file"
-    echo "nav_order: 1" >> "$temp_file"
-    echo "permalink: /" >> "$temp_file"
-    echo "---" >> "$temp_file"
-    echo "" >> "$temp_file"
-    cat "index.md" >> "$temp_file"
-    mv "$temp_file" "index.md"
-  fi
+  # Let Jekyll config handle index.md front matter
+  echo "  Letting Jekyll config handle index.md front matter"
 fi
+
+# The following files will be handled by Jekyll config, not by this script
+JEKYLL_CONFIGURED_FILES=("index" "INDEX" "GETTING_STARTED" "PLUGIN_OPTIONS" "CONTRIBUTING" "SCHEMA_REFERENCE")
 
 for doc_file in $(find . -maxdepth 1 -name "*.md"); do
   base_name=$(basename "$doc_file" .md)
+  
+  # Skip files that are handled by Jekyll config
+  if [[ " ${JEKYLL_CONFIGURED_FILES[@]} " =~ " ${base_name} " ]]; then
+    echo "  Skipping $doc_file - handled by Jekyll config"
+    
+    # If the file already has front matter, remove it to avoid conflicts
+    if grep -q "^---" "$doc_file"; then
+      echo "  Removing front matter from $doc_file to avoid conflicts with Jekyll config"
+      temp_file="${doc_file}.tmp"
+      sed -e '1{/^---$/!q0}' -e '1,/^---$/d' "$doc_file" > "$temp_file"
+      mv "$temp_file" "$doc_file"
+    fi
+    
+    continue
+  fi
 
+  # Handle files not configured in Jekyll config
   if grep -q "^---" "$doc_file"; then
     echo "  Front matter exists in $doc_file"
     continue
   fi
 
-  case "$base_name" in
-    "index"|"INDEX")
-      nav_order=1
-      title="DXT Documentation"
-      ;;
-    "GETTING_STARTED")
-      nav_order=2
-      title="Getting Started"
-      ;;
-    "PLUGIN_OPTIONS")
-      nav_order=3
-      title="Plugin Options"
-      ;;
-    "CONTRIBUTING")
-      nav_order=4
-      title="Contributing"
-      ;;
-    "SCHEMA_REFERENCE")
-      nav_order=5
-      title="Schema Reference"
-      ;;
-    *)
-      nav_order=10
-      title=$(echo "$base_name" | sed 's/_/ /g')
-      ;;
-  esac
-
+  # For files not in Jekyll config, add front matter here
+  title=$(echo "$base_name" | sed 's/_/ /g')
+  nav_order=10
+  
   echo "  Adding front matter to $doc_file..."
   temp_file="${doc_file}.tmp"
   echo "---" > "$temp_file"
@@ -282,6 +267,33 @@ find "$BASE_DIR" -type f -name "*.md" | while read file; do
   else
     # General .md fix for other files
     sed "${SED_INPLACE[@]}" -E 's|\.md\)|)|g' "$file"
+  fi
+done
+
+echo "🔧 Ensuring feature files have minimal front matter..."
+for dir in "features" "features/code-based" "features/configuration-based"; do
+  if [ -d "$BASE_DIR/$dir" ]; then
+    find "$BASE_DIR/$dir" -type f -name "*.md" | while read file; do
+      # Keep only title and layout in front matter
+      if grep -q "^---" "$file"; then
+        # Extract title
+        title=$(grep "title:" "$file" | head -n 1 | sed 's/title: //' | sed 's/"//g')
+        
+        # Create temporary file with minimal front matter
+        temp_file="${file}.tmp"
+        echo "---" > "$temp_file"
+        echo "layout: default" >> "$temp_file"
+        echo "title: $title" >> "$temp_file"
+        echo "---" >> "$temp_file"
+        
+        # Extract content after front matter and append to temp file
+        sed -n '/^---$/,/^---$/!p' "$file" | tail -n +2 >> "$temp_file"
+        
+        # Replace original with simplified version
+        mv "$temp_file" "$file"
+        echo "  Simplified front matter in $file"
+      fi
+    done
   fi
 done
 

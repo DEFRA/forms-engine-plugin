@@ -1,3 +1,9 @@
+---
+layout: default
+title: Plugin Options
+nav_order: 3
+---
+
 # Plugin options
 
 The forms plugin is configured with [registration options](https://hapi.dev/api/?v=21.4.0#plugins)

@@ -1,7 +1,7 @@
 name: Documentation Generation
 
 on:
-  pull_request:
+  pull_request: ##TODO: Remove this BEFORE merging
   push:
 
 permissions:
