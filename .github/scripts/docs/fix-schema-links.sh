@@ -29,9 +29,10 @@ find "$BASE_DIR" -type f -name "*.md" | grep -v "node_modules" | while read file
   # [Link Text](some-page.md) becomes [Link Text](/forms-engine-plugin/some-page)
   sed "${SED_INPLACE[@]}" -E 's|\[([^]]+)\]\(([^)]+)\.md\)|\[\1\]\(/forms-engine-plugin/\2\)|g' "$file"
 
-  # Fix plain / roots to include baseurl
+  # Fix plain / roots to include baseurl EXCEPT for external https/http links
   # [Link Text](/some-path) becomes [Link Text](/forms-engine-plugin/some-path)
-  sed "${SED_INPLACE[@]}" -E 's|\[([^]]+)\]\(\/([^)]+)\)|\[\1\]\(/forms-engine-plugin/\2\)|g' "$file"
+  # [Link Text](https://github.com/...) remains unchanged
+  sed "${SED_INPLACE[@]}" -E 's|\[([^]]+)\]\(\/(?!https?:\/\/)([^)]+)\)|\[\1\]\(/forms-engine-plugin/\2\)|g' "$file"
 
   # Fix relative links to be absolute with baseurl
   # [Link Text](./some-path) becomes [Link Text](/forms-engine-plugin/some-path)
