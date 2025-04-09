@@ -29,7 +29,7 @@ EOF
 # Create _config.yml
 echo "📄 Creating _config.yml..."
 cat > site-src/_config.yml << EOF
-title: DXT Documentation
+title: DXT Docs
 description: Documentation for the DEFRA Forms Engine Plugin
 
 # Theme configuration
