@@ -73,33 +73,3 @@ fi
 touch ./docs-site/.nojekyll
 
 echo "✅ Documentation generated successfully"
-
-# Enhanced verification for navigation structure
-echo "🔍 Final navigation verification..."
-echo "Top level files:"
-for file in index.md CONTRIBUTING.md GETTING_STARTED.md PLUGIN_OPTIONS.md SCHEMA_REFERENCE.md; do
-  if [ -f "$file" ]; then
-    echo "- $file: $(grep -A 4 "^---" "$file" | grep "title:" | cut -d ":" -f 2)"
-  fi
-done
-
-echo "Feature hierarchy:"
-for file in features/index.md features/code-based/index.md features/configuration-based/index.md; do
-  if [ -f "$file" ]; then
-    echo "- $file"
-    grep -A 6 "^---" "$file" || echo "  No front matter found!"
-  else
-    echo "❌ Missing $file"
-  fi
-done
-
-echo "Feature content files:"
-for dir in features/code-based features/configuration-based; do
-  if [ -d "$dir" ]; then
-    echo "Directory: $dir"
-    find "$dir" -type f -name "*.md" | grep -v "index.md" | head -n 3 | while read content_file; do
-      echo "- $content_file"
-      grep -A 4 "^---" "$content_file" || echo "  No front matter found!"
-    done
-  fi
-done

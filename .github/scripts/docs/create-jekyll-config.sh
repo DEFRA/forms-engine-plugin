@@ -29,7 +29,7 @@ EOF
 # Create _config.yml
 echo "📄 Creating _config.yml..."
 cat > site-src/_config.yml << EOF
-title: DXT Docs
+title: DXT Documentation
 description: Documentation for the DEFRA Forms Engine Plugin
 
 # Theme configuration
@@ -131,77 +131,20 @@ defaults:
     values:
       layout: default
       render_with_liquid: false
-  # Schema Reference section
   - scope:
       path: "schemas"
     values:
       layout: default
       parent: "Schema Reference"
+  - scope:
+      path: "schemas/index.html"
+    values:
       nav_order: 5
       has_children: true
-      permalink: /schemas/
-  # Features section
   - scope:
       path: "features"
-      type: "pages"
     values:
-      layout: default
-      has_children: true
-      nav_order: 4
-  - scope:
-      path: "features/code-based"
-      type: "pages"
-    values:
-      layout: default
       parent: "Features"
-      has_children: true
-      nav_order: 1
-  - scope:
-      path: "features/configuration-based"
-      type: "pages"
-    values:
-      layout: default
-      parent: "Features"
-      has_children: true
-      nav_order: 2
-  # Individual feature files
-  - scope:
-      path: "features/code-based"
-      type: "pages"
-      pattern: "*.md"
-      match: true
-      exclude:
-        - "index.md"
-    values:
-      parent: "Code-based Features"
-  - scope:
-      path: "features/configuration-based"
-      type: "pages"
-      pattern: "*.md"
-      match: true
-      exclude:
-        - "index.md"
-    values:
-      parent: "Configuration-based Features"
-  # Top-level navigation documents
-  - scope:
-      path: "GETTING_STARTED.md"
-    values:
-      layout: default
-      title: "Getting Started"
-      nav_order: 2
-  - scope:
-      path: "PLUGIN_OPTIONS.md"
-    values:
-      layout: default
-      title: "Plugin Options"
-      nav_order: 3
-  - scope:
-      path: "CONTRIBUTING.md"
-    values:
-      layout: default
-      title: "Contributing"
-      nav_order: 4
 
 # Table of contents configuration
 toc:
