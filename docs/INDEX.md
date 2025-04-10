@@ -2,14 +2,16 @@
 layout: default
 ---
 
-- [Getting started with DXT](./GETTING_STARTED.md)
-- [Plugin registration options](./PLUGIN_OPTIONS.md)
-- Configuration-based features
-  - [Page templates (dynamic content)](./features/configuration-based/PAGE_TEMPLATES.md)
-  - [Page events (triggering an action on an event)](./features/configuration-based/PAGE_EVENTS.md)
-- Code-based features
-  - [Page views (customisable views with Nunjucks)](./features/code-based/PAGE_VIEWS.md)
-  - [Custom Nunjucks/liquid filters](./PLUGIN_OPTIONS.md#custom-filters)
-  - [Custom services (modifying the out-of-the-box behaviour of DXT)](./features/code-based/CUSTOM_SERVICES.md)
-- [Contributing to DXT](./CONTRIBUTING.md)
-- [Schema Reference Documentation](./schemas/README.md)
+**@defra/forms-engine-plugin** simplifies form development with a configuration-driven approach. Create GOV.UK-compliant journeys effortlessly — no code required. For advanced needs, extend functionality with minimal code. Build custom components, tailored pages, and integrate seamlessly with APIs, all while adhering to the GDS Design System.
+
+![Screenshot of a user-facing form submission journey](images/form-input-screenshot.png)
+
+## Installation
+
+[See our getting started developer guide](/docs/GETTING_STARTED.md).
+
+## Demo
+
+If you are within the Defra network, [see a live demo](https://forms-engine-plugin-example-ui.dev.cdp-int.defra.cloud/example-form).
+
+If you aren't within the Defra network, [see our example UI and run it locally](https://github.com/DEFRA/forms-engine-plugin-example-ui).
