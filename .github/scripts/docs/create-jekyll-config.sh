@@ -54,13 +54,13 @@ search:
 # Navigation configuration
 nav_external_links:
   - title: GitHub
-    url: https://github.com/DEFRA/forms-designer
+    url: https://github.com/DEFRA/forms-engine-plugin
     hide_icon: false
 
 # Auxiliary links
 aux_links:
   "DXT on GitHub":
-    - "https://github.com/DEFRA/forms-designer"
+    - "https://github.com/DEFRA/forms-engine-plugin"
 
 # Include all necessary file types
 include:
