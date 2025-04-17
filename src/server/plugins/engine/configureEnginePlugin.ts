@@ -27,7 +27,17 @@ export const configureEnginePlugin = async ({
 
   return {
     plugin,
-    options: { model, services, controllers }
+    options: {
+      model,
+      services,
+      controllers,
+      nunjucks: {
+        paths: [] // TODO
+      }
+      viewContext: {
+        baseLayoutPath: 'layout.html' // govuk-frontend
+      }
+    }
   }
 }
 
