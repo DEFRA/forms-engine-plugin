@@ -20,7 +20,7 @@
  * @property {string} [currentPath] - Current path
  * @property {string} [previewMode] - Preview mode
  * @property {string} [slug] - Form slug
- * @property {(asset?: string) => string} getAssetPath - Asset path resolver
+ * @property {(asset?: string) => string} getDxtAssetPath - Asset path resolver
  * @property {FormContext} [context] - the current form context
  * @property {PluginOptions['viewContext']} [injectedViewContext] - the current form context
  */

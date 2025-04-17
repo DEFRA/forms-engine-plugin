@@ -44,9 +44,13 @@ export function context(request) {
   const isResponseOK =
     !Boom.isBoom(response) && response?.statusCode === StatusCodes.OK
 
+  const consumerViewContext =
+    request?.server.plugins['forms-engine-plugin'].viewContext(request)
+
   /** @type {ViewContext} */
   const ctx = {
-    ...request?.server.plugins['forms-engine-plugin'].viewContext, // take consumers props first so we can override it
+    // take consumers props first so we can override it
+    ...consumerViewContext,
     appVersion: pkg.version,
     assetPath: '/assets',
     config: {
@@ -64,7 +68,7 @@ export function context(request) {
     previewMode: isPreviewMode ? params?.state : undefined,
     slug: isResponseOK ? params?.slug : undefined,
 
-    getAssetPath: (asset = '') => {
+    getDxtAssetPath: (asset = '') => {
       return `/${webpackManifest?.[asset] ?? asset}`
     }
   }

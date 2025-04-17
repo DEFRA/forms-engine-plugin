@@ -16,13 +16,13 @@ describe('Nunjucks context', () => {
 
   describe('Asset helper', () => {
     it("should locate 'assets-manifest.json' assets", () => {
-      const { getAssetPath } = context(null)
+      const { getDxtAssetPath } = context(null)
 
-      expect(getAssetPath('example.scss')).toBe(
+      expect(getDxtAssetPath('example.scss')).toBe(
         '/stylesheets/example.xxxxxxx.min.css'
       )
 
-      expect(getAssetPath('example.mjs')).toBe(
+      expect(getDxtAssetPath('example.mjs')).toBe(
         '/javascripts/example.xxxxxxx.min.js'
       )
     })
@@ -38,20 +38,20 @@ describe('Nunjucks context', () => {
 
         // Update config for missing manifest
         config.set('publicDir', tmpdir())
-        const { getAssetPath } = context(null)
+        const { getDxtAssetPath } = context(null)
 
         // Uses original paths when missing
-        expect(getAssetPath('example.scss')).toBe('/example.scss')
-        expect(getAssetPath('example.mjs')).toBe('/example.mjs')
+        expect(getDxtAssetPath('example.scss')).toBe('/example.scss')
+        expect(getDxtAssetPath('example.mjs')).toBe('/example.mjs')
       })
     })
 
     it('should return path to unknown assets', () => {
-      const { getAssetPath } = context(null)
+      const { getDxtAssetPath } = context(null)
 
-      expect(getAssetPath()).toBe('/')
-      expect(getAssetPath('example.jpg')).toBe('/example.jpg')
-      expect(getAssetPath('example.gif')).toBe('/example.gif')
+      expect(getDxtAssetPath()).toBe('/')
+      expect(getDxtAssetPath('example.jpg')).toBe('/example.jpg')
+      expect(getDxtAssetPath('example.gif')).toBe('/example.gif')
     })
   })
 
