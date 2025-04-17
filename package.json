@@ -24,6 +24,7 @@
     "./file-form-service.js": "./.server/server/utils/file-form-service.js",
     "./controllers/*": "./.server/server/plugins/engine/pageControllers/*",
     "./services/*": "./.server/server/plugins/engine/services/*",
+    "./engine/*": "./.server/server/plugins/engine/*",
     "./package.json": "./package.json"
   },
   "scripts": {
