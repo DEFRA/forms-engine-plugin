@@ -11,19 +11,24 @@ import YAML from 'yaml'
  * @returns string
  */
 function uuid(seed) {
+  const uuidLen = 36
+  const firstSepIdx = 8
+  const secondSepIdx = 13
+  const thirdSepIdx = 18
+  const forthSepIdx = 23
   const hash = crypto
     .createHash('sha256')
     .update(seed.toString())
     .digest('hex')
-    .substring(0, 36)
+    .substring(0, uuidLen)
   const chars = hash.split('')
 
-  chars[8] = '-'
-  chars[13] = '-'
-  chars[14] = '4'
-  chars[18] = '-'
-  chars[19] = '8'
-  chars[23] = '-'
+  chars[firstSepIdx] = '-'
+  chars[secondSepIdx] = '-'
+  chars[secondSepIdx + 1] = '4'
+  chars[thirdSepIdx] = '-'
+  chars[thirdSepIdx + 1] = '8'
+  chars[forthSepIdx] = '-'
 
   return chars.join('')
 }
