@@ -123,9 +123,11 @@ export async function createServer(routeConfig?: RouteConfig) {
     options: {
       cacheName: 'session',
       nunjucks: {
-        paths: [join(findPackageRoot(), 'src/server/devserver')] // this ia development server so we don't need any, but a consumer would provide their own paths
+        paths: [join(findPackageRoot(), 'src/server/devserver')] // custom layout to make it really clear this is not the same as the runner
       },
-      viewContext: () => ({ baseLayoutPath: 'dxt-devtool-baselayout.html' }) // layout.html comes from govuk-frontend but could be defined anywhere in `paths`
+      viewContext: () => ({
+        baseLayoutPath: 'dxt-devtool-baselayout.html' // from plugin.options.nunjucks.paths
+      })
     }
   })
 
