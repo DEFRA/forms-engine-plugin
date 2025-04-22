@@ -99,13 +99,13 @@ class FileFormService {
   }
 
   /**
-   * @param {string} path
+   * @param {string} filepath
    * @returns {Promise<FormDefinition>}
    */
   // eslint-disable-next-line @typescript-eslint/require-await
-  async readFormDefintion(path) {
+  async readFormDefintion(filepath) {
     throw new Error(
-      `Error reading path '${path}'. 'readFormDefintion' not implemented in abstract class`
+      `Error reading path '${filepath}'. 'readFormDefintion' not implemented in abstract class`
     )
   }
 
@@ -153,15 +153,15 @@ export class JsonFileFormService extends FileFormService {
   }
 
   /**
-   * @param {string} path
+   * @param {string} filepath
    * @returns {Promise<FormDefinition>}
    */
-  async readFormDefintion(path) {
+  async readFormDefintion(filepath) {
     /**
      * @type {FormDefinition}
      */
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const definition = JSON.parse(await fs.readFile(path, 'utf8'))
+    const definition = JSON.parse(await fs.readFile(filepath, 'utf8'))
 
     return definition
   }
@@ -180,15 +180,15 @@ export class YamlFileFormService extends FileFormService {
   }
 
   /**
-   * @param {string} path
+   * @param {string} filepath
    * @returns {Promise<FormDefinition>}
    */
-  async readFormDefintion(path) {
+  async readFormDefintion(filepath) {
     /**
      * @type {FormDefinition}
      */
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const definition = YAML.parse(await fs.readFile(path, 'utf8'))
+    const definition = YAML.parse(await fs.readFile(filepath, 'utf8'))
 
     return definition
   }
