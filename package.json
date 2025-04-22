@@ -21,6 +21,7 @@
     "./file-upload.min.js": "./.public/javascripts/file-upload.min.js",
     "./file-upload.min.js.map": "./.public/javascripts/file-upload.min.js.map",
     "./application.min.css": "./.public/stylesheets/application.min.css",
+    "./file-form-service.js": "./.server/server/utils/file-form-service.js",
     "./controllers/*": "./.server/server/plugins/engine/pageControllers/*",
     "./services/*": "./.server/server/plugins/engine/services/*",
     "./package.json": "./package.json"
@@ -103,7 +104,8 @@
     "pino": "^9.6.0",
     "pino-pretty": "^13.0.0",
     "proxy-agent": "^6.5.0",
-    "resolve": "^1.22.10"
+    "resolve": "^1.22.10",
+    "yaml": "^2.7.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.26.4",
