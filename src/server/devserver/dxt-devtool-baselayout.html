@@ -11,7 +11,7 @@
 {% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner -%}
 
 {% set productName %}
-    {{ appTagEnv({ env: "devtool" }) }}
+  {{ appTagEnv({ env: "devtool" }) }}
 {% endset %}
 
 {% block head %}
@@ -43,15 +43,12 @@
     homepageUrl: currentPath if context.isForceAccess else "https://defra.github.io/forms-engine-plugin/",
     containerClasses: "govuk-width-container",
     productName: productName | safe | trim,
-    serviceName: name if name else config.serviceName,
+    serviceName: "Digital Express Toolkit",
     serviceUrl: currentPath if context.isForceAccess else serviceUrl
   }) }}
 {% endblock %}
 
 {% block beforeContent %}
-  {% set feedbackLink = feedbackLink or config.feedbackLink -%}
-  {% set phaseTag = phaseTag or config.phaseTag -%}
-
   {% if backLink %}
     {{ govukBackLink(backLink) }}
   {% endif %}
