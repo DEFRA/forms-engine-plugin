@@ -1,9 +1,27 @@
-import { join } from 'node:path'
+import { join, parse } from 'node:path'
 
 import { formDefinitionSchema } from '@defra/forms-model'
 
-import { getForm } from '~/src/server/plugins/engine/configureEnginePlugin.js'
 import { getForms } from '~/test/utils/get-form-definitions.js'
+
+/**
+ * @param {string} importPath
+ * @returns {Promise<import('@defra/forms-model').FormDefinition>}
+ */
+async function getForm(importPath) {
+  const { ext } = parse(importPath)
+
+  const attributes = {
+    type: ext === '.json' ? 'json' : 'module'
+  }
+
+  const formImport = await import(importPath, { with: attributes })
+
+  const { default: definition } = formImport
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  return definition
+}
 
 describe('Form definition JSON', () => {
   describe.each([
