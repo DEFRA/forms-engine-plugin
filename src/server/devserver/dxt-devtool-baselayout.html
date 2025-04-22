@@ -1,0 +1,81 @@
+{% extends "govuk/template.njk" %}
+
+{% from "govuk/components/back-link/macro.njk" import govukBackLink -%}
+{% from "govuk/components/footer/macro.njk" import govukFooter -%}
+{% from "govuk/components/phase-banner/macro.njk" import govukPhaseBanner -%}
+{% from "govuk/components/skip-link/macro.njk" import govukSkipLink -%}
+{% from "govuk/macros/attributes.njk" import govukAttributes -%}
+{% from "components/service-banner/macro.njk" import appServiceBanner -%}
+{% from "components/tag-env/macro.njk" import appTagEnv -%}
+{% from "govuk/components/cookie-banner/macro.njk" import govukCookieBanner -%}
+{% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner -%}
+
+{% set productName %}
+    {{ appTagEnv({ env: "devtool" }) }}
+{% endset %}
+
+{% block head %}
+  <link rel="preload" as="font" href="{{ assetPath }}/fonts/bold-b542beb274-v2.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="preload" as="font" href="{{ assetPath }}/fonts/light-94a07e06a1-v2.woff2" type="font/woff2" crossorigin="anonymous">
+  <link rel="stylesheet" href="{{ getDxtAssetPath("stylesheets/application.scss") }}">
+{% endblock %}
+
+{% block pageTitle -%}
+  {{ "Error: " if errors | length }}{{ pageTitle | evaluate }} - {{ name if name else config.serviceName }} - GOV.UK
+{%- endblock %}
+
+{% block skipLink %}
+  {{ govukSkipLink({
+    href: '#main-content',
+    text: 'Skip to main content'
+  }) }}
+{% endblock %}
+
+{% block header %}
+  {% if config.serviceBannerText | length %}
+    {{ appServiceBanner({
+      title: "Service status",
+      text: config.serviceBannerText
+    }) }}
+  {% endif %}
+
+  {{ govukHeader({
+    homepageUrl: currentPath if context.isForceAccess else "https://defra.github.io/forms-engine-plugin/",
+    containerClasses: "govuk-width-container",
+    productName: productName | safe | trim,
+    serviceName: name if name else config.serviceName,
+    serviceUrl: currentPath if context.isForceAccess else serviceUrl
+  }) }}
+{% endblock %}
+
+{% block beforeContent %}
+  {% set feedbackLink = feedbackLink or config.feedbackLink -%}
+  {% set phaseTag = phaseTag or config.phaseTag -%}
+
+  {% if backLink %}
+    {{ govukBackLink(backLink) }}
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <h1 class="govuk-heading-l">Default page template</h1>
+{% endblock %}
+
+{% block bodyEnd %}
+  <script type="module" nonce="{{ cspNonce }}" src="{{ getDxtAssetPath("application.js") }}"></script>
+{% endblock %}
+
+{% block footer %}
+  {% set meta = {
+    items: [
+      {
+        href: 'https://defra.github.io/forms-engine-plugin/',
+        text: 'DXT documentation'
+      }
+    ]
+  } if slug %}
+
+  {% if not context.isForceAccess %}
+    {{ govukFooter({ meta: meta }) }}
+  {% endif %}
+{% endblock %}

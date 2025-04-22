@@ -17,8 +17,6 @@ import Joi from 'joi'
 import nunjucks, { type Environment } from 'nunjucks'
 import resolvePkg from 'resolve'
 
-import { paths } from '../nunjucks/environment.js'
-
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
   checkEmailAddressForLiveFormSubmission,
@@ -32,7 +30,6 @@ import {
   redirectPath
 } from '~/src/server/plugins/engine/helpers.js'
 import {
-  PLUGIN_PATH,
   VIEW_PATH,
   context,
   prepareNunjucksEnvironment
@@ -72,7 +69,7 @@ import * as httpService from '~/src/server/services/httpService.js'
 import { CacheService } from '~/src/server/services/index.js'
 import { type Services } from '~/src/server/types.js'
 
-function findPackageRoot() {
+export function findPackageRoot() {
   const currentFileName = fileURLToPath(import.meta.url)
   const currentDirectoryName = dirname(currentFileName)
 
@@ -97,9 +94,9 @@ export interface PluginOptions {
   nunjucks: {
     paths: string[]
   }
-  viewContext: {
-    baseLayoutPath: string
-  }
+  viewContext: (
+    request: FormRequest | FormRequestPayload | null
+  ) => Record<string, unknown> & { baseLayoutPath?: string }
 }
 
 export const plugin = {

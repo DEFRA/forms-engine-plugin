@@ -1,3 +1,5 @@
+import { join } from 'path'
+
 import { Engine as CatboxMemory } from '@hapi/catbox-memory'
 import { Engine as CatboxRedis } from '@hapi/catbox-redis'
 import hapi, {
@@ -17,11 +19,11 @@ import { requestTracing } from '~/src/server/common/helpers/logging/request-trac
 import { buildRedisClient } from '~/src/server/common/helpers/redis-client.js'
 import { configureBlankiePlugin } from '~/src/server/plugins/blankie.js'
 import { configureCrumbPlugin } from '~/src/server/plugins/crumb.js'
-import { configureEnginePlugin } from '~/src/server/plugins/engine/index.js'
+import plugin from '~/src/server/plugins/engine/index.js'
+import { findPackageRoot } from '~/src/server/plugins/engine/plugin.js'
 import pluginErrorPages from '~/src/server/plugins/errorPages.js'
 import { plugin as pluginViews } from '~/src/server/plugins/nunjucks/index.js'
 import pluginPulse from '~/src/server/plugins/pulse.js'
-import pluginRouter from '~/src/server/plugins/router.js'
 import pluginSession from '~/src/server/plugins/session.js'
 import { prepareSecureContext } from '~/src/server/secure-context.js'
 import { type RouteConfig } from '~/src/server/types.js'
@@ -82,7 +84,6 @@ export async function createServer(routeConfig?: RouteConfig) {
     prepareSecureContext(server)
   }
 
-  const pluginEngine = await configureEnginePlugin(routeConfig)
   const pluginCrumb = configureCrumbPlugin(routeConfig)
   const pluginBlankie = configureBlankiePlugin()
 
@@ -116,8 +117,18 @@ export async function createServer(routeConfig?: RouteConfig) {
   })
 
   await server.register(pluginViews)
-  await server.register(pluginEngine)
-  await server.register(pluginRouter)
+
+  await server.register({
+    plugin,
+    options: {
+      cacheName: 'session',
+      nunjucks: {
+        paths: [join(findPackageRoot(), 'src/server/devserver')] // this ia development server so we don't need any, but a consumer would provide their own paths
+      },
+      viewContext: () => ({ baseLayoutPath: 'dxt-devtool-baselayout.html' }) // layout.html comes from govuk-frontend but could be defined anywhere in `paths`
+    }
+  })
+
   await server.register(pluginErrorPages)
   await server.register(blipp)
   await server.register(requestTracing)
