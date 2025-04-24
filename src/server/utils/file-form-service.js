@@ -22,12 +22,15 @@ class FileFormService {
    * Add form from a file
    * @param {string} filepath - the file path
    * @param {FormMetadata} metadata - the metadata to use for this form
+   * @returns {Promise<FormDefinition>}
    */
   async addForm(filepath, metadata) {
-    const definition = await this.readFormDefintion(filepath)
+    const definition = await this.readForm(filepath)
 
     this.#metadata.set(metadata.slug, metadata)
     this.#definition.set(metadata.id, definition)
+
+    return definition
   }
 
   /**
@@ -36,9 +39,9 @@ class FileFormService {
    * @returns {Promise<FormDefinition>}
    */
   // eslint-disable-next-line @typescript-eslint/require-await
-  async readFormDefintion(filepath) {
+  async readForm(filepath) {
     throw new Error(
-      `Error reading path '${filepath}'. 'readFormDefintion' not implemented in abstract class`
+      `Error reading path '${filepath}'. 'readForm' not implemented in abstract class`
     )
   }
 
@@ -109,7 +112,7 @@ export class JsonFileFormService extends FileFormService {
    * @param {string} filepath
    * @returns {Promise<FormDefinition>}
    */
-  async readFormDefintion(filepath) {
+  async readForm(filepath) {
     /**
      * @type {FormDefinition}
      */
@@ -130,7 +133,7 @@ export class YamlFileFormService extends FileFormService {
    * @param {string} filepath
    * @returns {Promise<FormDefinition>}
    */
-  async readFormDefintion(filepath) {
+  async readForm(filepath) {
     /**
      * @type {FormDefinition}
      */
