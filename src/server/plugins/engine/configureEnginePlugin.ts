@@ -9,6 +9,8 @@ import {
   type PluginOptions
 } from '~/src/server/plugins/engine/plugin.js'
 import { findPackageRoot } from '~/src/server/plugins/engine/plugin.js'
+import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
+import { formsService } from '~/src/server/plugins/engine/services/localFormsService.js'
 import { devtoolContext } from '~/src/server/plugins/nunjucks/context.js'
 import { type RouteConfig } from '~/src/server/types.js'
 
@@ -31,7 +33,10 @@ export const configureEnginePlugin = async ({
     plugin,
     options: {
       model,
-      services,
+      services: {
+        ...defaultServices,
+        formsService: await formsService()
+      },
       controllers,
       cacheName: 'session',
       nunjucks: {

@@ -250,7 +250,7 @@ export const config = convict({
   submissionEmailAddress: {
     doc: 'Email address to send the form to (local devtool only)',
     format: String,
-    default: null,
+    default: '',
     env: 'SUBMISSION_EMAIL_ADDRESS'
   } as SchemaObj<string>
 })
