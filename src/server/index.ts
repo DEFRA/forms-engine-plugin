@@ -1,5 +1,3 @@
-import { join } from 'path'
-
 import { Engine as CatboxMemory } from '@hapi/catbox-memory'
 import { Engine as CatboxRedis } from '@hapi/catbox-redis'
 import hapi, {
@@ -13,13 +11,13 @@ import Wreck from '@hapi/wreck'
 import blipp from 'blipp'
 import { ProxyAgent } from 'proxy-agent'
 
+
 import { config } from '~/src/config/index.js'
 import { requestLogger } from '~/src/server/common/helpers/logging/request-logger.js'
 import { requestTracing } from '~/src/server/common/helpers/logging/request-tracing.js'
 import { buildRedisClient } from '~/src/server/common/helpers/redis-client.js'
 import { configureCrumbPlugin } from '~/src/server/plugins/crumb.js'
-import plugin from '~/src/server/plugins/engine/index.js'
-import { findPackageRoot } from '~/src/server/plugins/engine/plugin.js'
+import { configureEnginePlugin } from '~/src/server/plugins/engine/configureEnginePlugin.js'
 import pluginErrorPages from '~/src/server/plugins/errorPages.js'
 import { plugin as pluginViews } from '~/src/server/plugins/nunjucks/index.js'
 import pluginPulse from '~/src/server/plugins/pulse.js'
@@ -85,6 +83,7 @@ export async function createServer(routeConfig?: RouteConfig) {
   }
 
   const pluginCrumb = configureCrumbPlugin(routeConfig)
+  const pluginEngine = await configureEnginePlugin(routeConfig)
 
   await server.register(pluginSession)
   await server.register(pluginPulse)
@@ -115,6 +114,7 @@ export async function createServer(routeConfig?: RouteConfig) {
   })
 
   await server.register(pluginViews)
+  await server.register(pluginEngine)
 
   await server.register({
     plugin: {
@@ -122,19 +122,6 @@ export async function createServer(routeConfig?: RouteConfig) {
       register: (server) => {
         server.route(publicRoutes)
       }
-    }
-  })
-
-  await server.register({
-    plugin,
-    options: {
-      cacheName: 'session',
-      nunjucks: {
-        paths: [join(findPackageRoot(), 'src/server/devserver')] // custom layout to make it really clear this is not the same as the runner
-      },
-      viewContext: () => ({
-        baseLayoutPath: 'dxt-devtool-baselayout.html' // from plugin.options.nunjucks.paths
-      })
     }
   })
 
