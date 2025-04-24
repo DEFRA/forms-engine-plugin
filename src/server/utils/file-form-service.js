@@ -4,7 +4,7 @@ import path from 'node:path'
 import YAML from 'yaml'
 
 /**
- * FileFormService abstract class
+ * FileFormService class
  */
 export class FileFormService {
   /**
