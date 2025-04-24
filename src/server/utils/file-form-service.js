@@ -54,7 +54,7 @@ export class FileFormService {
 
   /**
    * Read the form definition from a json file
-   * @param {string} filepath
+   * @param {string} filepath - the file path
    * @returns {Promise<FormDefinition>}
    */
   async readJsonForm(filepath) {
@@ -69,7 +69,7 @@ export class FileFormService {
 
   /**
    * Read the form definition from a yaml file
-   * @param {string} filepath
+   * @param {string} filepath - the file path
    * @returns {Promise<FormDefinition>}
    */
   async readYamlForm(filepath) {
