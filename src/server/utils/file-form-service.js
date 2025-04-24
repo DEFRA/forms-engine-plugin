@@ -1,110 +1,38 @@
 import fs from 'fs/promises'
-import crypto from 'node:crypto'
-import path from 'node:path'
 
-import Boom from '@hapi/boom'
 import YAML from 'yaml'
 
 /**
- * Create a deterministic UUID string
- * @param {string} seed - the seed string
- * @returns string
- */
-function uuid(seed) {
-  const uuidLen = 36
-  const firstSepIdx = 8
-  const secondSepIdx = 13
-  const thirdSepIdx = 18
-  const forthSepIdx = 23
-  const hash = crypto
-    .createHash('sha256')
-    .update(seed.toString())
-    .digest('hex')
-    .substring(0, uuidLen)
-  const chars = hash.split('')
-
-  chars[firstSepIdx] = '-'
-  chars[secondSepIdx] = '-'
-  chars[secondSepIdx + 1] = '4'
-  chars[thirdSepIdx] = '-'
-  chars[thirdSepIdx + 1] = '8'
-  chars[forthSepIdx] = '-'
-
-  return chars.join('')
-}
-
-/**
- * FileFormService
+ * FileFormService abstract class
  */
 class FileFormService {
   /**
-   * @type {string}
-   */
-  #ext
-
-  /**
-   * @type {PartialFormMetadata}
-   */
-  #defaultMetadata
-
-  /**
+   * The map of form metadatas by slug
    * @type {Map<string, FormMetadata>}
    */
   #metadata = new Map()
 
   /**
+   * The map of form definitions by id
    * @type {Map<string, FormDefinition>}
    */
   #definition = new Map()
 
   /**
-   * @param {string} ext - the file type extension
-   * @param {PartialFormMetadata} metadata - the default partial form metadata to use for all forms
+   * Add form from a file
+   * @param {string} filepath - the file path
+   * @param {FormMetadata} metadata - the metadata to use for this form
    */
-  constructor(ext, metadata) {
-    this.#ext = ext.toLowerCase()
-    this.#defaultMetadata = metadata
-  }
-
-  /**
-   * @param {string} dir
-   * @param {PartialFormMetadata} metadata - the partial metadata to use for this form
-   */
-  async addDir(dir, metadata = this.#defaultMetadata) {
-    const dirents = await fs.readdir(dir, { withFileTypes: true })
-    const fileEntries = dirents.filter(
-      (entry) =>
-        entry.isFile() &&
-        path.extname(entry.name).toLowerCase() === `.${this.#ext}`
-    )
-
-    // Read each file
-    for (const entry of fileEntries) {
-      await this.addForm(
-        `${entry.parentPath}${path.sep}${entry.name}`,
-        metadata
-      )
-    }
-  }
-
-  /**
-   * @param {string} filepath
-   * @param {PartialFormMetadata} metadata - the metadata to use for this form
-   */
-  async addForm(filepath, metadata = this.#defaultMetadata) {
+  async addForm(filepath, metadata) {
     const definition = await this.readFormDefintion(filepath)
-    const filename = path.basename(filepath)
-    const slug = path.basename(filename, `.${this.#ext}`)
-    const id = uuid(filename)
-    const title = definition.name ?? slug
-    const fullMetadata = { ...metadata, id, slug, title }
 
-    this.#metadata.set(slug, fullMetadata)
-    this.#definition.set(id, definition)
+    this.#metadata.set(metadata.slug, metadata)
+    this.#definition.set(metadata.id, definition)
   }
 
   /**
-   * @param {string} filepath
+   * Read the form definition from file
+   * @param {string} filepath - the file path
    * @returns {Promise<FormDefinition>}
    */
   // eslint-disable-next-line @typescript-eslint/require-await
@@ -116,14 +44,14 @@ class FileFormService {
 
   /**
    * Get the form metadata by slug
-   * @param {string} slug
+   * @param {string} slug - the form slug
    * @returns {FormMetadata}
    */
   getFormMetadata(slug) {
     const metadata = this.#metadata.get(slug)
 
     if (!metadata) {
-      throw Boom.notFound(`Form '${slug}' not found`)
+      throw new Error(`Form metadata '${slug}' not found`)
     }
 
     return metadata
@@ -131,17 +59,43 @@ class FileFormService {
 
   /**
    * Get the form defintion by id
-   * @param {string} id
+   * @param {string} id - the form id
    * @returns {FormDefinition}
    */
   getFormDefinition(id) {
     const definition = this.#definition.get(id)
 
     if (!definition) {
-      throw Boom.notFound(`Form '${id}' not found`)
+      throw new Error(`Form definition '${id}' not found`)
     }
 
     return definition
+  }
+
+  /**
+   * Returns a FormsService compliant interface
+   * @returns {import('~/src/server/types.js').FormsService}
+   */
+  toFormService() {
+    return {
+      /**
+       * Get the form metadata by slug
+       * @param {string} slug
+       * @returns {Promise<FormMetadata>}
+       */
+      getFormMetadata: (slug) => {
+        return Promise.resolve(this.getFormMetadata(slug))
+      },
+
+      /**
+       * Get the form defintion by id
+       * @param {string} id
+       * @returns {Promise<FormDefinition>}
+       */
+      getFormDefinition: (id) => {
+        return Promise.resolve(this.getFormDefinition(id))
+      }
+    }
   }
 }
 
@@ -151,13 +105,7 @@ class FileFormService {
  */
 export class JsonFileFormService extends FileFormService {
   /**
-   * @param {FormMetadata} metadata - the default metadata to use for all forms
-   */
-  constructor(metadata) {
-    super('json', metadata)
-  }
-
-  /**
+   * Read the form definition from a json file
    * @param {string} filepath
    * @returns {Promise<FormDefinition>}
    */
@@ -178,13 +126,7 @@ export class JsonFileFormService extends FileFormService {
  */
 export class YamlFileFormService extends FileFormService {
   /**
-   * @param {FormMetadata} metadata - the default metadata to use for all forms
-   */
-  constructor(metadata) {
-    super('yaml', metadata)
-  }
-
-  /**
+   * Read the form definition from a yaml file
    * @param {string} filepath
    * @returns {Promise<FormDefinition>}
    */
@@ -201,9 +143,4 @@ export class YamlFileFormService extends FileFormService {
 
 /**
  * @import { FormMetadata, FormDefinition } from '@defra/forms-model'
- */
-
-/**
- * Partial FormMetadata
- * @typedef {Omit<FormMetadata, "id" | "slug" | "title">} PartialFormMetadata
  */
