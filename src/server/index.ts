@@ -25,6 +25,7 @@ import pluginErrorPages from '~/src/server/plugins/errorPages.js'
 import { plugin as pluginViews } from '~/src/server/plugins/nunjucks/index.js'
 import pluginPulse from '~/src/server/plugins/pulse.js'
 import pluginSession from '~/src/server/plugins/session.js'
+import { publicRoutes } from '~/src/server/routes/index.js'
 import { prepareSecureContext } from '~/src/server/secure-context.js'
 import { type RouteConfig } from '~/src/server/types.js'
 
@@ -117,6 +118,15 @@ export async function createServer(routeConfig?: RouteConfig) {
   })
 
   await server.register(pluginViews)
+
+  await server.register({
+    plugin: {
+      name: 'router',
+      register: (server) => {
+        server.route(publicRoutes)
+      }
+    }
+  })
 
   await server.register({
     plugin,

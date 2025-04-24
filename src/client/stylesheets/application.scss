@@ -12,3 +12,17 @@
 .autocomplete__option {
   @include govuk-typography-common;
 }
+
+/*****************/
+/*
+  An example of some user-supplied styling
+  Not great practice but it illustrates the point
+*/
+.govuk-header {
+  background: #008531 !important;
+}
+
+.govuk-header__container {
+  border-bottom: 10px solid #003d16 !important;
+}
+/*****************/
