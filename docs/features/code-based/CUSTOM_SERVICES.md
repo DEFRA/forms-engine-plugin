@@ -85,7 +85,7 @@ await loader.addForm(
 
 // Add a Yaml form
 await loader.addForm(
-  'src/definitions/example-form.json', {
+  'src/definitions/example-form.yaml', {
     ...metadata,
     id: '641aeafd-13dd-40fa-9186-001703800efb',
     title: 'Example Yaml',
