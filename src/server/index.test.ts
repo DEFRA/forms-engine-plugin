@@ -6,6 +6,7 @@ import {
   getFormDefinition,
   getFormMetadata
 } from '~/src/server/plugins/engine/services/formsService.js'
+import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import { getUploadStatus } from '~/src/server/plugins/engine/services/uploadService.js'
 import {
   FileStatus,
@@ -30,7 +31,9 @@ describe('Model cache', () => {
   }
 
   beforeAll(async () => {
-    server = await createServer()
+    server = await createServer({
+      services: defaultServices
+    })
     await server.initialize()
   })
 

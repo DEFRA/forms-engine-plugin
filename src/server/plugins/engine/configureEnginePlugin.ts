@@ -33,7 +33,8 @@ export const configureEnginePlugin = async ({
     plugin,
     options: {
       model,
-      services: {
+      services: services ?? {
+        // services for testing, else use the disk loader option for running this service locally
         ...defaultServices,
         formsService: await formsService()
       },
