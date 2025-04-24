@@ -1,8 +1,5 @@
 import { FormStatus } from '~/src/server/routes/types.js'
-import {
-  JsonFileFormService,
-  YamlFileFormService
-} from '~/src/server/utils/file-form-service.js'
+import { FileFormService } from '~/src/server/utils/file-form-service.js'
 
 // Create the metadata which is shared for all forms
 const now = new Date()
@@ -29,7 +26,7 @@ const metadata = {
 
 describe('File Form Service', () => {
   it('should load JSON files from disk', async () => {
-    const loader = new JsonFileFormService()
+    const loader = new FileFormService()
 
     const definition = await loader.addForm(
       'src/server/forms/test.json',
@@ -51,7 +48,7 @@ describe('File Form Service', () => {
   })
 
   it('should load YAML files from disk', async () => {
-    const loader = new YamlFileFormService()
+    const loader = new FileFormService()
 
     const definition = await loader.addForm(
       'src/server/forms/test.yaml',
@@ -70,5 +67,13 @@ describe('File Form Service', () => {
     expect(() => loader.getFormDefinition('invalid-id')).toThrow(
       "Form definition 'invalid-id' not found"
     )
+  })
+
+  it("should throw if the file isn't JSON or YAML", async () => {
+    const loader = new FileFormService()
+
+    await expect(
+      loader.addForm('src/server/forms/test.txt', metadata)
+    ).rejects.toThrow("Invalid file extension '.txt'")
   })
 })

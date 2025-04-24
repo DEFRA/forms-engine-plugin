@@ -1,11 +1,12 @@
 import fs from 'fs/promises'
+import path from 'node:path'
 
 import YAML from 'yaml'
 
 /**
  * FileFormService abstract class
  */
-class FileFormService {
+export class FileFormService {
   /**
    * The map of form metadatas by slug
    * @type {Map<string, FormMetadata>}
@@ -38,11 +39,47 @@ class FileFormService {
    * @param {string} filepath - the file path
    * @returns {Promise<FormDefinition>}
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
   async readForm(filepath) {
-    throw new Error(
-      `Error reading path '${filepath}'. 'readForm' not implemented in abstract class`
-    )
+    const ext = path.extname(filepath).toLowerCase()
+
+    switch (ext) {
+      case '.json':
+        return this.readJsonForm(filepath)
+      case '.yaml':
+        return this.readYamlForm(filepath)
+      default:
+        throw new Error(`Invalid file extension '${ext}'`)
+    }
+  }
+
+  /**
+   * Read the form definition from a json file
+   * @param {string} filepath
+   * @returns {Promise<FormDefinition>}
+   */
+  async readJsonForm(filepath) {
+    /**
+     * @type {FormDefinition}
+     */
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const definition = JSON.parse(await fs.readFile(filepath, 'utf8'))
+
+    return definition
+  }
+
+  /**
+   * Read the form definition from a yaml file
+   * @param {string} filepath
+   * @returns {Promise<FormDefinition>}
+   */
+  async readYamlForm(filepath) {
+    /**
+     * @type {FormDefinition}
+     */
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const definition = YAML.parse(await fs.readFile(filepath, 'utf8'))
+
+    return definition
   }
 
   /**
@@ -99,48 +136,6 @@ class FileFormService {
         return Promise.resolve(this.getFormDefinition(id))
       }
     }
-  }
-}
-
-/**
- * JsonFileFormService class
- * @augments FileFormService
- */
-export class JsonFileFormService extends FileFormService {
-  /**
-   * Read the form definition from a json file
-   * @param {string} filepath
-   * @returns {Promise<FormDefinition>}
-   */
-  async readForm(filepath) {
-    /**
-     * @type {FormDefinition}
-     */
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const definition = JSON.parse(await fs.readFile(filepath, 'utf8'))
-
-    return definition
-  }
-}
-
-/**
- * YamlFileFormService class
- * @augments FileFormService
- */
-export class YamlFileFormService extends FileFormService {
-  /**
-   * Read the form definition from a yaml file
-   * @param {string} filepath
-   * @returns {Promise<FormDefinition>}
-   */
-  async readForm(filepath) {
-    /**
-     * @type {FormDefinition}
-     */
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const definition = YAML.parse(await fs.readFile(filepath, 'utf8'))
-
-    return definition
   }
 }
 
