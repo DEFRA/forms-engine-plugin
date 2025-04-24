@@ -58,7 +58,6 @@ export function context(request) {
       designerUrl: config.get('designerUrl'),
       feedbackLink: encodeUrl(config.get('feedbackLink')),
       phaseTag: config.get('phaseTag'),
-      serviceBannerText: config.get('serviceBannerText'),
       serviceName: config.get('serviceName'),
       serviceVersion: config.get('serviceVersion')
     },

@@ -253,13 +253,6 @@ export const config = convict({
     env: 'STAGING_PREFIX'
   },
 
-  serviceBannerText: {
-    doc: 'Service banner text used to show a maintenance message on all pages when set',
-    format: String,
-    default: '',
-    env: 'SERVICE_BANNER_TEXT'
-  },
-
   googleAnalyticsTrackingId: {
     doc: 'Google analytics tracking ID to be used when a user has opted in to additional cookies',
     format: String,

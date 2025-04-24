@@ -32,13 +32,6 @@
 {% endblock %}
 
 {% block header %}
-  {% if config.serviceBannerText | length %}
-    {{ appServiceBanner({
-      title: "Service status",
-      text: config.serviceBannerText
-    }) }}
-  {% endif %}
-
   {{ govukHeader({
     homepageUrl: currentPath if context.isForceAccess else "https://defra.github.io/forms-engine-plugin/",
     containerClasses: "govuk-width-container",

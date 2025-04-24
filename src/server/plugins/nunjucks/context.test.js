@@ -65,7 +65,6 @@ describe('Nunjucks context', () => {
           feedbackLink: encodeUrl(config.get('feedbackLink')),
           googleAnalyticsTrackingId: config.get('googleAnalyticsTrackingId'),
           phaseTag: config.get('phaseTag'),
-          serviceBannerText: config.get('serviceBannerText'),
           serviceName: config.get('serviceName'),
           serviceVersion: config.get('serviceVersion')
         })
