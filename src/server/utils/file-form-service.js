@@ -76,7 +76,7 @@ class FileFormService {
    * Returns a FormsService compliant interface
    * @returns {import('~/src/server/types.js').FormsService}
    */
-  toFormService() {
+  toFormsService() {
     return {
       /**
        * Get the form metadata by slug
