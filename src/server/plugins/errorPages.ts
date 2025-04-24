@@ -21,7 +21,6 @@ export default {
 
           const error = {
             statusCode,
-            data: response.data,
             message: response.message,
             stack: response.stack
           }
