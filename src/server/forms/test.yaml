@@ -27,8 +27,10 @@ pages:
   - type: Html
     name: html
     title: Html
-    content: <p class="govuk-body">If you still think you're eligible please contact
-      the Foreign and Commonwealth Office.</p>
+    content: >-
+      <p class="govuk-body">
+        If you still think you're eligible please contact the Foreign and Commonwealth Office.
+      </p>
     options: {}
     schema: {}
   next: []
