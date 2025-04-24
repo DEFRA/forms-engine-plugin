@@ -5,7 +5,6 @@ import Boom from '@hapi/boom'
 import { StatusCodes } from 'http-status-codes'
 
 import pkg from '~/package.json' with { type: 'json' }
-import { parseCookieConsent } from '~/src/common/cookies.js'
 import { config } from '~/src/config/index.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
@@ -34,9 +33,8 @@ export function context(request) {
     }
   }
 
-  const { params, path, query = {}, response, state } = request ?? {}
+  const { params, path, response } = request ?? {}
 
-  const isForceAccess = 'force' in query
   const isPreviewMode = path?.startsWith(PREVIEW_PATH_PREFIX)
 
   // Only add the slug in to the context if the response is OK.
@@ -44,8 +42,12 @@ export function context(request) {
   const isResponseOK =
     !Boom.isBoom(response) && response?.statusCode === StatusCodes.OK
 
-  const consumerViewContext =
-    request?.server.plugins['forms-engine-plugin'].viewContext(request)
+  const pluginStorage = request?.server.plugins['forms-engine-plugin']
+  let consumerViewContext = {}
+
+  if (pluginStorage && 'viewContext' in pluginStorage) {
+    consumerViewContext = pluginStorage.viewContext(request)
+  }
 
   /** @type {ViewContext} */
   const ctx = {
@@ -62,7 +64,6 @@ export function context(request) {
       serviceVersion: config.get('serviceVersion')
     },
     crumb: safeGenerateCrumb(request),
-    cspNonce: request?.plugins.blankie?.nonces?.script,
     currentPath: request ? `${request.path}${request.url.search}` : undefined,
     previewMode: isPreviewMode ? params?.state : undefined,
     slug: isResponseOK ? params?.slug : undefined,
@@ -72,21 +73,10 @@ export function context(request) {
     }
   }
 
-  if (!isForceAccess) {
-    ctx.config.googleAnalyticsTrackingId = config.get(
-      'googleAnalyticsTrackingId'
-    )
-
-    if (typeof state?.cookieConsent === 'string') {
-      ctx.cookieConsent = parseCookieConsent(state.cookieConsent)
-    }
-  }
-
   return ctx
 }
 
 /**
- * @import { CookieConsent } from '~/src/common/types.js'
  * @import { ViewContext } from '~/src/server/plugins/nunjucks/types.js'
  * @import { FormRequest, FormRequestPayload } from '~/src/server/routes/types.js'
  */

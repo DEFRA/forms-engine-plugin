@@ -17,7 +17,6 @@ import { config } from '~/src/config/index.js'
 import { requestLogger } from '~/src/server/common/helpers/logging/request-logger.js'
 import { requestTracing } from '~/src/server/common/helpers/logging/request-tracing.js'
 import { buildRedisClient } from '~/src/server/common/helpers/redis-client.js'
-import { configureBlankiePlugin } from '~/src/server/plugins/blankie.js'
 import { configureCrumbPlugin } from '~/src/server/plugins/crumb.js'
 import plugin from '~/src/server/plugins/engine/index.js'
 import { findPackageRoot } from '~/src/server/plugins/engine/plugin.js'
@@ -86,13 +85,11 @@ export async function createServer(routeConfig?: RouteConfig) {
   }
 
   const pluginCrumb = configureCrumbPlugin(routeConfig)
-  const pluginBlankie = configureBlankiePlugin()
 
   await server.register(pluginSession)
   await server.register(pluginPulse)
   await server.register(inert)
   await server.register(Scooter)
-  await server.register(pluginBlankie)
   await server.register(pluginCrumb)
 
   server.ext('onPreResponse', (request: Request, h: ResponseToolkit) => {
@@ -144,15 +141,6 @@ export async function createServer(routeConfig?: RouteConfig) {
   await server.register(pluginErrorPages)
   await server.register(blipp)
   await server.register(requestTracing)
-
-  server.state('cookieConsent', {
-    ttl: 365 * 24 * 60 * 60 * 1000, // 1 year in ms
-    clearInvalid: true,
-    isHttpOnly: false,
-    isSecure: config.get('isProduction'),
-    path: '/',
-    encoding: 'none' // handle this inside the application so we can share frontend/backend cookie modification
-  })
 
   return server
 }

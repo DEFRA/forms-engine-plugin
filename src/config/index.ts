@@ -251,13 +251,6 @@ export const config = convict({
     format: String,
     default: 'staging',
     env: 'STAGING_PREFIX'
-  },
-
-  googleAnalyticsTrackingId: {
-    doc: 'Google analytics tracking ID to be used when a user has opted in to additional cookies',
-    format: String,
-    default: '',
-    env: 'GOOGLE_ANALYTICS_TRACKING_ID'
   }
 })
 

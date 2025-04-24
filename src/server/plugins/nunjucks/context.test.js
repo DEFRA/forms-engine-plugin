@@ -63,7 +63,6 @@ describe('Nunjucks context', () => {
         expect.objectContaining({
           cdpEnvironment: config.get('cdpEnvironment'),
           feedbackLink: encodeUrl(config.get('feedbackLink')),
-          googleAnalyticsTrackingId: config.get('googleAnalyticsTrackingId'),
           phaseTag: config.get('phaseTag'),
           serviceName: config.get('serviceName'),
           serviceVersion: config.get('serviceVersion')

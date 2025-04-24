@@ -25,15 +25,6 @@ declare module '@hapi/hapi' {
     }
   }
 
-  interface PluginsStates {
-    blankie?: {
-      nonces?: {
-        script?: string
-        style?: string
-      }
-    }
-  }
-
   interface Request {
     logger: Logger
     yar: Yar

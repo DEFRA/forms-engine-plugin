@@ -76,8 +76,7 @@ describe(`Cookie banner and analytics`, () => {
 
     const headers = getCookieHeader(sessionInitialisationResponse, [
       'crumb',
-      'session',
-      'cookieConsent'
+      'session'
     ])
 
     const { container, document } = await renderResponse(server, {
@@ -128,8 +127,7 @@ describe(`Cookie banner and analytics`, () => {
 
     const headers = getCookieHeader(sessionInitialisationResponse, [
       'crumb',
-      'session',
-      'cookieConsent'
+      'session'
     ])
 
     const { container, document } = await renderResponse(server, {
@@ -182,8 +180,7 @@ describe(`Cookie banner and analytics`, () => {
 
     const headers = getCookieHeader(sessionInitialisationResponse, [
       'crumb',
-      'session',
-      'cookieConsent'
+      'session'
     ])
 
     const { container } = await renderResponse(server, {
@@ -234,11 +231,7 @@ describe(`Cookie preferences`, () => {
 
       const headers = {
         Referer: '/help/cookie-preferences/basic',
-        ...getCookieHeader(sessionInitialisationResponse, [
-          'crumb',
-          'session',
-          'cookieConsent'
-        ])
+        ...getCookieHeader(sessionInitialisationResponse, ['crumb', 'session'])
       }
 
       const { container } = await renderResponse(server, {
@@ -276,11 +269,7 @@ describe(`Cookie preferences`, () => {
     })
 
     const headers = {
-      ...getCookieHeader(sessionInitialisationResponse, [
-        'crumb',
-        'session',
-        'cookieConsent'
-      ])
+      ...getCookieHeader(sessionInitialisationResponse, ['crumb', 'session'])
     }
 
     const { container } = await renderResponse(server, {

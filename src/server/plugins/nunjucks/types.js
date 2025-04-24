@@ -14,7 +14,6 @@
  * @property {string} appVersion - Application version
  * @property {string} assetPath - Asset path
  * @property {Partial<Config>} config - Application config properties
- * @property {CookieConsent} [cookieConsent] - Cookie consent preferences
  * @property {string} [crumb] - Cross-Site Request Forgery (CSRF) token
  * @property {string} [cspNonce] - Content Security Policy (CSP) nonce
  * @property {string} [currentPath] - Current path
@@ -35,7 +34,6 @@
  */
 
 /**
- * @import { CookieConsent } from '~/src/common/types.js'
  * @import { config } from '~/src/config/index.js'
  * @import { FormContext } from '~/src/server/plugins/engine/types.js'
  * @import { PluginOptions } from '~/src/server/plugins/engine/plugin.js'
