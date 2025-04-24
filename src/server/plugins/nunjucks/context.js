@@ -22,17 +22,6 @@ let webpackManifest
  * @param {FormRequest | FormRequestPayload | null} request
  */
 export function context(request) {
-  const manifestPath = join(config.get('publicDir'), 'assets-manifest.json')
-
-  if (!webpackManifest) {
-    try {
-      // eslint-disable-next-line -- Allow JSON type 'any'
-      webpackManifest = JSON.parse(readFileSync(manifestPath, 'utf-8'))
-    } catch {
-      logger.error(`Webpack ${basename(manifestPath)} not found`)
-    }
-  }
-
   const { params, path, response } = request ?? {}
 
   const isPreviewMode = path?.startsWith(PREVIEW_PATH_PREFIX)
@@ -54,7 +43,6 @@ export function context(request) {
     // take consumers props first so we can override it
     ...consumerViewContext,
     appVersion: pkg.version,
-    assetPath: '/assets',
     config: {
       cdpEnvironment: config.get('cdpEnvironment'),
       designerUrl: config.get('designerUrl'),
@@ -66,14 +54,34 @@ export function context(request) {
     crumb: safeGenerateCrumb(request),
     currentPath: request ? `${request.path}${request.url.search}` : undefined,
     previewMode: isPreviewMode ? params?.state : undefined,
-    slug: isResponseOK ? params?.slug : undefined,
+    slug: isResponseOK ? params?.slug : undefined
+  }
 
+  return ctx
+}
+
+/**
+ * Returns the context for the devtool. Consumers won't have access to this.
+ */
+export function devtoolContext() {
+  const manifestPath = join(config.get('publicDir'), 'assets-manifest.json')
+
+  if (!webpackManifest) {
+    try {
+      // eslint-disable-next-line -- Allow JSON type 'any'
+      webpackManifest = JSON.parse(readFileSync(manifestPath, 'utf-8'))
+    } catch {
+      logger.error(`Webpack ${basename(manifestPath)} not found`)
+    }
+  }
+
+  return {
+    baseLayoutPath: 'dxt-devtool-baselayout.html', // from plugin.options.nunjucks.paths
+    assetPath: '/assets',
     getDxtAssetPath: (asset = '') => {
       return `/${webpackManifest?.[asset] ?? asset}`
     }
   }
-
-  return ctx
 }
 
 /**

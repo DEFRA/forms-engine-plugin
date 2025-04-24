@@ -12,14 +12,12 @@
 /**
  * @typedef {object} ViewContext - Nunjucks view context
  * @property {string} appVersion - Application version
- * @property {string} assetPath - Asset path
  * @property {Partial<Config>} config - Application config properties
  * @property {string} [crumb] - Cross-Site Request Forgery (CSRF) token
  * @property {string} [cspNonce] - Content Security Policy (CSP) nonce
  * @property {string} [currentPath] - Current path
  * @property {string} [previewMode] - Preview mode
  * @property {string} [slug] - Form slug
- * @property {(asset?: string) => string} getDxtAssetPath - Asset path resolver
  * @property {FormContext} [context] - the current form context
  * @property {PluginOptions['viewContext']} [injectedViewContext] - the current form context
  */

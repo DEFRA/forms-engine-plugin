@@ -2,21 +2,24 @@ import { tmpdir } from 'node:os'
 
 import { config } from '~/src/config/index.js'
 import { encodeUrl } from '~/src/server/plugins/engine/helpers.js'
-import { context } from '~/src/server/plugins/nunjucks/context.js'
+import {
+  context,
+  devtoolContext
+} from '~/src/server/plugins/nunjucks/context.js'
 
 describe('Nunjucks context', () => {
   beforeEach(() => jest.resetModules())
 
   describe('Asset path', () => {
     it("should include 'assetPath' for GOV.UK Frontend icons", () => {
-      const { assetPath } = context(null)
+      const { assetPath } = devtoolContext()
       expect(assetPath).toBe('/assets')
     })
   })
 
   describe('Asset helper', () => {
     it("should locate 'assets-manifest.json' assets", () => {
-      const { getDxtAssetPath } = context(null)
+      const { getDxtAssetPath } = devtoolContext()
 
       expect(getDxtAssetPath('example.scss')).toBe(
         '/stylesheets/example.xxxxxxx.min.css'
@@ -32,13 +35,13 @@ describe('Nunjucks context', () => {
         const { config } = await import('~/src/config/index.js')
 
         // Import when isolated to avoid cache
-        const { context } = await import(
+        const { devtoolContext } = await import(
           '~/src/server/plugins/nunjucks/context.js'
         )
 
         // Update config for missing manifest
         config.set('publicDir', tmpdir())
-        const { getDxtAssetPath } = context(null)
+        const { getDxtAssetPath } = devtoolContext()
 
         // Uses original paths when missing
         expect(getDxtAssetPath('example.scss')).toBe('/example.scss')
@@ -47,7 +50,7 @@ describe('Nunjucks context', () => {
     })
 
     it('should return path to unknown assets', () => {
-      const { getDxtAssetPath } = context(null)
+      const { getDxtAssetPath } = devtoolContext()
 
       expect(getDxtAssetPath()).toBe('/')
       expect(getDxtAssetPath('example.jpg')).toBe('/example.jpg')

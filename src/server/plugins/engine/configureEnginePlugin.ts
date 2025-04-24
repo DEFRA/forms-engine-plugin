@@ -9,6 +9,7 @@ import {
   type PluginOptions
 } from '~/src/server/plugins/engine/plugin.js'
 import { findPackageRoot } from '~/src/server/plugins/engine/plugin.js'
+import { devtoolContext } from '~/src/server/plugins/nunjucks/context.js'
 import { type RouteConfig } from '~/src/server/types.js'
 
 export const configureEnginePlugin = async ({
@@ -36,9 +37,7 @@ export const configureEnginePlugin = async ({
       nunjucks: {
         paths: [join(findPackageRoot(), 'src/server/devserver')] // custom layout to make it really clear this is not the same as the runner
       },
-      viewContext: () => ({
-        baseLayoutPath: 'dxt-devtool-baselayout.html' // from plugin.options.nunjucks.paths
-      })
+      viewContext: devtoolContext
     }
   }
 }
