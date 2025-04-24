@@ -116,8 +116,7 @@ Blocks marked with `# FEATURE: <name>` are optional and can be omitted if the fe
 FEEDBACK_LINK=http://test.com
 # END FEATURE: Phase banner
 
-# START FEATURE: DXT -- used if using DXT's infrastructure to store your forms and file uploads
-MANAGER_URL=http://localhost:3001
+# START FEATURE: DXT -- used if using DXT's infrastructure for file uploads
 DESIGNER_URL=http://localhost:3000
 SUBMISSION_URL=http://localhost:3002
 

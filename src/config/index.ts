@@ -179,12 +179,6 @@ export const config = convict({
   /**
    * API integrations
    */
-  managerUrl: {
-    format: String,
-    default: 'http://localhost:3001',
-    env: 'MANAGER_URL'
-  } as SchemaObj<string>,
-
   designerUrl: {
     format: String,
     default: 'http://localhost:3000',
@@ -251,7 +245,14 @@ export const config = convict({
     format: String,
     default: 'staging',
     env: 'STAGING_PREFIX'
-  }
+  },
+
+  submissionEmailAddress: {
+    doc: 'Email address to send the form to (local devtool only)',
+    format: String,
+    default: null,
+    env: 'SUBMISSION_EMAIL_ADDRESS'
+  } as SchemaObj<string>
 })
 
 config.validate({ allowed: 'strict' })
