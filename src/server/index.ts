@@ -11,7 +11,6 @@ import Wreck from '@hapi/wreck'
 import blipp from 'blipp'
 import { ProxyAgent } from 'proxy-agent'
 
-
 import { config } from '~/src/config/index.js'
 import { requestLogger } from '~/src/server/common/helpers/logging/request-logger.js'
 import { requestTracing } from '~/src/server/common/helpers/logging/request-tracing.js'
