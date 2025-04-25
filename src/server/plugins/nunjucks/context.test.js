@@ -1,7 +1,5 @@
 import { tmpdir } from 'node:os'
 
-import { config } from '~/src/config/index.js'
-import { encodeUrl } from '~/src/server/plugins/engine/helpers.js'
 import {
   context,
   devtoolContext
@@ -60,16 +58,8 @@ describe('Nunjucks context', () => {
 
   describe('Config', () => {
     it('should include environment, phase tag and service info', () => {
-      const ctx = context(null)
-
-      expect(ctx.config).toEqual(
-        expect.objectContaining({
-          cdpEnvironment: config.get('cdpEnvironment'),
-          feedbackLink: encodeUrl(config.get('feedbackLink')),
-          phaseTag: config.get('phaseTag'),
-          serviceName: config.get('serviceName'),
-          serviceVersion: config.get('serviceVersion')
-        })
+      expect(() => context(null)).toThrow(
+        'context called before plugin registered'
       )
     })
   })
@@ -84,6 +74,9 @@ describe('Nunjucks context', () => {
             plugins: {
               crumb: {
                 generate: jest.fn()
+              },
+              'forms-engine-plugin': {
+                baseLayoutPath: 'randomValue'
               }
             }
           },
@@ -114,6 +107,9 @@ describe('Nunjucks context', () => {
             plugins: {
               crumb: {
                 generate: jest.fn().mockReturnValue(mockCrumb)
+              },
+              'forms-engine-plugin': {
+                baseLayoutPath: 'randomValue'
               }
             }
           },
