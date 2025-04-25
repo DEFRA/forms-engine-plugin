@@ -92,15 +92,43 @@ await server.register({
   }
 })
 
+const viewPaths = [join(config.get('appDir'), 'views')]
+
 // Register the `forms-engine-plugin`
 await server.register({
-  plugin
+  plugin,
+  options: {
+    cacheName: 'session', // must match a session you've instantiated in your hapi server config
+    /**
+     * Options that DXT uses to render Nunjucks templates
+     */
+    nunjucks: {
+      basePageLayout: 'your-base-layout.html', // the base page layout. Usually based off https://design-system.service.gov.uk/styles/page-template/
+      viewPaths // list of directories DXT should use to render your views. Must contain basePageLayout.
+    },
+    /**
+     * Services is what DXT uses to interact with external APIs
+     */
+    services: {
+      formsService, // where your forms should be downloaded from.
+      formSubmissionService, // handles temporary storage of file uploads
+      outputService // where your form should be submitted to
+    },
+    /**
+     * View context attributes made available to your pages. Returns an object containing an arbitrary set of key-value pairs.
+     */
+    viewContext: (request) => {
+      "example": "hello world" // available to render on a nunjucks page as {{ example }}
+    }
+  }
 })
 
 await server.start()
 ```
 
 ## Step 3: Handling static assets
+
+TODO: CSS will be updated with a proper build process using SASS.
 
 1. [Update webpack to bundle the DXT application assets (CSS, JavaScript, etc)](https://github.com/DEFRA/forms-engine-plugin-example-ui/pull/1/files#diff-1fb26bc12ac780c7ad7325730ed09fc4c2c3d757c276c3dacc44bfe20faf166f)
 2. [Serve the newly bundled assets from your web server](https://github.com/DEFRA/forms-engine-plugin-example-ui/pull/1/files#diff-e5b183306056f90c7f606b526dbc0d0b7e17bccd703945703a0811b6e6bb3503)

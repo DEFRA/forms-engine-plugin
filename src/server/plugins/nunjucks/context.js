@@ -34,7 +34,15 @@ export function context(request) {
   const pluginStorage = request?.server.plugins['forms-engine-plugin']
   let consumerViewContext = {}
 
-  if (pluginStorage && 'viewContext' in pluginStorage) {
+  if (!pluginStorage) {
+    throw Error('context called before plugin registered')
+  }
+
+  if (!pluginStorage.baseLayoutPath) {
+    throw Error('Missing baseLayoutPath in plugin.options.nunjucks')
+  }
+
+  if ('viewContext' in pluginStorage) {
     consumerViewContext = pluginStorage.viewContext(request)
   }
 
@@ -42,6 +50,7 @@ export function context(request) {
   const ctx = {
     // take consumers props first so we can override it
     ...consumerViewContext,
+    baseLayoutPath: pluginStorage.baseLayoutPath,
     appVersion: pkg.version,
     config: {
       cdpEnvironment: config.get('cdpEnvironment'),
@@ -52,7 +61,7 @@ export function context(request) {
       serviceVersion: config.get('serviceVersion')
     },
     crumb: safeGenerateCrumb(request),
-    currentPath: request ? `${request.path}${request.url.search}` : undefined,
+    currentPath: `${request.path}${request.url.search}`,
     previewMode: isPreviewMode ? params?.state : undefined,
     slug: isResponseOK ? params?.slug : undefined
   }
@@ -76,7 +85,6 @@ export function devtoolContext() {
   }
 
   return {
-    baseLayoutPath: 'dxt-devtool-baselayout.html', // from plugin.options.nunjucks.paths
     assetPath: '/assets',
     getDxtAssetPath: (asset = '') => {
       return `/${webpackManifest?.[asset] ?? asset}`

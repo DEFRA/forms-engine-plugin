@@ -20,6 +20,7 @@ declare module '@hapi/hapi' {
       generate?: (request: Request | FormRequest | FormRequestPayload) => string
     }
     'forms-engine-plugin': {
+      baseLayoutPath: string
       cacheService: CacheService
       viewContext: context
     }

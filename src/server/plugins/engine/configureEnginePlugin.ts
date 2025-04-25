@@ -41,6 +41,7 @@ export const configureEnginePlugin = async ({
       controllers,
       cacheName: 'session',
       nunjucks: {
+        baseLayoutPath: 'dxt-devtool-baselayout.html',
         paths: [join(findPackageRoot(), 'src/server/devserver')] // custom layout to make it really clear this is not the same as the runner
       },
       viewContext: devtoolContext

@@ -12,6 +12,7 @@
 /**
  * @typedef {object} ViewContext - Nunjucks view context
  * @property {string} appVersion - Application version
+ * @property {string} [baseLayoutPath] - Base layout path
  * @property {Partial<Config>} config - Application config properties
  * @property {string} [crumb] - Cross-Site Request Forgery (CSRF) token
  * @property {string} [cspNonce] - Content Security Policy (CSP) nonce

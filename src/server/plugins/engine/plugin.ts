@@ -92,11 +92,12 @@ export interface PluginOptions {
   filters?: Record<string, FilterFunction>
   pluginPath?: string
   nunjucks: {
+    baseLayoutPath: string
     paths: string[]
   }
   viewContext: (
     request: FormRequest | FormRequestPayload | null
-  ) => Record<string, unknown> & { baseLayoutPath?: string }
+  ) => Record<string, unknown>
 }
 
 export const plugin = {
@@ -171,6 +172,7 @@ export const plugin = {
       }
     })
 
+    server.expose('baseLayoutPath', nunjucksOptions.baseLayoutPath)
     server.expose('viewContext', viewContext)
     server.expose('cacheService', cacheService)
 
