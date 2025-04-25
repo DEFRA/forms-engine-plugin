@@ -20,7 +20,11 @@ const metadata = {
   live: author
 }
 
-// Get the forms service
+/**
+ * Return an function rather than the service directly. This is to prevent consumer applications
+ * blowing up as they won't have these files on disk. We can defer the execution until when it's
+ * needed, i.e. the createServer function of the devtool.
+ */
 export const formsService = async () => {
   // Instantiate the file loader form service
   const loader = new FileFormService()
