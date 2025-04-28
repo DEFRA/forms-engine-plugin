@@ -2,6 +2,9 @@ import { type YesNoFieldComponent } from '@defra/forms-model'
 
 import { SelectionControlField } from '~/src/server/plugins/engine/components/SelectionControlField.js'
 import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers.js'
+import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
+import { type ErrorMessageTemplateList } from '~/src/server/plugins/engine/types.js'
+import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 
 /**
  * @description
@@ -25,7 +28,28 @@ export class YesNoField extends SelectionControlField {
       formSchema = formSchema.optional()
     }
 
+    formSchema = formSchema.messages(
+      convertToLanguageMessages({
+        'any.required': messageTemplate.selectYesNoRequired
+      })
+    )
+
     this.formSchema = formSchema
     this.options = options
+  }
+
+  /**
+   * For error preview page that shows all possible errors on a component
+   */
+  getAllPossibleErrors(): ErrorMessageTemplateList {
+    return {
+      baseErrors: [
+        {
+          type: 'selectYesNoRequired',
+          template: messageTemplate.selectYesNoRequired
+        }
+      ],
+      advancedSettingsErrors: []
+    }
   }
 }

@@ -14,7 +14,9 @@ import joi, {
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type ListItem } from '~/src/server/plugins/engine/components/types.js'
+import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
+  type ErrorMessageTemplateList,
   type FormPayload,
   type FormSubmissionError,
   type FormSubmissionState
@@ -61,7 +63,7 @@ export class ListFormComponent extends FormComponent {
   ) {
     super(def, props)
 
-    const { options, title } = def
+    const { options } = def
     const { model } = props
 
     if ('list' in def) {
@@ -71,7 +73,7 @@ export class ListFormComponent extends FormComponent {
 
     let formSchema = joi[this.listType]()
       .valid(...this.values)
-      .label(title)
+      .label(this.label)
       .required()
 
     if (options.customValidationMessages) {
@@ -135,6 +137,18 @@ export class ListFormComponent extends FormComponent {
     return {
       ...viewModel,
       items
+    }
+  }
+
+  /**
+   * For error preview page that shows all possible errors on a component
+   */
+  getAllPossibleErrors(): ErrorMessageTemplateList {
+    return {
+      baseErrors: [
+        { type: 'selectRequired', template: messageTemplate.selectRequired }
+      ],
+      advancedSettingsErrors: []
     }
   }
 }

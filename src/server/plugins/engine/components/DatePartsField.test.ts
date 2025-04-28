@@ -31,6 +31,7 @@ describe('DatePartsField', () => {
     beforeEach(() => {
       def = {
         title: 'Example date parts field',
+        shortDescription: 'Example date parts',
         name: 'myComponent',
         type: ComponentType.DatePartsField,
         options: {}
@@ -199,7 +200,7 @@ describe('DatePartsField', () => {
         expect(result3.errors).toBeUndefined()
       })
 
-      it('adds errors for empty value', () => {
+      it('adds errors for empty value when short description exists', () => {
         const result = collection.validate(
           getFormData({
             day: '',
@@ -210,13 +211,13 @@ describe('DatePartsField', () => {
 
         expect(result.errors).toEqual([
           expect.objectContaining({
-            text: 'Example date parts field must include a day'
+            text: 'Example date parts must include a day'
           }),
           expect.objectContaining({
-            text: 'Example date parts field must include a month'
+            text: 'Example date parts must include a month'
           }),
           expect.objectContaining({
-            text: 'Example date parts field must include a year'
+            text: 'Example date parts must include a year'
           })
         ])
       })
@@ -407,6 +408,14 @@ describe('DatePartsField', () => {
             classes: 'govuk-fieldset__legend--m'
           }
         })
+      })
+    })
+
+    describe('AllPossibleErrors', () => {
+      it('should return errors', () => {
+        const errors = field.getAllPossibleErrors()
+        expect(errors.baseErrors).not.toBeEmpty()
+        expect(errors.advancedSettingsErrors).not.toBeEmpty()
       })
     })
   })

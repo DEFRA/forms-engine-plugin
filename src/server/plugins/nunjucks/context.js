@@ -7,8 +7,8 @@ import { StatusCodes } from 'http-status-codes'
 import pkg from '~/package.json' with { type: 'json' }
 import { config } from '~/src/config/index.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
-import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
+  checkFormStatus,
   encodeUrl,
   safeGenerateCrumb
 } from '~/src/server/plugins/engine/helpers.js'
@@ -22,9 +22,9 @@ let webpackManifest
  * @param {FormRequest | FormRequestPayload | null} request
  */
 export function context(request) {
-  const { params, path, response } = request ?? {}
+  const { params, response } = request ?? {}
 
-  const isPreviewMode = path?.startsWith(PREVIEW_PATH_PREFIX)
+  const { isPreview: isPreviewMode, state: formState } = checkFormStatus(params)
 
   // Only add the slug in to the context if the response is OK.
   // Footer meta links are not rendered when the slug is missing.
@@ -62,7 +62,7 @@ export function context(request) {
     },
     crumb: safeGenerateCrumb(request),
     currentPath: `${request.path}${request.url.search}`,
-    previewMode: isPreviewMode ? params?.state : undefined,
+    previewMode: isPreviewMode ? formState : undefined,
     slug: isResponseOK ? params?.slug : undefined
   }
 

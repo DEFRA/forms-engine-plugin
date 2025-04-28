@@ -29,7 +29,8 @@ describe('MultilineTextField', () => {
 
     beforeEach(() => {
       def = {
-        title: 'Example textarea',
+        title: 'Example textarea title',
+        shortDescription: 'Example textarea',
         name: 'myComponent',
         type: ComponentType.MultilineTextField,
         options: {},
@@ -41,7 +42,7 @@ describe('MultilineTextField', () => {
     })
 
     describe('Schema', () => {
-      it('uses component title as label', () => {
+      it('uses component short description as label', () => {
         const { formSchema } = collection
         const { keys } = formSchema.describe()
 
@@ -113,6 +114,25 @@ describe('MultilineTextField', () => {
         expect(result.errors).toEqual([
           expect.objectContaining({
             text: 'Enter example textarea'
+          })
+        ])
+      })
+
+      it('adds errors for empty value given no short description', () => {
+        def = {
+          title: 'Example textarea title',
+          name: 'myComponent',
+          type: ComponentType.MultilineTextField,
+          options: {},
+          schema: {}
+        } satisfies MultilineTextFieldComponent
+
+        collection = new ComponentCollection([def], { model })
+        const result = collection.validate(getFormData(''))
+
+        expect(result.errors).toEqual([
+          expect.objectContaining({
+            text: 'Enter example textarea title'
           })
         ])
       })
@@ -234,6 +254,14 @@ describe('MultilineTextField', () => {
         )
       })
     })
+
+    describe('AllPossibleErrors', () => {
+      it('should return errors', () => {
+        const errors = field.getAllPossibleErrors()
+        expect(errors.baseErrors).not.toBeEmpty()
+        expect(errors.advancedSettingsErrors).not.toBeEmpty()
+      })
+    })
   })
 
   describe('Validation', () => {
@@ -294,7 +322,57 @@ describe('MultilineTextField', () => {
         ]
       },
       {
-        description: 'Schema min and max',
+        description: 'Schema min',
+        component: {
+          title: 'Example textarea',
+          name: 'myComponent',
+          type: ComponentType.MultilineTextField,
+          options: {},
+          schema: {
+            min: 5
+          }
+        } satisfies MultilineTextFieldComponent,
+        assertions: [
+          {
+            input: getFormData('Text'),
+            output: {
+              value: getFormData('Text'),
+              errors: [
+                expect.objectContaining({
+                  text: 'Example textarea must be 5 characters or more'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Schema max',
+        component: {
+          title: 'Example textarea',
+          name: 'myComponent',
+          type: ComponentType.MultilineTextField,
+          options: {},
+          schema: {
+            max: 8
+          }
+        } satisfies MultilineTextFieldComponent,
+        assertions: [
+          {
+            input: getFormData('Text too long'),
+            output: {
+              value: getFormData('Text too long'),
+              errors: [
+                expect.objectContaining({
+                  text: 'Example textarea must be 8 characters or less'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Schema min and max together',
         component: {
           title: 'Example textarea',
           name: 'myComponent',
@@ -312,7 +390,7 @@ describe('MultilineTextField', () => {
               value: getFormData('Text'),
               errors: [
                 expect.objectContaining({
-                  text: 'Example textarea must be 5 characters or more'
+                  text: 'Example textarea must be between 5 and 8 characters'
                 })
               ]
             }
@@ -323,7 +401,7 @@ describe('MultilineTextField', () => {
               value: getFormData('Textarea too long'),
               errors: [
                 expect.objectContaining({
-                  text: 'Example textarea must be 8 characters or less'
+                  text: 'Example textarea must be between 5 and 8 characters'
                 })
               ]
             }

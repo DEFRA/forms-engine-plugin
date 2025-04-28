@@ -121,7 +121,7 @@ describe('YesNoField', () => {
 
       expect(result.errors).toEqual([
         expect.objectContaining({
-          text: 'Select example yes/no'
+          text: 'Example yes/no - select yes or no'
         })
       ])
     })
@@ -243,6 +243,14 @@ describe('YesNoField', () => {
           })
         ])
       )
+    })
+  })
+
+  describe('AllPossibleErrors', () => {
+    it('should return errors', () => {
+      const errors = field.getAllPossibleErrors()
+      expect(errors.baseErrors).not.toBeEmpty()
+      expect(errors.advancedSettingsErrors).toBeEmpty()
     })
   })
 })

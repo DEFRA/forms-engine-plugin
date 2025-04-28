@@ -55,6 +55,8 @@ export type Component = InstanceType<
 // Field component instances only
 export type Field = InstanceType<
   | typeof Components.AutocompleteField
+  | typeof Components.RadiosField
+  | typeof Components.YesNoField
   | typeof Components.CheckboxesField
   | typeof Components.DatePartsField
   | typeof Components.EmailAddressField
@@ -72,9 +74,42 @@ export type Field = InstanceType<
 export type Guidance = InstanceType<
   | typeof Components.Details
   | typeof Components.Html
+  | typeof Components.Markdown
   | typeof Components.InsetText
   | typeof Components.List
 >
+
+// List component instances only
+export type ListField = InstanceType<
+  | typeof Components.AutocompleteField
+  | typeof Components.CheckboxesField
+  | typeof Components.RadiosField
+  | typeof Components.SelectField
+  | typeof Components.YesNoField
+>
+
+/**
+ * Filter known components with lists
+ */
+export function hasListFormField(
+  field?: Partial<Component>
+): field is ListFormComponent {
+  return !!field && isListFieldType(field.type)
+}
+
+export function isListFieldType(
+  type?: ComponentType
+): type is ListField['type'] {
+  const allowedTypes = [
+    ComponentType.AutocompleteField,
+    ComponentType.CheckboxesField,
+    ComponentType.RadiosField,
+    ComponentType.SelectField,
+    ComponentType.YesNoField
+  ]
+
+  return !!type && allowedTypes.includes(type)
+}
 
 /**
  * Create field instance for each {@link ComponentDef} type
@@ -116,6 +151,10 @@ export function createComponent(
 
     case ComponentType.List:
       component = new Components.List(def, options)
+      break
+
+    case ComponentType.Markdown:
+      component = new Components.Markdown(def, options)
       break
 
     case ComponentType.MultilineTextField:

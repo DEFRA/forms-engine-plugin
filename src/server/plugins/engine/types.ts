@@ -4,7 +4,7 @@ import {
   type List,
   type Page
 } from '@defra/forms-model'
-import { type ValidationErrorItem } from 'joi'
+import { type JoiExpression, type ValidationErrorItem } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type Component } from '~/src/server/plugins/engine/components/helpers.js'
@@ -316,3 +316,12 @@ export type PageViewModel =
   | FeaturedFormPageViewModel
 
 export type FilterFunction = (value: unknown) => unknown
+export interface ErrorMessageTemplate {
+  type: string
+  template: JoiExpression
+}
+
+export interface ErrorMessageTemplateList {
+  baseErrors: ErrorMessageTemplate[]
+  advancedSettingsErrors: ErrorMessageTemplate[]
+}

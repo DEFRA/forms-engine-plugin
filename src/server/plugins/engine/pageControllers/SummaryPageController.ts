@@ -1,7 +1,12 @@
-import { type PageSummary, type SubmitPayload } from '@defra/forms-model'
+import {
+  hasComponentsEvenIfNoNext,
+  type Page,
+  type SubmitPayload
+} from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type ResponseToolkit, type RouteOptions } from '@hapi/hapi'
 
+import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FileUploadField } from '~/src/server/plugins/engine/components/FileUploadField.js'
 import { getAnswer } from '~/src/server/plugins/engine/components/helpers.js'
 import {
@@ -30,15 +35,21 @@ import {
 } from '~/src/server/routes/types.js'
 
 export class SummaryPageController extends QuestionPageController {
-  declare pageDef: PageSummary
+  declare pageDef: Page
 
   /**
    * The controller which is used when Page["controller"] is defined as "./pages/summary.js"
    */
 
-  constructor(model: FormModel, pageDef: PageSummary) {
+  constructor(model: FormModel, pageDef: Page) {
     super(model, pageDef)
     this.viewName = 'summary'
+
+    // Components collection
+    this.collection = new ComponentCollection(
+      hasComponentsEvenIfNoNext(pageDef) ? pageDef.components : [],
+      { model, page: this }
+    )
   }
 
   getSummaryViewModel(
@@ -47,11 +58,16 @@ export class SummaryPageController extends QuestionPageController {
   ): SummaryViewModel {
     const viewModel = new SummaryViewModel(request, this, context)
 
+    const { query } = request
+    const { payload, errors } = context
+    const components = this.collection.getViewModel(payload, errors, query)
+
     // We already figure these out in the base page controller. Take them and apply them to our page-specific model.
     // This is a stop-gap until we can add proper inheritance in place.
     viewModel.backLink = this.getBackLink(request, context)
     viewModel.feedbackLink = this.feedbackLink
     viewModel.phaseTag = this.phaseTag
+    viewModel.components = components
 
     return viewModel
   }
@@ -96,7 +112,7 @@ export class SummaryPageController extends QuestionPageController {
 
       // Get the form metadata using the `slug` param
       const { notificationEmail } = await getFormMetadata(params.slug)
-      const { isPreview } = checkFormStatus(request.path)
+      const { isPreview } = checkFormStatus(request.params)
       const emailAddress = notificationEmail ?? this.model.def.outputEmail
 
       checkEmailAddressForLiveFormSubmission(emailAddress, isPreview)
@@ -138,8 +154,7 @@ async function submitForm(
 ) {
   await extendFileRetention(model, state, emailAddress)
 
-  const { path } = request
-  const formStatus = checkFormStatus(path)
+  const formStatus = checkFormStatus(request.params)
   const logTags = ['submit', 'submissionApi']
 
   request.logger.info(logTags, 'Preparing email', formStatus)

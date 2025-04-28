@@ -5,9 +5,11 @@ import {
   FormComponent,
   isUploadState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   FileStatus,
   UploadStatus,
+  type ErrorMessageTemplateList,
   type FileState,
   type FileUpload,
   type FileUploadMetadata,
@@ -104,9 +106,13 @@ export class FileUploadField extends FormComponent {
   ) {
     super(def, props)
 
-    const { options, schema, title } = def
+    const { options, schema } = def
 
-    let formSchema = joi.array<FileState>().label(title).single().required()
+    let formSchema = joi
+      .array<FileState>()
+      .label(this.label)
+      .single()
+      .required()
 
     if (options.required === false) {
       formSchema = formSchema.optional()
@@ -231,7 +237,7 @@ export class FileUploadField extends FormComponent {
     })
 
     // Set up the `accept` attribute
-    if ('accept' in options) {
+    if ('accept' in options && options.accept) {
       attributes.accept = options.accept
     }
 
@@ -258,5 +264,48 @@ export class FileUploadField extends FormComponent {
 
   isValue(value?: FormStateValue | FormState): value is UploadState {
     return isUploadState(value)
+  }
+
+  /**
+   * For error preview page that shows all possible errors on a component
+   */
+  getAllPossibleErrors(): ErrorMessageTemplateList {
+    return {
+      baseErrors: [
+        { type: 'selectRequired', template: messageTemplate.selectRequired },
+        {
+          type: 'filesMimes',
+          template: 'The selected file must be a {{#limit}}'
+        },
+        {
+          type: 'filesSize',
+          template: 'The selected file must be smaller than 100MB'
+        },
+        { type: 'filesEmpty', template: 'The selected file is empty' },
+        { type: 'filesVirus', template: 'The selected file contains a virus' },
+        {
+          type: 'filesPartial',
+          template: 'The selected file has not fully uploaded'
+        },
+        {
+          type: 'filesError',
+          template: 'The selected file could not be uploaded – try again'
+        }
+      ],
+      advancedSettingsErrors: [
+        {
+          type: 'filesMin',
+          template: 'You must upload {{#limit}} files or more'
+        },
+        {
+          type: 'filesMax',
+          template: 'You can only upload {{#limit}} files or less'
+        },
+        {
+          type: 'filesExact',
+          template: 'You must upload exactly {{#limit}} files'
+        }
+      ]
+    }
   }
 }

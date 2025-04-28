@@ -1,4 +1,7 @@
-import { initFileUpload } from '~/src/client/javascripts/file-upload.js'
+import {
+  buildUploadStatusUrl,
+  initFileUpload
+} from '~/src/client/javascripts/file-upload.js'
 
 describe('File Upload Client JS', () => {
   beforeEach(() => {
@@ -1193,5 +1196,128 @@ describe('File Upload Client JS', () => {
 
     global.fetch = originalFetch
     global.FormData = originalFormData
+  })
+
+  test('does not add new error summary if one already exists', () => {
+    document.body.innerHTML = `
+      <div class="govuk-error-summary">
+        <div role="alert">
+          <h2 class="govuk-error-summary__title" id="error-summary-title">Existing error</h2>
+        </div>
+      </div>
+      <div class="govuk-error-summary-container"></div>
+      <form>
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+    `
+
+    const { triggerClick } = setupTestableComponent()
+    const errorSummary = document.querySelector(
+      '.govuk-error-summary-container'
+    )
+
+    triggerClick({ preventDefault: jest.fn() })
+
+    expect(document.querySelectorAll('.govuk-error-summary')).toHaveLength(1)
+    expect(errorSummary?.innerHTML).toBe('')
+  })
+
+  test('adds inline error styling to file input field', () => {
+    document.body.innerHTML = `
+      <div class="govuk-error-summary-container"></div>
+      <form>
+        <div class="govuk-form-group">
+          <input type="file" id="file-upload">
+        </div>
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+    `
+
+    const { triggerClick } = setupTestableComponent()
+
+    triggerClick({ preventDefault: jest.fn() })
+
+    const fileInput = document.querySelector('input[type="file"]')
+    const formGroup = fileInput?.closest('.govuk-form-group')
+
+    expect(formGroup?.classList.contains('govuk-form-group--error')).toBe(true)
+
+    expect(fileInput?.classList.contains('govuk-file-upload--error')).toBe(true)
+
+    const errorMessage = document.getElementById(`${fileInput?.id}-error`)
+    expect(errorMessage).not.toBeNull()
+    expect(errorMessage?.textContent).toContain('Select a file')
+
+    const hiddenSpan = errorMessage?.querySelector('.govuk-visually-hidden')
+    expect(hiddenSpan).not.toBeNull()
+    expect(hiddenSpan?.textContent).toBe('Error:')
+
+    expect(fileInput?.getAttribute('aria-describedby')).toContain(
+      `${fileInput?.id}-error`
+    )
+  })
+
+  test('sets aria-describedby when error summary exists with title element', () => {
+    document.body.innerHTML = `
+      <div class="govuk-error-summary">
+        <div role="alert">
+          <h2 class="govuk-error-summary__title" id="error-summary-title">Existing error</h2>
+        </div>
+      </div>
+      <div class="govuk-error-summary-container"></div>
+      <form>
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+    `
+
+    const { triggerClick, fileInput } = setupTestableComponent()
+    triggerClick({ preventDefault: jest.fn() })
+
+    expect(fileInput?.getAttribute('aria-describedby')).toBe(
+      'error-summary-title'
+    )
+  })
+
+  test('removes aria-describedby when error summary exists without title element', () => {
+    document.body.innerHTML = `
+      <div class="govuk-error-summary">
+        <div role="alert">
+          <h2 class="govuk-error-summary__title">Existing error without ID</h2>
+        </div>
+      </div>
+      <div class="govuk-error-summary-container"></div>
+      <form>
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+    `
+
+    const { triggerClick, fileInput } = setupTestableComponent()
+
+    fileInput?.setAttribute('aria-describedby', 'some-value')
+    triggerClick({ preventDefault: jest.fn() })
+
+    expect(fileInput?.hasAttribute('aria-describedby')).toBe(false)
+  })
+})
+
+describe('buildUploadStatusUrl()', () => {
+  it('builds URL with no prefix for root paths', () => {
+    expect(buildUploadStatusUrl('/', 'abc')).toBe('/upload-status/abc')
+    expect(buildUploadStatusUrl('', 'xyz')).toBe('/upload-status/xyz')
+  })
+
+  it('uses the first segment as prefix', () => {
+    expect(buildUploadStatusUrl('/form/mypage', 'id1')).toBe(
+      '/form/upload-status/id1'
+    )
+  })
+
+  it('trims nested segments and trailing slashes', () => {
+    expect(buildUploadStatusUrl('/one/two/three/', 'id2')).toBe(
+      '/one/upload-status/id2'
+    )
   })
 })

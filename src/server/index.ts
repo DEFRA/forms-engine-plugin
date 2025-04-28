@@ -90,6 +90,8 @@ export async function createServer(routeConfig?: RouteConfig) {
   await server.register(Scooter)
   await server.register(pluginCrumb)
 
+  await server.register(pluginEngine)
+
   server.ext('onPreResponse', (request: Request, h: ResponseToolkit) => {
     const { response } = request
 
@@ -113,7 +115,6 @@ export async function createServer(routeConfig?: RouteConfig) {
   })
 
   await server.register(pluginViews)
-  await server.register(pluginEngine)
 
   await server.register({
     plugin: {

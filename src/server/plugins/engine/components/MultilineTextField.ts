@@ -3,7 +3,9 @@ import Joi, { type CustomValidator, type StringSchema } from 'joi'
 
 import { type ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
+  type ErrorMessageTemplateList,
   type FormPayload,
   type FormSubmissionError
 } from '~/src/server/plugins/engine/types.js'
@@ -22,9 +24,9 @@ export class MultilineTextField extends FormComponent {
   ) {
     super(def, props)
 
-    const { schema, options, title } = def
+    const { schema, options } = def
 
-    let formSchema = Joi.string().trim().label(title).required()
+    let formSchema = Joi.string().trim().label(this.label).required()
 
     if (options.required === false) {
       formSchema = formSchema.allow('')
@@ -71,6 +73,15 @@ export class MultilineTextField extends FormComponent {
       })
     } else if (options.customValidationMessages) {
       formSchema = formSchema.messages(options.customValidationMessages)
+    } else if (
+      typeof schema.max === 'number' &&
+      typeof schema.min === 'number'
+    ) {
+      const minMaxErrorText = this.buildMinMaxText(schema.min, schema.max)
+      formSchema = formSchema.ruleset
+        .min(schema.min)
+        .max(schema.max)
+        .message(minMaxErrorText)
     }
 
     this.formSchema = formSchema.default('')
@@ -103,6 +114,30 @@ export class MultilineTextField extends FormComponent {
       maxlength,
       maxwords,
       rows
+    }
+  }
+
+  buildMinMaxText(min?: number, max?: number): string {
+    const minMaxError = messageTemplate.minMax as string
+    return minMaxError
+      .replace('{{#min}}', min ? min.toString() : '[min length]')
+      .replace('{{#max}}', max ? max.toString() : '[max length]')
+  }
+
+  /**
+   * For error preview page that shows all possible errors on a component
+   */
+  getAllPossibleErrors(): ErrorMessageTemplateList {
+    return {
+      baseErrors: [{ type: 'required', template: messageTemplate.required }],
+      advancedSettingsErrors: [
+        { type: 'min', template: messageTemplate.min },
+        { type: 'max', template: messageTemplate.max },
+        {
+          type: 'minMax',
+          template: this.buildMinMaxText(this.schema.min, this.schema.max)
+        }
+      ]
     }
   }
 }

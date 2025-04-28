@@ -37,7 +37,7 @@ describe('TextField', () => {
     })
 
     describe('Schema', () => {
-      it('uses component title as label', () => {
+      it('uses component title as label as default', () => {
         const { formSchema } = collection
         const { keys } = formSchema.describe()
 
@@ -196,10 +196,42 @@ describe('TextField', () => {
         )
       })
     })
+
+    describe('AllPossibleErrors', () => {
+      it('should return errors', () => {
+        const errors = field.getAllPossibleErrors()
+        expect(errors.baseErrors).not.toBeEmpty()
+        expect(errors.advancedSettingsErrors).not.toBeEmpty()
+      })
+    })
   })
 
   describe('Validation', () => {
     describe.each([
+      {
+        description: 'Use short description if it exists',
+        component: {
+          title: 'What is your example text?',
+          shortDescription: 'Your example text',
+          name: 'myComponent',
+          type: ComponentType.TextField,
+          options: {},
+          schema: {}
+        } satisfies TextFieldComponent,
+        assertions: [
+          {
+            input: getFormData(''),
+            output: {
+              value: getFormData(''),
+              errors: [
+                expect.objectContaining({
+                  text: 'Enter your example text'
+                })
+              ]
+            }
+          }
+        ]
+      },
       {
         description: 'Trim empty spaces',
         component: {

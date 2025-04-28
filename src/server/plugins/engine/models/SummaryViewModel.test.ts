@@ -1,3 +1,4 @@
+import { FORM_PREFIX } from '~/src/server/constants.js'
 import {
   FormModel,
   SummaryViewModel
@@ -13,7 +14,7 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/repeat-mixed.js'
 
-const basePath = '/test'
+const basePath = `${FORM_PREFIX}/test`
 
 describe('SummaryViewModel', () => {
   const itemId1 = 'abc-123'
@@ -28,7 +29,7 @@ describe('SummaryViewModel', () => {
 
   beforeEach(() => {
     model = new FormModel(definition, {
-      basePath: 'test'
+      basePath: `${FORM_PREFIX}/test`
     })
 
     page = createPage(model, definition.pages[2])
@@ -55,7 +56,13 @@ describe('SummaryViewModel', () => {
         orderType: 'collection',
         pizza: []
       } satisfies FormState,
-      keys: ['How would you like to receive your pizza?', 'Pizzas'],
+      keys: [
+        'How would you like to receive your pizza?',
+        'Pizzas',
+        'How you would like to receive your pizza',
+        'Pizzas',
+        'Pizza'
+      ],
       values: ['Collection', 'Not supplied']
     },
     {
@@ -71,7 +78,13 @@ describe('SummaryViewModel', () => {
           }
         ]
       } satisfies FormState,
-      keys: ['How would you like to receive your pizza?', 'Pizza added'],
+      keys: [
+        'How would you like to receive your pizza?',
+        'Pizza added',
+        'How you would like to receive your pizza',
+        'Pizzas',
+        'Pizza'
+      ],
       values: ['Delivery', 'You added 1 Pizza']
     },
     {
@@ -92,7 +105,13 @@ describe('SummaryViewModel', () => {
           }
         ]
       } satisfies FormState,
-      keys: ['How would you like to receive your pizza?', 'Pizzas added'],
+      keys: [
+        'How would you like to receive your pizza?',
+        'Pizzas added',
+        'How you would like to receive your pizza',
+        'Pizzas',
+        'Pizza'
+      ],
       values: ['Delivery', 'You added 2 Pizzas']
     }
   ])('Check answers ($description)', ({ state, keys, values }) => {
@@ -124,7 +143,7 @@ describe('SummaryViewModel', () => {
       expect(summaryList1).toHaveProperty('rows', [
         {
           key: {
-            text: keys[0]
+            text: keys[2]
           },
           value: {
             classes: 'app-prose-scope',
@@ -181,7 +200,7 @@ describe('SummaryViewModel', () => {
       expect(summaryList1).toHaveProperty('rows', [
         {
           key: {
-            text: keys[0]
+            text: keys[2]
           },
           value: {
             classes: 'app-prose-scope',
@@ -207,6 +226,26 @@ describe('SummaryViewModel', () => {
           }
         }
       ])
+    })
+
+    it('should use correct summary labels', () => {
+      request.query.force = '' // Preview URL '?force'
+      context = model.getFormContext(request, state)
+      summaryViewModel = new SummaryViewModel(request, page, context)
+
+      expect(summaryViewModel.details).toHaveLength(2)
+
+      const [details1, details2] = summaryViewModel.details
+
+      expect(details1.items[0]).toMatchObject({
+        title: keys[2],
+        label: keys[0]
+      })
+
+      expect(details2.items[0]).toMatchObject({
+        title: keys[1],
+        label: keys[4]
+      })
     })
   })
 })

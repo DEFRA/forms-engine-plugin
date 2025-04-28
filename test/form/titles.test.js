@@ -1,12 +1,13 @@
 import { join } from 'node:path'
 
+import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookie, getCookieHeader } from '~/test/utils/get-cookie.js'
 
-const basePath = '/titles'
+const basePath = `${FORM_PREFIX}/titles`
 
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
 

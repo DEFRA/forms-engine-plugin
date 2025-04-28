@@ -1,4 +1,6 @@
 export const MAX_POLLING_DURATION = 300 // 5 minutes
+const ARIA_DESCRIBEDBY = 'aria-describedby'
+const ERROR_SUMMARY_TITLE_ID = 'error-summary-title'
 
 /**
  * Creates or updates status announcer for screen readers
@@ -127,7 +129,7 @@ function renderSummary(selectedFile, statusText, form) {
   const fileInput = form.querySelector('input[type="file"]')
 
   if (fileInput) {
-    fileInput.setAttribute('aria-describedby', 'statusInformation')
+    fileInput.setAttribute(ARIA_DESCRIBEDBY, 'statusInformation')
   }
 
   const summaryList = findOrCreateSummaryList(
@@ -150,17 +152,30 @@ function renderSummary(selectedFile, statusText, form) {
 
 /**
  * Shows an error message using the GOV.UK error summary component
+ * and adds inline error styling to the file input
  * @param {string} message - The error message to display
  * @param {HTMLElement | null} errorSummary - The error summary container
  * @param {HTMLInputElement} fileInput - The file input element
  * @returns {void}
  */
 function showError(message, errorSummary, fileInput) {
+  const topErrorSummary = document.querySelector('.govuk-error-summary')
+
+  if (topErrorSummary) {
+    const titleElement = document.getElementById(ERROR_SUMMARY_TITLE_ID)
+    if (titleElement) {
+      fileInput.setAttribute(ARIA_DESCRIBEDBY, ERROR_SUMMARY_TITLE_ID)
+    } else {
+      fileInput.removeAttribute(ARIA_DESCRIBEDBY)
+    }
+    return
+  }
+
   if (errorSummary) {
     errorSummary.innerHTML = `
         <div class="govuk-error-summary" data-module="govuk-error-summary">
           <div role="alert">
-            <h2 class="govuk-error-summary__title" id="error-summary-title">
+            <h2 class="govuk-error-summary__title" id="${ERROR_SUMMARY_TITLE_ID}">
               There is a problem
             </h2>
             <div class="govuk-error-summary__body">
@@ -173,7 +188,30 @@ function showError(message, errorSummary, fileInput) {
           </div>
         </div>
       `
-    fileInput.setAttribute('aria-describedby', 'error-summary-title')
+
+    fileInput.setAttribute(ARIA_DESCRIBEDBY, ERROR_SUMMARY_TITLE_ID)
+  }
+
+  const formGroup = fileInput.closest('.govuk-form-group')
+  if (formGroup) {
+    formGroup.classList.add('govuk-form-group--error')
+    fileInput.classList.add('govuk-file-upload--error')
+
+    const inputId = fileInput.id
+    let errorMessage = document.getElementById(`${inputId}-error`)
+
+    if (!errorMessage) {
+      errorMessage = document.createElement('p')
+      errorMessage.id = `${inputId}-error`
+      errorMessage.className = 'govuk-error-message'
+      errorMessage.innerHTML = `<span class="govuk-visually-hidden">Error:</span> ${message}`
+      formGroup.insertBefore(errorMessage, fileInput)
+    }
+
+    fileInput.setAttribute(
+      ARIA_DESCRIBEDBY,
+      `error-summary-title ${inputId}-error`
+    )
   }
 }
 
@@ -191,6 +229,18 @@ function reloadPage() {
 }
 
 /**
+ * Build the upload status URL given the current pathname and the upload ID.
+ * @param {string} pathname – e.g. window.location.pathname
+ * @param {string} uploadId
+ * @returns {string} e.g. "/form/upload-status/abc123"
+ */
+export function buildUploadStatusUrl(pathname, uploadId) {
+  const pathSegments = pathname.split('/').filter((segment) => segment)
+  const prefix = pathSegments.length > 0 ? `/${pathSegments[0]}` : ''
+  return `${prefix}/upload-status/${uploadId}`
+}
+
+/**
  * Polls the upload status endpoint until the file is ready or timeout occurs
  * @param {string} uploadId - The upload ID to check
  */
@@ -205,7 +255,12 @@ function pollUploadStatus(uploadId) {
       return
     }
 
-    fetch(`/upload-status/${uploadId}`, {
+    const uploadStatusUrl = buildUploadStatusUrl(
+      window.location.pathname,
+      uploadId
+    )
+
+    fetch(uploadStatusUrl, {
       headers: {
         Accept: 'application/json'
       }
@@ -343,6 +398,7 @@ export function initFileUpload() {
     if (errorSummary) {
       errorSummary.innerHTML = ''
     }
+
     if (fileInput.files && fileInput.files.length > 0) {
       selectedFile = fileInput.files[0]
     }

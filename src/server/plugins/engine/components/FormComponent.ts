@@ -3,6 +3,7 @@ import { type FormComponentsDef, type Item } from '@defra/forms-model'
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import {
+  type ErrorMessageTemplateList,
   type FileState,
   type FormPayload,
   type FormState,
@@ -18,6 +19,7 @@ import {
 export class FormComponent extends ComponentBase {
   type: FormComponentsDef['type']
   hint: FormComponentsDef['hint']
+  label: string
 
   isFormComponent = true
 
@@ -31,6 +33,10 @@ export class FormComponent extends ComponentBase {
 
     this.type = type
     this.hint = hint
+    this.label =
+      'shortDescription' in def && def.shortDescription
+        ? def.shortDescription
+        : def.title
   }
 
   get keys() {
@@ -100,8 +106,17 @@ export class FormComponent extends ComponentBase {
     return list
   }
 
-  getError(errors?: FormSubmissionError[]): FormSubmissionError | undefined {
+  getFirstError(
+    errors?: FormSubmissionError[]
+  ): FormSubmissionError | undefined {
     return this.getErrors(errors)?.[0]
+  }
+
+  getViewErrors(
+    errors?: FormSubmissionError[]
+  ): FormSubmissionError[] | undefined {
+    const firstError = this.getFirstError(errors)
+    return firstError && [firstError]
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
@@ -119,7 +134,7 @@ export class FormComponent extends ComponentBase {
 
     // Filter component errors only
     const componentErrors = this.getErrors(errors)
-    const componentError = this.getError(componentErrors)
+    const componentError = this.getFirstError(componentErrors)
 
     if (componentErrors) {
       viewModel.errors = componentErrors
@@ -174,6 +189,13 @@ export class FormComponent extends ComponentBase {
 
   isState(value?: FormStateValue | FormState): value is FormState {
     return isFormState(value)
+  }
+
+  getAllPossibleErrors(): ErrorMessageTemplateList {
+    return {
+      baseErrors: [],
+      advancedSettingsErrors: []
+    }
   }
 }
 

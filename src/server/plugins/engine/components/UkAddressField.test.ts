@@ -465,6 +465,14 @@ describe('UkAddressField', () => {
         })
       })
     })
+
+    describe('AllPossibleErrors', () => {
+      it('should return errors', () => {
+        const errors = field.getAllPossibleErrors()
+        expect(errors.baseErrors).not.toBeEmpty()
+        expect(errors.advancedSettingsErrors).toBeEmpty()
+      })
+    })
   })
 
   describe('Validation', () => {
@@ -509,7 +517,8 @@ describe('UkAddressField', () => {
               postcode: ' WA4 1HT'
             }),
             output: {
-              value: getFormData(address)
+              value: getFormData(address),
+              errors: undefined
             }
           },
           {
@@ -521,7 +530,8 @@ describe('UkAddressField', () => {
               postcode: 'WA4 1HT '
             }),
             output: {
-              value: getFormData(address)
+              value: getFormData(address),
+              errors: undefined
             }
           },
           {
@@ -533,7 +543,8 @@ describe('UkAddressField', () => {
               postcode: ' WA4 1HT \n\n'
             }),
             output: {
-              value: getFormData(address)
+              value: getFormData(address),
+              errors: undefined
             }
           }
         ]
@@ -661,6 +672,35 @@ describe('UkAddressField', () => {
                 })
               ]
             }
+          },
+          {
+            input: getFormData({
+              addressLine1: '',
+              addressLine2: '',
+              town: '',
+              county: '',
+              postcode: postcodeInvalid
+            }),
+            output: {
+              value: getFormData({
+                addressLine1: '',
+                addressLine2: '',
+                town: '',
+                county: '',
+                postcode: postcodeInvalid
+              }),
+              errors: [
+                expect.objectContaining({
+                  text: 'Enter address line 1'
+                }),
+                expect.objectContaining({
+                  text: 'Enter town or city'
+                }),
+                expect.objectContaining({
+                  text: 'Enter a valid postcode'
+                })
+              ]
+            }
           }
         ]
       }
@@ -676,6 +716,9 @@ describe('UkAddressField', () => {
         ({ input, output }) => {
           const result = collection.validate(input)
           expect(result).toEqual(output)
+
+          const errors = collection.getErrors(result.errors)
+          expect(errors).toEqual(output.errors)
         }
       )
     })

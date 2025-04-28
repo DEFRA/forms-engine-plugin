@@ -2,7 +2,9 @@ import { type EmailAddressFieldComponent } from '@defra/forms-model'
 import joi from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
+  type ErrorMessageTemplateList,
   type FormPayload,
   type FormSubmissionError
 } from '~/src/server/plugins/engine/types.js'
@@ -16,9 +18,9 @@ export class EmailAddressField extends FormComponent {
   ) {
     super(def, props)
 
-    const { options, title } = def
+    const { options } = def
 
-    let formSchema = joi.string().email().trim().label(title).required()
+    let formSchema = joi.string().email().trim().label(this.label).required()
 
     if (options.required === false) {
       formSchema = formSchema.allow('')
@@ -50,6 +52,19 @@ export class EmailAddressField extends FormComponent {
     return {
       ...viewModel,
       type: 'email'
+    }
+  }
+
+  /**
+   * For error preview page that shows all possible errors on a component
+   */
+  getAllPossibleErrors(): ErrorMessageTemplateList {
+    return {
+      baseErrors: [
+        { type: 'required', template: messageTemplate.required },
+        { type: 'format', template: messageTemplate.format }
+      ],
+      advancedSettingsErrors: []
     }
   }
 }

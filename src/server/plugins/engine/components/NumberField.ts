@@ -7,6 +7,7 @@ import {
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
+  type ErrorMessageTemplateList,
   type FormPayload,
   type FormState,
   type FormStateValue,
@@ -26,12 +27,12 @@ export class NumberField extends FormComponent {
   ) {
     super(def, props)
 
-    const { options, schema, title } = def
+    const { options, schema } = def
 
     let formSchema = joi
       .number()
       .custom(getValidatorPrecision(this))
-      .label(title)
+      .label(this.label)
       .required()
 
     if (options.required === false) {
@@ -40,7 +41,9 @@ export class NumberField extends FormComponent {
       const messages = options.customValidationMessages
 
       formSchema = formSchema.empty('').messages({
-        'any.required': messages?.['any.required'] ?? messageTemplate.required
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        'any.required':
+          messages?.['any.required'] ?? (messageTemplate.required as string)
       })
     }
 
@@ -127,6 +130,23 @@ export class NumberField extends FormComponent {
 
   isValue(value?: FormStateValue | FormState) {
     return NumberField.isNumber(value)
+  }
+
+  /**
+   * For error preview page that shows all possible errors on a component
+   */
+  getAllPossibleErrors(): ErrorMessageTemplateList {
+    return {
+      baseErrors: [
+        { type: 'required', template: messageTemplate.required },
+        { type: 'numberInteger', template: messageTemplate.numberInteger }
+      ],
+      advancedSettingsErrors: [
+        { type: 'numberMin', template: messageTemplate.numberMin },
+        { type: 'numberMax', template: messageTemplate.numberMax },
+        { type: 'numberPrecision', template: messageTemplate.numberPrecision }
+      ]
+    }
   }
 
   static isNumber(value?: FormStateValue | FormState): value is number {
