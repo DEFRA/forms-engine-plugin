@@ -92,7 +92,7 @@ await server.register({
   }
 })
 
-const viewPaths = [join(config.get('appDir'), 'views')]
+const paths = [join(config.get('appDir'), 'views')]
 
 // Register the `forms-engine-plugin`
 await server.register({
@@ -104,7 +104,7 @@ await server.register({
      */
     nunjucks: {
       baseLayoutPath: 'your-base-layout.html', // the base page layout. Usually based off https://design-system.service.gov.uk/styles/page-template/
-      viewPaths // list of directories DXT should use to render your views. Must contain baseLayoutPath.
+      paths // list of directories DXT should use to render your views. Must contain baseLayoutPath.
     },
     /**
      * Services is what DXT uses to interact with external APIs

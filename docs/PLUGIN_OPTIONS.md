@@ -10,7 +10,6 @@ The forms plugin is configured with [registration options](https://hapi.dev/api/
 - `filters` (optional) - A map of custom template filters to include
 - `cacheName` (optional) - The cache name to use. Defaults to hapi's [default server cache]. Recommended for production. See [here]
   (#custom-cache) for more details
-- `viewPaths` (optional) - Include additional view paths when using custom `page.view`s
 - `pluginPath` (optional) - The location of the plugin (defaults to `node_modules/@defra/forms-engine-plugin`)
 
 ## Services

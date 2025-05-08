@@ -89,7 +89,6 @@ export interface PluginOptions {
   services?: Services
   controllers?: Record<string, typeof PageController>
   cacheName?: string
-  viewPaths?: string[]
   filters?: Record<string, FilterFunction>
   pluginPath?: string
   nunjucks: {
