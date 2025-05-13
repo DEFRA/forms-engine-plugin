@@ -125,6 +125,10 @@ export class ListFormComponent extends FormComponent {
       const selected = values.includes(item.value)
       const itemModel: ListItem = { ...item, selected }
 
+      if ('id' in itemModel) {
+        delete itemModel.id
+      }
+
       if (item.description) {
         itemModel.hint = {
           text: item.description
