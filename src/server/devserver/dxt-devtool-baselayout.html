@@ -36,7 +36,7 @@
     homepageUrl: currentPath if context.isForceAccess else "https://defra.github.io/forms-engine-plugin/",
     containerClasses: "govuk-width-container",
     productName: productName | safe | trim,
-    serviceName: "Digital Express Toolkit",
+    serviceName: config.serviceName,
     serviceUrl: currentPath if context.isForceAccess else serviceUrl
   }) }}
 {% endblock %}

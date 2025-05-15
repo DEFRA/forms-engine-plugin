@@ -84,7 +84,7 @@ export const config = convict({
   serviceName: {
     doc: 'Applications Service Name',
     format: String,
-    default: 'Submit a form to Defra'
+    default: 'Digital Express Toolkit'
   },
   serviceVersion: {
     doc: 'The service version, this variable is injected into your docker container in CDP environments',

@@ -11,20 +11,13 @@
 
 /**
  * @typedef {object} ViewContext - Nunjucks view context
- * @property {string} appVersion - Application version
  * @property {string} [baseLayoutPath] - Base layout path
- * @property {Partial<Config>} config - Application config properties
  * @property {string} [crumb] - Cross-Site Request Forgery (CSRF) token
  * @property {string} [cspNonce] - Content Security Policy (CSP) nonce
  * @property {string} [currentPath] - Current path
  * @property {string} [previewMode] - Preview mode
  * @property {string} [slug] - Form slug
  * @property {FormContext} [context] - the current form context
- * @property {PluginOptions['viewContext']} [injectedViewContext] - the current form context
- */
-
-/**
- * @typedef {ReturnType<typeof config['getProperties']>} Config - Application config properties
  */
 
 /**
