@@ -4,6 +4,7 @@
     "checkJs": true,
     "esModuleInterop": true,
     "module": "NodeNext",
+    "noEmit": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
@@ -12,13 +13,17 @@
     "paths": {
       "~/*": ["./*"]
     },
-    "types": ["@testing-library/jest-dom", "jest"],
-    "declaration": true,
-    "emitDeclarationOnly": true,
-    "isolatedModules": true,
-    "outDir": ".server",
-    "rootDir": "./src"
+    "types": ["@testing-library/jest-dom", "jest"]
   },
-  "include": ["src/**/*"],
-  "exclude": ["coverage", "node_modules", ".public", ".server", "**/*.test.*"]
+  "include": [
+    "**/*.cjs",
+    "**/*.js",
+    "**/*.mjs",
+    "**/*.ts",
+    ".eslintrc.*",
+    ".prettierrc.*",
+    ".lintstagedrc.*",
+    "node_modules/@types/jest/index.d.ts"
+  ],
+  "exclude": ["coverage", "node_modules", ".public", ".server"]
 }

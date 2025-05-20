@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "esModuleInterop": true,
+    "module": "NodeNext",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "es2022",
+    "baseUrl": "./",
+    "paths": {
+      "~/*": ["./*"]
+    },
+    "types": ["@testing-library/jest-dom", "jest"],
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "isolatedModules": true,
+    "outDir": ".server",
+    "rootDir": "./src"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["coverage", "node_modules", ".public", ".server", "**/*.test.*"]
+}
