@@ -428,6 +428,18 @@ describe('DatePartsField', () => {
         expect(staticErrors.baseErrors).not.toBeEmpty()
         expect(staticErrors.advancedSettingsErrors).not.toBeEmpty()
       })
+
+      it('instance method should delegate to static method', () => {
+        const staticResult = (
+          field.constructor as typeof field.constructor & {
+            getAllPossibleErrors(): ErrorMessageTemplateList
+          }
+        ).getAllPossibleErrors()
+
+        const instanceResult = field.getAllPossibleErrors()
+
+        expect(instanceResult).toEqual(staticResult)
+      })
     })
   })
 
