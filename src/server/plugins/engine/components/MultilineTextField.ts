@@ -128,15 +128,28 @@ export class MultilineTextField extends FormComponent {
    * For error preview page that shows all possible errors on a component
    */
   getAllPossibleErrors(): ErrorMessageTemplateList {
+    const staticErrors = MultilineTextField.getAllPossibleErrors()
     return {
-      baseErrors: [{ type: 'required', template: messageTemplate.required }],
+      ...staticErrors,
       advancedSettingsErrors: [
-        { type: 'min', template: messageTemplate.min },
-        { type: 'max', template: messageTemplate.max },
+        ...staticErrors.advancedSettingsErrors,
         {
           type: 'minMax',
           template: this.buildMinMaxText(this.schema.min, this.schema.max)
         }
+      ]
+    }
+  }
+
+  /**
+   * Static version of getAllPossibleErrors that doesn't require a component instance.
+   */
+  static getAllPossibleErrors(): ErrorMessageTemplateList {
+    return {
+      baseErrors: [{ type: 'required', template: messageTemplate.required }],
+      advancedSettingsErrors: [
+        { type: 'min', template: messageTemplate.min },
+        { type: 'max', template: messageTemplate.max }
       ]
     }
   }

@@ -47,6 +47,13 @@ export class SelectionControlField extends ListFormComponent {
    * For error preview page that shows all possible errors on a component
    */
   getAllPossibleErrors(): ErrorMessageTemplateList {
+    return SelectionControlField.getAllPossibleErrors()
+  }
+
+  /**
+   * Static version of getAllPossibleErrors that doesn't require a component instance.
+   */
+  static getAllPossibleErrors(): ErrorMessageTemplateList {
     return {
       baseErrors: [
         { type: 'selectRequired', template: messageTemplate.selectRequired }

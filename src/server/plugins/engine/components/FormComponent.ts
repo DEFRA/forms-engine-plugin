@@ -191,7 +191,17 @@ export class FormComponent extends ComponentBase {
     return isFormState(value)
   }
 
+  /**
+   * For error preview page that shows all possible errors on a component
+   */
   getAllPossibleErrors(): ErrorMessageTemplateList {
+    return FormComponent.getAllPossibleErrors()
+  }
+
+  /**
+   * Static version of getAllPossibleErrors that doesn't require a component instance.
+   */
+  static getAllPossibleErrors(): ErrorMessageTemplateList {
     return {
       baseErrors: [],
       advancedSettingsErrors: []

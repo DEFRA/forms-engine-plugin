@@ -180,6 +180,13 @@ export class UkAddressField extends FormComponent {
    * For error preview page that shows all possible errors on a component
    */
   getAllPossibleErrors(): ErrorMessageTemplateList {
+    return UkAddressField.getAllPossibleErrors()
+  }
+
+  /**
+   * Static version of getAllPossibleErrors that doesn't require a component instance.
+   */
+  static getAllPossibleErrors(): ErrorMessageTemplateList {
     return {
       baseErrors: [
         { type: 'required', template: 'Enter address line 1' },

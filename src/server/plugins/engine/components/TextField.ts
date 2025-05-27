@@ -96,6 +96,13 @@ export class TextField extends FormComponent {
    * For error preview page that shows all possible errors on a component
    */
   getAllPossibleErrors(): ErrorMessageTemplateList {
+    return TextField.getAllPossibleErrors()
+  }
+
+  /**
+   * Static version of getAllPossibleErrors that doesn't require a component instance.
+   */
+  static getAllPossibleErrors(): ErrorMessageTemplateList {
     return {
       baseErrors: [{ type: 'required', template: messageTemplate.required }],
       advancedSettingsErrors: [
