@@ -190,7 +190,7 @@ jobs:
         run: bash .github/scripts/docs/generate-and-publish-docs.sh "${{ github.ref_name }}" "$(npm pkg get version | tr -d \")"
 
       - name: Setup Pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v5
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
