@@ -498,7 +498,12 @@ export const plugin = {
       payload: {
         parse: true
       },
-      pre: [{ method: loadFormPreHandler }]
+      pre: [
+        {
+          method: requireAuthForProtectedForms
+        },
+        { method: loadFormPreHandler }
+      ]
     }
 
     server.route({
