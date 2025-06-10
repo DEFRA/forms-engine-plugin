@@ -2,7 +2,7 @@ import { existsSync } from 'fs'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 
-import { hasFormComponents, slugSchema } from '@defra/forms-model'
+import { hasFormComponents, slugSchema, type AuthConfig } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
   type Plugin,
@@ -439,10 +439,22 @@ export const plugin = {
       h: Pick<ResponseToolkit, 'continue'>
     ) => {
       const metadata = await formsService.getFormMetadata(request.params.slug)
+      const { params, path } = request
+      const { state: formState } = checkFormStatus(params)
+      const { id } = metadata
+      const formDefinition = await formsService.getFormDefinition(id, formState)
+
+      const formAuth = formDefinition?.metadata?.auth as AuthConfig | undefined
+
+      const segments = path.split('/')
+      const pagePath = '/' + segments[segments.length - 1]
+      const page = formDefinition?.pages.find((p) => p.path === pagePath)
+      const effectiveAuth = page?.auth ?? formAuth ?? { mode: 'none' }
+      const mode = effectiveAuth.mode ?? 'none'
 
       // If authentication is required but no credentials are found, reject the request
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if (metadata.authRequired && !request.auth.credentials) {
+      if (mode === 'required' && !request.auth.credentials) {
         throw Boom.unauthorized('You must be logged in to access this form')
       }
 
