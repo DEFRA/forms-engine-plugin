@@ -11,7 +11,6 @@ import {
 import * as filters from '~/src/server/plugins/nunjucks/filters/index.js'
 
 export { getPageHref } from '~/src/server/plugins/engine/helpers.js'
-export { configureEnginePlugin } from '~/src/server/plugins/engine/configureEnginePlugin.js'
 export { context } from '~/src/server/plugins/nunjucks/context.js'
 
 const globals = {
