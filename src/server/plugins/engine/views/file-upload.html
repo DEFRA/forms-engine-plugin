@@ -35,11 +35,11 @@
 {% block bodyEnd %}
   {{ super() }}
   <script type="module" nonce="{{ cspNonce }}">
-    import { initFileUpload } from '{{ getDxtAssetPath("file-upload.js") }}';
+    import { initFileUpload } from '{{ getDxtAssetPath("file-upload.js") }}'
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initFileUpload);
+      document.addEventListener('DOMContentLoaded', initFileUpload)
     } else {
-      initFileUpload();
+      initFileUpload()
     }
   </script>
 {% endblock %}
