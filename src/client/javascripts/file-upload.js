@@ -369,7 +369,7 @@ function handleAjaxFormSubmission(
   return true
 }
 
-export function initFileUpload() {
+function initUpload() {
   const form = document.querySelector('form:has(input[type="file"])')
   /** @type {HTMLInputElement | null} */
   const fileInput = form ? form.querySelector('input[type="file"]') : null
@@ -439,4 +439,12 @@ export function initFileUpload() {
       uploadId
     )
   })
+}
+
+export function initFileUpload() {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initUpload)
+  } else {
+    initUpload()
+  }
 }

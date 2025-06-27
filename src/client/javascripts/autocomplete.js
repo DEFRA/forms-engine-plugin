@@ -29,27 +29,29 @@ function initAutocomplete($select, init) {
   })
 }
 
-// Find all autocompletes
-const $autocompletes = document.querySelectorAll(
-  `[data-module="govuk-accessible-autocomplete"]`
-)
+export function initAllAutocomplete() {
+  // Find all autocompletes
+  const $autocompletes = document.querySelectorAll(
+    `[data-module="govuk-accessible-autocomplete"]`
+  )
 
-// Lazy load autocomplete component
-if ($autocompletes.length) {
-  // @ts-expect-error -- No types available
-  import('accessible-autocomplete')
-    .then((component) => {
-      const { default: accessibleAutocomplete } = component
+  // Lazy load autocomplete component
+  if ($autocompletes.length) {
+    // @ts-expect-error -- No types available
+    import('accessible-autocomplete')
+      .then((component) => {
+        const { default: accessibleAutocomplete } = component
 
-      // Initialise each autocomplete
-      $autocompletes.forEach(($module) =>
-        initAutocomplete(
-          $module.querySelector('select'),
-          accessibleAutocomplete.enhanceSelectElement
+        // Initialise each autocomplete
+        $autocompletes.forEach(($module) =>
+          initAutocomplete(
+            $module.querySelector('select'),
+            accessibleAutocomplete.enhanceSelectElement
+          )
         )
-      )
-    })
+      })
 
-    // eslint-disable-next-line no-console
-    .catch(console.error)
+      // eslint-disable-next-line no-console
+      .catch(console.error)
+  }
 }
