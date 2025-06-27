@@ -11,6 +11,8 @@ import {
   hasComponents,
   hasRepeater,
   isConditionWrapperV2,
+  yesNoListId,
+  yesNoListName,
   type ComponentDef,
   type ConditionWrapper,
   type ConditionWrapperV2,
@@ -25,10 +27,7 @@ import { Parser, type Value } from 'expr-eval'
 import joi from 'joi'
 
 import { type ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
-import {
-  yesNoListId,
-  yesNoListName
-} from '~/src/server/plugins/engine/components/YesNoField.js'
+import {} from '~/src/server/plugins/engine/components/YesNoField.js'
 import {
   hasListFormField,
   type Component
