@@ -14,10 +14,9 @@
       "import": "./.server/server/plugins/engine/index.js",
       "default": "./.server/server/plugins/engine/index.js"
     },
-    "./application.js": "./.server/client/javascripts/application.js",
-    "./application.min.js": "./.public/javascripts/application.min.js",
-    "./application.min.js.map": "./.public/javascripts/application.min.js.map",
-    "./application.min.css": "./.public/stylesheets/application.min.css",
+    "./shared.js": "./.server/client/javascripts/shared.js",
+    "./shared.min.js": "./.public/javascripts/shared.min.js",
+    "./shared.min.js.map": "./.public/javascripts/shared.min.js.map",
     "./file-form-service.js": "./.server/server/utils/file-form-service.js",
     "./controllers/*": "./.server/server/plugins/engine/pageControllers/*",
     "./components": "./.server/server/plugins/engine/components/index.js",

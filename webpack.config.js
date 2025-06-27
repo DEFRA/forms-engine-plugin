@@ -22,7 +22,8 @@ export default {
   entry: {
     application: {
       import: ['./javascripts/application.js', './stylesheets/application.scss']
-    }
+    },
+    shared: './javascripts/shared.js'
   },
   experiments: {
     outputModule: true
