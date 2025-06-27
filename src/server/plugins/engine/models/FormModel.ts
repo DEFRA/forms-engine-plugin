@@ -4,26 +4,35 @@ import {
   ControllerPath,
   ControllerType,
   Engine,
+  SchemaVersion,
+  convertConditionWrapperFromV2,
   formDefinitionSchema,
+  formDefinitionV2Schema,
   hasComponents,
   hasRepeater,
+  isConditionWrapperV2,
+  yesNoListId,
+  yesNoListName,
   type ComponentDef,
   type ConditionWrapper,
+  type ConditionWrapperV2,
   type ConditionsModelData,
   type DateUnits,
   type FormDefinition,
   type List,
   type Page
 } from '@defra/forms-model'
-import { add } from 'date-fns'
+import { add, format } from 'date-fns'
 import { Parser, type Value } from 'expr-eval'
 import joi from 'joi'
 
 import { type ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
+import {} from '~/src/server/plugins/engine/components/YesNoField.js'
 import {
   hasListFormField,
   type Component
 } from '~/src/server/plugins/engine/components/helpers.js'
+import { todayAsDateOnly } from '~/src/server/plugins/engine/date-helper.js'
 import {
   findPage,
   getError,
@@ -53,6 +62,8 @@ export class FormModel {
   /** The runtime engine that should be used */
   engine?: Engine
 
+  schemaVersion: SchemaVersion
+
   /** the entire form JSON as an object */
   def: FormDefinition
 
@@ -67,8 +78,13 @@ export class FormModel {
 
   controllers?: Record<string, typeof PageController>
   pageDefMap: Map<string, Page>
+
   listDefMap: Map<string, List>
+  listDefIdMap: Map<string, List>
+
   componentDefMap: Map<string, ComponentDef>
+  componentDefIdMap: Map<string, ComponentDef>
+
   pageMap: Map<string, PageControllerClass>
   componentMap: Map<string, Component>
 
@@ -78,7 +94,13 @@ export class FormModel {
     services: Services = defaultServices,
     controllers?: Record<string, typeof PageController>
   ) {
-    const result = formDefinitionSchema.validate(def, { abortEarly: false })
+    let schema = formDefinitionSchema
+
+    if (def.schema === SchemaVersion.V2) {
+      schema = formDefinitionV2Schema
+    }
+
+    const result = schema.validate(def, { abortEarly: false })
 
     if (result.error) {
       throw result.error
@@ -90,15 +112,18 @@ export class FormModel {
 
     // Add default lists
     def.lists.push({
+      id: def.schema === SchemaVersion.V1 ? yesNoListName : yesNoListId,
       name: '__yesNo',
       title: 'Yes/No',
       type: 'boolean',
       items: [
         {
+          id: '02900d42-83d1-4c72-a719-c4e8228952fa',
           text: 'Yes',
           value: true
         },
         {
+          id: 'f39000eb-c51b-4019-8f82-bbda0423f04d',
           text: 'No',
           value: false
         }
@@ -109,6 +134,7 @@ export class FormModel {
     setPageTitles(def)
 
     this.engine = def.engine
+    this.schemaVersion = def.schema ?? SchemaVersion.V1
     this.def = def
     this.lists = def.lists
     this.sections = def.sections
@@ -119,8 +145,38 @@ export class FormModel {
     this.services = services
     this.controllers = controllers
 
+    this.pageDefMap = new Map(def.pages.map((page) => [page.path, page]))
+    this.listDefMap = new Map(def.lists.map((list) => [list.name, list]))
+    this.listDefIdMap = new Map(
+      def.lists
+        .filter((list) => list.id) // Skip lists without an ID
+        // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
+        .map((list) => [list.id as string, list])
+    )
+    this.componentDefMap = new Map(
+      def.pages
+        .filter(hasComponents)
+        .flatMap((page) =>
+          page.components.map((component) => [component.name, component])
+        )
+    )
+    this.componentDefIdMap = new Map(
+      def.pages.filter(hasComponents).flatMap((page) =>
+        page.components
+          .filter((component) => component.id) // Skip components without an ID
+          .map((component) => {
+            // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
+            return [component.id as string, component]
+          })
+      )
+    )
+
     def.conditions.forEach((conditionDef) => {
-      const condition = this.makeCondition(conditionDef)
+      const condition = this.makeCondition(
+        isConditionWrapperV2(conditionDef)
+          ? convertConditionWrapperFromV2(conditionDef, this)
+          : conditionDef
+      )
       this.conditions[condition.name] = condition
     })
 
@@ -142,16 +198,6 @@ export class FormModel {
       )
     }
 
-    this.pageDefMap = new Map(def.pages.map((page) => [page.path, page]))
-    this.listDefMap = new Map(def.lists.map((list) => [list.name, list]))
-    this.componentDefMap = new Map(
-      def.pages
-        .filter(hasComponents)
-        .flatMap((page) =>
-          page.components.map((component) => [component.name, component])
-        )
-    )
-
     this.pageMap = new Map(this.pages.map((page) => [page.path, page]))
     this.componentMap = new Map(
       this.pages.flatMap((page) =>
@@ -161,13 +207,6 @@ export class FormModel {
         ])
       )
     )
-  }
-
-  /**
-   * build the entire model schema from individual pages/sections
-   */
-  makeSchema() {
-    return this.makeFilteredSchema(this.pages)
   }
 
   /**
@@ -199,7 +238,14 @@ export class FormModel {
 
     Object.assign(parser.functions, {
       dateForComparison(timePeriod: number, timeUnit: DateUnits) {
-        return add(new Date(), { [timeUnit]: timePeriod }).toISOString()
+        // The time element must be stripped (hence using startOfDay() which has no time element),
+        // then formatted as YYYY-MM-DD otherwise we can hit time element and BST issues giving the
+        // wrong date to compare against.
+        // Do not use .toISOString() to format the date as that introduces BST errors.
+        return format(
+          add(todayAsDateOnly(), { [timeUnit]: timePeriod }),
+          'yyyy-MM-dd'
+        )
       }
     })
 
@@ -246,8 +292,10 @@ export class FormModel {
     return parser.parse(conditions.toExpression())
   }
 
-  getList(name: string): List | undefined {
-    return this.lists.find((list) => list.name === name)
+  getList(nameOrId: string): List | undefined {
+    return this.schemaVersion === SchemaVersion.V1
+      ? this.lists.find((list) => list.name === nameOrId)
+      : this.lists.find((list) => list.id === nameOrId)
   }
 
   /**
@@ -447,6 +495,25 @@ export class FormModel {
         break
       }
     }
+  }
+
+  getComponentById(componentId: string): ComponentDef | undefined {
+    return this.componentDefIdMap.get(componentId)
+  }
+
+  getListById(listId: string): List | undefined {
+    return this.listDefIdMap.get(listId)
+  }
+
+  /**
+   * Returns a condition by its ID. O(n) lookup time.
+   * @param conditionId
+   * @returns
+   */
+  getConditionById(conditionId: string): ConditionWrapperV2 | undefined {
+    return this.def.conditions
+      .filter(isConditionWrapperV2)
+      .find((condition) => condition.id === conditionId)
   }
 }
 

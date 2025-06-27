@@ -1,4 +1,9 @@
-import { type YesNoFieldComponent } from '@defra/forms-model'
+import {
+  SchemaVersion,
+  yesNoListId,
+  yesNoListName,
+  type YesNoFieldComponent
+} from '@defra/forms-model'
 
 import { SelectionControlField } from '~/src/server/plugins/engine/components/SelectionControlField.js'
 import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers.js'
@@ -17,7 +22,16 @@ export class YesNoField extends SelectionControlField {
     def: YesNoFieldComponent,
     props: ConstructorParameters<typeof SelectionControlField>[1]
   ) {
-    super({ ...def, list: '__yesNo' }, props)
+    super(
+      {
+        ...def,
+        list:
+          props.model.schemaVersion === SchemaVersion.V1
+            ? yesNoListName
+            : yesNoListId
+      },
+      props
+    )
 
     const { options } = def
     let { formSchema } = this
