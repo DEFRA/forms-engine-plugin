@@ -25,10 +25,14 @@ export default {
             stack: response.stack
           }
 
-          request.log('error', error)
+          request.logger.error(
+            error,
+            `[httpError] HTTP ${statusCode} error occurred - ${response.message} - path: ${request.path} - method: ${request.method}`
+          )
 
           return h.response(error).code(statusCode)
         }
+
         return h.continue
       })
     }
