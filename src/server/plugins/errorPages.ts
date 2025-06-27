@@ -19,14 +19,13 @@ export default {
           // processing the request
           const statusCode = response.output.statusCode
 
-          const error = new Error(
-            `HTTP ${statusCode} error: ${response.message}`
-          )
+          const error = {
+            statusCode,
+            message: response.message,
+            stack: response.stack
+          }
 
-          request.logger.error(
-            error,
-            `[httpError] HTTP ${statusCode} error occurred - ${response.message} - path: ${request.path} - method: ${request.method}`
-          )
+          request.log('error', error)
 
           return h.response(error).code(statusCode)
         }
