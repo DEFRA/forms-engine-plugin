@@ -25,16 +25,37 @@ export class CacheService {
    * This service is responsible for getting, storing or deleting a user's session data in the cache. This service has been registered by {@link createServer}
    */
   cache
+  generateKey?: (request: Request | FormRequest | FormRequestPayload) => string
+  customFetcher?: (
+    request: Request | FormRequest | FormRequestPayload
+  ) => Promise<FormSubmissionState>
   logger: Server['logger']
 
-  constructor(server: Server, cacheName?: string) {
+  constructor({
+    server,
+    cacheName,
+    options
+  }: {
+    server: Server
+    cacheName?: string
+    options?: {
+      keyGenerator?: (
+        request: Request | FormRequest | FormRequestPayload
+      ) => string
+      rehydrationFn?: (
+        request: Request | FormRequest | FormRequestPayload
+      ) => Promise<FormSubmissionState>
+    }
+  }) {
+    const { keyGenerator, rehydrationFn } = options || {}
     if (!cacheName) {
       server.log(
         'warn',
         'You are using the default hapi cache. Please provide a cache name in plugin registration options.'
       )
     }
-
+    this.generateKey = keyGenerator || this.defaultKeyGenerator
+    this.customFetcher = rehydrationFn || undefined
     this.cache = server.cache({ cache: cacheName, segment: 'formSubmission' })
     this.logger = server.logger
   }
@@ -42,7 +63,20 @@ export class CacheService {
   async getState(
     request: Request | FormRequest | FormRequestPayload
   ): Promise<FormSubmissionState> {
-    const cached = await this.cache.get(this.Key(request))
+    let cached = await this.cache.get(this.Key(request))
+
+    // If nothing in Redis, attempt to rehydrate from backend DB
+    if (!cached && this.customFetcher) {
+      cached = await this.customFetcher(request)
+
+      if (cached) {
+        await this.cache.set(
+          this.Key(request),
+          cached,
+          config.get('sessionTimeout')
+        )
+      }
+    }
 
     return cached || {}
   }
@@ -103,6 +137,18 @@ export class CacheService {
     request.yar.flash(key.id, message)
   }
 
+  private defaultKeyGenerator(
+    request: Request | FormRequest | FormRequestPayload
+  ): string {
+    if (!request.yar?.id) {
+      throw new Error('No session ID found')
+    }
+
+    const state = request.params?.state ?? ''
+    const slug = request.params?.slug ?? ''
+    return `${request.yar.id}:${state}:${slug}`
+  }
+
   /**
    * The key used to store user session data against.
    * If there are multiple forms on the same runner instance, for example `form-a` and `form-a-feedback` this will prevent CacheService from clearing data from `form-a` if a user gave feedback before they finished `form-a`
@@ -113,12 +159,13 @@ export class CacheService {
     request: Request | FormRequest | FormRequestPayload,
     additionalIdentifier?: ADDITIONAL_IDENTIFIER
   ) {
-    if (!request.yar.id) {
-      throw Error('No session ID found')
-    }
+    const baseKey = this.generateKey
+      ? this.generateKey(request)
+      : this.defaultKeyGenerator(request)
+
     return {
       segment: partition,
-      id: `${request.yar.id}:${request.params.state ?? ''}:${request.params.slug ?? ''}:${additionalIdentifier ?? ''}`
+      id: `${baseKey}${additionalIdentifier ?? ''}`
     }
   }
 }
