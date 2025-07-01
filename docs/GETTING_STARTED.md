@@ -181,3 +181,236 @@ These files are called `Form definitions` and are built up of:
 - `lists` - data used to in selection fields like [Select](https://design-system.service.gov.uk/components/select/), [Checkboxes](https://design-system.service.gov.uk/components/checkboxes/) and [Radios](https://design-system.service.gov.uk/components/radios/)
 
 To understand the full set of options available to you, consult our [schema documentation](https://defra.github.io/forms-engine-plugin/schemas/). Specifically, the [form definition schema](https://defra.github.io/forms-engine-plugin/schemas/form-definition-v2-payload-schema).
+
+### Config
+
+#### Pages
+
+Pages are the main entity in the config. They are stored in a JSON Array with each representing a single web page.
+Users are progressed through the pages in turn, starting from the first page. This is called the form journey.
+Pages can be skipped by assigning a condition to the page, when the condition evaluates to false, the page is skipped.
+
+```jsonc
+{
+  // Each page is identified by an UUID
+  "id": "449c053b-9201-4312-9a75-187ac1b720eb",
+
+  // A page title and a path are required
+  "title": "What is your full name",
+  "path": "/what-is-your-full-name",
+
+  // A reference to a condition
+  "condition": "Condition UUID",
+
+  // A page contains a colection of components
+  "components": [
+    // ...
+  ]
+}
+```
+
+#### Components
+
+Components are categorised into two:
+
+- Form components - the questions on a page
+- Guidance components - non-form components like markdown and details
+
+```jsonc
+{
+  // Each page is identified by an UUID
+  "id": "2e088e75-c6f6-4a0f-8f1f-3cee14c71e4c",
+
+  // A component type, title, name and shortDescription are all required
+  "type": "TextField",
+  "title": "Nickname",
+  "name": "SyHQCH",
+  "shortDescription": "Nickname",
+
+  // A component hint text is optional
+  "hint": "Question hint text here",
+
+  // Different options are available per component
+  // All components support the `required (boolean) option.
+  "options": {
+    "required": true
+  },
+  // Different schema settings are available per component
+  // E.g. TextFields have minLength and maxLength.
+  "schema": {
+    // ...
+  }
+}
+```
+
+#### Lists
+
+Lists are used to populated selection components like Radios and Selects
+
+```jsonc
+{
+  // Each list is identified by an UUID
+  "id": "23d5309e-1aed-427d-b8ee-87e14f673e7f",
+
+  // A list name, title, type and items are all required
+  "name": "colours", // Unused (deprecated)
+  "title": "Colours",
+  "type": "string", // Can also be "number"
+  "items": [
+    {
+      // Each list item is identified by an UUID
+      "id": "bedd5984-fa95-48f9-87e2-1089d66574b2",
+
+      // List item text and value are both required.
+      // If the list type is "number", the value should be numeric
+      "text": "Red",
+      "value": "red"
+    },
+    {
+      "id": "45c4bd8d-936f-4dda-b6a8-64c9d2532f10",
+      "text": "Blue",
+      "value": "blue"
+    },
+    // ...
+  ]
+}
+```
+
+#### Conditions
+
+Conditions bring logic to the form, when assigned to a page they make the page "conditional" and the page is only visited if the condition evaluates to "truthy"
+
+```jsonc
+{
+  // Each condition is identified by an UUID
+  "id": "0e7ae320-c876-40c2-8803-7848cc49689b",
+
+  // Condition displayName should be unique
+  "displayName": "faveColourIsRed",
+
+  "items": [
+    {
+      // Each condition item is identified by an UUID
+      "id": "f03a6735-0f7c-4dc9-b65c-7c42fcd0d189",
+
+      // `componentId` is a reference to the component
+      "componentId": "fa67e20d-a89b-4e8a-85ec-8a63923b7137",
+
+      // Condition `operator` is a comparison operator ('is', 'is not', 'is longer than', 'contains', 'has length' etc.)
+      "operator": "is",
+
+      // Conditions item values come in a few different forms:
+
+      // 1. `ListItemRef` - use these when the condition references a question (componentId) that is a list selection
+      // The `value` of a `ListitemRef` should be an object with a listId and itemId keys pointing to the list and list item
+      "type": "ListItemRef",
+      "value": {
+        "listId": "23d5309e-1aed-427d-b8ee-87e14f673e7f", // References the "Colours" list
+        "itemId": "bedd5984-fa95-48f9-87e2-1089d66574b2"  // References the "Red" item in the "Colours" list
+      },
+
+      // 2. `RelativeDate` - relative date for date-based conditions
+      // The `value` of a `RelativeDate` should be an object with a listId and itemId keys pointing to the list and list item
+      "type": "ListItemRef",
+      "value": {
+        "period": 1, // Numeric amount of the time period
+        "unit": "weeks", // Time unit (days, weeks, months, years),
+        "direction": "future" // Temporal direction (either "past" or "future"')
+      },
+
+      // 3. Scalar values can be `StringValue`, `NumberValue`, `BooleanValue` or `DateValue`
+      // and are used to check absolute values of strings (TextField), numbers (NumberField), booleans (YesNoField) or dates (DatePartsField)
+      // They are also used when the `operator` implies a numeric parameter e.g. 'has length' see below for examples.
+      // The `value` of a scalar value condition should be a literal of the same type e.g.
+      "type": "StringValue",
+      "value": "Enrique Chase"
+    }
+  ],
+
+  // When the condition has 2 or more items, a coordinator is also required
+  "coordinator": "and", // Supports both "and" and "or"
+}
+```
+
+#### Condition examples
+
+```jsonc
+{
+  "name": "Example form asking what a users favourite animal are, with an condition based on their answer",
+  "pages": [
+    {
+      "id": "a86ea4ba-ae3b-4324-9acd-3a3f347cb0ec",
+      "title": "What are your favourite animals",
+      "path": "/favourite-animal",
+      "components": [
+        {
+          // ComponentId
+          "id": "f0f67bf7-cdbb-4247-9f3c-8cd919183968",
+          "type": "CheckboxesField",
+          "title": "What are your favourite animals",
+          "name": "nUaCCW",
+          "shortDescription": "Favourite animals",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+
+          // References the "Animals" list
+          "list": "0e047f83-dbb6-4c82-b709-f9dbaddf8644"
+        }
+      ],
+      "next": []
+    }
+  ],
+  "conditions": [
+    {
+      "items": [
+        {
+          // This condition checks if the user chose "Monkey" as one of their favourite animals
+          "id": "86e63584-12a8-4f2b-b51b-49765518b811",
+          "componentId": "f0f67bf7-cdbb-4247-9f3c-8cd919183968",
+          "operator": "contains",
+          "type": "ListItemRef",
+          "value": {
+            // Reference to the "Animals" list
+            "listId": "0e047f83-dbb6-4c82-b709-f9dbaddf8644",
+            // Reference to "Monkey" in the "Animals" list
+            "itemId": "0c546ae1-897e-48d0-9388-b0902fe23baf"
+          }
+        }
+      ],
+      "displayName": "FaveAnimalIsMonkey",
+      "id": "8a3f6bb2-c305-410a-a037-7375be839105"
+    }
+  ],
+  "sections": [],
+  "lists": [
+    {
+      "id": "0e047f83-dbb6-4c82-b709-f9dbaddf8644",
+      "name": "sdewRT",
+      "title": "Animals",
+      "type": "string",
+      "items": [
+        {
+          "id": "fb3519b2-c6c7-40b6-8e03-2fb0db6d4f32",
+          "text": "Horse",
+          "value": "horse"
+        },
+        {
+          "id": "0c546ae1-897e-48d0-9388-b0902fe23baf",
+          "text": "Monkey",
+          "value": "monkey"
+        },
+        {
+          "id": "39f6fa65-1781-4569-9ba3-d8d13931f036",
+          "text": "Giraffe",
+          "value": "giraffe"
+        }
+      ]
+    }
+  ],
+  "engine": "V2",
+  "schema": 2
+}
+```
