@@ -11,6 +11,7 @@ import Boom from '@hapi/boom'
 import {
   type Plugin,
   type PluginProperties,
+  type Request,
   type ResponseObject,
   type ResponseToolkit,
   type RouteOptions,
@@ -54,7 +55,8 @@ import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import { getUploadStatus } from '~/src/server/plugins/engine/services/uploadService.js'
 import {
   type FilterFunction,
-  type FormContext
+  type FormContext,
+  type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
@@ -93,6 +95,10 @@ export interface PluginOptions {
   services?: Services
   controllers?: Record<string, typeof PageController>
   cacheName?: string
+  keyGenerator?: (request: Request | FormRequest | FormRequestPayload) => string
+  rehydrationFn?: (
+    request: Request | FormRequest | FormRequestPayload
+  ) => Promise<FormSubmissionState>
   filters?: Record<string, FilterFunction>
   pluginPath?: string
   nunjucks: {
@@ -114,12 +120,21 @@ export const plugin = {
       services = defaultServices,
       controllers,
       cacheName,
+      keyGenerator,
+      rehydrationFn,
       filters,
       nunjucks: nunjucksOptions,
       viewContext
     } = options
     const { formsService } = services
-    const cacheService = new CacheService(server, cacheName)
+    const cacheService = new CacheService({
+      server,
+      cacheName,
+      options: {
+        keyGenerator,
+        rehydrationFn
+      }
+    })
 
     const packageRoot = findPackageRoot()
     const govukFrontendPath = dirname(
