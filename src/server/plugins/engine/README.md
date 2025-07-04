@@ -106,25 +106,25 @@ export interface PluginOptions {
 
 1. `keyGenerator(request)`
 
-   This generates a stable and consistent cache key used to store and retrieve user state. It should return a string based on persistent identifiers such as userId, businessId, and grantId — i.e., something like:
+This generates a stable and consistent cache key used to store and retrieve user state. It should return a string based on persistent identifiers such as userId, businessId, and grantId — i.e., something like:
 
-   ```
-   const keyGenerator = request => {
-     const { userId, businessId, grantId } = request.app.userContext
-     return `${userId}:${businessId}:${grantId}`
-   }
-   ```
+```
+const keyGenerator = request => {
+  const { userId, businessId, grantId } = request.app.userContext
+  return `${userId}:${businessId}:${grantId}`
+}
+```
 
 2. `rehydrationFn(request, key)`
 
-   This function is called when no session state is found in Redis. It should fetch saved state (e.g., from an API) using the provided key and return it in the same structure expected by the form engine:
+This function is called when no session state is found in Redis. It should fetch saved state (e.g., from an API) using the provided key and return it in the same structure expected by the form engine:
 
-   ```
-   const rehydrationFn = async (request, key) => {
-     const response = await fetch(`https://backend.api/state/${key}`)
-     return await response.json()  // Must match form engine state shape
-   }
-   ```
+```
+const rehydrationFn = async (request, key) => {
+  const response = await fetch(`https://backend.api/state/${key}`)
+  return await response.json()  // Must match form engine state shape
+}
+```
 
 #### Session flow
 
