@@ -7,11 +7,11 @@ import Boom from '@hapi/boom'
 import {
   type Plugin,
   type PluginProperties,
+  type Request,
   type ResponseObject,
   type ResponseToolkit,
   type RouteOptions,
-  type Server,
-  type Request
+  type Server
 } from '@hapi/hapi'
 import vision from '@hapi/vision'
 import { isEqual } from 'date-fns'
@@ -50,9 +50,9 @@ import { generateUniqueReference } from '~/src/server/plugins/engine/referenceNu
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import { getUploadStatus } from '~/src/server/plugins/engine/services/uploadService.js'
 import {
-  FormSubmissionState,
   type FilterFunction,
-  type FormContext
+  type FormContext,
+  type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,

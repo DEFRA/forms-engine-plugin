@@ -29,6 +29,7 @@ export class CacheService {
   customFetcher?: (
     request: Request | FormRequest | FormRequestPayload
   ) => Promise<FormSubmissionState>
+
   logger: Server['logger']
 
   constructor({
@@ -47,15 +48,15 @@ export class CacheService {
       ) => Promise<FormSubmissionState>
     }
   }) {
-    const { keyGenerator, rehydrationFn } = options || {}
+    const { keyGenerator, rehydrationFn } = options ?? {}
     if (!cacheName) {
       server.log(
         'warn',
         'You are using the default hapi cache. Please provide a cache name in plugin registration options.'
       )
     }
-    this.generateKey = keyGenerator || this.defaultKeyGenerator
-    this.customFetcher = rehydrationFn || undefined
+    this.generateKey = keyGenerator ?? this.defaultKeyGenerator.bind(this)
+    this.customFetcher = rehydrationFn ?? undefined
     this.cache = server.cache({ cache: cacheName, segment: 'formSubmission' })
     this.logger = server.logger
   }
@@ -140,12 +141,12 @@ export class CacheService {
   private defaultKeyGenerator(
     request: Request | FormRequest | FormRequestPayload
   ): string {
-    if (!request.yar?.id) {
+    if (!request.yar.id) {
       throw new Error('No session ID found')
     }
 
-    const state = request.params?.state ?? ''
-    const slug = request.params?.slug ?? ''
+    const state = request.params.state ?? ''
+    const slug = request.params.slug ?? ''
     return `${request.yar.id}:${state}:${slug}`
   }
 
