@@ -107,6 +107,8 @@ export function evaluate(template) {
   return context ? evaluateTemplate(template, context) : template
 }
 
+environment.addGlobal('evaluate', evaluate)
+
 export function govukRebrand() {
   return true
 }
