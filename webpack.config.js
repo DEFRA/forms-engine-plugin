@@ -162,17 +162,21 @@ export default {
     splitChunks: {
       cacheGroups: {
         defaultVendors: {
-          /**
-           * Use npm package names
-           * @param {NormalModule} module
-           */
-          name({ userRequest }) {
-            const [[modulePath, pkgName]] = userRequest.matchAll(
-              /node_modules\/([^\\/]+)/g
-            )
+          name(module) {
+            const packages = Array.from(
+              module.identifier().matchAll(/node_modules\/([^\\/]+)/g)
+            ).map((match) => {
+              return { modulePath: match[0], pkgName: match[1] }
+            })
+
+            const pkg = packages.pop()
+
+            if (!pkg) {
+              throw Error('Unknown package when splitting chunks')
+            }
 
             // Move into /javascripts/vendor
-            return join('vendor', pkgName || modulePath)
+            return join('vendor', pkg.pkgName || pkg.modulePath)
           }
         }
       }
