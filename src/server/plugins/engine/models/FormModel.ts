@@ -463,9 +463,7 @@ export class FormModel {
       }
 
       if (isInvalid) {
-        if (!context.errors) {
-          context.errors = []
-        }
+        context.errors ??= []
 
         const text =
           'Options are different because you changed a previous answer'

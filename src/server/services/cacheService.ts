@@ -44,7 +44,7 @@ export class CacheService {
   ): Promise<FormSubmissionState> {
     const cached = await this.cache.get(this.Key(request))
 
-    return cached || {}
+    return cached ?? {}
   }
 
   async setState(
@@ -64,7 +64,7 @@ export class CacheService {
     const key = this.Key(request, ADDITIONAL_IDENTIFIER.Confirmation)
     const value = await this.cache.get(key)
 
-    return value || {}
+    return value ?? {}
   }
 
   async setConfirmationState(
