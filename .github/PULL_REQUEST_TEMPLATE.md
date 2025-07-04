@@ -11,7 +11,7 @@
   If you have consulted with the Defra Forms team prior to implementation, they will have provided you with an Azure DevOps work item number or (preferably) a link. Please include this.
 -->
 
-Jira ticket: 
+Jira ticket:
 
 ## Type of change
 
