@@ -1,4 +1,4 @@
-import { getErrorMessage, slugSchema } from '@defra/forms-model'
+import { slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
   type Plugin,
@@ -11,6 +11,7 @@ import { isEqual } from 'date-fns'
 import Joi from 'joi'
 
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
+import { getHandler as getFileUploadStatusHandler } from '~/src/server/plugins/engine/handlers/file-upload.js'
 import {
   makeGetHandler as makeQuestionGetHandler,
   postHandler as questionPostHandler
@@ -32,7 +33,6 @@ import {
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
-import { getUploadStatus } from '~/src/server/plugins/engine/services/uploadService.js'
 import { type FilterFunction } from '~/src/server/plugins/engine/types.js'
 import { registerVision } from '~/src/server/plugins/engine/vision.js'
 import {
@@ -485,30 +485,7 @@ export const plugin = {
     server.route({
       method: 'get',
       path: '/upload-status/{uploadId}',
-      handler: async (
-        request: FormRequest,
-        h: Pick<ResponseToolkit, 'response'>
-      ) => {
-        const { uploadId } = request.params as unknown as {
-          uploadId: string
-        }
-        try {
-          const status = await getUploadStatus(uploadId)
-
-          if (!status) {
-            return h.response({ error: 'Status check failed' }).code(400)
-          }
-
-          return h.response(status)
-        } catch (error) {
-          const errMsg = getErrorMessage(error)
-          request.logger.error(
-            errMsg,
-            `[uploadStatusFailed] Upload status check failed for uploadId: ${uploadId} - ${errMsg}`
-          )
-          return h.response({ error: 'Status check error' }).code(500)
-        }
-      },
+      handler: getFileUploadStatusHandler,
       options: {
         plugins: {
           crumb: false
