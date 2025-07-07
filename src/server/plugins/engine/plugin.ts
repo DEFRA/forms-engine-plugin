@@ -1,13 +1,8 @@
-import {
-  getErrorMessage,
-  hasFormComponents,
-  slugSchema
-} from '@defra/forms-model'
+import { getErrorMessage, slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
   type Plugin,
   type PluginProperties,
-  type ResponseObject,
   type ResponseToolkit,
   type RouteOptions,
   type Server
@@ -15,37 +10,26 @@ import {
 import { isEqual } from 'date-fns'
 import Joi from 'joi'
 
-import { registerVision } from './vision.js'
-
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
+import { redirectOrMakeHandler } from '~/src/server/plugins/engine/handlers/index.js'
+import {
+  makeGetHandler as makeQuestionGetHandler,
+  postHandler as questionPostHandler
+} from '~/src/server/plugins/engine/handlers/questions.js'
 import {
   checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
-  findPage,
-  getCacheService,
-  getPage,
   getStartPath,
-  normalisePath,
-  proceed,
-  redirectPath
+  proceed
 } from '~/src/server/plugins/engine/helpers.js'
-import {
-  FormModel,
-  SummaryViewModel
-} from '~/src/server/plugins/engine/models/index.js'
-import { format } from '~/src/server/plugins/engine/outputFormatters/machine/v1.js'
+import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { FileUploadPageController } from '~/src/server/plugins/engine/pageControllers/FileUploadPageController.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
-import { getFormSubmissionData } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
-import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
-import { generateUniqueReference } from '~/src/server/plugins/engine/referenceNumbers.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import { getUploadStatus } from '~/src/server/plugins/engine/services/uploadService.js'
-import {
-  type FilterFunction,
-  type FormContext
-} from '~/src/server/plugins/engine/types.js'
+import { type FilterFunction } from '~/src/server/plugins/engine/types.js'
+import { registerVision } from '~/src/server/plugins/engine/vision.js'
 import {
   type FormRequest,
   type FormRequestPayload,
@@ -60,7 +44,6 @@ import {
   pathSchema,
   stateSchema
 } from '~/src/server/schemas/index.js'
-import * as httpService from '~/src/server/services/httpService.js'
 import { CacheService } from '~/src/server/services/index.js'
 import { type Services } from '~/src/server/types.js'
 
@@ -203,125 +186,7 @@ export const plugin = {
       return proceed(request, h, `${servicePath}${getStartPath(model)}`)
     }
 
-    const redirectOrMakeHandler = async (
-      request: FormRequest | FormRequestPayload,
-      h: Pick<ResponseToolkit, 'redirect' | 'view'>,
-      makeHandler: (
-        page: PageControllerClass,
-        context: FormContext
-      ) => ResponseObject | Promise<ResponseObject>
-    ) => {
-      const { app, params } = request
-      const { model } = app
-
-      if (!model) {
-        throw Boom.notFound(`No model found for /${params.path}`)
-      }
-
-      const cacheService = getCacheService(request.server)
-      const page = getPage(model, request)
-      let state = await page.getState(request)
-
-      if (!state.$$__referenceNumber) {
-        const prefix = model.def.metadata?.referenceNumberPrefix ?? ''
-
-        if (typeof prefix !== 'string') {
-          throw Boom.badImplementation(
-            'Reference number prefix must be a string or undefined'
-          )
-        }
-
-        const referenceNumber = generateUniqueReference(prefix)
-        state = await page.mergeState(request, state, {
-          $$__referenceNumber: referenceNumber
-        })
-      }
-
-      const flash = cacheService.getFlash(request)
-      const context = model.getFormContext(request, state, flash?.errors)
-      const relevantPath = page.getRelevantPath(request, context)
-      const summaryPath = page.getSummaryPath()
-
-      // Return handler for relevant pages or preview URL direct access
-      if (relevantPath.startsWith(page.path) || context.isForceAccess) {
-        return makeHandler(page, context)
-      }
-
-      // Redirect back to last relevant page
-      const redirectTo = findPage(model, relevantPath)
-
-      // Set the return URL unless an exit page
-      if (redirectTo?.next.length) {
-        request.query.returnUrl = page.getHref(summaryPath)
-      }
-
-      return proceed(request, h, page.getHref(relevantPath))
-    }
-
-    const getHandler = (
-      request: FormRequest,
-      h: Pick<ResponseToolkit, 'redirect' | 'view'>
-    ) => {
-      const { params } = request
-
-      if (normalisePath(params.path) === '') {
-        return dispatchHandler(request, h)
-      }
-
-      return redirectOrMakeHandler(request, h, async (page, context) => {
-        // Check for a page onLoad HTTP event and if one exists,
-        // call it and assign the response to the context data
-        const { events } = page
-        const { model } = request.app
-
-        if (!model) {
-          throw Boom.notFound(`No model found for /${params.path}`)
-        }
-
-        if (events?.onLoad && events.onLoad.type === 'http') {
-          const { options } = events.onLoad
-          const { url } = options
-
-          // TODO: Update structured data POST payload with when helper
-          // is updated to removing the dependency on `SummaryViewModel` etc.
-          const viewModel = new SummaryViewModel(request, page, context)
-          const items = getFormSubmissionData(
-            viewModel.context,
-            viewModel.details
-          )
-
-          // @ts-expect-error - function signature will be refactored in the next iteration of the formatter
-          const payload = format(items, model, undefined, undefined)
-
-          const { payload: response } = await httpService.postJson(url, {
-            payload
-          })
-
-          Object.assign(context.data, response)
-        }
-
-        return page.makeGetRouteHandler()(request, context, h)
-      })
-    }
-
-    const postHandler = (
-      request: FormRequestPayload,
-      h: Pick<ResponseToolkit, 'redirect' | 'view'>
-    ) => {
-      const { query } = request
-
-      return redirectOrMakeHandler(request, h, (page, context) => {
-        const { pageDef } = page
-        const { isForceAccess } = context
-
-        // Redirect to GET for preview URL direct access
-        if (isForceAccess && !hasFormComponents(pageDef)) {
-          return proceed(request, h, redirectPath(page.href, query))
-        }
-
-        return page.makePostRouteHandler()(request, context, h)
-      })
-    }
+    const questionGetHandler = makeQuestionGetHandler(dispatchHandler)
 
     const dispatchRouteOptions: RouteOptions<FormRequestRefs> = {
       pre: [
@@ -371,7 +236,7 @@ export const plugin = {
     server.route({
       method: 'get',
       path: '/{slug}/{path}/{itemId?}',
-      handler: getHandler,
+      handler: questionGetHandler,
       options: {
         ...getRouteOptions,
         validate: {
@@ -387,7 +252,7 @@ export const plugin = {
     server.route({
       method: 'get',
       path: '/preview/{state}/{slug}/{path}/{itemId?}',
-      handler: getHandler,
+      handler: questionGetHandler,
       options: {
         ...getRouteOptions,
         validate: {
@@ -411,7 +276,7 @@ export const plugin = {
     server.route({
       method: 'post',
       path: '/{slug}/{path}/{itemId?}',
-      handler: postHandler,
+      handler: questionPostHandler,
       options: {
         ...postRouteOptions,
         validate: {
@@ -434,7 +299,7 @@ export const plugin = {
     server.route({
       method: 'post',
       path: '/preview/{state}/{slug}/{path}/{itemId?}',
-      handler: postHandler,
+      handler: questionPostHandler,
       options: {
         ...postRouteOptions,
         validate: {
