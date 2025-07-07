@@ -2,9 +2,7 @@ import { existsSync } from 'fs'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 
-import {
-  type Server
-} from '@hapi/hapi'
+import { type Server } from '@hapi/hapi'
 import vision from '@hapi/vision'
 import nunjucks, { type Environment } from 'nunjucks'
 import resolvePkg from 'resolve'
@@ -14,9 +12,12 @@ import {
   context,
   prepareNunjucksEnvironment
 } from '~/src/server/plugins/engine/index.js'
-import { type PluginOptions } from '~/src/server/plugins/engine/plugin.js'
+import { type PluginOptions } from '~/src/server/plugins/engine/types.js'
 
-export async function registerVision(server: Server, pluginOptions: PluginOptions) {
+export async function registerVision(
+  server: Server,
+  pluginOptions: PluginOptions
+) {
   const packageRoot = findPackageRoot()
   const govukFrontendPath = dirname(
     resolvePkg.sync('govuk-frontend/package.json')
