@@ -7,6 +7,7 @@ import {
 } from '@hapi/hapi'
 
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { validatePluginOptions } from '~/src/server/plugins/engine/options.js'
 import { getRoutes as getFileUploadStatusRoutes } from '~/src/server/plugins/engine/routes/file-upload.js'
 import { makeLoadFormPreHandler } from '~/src/server/plugins/engine/routes/index.js'
 import { getRoutes as getQuestionRoutes } from '~/src/server/plugins/engine/routes/questions.js'
@@ -25,6 +26,8 @@ export const plugin = {
   dependencies: ['@hapi/crumb', '@hapi/yar', 'hapi-pino'],
   multiple: true,
   async register(server: Server, options: PluginOptions) {
+    options = validatePluginOptions(options)
+
     const { model, cacheName, nunjucks: nunjucksOptions, viewContext } = options
     const cacheService = new CacheService(server, cacheName)
 
