@@ -17,6 +17,10 @@ import {
   postHandler as questionPostHandler
 } from '~/src/server/plugins/engine/handlers/questions.js'
 import {
+  getHandler as getListSummaryHandler,
+  postHandler as postListSummaryHandler
+} from '~/src/server/plugins/engine/handlers/repeaters/summary.js'
+import {
   checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
   getStartPath,
@@ -323,23 +327,6 @@ export const plugin = {
     /**
      * "AddAnother" repeat routes
      */
-
-    // List summary GET route
-    const getListSummaryHandler = (
-      request: FormRequest,
-      h: Pick<ResponseToolkit, 'redirect' | 'view'>
-    ) => {
-      const { params } = request
-
-      return redirectOrMakeHandler(request, h, (page, context) => {
-        if (!(page instanceof RepeatPageController)) {
-          throw Boom.notFound(`No repeater page found for /${params.path}`)
-        }
-
-        return page.makeGetListSummaryRouteHandler()(request, context, h)
-      })
-    }
-
     server.route({
       method: 'get',
       path: '/{slug}/{path}/summary',
@@ -370,24 +357,6 @@ export const plugin = {
         }
       }
     })
-
-    // List summary POST route
-    const postListSummaryHandler = (
-      request: FormRequestPayload,
-      h: Pick<ResponseToolkit, 'redirect' | 'view'>
-    ) => {
-      const { params } = request
-
-      return redirectOrMakeHandler(request, h, (page, context) => {
-        const { isForceAccess } = context
-
-        if (isForceAccess || !(page instanceof RepeatPageController)) {
-          throw Boom.notFound(`No repeater page found for /${params.path}`)
-        }
-
-        return page.makePostListSummaryRouteHandler()(request, context, h)
-      })
-    }
 
     server.route({
       method: 'post',
