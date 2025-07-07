@@ -1,8 +1,12 @@
 import { getErrorMessage } from '@defra/forms-model'
-import { type ResponseToolkit } from '@hapi/hapi'
+import { type ResponseToolkit, type ServerRoute } from '@hapi/hapi'
+import Joi from 'joi'
 
 import { getUploadStatus } from '~/src/server/plugins/engine/services/uploadService.js'
-import { type FormRequest } from '~/src/server/routes/types.js'
+import {
+  type FormRequest,
+  type FormRequestRefs
+} from '~/src/server/routes/types.js'
 
 export async function getHandler(
   request: FormRequest,
@@ -27,4 +31,24 @@ export async function getHandler(
     )
     return h.response({ error: 'Status check error' }).code(500)
   }
+}
+
+export function getRoutes(): ServerRoute<FormRequestRefs>[] {
+  return [
+    {
+      method: 'get',
+      path: '/upload-status/{uploadId}',
+      handler: getHandler,
+      options: {
+        plugins: {
+          crumb: false
+        },
+        validate: {
+          params: Joi.object().keys({
+            uploadId: Joi.string().guid().required()
+          })
+        }
+      }
+    }
+  ]
 }
