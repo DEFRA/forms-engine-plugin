@@ -98,7 +98,7 @@ To support session rehydration from a backend (e.g. for Save & Return), the cons
 export interface PluginOptions {
   ...
   keyGenerator?: (request) => string
-  rehydrationFn?: (request) => Promise<FormSubmissionState>
+  rehydrationFn?: (request) => Promise<FormSubmissionState | null>
   ...
 }
 
@@ -122,6 +122,7 @@ This function is called when no session state is found in Redis. It should fetch
 ```
 const rehydrationFn = async (request, key) => {
   const response = await fetch(`https://backend.api/state/${key}`)
+  if (!response.ok) return null
   return await response.json()  // Must match form engine state shape
 }
 ```
