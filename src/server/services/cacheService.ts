@@ -28,7 +28,7 @@ export class CacheService {
   generateKey?: (request: Request | FormRequest | FormRequestPayload) => string
   customFetcher?: (
     request: Request | FormRequest | FormRequestPayload
-  ) => Promise<FormSubmissionState>
+  ) => Promise<FormSubmissionState | null>
 
   logger: Server['logger']
 
@@ -45,7 +45,7 @@ export class CacheService {
       ) => string
       rehydrationFn?: (
         request: Request | FormRequest | FormRequestPayload
-      ) => Promise<FormSubmissionState>
+      ) => Promise<FormSubmissionState | null>
     }
   }) {
     const { keyGenerator, rehydrationFn } = options ?? {}
@@ -68,14 +68,15 @@ export class CacheService {
 
     // If nothing in Redis, attempt to rehydrate from backend DB
     if (!cached && this.customFetcher) {
-      cached = await this.customFetcher(request)
+      const rehydrated = await this.customFetcher(request)
 
-      if (cached) {
+      if (rehydrated != null) {
         await this.cache.set(
           this.Key(request),
-          cached,
+          rehydrated,
           config.get('sessionTimeout')
         )
+        cached = await this.getState(request)
       }
     }
 

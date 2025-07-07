@@ -93,7 +93,9 @@ describe('CacheService', () => {
         params: { state: 's', slug: 'p' }
       } as unknown as FormRequest
 
-      mockCache.get.mockResolvedValue(null)
+      mockCache.get
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(rehydratedState)
 
       const result = await cacheService.getState(mockRequest)
 
