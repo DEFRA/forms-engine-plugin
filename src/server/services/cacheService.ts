@@ -16,7 +16,7 @@ import {
 
 const partition = 'cache'
 
-enum ADDITIONAL_IDENTIFIER {
+export enum ADDITIONAL_IDENTIFIER {
   Confirmation = ':confirmation'
 }
 
@@ -147,7 +147,7 @@ export class CacheService {
 
     const state = request.params.state ?? ''
     const slug = request.params.slug ?? ''
-    return `${request.yar.id}:${state}:${slug}`
+    return `${request.yar.id}:${state}:${slug}:`
   }
 
   /**
