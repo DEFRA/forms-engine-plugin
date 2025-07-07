@@ -11,11 +11,14 @@ import { isEqual } from 'date-fns'
 import Joi from 'joi'
 
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
-import { redirectOrMakeHandler } from '~/src/server/plugins/engine/handlers/index.js'
 import {
   makeGetHandler as makeQuestionGetHandler,
   postHandler as questionPostHandler
 } from '~/src/server/plugins/engine/handlers/questions.js'
+import {
+  getHandler as getItemDeleteHandler,
+  postHandler as postItemDeleteHandler
+} from '~/src/server/plugins/engine/handlers/repeaters/item.js'
 import {
   getHandler as getListSummaryHandler,
   postHandler as postListSummaryHandler
@@ -27,9 +30,7 @@ import {
   proceed
 } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
-import { FileUploadPageController } from '~/src/server/plugins/engine/pageControllers/FileUploadPageController.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
-import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import { getUploadStatus } from '~/src/server/plugins/engine/services/uploadService.js'
 import { type FilterFunction } from '~/src/server/plugins/engine/types.js'
@@ -401,27 +402,6 @@ export const plugin = {
       }
     })
 
-    // Item delete GET route
-    const getItemDeleteHandler = (
-      request: FormRequest,
-      h: Pick<ResponseToolkit, 'redirect' | 'view'>
-    ) => {
-      const { params } = request
-
-      return redirectOrMakeHandler(request, h, (page, context) => {
-        if (
-          !(
-            page instanceof RepeatPageController ||
-            page instanceof FileUploadPageController
-          )
-        ) {
-          throw Boom.notFound(`No page found for /${params.path}`)
-        }
-
-        return page.makeGetItemDeleteRouteHandler()(request, context, h)
-      })
-    }
-
     server.route({
       method: 'get',
       path: '/{slug}/{path}/{itemId}/confirm-delete',
@@ -454,30 +434,6 @@ export const plugin = {
         }
       }
     })
-
-    // Item delete POST route
-    const postItemDeleteHandler = (
-      request: FormRequestPayload,
-      h: Pick<ResponseToolkit, 'redirect' | 'view'>
-    ) => {
-      const { params } = request
-
-      return redirectOrMakeHandler(request, h, (page, context) => {
-        const { isForceAccess } = context
-
-        if (
-          isForceAccess ||
-          !(
-            page instanceof RepeatPageController ||
-            page instanceof FileUploadPageController
-          )
-        ) {
-          throw Boom.notFound(`No page found for /${params.path}`)
-        }
-
-        return page.makePostItemDeleteRouteHandler()(request, context, h)
-      })
-    }
 
     server.route({
       method: 'post',
