@@ -26,7 +26,7 @@ import {
 } from '~/src/server/schemas/index.js'
 
 // Item delete GET route
-export function getHandler(
+function getHandler(
   request: FormRequest,
   h: Pick<ResponseToolkit, 'redirect' | 'view'>
 ) {
@@ -46,8 +46,7 @@ export function getHandler(
   })
 }
 
-// Item delete POST route
-export function postHandler(
+function postHandler(
   request: FormRequestPayload,
   h: Pick<ResponseToolkit, 'redirect' | 'view'>
 ) {
