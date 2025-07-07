@@ -4,10 +4,8 @@ import { type FormDefinition } from '@defra/forms-model'
 
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import {
-  plugin,
-  type PluginOptions
-} from '~/src/server/plugins/engine/plugin.js'
+import { type PluginOptions } from '~/src/server/plugins/engine/plugin.js'
+import { plugin } from './vision.js'
 import { findPackageRoot } from '~/src/server/plugins/engine/plugin.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import { formsService } from '~/src/server/plugins/engine/services/localFormsService.js'

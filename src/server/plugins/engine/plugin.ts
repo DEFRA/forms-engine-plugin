@@ -1,7 +1,3 @@
-import { existsSync } from 'fs'
-import { dirname, join } from 'path'
-import { fileURLToPath } from 'url'
-
 import {
   getErrorMessage,
   hasFormComponents,
@@ -16,11 +12,10 @@ import {
   type RouteOptions,
   type Server
 } from '@hapi/hapi'
-import vision from '@hapi/vision'
 import { isEqual } from 'date-fns'
 import Joi from 'joi'
-import nunjucks, { type Environment } from 'nunjucks'
-import resolvePkg from 'resolve'
+
+import { registerVision } from './vision.js'
 
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
@@ -34,11 +29,6 @@ import {
   proceed,
   redirectPath
 } from '~/src/server/plugins/engine/helpers.js'
-import {
-  VIEW_PATH,
-  context,
-  prepareNunjucksEnvironment
-} from '~/src/server/plugins/engine/index.js'
 import {
   FormModel,
   SummaryViewModel
@@ -74,20 +64,6 @@ import * as httpService from '~/src/server/services/httpService.js'
 import { CacheService } from '~/src/server/services/index.js'
 import { type Services } from '~/src/server/types.js'
 
-export function findPackageRoot() {
-  const currentFileName = fileURLToPath(import.meta.url)
-  const currentDirectoryName = dirname(currentFileName)
-
-  let dir = currentDirectoryName
-  while (dir !== '/') {
-    if (existsSync(join(dir, 'package.json'))) {
-      return dir
-    }
-    dir = dirname(dir)
-  }
-
-  throw new Error('package.json not found in parent directories')
-}
 export interface PluginOptions {
   model?: FormModel
   services?: Services
@@ -114,67 +90,13 @@ export const plugin = {
       services = defaultServices,
       controllers,
       cacheName,
-      filters,
       nunjucks: nunjucksOptions,
       viewContext
     } = options
     const { formsService } = services
     const cacheService = new CacheService(server, cacheName)
 
-    const packageRoot = findPackageRoot()
-    const govukFrontendPath = dirname(
-      resolvePkg.sync('govuk-frontend/package.json')
-    )
-
-    const viewPathResolved = join(packageRoot, VIEW_PATH)
-
-    const paths = [
-      ...nunjucksOptions.paths,
-      viewPathResolved,
-      join(govukFrontendPath, 'dist')
-    ]
-
-    await server.register({
-      plugin: vision,
-      options: {
-        engines: {
-          html: {
-            compile: (
-              path: string,
-              compileOptions: { environment: Environment }
-            ) => {
-              const template = nunjucks.compile(
-                path,
-                compileOptions.environment
-              )
-
-              return (context: object | undefined) => {
-                return template.render(context)
-              }
-            },
-            prepare: (
-              options: EngineConfigurationObject,
-              next: (err?: Error) => void
-            ) => {
-              // Nunjucks also needs an additional path configuration
-              // to use the templates and macros from `govuk-frontend`
-              const environment = nunjucks.configure(paths)
-
-              // Applies custom filters and globals for nunjucks
-              // that are required by the `forms-engine-plugin`
-              prepareNunjucksEnvironment(environment, filters)
-
-              options.compileOptions.environment = environment
-
-              next()
-            }
-          }
-        },
-        path: paths,
-        // Provides global context used with all templates
-        context
-      }
-    })
+    await registerVision(server, options)
 
     server.expose('baseLayoutPath', nunjucksOptions.baseLayoutPath)
     server.expose('viewContext', viewContext)
@@ -810,11 +732,3 @@ export const plugin = {
     })
   }
 } satisfies Plugin<PluginOptions>
-
-interface CompileOptions {
-  environment: Environment
-}
-
-export interface EngineConfigurationObject {
-  compileOptions: CompileOptions
-}
