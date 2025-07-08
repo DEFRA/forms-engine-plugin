@@ -116,7 +116,7 @@ export interface Detail {
 }
 
 export type PreparePageEventRequestOptions = (
-  requestOptions: RequestOptions,
+  options: RequestOptions,
   page: PageControllerClass,
   event: Event
 ) => void
