@@ -1,7 +1,5 @@
 import Joi from 'joi'
 
-import { type PluginOptions } from '~/src/server/plugins/engine/types.js'
-
 const pluginRegistrationOptionsSchema = Joi.object({
   model: Joi.object().optional(),
   services: Joi.object().optional(),
@@ -16,7 +14,12 @@ const pluginRegistrationOptionsSchema = Joi.object({
   viewContext: Joi.function().required()
 })
 
-export function validatePluginOptions(options: PluginOptions): PluginOptions {
+/**
+ * Validates the plugin options against the schema and returns the validated value.
+ * @param {PluginOptions} options
+ * @returns {PluginOptions}
+ */
+export function validatePluginOptions(options) {
   const result = pluginRegistrationOptionsSchema.validate(options, {
     abortEarly: false
   })
@@ -28,3 +31,7 @@ export function validatePluginOptions(options: PluginOptions): PluginOptions {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return result.value
 }
+
+/**
+ * @import { PluginOptions } from '~/src/server/plugins/engine/types.js'
+ */
