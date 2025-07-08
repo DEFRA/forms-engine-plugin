@@ -119,4 +119,4 @@ export type PreparePageEventRequestOptions = (
   requestOptions: RequestOptions,
   page: PageControllerClass,
   event: Event
-) => RequestOptions
+) => void
