@@ -85,7 +85,7 @@ describe('CacheService', () => {
       cacheService = new CacheService({
         server: mockServer as Server,
         cacheName: 'test-cache',
-        options: { rehydrationFn: customFetcher }
+        options: { sessionHydrator: customFetcher }
       })
 
       const mockRequest = {

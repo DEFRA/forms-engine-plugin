@@ -43,12 +43,12 @@ export class CacheService {
       keyGenerator?: (
         request: Request | FormRequest | FormRequestPayload
       ) => string
-      rehydrationFn?: (
+      sessionHydrator?: (
         request: Request | FormRequest | FormRequestPayload
       ) => Promise<FormSubmissionState | null>
     }
   }) {
-    const { keyGenerator, rehydrationFn } = options ?? {}
+    const { keyGenerator, sessionHydrator } = options ?? {}
     if (!cacheName) {
       server.log(
         'warn',
@@ -56,7 +56,7 @@ export class CacheService {
       )
     }
     this.generateKey = keyGenerator ?? this.defaultKeyGenerator.bind(this)
-    this.customFetcher = rehydrationFn ?? undefined
+    this.customFetcher = sessionHydrator ?? undefined
     this.cache = server.cache({ cache: cacheName, segment: 'formSubmission' })
     this.logger = server.logger
   }

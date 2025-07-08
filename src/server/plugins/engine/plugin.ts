@@ -92,7 +92,7 @@ export interface PluginOptions {
   controllers?: Record<string, typeof PageController>
   cacheName?: string
   keyGenerator?: (request: Request | FormRequest | FormRequestPayload) => string
-  rehydrationFn?: (
+  sessionHydrator?: (
     request: Request | FormRequest | FormRequestPayload
   ) => Promise<FormSubmissionState>
   filters?: Record<string, FilterFunction>
@@ -117,7 +117,7 @@ export const plugin = {
       controllers,
       cacheName,
       keyGenerator,
-      rehydrationFn,
+      sessionHydrator,
       filters,
       nunjucks: nunjucksOptions,
       viewContext
@@ -128,7 +128,7 @@ export const plugin = {
       cacheName,
       options: {
         keyGenerator,
-        rehydrationFn
+        sessionHydrator
       }
     })
 

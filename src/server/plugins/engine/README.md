@@ -98,7 +98,7 @@ To support session rehydration from a backend (e.g. for Save & Return), the cons
 export interface PluginOptions {
   ...
   keyGenerator?: (request) => string
-  rehydrationFn?: (request) => Promise<FormSubmissionState | null>
+  sessionHydrator?: (request) => Promise<FormSubmissionState | null>
   ...
 }
 
@@ -115,12 +115,12 @@ const keyGenerator = request => {
 }
 ```
 
-2. `rehydrationFn(request, key)`
+2. `sessionHydrator(request, key)`
 
 This function is called when no session state is found in Redis. It should fetch saved state (e.g., from an API) using the provided key and return it in the same structure expected by the form engine:
 
 ```
-const rehydrationFn = async (request, key) => {
+const sessionHydrator = async (request, key) => {
   const response = await fetch(`https://backend.api/state/${key}`)
   if (!response.ok) return null
   return await response.json()  // Must match form engine state shape
@@ -129,7 +129,7 @@ const rehydrationFn = async (request, key) => {
 
 #### Session flow
 
-- When user resumes a journey and Redis session data is missing or expired, DXT will use `keyGenerator` and `rehydrationFn` to fetch the saved state from an external API (e.g. `/state` endpoint).
+- When user resumes a journey and Redis session data is missing or expired, DXT will use `keyGenerator` and `sessionHydrator` to fetch the saved state from an external API (e.g. `/state` endpoint).
 - The fetched state is written back into Redis and used to continue the user journey.
 - The rehydrated state must include enough information to satisfy schema validation on the current or next page.
 - To properly resume a session, users should be redirected to the `/summary` page. This ensures the UI has all required answers preloaded and avoids invalid transitions from deep links.
