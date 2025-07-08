@@ -363,7 +363,5 @@ export const addClassOptionIfNone = (
   options: Extract<ComponentDef, { options: { classes?: string } }>['options'],
   className: string
 ) => {
-  if (!options.classes) {
-    options.classes = className
-  }
+  options.classes ??= className
 }

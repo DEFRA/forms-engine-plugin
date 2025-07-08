@@ -109,6 +109,12 @@ export function evaluate(template) {
 
 environment.addGlobal('evaluate', evaluate)
 
+export function govukRebrand() {
+  return true
+}
+
+environment.addGlobal('govukRebrand', govukRebrand())
+
 /**
  * @import { NunjucksContext } from '~/src/server/plugins/nunjucks/types.js'
  * @import { FormSubmissionError } from '~/src/server/plugins/engine/types.js'

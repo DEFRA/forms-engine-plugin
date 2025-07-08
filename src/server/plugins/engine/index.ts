@@ -6,18 +6,19 @@ import { type FilterFunction } from '~/src/server/plugins/engine/types.js'
 import {
   checkComponentTemplates,
   checkErrorTemplates,
-  evaluate
+  evaluate,
+  govukRebrand
 } from '~/src/server/plugins/nunjucks/environment.js'
 import * as filters from '~/src/server/plugins/nunjucks/filters/index.js'
 
 export { getPageHref } from '~/src/server/plugins/engine/helpers.js'
-export { configureEnginePlugin } from '~/src/server/plugins/engine/configureEnginePlugin.js'
 export { context } from '~/src/server/plugins/nunjucks/context.js'
 
 const globals = {
   checkComponentTemplates,
   checkErrorTemplates,
-  evaluate
+  evaluate,
+  govukRebrand
 }
 
 export const VIEW_PATH = 'src/server/plugins/engine/views'

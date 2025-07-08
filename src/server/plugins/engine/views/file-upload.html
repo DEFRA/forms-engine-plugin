@@ -29,17 +29,4 @@
   {{ super() }}
 
   <div class="govuk-summary-list-container"></div>
-
-  {% endblock %}
-
-{% block bodyEnd %}
-  {{ super() }}
-  <script type="module" nonce="{{ cspNonce }}">
-    import { initFileUpload } from '{{ getDxtAssetPath("file-upload.js") }}';
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initFileUpload);
-    } else {
-      initFileUpload();
-    }
-  </script>
 {% endblock %}

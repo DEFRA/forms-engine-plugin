@@ -1,12 +1,17 @@
 import { existsSync } from 'fs'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
+import {
+  getErrorMessage,
+  hasFormComponents,
+  slugSchema, type AuthConfig
+} from '@defra/forms-model'
 
-import { hasFormComponents, slugSchema, type AuthConfig } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
   type Plugin,
   type PluginProperties,
+  type Request,
   type ResponseObject,
   type ResponseToolkit,
   type RouteOptions,
@@ -50,7 +55,8 @@ import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import { getUploadStatus } from '~/src/server/plugins/engine/services/uploadService.js'
 import {
   type FilterFunction,
-  type FormContext
+  type FormContext,
+  type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
@@ -89,6 +95,10 @@ export interface PluginOptions {
   services?: Services
   controllers?: Record<string, typeof PageController>
   cacheName?: string
+  keyGenerator?: (request: Request | FormRequest | FormRequestPayload) => string
+  sessionHydrator?: (
+    request: Request | FormRequest | FormRequestPayload
+  ) => Promise<FormSubmissionState>
   filters?: Record<string, FilterFunction>
   pluginPath?: string
   nunjucks: {
@@ -110,12 +120,21 @@ export const plugin = {
       services = defaultServices,
       controllers,
       cacheName,
+      keyGenerator,
+      sessionHydrator,
       filters,
       nunjucks: nunjucksOptions,
       viewContext
     } = options
     const { formsService } = services
-    const cacheService = new CacheService(server, cacheName)
+    const cacheService = new CacheService({
+      server,
+      cacheName,
+      options: {
+        keyGenerator,
+        sessionHydrator
+      }
+    })
 
     const packageRoot = findPackageRoot()
     const govukFrontendPath = dirname(
@@ -809,10 +828,10 @@ export const plugin = {
         request: FormRequest,
         h: Pick<ResponseToolkit, 'response'>
       ) => {
+        const { uploadId } = request.params as unknown as {
+          uploadId: string
+        }
         try {
-          const { uploadId } = request.params as unknown as {
-            uploadId: string
-          }
           const status = await getUploadStatus(uploadId)
 
           if (!status) {
@@ -821,10 +840,10 @@ export const plugin = {
 
           return h.response(status)
         } catch (error) {
+          const errMsg = getErrorMessage(error)
           request.logger.error(
-            ['upload-status'],
-            'Upload status check failed',
-            error
+            errMsg,
+            `[uploadStatusFailed] Upload status check failed for uploadId: ${uploadId} - ${errMsg}`
           )
           return h.response({ error: 'Status check error' }).code(500)
         }

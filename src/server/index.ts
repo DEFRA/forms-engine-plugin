@@ -89,7 +89,6 @@ export async function createServer(routeConfig?: RouteConfig) {
   await server.register(inert)
   await server.register(Scooter)
   await server.register(pluginCrumb)
-
   await server.register(pluginEngine)
 
   server.ext('onPreResponse', (request: Request, h: ResponseToolkit) => {
@@ -126,7 +125,11 @@ export async function createServer(routeConfig?: RouteConfig) {
   })
 
   await server.register(pluginErrorPages)
-  await server.register(blipp)
+
+  if (config.get('cdpEnvironment') === 'local') {
+    await server.register(blipp)
+  }
+
   await server.register(requestTracing)
 
   return server

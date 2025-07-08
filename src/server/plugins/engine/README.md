@@ -85,3 +85,59 @@ There are a number of `LiquidJS` filters available to you from within the templa
   }
 ]
 ```
+
+## Session Rehydration
+
+To support Save and Return functionality, this application now supports session rehydration. This allows user session state to be recovered across browser sessions or devices — even after the in-memory Redis session has expired.
+
+### How it works
+
+To support session rehydration from a backend (e.g. for Save & Return), the consuming application must provide two functions when registering the DXT engine plugin:
+
+```
+export interface PluginOptions {
+  ...
+  keyGenerator?: (request) => string
+  sessionHydrator?: (request) => Promise<FormSubmissionState | null>
+  ...
+}
+
+```
+
+1. `keyGenerator(request)`
+
+This generates a stable and consistent cache key used to store and retrieve user state. It should return a string based on persistent identifiers such as userId, businessId, and grantId — i.e., something like:
+
+```
+const keyGenerator = request => {
+  const { userId, businessId, grantId } = request.app.userContext
+  return `${userId}:${businessId}:${grantId}`
+}
+```
+
+2. `sessionHydrator(request, key)`
+
+This function is called when no session state is found in Redis. It should fetch saved state (e.g., from an API) using the provided key and return it in the same structure expected by the form engine:
+
+```
+const sessionHydrator = async (request, key) => {
+  const response = await fetch(`https://backend.api/state/${key}`)
+  if (!response.ok) return null
+  return await response.json()  // Must match form engine state shape
+}
+```
+
+#### Session flow
+
+- When user resumes a journey and Redis session data is missing or expired, DXT will use `keyGenerator` and `sessionHydrator` to fetch the saved state from an external API (e.g. `/state` endpoint).
+- The fetched state is written back into Redis and used to continue the user journey.
+- The rehydrated state must include enough information to satisfy schema validation on the current or next page.
+- To properly resume a session, users should be redirected to the `/summary` page. This ensures the UI has all required answers preloaded and avoids invalid transitions from deep links.
+
+### Additional notes
+
+Flash messaging and other ephemeral session data still rely on yar.id.
+
+If the restored state does not satisfy the schema for the current page, the user will be redirected to the first incomplete step.
+
+In development, a mock identity and /state response can be used to simulate a persisted session.
