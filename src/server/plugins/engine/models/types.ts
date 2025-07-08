@@ -1,5 +1,6 @@
 import {
   type ConditionWrapper,
+  type Event,
   type FormComponentsDef,
   type Section
 } from '@defra/forms-model'
@@ -15,6 +16,7 @@ import {
   type FormState,
   type FormSubmissionError
 } from '~/src/server/plugins/engine/types.js'
+import { type RequestOptions } from '~/src/server/services/httpService.js'
 
 export type ExecutableCondition = ConditionWrapper & {
   expr: Expression
@@ -112,3 +114,9 @@ export interface Detail {
   title?: Section['title']
   items: DetailItem[]
 }
+
+export type PreparePageEventRequestOptions = (
+  requestOptions: RequestOptions,
+  page: PageControllerClass,
+  event: Event
+) => RequestOptions

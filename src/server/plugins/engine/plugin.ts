@@ -34,7 +34,8 @@ export const plugin = {
       keyGenerator,
       sessionHydrator,
       nunjucks: nunjucksOptions,
-      viewContext
+      viewContext,
+      preparePageEventRequestOptions
     } = options
     const cacheService = new CacheService({
       server,
