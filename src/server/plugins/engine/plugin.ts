@@ -90,15 +90,21 @@ export function findPackageRoot() {
 
   throw new Error('package.json not found in parent directories')
 }
+
+type RequestType = Request | FormRequest | FormRequestPayload
+
 export interface PluginOptions {
   model?: FormModel
   services?: Services
   controllers?: Record<string, typeof PageController>
   cacheName?: string
-  keyGenerator?: (request: Request | FormRequest | FormRequestPayload) => string
-  sessionHydrator?: (
-    request: Request | FormRequest | FormRequestPayload
-  ) => Promise<FormSubmissionState>
+  keyGenerator?: (request: RequestType) => string
+  sessionHydrator?: (request: RequestType) => Promise<FormSubmissionState>
+  sessionPersister?: (
+    key: string,
+    state: FormSubmissionState,
+    request: RequestType
+  ) => Promise<void>
   filters?: Record<string, FilterFunction>
   pluginPath?: string
   nunjucks: {
@@ -122,17 +128,20 @@ export const plugin = {
       cacheName,
       keyGenerator,
       sessionHydrator,
+      sessionPersister,
       filters,
       nunjucks: nunjucksOptions,
       viewContext
     } = options
+
     const { formsService } = services
     const cacheService = new CacheService({
       server,
       cacheName,
       options: {
         keyGenerator,
-        sessionHydrator
+        sessionHydrator,
+        sessionPersister
       }
     })
 
@@ -780,6 +789,88 @@ export const plugin = {
               action: actionSchema,
               confirm: confirmSchema
             })
+            .required()
+        }
+      }
+    })
+
+    server.route({
+      method: 'get',
+      path: '/{slug}/exit',
+      handler: (
+        request: FormRequest,
+        h: Pick<ResponseToolkit, 'redirect' | 'view'>
+      ) => {
+        const { app } = request
+        const { model } = app
+
+        if (!model) {
+          throw Boom.notFound('No model found for exit page')
+        }
+
+        const returnUrl = request.query.returnUrl
+
+        const exitViewModel = {
+          name: model.def.name,
+          pageTitle: 'Your progress has been saved',
+          serviceUrl: `/${model.basePath}`,
+          phaseTag: model.def.phaseBanner?.phase,
+          returnUrl
+        }
+
+        return h.view('exit', exitViewModel)
+      },
+      options: {
+        ...getRouteOptions,
+        validate: {
+          params: Joi.object().keys({
+            slug: slugSchema
+          })
+        }
+      }
+    })
+
+    server.route({
+      method: 'post',
+      path: '/{slug}/{path}/save-and-return',
+      handler: async (
+        request: FormRequestPayload,
+        h: Pick<ResponseToolkit, 'redirect' | 'view'>
+      ) => {
+        const { app } = request
+        const { model } = app
+
+        if (!model) {
+          throw Boom.notFound('No model found for save-and-return')
+        }
+
+        const page = getPage(model, request)
+        const state = await page.getState(request)
+        const formData = {
+          ...page.getFormDataFromState(request, state),
+          ...request.payload
+        }
+
+        const { value } = page.collection.validate(formData)
+        const formState = page.getStateFromValidForm(request, state, value)
+        const newState = { ...state, ...formState }
+
+        await page.setState(request, newState)
+
+        return h.redirect(page.getHref('/exit'))
+      },
+      options: {
+        ...postRouteOptions,
+        validate: {
+          params: Joi.object().keys({
+            slug: slugSchema,
+            path: pathSchema
+          }),
+          payload: Joi.object()
+            .keys({
+              crumb: crumbSchema
+            })
+            .unknown(true)
             .required()
         }
       }

@@ -172,7 +172,9 @@ export class QuestionPageController extends PageController {
       context,
       showTitle,
       components,
-      errors
+      errors,
+      allowSaveAndReturn: this.shouldShowSaveAndReturn(),
+      saveAndReturnPath: this.href + '/save-and-return'
     }
   }
 
@@ -526,6 +528,20 @@ export class QuestionPageController extends PageController {
       : this.href // Redirect to current page (refresh)
 
     return proceed(request, h, nextUrl)
+  }
+
+  shouldShowSaveAndReturn(): boolean {
+    if (this.pageDef.path.includes('/start')) {
+      return false
+    }
+    if (this.pageDef.path === '/summary') {
+      return false
+    }
+    if (this.pageDef.controller?.toString().includes('Summary')) {
+      return false
+    }
+
+    return true
   }
 
   /**

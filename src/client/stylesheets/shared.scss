@@ -1,5 +1,5 @@
 @use "govuk-frontend" as *;
-@use "pkg:accessible-autocomplete";
+@use "accessible-autocomplete/dist/accessible-autocomplete.min.css";
 @use "prose";
 @use "summary-list";
 
