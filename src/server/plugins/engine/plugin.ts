@@ -25,8 +25,22 @@ export const plugin = {
   dependencies: ['@hapi/crumb', '@hapi/yar', 'hapi-pino'],
   multiple: true,
   async register(server: Server, options: PluginOptions) {
-    const { model, cacheName, nunjucks: nunjucksOptions, viewContext } = options
-    const cacheService = new CacheService(server, cacheName)
+    const {
+      model,
+      cacheName,
+      keyGenerator,
+      sessionHydrator,
+      nunjucks: nunjucksOptions,
+      viewContext
+    } = options
+    const cacheService = new CacheService({
+      server,
+      cacheName,
+      options: {
+        keyGenerator,
+        sessionHydrator
+      }
+    })
 
     await registerVision(server, options)
 

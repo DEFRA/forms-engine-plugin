@@ -4,7 +4,7 @@ import {
   type List,
   type Page
 } from '@defra/forms-model'
-import { type PluginProperties } from '@hapi/hapi'
+import { type PluginProperties, type Request } from '@hapi/hapi'
 import { type JoiExpression, type ValidationErrorItem } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
@@ -18,7 +18,11 @@ import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { type ViewContext } from '~/src/server/plugins/nunjucks/types.js'
-import { type FormAction, type FormRequest } from '~/src/server/routes/types.js'
+import {
+  type FormAction,
+  type FormRequest,
+  type FormRequestPayload
+} from '~/src/server/routes/types.js'
 import { type Services } from '~/src/server/types.js'
 
 /**
@@ -335,6 +339,10 @@ export interface PluginOptions {
   controllers?: Record<string, typeof PageController>
   cacheName?: string
   filters?: Record<string, FilterFunction>
+  keyGenerator?: (request: Request | FormRequest | FormRequestPayload) => string
+  sessionHydrator?: (
+    request: Request | FormRequest | FormRequestPayload
+  ) => Promise<FormSubmissionState>
   pluginPath?: string
   nunjucks: {
     baseLayoutPath: string

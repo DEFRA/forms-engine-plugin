@@ -2,7 +2,11 @@ import { type Request, type Server } from '@hapi/hapi'
 
 import { config } from '~/src/config/index.js'
 import { type FormRequest } from '~/src/server/routes/types.js'
-import { CacheService, merge } from '~/src/server/services/cacheService.js'
+import {
+  ADDITIONAL_IDENTIFIER,
+  CacheService,
+  merge
+} from '~/src/server/services/cacheService.js'
 
 describe('CacheService', () => {
   let mockServer: Partial<Server>
@@ -31,7 +35,10 @@ describe('CacheService', () => {
       } as unknown as Server['logger']
     }
 
-    cacheService = new CacheService(mockServer as Server)
+    cacheService = new CacheService({
+      server: mockServer as Server,
+      cacheName: 'test-cache'
+    })
   })
 
   describe('getState', () => {
@@ -68,6 +75,40 @@ describe('CacheService', () => {
 
         expect(result).toEqual({})
       })
+    })
+
+    it('should rehydrate state using custom fetcher when cache is missed', async () => {
+      const rehydratedState = { rehydrated: true }
+
+      const customFetcher = jest.fn().mockResolvedValue(rehydratedState)
+
+      cacheService = new CacheService({
+        server: mockServer as Server,
+        cacheName: 'test-cache',
+        options: { sessionHydrator: customFetcher }
+      })
+
+      const mockRequest = {
+        yar: { id: 'session-id' },
+        params: { state: 's', slug: 'p' }
+      } as unknown as FormRequest
+
+      mockCache.get
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(rehydratedState)
+
+      const result = await cacheService.getState(mockRequest)
+
+      expect(customFetcher).toHaveBeenCalledWith(mockRequest)
+      expect(mockCache.set).toHaveBeenCalledWith(
+        expect.objectContaining({
+          segment: 'cache',
+          id: expect.stringContaining('session-id')
+        }),
+        rehydratedState,
+        config.get('sessionTimeout')
+      )
+      expect(result).toEqual(rehydratedState)
     })
   })
 
@@ -107,6 +148,61 @@ describe('CacheService', () => {
           'No session ID found'
         )
       })
+    })
+
+    it('should use custom key generator if provided', async () => {
+      const customKey = 'my-custom-key'
+      const customKeyGenerator = jest.fn().mockReturnValue(customKey)
+
+      cacheService = new CacheService({
+        server: mockServer as Server,
+        cacheName: 'test-cache',
+        options: { keyGenerator: customKeyGenerator }
+      })
+
+      const mockRequest = {
+        yar: { id: 'some-session' },
+        params: { state: 'form1', slug: 'page1' }
+      } as unknown as FormRequest
+
+      await cacheService.setState(mockRequest, { test: 'value' })
+
+      expect(mockCache.set).toHaveBeenCalledWith(
+        {
+          segment: 'cache',
+          id: 'my-custom-key'
+        },
+        { test: 'value' },
+        expect.any(Number)
+      )
+    })
+
+    it('should append additionalIdentifier to custom key', () => {
+      const customKey = 'custom:key:base:'
+      const customKeyGenerator = jest.fn().mockReturnValue(customKey)
+
+      cacheService = new CacheService({
+        server: mockServer as Server,
+        cacheName: 'test-cache',
+        options: { keyGenerator: customKeyGenerator }
+      })
+
+      const mockRequest = {
+        yar: { id: 'session-id' },
+        params: { state: 'formA', slug: 'step1' }
+      } as unknown as FormRequest
+
+      const result = cacheService.Key(
+        mockRequest,
+        ADDITIONAL_IDENTIFIER.Confirmation
+      )
+
+      expect(result).toEqual({
+        segment: 'cache',
+        id: 'custom:key:base::confirmation'
+      })
+
+      expect(customKeyGenerator).toHaveBeenCalledWith(mockRequest)
     })
   })
 
