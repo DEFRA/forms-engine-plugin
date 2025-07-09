@@ -183,9 +183,13 @@ jobs:
           path: coverage
           if-no-files-found: ignore
 
+      - name: Skipping SonarCloud scan from fork
+        if: github.event.pull_request.head.repo.full_name != github.repository && github.event_name == 'pull_request'
+        run: echo "Skipping analysis - secrets not available for PRs from forks"
+
   analysis:
     name: Analysis
-    if: ${{ always() }}
+    if: ${{ always() && (github.event.pull_request.head.repo.full_name == github.repository || github.event_name != 'pull_request') }}
     runs-on: ubuntu-24.04
     needs: [build, tasks]
 

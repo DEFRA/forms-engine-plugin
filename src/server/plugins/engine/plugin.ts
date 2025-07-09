@@ -28,8 +28,22 @@ export const plugin = {
   async register(server: Server, options: PluginOptions) {
     options = validatePluginOptions(options)
 
-    const { model, cacheName, nunjucks: nunjucksOptions, viewContext } = options
-    const cacheService = new CacheService(server, cacheName)
+    const {
+      model,
+      cacheName,
+      keyGenerator,
+      sessionHydrator,
+      nunjucks: nunjucksOptions,
+      viewContext
+    } = options
+    const cacheService = new CacheService({
+      server,
+      cacheName,
+      options: {
+        keyGenerator,
+        sessionHydrator
+      }
+    })
 
     await registerVision(server, options)
 

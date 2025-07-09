@@ -23,7 +23,7 @@ import {
   stateSchema
 } from '~/src/server/schemas/index.js'
 
-export function getHandler(
+function getHandler(
   request: FormRequest,
   h: Pick<ResponseToolkit, 'redirect' | 'view'>
 ) {
@@ -38,7 +38,7 @@ export function getHandler(
   })
 }
 
-export function postHandler(
+function postHandler(
   request: FormRequestPayload,
   h: Pick<ResponseToolkit, 'redirect' | 'view'>
 ) {
