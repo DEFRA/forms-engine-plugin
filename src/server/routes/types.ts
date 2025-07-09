@@ -39,7 +39,8 @@ export enum FormAction {
   Validate = 'validate',
   Delete = 'delete',
   AddAnother = 'add-another',
-  Send = 'send'
+  Send = 'send',
+  SaveAndReturn = 'save-and-return'
 }
 
 export enum FormStatus {

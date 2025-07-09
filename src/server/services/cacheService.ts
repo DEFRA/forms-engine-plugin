@@ -30,6 +30,12 @@ export class CacheService {
     request: Request | FormRequest | FormRequestPayload
   ) => Promise<FormSubmissionState | null>
 
+  customPersister?: (
+    key: string,
+    state: FormSubmissionState,
+    request: Request | FormRequest | FormRequestPayload
+  ) => Promise<void>
+
   logger: Server['logger']
 
   constructor({
@@ -46,9 +52,14 @@ export class CacheService {
       sessionHydrator?: (
         request: Request | FormRequest | FormRequestPayload
       ) => Promise<FormSubmissionState | null>
+      sessionPersister?: (
+        key: string,
+        state: FormSubmissionState,
+        request: Request | FormRequest | FormRequestPayload
+      ) => Promise<void>
     }
   }) {
-    const { keyGenerator, sessionHydrator } = options ?? {}
+    const { keyGenerator, sessionHydrator, sessionPersister } = options ?? {}
     if (!cacheName) {
       server.log(
         'warn',
@@ -57,6 +68,7 @@ export class CacheService {
     }
     this.generateKey = keyGenerator ?? this.defaultKeyGenerator.bind(this)
     this.customFetcher = sessionHydrator ?? undefined
+    this.customPersister = sessionPersister ?? undefined
     this.cache = server.cache({ cache: cacheName, segment: 'formSubmission' })
     this.logger = server.logger
   }
@@ -91,6 +103,22 @@ export class CacheService {
     const ttl = config.get('sessionTimeout')
 
     await this.cache.set(key, state, ttl)
+
+    this.logger.debug('Checking sessionPersister availability', {
+      sessionPersisterDefined: !!this.customPersister
+    })
+
+    if (this.customPersister) {
+      try {
+        await this.customPersister(key.id, state, request)
+        this.logger.debug('State persisted to database successfully', {
+          key: key.id
+        })
+      } catch (error) {
+        this.logger.error('Failed to persist state to database', error)
+      }
+    }
+
     return this.getState(request)
   }
 
