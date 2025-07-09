@@ -65,6 +65,9 @@ export const plugin = {
       request: FormRequest | FormRequestPayload,
       h: Pick<ResponseToolkit, 'continue'>
     ) => {
+      const acc1 = request.route.auth.access(request)
+      const acc2 = Auth.access(request)
+      const acc3 = Auth.testAccess(request)
       const metadata = await formsService.getFormMetadata(request.params.slug)
       const { params, path } = request
       const { state: formState } = checkFormStatus(params)
