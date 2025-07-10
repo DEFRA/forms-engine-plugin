@@ -16,7 +16,8 @@ export const configureEnginePlugin = async ({
   formFileName,
   formFilePath,
   services,
-  controllers
+  controllers,
+  preparePageEventRequestOptions
 }: RouteConfig = {}): Promise<{
   plugin: typeof plugin
   options: PluginOptions
@@ -52,7 +53,8 @@ export const configureEnginePlugin = async ({
         baseLayoutPath: 'dxt-devtool-baselayout.html',
         paths: [join(findPackageRoot(), 'src/server/devserver')] // custom layout to make it really clear this is not the same as the runner
       },
-      viewContext: devtoolContext
+      viewContext: devtoolContext,
+      preparePageEventRequestOptions
     }
   }
 }
