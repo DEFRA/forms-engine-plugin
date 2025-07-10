@@ -6,11 +6,10 @@ import { StatusCodes } from 'http-status-codes'
 
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
-import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
-import * as fixtures from '~/test/fixtures/index.js'
+import { FileFormService } from '~/src/server/utils/file-form-service.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
-const basePath = `${FORM_PREFIX}/basic`
+const basePath = `${FORM_PREFIX}/auth-test`
 
 // Example basic auth user repository
 /** @type {Record<string, TestUser | undefined>} */
@@ -43,17 +42,46 @@ function validate(request, username, password, _h) {
   return { isValid, credentials }
 }
 
-jest.mock('~/src/server/plugins/engine/services/formsService.js')
-
 describe('Auth', () => {
   /** @type {Server} */
   let server
 
   // Create server before each test
   beforeAll(async () => {
+    const loader = new FileFormService()
+    const now = new Date()
+    const user = { id: 'user', displayName: 'Username' }
+    const author = {
+      createdAt: now,
+      createdBy: user,
+      updatedAt: now,
+      updatedBy: user
+    }
+    const metadata = {
+      organisation: 'Defra',
+      teamName: 'Team name',
+      teamEmail: 'team@defra.gov.uk',
+      submissionGuidance: "Thanks for your submission, we'll be in touch",
+      notificationEmail: 'email@domain.com',
+      ...author,
+      live: author
+    }
+    await loader.addForm(
+      `${join(import.meta.dirname, 'definitions')}/text.json`,
+      {
+        ...metadata,
+        id: '95e92559-968d-44ae-8666-2b1ad3dffd31',
+        title: 'Auth test',
+        slug: 'auth-test'
+      }
+    )
+
+    const services = /** @type {Services} */ ({
+      formsService: loader.toFormsService()
+    })
+
     server = await createServer({
-      formFileName: 'basic.js',
-      formFilePath: join(import.meta.dirname, 'definitions'),
+      services,
       onRequest: (request /*, params, definition, metadata */) => {
         const { auth } = request
 
@@ -63,16 +91,16 @@ describe('Auth', () => {
       }
     })
 
-    // Register basic auth strategy and set it to the default
+    // Register basic auth strategy and set
+    // it to the default with { mode: try }
     await server.register(basic)
     server.auth.strategy('simple', 'basic', { validate })
-    server.auth.default('simple')
+    server.auth.default({
+      strategy: 'simple',
+      mode: 'try'
+    })
 
     await server.initialize()
-  })
-
-  beforeEach(() => {
-    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
   })
 
   afterAll(async () => {
@@ -81,7 +109,7 @@ describe('Auth', () => {
 
   test('get request to restricted form returns 403 Forbidden', async () => {
     const { response } = await renderResponse(server, {
-      url: `${basePath}/licence`
+      url: `${basePath}/first-page`
     })
 
     expect(response.statusCode).toBe(StatusCodes.UNAUTHORIZED)
@@ -89,7 +117,7 @@ describe('Auth', () => {
 
   test('authenticated get request to restricted form returns 200 OK', async () => {
     const { response } = await renderResponse(server, {
-      url: `${basePath}/licence`,
+      url: `${basePath}/first-page`,
       headers: {
         authorization: `Basic ${btoa('john:secret')}`
       }
@@ -110,4 +138,5 @@ describe('Auth', () => {
 
 /**
  * @import { Request, ResponseToolkit, Server } from '@hapi/hapi'
+ * @import { Services } from '~/src/server/types.js'
  */

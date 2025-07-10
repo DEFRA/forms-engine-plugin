@@ -17,7 +17,8 @@ export const configureEnginePlugin = async ({
   formFilePath,
   services,
   controllers,
-  preparePageEventRequestOptions
+  preparePageEventRequestOptions,
+  onRequest
 }: RouteConfig = {}): Promise<{
   plugin: typeof plugin
   options: PluginOptions
@@ -54,7 +55,8 @@ export const configureEnginePlugin = async ({
         paths: [join(findPackageRoot(), 'src/server/devserver')] // custom layout to make it really clear this is not the same as the runner
       },
       viewContext: devtoolContext,
-      preparePageEventRequestOptions
+      preparePageEventRequestOptions,
+      onRequest
     }
   }
 }
