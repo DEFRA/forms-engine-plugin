@@ -88,7 +88,7 @@ export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- hapi types are wrong
   const prefix = server.realm.modifiers.route.prefix ?? ''
 
-  const { services = defaultServices, controllers } = options
+  const { services = defaultServices, controllers, onRequest } = options
 
   const { formsService } = services
 
@@ -164,6 +164,11 @@ export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
       // Create new item and add it to the item cache
       item = { model, updatedAt: state.updatedAt }
       server.app.models.set(key, item)
+    }
+
+    // Call the onRequest callback if it has been supplied
+    if (onRequest) {
+      onRequest(request, h, params, item.model.def, metadata)
     }
 
     // Assign the model to the request data
