@@ -1,5 +1,9 @@
 import Joi from 'joi'
 
+import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+
+const logger = createLogger()
+
 const pluginRegistrationOptionsSchema = Joi.object({
   model: Joi.object().optional(),
   services: Joi.object().optional(),
@@ -13,7 +17,8 @@ const pluginRegistrationOptionsSchema = Joi.object({
   }).required(),
   viewContext: Joi.function().required(),
   preparePageEventRequestOptions: Joi.function().optional(),
-  onRequest: Joi.function().optional()
+  onRequest: Joi.function().optional(),
+  baseUrl: Joi.string().uri().required()
 })
 
 /**
@@ -27,6 +32,9 @@ export function validatePluginOptions(options) {
   })
 
   if (result.error) {
+    logger.error(
+      `Missing required properties in plugin options: ${result.error.message}`
+    )
     throw new Error('Invalid plugin options', result.error)
   }
 

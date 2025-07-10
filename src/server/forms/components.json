@@ -112,6 +112,14 @@
           "content": "Content",
           "options": {},
           "schema": {}
+        },
+        {
+          "type": "Markdown",
+          "name": "markdown",
+          "title": "Title",
+          "content": "# Hello, world!\n\n[An internal link](http://localhost:3000/fictional-page)\n\n[An external link](https://defra.gov.uk/fictional-page)",
+          "options": {},
+          "schema": {}
         }
       ]
     }
