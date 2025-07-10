@@ -15,6 +15,7 @@ import {
   type ComponentViewModel
 } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { type PreparePageEventRequestOptions } from '~/src/server/plugins/engine/models/types.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { type ViewContext } from '~/src/server/plugins/nunjucks/types.js'
@@ -349,4 +350,5 @@ export interface PluginOptions {
     paths: string[]
   }
   viewContext: PluginProperties['forms-engine-plugin']['viewContext']
+  preparePageEventRequestOptions?: PreparePageEventRequestOptions
 }

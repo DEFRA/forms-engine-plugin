@@ -51,6 +51,10 @@ export const plugin = {
     server.expose('baseLayoutPath', nunjucksOptions.baseLayoutPath)
     server.expose('viewContext', viewContext)
     server.expose('cacheService', cacheService)
+    server.expose(
+      'preparePageEventRequestOptions',
+      preparePageEventRequestOptions
+    )
 
     server.app.model = model
 

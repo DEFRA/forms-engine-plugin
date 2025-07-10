@@ -13,6 +13,7 @@ import {
 import { type RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
+  type FormContext,
   type FormState,
   type FormSubmissionError
 } from '~/src/server/plugins/engine/types.js'
@@ -117,6 +118,7 @@ export interface Detail {
 
 export type PreparePageEventRequestOptions = (
   options: RequestOptions,
+  event: Event,
   page: PageControllerClass,
-  event: Event
+  context: FormContext
 ) => void

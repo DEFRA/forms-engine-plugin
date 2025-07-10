@@ -8,6 +8,7 @@ import {
 import Joi from 'joi'
 
 import {
+  getPluginOptions,
   normalisePath,
   proceed,
   redirectPath
@@ -65,10 +66,16 @@ function getHandler(
 
       // @ts-expect-error - function signature will be refactored in the next iteration of the formatter
       const payload = format(items, model, undefined, undefined)
+      const opts = { payload }
+      const { preparePageEventRequestOptions } = getPluginOptions(
+        request.server
+      )
 
-      const { payload: response } = await httpService.postJson(url, {
-        payload
-      })
+      if (preparePageEventRequestOptions) {
+        preparePageEventRequestOptions(opts, events.onLoad, page, context)
+      }
+
+      const { payload: response } = await httpService.postJson(url, opts)
 
       Object.assign(context.data, response)
     }

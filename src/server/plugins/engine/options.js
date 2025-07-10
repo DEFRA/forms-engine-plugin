@@ -11,7 +11,8 @@ const pluginRegistrationOptionsSchema = Joi.object({
     baseLayoutPath: Joi.string().required(),
     paths: Joi.array().items(Joi.string()).required()
   }).required(),
-  viewContext: Joi.function().required()
+  viewContext: Joi.function().required(),
+  preparePageEventRequestOptions: Joi.function().optional()
 })
 
 /**
