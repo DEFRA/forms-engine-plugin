@@ -12,6 +12,7 @@ The forms plugin is configured with [registration options](https://hapi.dev/api/
   (#custom-cache) for more details
 - `pluginPath` (optional) - The location of the plugin (defaults to `node_modules/@defra/forms-engine-plugin`)
 - `preparePageEventRequestOptions` (optional) - A function that will be invoked for http-based [page events](./features/configuration-based/PAGE_EVENTS.md). See [here](./features/configuration-based/PAGE_EVENTS.md#authenticating-a-http-page-event-request-from-dxt-in-your-api) for details
+- `onRequest` (optional) - A function that will be invoked on each request to any form route e.g `/{slug}/{path}`. See [here](#onrequest) for more details
 
 ## Services
 
@@ -62,5 +63,35 @@ const server = new Hapi.Server({
       }
     }
   ]
+})
+```
+
+## onRequest
+
+If provided, the `onRequest` plugin option will be invoked on each request to any routes registered by the plugin.
+
+```ts
+export type OnRequestCallback = (
+  request: FormRequest | FormRequestPayload,
+  params: FormParams,
+  definition: FormDefinition,
+  metadata: FormMetadata
+) => void
+```
+
+Here's an example of how it could be used to secure access to forms:
+
+```js
+await server.register({
+  plugin,
+  options: {
+    onRequest: (request , params, definition, metadata) => {
+        const { auth } = request
+
+        if (!auth.isAuthenticated) {
+          throw Boom.unauthorized()
+        }
+      }
+  }
 })
 ```
