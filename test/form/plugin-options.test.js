@@ -15,7 +15,48 @@ const basePath = `${FORM_PREFIX}/basic`
 jest.mock('~/src/server/services/httpService')
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
 
-describe('Plugin options', () => {
+describe('Plugin options - page events', () => {
+  /** @type {Server} */
+  let server
+
+  // Create server before each test
+  beforeAll(async () => {
+    server = await createServer({
+      formFileName: 'plugin-options.js',
+      formFilePath: join(import.meta.dirname, 'definitions')
+    })
+
+    await server.initialize()
+  })
+
+  beforeEach(() => {
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+  })
+
+  afterAll(async () => {
+    await server.stop()
+  })
+
+  test('get request invokes page event', async () => {
+    const res = /** @type {IncomingMessage} */ ({
+      statusCode: StatusCodes.OK
+    })
+    jest
+      .mocked(httpService.postJson)
+      .mockResolvedValueOnce({ res, payload: { backendContext: 'hello' } })
+
+    await renderResponse(server, {
+      url: `${basePath}/licence`
+    })
+
+    expect(httpService.postJson).toHaveBeenCalledExactlyOnceWith(
+      'http://example.com',
+      { payload: expect.any(String) }
+    )
+  })
+})
+
+describe('Plugin options - page events with preparePageEventRequestOptions', () => {
   /** @type {Server} */
   let server
 
@@ -43,7 +84,7 @@ describe('Plugin options', () => {
     await server.stop()
   })
 
-  test('get request invokes page event', async () => {
+  test('get request invokes page event and calls preparePageEventRequestOptions', async () => {
     const res = /** @type {IncomingMessage} */ ({
       statusCode: StatusCodes.OK
     })
