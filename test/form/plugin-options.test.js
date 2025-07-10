@@ -77,4 +77,5 @@ describe('Plugin options', () => {
 
 /**
  * @import { Server } from '@hapi/hapi'
+ * @import { IncomingMessage } from 'node:http'
  */
