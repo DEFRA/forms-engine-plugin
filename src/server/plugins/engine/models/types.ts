@@ -1,6 +1,5 @@
 import {
   type ConditionWrapper,
-  type Event,
   type FormComponentsDef,
   type Section
 } from '@defra/forms-model'
@@ -13,11 +12,9 @@ import {
 import { type RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
-  type FormContext,
   type FormState,
   type FormSubmissionError
 } from '~/src/server/plugins/engine/types.js'
-import { type RequestOptions } from '~/src/server/services/httpService.js'
 
 export type ExecutableCondition = ConditionWrapper & {
   expr: Expression
@@ -115,10 +112,3 @@ export interface Detail {
   title?: Section['title']
   items: DetailItem[]
 }
-
-export type PreparePageEventRequestOptions = (
-  options: RequestOptions,
-  event: Event,
-  page: PageControllerClass,
-  context: FormContext
-) => void

@@ -1,5 +1,6 @@
 import {
   type ComponentDef,
+  type Event,
   type Item,
   type List,
   type Page
@@ -15,7 +16,6 @@ import {
   type ComponentViewModel
 } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
-import { type PreparePageEventRequestOptions } from '~/src/server/plugins/engine/models/types.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { type ViewContext } from '~/src/server/plugins/nunjucks/types.js'
@@ -24,6 +24,7 @@ import {
   type FormRequest,
   type FormRequestPayload
 } from '~/src/server/routes/types.js'
+import { type RequestOptions } from '~/src/server/services/httpService.js'
 import { type Services } from '~/src/server/types.js'
 
 /**
@@ -333,6 +334,13 @@ export interface ErrorMessageTemplateList {
   baseErrors: ErrorMessageTemplate[]
   advancedSettingsErrors: ErrorMessageTemplate[]
 }
+
+export type PreparePageEventRequestOptions = (
+  options: RequestOptions,
+  event: Event,
+  page: PageControllerClass,
+  context: FormContext
+) => void
 
 export interface PluginOptions {
   model?: FormModel
