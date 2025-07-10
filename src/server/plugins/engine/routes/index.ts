@@ -168,7 +168,7 @@ export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
 
     // Call the onRequest callback if it has been supplied
     if (onRequest) {
-      onRequest(request, h, params, item.model.def, metadata)
+      onRequest(request, params, item.model.def, metadata)
     }
 
     // Assign the model to the request data

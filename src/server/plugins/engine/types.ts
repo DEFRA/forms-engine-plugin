@@ -7,11 +7,7 @@ import {
   type List,
   type Page
 } from '@defra/forms-model'
-import {
-  type PluginProperties,
-  type Request,
-  type ResponseToolkit
-} from '@hapi/hapi'
+import { type PluginProperties, type Request } from '@hapi/hapi'
 import { type JoiExpression, type ValidationErrorItem } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
@@ -351,7 +347,6 @@ export type PreparePageEventRequestOptions = (
 
 export type OnRequestCallback = (
   request: FormRequest | FormRequestPayload,
-  h: ResponseToolkit,
   params: FormParams,
   definition: FormDefinition,
   metadata: FormMetadata

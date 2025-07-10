@@ -1,6 +1,7 @@
 import { join } from 'node:path'
 
 import basic from '@hapi/basic'
+import Boom from '@hapi/boom'
 import { StatusCodes } from 'http-status-codes'
 
 import { FORM_PREFIX } from '~/src/server/constants.js'
@@ -8,30 +9,36 @@ import { createServer } from '~/src/server/index.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
-import { getCookie } from '~/test/utils/get-cookie.js'
 
 const basePath = `${FORM_PREFIX}/basic`
 
+// Example basic auth user repository
+/** @type {Record<string, TestUser | undefined>} */
 const users = {
   john: {
-    profile: {
-      username: 'john',
-      password: 'secret',
-      name: 'John Doe',
-      id: '2133d32a'
-    },
-    scope: ['form-auth-read', 'read', 'write']
+    username: 'john',
+    password: 'secret',
+    name: 'John Doe',
+    id: '2133d32a'
   }
 }
 
-const validate = async (request, username, password, h) => {
+/**
+ * Example basic auth user validator
+ * @param {Request} request
+ * @param {string} username
+ * @param {string} password
+ * @param {ResponseToolkit} _h
+ */
+function validate(request, username, password, _h) {
   const user = users[username]
+
   if (!user) {
     return { credentials: null, isValid: false }
   }
 
-  const isValid = password === user.profile.password
-  const credentials = { user: user.profile, scope: user.scope }
+  const isValid = password === user.password
+  const credentials = { user }
 
   return { isValid, credentials }
 }
@@ -45,11 +52,18 @@ describe('Auth', () => {
   // Create server before each test
   beforeAll(async () => {
     server = await createServer({
-      formFileName: 'auth.js',
+      formFileName: 'basic.js',
       formFilePath: join(import.meta.dirname, 'definitions'),
-      enforceCsrf: true
+      onRequest: (request /*, params, definition, metadata */) => {
+        const { auth } = request
+
+        if (!auth.isAuthenticated) {
+          throw Boom.unauthorized()
+        }
+      }
     })
 
+    // Register basic auth strategy and set it to the default
     await server.register(basic)
     server.auth.strategy('simple', 'basic', { validate })
     server.auth.default('simple')
@@ -65,13 +79,13 @@ describe('Auth', () => {
     await server.stop()
   })
 
-  // test('get request to restricted form returns 403 forbidden', async () => {
-  //   const { response } = await renderResponse(server, {
-  //     url: `${basePath}/licence`
-  //   })
+  test('get request to restricted form returns 403 Forbidden', async () => {
+    const { response } = await renderResponse(server, {
+      url: `${basePath}/licence`
+    })
 
-  //   expect(response.statusCode).toBe(StatusCodes.UNAUTHORIZED)
-  // })
+    expect(response.statusCode).toBe(StatusCodes.UNAUTHORIZED)
+  })
 
   test('authenticated get request to restricted form returns 200 OK', async () => {
     const { response } = await renderResponse(server, {
@@ -83,38 +97,17 @@ describe('Auth', () => {
 
     expect(response.statusCode).toBe(StatusCodes.OK)
   })
-
-  // test('post request without CSRF token returns 403 forbidden', async () => {
-  //   const response = await server.inject({
-  //     url: `${basePath}/licence`,
-  //     method: 'POST',
-  //     payload: {
-  //       licenceLength: '1'
-  //     }
-  //   })
-
-  //   expect(response.statusCode).toBe(StatusCodes.FORBIDDEN)
-  // })
-
-  // test('post request with CSRF token returns 303 redirect', async () => {
-  //   const csrfToken = 'dummy-token'
-
-  //   const response = await server.inject({
-  //     url: `${basePath}/licence`,
-  //     method: 'POST',
-  //     headers: {
-  //       cookie: `crumb=${csrfToken}`
-  //     },
-  //     payload: {
-  //       crumb: csrfToken,
-  //       licenceLength: '1'
-  //     }
-  //   })
-
-  //   expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
-  // })
 })
 
 /**
- * @import { Server, ServerInjectOptions } from '@hapi/hapi'
+ * @typedef {{
+ *   username: string,
+ *   password: string,
+ *   name: string,
+ *   id: string
+ * }} TestUser
+ */
+
+/**
+ * @import { Request, ResponseToolkit, Server } from '@hapi/hapi'
  */
