@@ -1,6 +1,6 @@
 import Joi from 'joi'
 
-import { type FormParams } from '~/src/server/plugins/engine/types.js'
+import { type FormPayloadParams } from '~/src/server/plugins/engine/types.js'
 import { FormAction, FormStatus } from '~/src/server/routes/types.js'
 
 export const stateSchema = Joi.string<FormStatus>()
@@ -23,7 +23,7 @@ export const itemIdSchema = Joi.string().uuid().required()
 export const crumbSchema = Joi.string().optional().allow('')
 export const confirmSchema = Joi.boolean().empty(false)
 
-export const paramsSchema = Joi.object<FormParams>()
+export const paramsSchema = Joi.object<FormPayloadParams>()
   .keys({
     action: actionSchema,
     confirm: confirmSchema,

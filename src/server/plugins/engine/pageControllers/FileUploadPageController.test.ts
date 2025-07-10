@@ -22,7 +22,7 @@ import {
   type FeaturedFormPageViewModel,
   type FormContext,
   type FormContextRequest,
-  type FormParams,
+  type FormPayloadParams,
   type FormSubmissionState,
   type UploadStatusFileResponse,
   type UploadStatusResponse
@@ -1063,7 +1063,7 @@ describe('FileUploadPageController', () => {
 
       jest
         .spyOn(controller, 'getFormParams')
-        .mockReturnValue({ confirm: false } as unknown as FormParams)
+        .mockReturnValue({ confirm: false } as unknown as FormPayloadParams)
 
       const proceedSpy = jest
         .spyOn(controller, 'proceed')

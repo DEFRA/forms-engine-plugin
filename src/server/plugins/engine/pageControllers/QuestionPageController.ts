@@ -26,8 +26,8 @@ import {
   type FormContext,
   type FormContextRequest,
   type FormPageViewModel,
-  type FormParams,
   type FormPayload,
+  type FormPayloadParams,
   type FormState,
   type FormStateValue,
   type FormSubmissionState
@@ -268,7 +268,7 @@ export class QuestionPageController extends PageController {
   /**
    * Gets form params (from payload) for this page only
    */
-  getFormParams(request?: FormContextRequest): FormParams {
+  getFormParams(request?: FormContextRequest): FormPayloadParams {
     const { payload } = request ?? {}
 
     const result = paramsSchema.validate(payload, {
@@ -276,7 +276,7 @@ export class QuestionPageController extends PageController {
       stripUnknown: true
     })
 
-    return result.value as FormParams
+    return result.value as FormPayloadParams
   }
 
   getStateFromValidForm(
