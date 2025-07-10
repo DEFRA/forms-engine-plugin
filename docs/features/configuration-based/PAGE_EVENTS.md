@@ -129,24 +129,21 @@ Results in:
 <p class="govuk-body">You have been awarded £150.</p>
 ```
 
-## Authenticating a HTTP request from DXT in your API
+## Authenticating a HTTP page event request from DXT in your API
 
-This is not currently supported, but is planned. If you cannot wait for page events to support authentication, we recommend you create a page controller using Javascript which can implement your unique authentication requirements.
+The `preparePageEventRequestOptions` plugin option allows you to prepare the request options during a page event http request. This is useful to apply auth headers to the request.
 
-DXT plans to send a signature in the headers, similar to a JWT, that would allow teams to verify that an incoming payload is indeed from DXT. It would look something like this:
-
-```
-POST https://my-api.defra.gov.uk/page-submit`
-{
-  "headers": {
-    "X-Signature": "9d17656adf3654f2579fb49b7dcb53556df08e166cad84f8646a497fc75746bd"
-  },
-  "payload": {
-    // See the page event payload schema for details.
+```js
+await server.register({
+  plugin,
+  options: {
+    preparePageEventRequestOptions:  (options: RequestOptions, event: Event, page: PageControllerClass, context: FormContext) => {
+      // Request `options` are passed with the expectation they'll be manipulated
+      // The current `event`, `page` and `context` are passed for reference
+      options.headers = {
+        authorization: 'my token'
+      }
+    }
   }
-}
+})
 ```
-
-The signature would be verified by comparing it against the payload and DXT's public key. A successful verification would mean the request originated from DXT and can be trusted.
-
-See our [current sample implementation](https://github.com/alexluckett/js-signed-webhooks-demo/blob/master/index.js) to understand this in practice.
