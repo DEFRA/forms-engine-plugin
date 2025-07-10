@@ -61,37 +61,6 @@ export const plugin = {
 
     const loadFormPreHandler = makeLoadFormPreHandler(server, options)
 
-    const requireAuthForProtectedForms = async (
-      request: FormRequest | FormRequestPayload,
-      h: Pick<ResponseToolkit, 'continue'>
-    ) => {
-      const acc1 = request.route.auth.access(request)
-      const acc2 = Auth.access(request)
-      const acc3 = Auth.testAccess(request)
-      const metadata = await formsService.getFormMetadata(request.params.slug)
-      const { params, path } = request
-      const { state: formState } = checkFormStatus(params)
-      const { id } = metadata
-      const formDefinition = await formsService.getFormDefinition(id, formState)
-
-      const formAuth = formDefinition?.metadata?.auth as AuthConfig | undefined
-
-      const segments = path.split('/')
-      const pagePath = '/' + segments[segments.length - 1]
-      const page = formDefinition?.pages.find((p) => p.path === pagePath)
-      const effectiveAuth = page?.auth ?? formAuth ?? { mode: 'none' }
-      const mode = effectiveAuth.mode ?? 'none'
-
-      // If authentication is required but no credentials are found, reject the request
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if (mode === 'required' && !request.auth.credentials) {
-        throw Boom.unauthorized('You must be logged in to access this form')
-      }
-
-      // Proceed to the next pre-handler or route handler
-      return h.continue
-    }
-
     const getRouteOptions: RouteOptions<FormRequestRefs> = {
       pre: [
         {
