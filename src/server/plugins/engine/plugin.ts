@@ -51,10 +51,6 @@ export const plugin = {
     server.expose('baseLayoutPath', nunjucksOptions.baseLayoutPath)
     server.expose('viewContext', viewContext)
     server.expose('cacheService', cacheService)
-    server.expose(
-      'preparePageEventRequestOptions',
-      preparePageEventRequestOptions
-    )
 
     server.app.model = model
 
@@ -87,7 +83,11 @@ export const plugin = {
     }
 
     const routes = [
-      ...getQuestionRoutes(getRouteOptions, postRouteOptions),
+      ...getQuestionRoutes(
+        getRouteOptions,
+        postRouteOptions,
+        preparePageEventRequestOptions
+      ),
       ...getRepeaterSummaryRoutes(getRouteOptions, postRouteOptions),
       ...getRepeaterItemDeleteRoutes(getRouteOptions, postRouteOptions),
       ...getFileUploadStatusRoutes()

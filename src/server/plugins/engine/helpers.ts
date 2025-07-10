@@ -9,11 +9,7 @@ import {
   type Page
 } from '@defra/forms-model'
 import Boom from '@hapi/boom'
-import {
-  type PluginProperties,
-  type ResponseToolkit,
-  type Server
-} from '@hapi/hapi'
+import { type ResponseToolkit, type Server } from '@hapi/hapi'
 import { format, parseISO } from 'date-fns'
 import { StatusCodes } from 'http-status-codes'
 import { type Schema, type ValidationErrorItem } from 'joi'
@@ -380,14 +376,8 @@ export function evaluateTemplate(
   })
 }
 
-export const getPluginOptions = (
-  server: Server
-): PluginProperties['forms-engine-plugin'] => {
-  return server.plugins['forms-engine-plugin']
-}
-
 export function getCacheService(server: Server) {
-  return getPluginOptions(server).cacheService
+  return server.plugins['forms-engine-plugin'].cacheService
 }
 
 /**

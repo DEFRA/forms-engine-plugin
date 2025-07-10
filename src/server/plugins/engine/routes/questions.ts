@@ -8,12 +8,12 @@ import {
 import Joi from 'joi'
 
 import {
-  getPluginOptions,
   normalisePath,
   proceed,
   redirectPath
 } from '~/src/server/plugins/engine/helpers.js'
 import { SummaryViewModel } from '~/src/server/plugins/engine/models/index.js'
+import { type PreparePageEventRequestOptions } from '~/src/server/plugins/engine/models/types.js'
 import { format } from '~/src/server/plugins/engine/outputFormatters/machine/v1.js'
 import { getFormSubmissionData } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 import {
@@ -35,53 +35,57 @@ import {
 } from '~/src/server/schemas/index.js'
 import * as httpService from '~/src/server/services/httpService.js'
 
-function getHandler(
-  request: FormRequest,
-  h: Pick<ResponseToolkit, 'redirect' | 'view'>
+function makeGetHandler(
+  preparePageEventRequestOptions?: PreparePageEventRequestOptions
 ) {
-  const { params } = request
+  return function getHandler(
+    request: FormRequest,
+    h: Pick<ResponseToolkit, 'redirect' | 'view'>
+  ) {
+    const { params } = request
 
-  if (normalisePath(params.path) === '') {
-    return dispatchHandler(request, h)
-  }
-
-  return redirectOrMakeHandler(request, h, async (page, context) => {
-    // Check for a page onLoad HTTP event and if one exists,
-    // call it and assign the response to the context data
-    const { events } = page
-    const { model } = request.app
-
-    if (!model) {
-      throw Boom.notFound(`No model found for /${params.path}`)
+    if (normalisePath(params.path) === '') {
+      return dispatchHandler(request, h)
     }
 
-    if (events?.onLoad && events.onLoad.type === 'http') {
-      const { options } = events.onLoad
-      const { url } = options
+    return redirectOrMakeHandler(request, h, async (page, context) => {
+      // Check for a page onLoad HTTP event and if one exists,
+      // call it and assign the response to the context data
+      const { events } = page
+      const { model } = request.app
 
-      // TODO: Update structured data POST payload with when helper
-      // is updated to removing the dependency on `SummaryViewModel` etc.
-      const viewModel = new SummaryViewModel(request, page, context)
-      const items = getFormSubmissionData(viewModel.context, viewModel.details)
-
-      // @ts-expect-error - function signature will be refactored in the next iteration of the formatter
-      const payload = format(items, model, undefined, undefined)
-      const opts = { payload }
-      const { preparePageEventRequestOptions } = getPluginOptions(
-        request.server
-      )
-
-      if (preparePageEventRequestOptions) {
-        preparePageEventRequestOptions(opts, events.onLoad, page, context)
+      if (!model) {
+        throw Boom.notFound(`No model found for /${params.path}`)
       }
 
-      const { payload: response } = await httpService.postJson(url, opts)
+      if (events?.onLoad && events.onLoad.type === 'http') {
+        const { options } = events.onLoad
+        const { url } = options
 
-      Object.assign(context.data, response)
-    }
+        // TODO: Update structured data POST payload with when helper
+        // is updated to removing the dependency on `SummaryViewModel` etc.
+        const viewModel = new SummaryViewModel(request, page, context)
+        const items = getFormSubmissionData(
+          viewModel.context,
+          viewModel.details
+        )
 
-    return page.makeGetRouteHandler()(request, context, h)
-  })
+        // @ts-expect-error - function signature will be refactored in the next iteration of the formatter
+        const payload = format(items, model, undefined, undefined)
+        const opts = { payload }
+
+        if (preparePageEventRequestOptions) {
+          preparePageEventRequestOptions(opts, events.onLoad, page, context)
+        }
+
+        const { payload: response } = await httpService.postJson(url, opts)
+
+        Object.assign(context.data, response)
+      }
+
+      return page.makeGetRouteHandler()(request, context, h)
+    })
+  }
 }
 
 function postHandler(
@@ -105,13 +109,14 @@ function postHandler(
 
 export function getRoutes(
   getRouteOptions: RouteOptions<FormRequestRefs>,
-  postRouteOptions: RouteOptions<FormRequestPayloadRefs>
+  postRouteOptions: RouteOptions<FormRequestPayloadRefs>,
+  preparePageEventRequestOptions?: PreparePageEventRequestOptions
 ): (ServerRoute<FormRequestRefs> | ServerRoute<FormRequestPayloadRefs>)[] {
   return [
     {
       method: 'get',
       path: '/{slug}',
-      handler: getHandler,
+      handler: makeGetHandler(preparePageEventRequestOptions),
       options: {
         ...getRouteOptions,
         validate: {
@@ -138,7 +143,7 @@ export function getRoutes(
     {
       method: 'get',
       path: '/{slug}/{path}/{itemId?}',
-      handler: getHandler,
+      handler: makeGetHandler(preparePageEventRequestOptions),
       options: {
         ...getRouteOptions,
         validate: {
@@ -153,7 +158,7 @@ export function getRoutes(
     {
       method: 'get',
       path: '/preview/{state}/{slug}/{path}/{itemId?}',
-      handler: getHandler,
+      handler: makeGetHandler(preparePageEventRequestOptions),
       options: {
         ...getRouteOptions,
         validate: {
