@@ -639,3 +639,42 @@ describe('prepareEnvironment', () => {
     )
   })
 })
+
+describe('Exit route handlers', () => {
+  let server: Server
+
+  beforeAll(async () => {
+    server = await createServer({
+      services: defaultServices
+    })
+    await server.initialize()
+  })
+
+  afterAll(async () => {
+    await server.stop()
+  })
+
+  beforeEach(() => {
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+    server.app.models.clear()
+  })
+
+  test('GET /exit returns 200 with exit page content', async () => {
+    jest.mocked(getFormMetadata).mockResolvedValueOnce({
+      ...fixtures.form.metadata,
+      live: fixtures.form.state
+    })
+
+    jest.mocked(getFormDefinition).mockResolvedValue(fixtures.form.definition)
+
+    const options = {
+      method: 'GET',
+      url: `${FORM_PREFIX}/slug/exit`
+    }
+
+    const res = await server.inject(options)
+
+    expect(res.statusCode).toBe(StatusCodes.OK)
+    expect(res.result).toContain('Your progress has been saved')
+  })
+})

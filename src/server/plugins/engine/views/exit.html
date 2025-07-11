@@ -1,0 +1,31 @@
+{% extends baseLayoutPath %}
+
+{% from "govuk/components/panel/macro.njk" import govukPanel %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% set mainClasses = "govuk-main-wrapper--l" %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {{ govukPanel({
+        titleText: pageTitle or "Your progress has been saved"
+      }) }}
+
+      <h2 class="govuk-heading-m">What happens next</h2>
+      <div class="app-prose-scope">
+        <p class="govuk-body">Your form progress has been saved. You can return to complete your application at any time using the link provided.</p>
+
+        {% if returnUrl %}
+          <p class="govuk-body">
+            {{ govukButton({
+              text: "Return to application",
+              href: returnUrl,
+              classes: "govuk-button--secondary"
+            }) }}
+          </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

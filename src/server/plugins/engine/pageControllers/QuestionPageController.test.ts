@@ -10,7 +10,10 @@ import {
   type FormState,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
-import { type FormRequest } from '~/src/server/routes/types.js'
+import {
+  type FormRequest,
+  type FormRequestPayload
+} from '~/src/server/routes/types.js'
 import { CacheService } from '~/src/server/services/cacheService.js'
 import conditionalReveal from '~/test/form/definitions/conditional-reveal.js'
 import definitionConditionsBasic, {
@@ -1271,6 +1274,180 @@ describe('QuestionPageController V2', () => {
 
         expect(CacheService.prototype.setState).not.toHaveBeenCalled()
       })
+    })
+  })
+})
+
+describe('Save and Return functionality', () => {
+  let model: FormModel
+  let controller1: QuestionPageController
+  let requestPage1: FormRequest
+
+  beforeEach(() => {
+    const { pages } = definitionConditionsBasic
+
+    model = new FormModel(definitionConditionsBasic, {
+      basePath: 'test'
+    })
+
+    controller1 = new QuestionPageController(model, pages[0])
+
+    requestPage1 = {
+      method: 'get',
+      url: new URL('http://example.com/test/first-page'),
+      path: '/test/first-page',
+      params: {
+        path: 'first-page',
+        slug: 'test'
+      },
+      query: {},
+      app: { model }
+    } as FormRequest
+  })
+
+  const response = {
+    code: jest.fn().mockImplementation(() => response)
+  }
+
+  const h: Pick<ResponseToolkit, 'redirect' | 'view'> = {
+    redirect: jest.fn().mockReturnValue(response),
+    view: jest.fn()
+  }
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    jest.spyOn(CacheService.prototype, 'setState')
+  })
+
+  describe('shouldShowSaveAndReturn', () => {
+    it('should return true by default', () => {
+      expect(controller1.shouldShowSaveAndReturn()).toBe(true)
+    })
+  })
+
+  describe('handleSaveAndReturn', () => {
+    it('should save state and redirect to exit page', async () => {
+      const state: FormSubmissionState = {
+        $$__referenceNumber: 'foobar',
+        yesNoField: true
+      }
+      const request = {
+        ...requestPage1,
+        method: 'post',
+        payload: { yesNoField: true, action: 'save-and-return' }
+      } as unknown as FormRequestPayload
+
+      const context = model.getFormContext(request, state)
+
+      jest.spyOn(controller1, 'setState').mockResolvedValue(state)
+
+      await controller1.handleSaveAndReturn(request, context, h)
+
+      expect(controller1.setState).toHaveBeenCalledWith(request, state)
+      expect(h.redirect).toHaveBeenCalledWith('/test/exit')
+    })
+
+    it('should handle save-and-return with incomplete data', async () => {
+      const state: FormSubmissionState = {
+        $$__referenceNumber: 'foobar',
+        yesNoField: null
+      }
+      const request = {
+        ...requestPage1,
+        method: 'post',
+        payload: { yesNoField: '', action: 'save-and-return' }
+      } as unknown as FormRequestPayload
+
+      const context = model.getFormContext(request, state)
+
+      jest.spyOn(controller1, 'setState').mockResolvedValue(state)
+
+      await controller1.handleSaveAndReturn(request, context, h)
+
+      expect(controller1.setState).toHaveBeenCalledWith(request, state)
+      expect(h.redirect).toHaveBeenCalledWith('/test/exit')
+    })
+
+    it('should handle save-and-return with validation errors', async () => {
+      const state: FormSubmissionState = { $$__referenceNumber: 'foobar' }
+      const request = {
+        ...requestPage1,
+        method: 'post',
+        payload: { action: 'save-and-return' }
+      } as unknown as FormRequestPayload
+
+      const context = model.getFormContext(request, state)
+
+      jest.spyOn(controller1, 'setState').mockResolvedValue(state)
+
+      await controller1.handleSaveAndReturn(request, context, h)
+
+      expect(controller1.setState).toHaveBeenCalledWith(request, state)
+      expect(h.redirect).toHaveBeenCalledWith('/test/exit')
+    })
+  })
+
+  describe('POST handler with save-and-return action', () => {
+    it('should handle FormAction.SaveAndReturn', async () => {
+      const state: FormSubmissionState = {
+        $$__referenceNumber: 'foobar',
+        yesNoField: true
+      }
+      const request = {
+        ...requestPage1,
+        method: 'post',
+        payload: { yesNoField: true, action: 'save-and-return' }
+      } as unknown as FormRequestPayload
+
+      const context = model.getFormContext(request, state)
+
+      jest.spyOn(controller1, 'getState').mockResolvedValue({})
+      jest
+        .spyOn(controller1, 'handleSaveAndReturn')
+        .mockResolvedValue(h.redirect('/test/exit'))
+
+      const postHandler = controller1.makePostRouteHandler()
+      await postHandler(request, context, h)
+
+      expect(controller1.handleSaveAndReturn).toHaveBeenCalledWith(
+        request,
+        context,
+        h
+      )
+    })
+
+    it('should not call handleSaveAndReturn for continue action', async () => {
+      const state: FormSubmissionState = {
+        $$__referenceNumber: 'foobar',
+        yesNoField: true
+      }
+      const request = {
+        ...requestPage1,
+        method: 'post',
+        payload: { yesNoField: true, action: 'continue' }
+      } as unknown as FormRequestPayload
+
+      const context = model.getFormContext(request, state)
+
+      jest.spyOn(controller1, 'getState').mockResolvedValue({})
+      jest
+        .spyOn(controller1, 'handleSaveAndReturn')
+        .mockResolvedValue(h.redirect('/test/exit'))
+      jest.spyOn(controller1, 'setState').mockResolvedValue(state)
+
+      const mockResponse = {
+        code: jest.fn().mockReturnValue({ redirect: jest.fn() })
+      }
+
+      const mockH = {
+        redirect: jest.fn().mockReturnValue(mockResponse),
+        view: jest.fn()
+      }
+
+      const postHandler = controller1.makePostRouteHandler()
+      await postHandler(request, context, mockH)
+
+      expect(controller1.handleSaveAndReturn).not.toHaveBeenCalled()
     })
   })
 })

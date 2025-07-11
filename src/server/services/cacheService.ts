@@ -30,6 +30,12 @@ export class CacheService {
     request: Request | FormRequest | FormRequestPayload
   ) => Promise<FormSubmissionState | null>
 
+  customPersister?: (
+    key: string,
+    state: FormSubmissionState,
+    request: Request | FormRequest | FormRequestPayload
+  ) => Promise<void>
+
   logger: Server['logger']
 
   constructor({
@@ -46,9 +52,14 @@ export class CacheService {
       sessionHydrator?: (
         request: Request | FormRequest | FormRequestPayload
       ) => Promise<FormSubmissionState | null>
+      sessionPersister?: (
+        key: string,
+        state: FormSubmissionState,
+        request: Request | FormRequest | FormRequestPayload
+      ) => Promise<void>
     }
   }) {
-    const { keyGenerator, sessionHydrator } = options ?? {}
+    const { keyGenerator, sessionHydrator, sessionPersister } = options ?? {}
     if (!cacheName) {
       server.log(
         'warn',
@@ -57,6 +68,7 @@ export class CacheService {
     }
     this.generateKey = keyGenerator ?? this.defaultKeyGenerator.bind(this)
     this.customFetcher = sessionHydrator ?? undefined
+    this.customPersister = sessionPersister ?? undefined
     this.cache = server.cache({ cache: cacheName, segment: 'formSubmission' })
     this.logger = server.logger
   }
@@ -64,18 +76,16 @@ export class CacheService {
   async getState(
     request: Request | FormRequest | FormRequestPayload
   ): Promise<FormSubmissionState> {
-    let cached = await this.cache.get(this.Key(request))
+    const key = this.Key(request)
+
+    let cached = await this.cache.get(key)
 
     // If nothing in Redis, attempt to rehydrate from backend DB
     if (!cached && this.customFetcher) {
       const rehydrated = await this.customFetcher(request)
 
       if (rehydrated != null) {
-        await this.cache.set(
-          this.Key(request),
-          rehydrated,
-          config.get('sessionTimeout')
-        )
+        await this.cache.set(key, rehydrated, config.get('sessionTimeout'))
         cached = await this.getState(request)
       }
     }
@@ -91,6 +101,7 @@ export class CacheService {
     const ttl = config.get('sessionTimeout')
 
     await this.cache.set(key, state, ttl)
+
     return this.getState(request)
   }
 
@@ -146,8 +157,8 @@ export class CacheService {
       throw new Error('No session ID found')
     }
 
-    const state = request.params.state ?? ''
-    const slug = request.params.slug ?? ''
+    const state = (request.params.state as string) || ''
+    const slug = (request.params.slug as string) || ''
     return `${request.yar.id}:${state}:${slug}:`
   }
 

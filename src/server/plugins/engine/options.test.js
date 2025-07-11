@@ -16,6 +16,26 @@ describe('validatePluginOptions', () => {
     expect(validatePluginOptions(validOptions)).toEqual(validOptions)
   })
 
+  it('accepts optional properties keyGenerator, sessionHydrator, and sessionPersister', () => {
+    const validOptionsWithOptionals = {
+      nunjucks: {
+        baseLayoutPath: 'dxt-devtool-baselayout.html',
+        paths: ['src/server/devserver']
+      },
+      viewContext: () => {
+        return { hello: 'world' }
+      },
+      baseUrl: 'http://localhost:3009',
+      keyGenerator: () => 'test-key',
+      sessionHydrator: () => Promise.resolve({ someState: 'value' }),
+      sessionPersister: () => Promise.resolve(undefined)
+    }
+
+    expect(validatePluginOptions(validOptionsWithOptionals)).toEqual(
+      validOptionsWithOptionals
+    )
+  })
+
   /**
    * tsc would usually check compliance with the type, but given a user might be using plain JS we still want a test
    */

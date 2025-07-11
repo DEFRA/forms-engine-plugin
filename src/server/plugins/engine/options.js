@@ -19,7 +19,10 @@ const pluginRegistrationOptionsSchema = Joi.object({
   viewContext: Joi.function().required(),
   preparePageEventRequestOptions: Joi.function().optional(),
   onRequest: Joi.function().optional(),
-  baseUrl: Joi.string().uri().required()
+  baseUrl: Joi.string().uri().required(),
+  keyGenerator: Joi.function().optional(),
+  sessionHydrator: Joi.function().optional(),
+  sessionPersister: Joi.function().optional()
 })
 
 /**

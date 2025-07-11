@@ -30,6 +30,8 @@ import {
 import { type RequestOptions } from '~/src/server/services/httpService.js'
 import { type Services } from '~/src/server/types.js'
 
+type RequestType = Request | FormRequest | FormRequestPayload
+
 /**
  * Form submission state stores the following in Redis:
  * Props containing user's submitted values as `{ [inputId]: value }` or as `{ [sectionName]: { [inputName]: value } }`
@@ -303,6 +305,7 @@ export interface FormPageViewModel extends PageViewModelBase {
   context: FormContext
   errors?: FormSubmissionError[]
   hasMissingNotificationEmail?: boolean
+  allowSaveAndReturn?: boolean
 }
 
 export interface RepeaterSummaryPageViewModel extends PageViewModelBase {
@@ -360,10 +363,13 @@ export interface PluginOptions {
   cacheName?: string
   globals?: Record<string, GlobalFunction>
   filters?: Record<string, FilterFunction>
-  keyGenerator?: (request: Request | FormRequest | FormRequestPayload) => string
-  sessionHydrator?: (
-    request: Request | FormRequest | FormRequestPayload
-  ) => Promise<FormSubmissionState>
+  keyGenerator?: (request: RequestType) => string
+  sessionHydrator?: (request: RequestType) => Promise<FormSubmissionState>
+  sessionPersister?: (
+    key: string,
+    state: FormSubmissionState,
+    request: RequestType
+  ) => Promise<void>
   pluginPath?: string
   nunjucks: {
     baseLayoutPath: string

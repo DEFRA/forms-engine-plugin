@@ -33,6 +33,7 @@ import {
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import {
+  FormAction,
   type FormRequest,
   type FormRequestPayload,
   type FormRequestPayloadRefs,
@@ -172,7 +173,8 @@ export class QuestionPageController extends PageController {
       context,
       showTitle,
       components,
-      errors
+      errors,
+      allowSaveAndReturn: this.shouldShowSaveAndReturn()
     }
   }
 
@@ -510,6 +512,12 @@ export class QuestionPageController extends PageController {
         return h.view(viewName, viewModel)
       }
 
+      // Check if this is a save-and-return action
+      const { action } = request.payload
+      if (action === FormAction.SaveAndReturn) {
+        return this.handleSaveAndReturn(request, context, h)
+      }
+
       // Save and proceed
       await this.setState(request, state)
       return this.proceed(request, h, this.getNextPath(context))
@@ -526,6 +534,25 @@ export class QuestionPageController extends PageController {
       : this.href // Redirect to current page (refresh)
 
     return proceed(request, h, nextUrl)
+  }
+
+  shouldShowSaveAndReturn(): boolean {
+    return true
+  }
+
+  /**
+   * Handle save-and-return action by processing form data and redirecting to exit page
+   */
+  async handleSaveAndReturn(
+    request: FormRequestPayload,
+    context: FormContext,
+    h: Pick<ResponseToolkit, 'redirect' | 'view'>
+  ) {
+    const { state } = context
+
+    // Save the current state and redirect to exit page
+    await this.setState(request, state)
+    return h.redirect(this.getHref('/exit'))
   }
 
   /**

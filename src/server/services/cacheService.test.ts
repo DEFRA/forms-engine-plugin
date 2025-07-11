@@ -110,6 +110,29 @@ describe('CacheService', () => {
       )
       expect(result).toEqual(rehydratedState)
     })
+
+    it('should return empty object when custom fetcher returns null', async () => {
+      const customFetcher = jest.fn().mockResolvedValue(null)
+
+      cacheService = new CacheService({
+        server: mockServer as Server,
+        cacheName: 'test-cache',
+        options: { sessionHydrator: customFetcher }
+      })
+
+      const mockRequest = {
+        yar: { id: 'session-id' },
+        params: { state: 's', slug: 'p' }
+      } as unknown as FormRequest
+
+      mockCache.get.mockResolvedValue(null)
+
+      const result = await cacheService.getState(mockRequest)
+
+      expect(customFetcher).toHaveBeenCalledWith(mockRequest)
+      expect(mockCache.set).not.toHaveBeenCalled()
+      expect(result).toEqual({})
+    })
   })
 
   describe('setState', () => {
@@ -311,6 +334,28 @@ describe('CacheService', () => {
         segment: 'cache',
         id: 'some-session:form1:page1:'
       })
+    })
+
+    it('should not clear state when session ID is undefined', async () => {
+      const mockRequest = {
+        yar: { id: undefined },
+        params: { state: 'form1', slug: 'page1' }
+      } as unknown as FormRequest
+
+      await cacheService.clearState(mockRequest)
+
+      expect(mockCache.drop).not.toHaveBeenCalled()
+    })
+
+    it('should not clear state when session ID is null', async () => {
+      const mockRequest = {
+        yar: { id: null },
+        params: { state: 'form1', slug: 'page1' }
+      } as unknown as FormRequest
+
+      await cacheService.clearState(mockRequest)
+
+      expect(mockCache.drop).not.toHaveBeenCalled()
     })
   })
 

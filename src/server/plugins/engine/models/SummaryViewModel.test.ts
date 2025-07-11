@@ -3,6 +3,7 @@ import {
   FormModel,
   SummaryViewModel
 } from '~/src/server/plugins/engine/models/index.js'
+import { SummaryPageController } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 import {
   createPage,
   type PageControllerClass
@@ -246,6 +247,64 @@ describe('SummaryViewModel', () => {
         title: keys[1],
         label: keys[4]
       })
+    })
+  })
+})
+
+describe('SummaryPageController', () => {
+  let model: FormModel
+  let controller: SummaryPageController
+  let request: FormContextRequest
+
+  beforeEach(() => {
+    model = new FormModel(definition, {
+      basePath: `${FORM_PREFIX}/test`
+    })
+
+    controller = new SummaryPageController(model, definition.pages[2])
+
+    request = {
+      method: 'get',
+      url: new URL('http://example.com/repeat/pizza-order/summary'),
+      path: '/repeat/pizza-order/summary',
+      params: {
+        path: 'pizza-order',
+        slug: 'repeat'
+      },
+      query: {},
+      app: { model }
+    }
+  })
+
+  describe('Save and Return functionality', () => {
+    it('should show save and return button on summary page', () => {
+      expect(controller.shouldShowSaveAndReturn()).toBe(true)
+    })
+
+    it('should handle save and return from summary page', () => {
+      const state: FormState = {
+        $$__referenceNumber: 'foobar',
+        orderType: 'collection',
+        pizza: []
+      }
+
+      const context = model.getFormContext(request, state)
+      const viewModel = controller.getViewModel(request, context)
+
+      expect(viewModel).toHaveProperty('allowSaveAndReturn', true)
+    })
+
+    it('should display correct page title', () => {
+      const state: FormState = {
+        $$__referenceNumber: 'foobar',
+        orderType: 'collection',
+        pizza: []
+      }
+
+      const context = model.getFormContext(request, state)
+      const viewModel = controller.getViewModel(request, context)
+
+      expect(viewModel.pageTitle).toBe('Check your answers')
     })
   })
 })

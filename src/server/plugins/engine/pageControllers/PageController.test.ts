@@ -204,5 +204,30 @@ describe('PageController', () => {
         'Unsupported POST route handler for this page'
       )
     })
+
+    it('supports save and return functionality', async () => {
+      const mockRequest = {
+        ...request,
+        payload: { saveAndReturn: true }
+      } as FormRequest
+
+      const mockResponse = {
+        redirect: jest.fn(),
+        view: jest.fn()
+      } as unknown as ResponseToolkit
+
+      await controller1.makeGetRouteHandler()(
+        mockRequest,
+        model.getFormContext(mockRequest, { $$__referenceNumber: 'test-ref' }),
+        mockResponse
+      )
+
+      expect(mockResponse.view).toHaveBeenCalledWith(
+        controller1.viewName,
+        expect.objectContaining({
+          pageTitle: 'Buy a rod fishing licence'
+        })
+      )
+    })
   })
 })

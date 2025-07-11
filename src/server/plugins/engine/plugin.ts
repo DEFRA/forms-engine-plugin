@@ -8,6 +8,7 @@ import {
 
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { validatePluginOptions } from '~/src/server/plugins/engine/options.js'
+import { getRoutes as getSaveAndReturnExitRoutes } from '~/src/server/plugins/engine/routes/exit.js'
 import { getRoutes as getFileUploadStatusRoutes } from '~/src/server/plugins/engine/routes/file-upload.js'
 import { makeLoadFormPreHandler } from '~/src/server/plugins/engine/routes/index.js'
 import { getRoutes as getQuestionRoutes } from '~/src/server/plugins/engine/routes/questions.js'
@@ -33,6 +34,7 @@ export const plugin = {
       cacheName,
       keyGenerator,
       sessionHydrator,
+      sessionPersister,
       nunjucks: nunjucksOptions,
       viewContext,
       preparePageEventRequestOptions
@@ -42,7 +44,8 @@ export const plugin = {
       cacheName,
       options: {
         keyGenerator,
-        sessionHydrator
+        sessionHydrator,
+        sessionPersister
       }
     })
 
@@ -90,6 +93,7 @@ export const plugin = {
       ),
       ...getRepeaterSummaryRoutes(getRouteOptions, postRouteOptions),
       ...getRepeaterItemDeleteRoutes(getRouteOptions, postRouteOptions),
+      ...getSaveAndReturnExitRoutes(getRouteOptions),
       ...getFileUploadStatusRoutes()
     ]
 
