@@ -13,7 +13,8 @@ export const actionSchema = Joi.string<FormAction>()
     FormAction.Validate,
     FormAction.Delete,
     FormAction.AddAnother,
-    FormAction.Send
+    FormAction.Send,
+    FormAction.SaveAndReturn
   )
   .default(FormAction.Validate)
   .optional()

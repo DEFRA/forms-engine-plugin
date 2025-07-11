@@ -15,4 +15,8 @@ export class StartPageController extends QuestionPageController {
       isStartPage: true
     }
   }
+
+  shouldShowSaveAndReturn(): boolean {
+    return false
+  }
 }

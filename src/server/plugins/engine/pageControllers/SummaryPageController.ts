@@ -143,6 +143,10 @@ export class SummaryPageController extends QuestionPageController {
       }
     }
   }
+
+  shouldShowSaveAndReturn(): boolean {
+    return true
+  }
 }
 
 async function submitForm(

@@ -3,13 +3,25 @@
 
 <form method="post" novalidate>
   <input type="hidden" name="crumb" value="{{ crumb }}">
-  <input type="hidden" name="action" value="validate">
 
   {{ componentList(components) }}
 
-  {{ govukButton({
-    text: "Start now" if isStartPage else "Continue",
-    isStartButton: isStartPage,
-    preventDoubleClick: true
-  }) }}
+  <div class="govuk-button-group">
+    {{ govukButton({
+      text: "Start now" if isStartPage else "Continue",
+      isStartButton: isStartPage,
+      preventDoubleClick: true
+    }) }}
+    
+    {% if allowSaveAndReturn %}
+      {{ govukButton({
+        text: "Save and return",
+        classes: "govuk-button--secondary",
+        preventDoubleClick: true,
+        attributes: {
+          "formaction": saveAndReturnPath
+        }
+      }) }}
+    {% endif %}
+  </div>
 </form>
