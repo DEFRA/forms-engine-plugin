@@ -9,7 +9,8 @@ describe('validatePluginOptions', () => {
       },
       viewContext: () => {
         return { hello: 'world' }
-      }
+      },
+      baseUrl: 'http://localhost:3009'
     }
 
     expect(validatePluginOptions(validOptions)).toEqual(validOptions)
@@ -19,6 +20,7 @@ describe('validatePluginOptions', () => {
    * tsc would usually check compliance with the type, but given a user might be using plain JS we still want a test
    */
   it('fails if a required attribute is missing', () => {
+    // viewContext is missing
     const invalidOptions = {
       nunjucks: {
         baseLayoutPath: 'dxt-devtool-baselayout.html',
