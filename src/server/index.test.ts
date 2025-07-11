@@ -1,8 +1,10 @@
 import { type Server } from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
+import { type Environment } from 'nunjucks'
 
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
+import { prepareNunjucksEnvironment } from '~/src/server/plugins/engine/index.js'
 import {
   getFormDefinition,
   getFormMetadata
@@ -12,6 +14,7 @@ import { getUploadStatus } from '~/src/server/plugins/engine/services/uploadServ
 import {
   FileStatus,
   UploadStatus,
+  type PluginOptions,
   type UploadStatusResponse
 } from '~/src/server/plugins/engine/types.js'
 import { FormStatus } from '~/src/server/routes/types.js'
@@ -550,5 +553,75 @@ describe('Upload status route', () => {
     const res = await server.inject(options)
 
     expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST)
+  })
+})
+
+describe('prepareEnvironment', () => {
+  const mockEnv = {
+    addFilter: jest.fn(),
+    addGlobal: jest.fn()
+  } as unknown as Environment
+
+  const mockPluginOptions: PluginOptions = {
+    baseUrl: 'http://localhost',
+    nunjucks: {
+      baseLayoutPath: '',
+      paths: []
+    },
+    viewContext: undefined
+  }
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  const expectedBaseFilters = [
+    'highlight',
+    'inspect',
+    'evaluate',
+    'answer',
+    'href',
+    'field',
+    'page',
+    'markdown'
+  ]
+
+  test('registers base filters', () => {
+    prepareNunjucksEnvironment(mockEnv, mockPluginOptions)
+
+    expect(mockEnv.addFilter).toHaveBeenCalledTimes(expectedBaseFilters.length)
+    expectedBaseFilters.forEach((name) => {
+      expect(mockEnv.addFilter).toHaveBeenCalledWith(name, expect.any(Function))
+    })
+  })
+
+  test('registers additional filters', () => {
+    prepareNunjucksEnvironment(mockEnv, {
+      ...mockPluginOptions,
+      filters: {
+        customFilter: (value) => value
+      }
+    })
+
+    expect(mockEnv.addFilter).toHaveBeenCalledWith(
+      'customFilter',
+      expect.any(Function)
+    )
+  })
+
+  test('registers all globals', () => {
+    const expectedGlobals = [
+      'checkComponentTemplates',
+      'checkErrorTemplates',
+      'evaluate',
+      'govukRebrand'
+    ]
+
+    prepareNunjucksEnvironment(mockEnv, mockPluginOptions)
+
+    expect(mockEnv.addGlobal).toHaveBeenCalledTimes(expectedGlobals.length)
+    expectedGlobals.forEach((name) => {
+      expect(mockEnv.addGlobal).toHaveBeenCalledWith(name, expect.any(Function))
+    })
   })
 })

@@ -56,7 +56,7 @@ export async function registerVision(
 
             // Applies custom filters and globals for nunjucks
             // that are required by the `forms-engine-plugin`
-            prepareNunjucksEnvironment(environment, pluginOptions.filters)
+            prepareNunjucksEnvironment(environment, pluginOptions)
 
             options.compileOptions.environment = environment
 

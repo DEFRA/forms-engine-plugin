@@ -56,7 +56,8 @@ export const configureEnginePlugin = async ({
       },
       viewContext: devtoolContext,
       preparePageEventRequestOptions,
-      onRequest
+      onRequest,
+      baseUrl: 'http://localhost:3009' // always runs locally
     }
   }
 }

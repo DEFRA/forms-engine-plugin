@@ -1,8 +1,9 @@
+import { markdownToHtml } from '@defra/forms-model'
 import { type Environment } from 'nunjucks'
 
 import { engine } from '~/src/server/plugins/engine/helpers.js'
 import { plugin } from '~/src/server/plugins/engine/plugin.js'
-import { type FilterFunction } from '~/src/server/plugins/engine/types.js'
+import { type PluginOptions } from '~/src/server/plugins/engine/types.js'
 import {
   checkComponentTemplates,
   checkErrorTemplates,
@@ -26,19 +27,23 @@ export const PLUGIN_PATH = 'node_modules/@defra/forms-engine-plugin'
 
 export const prepareNunjucksEnvironment = function (
   env: Environment,
-  additionalFilters?: Record<string, FilterFunction>
+  pluginOptions: PluginOptions
 ) {
   for (const [name, nunjucksFilter] of Object.entries(filters)) {
     env.addFilter(name, nunjucksFilter)
   }
+
+  env.addFilter('markdown', (text: string) =>
+    markdownToHtml(text, pluginOptions.baseUrl)
+  )
 
   for (const [name, nunjucksGlobal] of Object.entries(globals)) {
     env.addGlobal(name, nunjucksGlobal)
   }
 
   // Apply any additional filters to both the liquid and nunjucks engines
-  if (additionalFilters) {
-    for (const [name, filter] of Object.entries(additionalFilters)) {
+  if (pluginOptions.filters) {
+    for (const [name, filter] of Object.entries(pluginOptions.filters)) {
       env.addFilter(name, filter)
       engine.registerFilter(name, filter)
     }
