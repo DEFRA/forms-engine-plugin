@@ -1,4 +1,4 @@
-import { isConditionalType, type ComponentDef } from '@defra/forms-model'
+import { isConditionalRevealType, type ComponentDef } from '@defra/forms-model'
 import joi, {
   type ArraySchema,
   type BooleanSchema,
@@ -76,7 +76,7 @@ export class ComponentBase {
       viewModel.classes = options.classes
     }
 
-    if ('condition' in options && isConditionalType(type)) {
+    if ('condition' in options && isConditionalRevealType(type)) {
       viewModel.condition = options.condition
     }
 
