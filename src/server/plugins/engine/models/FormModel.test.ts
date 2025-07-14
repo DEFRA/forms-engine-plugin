@@ -390,4 +390,89 @@ describe('FormModel - Joined Conditions', () => {
     const falseState = { fsZNJr: 'Bob', DaBGpS: false }
     expect(joinedConditionPage?.condition?.fn(falseState)).toBe(false)
   })
+
+  describe('generateConditionAlias', () => {
+    it('should generate valid JavaScript identifiers from condition IDs', () => {
+      formDefinitionV2Schema.validate = jest
+        .fn()
+        .mockReturnValue({ value: joinedConditionsDefinition })
+
+      const model = new FormModel(joinedConditionsDefinition, {
+        basePath: 'test'
+      })
+
+      const evaluationState = { fsZNJr: 'Bob', DaBGpS: true }
+      const context = model.toConditionContext(
+        evaluationState,
+        model.conditions
+      )
+
+      expect(context).toHaveProperty(
+        'cond_d15aff7a_6224_40a2_8e5f_51a5af2f7910'
+      )
+      expect(context).toHaveProperty(
+        'cond_d1f9fcc7_f098_47e7_9d31_4f5ee57ba985'
+      )
+      expect(context).toHaveProperty(
+        'cond_db43c6bc_9ce6_478b_8345_4fff5eff2ba3'
+      )
+    })
+  })
+
+  describe('toConditionExpression', () => {
+    it('should handle V2 engine with display name replacement', () => {
+      formDefinitionV2Schema.validate = jest
+        .fn()
+        .mockReturnValue({ value: joinedConditionsDefinition })
+
+      const model = new FormModel(joinedConditionsDefinition, {
+        basePath: 'test'
+      })
+
+      const joinedCondition =
+        model.conditions['db43c6bc-9ce6-478b-8345-4fff5eff2ba3']
+      expect(joinedCondition).toBeDefined()
+
+      const stateTrue = { fsZNJr: 'Bob', DaBGpS: true }
+      const stateFalse = { fsZNJr: 'Alice', DaBGpS: false }
+
+      expect(joinedCondition?.fn(stateTrue)).toBe(true)
+      expect(joinedCondition?.fn(stateFalse)).toBe(false)
+
+      expect(joinedCondition?.expr).toBeDefined()
+      expect(typeof joinedCondition?.expr.evaluate).toBe('function')
+    })
+
+    it('should handle V1 engine without display name replacement', () => {
+      const model = new FormModel(definition, { basePath: 'test' })
+
+      const condition = model.conditions.ZCXeMz
+      expect(condition).toBeDefined()
+      expect(condition?.expr).toBeDefined()
+
+      const testState = { NIJphU: "ap'ostrophe's", iraEpG: "shouldn't've" }
+      expect(condition?.fn(testState)).toBe(true)
+    })
+
+    it('should handle conditions without display names', () => {
+      const definitionWithoutDisplayName = {
+        ...joinedConditionsDefinition,
+        conditions: joinedConditionsDefinition.conditions.map((condition) => ({
+          ...condition,
+          displayName: condition.displayName || 'fallback'
+        }))
+      }
+
+      formDefinitionV2Schema.validate = jest
+        .fn()
+        .mockReturnValue({ value: definitionWithoutDisplayName })
+
+      const model = new FormModel(definitionWithoutDisplayName, {
+        basePath: 'test'
+      })
+
+      expect(model.conditions).toBeDefined()
+      expect(Object.keys(model.conditions)).toHaveLength(3)
+    })
+  })
 })
