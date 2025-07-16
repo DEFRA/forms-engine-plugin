@@ -327,6 +327,7 @@ export type PageViewModel =
   | RepeaterSummaryPageViewModel
   | FeaturedFormPageViewModel
 
+export type GlobalFunction = (value: unknown) => unknown
 export type FilterFunction = (value: unknown) => unknown
 export interface ErrorMessageTemplate {
   type: string
@@ -357,6 +358,7 @@ export interface PluginOptions {
   services?: Services
   controllers?: Record<string, typeof PageController>
   cacheName?: string
+  globals?: Record<string, GlobalFunction>
   filters?: Record<string, FilterFunction>
   keyGenerator?: (request: Request | FormRequest | FormRequestPayload) => string
   sessionHydrator?: (

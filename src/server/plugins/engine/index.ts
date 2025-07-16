@@ -48,6 +48,13 @@ export const prepareNunjucksEnvironment = function (
       engine.registerFilter(name, filter)
     }
   }
+
+  // Apply any additional globals to nunjucks engines
+  if (pluginOptions.globals) {
+    Object.entries(pluginOptions.globals).forEach(([name, fn]) => {
+      env.addGlobal(name, fn)
+    })
+  }
 }
 
 export default plugin

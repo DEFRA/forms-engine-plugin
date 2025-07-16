@@ -609,7 +609,7 @@ describe('prepareEnvironment', () => {
     )
   })
 
-  test('registers all globals', () => {
+  test('registers base globals', () => {
     const expectedGlobals = [
       'checkComponentTemplates',
       'checkErrorTemplates',
@@ -623,5 +623,19 @@ describe('prepareEnvironment', () => {
     expectedGlobals.forEach((name) => {
       expect(mockEnv.addGlobal).toHaveBeenCalledWith(name, expect.any(Function))
     })
+  })
+
+  test('registers additional globals', () => {
+    prepareNunjucksEnvironment(mockEnv, {
+      ...mockPluginOptions,
+      globals: {
+        customGlobal: (value) => value
+      }
+    })
+
+    expect(mockEnv.addGlobal).toHaveBeenCalledWith(
+      'customGlobal',
+      expect.any(Function)
+    )
   })
 })

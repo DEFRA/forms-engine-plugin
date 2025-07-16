@@ -7,6 +7,7 @@ The forms plugin is configured with [registration options](https://hapi.dev/api/
   - `formSubmissionService` - used prepare the form during submission (ignore - subject to change)
   - `outputService` - used to save the submission
 - `controllers` (optional) - Object map of custom page controllers used to override the default. See [custom controllers](#custom-controllers)
+- `globals` (optional) - A map of custom template globals to include
 - `filters` (optional) - A map of custom template filters to include
 - `cacheName` (optional) - The cache name to use. Defaults to hapi's [default server cache]. Recommended for production. See [here]
   (#custom-cache) for more details
