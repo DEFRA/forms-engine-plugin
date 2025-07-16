@@ -8,6 +8,7 @@ import {
   convertConditionWrapperFromV2,
   formDefinitionSchema,
   formDefinitionV2Schema,
+  generateConditionAlias,
   hasComponents,
   hasRepeater,
   isConditionWrapperV2,
@@ -210,15 +211,6 @@ export class FormModel {
   }
 
   /**
-   * Generate a valid JavaScript identifier from a condition ID
-   * @param conditionId - The condition ID (UUID)
-   * @returns A valid JavaScript identifier
-   */
-  private generateConditionAlias(conditionId: string): string {
-    return `cond_${conditionId.replace(/-/g, '_')}`
-  }
-
-  /**
    * build the entire model schema from individual pages/sections and filter out answers
    * for pages which are no longer accessible due to an answer that has been changed
    */
@@ -286,7 +278,7 @@ export class FormModel {
     const context = { ...evaluationState }
 
     for (const conditionId in conditions) {
-      const alias = this.generateConditionAlias(conditionId)
+      const alias = generateConditionAlias(conditionId)
 
       Object.defineProperty(context, alias, {
         get() {
@@ -300,27 +292,7 @@ export class FormModel {
 
   toConditionExpression(value: ConditionsModelData, parser: Parser) {
     const conditions = ConditionsModel.from(value)
-    const originalExpression = conditions.toExpression()
-
-    if (this.engine === Engine.V2) {
-      let aliasedExpression = originalExpression
-
-      for (const conditionId in this.conditions) {
-        const condition = this.conditions[conditionId]
-        if (condition?.displayName) {
-          const alias = this.generateConditionAlias(conditionId)
-          const displayNameRegex = new RegExp(
-            `\\b${condition.displayName}\\b`,
-            'g'
-          )
-          aliasedExpression = aliasedExpression.replace(displayNameRegex, alias)
-        }
-      }
-
-      return parser.parse(aliasedExpression)
-    }
-
-    return parser.parse(originalExpression)
+    return parser.parse(conditions.toExpression())
   }
 
   getList(nameOrId: string): List | undefined {
