@@ -402,20 +402,15 @@ describe('FormModel - Joined Conditions', () => {
       })
 
       const evaluationState = { fsZNJr: 'Bob', DaBGpS: true }
+
       const context = model.toConditionContext(
         evaluationState,
         model.conditions
       )
 
-      expect(context).toHaveProperty(
-        'cond_d15aff7a_6224_40a2_8e5f_51a5af2f7910'
-      )
-      expect(context).toHaveProperty(
-        'cond_d1f9fcc7_f098_47e7_9d31_4f5ee57ba985'
-      )
-      expect(context).toHaveProperty(
-        'cond_db43c6bc_9ce6_478b_8345_4fff5eff2ba3'
-      )
+      expect(context).toHaveProperty('cond_d15aff7a622440a28e5f51a5af2f7910')
+      expect(context).toHaveProperty('cond_d1f9fcc7f09847e79d314f5ee57ba985')
+      expect(context).toHaveProperty('cond_db43c6bc9ce6478b83454fff5eff2ba3')
     })
   })
 
