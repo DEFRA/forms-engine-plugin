@@ -9,6 +9,7 @@ const pluginRegistrationOptionsSchema = Joi.object({
   services: Joi.object().optional(),
   controllers: Joi.object().pattern(Joi.string(), Joi.any()).optional(),
   cacheName: Joi.string().optional(),
+  globals: Joi.object().pattern(Joi.string(), Joi.any()).optional(),
   filters: Joi.object().pattern(Joi.string(), Joi.any()).optional(),
   pluginPath: Joi.string().optional(),
   nunjucks: Joi.object({
