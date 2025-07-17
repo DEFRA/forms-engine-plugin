@@ -13,21 +13,21 @@ import {
  */
 
 export default /** @satisfies {FormDefinition} */ ({
-  name: 'joined conditions test',
+  name: 'joined-conditions-simple',
   engine: Engine.V2,
   schema: SchemaVersion.V2,
-  startPage: '/summary',
+  startPage: '/name',
   pages: [
     {
       title: 'What is your name?',
-      path: '/what-is-your-name',
+      path: '/name',
       components: [
         {
           type: ComponentType.TextField,
           title: 'What is your name?',
-          name: 'fsZNJr',
+          name: 'userName',
           id: '87b987e8-bcf9-4ff9-92af-57c34c45995a',
-          options: {},
+          options: { required: true },
           schema: {}
         }
       ],
@@ -36,36 +36,36 @@ export default /** @satisfies {FormDefinition} */ ({
     },
     {
       title: 'Are you over 18?',
-      path: '/are-you-over-18',
+      path: '/age',
       components: [
         {
           type: ComponentType.YesNoField,
           title: 'Are you over 18?',
-          name: 'DaBGpS',
+          name: 'isOverEighteen',
           id: 'c977e76e-49ab-4443-b93e-e19e8d9c81ac',
-          options: {}
+          options: { required: true }
         }
       ],
       id: '7be18dec-0680-4c41-9981-357aa085429d',
-      next: [],
-      condition: 'd15aff7a-6224-40a2-8e5f-51a5af2f7910'
+      condition: 'd15aff7a-6224-40a2-8e5f-51a5af2f7910',
+      next: []
     },
     {
-      title: 'Joined condition page',
-      path: '/joined-condition-page',
+      title: 'Simple AND Page',
+      path: '/simple-and-page',
       components: [
         {
-          type: ComponentType.TextField,
-          title: 'Joined condition page',
-          name: 'uxddlT',
-          id: '6be952dd-10f1-4642-8af6-18e4e082756e',
+          type: ComponentType.Markdown,
+          title: 'Information',
+          content: '# This page shows when user is Bob AND over 18',
           options: {},
-          schema: {}
+          name: 'simpleAndInfo',
+          id: 'a0b1221b-8895-41e2-b99b-d62c33501023'
         }
       ],
-      id: '97d57deb-0cf9-4321-bc1a-458e44279a5a',
-      next: [],
-      condition: 'db43c6bc-9ce6-478b-8345-4fff5eff2ba3'
+      id: '0c25bcd9-143c-4ba0-b1f1-08f8bed82d8d',
+      condition: 'db43c6bc-9ce6-478b-8345-4fff5eff2ba3',
+      next: []
     },
     {
       id: '449a45f6-4541-4a46-91bd-8b8931b07b50',
@@ -75,19 +75,7 @@ export default /** @satisfies {FormDefinition} */ ({
     }
   ],
   conditions: [
-    {
-      items: [
-        {
-          id: 'c833b177-0cba-49de-b670-a297c6db45b8',
-          componentId: 'c977e76e-49ab-4443-b93e-e19e8d9c81ac',
-          operator: OperatorName.Is,
-          value: true,
-          type: ConditionType.BooleanValue
-        }
-      ],
-      displayName: 'is over 18',
-      id: 'd1f9fcc7-f098-47e7-9d31-4f5ee57ba985'
-    },
+    // Basic conditions
     {
       items: [
         {
@@ -102,7 +90,21 @@ export default /** @satisfies {FormDefinition} */ ({
       id: 'd15aff7a-6224-40a2-8e5f-51a5af2f7910'
     },
     {
-      displayName: 'joined condition',
+      items: [
+        {
+          id: 'c833b177-0cba-49de-b670-a297c6db45b8',
+          componentId: 'c977e76e-49ab-4443-b93e-e19e8d9c81ac',
+          operator: OperatorName.Is,
+          value: true,
+          type: ConditionType.BooleanValue
+        }
+      ],
+      displayName: 'is over 18',
+      id: 'd1f9fcc7-f098-47e7-9d31-4f5ee57ba985'
+    },
+    // Joined condition: is Bob AND over 18
+    {
+      displayName: 'is Bob AND over 18',
       coordinator: Coordinator.AND,
       items: [
         {
@@ -117,6 +119,6 @@ export default /** @satisfies {FormDefinition} */ ({
       id: 'db43c6bc-9ce6-478b-8345-4fff5eff2ba3'
     }
   ],
-  sections: [],
-  lists: []
+  lists: [],
+  sections: []
 })
