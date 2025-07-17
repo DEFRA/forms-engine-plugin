@@ -26,6 +26,7 @@ export class CacheService {
    */
   cache
   generateKey?: (request: Request | FormRequest | FormRequestPayload) => string
+  customClearer?: (request: Request | FormRequest | FormRequestPayload) => void
   customFetcher?: (
     request: Request | FormRequest | FormRequestPayload
   ) => Promise<FormSubmissionState | null>
@@ -90,7 +91,7 @@ export class CacheService {
       }
     }
 
-    return cached ?? {}
+    return cached || {}
   }
 
   async setState(
@@ -111,7 +112,7 @@ export class CacheService {
     const key = this.Key(request, ADDITIONAL_IDENTIFIER.Confirmation)
     const value = await this.cache.get(key)
 
-    return value ?? {}
+    return value || {}
   }
 
   async setConfirmationState(
