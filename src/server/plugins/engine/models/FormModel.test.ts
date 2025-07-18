@@ -391,6 +391,38 @@ describe('FormModel - Joined Conditions', () => {
     expect(joinedConditionPage?.condition?.fn(falseState)).toBe(false)
   })
 
+  it('should handle V1 joined conditions without aliases', () => {
+    formDefinitionV2Schema.validate = jest
+      .fn()
+      .mockReturnValue({ value: definition })
+
+    const model = new FormModel(definition, {
+      basePath: 'test'
+    })
+
+    expect(model.conditions).toBeDefined()
+    expect(Object.keys(model.conditions)).toHaveLength(1)
+
+    const joinedCondition = model.conditions.ZCXeMz
+    expect(joinedCondition).toBeDefined()
+    expect(joinedCondition?.displayName).toBe('test')
+
+    const testState = { NIJphU: "ap'ostrophe's", iraEpG: "shouldn't've" }
+    expect(joinedCondition?.fn(testState)).toBe(true)
+
+    const testStateFalse = { NIJphU: 'other', iraEpG: "shouldn't've" }
+    expect(joinedCondition?.fn(testStateFalse)).toBe(false)
+
+    const context = model.toConditionContext(testState, model.conditions)
+
+    expect(context).not.toHaveProperty('cond_ZCXeMz')
+
+    expect(context).toHaveProperty('ZCXeMz')
+
+    expect(context).toHaveProperty('NIJphU', "ap'ostrophe's")
+    expect(context).toHaveProperty('iraEpG', "shouldn't've")
+  })
+
   describe('generateConditionAlias', () => {
     it('should generate valid JavaScript identifiers from condition IDs', () => {
       formDefinitionV2Schema.validate = jest
