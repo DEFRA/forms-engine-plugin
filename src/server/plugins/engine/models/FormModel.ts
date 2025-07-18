@@ -278,9 +278,12 @@ export class FormModel {
     const context = { ...evaluationState }
 
     for (const conditionId in conditions) {
-      const alias = generateConditionAlias(conditionId)
+      const propertyName =
+        this.engine === Engine.V2
+          ? generateConditionAlias(conditionId)
+          : conditionId
 
-      Object.defineProperty(context, alias, {
+      Object.defineProperty(context, propertyName, {
         get() {
           return conditions[conditionId]?.fn(evaluationState)
         }

@@ -12,7 +12,7 @@ import definition from '~/test/form/definitions/conditions-escaping.js'
 import conditionsListDefinition from '~/test/form/definitions/conditions-list.js'
 import relativeDatesDefinition from '~/test/form/definitions/conditions-relative-dates-v2.js'
 import fieldsRequiredDefinition from '~/test/form/definitions/fields-required.js'
-import joinedConditionsDefinition from '~/test/form/definitions/joined-conditions-test.js'
+import joinedConditionsDefinition from '~/test/form/definitions/joined-conditions-simple-v2.js'
 
 jest.mock('~/src/server/plugins/engine/date-helper.ts')
 
@@ -357,15 +357,15 @@ describe('FormModel - Joined Conditions', () => {
     const joinedCondition =
       model.conditions['db43c6bc-9ce6-478b-8345-4fff5eff2ba3']
     expect(joinedCondition).toBeDefined()
-    expect(joinedCondition?.displayName).toBe('joined condition')
+    expect(joinedCondition?.displayName).toBe('is Bob AND over 18')
 
-    const stateAllTrue = { fsZNJr: 'Bob', DaBGpS: true }
+    const stateAllTrue = { userName: 'Bob', isOverEighteen: true }
     expect(joinedCondition?.fn(stateAllTrue)).toBe(true)
 
-    const statePartialTrue = { fsZNJr: 'Alice', DaBGpS: true }
+    const statePartialTrue = { userName: 'Alice', isOverEighteen: true }
     expect(joinedCondition?.fn(statePartialTrue)).toBe(false)
 
-    const stateFalse = { fsZNJr: 'Alice', DaBGpS: false }
+    const stateFalse = { userName: 'Alice', isOverEighteen: false }
     expect(joinedCondition?.fn(stateFalse)).toBe(false)
   })
 
@@ -379,16 +379,48 @@ describe('FormModel - Joined Conditions', () => {
     })
 
     const joinedConditionPage = model.pages.find(
-      (page) => page.path === '/joined-condition-page'
+      (page) => page.path === '/simple-and-page'
     )
 
     expect(joinedConditionPage?.condition).toBeDefined()
 
-    const trueState = { fsZNJr: 'Bob', DaBGpS: true }
+    const trueState = { userName: 'Bob', isOverEighteen: true }
     expect(joinedConditionPage?.condition?.fn(trueState)).toBe(true)
 
-    const falseState = { fsZNJr: 'Bob', DaBGpS: false }
+    const falseState = { userName: 'Bob', isOverEighteen: false }
     expect(joinedConditionPage?.condition?.fn(falseState)).toBe(false)
+  })
+
+  it('should handle V1 joined conditions without aliases', () => {
+    formDefinitionV2Schema.validate = jest
+      .fn()
+      .mockReturnValue({ value: definition })
+
+    const model = new FormModel(definition, {
+      basePath: 'test'
+    })
+
+    expect(model.conditions).toBeDefined()
+    expect(Object.keys(model.conditions)).toHaveLength(1)
+
+    const joinedCondition = model.conditions.ZCXeMz
+    expect(joinedCondition).toBeDefined()
+    expect(joinedCondition?.displayName).toBe('test')
+
+    const testState = { NIJphU: "ap'ostrophe's", iraEpG: "shouldn't've" }
+    expect(joinedCondition?.fn(testState)).toBe(true)
+
+    const testStateFalse = { NIJphU: 'other', iraEpG: "shouldn't've" }
+    expect(joinedCondition?.fn(testStateFalse)).toBe(false)
+
+    const context = model.toConditionContext(testState, model.conditions)
+
+    expect(context).not.toHaveProperty('cond_ZCXeMz')
+
+    expect(context).toHaveProperty('ZCXeMz')
+
+    expect(context).toHaveProperty('NIJphU', "ap'ostrophe's")
+    expect(context).toHaveProperty('iraEpG', "shouldn't've")
   })
 
   describe('generateConditionAlias', () => {
@@ -401,7 +433,7 @@ describe('FormModel - Joined Conditions', () => {
         basePath: 'test'
       })
 
-      const evaluationState = { fsZNJr: 'Bob', DaBGpS: true }
+      const evaluationState = { userName: 'Bob', isOverEighteen: true }
 
       const context = model.toConditionContext(
         evaluationState,
@@ -428,8 +460,8 @@ describe('FormModel - Joined Conditions', () => {
         model.conditions['db43c6bc-9ce6-478b-8345-4fff5eff2ba3']
       expect(joinedCondition).toBeDefined()
 
-      const stateTrue = { fsZNJr: 'Bob', DaBGpS: true }
-      const stateFalse = { fsZNJr: 'Alice', DaBGpS: false }
+      const stateTrue = { userName: 'Bob', isOverEighteen: true }
+      const stateFalse = { userName: 'Alice', isOverEighteen: false }
 
       expect(joinedCondition?.fn(stateTrue)).toBe(true)
       expect(joinedCondition?.fn(stateFalse)).toBe(false)
