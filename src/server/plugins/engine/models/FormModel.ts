@@ -279,7 +279,7 @@ export class FormModel {
 
     for (const conditionId in conditions) {
       const propertyName =
-        this.engine === Engine.V2
+        this.schemaVersion === SchemaVersion.V2
           ? generateConditionAlias(conditionId)
           : conditionId
 
