@@ -423,6 +423,48 @@ describe('FormModel - Joined Conditions', () => {
     expect(context).toHaveProperty('iraEpG', "shouldn't've")
   })
 
+  it('should use schema version to determine condition aliases', () => {
+    const v1Definition = { ...definition, schema: SchemaVersion.V1 }
+    formDefinitionV2Schema.validate = jest
+      .fn()
+      .mockReturnValue({ value: v1Definition })
+
+    const v1Model = new FormModel(v1Definition, { basePath: 'test' })
+    expect(v1Model.schemaVersion).toBe(SchemaVersion.V1)
+
+    const v1TestState = { NIJphU: "ap'ostrophe's", iraEpG: "shouldn't've" }
+    const v1Context = v1Model.toConditionContext(
+      v1TestState,
+      v1Model.conditions
+    )
+
+    expect(v1Context).toHaveProperty('ZCXeMz')
+    expect(v1Context).not.toHaveProperty('cond_ZCXeMz')
+
+    formDefinitionV2Schema.validate = jest
+      .fn()
+      .mockReturnValue({ value: joinedConditionsDefinition })
+
+    const v2Model = new FormModel(joinedConditionsDefinition, {
+      basePath: 'test'
+    })
+    expect(v2Model.schemaVersion).toBe(SchemaVersion.V2)
+
+    const v2TestState = { userName: 'Bob', isOverEighteen: true }
+    const v2Context = v2Model.toConditionContext(
+      v2TestState,
+      v2Model.conditions
+    )
+
+    expect(v2Context).toHaveProperty('cond_d15aff7a622440a28e5f51a5af2f7910')
+    expect(v2Context).toHaveProperty('cond_d1f9fcc7f09847e79d314f5ee57ba985')
+    expect(v2Context).toHaveProperty('cond_db43c6bc9ce6478b83454fff5eff2ba3')
+
+    expect(v2Context).not.toHaveProperty('d15aff7a-6224-40a2-8e5f-51a5af2f7910')
+    expect(v2Context).not.toHaveProperty('d1f9fcc7-f098-47e7-9d31-4f5ee57ba985')
+    expect(v2Context).not.toHaveProperty('db43c6bc-9ce6-478b-8345-4fff5eff2ba3')
+  })
+
   describe('generateConditionAlias', () => {
     it('should generate valid JavaScript identifiers from condition IDs', () => {
       formDefinitionV2Schema.validate = jest
