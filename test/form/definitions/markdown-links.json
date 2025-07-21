@@ -1,0 +1,48 @@
+{
+  "startPage": "/start",
+  "pages": [
+    {
+      "title": "Start",
+      "path": "/start",
+      "components": [],
+      "next": [
+        {
+          "path": "/links"
+        }
+      ],
+      "controller": "StartPageController"
+    },
+    {
+      "path": "/links",
+      "components": [
+        {
+          "type": "Markdown",
+          "name": "exampleLink",
+          "title": "Some links",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "content": "This [is an internal link](http://localhost:3009/some-page). This [is an external link](http://google.com)."
+        }
+      ],
+      "next": [
+        {
+          "path": "/summary"
+        }
+      ],
+      "title": "Some links"
+    },
+    {
+      "path": "/summary",
+      "controller": "SummaryPageController",
+      "title": "Summary",
+      "components": [],
+      "next": []
+    }
+  ],
+  "lists": [],
+  "sections": [],
+  "phaseBanner": {},
+  "conditions": []
+}
