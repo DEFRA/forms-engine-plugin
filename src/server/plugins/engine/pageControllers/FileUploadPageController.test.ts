@@ -14,6 +14,7 @@ import {
   prepareStatus
 } from '~/src/server/plugins/engine/pageControllers/FileUploadPageController.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
+import { serverWithSaveAndReturn } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
 import * as pageHelpers from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import * as uploadService from '~/src/server/plugins/engine/services/uploadService.js'
 import {
@@ -31,6 +32,7 @@ import {
   type FormRequest,
   type FormRequestPayload
 } from '~/src/server/routes/types.js'
+import { type CacheService } from '~/src/server/services/index.js'
 import definition from '~/test/form/definitions/file-upload-basic.js'
 
 type TestableFileUploadPageController = FileUploadPageController & {
@@ -77,12 +79,13 @@ describe('FileUploadPageController', () => {
       server: {
         plugins: {
           'forms-engine-plugin': {
+            baseLayoutPath: '',
             cacheService: {
               setFlash: jest.fn(),
               setState: jest
                 .fn()
                 .mockImplementation((req, updated) => Promise.resolve(updated))
-            }
+            } as unknown as CacheService
           }
         }
       },
@@ -1112,6 +1115,14 @@ describe('FileUploadPageController', () => {
       expect(viewModel.proxyUrl).toBe('http://uploader.127.0.0.1.sslip.io:7300')
       expect(viewModel.formAction).toBe(
         'https://cdp-upload-and-scan.com/upload'
+      )
+    })
+  })
+
+  describe('shouldShowSaveAndReturn', () => {
+    it('should return true when save and return is enabled', () => {
+      expect(controller.shouldShowSaveAndReturn(serverWithSaveAndReturn)).toBe(
+        true
       )
     })
   })

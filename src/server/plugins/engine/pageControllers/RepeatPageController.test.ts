@@ -1,7 +1,10 @@
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
-import { server } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
+import {
+  server,
+  serverWithSaveAndReturn
+} from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
 import {
   type FormContextRequest,
   type FormPageViewModel,
@@ -265,6 +268,14 @@ describe('RepeatPageController', () => {
     it('includes all field errors', () => {
       const result = controller.collection.validate()
       expect(result.errors).toHaveLength(3)
+    })
+  })
+
+  describe('shouldShowSaveAndReturn', () => {
+    it('should return true when save and return is enabled', () => {
+      expect(controller.shouldShowSaveAndReturn(serverWithSaveAndReturn)).toBe(
+        true
+      )
     })
   })
 })

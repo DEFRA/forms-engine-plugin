@@ -3,6 +3,7 @@ import { type ResponseToolkit } from '@hapi/hapi'
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
+import { serverWithSaveAndReturn } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
 import { type FormRequest } from '~/src/server/routes/types.js'
 import definition from '~/test/form/definitions/basic.js'
 
@@ -227,6 +228,14 @@ describe('PageController', () => {
         expect.objectContaining({
           pageTitle: 'Buy a rod fishing licence'
         })
+      )
+    })
+  })
+
+  describe('shouldShowSaveAndReturn', () => {
+    it('should return false (PageController does not allow save and return)', () => {
+      expect(controller1.shouldShowSaveAndReturn(serverWithSaveAndReturn)).toBe(
+        false
       )
     })
   })
