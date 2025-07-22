@@ -10,7 +10,6 @@ import {
 import { serverWithSaveAndReturn } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
 import {
   type FormContext,
-  type FormContextRequest,
   type FormPageViewModel,
   type FormState,
   type FormSubmissionState
@@ -304,7 +303,7 @@ describe('QuestionPageController', () => {
         },
         query: {},
         app: { model }
-      } as FormContextRequest)
+      })
 
       // Calculate our context based on the page we're attempting to load and the above state we provide
       let context = controller.model.getFormContext(request, state)
@@ -346,7 +345,7 @@ describe('QuestionPageController', () => {
         },
         query: {},
         app: { model }
-      } as FormContextRequest)
+      })
 
       // And recalculate our context
       context = controller.model.getFormContext(request, state)
@@ -390,7 +389,7 @@ describe('QuestionPageController', () => {
         },
         query: {},
         app: { model }
-      } as FormContextRequest)
+      })
 
       const context = controller.model.getFormContext(request, {
         $$__referenceNumber: 'foobar',
@@ -433,7 +432,7 @@ describe('QuestionPageController', () => {
         },
         query: {},
         app: { model }
-      } as FormContextRequest)
+      })
 
       const context = controller.model.getFormContext(request, state)
       const evaluationState = { animalType: 'Barn owl' }
@@ -489,7 +488,7 @@ describe('QuestionPageController', () => {
         },
         query: {},
         app: { model }
-      } as FormContextRequest)
+      })
 
       const context = controller.model.getFormContext(request, state)
       const evaluationState = { animalType: 'Swan' }
@@ -988,7 +987,7 @@ describe('QuestionPageController V2', () => {
         },
         query: {},
         app: { model }
-      } as FormContextRequest)
+      })
 
       // Calculate our context based on the page we're attempting to load and the above state we provide
       let context = controller.model.getFormContext(request, state)
@@ -1030,7 +1029,7 @@ describe('QuestionPageController V2', () => {
         },
         query: {},
         app: { model }
-      } as FormContextRequest)
+      })
 
       // And recalculate our context
       context = controller.model.getFormContext(request, state)
@@ -1074,7 +1073,7 @@ describe('QuestionPageController V2', () => {
         },
         query: {},
         app: { model }
-      } as FormContextRequest)
+      })
 
       const context = controller.model.getFormContext(request, {
         $$__referenceNumber: 'foobar',

@@ -2,7 +2,9 @@ import { server } from '~/src/server/plugins/engine/pageControllers/__stubs__/se
 import { type FormContextRequest } from '~/src/server/plugins/engine/types.js'
 import { type FormRequest } from '~/src/server/routes/types.js'
 
-export function makeFormRequest(request: FormRequest): FormRequest {
+export function makeFormRequest(
+  request: Omit<FormRequest, 'server'>
+): FormRequest {
   return {
     ...request,
     server
@@ -10,7 +12,7 @@ export function makeFormRequest(request: FormRequest): FormRequest {
 }
 
 export function makeFormContextRequest(
-  request: FormContextRequest
+  request: Omit<FormContextRequest, 'server'>
 ): FormContextRequest {
   return {
     ...request,

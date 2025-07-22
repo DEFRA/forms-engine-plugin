@@ -8,7 +8,6 @@ import {
   getFormSubmissionData
 } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 import { makeFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
-import { type FormContextRequest } from '~/src/server/plugins/engine/types.js'
 import { FormStatus } from '~/src/server/routes/types.js'
 import definition from '~/test/form/definitions/repeat-mixed.js'
 
@@ -63,7 +62,7 @@ const request = makeFormContextRequest({
   },
   query: {},
   app: { model }
-} as FormContextRequest)
+})
 
 const context = model.getFormContext(request, state)
 const summaryViewModel = controller.getSummaryViewModel(request, context)

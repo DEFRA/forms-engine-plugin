@@ -6,6 +6,7 @@ import {
 
 import { todayAsDateOnly } from '~/src/server/plugins/engine/date-helper.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { makeFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { type FormContextRequest } from '~/src/server/plugins/engine/types.js'
 import { V2 as definitionV2 } from '~/test/form/definitions/conditions-basic.js'
 import definition from '~/test/form/definitions/conditions-escaping.js'
@@ -151,7 +152,7 @@ describe('FormModel', () => {
       }
       const pageUrl = new URL('http://example.com/components/fields-required')
 
-      const request: FormContextRequest = {
+      const request: FormContextRequest = makeFormContextRequest({
         method: 'post',
         payload: { crumb: 'dummyCrumb', action: 'validate' },
         query: {},
@@ -159,7 +160,7 @@ describe('FormModel', () => {
         params: { path: 'components', slug: 'fields-required' },
         url: pageUrl,
         app: { model: formModel }
-      }
+      })
 
       const context = formModel.getFormContext(request, state)
 
@@ -180,7 +181,7 @@ describe('FormModel', () => {
       }
       const pageUrl = new URL('http://example.com/components/fields-required')
 
-      const request: FormContextRequest = {
+      const request: FormContextRequest = makeFormContextRequest({
         method: 'post',
         payload: { crumb: 'dummyCrumb', action: 'validate' },
         query: {},
@@ -188,7 +189,7 @@ describe('FormModel', () => {
         params: { path: 'components', slug: 'fields-required' },
         url: pageUrl,
         app: { model: formModel }
-      }
+      })
 
       expect(() => formModel.getFormContext(request, state)).toThrow(
         'Reference number not found in form state'
@@ -206,7 +207,7 @@ describe('FormModel', () => {
       }
       const pageUrl = new URL('http://example.com/components/fields-required')
 
-      const request: FormContextRequest = {
+      const request: FormContextRequest = makeFormContextRequest({
         method: 'post',
         payload: { crumb: 'dummyCrumb', action: 'validate' },
         query: {},
@@ -214,7 +215,7 @@ describe('FormModel', () => {
         params: { path: 'components', slug: 'fields-required' },
         url: pageUrl,
         app: { model: formModel }
-      }
+      })
 
       expect(() => formModel.getFormContext(request, state)).toThrow(
         'Reference number not found in form state'
@@ -236,14 +237,14 @@ describe('FormModel', () => {
         'http://example.com/conditional-list-items/summary'
       )
 
-      const request: FormContextRequest = {
+      const request: FormContextRequest = makeFormContextRequest({
         method: 'get',
         query: {},
         path: pageUrl.pathname,
         params: { path: 'summary', slug: 'conditional-list-items' },
         url: pageUrl,
         app: { model: formModel }
-      }
+      })
 
       const context = formModel.getFormContext(request, state)
 
@@ -271,14 +272,14 @@ describe('FormModel', () => {
         'http://example.com/conditional-list-items/summary'
       )
 
-      const request: FormContextRequest = {
+      const request: FormContextRequest = makeFormContextRequest({
         method: 'get',
         query: {},
         path: pageUrl.pathname,
         params: { path: 'summary', slug: 'conditional-list-items' },
         url: pageUrl,
         app: { model: formModel }
-      }
+      })
 
       const context = formModel.getFormContext(request, state)
 

@@ -67,7 +67,7 @@ describe('Helpers', () => {
       },
       query: {},
       app: { model }
-    } as FormContextRequest)
+    })
 
     const response = {
       code: jest.fn().mockImplementation(() => response)

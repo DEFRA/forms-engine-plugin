@@ -55,11 +55,10 @@ describe('RepeatPageController', () => {
         slug: 'repeat'
       },
       query: {},
-      app: { model },
-      server
-    } as FormContextRequest)
+      app: { model }
+    })
 
-    requestPageItem = makeFormContextRequest({
+    requestPageItem = {
       method: 'get',
       url: pageItemUrl,
       path: pageItemUrl.pathname,
@@ -71,9 +70,9 @@ describe('RepeatPageController', () => {
       query: {},
       app: { model },
       server
-    } as FormContextRequest)
+    }
 
-    requestPageSummary = makeFormContextRequest({
+    requestPageSummary = {
       method: 'get',
       url: pageSummaryUrl,
       path: pageSummaryUrl.pathname,
@@ -84,7 +83,7 @@ describe('RepeatPageController', () => {
       query: {},
       app: { model },
       server
-    } as FormContextRequest)
+    }
   })
 
   describe('Properties', () => {

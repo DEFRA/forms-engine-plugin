@@ -4,6 +4,7 @@ import {
   SummaryViewModel
 } from '~/src/server/plugins/engine/models/index.js'
 import { SummaryPageController } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
+import { makeFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { serverWithSaveAndReturn } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
 import {
   createPage,
@@ -36,7 +37,7 @@ describe('SummaryViewModel', () => {
     page = createPage(model, definition.pages[2])
     pageUrl = new URL('http://example.com/repeat/pizza-order/summary')
 
-    request = {
+    request = makeFormContextRequest({
       method: 'get',
       url: pageUrl,
       path: pageUrl.pathname,
@@ -46,7 +47,7 @@ describe('SummaryViewModel', () => {
       },
       query: {},
       app: { model }
-    }
+    })
   })
 
   describe.each([
