@@ -10,6 +10,8 @@ The forms engine supports save and return capabilities through the `saveAndRetur
 
 Using the above, users can save their progress and continue filling out forms later, even across different devices or browser sessions.
 
+> **Note:** it is your responsibility to ensure any state that exists outside of the form engine continues is captured upon persistence and available during hydration, e.g. file uploads via CDP.
+
 ## Configuration
 
 The `saveAndReturn` option is configured when registering the forms engine plugin:
@@ -34,7 +36,7 @@ await server.register({
 
 **Type:** `(request: RequestType) => string`
 
-Generates a stable and consistent cache key used to store and retrieve user session state. This key should be based on persistent identifiers that remain consistent across sessions.
+Generates a cache key used to store and retrieve user session state.
 
 ```js
 const keyGenerator = (request) => {
@@ -122,6 +124,11 @@ The session management system works as follows:
 3. **Hydration**: If no data exists in the cache, `sessionHydrator` is called to fetch from external storage
 4. **Restoration**: Retrieved data is loaded back into Redis for fast access during the session
 5. **Persistence**: When users save their progress, `sessionPersister` stores data to external storage
+
+Notes:
+
+- The rehydrated state must include enough information to satisfy schema validation on the current or next page.
+- To properly resume a session, users should be redirected to the `/summary` page. The form engine will detect if the session state is incomplete, then the user will be redirected back to the last valid page.
 
 ## Data Structure
 
