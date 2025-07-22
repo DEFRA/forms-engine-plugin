@@ -4,8 +4,8 @@ import { type ResponseToolkit } from '@hapi/hapi'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
-  makeFormContextRequest,
-  makeFormRequest
+  buildFormContextRequest,
+  buildFormRequest
 } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { serverWithSaveAndReturn } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
 import {
@@ -55,7 +55,7 @@ describe('QuestionPageController', () => {
     controller1 = new QuestionPageController(model, page1)
     controller2 = new QuestionPageController(model, page2)
 
-    requestPage1 = makeFormRequest({
+    requestPage1 = buildFormRequest({
       method: 'get',
       url: page1Url,
       path: page1Url.pathname,
@@ -67,7 +67,7 @@ describe('QuestionPageController', () => {
       app: { model }
     } as FormRequest)
 
-    requestPage2 = makeFormRequest({
+    requestPage2 = buildFormRequest({
       method: 'get',
       url: page2Url,
       path: page2Url.pathname,
@@ -293,7 +293,7 @@ describe('QuestionPageController', () => {
         applicantTwoAddress__postcode: 'Postcode'
       }
 
-      let request = makeFormContextRequest({
+      let request = buildFormContextRequest({
         method: 'get',
         url: new URL('http://example.com/test/applicant-one-address'),
         path: '/test/applicant-one-address',
@@ -335,7 +335,7 @@ describe('QuestionPageController', () => {
       // Now mark that we don't have a UK Passport
       state.ukPassport = false
 
-      request = makeFormContextRequest({
+      request = buildFormContextRequest({
         method: 'get',
         url: new URL('http://example.com/test/summary'),
         path: '/test/summary',
@@ -379,7 +379,7 @@ describe('QuestionPageController', () => {
 
       const controller = new QuestionPageController(model, pages[0])
 
-      const request = makeFormContextRequest({
+      const request = buildFormContextRequest({
         method: 'get',
         url: new URL('http://example.com/test/page-one'),
         path: '/test/page-one',
@@ -422,7 +422,7 @@ describe('QuestionPageController', () => {
       // The state below shows we said we had a UKPassport and entered details for an applicant
       const state: FormSubmissionState = { $$__referenceNumber: 'foobar' }
 
-      const request = makeFormContextRequest({
+      const request = buildFormContextRequest({
         method: 'get',
         url: new URL('http://example.com/test/page-one'),
         path: '/test/first-page',
@@ -478,7 +478,7 @@ describe('QuestionPageController', () => {
       // The state below shows we said we had a UKPassport and entered details for an applicant
       const state: FormSubmissionState = { $$__referenceNumber: 'foobar' }
 
-      const request = makeFormContextRequest({
+      const request = buildFormContextRequest({
         method: 'get',
         url: new URL('http://example.com/test/page-one'),
         path: '/test/first-page',
@@ -742,7 +742,7 @@ describe('QuestionPageController V2', () => {
     controller1 = model.pages[0] // new QuestionPageController(model, page1)
     controller2 = model.pages[1] // new QuestionPageController(model, page2)
 
-    requestPage1 = makeFormRequest({
+    requestPage1 = buildFormRequest({
       method: 'get',
       url: page1Url,
       path: page1Url.pathname,
@@ -754,7 +754,7 @@ describe('QuestionPageController V2', () => {
       app: { model }
     } as FormRequest)
 
-    requestPage2 = makeFormRequest({
+    requestPage2 = buildFormRequest({
       method: 'get',
       url: page2Url,
       path: page2Url.pathname,
@@ -977,7 +977,7 @@ describe('QuestionPageController V2', () => {
         applicantTwoAddress__postcode: 'Postcode'
       }
 
-      let request = makeFormContextRequest({
+      let request = buildFormContextRequest({
         method: 'get',
         url: new URL('http://example.com/test/applicant-one-address'),
         path: '/test/applicant-one-address',
@@ -1019,7 +1019,7 @@ describe('QuestionPageController V2', () => {
       // Now mark that we don't have a UK Passport
       state.ukPassport = false
 
-      request = makeFormContextRequest({
+      request = buildFormContextRequest({
         method: 'get',
         url: new URL('http://example.com/test/summary'),
         path: '/test/summary',
@@ -1063,7 +1063,7 @@ describe('QuestionPageController V2', () => {
 
       const controller = new QuestionPageController(model, pages[0])
 
-      const request = makeFormContextRequest({
+      const request = buildFormContextRequest({
         method: 'get',
         url: new URL('http://example.com/test/page-one'),
         path: '/test/page-one',
@@ -1296,7 +1296,7 @@ describe('Save and Return functionality', () => {
 
     controller1 = new QuestionPageController(model, pages[0])
 
-    requestPage1 = makeFormRequest({
+    requestPage1 = buildFormRequest({
       method: 'get',
       url: new URL('http://example.com/test/first-page'),
       path: '/test/first-page',

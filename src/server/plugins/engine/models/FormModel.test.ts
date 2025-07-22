@@ -6,7 +6,7 @@ import {
 
 import { todayAsDateOnly } from '~/src/server/plugins/engine/date-helper.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import { makeFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
+import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { type FormContextRequest } from '~/src/server/plugins/engine/types.js'
 import { V2 as definitionV2 } from '~/test/form/definitions/conditions-basic.js'
 import definition from '~/test/form/definitions/conditions-escaping.js'
@@ -152,7 +152,7 @@ describe('FormModel', () => {
       }
       const pageUrl = new URL('http://example.com/components/fields-required')
 
-      const request: FormContextRequest = makeFormContextRequest({
+      const request: FormContextRequest = buildFormContextRequest({
         method: 'post',
         payload: { crumb: 'dummyCrumb', action: 'validate' },
         query: {},
@@ -181,7 +181,7 @@ describe('FormModel', () => {
       }
       const pageUrl = new URL('http://example.com/components/fields-required')
 
-      const request: FormContextRequest = makeFormContextRequest({
+      const request: FormContextRequest = buildFormContextRequest({
         method: 'post',
         payload: { crumb: 'dummyCrumb', action: 'validate' },
         query: {},
@@ -207,7 +207,7 @@ describe('FormModel', () => {
       }
       const pageUrl = new URL('http://example.com/components/fields-required')
 
-      const request: FormContextRequest = makeFormContextRequest({
+      const request: FormContextRequest = buildFormContextRequest({
         method: 'post',
         payload: { crumb: 'dummyCrumb', action: 'validate' },
         query: {},
@@ -237,7 +237,7 @@ describe('FormModel', () => {
         'http://example.com/conditional-list-items/summary'
       )
 
-      const request: FormContextRequest = makeFormContextRequest({
+      const request: FormContextRequest = buildFormContextRequest({
         method: 'get',
         query: {},
         path: pageUrl.pathname,
@@ -272,7 +272,7 @@ describe('FormModel', () => {
         'http://example.com/conditional-list-items/summary'
       )
 
-      const request: FormContextRequest = makeFormContextRequest({
+      const request: FormContextRequest = buildFormContextRequest({
         method: 'get',
         query: {},
         path: pageUrl.pathname,

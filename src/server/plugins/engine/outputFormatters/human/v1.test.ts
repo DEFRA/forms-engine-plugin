@@ -7,7 +7,7 @@ import {
   SummaryPageController,
   getFormSubmissionData
 } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
-import { makeFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
+import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { FormStatus } from '~/src/server/routes/types.js'
 import definition from '~/test/form/definitions/repeat-mixed.js'
 
@@ -52,7 +52,7 @@ const pageUrl = new URL('http://example.com/repeat/pizza-order/summary')
 
 const controller = new SummaryPageController(model, pageDef)
 
-const request = makeFormContextRequest({
+const request = buildFormContextRequest({
   method: 'get',
   url: pageUrl,
   path: pageUrl.pathname,

@@ -18,7 +18,7 @@ import {
 } from '~/src/server/plugins/engine/helpers.js'
 import { handleLegacyRedirect } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import { makeFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
+import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import {
   createPage,
   type PageControllerClass
@@ -57,7 +57,7 @@ describe('Helpers', () => {
     page = createPage(model, definition.pages[0])
     const pageUrl = new URL(page.href, 'http://example.com')
 
-    request = makeFormContextRequest({
+    request = buildFormContextRequest({
       method: 'get',
       url: pageUrl,
       path: pageUrl.pathname,

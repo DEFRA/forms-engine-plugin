@@ -1,6 +1,6 @@
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
-import { makeFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
+import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { server } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
 import {
   type FormContextRequest,
@@ -46,7 +46,7 @@ describe('RepeatPageController', () => {
 
     controller = new RepeatPageController(model, pages[0])
 
-    requestPage = makeFormContextRequest({
+    requestPage = buildFormContextRequest({
       method: 'get',
       url: pageUrl,
       path: pageUrl.pathname,
