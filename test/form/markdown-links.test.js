@@ -39,15 +39,22 @@ describe('Markdown links tests', () => {
       })
 
       expect(response.statusCode).toBe(StatusCodes.OK)
-      const links = container.getAllByRole('link')
-      const internalLink = /** @type {HTMLAnchorElement} */ (links[4])
-      const externalLink = /** @type {HTMLAnchorElement} */ (links[5])
-      expect(internalLink.textContent).toBe('is an internal link')
-      expect(externalLink.textContent).toBe(
+      const $internalLink = /** @type {HTMLAnchorElement} */ (
+        container.getByRole('link', {
+          name: 'is an internal link'
+        })
+      )
+      const $externalLink = /** @type {HTMLAnchorElement} */ (
+        container.getByRole('link', {
+          name: 'is an external link (opens in new tab)'
+        })
+      )
+      expect($internalLink.textContent).toBe('is an internal link')
+      expect($externalLink.textContent).toBe(
         'is an external link (opens in new tab)'
       )
-      expect(internalLink.target).toBe('')
-      expect(externalLink.target).toBe('_blank')
+      expect($internalLink.target).toBe('')
+      expect($externalLink.target).toBe('_blank')
     })
   })
 })
