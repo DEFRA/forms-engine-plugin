@@ -13,6 +13,7 @@ The forms plugin is configured with [registration options](https://hapi.dev/api/
   (#custom-cache) for more details
 - `pluginPath` (optional) - The location of the plugin (defaults to `node_modules/@defra/forms-engine-plugin`)
 - `preparePageEventRequestOptions` (optional) - A function that will be invoked for http-based [page events](./features/configuration-based/PAGE_EVENTS.md). See [here](./features/configuration-based/PAGE_EVENTS.md#authenticating-a-http-page-event-request-from-dxt-in-your-api) for details
+- `saveAndReturn` (optional) - Configuration for custom session management including key generation, session hydration, and persistence. See [save and return documentation](./features/code-based/SAVE_AND_RETURN.md) for details
 - `onRequest` (optional) - A function that will be invoked on each request to any form route e.g `/{slug}/{path}`. See [here](#onrequest) for more details
 
 ## Services
@@ -96,3 +97,38 @@ await server.register({
   }
 })
 ```
+
+## saveAndReturn
+
+The `saveAndReturn` plugin option enables custom session handling to enable "Save and Return" functionality. It consists of three optional functions:
+
+- `keyGenerator` - Generates unique cache keys for session storage
+- `sessionHydrator` - Retrieves saved session data from external sources
+- `sessionPersister` - Stores session data to external systems
+
+```js
+await server.register({
+  plugin,
+  options: {
+    saveAndReturn: {
+      keyGenerator: (request) => {
+        const { userId, applicationId } = fetchSubmissionAttributes(request)
+        return `${userId}:${applicationId}`
+      },
+
+      sessionHydrator: async (request) => {
+        // Fetch saved state from database/API
+        const savedState = await fetchUserSession(request)
+        return savedState || null
+      },
+
+      sessionPersister: async (key, state, request) => {
+        // Save state to database/API
+        await saveUserSession(key, state, request)
+      }
+    }
+  }
+})
+```
+
+For detailed documentation and examples, see [Save and Return](./features/code-based/SAVE_AND_RETURN.md).
