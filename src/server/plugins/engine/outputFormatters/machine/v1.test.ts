@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+
 import { FileUploadField } from '~/src/server/plugins/engine/components/FileUploadField.js'
 import { type Field } from '~/src/server/plugins/engine/components/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
@@ -8,11 +9,11 @@ import {
   type DetailItemRepeat
 } from '~/src/server/plugins/engine/models/types.js'
 import { format } from '~/src/server/plugins/engine/outputFormatters/machine/v1.js'
+import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import {
   FileStatus,
   UploadStatus,
-  type FileState,
-  type FormContextRequest
+  type FileState
 } from '~/src/server/plugins/engine/types.js'
 import { FormStatus } from '~/src/server/routes/types.js'
 import definition from '~/test/form/definitions/repeat-mixed.js'
@@ -64,7 +65,7 @@ const state = {
 
 const pageUrl = new URL('http://example.com/repeat/pizza-order/summary')
 
-const request = {
+const request = buildFormContextRequest({
   method: 'get',
   url: pageUrl,
   path: pageUrl.pathname,
@@ -74,7 +75,7 @@ const request = {
   },
   query: {},
   app: { model }
-} satisfies FormContextRequest
+})
 
 const context = model.getFormContext(request, state)
 
