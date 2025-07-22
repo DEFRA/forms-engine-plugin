@@ -10,7 +10,7 @@ The forms engine supports save and return capabilities through the `saveAndRetur
 
 Using the above, users can save their progress and continue filling out forms later, even across different devices or browser sessions.
 
-> **Note:** it is your responsibility to ensure any state that exists outside of the form engine continues is captured upon persistence and available during hydration, e.g. file uploads via CDP.
+> **Note:** it is your responsibility to ensure any state that exists outside of the form engine is captured upon persistence and available during hydration, e.g. file uploads via CDP.
 
 ## Configuration
 
