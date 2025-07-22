@@ -31,7 +31,7 @@ describe('Save and Return functionality', () => {
       formFileName: 'basic.js',
       formFilePath: join(import.meta.dirname, 'definitions'),
       enforceCsrf: true,
-      sessionManagement: {
+      saveAndReturn: {
         keyGenerator: () => 'test-key',
         sessionHydrator: () => Promise.resolve({ someState: 'value' }),
         sessionPersister: () => Promise.resolve(undefined)
@@ -111,13 +111,13 @@ describe('Save and Return functionality', () => {
       expect(response.headers.location).not.toBe(`${basePath}/exit`)
     })
 
-    it('should work correctly when no sessionManagement is provided', async () => {
+    it('should work correctly when no saveAndReturn is provided', async () => {
       const { options } = await configureEnginePlugin({
         formFileName: 'basic.js',
         formFilePath: join(import.meta.dirname, 'definitions')
       })
 
-      expect(options.sessionManagement).toBeUndefined()
+      expect(options.saveAndReturn).toBeUndefined()
 
       const payload = {
         licenceLength: '2',

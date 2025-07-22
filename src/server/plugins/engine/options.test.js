@@ -32,7 +32,7 @@ describe('validatePluginOptions', () => {
         return { hello: 'world' }
       },
       baseUrl: 'http://localhost:3009',
-      sessionManagement: {
+      saveAndReturn: {
         keyGenerator: () => 'test-key',
         sessionHydrator: () => Promise.resolve({ someState: 'value' }),
         sessionPersister: () => Promise.resolve(undefined)

@@ -380,8 +380,8 @@ export function getCacheService(server: Server) {
   return getPluginOptions(server).cacheService
 }
 
-export function getSessionManagementHelpers(server: Server) {
-  return getPluginOptions(server).sessionManagement
+export function getSaveAndReturnHelpers(server: Server) {
+  return getPluginOptions(server).saveAndReturn
 }
 
 export function getPluginOptions(server: Server) {

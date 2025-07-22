@@ -366,7 +366,7 @@ export interface PluginOptions {
   cacheName?: string
   globals?: Record<string, GlobalFunction>
   filters?: Record<string, FilterFunction>
-  sessionManagement?: {
+  saveAndReturn?: {
     keyGenerator: (request: RequestType) => string
     sessionHydrator: (request: RequestType) => Promise<FormSubmissionState>
     sessionPersister: (

@@ -48,7 +48,7 @@ export interface RouteConfig {
   controllers?: Record<string, typeof PageController>
   preparePageEventRequestOptions?: PreparePageEventRequestOptions
   onRequest?: OnRequestCallback
-  sessionManagement?: PluginOptions['sessionManagement']
+  saveAndReturn?: PluginOptions['saveAndReturn']
 }
 
 export interface OutputService {

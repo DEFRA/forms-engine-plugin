@@ -16,7 +16,7 @@ import {
 import { type ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import {
   encodeUrl,
-  getSessionManagementHelpers,
+  getSaveAndReturnHelpers,
   getStartPath,
   normalisePath
 } from '~/src/server/plugins/engine/helpers.js'
@@ -189,8 +189,7 @@ export class PageController {
 
   shouldShowSaveAndReturn(server: Server): boolean {
     return (
-      getSessionManagementHelpers(server) !== undefined &&
-      this.allowSaveAndReturn
+      getSaveAndReturnHelpers(server) !== undefined && this.allowSaveAndReturn
     )
   }
 }
