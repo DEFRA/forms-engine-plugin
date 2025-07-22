@@ -177,7 +177,10 @@ export type FormContextRequest = (
       payload?: object | undefined
     }
 ) &
-  Pick<FormRequest, 'app' | 'method' | 'params' | 'path' | 'query' | 'url'>
+  Pick<
+    FormRequest,
+    'app' | 'method' | 'params' | 'path' | 'query' | 'url' | 'server'
+  >
 
 export interface UploadInitiateResponse {
   uploadId: string
@@ -305,7 +308,7 @@ export interface FormPageViewModel extends PageViewModelBase {
   context: FormContext
   errors?: FormSubmissionError[]
   hasMissingNotificationEmail?: boolean
-  allowSaveAndReturn?: boolean
+  allowSaveAndReturn: boolean
 }
 
 export interface RepeaterSummaryPageViewModel extends PageViewModelBase {
@@ -363,13 +366,15 @@ export interface PluginOptions {
   cacheName?: string
   globals?: Record<string, GlobalFunction>
   filters?: Record<string, FilterFunction>
-  keyGenerator?: (request: RequestType) => string
-  sessionHydrator?: (request: RequestType) => Promise<FormSubmissionState>
-  sessionPersister?: (
-    key: string,
-    state: FormSubmissionState,
-    request: RequestType
-  ) => Promise<void>
+  sessionManagement?: {
+    keyGenerator: (request: RequestType) => string
+    sessionHydrator: (request: RequestType) => Promise<FormSubmissionState>
+    sessionPersister: (
+      key: string,
+      state: FormSubmissionState,
+      request: RequestType
+    ) => Promise<void>
+  }
   pluginPath?: string
   nunjucks: {
     baseLayoutPath: string

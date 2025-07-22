@@ -4,6 +4,7 @@ import {
   SummaryViewModel
 } from '~/src/server/plugins/engine/models/index.js'
 import { SummaryPageController } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
+import { serverWithSaveAndReturn } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
 import {
   createPage,
   type PageControllerClass
@@ -14,7 +15,6 @@ import {
   type FormState
 } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/repeat-mixed.js'
-
 const basePath = `${FORM_PREFIX}/test`
 
 describe('SummaryViewModel', () => {
@@ -272,13 +272,14 @@ describe('SummaryPageController', () => {
         slug: 'repeat'
       },
       query: {},
-      app: { model }
+      app: { model },
+      server: serverWithSaveAndReturn
     }
   })
 
   describe('Save and Return functionality', () => {
     it('should show save and return button on summary page', () => {
-      expect(controller.shouldShowSaveAndReturn()).toBe(true)
+      expect(controller.shouldShowSaveAndReturn(request.server)).toBe(true)
     })
 
     it('should handle save and return from summary page', () => {

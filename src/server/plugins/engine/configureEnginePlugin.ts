@@ -18,7 +18,8 @@ export const configureEnginePlugin = async ({
   services,
   controllers,
   preparePageEventRequestOptions,
-  onRequest
+  onRequest,
+  sessionManagement
 }: RouteConfig = {}): Promise<{
   plugin: typeof plugin
   options: PluginOptions
@@ -57,7 +58,8 @@ export const configureEnginePlugin = async ({
       viewContext: devtoolContext,
       preparePageEventRequestOptions,
       onRequest,
-      baseUrl: 'http://localhost:3009' // always runs locally
+      baseUrl: 'http://localhost:3009', // always runs locally
+      sessionManagement
     }
   }
 }

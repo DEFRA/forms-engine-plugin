@@ -10,6 +10,7 @@ import { type DetailItem } from '~/src/server/plugins/engine/models/types.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
   type OnRequestCallback,
+  type PluginOptions,
   type PreparePageEventRequestOptions
 } from '~/src/server/plugins/engine/types.js'
 import {
@@ -47,6 +48,7 @@ export interface RouteConfig {
   controllers?: Record<string, typeof PageController>
   preparePageEventRequestOptions?: PreparePageEventRequestOptions
   onRequest?: OnRequestCallback
+  sessionManagement?: PluginOptions['sessionManagement']
 }
 
 export interface OutputService {

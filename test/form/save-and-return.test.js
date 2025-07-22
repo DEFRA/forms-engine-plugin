@@ -30,7 +30,12 @@ describe('Save and Return functionality', () => {
     server = await createServer({
       formFileName: 'basic.js',
       formFilePath: join(import.meta.dirname, 'definitions'),
-      enforceCsrf: true
+      enforceCsrf: true,
+      sessionManagement: {
+        keyGenerator: () => 'test-key',
+        sessionHydrator: () => Promise.resolve({ someState: 'value' }),
+        sessionPersister: () => Promise.resolve(undefined)
+      }
     })
 
     await server.initialize()
@@ -106,31 +111,13 @@ describe('Save and Return functionality', () => {
       expect(response.headers.location).not.toBe(`${basePath}/exit`)
     })
 
-    it('should handle database persistence through the CacheService', async () => {
+    it('should work correctly when no sessionManagement is provided', async () => {
       const { options } = await configureEnginePlugin({
         formFileName: 'basic.js',
         formFilePath: join(import.meta.dirname, 'definitions')
       })
 
-      const mockPersister = jest.fn().mockResolvedValue(undefined)
-      const pluginOptionsWithPersister = {
-        ...options,
-        sessionPersister: mockPersister
-      }
-
-      expect(pluginOptionsWithPersister.sessionPersister).toBe(mockPersister)
-      expect(typeof pluginOptionsWithPersister.sessionPersister).toBe(
-        'function'
-      )
-    })
-
-    it('should work correctly when no sessionPersister is provided', async () => {
-      const { options } = await configureEnginePlugin({
-        formFileName: 'basic.js',
-        formFilePath: join(import.meta.dirname, 'definitions')
-      })
-
-      expect(options.sessionPersister).toBeUndefined()
+      expect(options.sessionManagement).toBeUndefined()
 
       const payload = {
         licenceLength: '2',

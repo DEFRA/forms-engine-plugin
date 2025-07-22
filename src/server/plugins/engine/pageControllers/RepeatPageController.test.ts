@@ -1,5 +1,7 @@
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
+import { makeFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
+import { server } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
 import {
   type FormContextRequest,
   type FormPageViewModel,
@@ -44,7 +46,7 @@ describe('RepeatPageController', () => {
 
     controller = new RepeatPageController(model, pages[0])
 
-    requestPage = {
+    requestPage = makeFormContextRequest({
       method: 'get',
       url: pageUrl,
       path: pageUrl.pathname,
@@ -53,10 +55,11 @@ describe('RepeatPageController', () => {
         slug: 'repeat'
       },
       query: {},
-      app: { model }
-    }
+      app: { model },
+      server
+    } as FormContextRequest)
 
-    requestPageItem = {
+    requestPageItem = makeFormContextRequest({
       method: 'get',
       url: pageItemUrl,
       path: pageItemUrl.pathname,
@@ -66,10 +69,11 @@ describe('RepeatPageController', () => {
         itemId: itemId1
       },
       query: {},
-      app: { model }
-    }
+      app: { model },
+      server
+    } as FormContextRequest)
 
-    requestPageSummary = {
+    requestPageSummary = makeFormContextRequest({
       method: 'get',
       url: pageSummaryUrl,
       path: pageSummaryUrl.pathname,
@@ -78,8 +82,9 @@ describe('RepeatPageController', () => {
         slug: 'repeat'
       },
       query: {},
-      app: { model }
-    }
+      app: { model },
+      server
+    } as FormContextRequest)
   })
 
   describe('Properties', () => {

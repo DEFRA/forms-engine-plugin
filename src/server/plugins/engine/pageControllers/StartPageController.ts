@@ -9,14 +9,12 @@ export class StartPageController extends QuestionPageController {
    * but start pages should really live on gov.uk (whitehall publisher) so a user can be properly signposted.
    */
 
+  allowSaveAndReturn = false
+
   getViewModel(request: FormRequest, context: FormContext) {
     return {
       ...super.getViewModel(request, context),
       isStartPage: true
     }
-  }
-
-  shouldShowSaveAndReturn(): boolean {
-    return false
   }
 }

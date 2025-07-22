@@ -4,6 +4,11 @@ import { type ResponseToolkit } from '@hapi/hapi'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
+  makeFormContextRequest,
+  makeFormRequest
+} from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
+import { serverWithSaveAndReturn } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
+import {
   type FormContext,
   type FormContextRequest,
   type FormPageViewModel,
@@ -51,7 +56,7 @@ describe('QuestionPageController', () => {
     controller1 = new QuestionPageController(model, page1)
     controller2 = new QuestionPageController(model, page2)
 
-    requestPage1 = {
+    requestPage1 = makeFormRequest({
       method: 'get',
       url: page1Url,
       path: page1Url.pathname,
@@ -61,9 +66,9 @@ describe('QuestionPageController', () => {
       },
       query: {},
       app: { model }
-    } as FormRequest
+    } as FormRequest)
 
-    requestPage2 = {
+    requestPage2 = makeFormRequest({
       method: 'get',
       url: page2Url,
       path: page2Url.pathname,
@@ -73,7 +78,7 @@ describe('QuestionPageController', () => {
       },
       query: {},
       app: { model }
-    } as FormRequest
+    } as FormRequest)
   })
 
   describe('Properties', () => {
@@ -289,7 +294,7 @@ describe('QuestionPageController', () => {
         applicantTwoAddress__postcode: 'Postcode'
       }
 
-      let request = {
+      let request = makeFormContextRequest({
         method: 'get',
         url: new URL('http://example.com/test/applicant-one-address'),
         path: '/test/applicant-one-address',
@@ -299,7 +304,7 @@ describe('QuestionPageController', () => {
         },
         query: {},
         app: { model }
-      } satisfies FormContextRequest
+      } as FormContextRequest)
 
       // Calculate our context based on the page we're attempting to load and the above state we provide
       let context = controller.model.getFormContext(request, state)
@@ -331,7 +336,7 @@ describe('QuestionPageController', () => {
       // Now mark that we don't have a UK Passport
       state.ukPassport = false
 
-      request = {
+      request = makeFormContextRequest({
         method: 'get',
         url: new URL('http://example.com/test/summary'),
         path: '/test/summary',
@@ -341,7 +346,7 @@ describe('QuestionPageController', () => {
         },
         query: {},
         app: { model }
-      } satisfies FormContextRequest
+      } as FormContextRequest)
 
       // And recalculate our context
       context = controller.model.getFormContext(request, state)
@@ -375,7 +380,7 @@ describe('QuestionPageController', () => {
 
       const controller = new QuestionPageController(model, pages[0])
 
-      const request = {
+      const request = makeFormContextRequest({
         method: 'get',
         url: new URL('http://example.com/test/page-one'),
         path: '/test/page-one',
@@ -385,7 +390,7 @@ describe('QuestionPageController', () => {
         },
         query: {},
         app: { model }
-      } satisfies FormContextRequest
+      } as FormContextRequest)
 
       const context = controller.model.getFormContext(request, {
         $$__referenceNumber: 'foobar',
@@ -418,7 +423,7 @@ describe('QuestionPageController', () => {
       // The state below shows we said we had a UKPassport and entered details for an applicant
       const state: FormSubmissionState = { $$__referenceNumber: 'foobar' }
 
-      const request = {
+      const request = makeFormContextRequest({
         method: 'get',
         url: new URL('http://example.com/test/page-one'),
         path: '/test/first-page',
@@ -428,7 +433,7 @@ describe('QuestionPageController', () => {
         },
         query: {},
         app: { model }
-      } satisfies FormContextRequest
+      } as FormContextRequest)
 
       const context = controller.model.getFormContext(request, state)
       const evaluationState = { animalType: 'Barn owl' }
@@ -474,7 +479,7 @@ describe('QuestionPageController', () => {
       // The state below shows we said we had a UKPassport and entered details for an applicant
       const state: FormSubmissionState = { $$__referenceNumber: 'foobar' }
 
-      const request = {
+      const request = makeFormContextRequest({
         method: 'get',
         url: new URL('http://example.com/test/page-one'),
         path: '/test/first-page',
@@ -484,7 +489,7 @@ describe('QuestionPageController', () => {
         },
         query: {},
         app: { model }
-      } satisfies FormContextRequest
+      } as FormContextRequest)
 
       const context = controller.model.getFormContext(request, state)
       const evaluationState = { animalType: 'Swan' }
@@ -738,7 +743,7 @@ describe('QuestionPageController V2', () => {
     controller1 = model.pages[0] // new QuestionPageController(model, page1)
     controller2 = model.pages[1] // new QuestionPageController(model, page2)
 
-    requestPage1 = {
+    requestPage1 = makeFormRequest({
       method: 'get',
       url: page1Url,
       path: page1Url.pathname,
@@ -748,9 +753,9 @@ describe('QuestionPageController V2', () => {
       },
       query: {},
       app: { model }
-    } as FormRequest
+    } as FormRequest)
 
-    requestPage2 = {
+    requestPage2 = makeFormRequest({
       method: 'get',
       url: page2Url,
       path: page2Url.pathname,
@@ -760,7 +765,7 @@ describe('QuestionPageController V2', () => {
       },
       query: {},
       app: { model }
-    } as FormRequest
+    } as FormRequest)
   })
 
   describe('Properties', () => {
@@ -973,7 +978,7 @@ describe('QuestionPageController V2', () => {
         applicantTwoAddress__postcode: 'Postcode'
       }
 
-      let request = {
+      let request = makeFormContextRequest({
         method: 'get',
         url: new URL('http://example.com/test/applicant-one-address'),
         path: '/test/applicant-one-address',
@@ -983,7 +988,7 @@ describe('QuestionPageController V2', () => {
         },
         query: {},
         app: { model }
-      } satisfies FormContextRequest
+      } as FormContextRequest)
 
       // Calculate our context based on the page we're attempting to load and the above state we provide
       let context = controller.model.getFormContext(request, state)
@@ -1015,7 +1020,7 @@ describe('QuestionPageController V2', () => {
       // Now mark that we don't have a UK Passport
       state.ukPassport = false
 
-      request = {
+      request = makeFormContextRequest({
         method: 'get',
         url: new URL('http://example.com/test/summary'),
         path: '/test/summary',
@@ -1025,7 +1030,7 @@ describe('QuestionPageController V2', () => {
         },
         query: {},
         app: { model }
-      } satisfies FormContextRequest
+      } as FormContextRequest)
 
       // And recalculate our context
       context = controller.model.getFormContext(request, state)
@@ -1059,7 +1064,7 @@ describe('QuestionPageController V2', () => {
 
       const controller = new QuestionPageController(model, pages[0])
 
-      const request = {
+      const request = makeFormContextRequest({
         method: 'get',
         url: new URL('http://example.com/test/page-one'),
         path: '/test/page-one',
@@ -1069,7 +1074,7 @@ describe('QuestionPageController V2', () => {
         },
         query: {},
         app: { model }
-      } satisfies FormContextRequest
+      } as FormContextRequest)
 
       const context = controller.model.getFormContext(request, {
         $$__referenceNumber: 'foobar',
@@ -1292,7 +1297,7 @@ describe('Save and Return functionality', () => {
 
     controller1 = new QuestionPageController(model, pages[0])
 
-    requestPage1 = {
+    requestPage1 = makeFormRequest({
       method: 'get',
       url: new URL('http://example.com/test/first-page'),
       path: '/test/first-page',
@@ -1302,7 +1307,7 @@ describe('Save and Return functionality', () => {
       },
       query: {},
       app: { model }
-    } as FormRequest
+    } as FormRequest)
   })
 
   const response = {
@@ -1321,7 +1326,9 @@ describe('Save and Return functionality', () => {
 
   describe('shouldShowSaveAndReturn', () => {
     it('should return true by default', () => {
-      expect(controller1.shouldShowSaveAndReturn()).toBe(true)
+      expect(controller1.shouldShowSaveAndReturn(serverWithSaveAndReturn)).toBe(
+        true
+      )
     })
   })
 

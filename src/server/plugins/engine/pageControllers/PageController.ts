@@ -9,12 +9,14 @@ import Boom from '@hapi/boom'
 import {
   type Lifecycle,
   type ResponseToolkit,
-  type RouteOptions
+  type RouteOptions,
+  type Server
 } from '@hapi/hapi'
 
 import { type ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import {
   encodeUrl,
+  getSessionManagementHelpers,
   getStartPath,
   normalisePath
 } from '~/src/server/plugins/engine/helpers.js'
@@ -45,6 +47,7 @@ export class PageController {
   events?: Events
   collection?: ComponentCollection
   viewName = 'index'
+  allowSaveAndReturn = false
 
   constructor(model: FormModel, pageDef: Page) {
     const { def } = model
@@ -182,5 +185,12 @@ export class PageController {
     h: Pick<ResponseToolkit, 'redirect' | 'view'>
   ) => ReturnType<Lifecycle.Method<FormRequestPayloadRefs>> {
     throw Boom.badRequest('Unsupported POST route handler for this page')
+  }
+
+  shouldShowSaveAndReturn(server: Server): boolean {
+    return (
+      getSessionManagementHelpers(server) !== undefined &&
+      this.allowSaveAndReturn
+    )
   }
 }

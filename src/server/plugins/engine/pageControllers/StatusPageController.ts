@@ -9,6 +9,7 @@ import { type FormRequest } from '~/src/server/routes/types.js'
 
 export class StatusPageController extends QuestionPageController {
   declare pageDef: PageStatus
+  allowSaveAndReturn = false
 
   constructor(model: FormModel, pageDef: PageStatus) {
     super(model, pageDef)
