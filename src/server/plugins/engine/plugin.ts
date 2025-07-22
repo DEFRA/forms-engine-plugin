@@ -42,7 +42,6 @@ export const plugin = {
       server,
       cacheName,
       options: {
-        /* TODO drop options and infer from server */
         keyGenerator: saveAndReturn?.keyGenerator,
         sessionHydrator: saveAndReturn?.sessionHydrator,
         sessionPersister: saveAndReturn?.sessionPersister
