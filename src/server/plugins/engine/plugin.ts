@@ -44,7 +44,8 @@ export const plugin = {
       options: {
         keyGenerator: saveAndReturn?.keyGenerator,
         sessionHydrator: saveAndReturn?.sessionHydrator,
-        sessionPersister: saveAndReturn?.sessionPersister
+        sessionPersister: saveAndReturn?.sessionPersister,
+        sessionPurger: saveAndReturn?.sessionPurger
       }
     })
 

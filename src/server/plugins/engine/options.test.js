@@ -35,7 +35,8 @@ describe('validatePluginOptions', () => {
       saveAndReturn: {
         keyGenerator: () => 'test-key',
         sessionHydrator: () => Promise.resolve({ someState: 'value' }),
-        sessionPersister: () => Promise.resolve(undefined)
+        sessionPersister: () => Promise.resolve(undefined),
+        sessionPurger: () => Promise.resolve(undefined)
       }
     }
 
