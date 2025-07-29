@@ -134,8 +134,7 @@ Here is an example of a Liquid template that renders a page title, displays a li
 </p>
 ```
 
-When using these kind of long HTML snippets, you would benefit from our YAML-based form definitions that provide
-a better developer experience vs JSON files.
+When using these kind of multi-line HTML snippets, you would benefit from our [YAML-based form definitions](../../FORM_DEFINITION_FORMATS.md) that provide a better developer experience compared to JSON files.
 
 If you choose to stick with JSON form definitions, the above template should be minified and inserted into the content field in the form definition example. E.g. quotes should be either replaced with `'` or escaped `\"`. Your IDE should do this automatically when pasting the into a JSON string, or a tool like https://www.freeformatter.com/json-escape.html can do it manually.
 
