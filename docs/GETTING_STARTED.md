@@ -57,7 +57,7 @@ Optional dependencies
 
 See [form definition formats](./FORM_DEFINITION_FORMATS.md) to understand your options. For simple use-cases, we recommend you use our disk-based form loader using YAML form definitions.
 
-This will influence the `services.formsService` you provide when registering the plugin.
+This will influence the `services.formsService` you provide when registering the plugin (see step 3 below).
 
 ## Step 3: Register DXT as a hapi plugin
 
