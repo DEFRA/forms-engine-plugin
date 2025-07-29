@@ -161,4 +161,4 @@ Whilst DXT offers some out of the box filters, teams using the plugin have the c
 
 ## Using page templates with data from your own API
 
-Page templates have access to `{{ context.data  }}`, which is an attribute made available when a page event is triggered. It represents the entire response body from your API. To learn more about this, [see our guidance on page events](/forms-engine-plugin/features/configuration-based/PAGE_EVENTS).
+Page templates have access to `{{ context.data }}`, which is an attribute made available when a page event is triggered. It represents the entire response body from your API. To learn more about this, [see our guidance on page events](/forms-engine-plugin/features/configuration-based/PAGE_EVENTS).
