@@ -374,6 +374,7 @@ export interface PluginOptions {
       state: FormSubmissionState,
       request: RequestType
     ) => Promise<void>
+    sessionPurger: (key: string, request: RequestType) => Promise<void>
   }
   pluginPath?: string
   nunjucks: {
