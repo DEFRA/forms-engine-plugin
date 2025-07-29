@@ -209,7 +209,7 @@ Pages can be skipped by assigning a condition to the page, when the condition ev
   // A reference to a condition
   "condition": "Condition UUID",
 
-  // A page contains a colection of components
+  // A page contains a collection of components
   "components": [
     // ...
   ]
