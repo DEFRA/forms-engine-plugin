@@ -1,4 +1,4 @@
-import { hasFormComponents, slugSchema } from '@defra/forms-model'
+import { hasFormComponents, slugSchema, type Event } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
   type ResponseToolkit,
@@ -12,14 +12,21 @@ import {
   proceed,
   redirectPath
 } from '~/src/server/plugins/engine/helpers.js'
-import { SummaryViewModel } from '~/src/server/plugins/engine/models/index.js'
+import {
+  SummaryViewModel,
+  type FormModel
+} from '~/src/server/plugins/engine/models/index.js'
 import { format } from '~/src/server/plugins/engine/outputFormatters/machine/v1.js'
 import { getFormSubmissionData } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
+import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
   dispatchHandler,
   redirectOrMakeHandler
 } from '~/src/server/plugins/engine/routes/index.js'
-import { type PreparePageEventRequestOptions } from '~/src/server/plugins/engine/types.js'
+import {
+  type FormContext,
+  type PreparePageEventRequestOptions
+} from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
   type FormRequestPayload,
@@ -34,6 +41,35 @@ import {
   stateSchema
 } from '~/src/server/schemas/index.js'
 import * as httpService from '~/src/server/services/httpService.js'
+
+async function handleHttpEvent(
+  request: FormRequest | FormRequestPayload,
+  page: PageControllerClass,
+  context: FormContext,
+  event: Event,
+  model: FormModel,
+  preparePageEventRequestOptions?: PreparePageEventRequestOptions
+) {
+  const { options } = event
+  const { url } = options
+
+  // TODO: Update structured data POST payload with when helper
+  // is updated to removing the dependency on `SummaryViewModel` etc.
+  const viewModel = new SummaryViewModel(request, page, context)
+  const items = getFormSubmissionData(viewModel.context, viewModel.details)
+
+  // @ts-expect-error - function signature will be refactored in the next iteration of the formatter
+  const payload = format(context, items, model, undefined, undefined)
+  const opts = { payload }
+
+  if (preparePageEventRequestOptions) {
+    preparePageEventRequestOptions(opts, event, page, context)
+  }
+
+  const { payload: response } = await httpService.postJson(url, opts)
+
+  Object.assign(context.data, response)
+}
 
 function makeGetHandler(
   preparePageEventRequestOptions?: PreparePageEventRequestOptions
@@ -59,28 +95,14 @@ function makeGetHandler(
       }
 
       if (events?.onLoad && events.onLoad.type === 'http') {
-        const { options } = events.onLoad
-        const { url } = options
-
-        // TODO: Update structured data POST payload with when helper
-        // is updated to removing the dependency on `SummaryViewModel` etc.
-        const viewModel = new SummaryViewModel(request, page, context)
-        const items = getFormSubmissionData(
-          viewModel.context,
-          viewModel.details
+        await handleHttpEvent(
+          request,
+          page,
+          context,
+          events.onLoad,
+          model,
+          preparePageEventRequestOptions
         )
-
-        // @ts-expect-error - function signature will be refactored in the next iteration of the formatter
-        const payload = format(context, items, model, undefined, undefined)
-        const opts = { payload }
-
-        if (preparePageEventRequestOptions) {
-          preparePageEventRequestOptions(opts, events.onLoad, page, context)
-        }
-
-        const { payload: response } = await httpService.postJson(url, opts)
-
-        Object.assign(context.data, response)
       }
 
       return page.makeGetRouteHandler()(request, context, h)
@@ -88,23 +110,44 @@ function makeGetHandler(
   }
 }
 
-function postHandler(
-  request: FormRequestPayload,
-  h: Pick<ResponseToolkit, 'redirect' | 'view'>
+function makePostHandler(
+  preparePageEventRequestOptions?: PreparePageEventRequestOptions
 ) {
-  const { query } = request
+  return function postHandler(
+    request: FormRequestPayload,
+    h: Pick<ResponseToolkit, 'redirect' | 'view'>
+  ) {
+    const { query } = request
 
-  return redirectOrMakeHandler(request, h, (page, context) => {
-    const { pageDef } = page
-    const { isForceAccess } = context
+    return redirectOrMakeHandler(request, h, async (page, context) => {
+      const { pageDef } = page
+      const { isForceAccess } = context
+      const { model } = request.app
+      const { events } = page
 
-    // Redirect to GET for preview URL direct access
-    if (isForceAccess && !hasFormComponents(pageDef)) {
-      return proceed(request, h, redirectPath(page.href, query))
-    }
+      // Redirect to GET for preview URL direct access
+      if (isForceAccess && !hasFormComponents(pageDef)) {
+        return proceed(request, h, redirectPath(page.href, query))
+      }
 
-    return page.makePostRouteHandler()(request, context, h)
-  })
+      if (!model) {
+        throw Boom.notFound(`No model found for /${request.params.path}`)
+      }
+
+      if (events?.onSave && events.onSave.type === 'http') {
+        await handleHttpEvent(
+          request,
+          page,
+          context,
+          events.onSave,
+          model,
+          preparePageEventRequestOptions
+        )
+      }
+
+      return page.makePostRouteHandler()(request, context, h)
+    })
+  }
 }
 
 export function getRoutes(
@@ -174,7 +217,7 @@ export function getRoutes(
     {
       method: 'post',
       path: '/{slug}/{path}/{itemId?}',
-      handler: postHandler,
+      handler: makePostHandler(preparePageEventRequestOptions),
       options: {
         ...postRouteOptions,
         validate: {
@@ -196,7 +239,7 @@ export function getRoutes(
     {
       method: 'post',
       path: '/preview/{state}/{slug}/{path}/{itemId?}',
-      handler: postHandler,
+      handler: makePostHandler(preparePageEventRequestOptions),
       options: {
         ...postRouteOptions,
         validate: {
