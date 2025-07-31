@@ -41,8 +41,10 @@ pages:
         # but this is to demonstrate that the server can send data back to the client
         content: >
           <p class="govuk-body">
-            The server received a full copy of the form state even though you haven't submitted the form yet.
-            It received associated the submission with reference: <strong>{{ context.data.submissionReferenceNumber }}</strong>.
+            The backend received a full copy of the form state even though you haven't submitted the form yet.
+          </p>
+          <p class="govuk-body">
+            Your submission was received with the reference: <strong>{{ context.data.submissionReferenceNumber }}</strong>.
           </p>
         id: 334b10dc-3373-4928-8fed-575578a67de8
       - type: DatePartsField
@@ -76,7 +78,7 @@ pages:
         content: >
           <h2 class="govuk-heading-m">Your age</h1>
           <p class="govuk-body">
-            We've calculated that you are {{ context.data.calculatedAge }} years old.
+            We've calculated that you are {{ context.data.calculatedAge }} years old. Only proceed if this is correct.
           </p>
         id: c42ea488-a38c-4b67-b8fa-4cf543a4f82d
     next: []

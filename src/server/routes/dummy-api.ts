@@ -1,5 +1,20 @@
 import { type Request, type ResponseToolkit } from '@hapi/hapi'
 
+function calculateAge(day: string, month: string, year: string) {
+  const dobDate = new Date(Number(day), Number(month) - 1, Number(year))
+
+  const today = new Date()
+
+  let age = today.getFullYear() - dobDate.getFullYear()
+  const m = today.getMonth() - dobDate.getMonth()
+
+  if (m < 0 || (m === 0 && today.getDate() < dobDate.getDate())) {
+    age--
+  }
+
+  return age
+}
+
 export default [
   {
     method: 'POST',
@@ -35,16 +50,7 @@ export default [
       const [day, month, year] =
         request.payload.data.main.dateOfBirth.split('-')
 
-      const dobDate = new Date(Number(day), Number(month) - 1, Number(year))
-
-      const today = new Date()
-
-      let age = today.getFullYear() - dobDate.getFullYear()
-      const m = today.getMonth() - dobDate.getMonth()
-
-      if (m < 0 || (m === 0 && today.getDate() < dobDate.getDate())) {
-        age--
-      }
+      const age = calculateAge(day, month, year)
 
       return {
         calculatedAge: age,

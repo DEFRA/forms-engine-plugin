@@ -1,6 +1,7 @@
 import { hasFormComponents, slugSchema, type Event } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
+  type ResponseObject,
   type ResponseToolkit,
   type RouteOptions,
   type ServerRoute
@@ -136,7 +137,11 @@ function makePostHandler(
 
       const response = await page.makePostRouteHandler()(request, context, h)
 
-      if (events?.onSave && events.onSave.type === 'http') {
+      if (
+        events?.onSave &&
+        events.onSave.type === 'http' &&
+        isSuccessful(response)
+      ) {
         await handleHttpEvent(
           request,
           page,
@@ -150,6 +155,12 @@ function makePostHandler(
       return response
     })
   }
+}
+
+function isSuccessful(response: ResponseObject): boolean {
+  const { statusCode } = response
+
+  return !Boom.isBoom(response) && statusCode >= 200 && statusCode < 400
 }
 
 export function getRoutes(
