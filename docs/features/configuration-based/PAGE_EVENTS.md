@@ -48,15 +48,13 @@ See [supported events](#supported-events) to learn more about the supported trig
 Currently supported event types:
 
 - `onLoad`: Called on load of a page (e.g. the initial GET request to load the page)
-
-Planned event types:
-
-- `onSave`: Called on save of a page, after the data has been validated by DXT. For example, when a user presses "Continue", which triggers a POST request.
+- `onSave`: Called on save of a page, after the data has been validated by DXT and the _page controller_ returns a 2xx or 3xx response. Note: if there's any data validation issues requiring a redirect/error, these are handled by the engine before a page controller's involvement and as a result the page event will only trigger when the engine is satisfied and the page controller is.
 
 ### Supported actions
 
 - `http`: Makes a HTTP(S) call to a web service. This service must be routable on DXT (e.g. by configuring CDP's squid proxy), must accept DXT's standardised payload, return HTTP 200 and a valid JSON document.
   - Options:
+    - `method`: The HTTP method, e.g. `POST` or `GET`. Note that forms-engine-plugin posts the form state as a payload, so `POST` is the correct method if you need to parse the form data.
     - `url`: A fully formed HTTP(S) URL, e.g. `https://my-api.defra.gov.uk` or `https://my-api.prod.cdp-int.defra.cloud`
 
 ## Payload
