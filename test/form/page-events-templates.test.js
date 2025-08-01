@@ -90,7 +90,7 @@ describe('Page Events Demo Journey', () => {
       path: '/page-events-demo/your-name',
       expectedNextPath: '/page-events-demo/date-of-birth',
       payload: {
-        applicantFirstName: 'Alex',
+        applicantFirstName: 'John',
         applicantLastName: 'Smith'
       }
     },
