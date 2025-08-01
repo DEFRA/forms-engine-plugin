@@ -29,20 +29,19 @@ export const formsService = async () => {
   // Instantiate the file loader form service
   const loader = new FileFormService()
 
-  // Add a Json form
-  await loader.addForm('src/server/forms/register-as-a-unicorn-breeder.json', {
-    ...metadata,
-    id: '95e92559-968d-44ae-8666-2b1ad3dffd31',
-    title: 'Register as a unicorn breeder',
-    slug: 'register-as-a-unicorn-breeder'
-  })
-
   // Add a Yaml form
   await loader.addForm('src/server/forms/register-as-a-unicorn-breeder.yaml', {
     ...metadata,
     id: '641aeafd-13dd-40fa-9186-001703800efb',
-    title: 'Register as a unicorn breeder (yaml)',
-    slug: 'register-as-a-unicorn-breeder-yaml' // if we needed to validate any JSON logic, make it available for convenience
+    title: 'Register as a unicorn breeder',
+    slug: 'register-as-a-unicorn-breeder'
+  })
+
+  await loader.addForm('src/server/forms/page-events.yaml', {
+    ...metadata,
+    id: '511db05e-ebbd-42e8-8270-5fe93f5c9762',
+    title: 'Page events demo',
+    slug: 'page-events-demo'
   })
 
   await loader.addForm('src/server/forms/components.json', {

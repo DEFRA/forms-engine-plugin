@@ -3,7 +3,8 @@ import { Engine as CatboxRedis } from '@hapi/catbox-redis'
 import hapi, {
   type Request,
   type ResponseToolkit,
-  type ServerOptions
+  type ServerOptions,
+  type ServerRoute
 } from '@hapi/hapi'
 import inert from '@hapi/inert'
 import Scooter from '@hapi/scooter'
@@ -21,7 +22,7 @@ import pluginErrorPages from '~/src/server/plugins/errorPages.js'
 import { plugin as pluginViews } from '~/src/server/plugins/nunjucks/index.js'
 import pluginPulse from '~/src/server/plugins/pulse.js'
 import pluginSession from '~/src/server/plugins/session.js'
-import { publicRoutes } from '~/src/server/routes/index.js'
+import { dummyApiRoutes, publicRoutes } from '~/src/server/routes/index.js'
 import { prepareSecureContext } from '~/src/server/secure-context.js'
 import { type RouteConfig } from '~/src/server/types.js'
 
@@ -120,6 +121,7 @@ export async function createServer(routeConfig?: RouteConfig) {
       name: 'router',
       register: (server) => {
         server.route(publicRoutes)
+        server.route(dummyApiRoutes as ServerRoute[])
       }
     }
   })

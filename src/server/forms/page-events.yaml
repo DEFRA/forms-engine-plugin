@@ -1,0 +1,87 @@
+---
+name: Page events
+engine: V2
+schema: 2
+startPage: '/summary'
+pages:
+  - title: Your name
+    path: '/your-name'
+    components:
+      - type: TextField
+        title: What is your first name?
+        name: applicantFirstName
+        shortDescription: Your first name
+        hint: ''
+        options:
+          required: true
+        schema: {}
+        id: 1fb8e182-c709-4792-8f83-e01d8b1fee1a
+      - type: TextField
+        title: What is your last name?
+        name: applicantLastName
+        shortDescription: Your last name
+        hint: ''
+        options:
+          required: true
+        schema: {}
+        id: b68df7f1-d4f4-4c17-83c8-402f584906c9
+    next: []
+    id: 622a35ec-3795-418a-81f3-a45746959045
+  - title: ''
+    path: '/date-of-birth'
+    events:
+      onLoad:
+        type: http
+        options:
+          method: 'POST'
+          url: http://localhost:3009/api/example/on-load-page
+    components:
+      - type: Html
+        # technically context.data.submissionReferenceNumber is redundant as the reference number is available locally as context.referenceNumber
+        # but this is to demonstrate that the server can send data back to the client
+        content: >
+          <p class="govuk-body">
+            The backend received a full copy of the form state even though you haven't submitted the form yet.
+          </p>
+          <p class="govuk-body">
+            Your submission was received with the reference: <strong>{{ context.data.submissionReferenceNumber }}</strong>.
+          </p>
+        id: 334b10dc-3373-4928-8fed-575578a67de8
+      - type: DatePartsField
+        title: When is {{ applicantFirstName }} {{ applicantLastName }}'s birthday?
+        name: dateOfBirth
+        shortDescription: Your birthday
+        hint: ''
+        options:
+          required: true
+        schema: {}
+        id: '00738799-3489-4ab2-a57b-542eecb31bfa'
+    next: []
+    id: da0fbdb4-a2de-4650-be16-9ba552af135f
+  - id: 449a45f6-4541-4a46-91bd-8b8931b07b50
+    title: Summary
+    path: '/summary'
+    controller: SummaryPageController
+    events:
+      onLoad:
+        type: http
+        options:
+          method: 'POST'
+          url: http://localhost:3009/api/example/on-summary
+      onSave:
+        type: http
+        options:
+          method: 'POST'
+          url: http://localhost:3009/api/example/on-summary
+    components:
+      - type: Html
+        content: >
+          <h2 class="govuk-heading-m">Your age</h1>
+          <p class="govuk-body">
+            We've calculated that you are {{ context.data.calculatedAge }} years old. Only proceed if this is correct.
+          </p>
+        id: c42ea488-a38c-4b67-b8fa-4cf543a4f82d
+    next: []
+conditions: []
+sections: []
+lists: []
