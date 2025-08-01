@@ -134,7 +134,9 @@ Here is an example of a Liquid template that renders a page title, displays a li
 </p>
 ```
 
-The above template should be minified and inserted into the content field in the form definition example. To make it valid JSON, quotes should be either replaced with `'` or escaped `\"`. Your IDE should do this automatically when pasting the into a JSON string, or a tool like https://www.freeformatter.com/json-escape.html can do it manually.
+When using these kind of multi-line HTML snippets, you would benefit from our [YAML-based form definitions](../../FORM_DEFINITION_FORMATS.md) that provide a better developer experience compared to JSON files.
+
+If you choose to stick with JSON form definitions, the above template should be minified and inserted into the content field in the form definition example. E.g. quotes should be either replaced with `'` or escaped `\"`. Your IDE should do this automatically when pasting the into a JSON string, or a tool like https://www.freeformatter.com/json-escape.html can do it manually.
 
 Full example of the minified and escaped component, which can be appended to [the first example's JSON snippet](#substituting-a-page-title).
 
@@ -159,4 +161,4 @@ Whilst DXT offers some out of the box filters, teams using the plugin have the c
 
 ## Using page templates with data from your own API
 
-Page templates have access to``{{ context.data  }}` , which is an attribute made available when a page event is triggered. It represents the entire response body from your API. To learn more about this, [see our guidance on page events](/forms-engine-plugin/features/configuration-based/PAGE_EVENTS).
+Page templates have access to `{{ context.data }}`, which is an attribute made available when a page event is triggered. It represents the entire response body from your API. To learn more about this, [see our guidance on page events](/forms-engine-plugin/features/configuration-based/PAGE_EVENTS).

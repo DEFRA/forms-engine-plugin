@@ -53,7 +53,13 @@ Optional dependencies
 
 - [@hapi/inert](https://www.npmjs.com/package/@hapi/inert) - static file and directory handlers for serving GOV.UK assets and styles
 
-## Step 2: Register DXT as a hapi plugin
+## Step 2: Decide where you want to store your forms and in what format
+
+See [form definition formats](./FORM_DEFINITION_FORMATS.md) to understand your options. For simple use-cases, we recommend you use our disk-based form loader using YAML form definitions.
+
+This will influence the `services.formsService` you provide when registering the plugin (see step 3 below).
+
+## Step 3: Register DXT as a hapi plugin
 
 ```javascript
 import plugin from '@defra/forms-engine-plugin'
@@ -110,8 +116,8 @@ await server.register({
      * Services is what DXT uses to interact with external APIs
      */
     services: {
-      formsService, // where your forms should be downloaded from.
-      formSubmissionService, // handles temporary storage of file uploads
+      formsService, // where your forms should be retrieved from
+      formSubmissionService, // handles storage of file uploads
       outputService // where your form should be submitted to
     },
     /**
@@ -131,7 +137,7 @@ await server.register({
 await server.start()
 ```
 
-## Step 3: Handling static assets
+## Step 4: Handling static assets
 
 TODO: CSS will be updated with a proper build process using SASS.
 
@@ -140,7 +146,7 @@ TODO: CSS will be updated with a proper build process using SASS.
 
 DXT plans to prefix to these asset paths to prevent collisions with your assets. Contact [#defra-forms-support](https://defra-digital-team.slack.com) if this is a blocker for you.
 
-## Step 4: Environment variables
+## Step 5: Environment variables
 
 Blocks marked with `# FEATURE: <name>` are optional and can be omitted if the feature is not used.
 
@@ -168,12 +174,13 @@ GOOGLE_ANALYTICS_TRACKING_ID='12345'
 # END FEATURE: Google Analytics
 ```
 
-## Step 5: Creating and loading a form
+## Step 6: Creating and loading a form
 
-Forms in DXT are represented by a JSON configuration file. The configuration defines several top-level elements:
+Forms in DXT are represented by a configuration object called a "form definition". The form definition can be stored in a location and format of your choosing by providing a `formsService` as a registration option. If you are using our 'loader' pattern as recommended in step 2, you will likely be writing YAML or JSON files in your repository as files.
 
-The `form-engine-plugin` uses JSON configuration files to serve form journeys.
-These files are called `Form definitions` and are built up of:
+Our examples primarily use JSON. If you are using YAML, simply convert the data structure from JSON to YAML and the examples will still work.
+
+The configuration defines several top-level elements:
 
 - `pages` - includes a `path`, `title`
 - `components` - one or more questions on a page
@@ -202,7 +209,7 @@ Pages can be skipped by assigning a condition to the page, when the condition ev
   // A reference to a condition
   "condition": "Condition UUID",
 
-  // A page contains a colection of components
+  // A page contains a collection of components
   "components": [
     // ...
   ]
