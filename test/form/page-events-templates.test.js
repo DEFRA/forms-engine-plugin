@@ -14,7 +14,12 @@ describe('Page Events Demo Journey', () => {
   let crumbCookie
 
   beforeAll(async () => {
-    // Configure nock before server is constructed
+    const submissionUrl = process.env.SUBMISSION_URL
+
+    if (!submissionUrl) {
+      throw new Error('SUBMISSION_URL environment variable is not set')
+    }
+
     nock('http://localhost:3009')
       .persist()
       .post('/api/example/on-load-page')
@@ -28,6 +33,40 @@ describe('Page Events Demo Journey', () => {
         submissionEvent: 'POST',
         submissionReferenceNumber: 'FOO-BAR-123'
       })
+
+    nock(submissionUrl)
+      .persist()
+      .post('/files/persist')
+      .reply(200, {
+        main: [
+          {
+            name: 'fileUpload',
+            title: 'Upload something',
+            value: [
+              'a9e7470b-86a5-4826-a908-360a36aac71d',
+              'a9e7470b-86a5-4826-a908-360a36aac72a'
+            ].join(',')
+          }
+        ],
+        repeaters: [],
+        retrievalKey: 'enrique.chase@defra.gov.uk',
+        sessionId: expect.any(String)
+      })
+      .post('/submit')
+      .reply(200, {
+        message: 'Submit completed',
+        result: {
+          files: {
+            main: '00000000-0000-0000-0000-000000000000',
+            repeaters: {}
+          }
+        }
+      })
+
+    nock('https://api.notifications.service.gov.uk')
+      .persist()
+      .post('/v2/notifications/email')
+      .reply(200, {}) // content not relevant, only response code
 
     server = await createServer()
     await server.initialize()
@@ -85,7 +124,6 @@ describe('Page Events Demo Journey', () => {
       })
       expect(res.headers.location).toBe(expectedNextPath)
       expect(res.statusCode).toBe(303)
-      // crumbCookie = getCookie(res, 'crumb')
     }
   )
 })
