@@ -1,3 +1,5 @@
+import nock from 'nock'
+
 import { createServer } from '~/src/server/index.js'
 import { getCookie } from '~/test/utils/get-cookie.js'
 
@@ -12,6 +14,21 @@ describe('Page Events Demo Journey', () => {
   let crumbCookie
 
   beforeAll(async () => {
+    // Configure nock before server is constructed
+    nock('http://localhost:3009')
+      .persist()
+      .post('/api/example/on-load-page')
+      .reply(200, {
+        submissionEvent: 'GET',
+        submissionReferenceNumber: 'FOO-BAR-123'
+      })
+      .post('/api/example/on-summary')
+      .reply(200, {
+        calculatedAge: '900',
+        submissionEvent: 'POST',
+        submissionReferenceNumber: 'FOO-BAR-123'
+      })
+
     server = await createServer()
     await server.initialize()
     // Initial GET request to start session
@@ -26,6 +43,7 @@ describe('Page Events Demo Journey', () => {
 
   afterAll(async () => {
     await server.stop()
+    nock.cleanAll()
   })
 
   const postSteps = [
@@ -48,7 +66,7 @@ describe('Page Events Demo Journey', () => {
     },
     {
       path: '/page-events-demo/summary',
-      expectedNextPath: undefined,
+      expectedNextPath: '/page-events-demo/status',
       payload: {}
     }
   ]
@@ -67,7 +85,7 @@ describe('Page Events Demo Journey', () => {
       })
       expect(res.headers.location).toBe(expectedNextPath)
       expect(res.statusCode).toBe(303)
-      // crumbCookie = getCookie(res, 'crumb') // Uncomment if crumb changes per step
+      // crumbCookie = getCookie(res, 'crumb')
     }
   )
 })
