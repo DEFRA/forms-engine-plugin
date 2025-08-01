@@ -1,6 +1,7 @@
 import nock from 'nock'
 
 import { createServer } from '~/src/server/index.js'
+import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookie } from '~/test/utils/get-cookie.js'
 
 describe('Page Events Demo Journey', () => {
@@ -104,24 +105,30 @@ describe('Page Events Demo Journey', () => {
         dateOfBirth__month: '1',
         dateOfBirth__year: '1990'
       },
-      assertions: (/** @type {ServerInjectResponse} */ res) => {
-        expect(res.payload).toEqual(
-          expect.stringContaining(
-            'Your submission was received with the reference: FOO-BAR-123.'
-          )
-        )
+      assertions: (/** @type {Container} */ container) => {
+        const $heading = container.getByRole('heading', {
+          level: 1
+        })
+
+        expect($heading).toHaveTextContent("When is John Smith's birthday?")
+
+        const $referenceNumber = container.getByText('FOO-BAR-123', {
+          selector: 'strong'
+        })
+
+        expect($referenceNumber).toBeDefined()
       }
     },
     {
       path: '/page-events-demo/summary',
       expectedNextPath: '/page-events-demo/status',
       payload: {},
-      assertions: (/** @type {ServerInjectResponse} */ res) => {
-        expect(res.payload).toEqual(
-          expect.stringContaining(
-            "We've calculated that you are 900 years old."
-          )
+      assertions: (/** @type {Container} */ container) => {
+        const $text = container.getByText(
+          "We've calculated that you are 900 years old. Only proceed if this is correct."
         )
+
+        expect($text).toBeDefined()
       }
     }
   ]
@@ -132,20 +139,34 @@ describe('Page Events Demo Journey', () => {
       const headers = {
         cookie: `session=${sessionCookie.trim()};crumb=${crumbCookie.trim()}`
       }
-      const res = await server.inject({
+
+      // make get request to see visual content
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: path,
+        headers
+      })
+
+      assertions(container) // assert on visual content
+
+      const postRes = await server.inject({
         method: 'POST',
         url: path,
         payload: { ...payload, crumb: crumbCookie },
         headers
       })
-      expect(res.headers.location).toBe(expectedNextPath)
-      expect(res.statusCode).toBe(303)
-      assertions(res)
+
+      // post requests should always redirect to next page
+      expect(postRes.headers.location).toBe(expectedNextPath)
+      expect(postRes.statusCode).toBe(303)
     }
   )
 })
 
 /**
  * @import { Server } from '@hapi/hapi'
- * @import { ServerInjectResponse } from '@hapi/hapi'
+ */
+
+/**
+ * @typedef {Awaited<ReturnType<typeof import('../helpers/component-helpers.js').renderResponse>>['container']} Container
  */
