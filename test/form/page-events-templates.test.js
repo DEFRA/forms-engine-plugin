@@ -92,7 +92,9 @@ describe('Page Events Demo Journey', () => {
       payload: {
         applicantFirstName: 'John',
         applicantLastName: 'Smith'
-      }
+      },
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      assertions: () => {}
     },
     {
       path: '/page-events-demo/date-of-birth',
@@ -101,18 +103,32 @@ describe('Page Events Demo Journey', () => {
         dateOfBirth__day: '1',
         dateOfBirth__month: '1',
         dateOfBirth__year: '1990'
+      },
+      assertions: (/** @type {ServerInjectResponse} */ res) => {
+        expect(res.payload).toEqual(
+          expect.stringContaining(
+            'Your submission was received with the reference: FOO-BAR-123.'
+          )
+        )
       }
     },
     {
       path: '/page-events-demo/summary',
       expectedNextPath: '/page-events-demo/status',
-      payload: {}
+      payload: {},
+      assertions: (/** @type {ServerInjectResponse} */ res) => {
+        expect(res.payload).toEqual(
+          expect.stringContaining(
+            "We've calculated that you are 900 years old."
+          )
+        )
+      }
     }
   ]
 
   it.each(postSteps)(
     'POST %s should redirect to %s',
-    async ({ path, expectedNextPath, payload }) => {
+    async ({ path, expectedNextPath, payload, assertions }) => {
       const headers = {
         cookie: `session=${sessionCookie.trim()};crumb=${crumbCookie.trim()}`
       }
@@ -124,10 +140,12 @@ describe('Page Events Demo Journey', () => {
       })
       expect(res.headers.location).toBe(expectedNextPath)
       expect(res.statusCode).toBe(303)
+      assertions(res)
     }
   )
 })
 
 /**
  * @import { Server } from '@hapi/hapi'
+ * @import { ServerInjectResponse } from '@hapi/hapi'
  */
