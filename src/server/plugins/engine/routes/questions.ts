@@ -72,7 +72,7 @@ async function handleHttpEvent(
   Object.assign(context.data, response)
 }
 
-function makeGetHandler(
+export function makeGetHandler(
   preparePageEventRequestOptions?: PreparePageEventRequestOptions
 ) {
   return function getHandler(
@@ -111,7 +111,7 @@ function makeGetHandler(
   }
 }
 
-function makePostHandler(
+export function makePostHandler(
   preparePageEventRequestOptions?: PreparePageEventRequestOptions
 ) {
   return function postHandler(
