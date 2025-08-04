@@ -102,6 +102,10 @@ export class CacheService {
 
     await this.cache.set(key, state, ttl)
 
+    if (this.customPersister) {
+      await this.customPersister(key.id, state, request)
+    }
+
     return this.getState(request)
   }
 

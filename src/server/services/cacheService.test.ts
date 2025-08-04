@@ -136,7 +136,7 @@ describe('CacheService', () => {
   })
 
   describe('setState', () => {
-    it('should set state with correct TTL', async () => {
+    it('should set state with correct TTL and return updated state', async () => {
       const mockRequest = {
         yar: { id: 'some-session' },
         params: { state: 'form1', slug: 'page1' }
@@ -146,7 +146,12 @@ describe('CacheService', () => {
 
       jest.spyOn(config, 'get').mockReturnValue(mockTTL)
 
-      await cacheService.setState(mockRequest, mockState)
+      // Mock getState to return the updated state after set
+      jest.spyOn(cacheService, 'getState').mockResolvedValue(mockState)
+
+      await expect(
+        cacheService.setState(mockRequest, mockState)
+      ).resolves.toEqual(mockState)
 
       expect(mockCache.set).toHaveBeenCalledWith(
         {
@@ -156,6 +161,32 @@ describe('CacheService', () => {
         mockState,
         mockTTL
       )
+      expect(cacheService.getState).toHaveBeenCalledWith(mockRequest)
+    })
+
+    it('should call customPersister if provided', async () => {
+      const mockRequest = {
+        yar: { id: 'session-ok' },
+        params: { state: 'form1', slug: 'page1' }
+      } as unknown as FormRequest
+
+      const mockState = { someData: 'value' }
+      const mockTTL = 3600000
+
+      const customPersister = jest.fn().mockResolvedValue(undefined)
+
+      cacheService = new CacheService({
+        server: mockServer as Server,
+        cacheName: 'test-cache',
+        options: { sessionPersister: customPersister }
+      })
+
+      jest.spyOn(config, 'get').mockReturnValue(mockTTL)
+
+      await cacheService.setState(mockRequest, mockState)
+
+      expect(customPersister).toHaveBeenCalled()
+      expect(mockCache.set).toHaveBeenCalled()
     })
   })
 
