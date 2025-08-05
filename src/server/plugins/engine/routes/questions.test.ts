@@ -31,11 +31,10 @@ jest.mock('~/src/server/plugins/engine/outputFormatters/machine/v1', () => ({
 jest.mock('~/src/server/plugins/engine/routes/index')
 
 describe('makeGetHandler', () => {
-  let pageMock: PageControllerClass
-  let contextMock: FormContext
-  let modelMock: FormModel
-  let requestMock: FormRequest
-  let hMock: Pick<ResponseToolkit, 'redirect' | 'view'>
+  const hMock: Pick<ResponseToolkit, 'redirect' | 'view'> = {
+    redirect: jest.fn(),
+    view: jest.fn()
+  }
 
   beforeEach(() => {
     nock('http://test')
@@ -48,32 +47,6 @@ describe('makeGetHandler', () => {
       .reply(200, {
         wasPostCalled: true
       })
-
-    modelMock = {
-      basePath: 'some-base-path',
-      def: { name: 'Hello world' }
-    } as FormModel
-
-    pageMock = createMockPageController(modelMock, (_request, _context, _h) =>
-      Promise.resolve({ statusCode: 200 } as unknown as ResponseObject)
-    )
-
-    contextMock = { data: {}, model: {} } as unknown as FormContext
-
-    requestMock = {
-      params: { path: 'some-path' },
-      app: { model: modelMock }
-    } as FormRequest
-    hMock = { redirect: jest.fn(), view: jest.fn() }
-    jest
-      .mocked(redirectOrMakeHandler)
-      .mockImplementation(
-        (
-          _req: FormRequest | FormRequestPayload,
-          _h: Pick<ResponseToolkit, 'redirect' | 'view'>,
-          fn
-        ) => Promise.resolve(fn(pageMock, contextMock))
-      )
   })
 
   afterEach(() => {
@@ -83,16 +56,35 @@ describe('makeGetHandler', () => {
   it('calls the callback when events.onLoad.type is http', async () => {
     let data = {}
 
-    pageMock.makeGetRouteHandler =
-      () =>
-      (
-        _request: FormRequest,
-        context: FormContext,
-        _h: Pick<ResponseToolkit, 'redirect' | 'view'>
-      ) => {
+    const modelMock = {
+      basePath: 'some-base-path',
+      def: { name: 'Hello world' }
+    } as FormModel
+
+    const pageMock = createMockPageController(
+      modelMock,
+      (_request, context, _h) => {
         data = context.data
         return Promise.resolve({} as unknown as ResponseObject)
       }
+    )
+
+    const contextMock = { data: {}, model: {} } as unknown as FormContext
+
+    const requestMock = {
+      params: { path: 'some-path' },
+      app: { model: modelMock }
+    } as FormRequest
+
+    jest
+      .mocked(redirectOrMakeHandler)
+      .mockImplementation(
+        (
+          _req: FormRequest | FormRequestPayload,
+          _h: Pick<ResponseToolkit, 'redirect' | 'view'>,
+          fn
+        ) => Promise.resolve(fn(pageMock, contextMock))
+      )
 
     await makeGetHandler()(requestMock, hMock)
 
@@ -122,7 +114,11 @@ function createMockPageController(
         options: { method: 'POST', url: 'http://test/save' }
       }
     },
-    makeGetRouteHandler: routeHandler,
-    makePostRouteHandler: routeHandler
+    makeGetRouteHandler: () => {
+      return routeHandler
+    },
+    makePostRouteHandler: () => {
+      return routeHandler
+    }
   } as unknown as PageControllerClass
 }
