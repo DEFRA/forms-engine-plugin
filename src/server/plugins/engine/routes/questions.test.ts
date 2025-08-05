@@ -1,3 +1,4 @@
+import Boom from '@hapi/boom'
 import { type ResponseObject, type ResponseToolkit } from '@hapi/hapi'
 // eslint-disable-next-line n/no-unpublished-import
 import nock from 'nock'
@@ -91,6 +92,91 @@ describe('makeGetHandler', () => {
     expect(data).toMatchObject({
       wasGetCalled: true
     })
+  })
+
+  it('does not call the callback when the events.onLoad.type is not http', async () => {
+    let data = {}
+
+    const modelMock = {
+      basePath: 'some-base-path',
+      def: { name: 'Hello world' }
+    } as FormModel
+
+    const pageMock = createMockPageController(
+      modelMock,
+      (_request, context, _h) => {
+        data = context.data
+        return Promise.resolve({} as unknown as ResponseObject)
+      }
+    )
+
+    pageMock.events = {}
+
+    const contextMock = { data: {}, model: {} } as unknown as FormContext
+
+    const requestMock = {
+      params: { path: 'some-path' },
+      app: { model: modelMock }
+    } as FormRequest
+
+    jest
+      .mocked(redirectOrMakeHandler)
+      .mockImplementation(
+        (
+          _req: FormRequest | FormRequestPayload,
+          _h: Pick<ResponseToolkit, 'redirect' | 'view'>,
+          fn
+        ) => Promise.resolve(fn(pageMock, contextMock))
+      )
+
+    await makeGetHandler()(requestMock, hMock)
+
+    expect(data).toMatchObject({})
+  })
+
+  it('throws when model is missing', async () => {
+    let error
+
+    const modelMock = {
+      basePath: 'some-base-path',
+      def: { name: 'Hello world' }
+    } as FormModel
+
+    const pageMock = createMockPageController(
+      modelMock,
+      (_request, _context, _h) => {
+        return Promise.resolve({} as unknown as ResponseObject)
+      }
+    )
+
+    const contextMock = { data: {}, model: {} } as unknown as FormContext
+
+    const requestMock = {
+      params: { path: 'some-path' },
+      app: {}
+    } as FormRequest
+
+    jest
+      .mocked(redirectOrMakeHandler)
+      .mockImplementation(
+        async (
+          _req: FormRequest | FormRequestPayload,
+          _h: Pick<ResponseToolkit, 'redirect' | 'view'>,
+          fn
+        ) => {
+          try {
+            await fn(pageMock, contextMock)
+          } catch (err) {
+            error = err
+          }
+
+          return Promise.resolve({} as unknown as ResponseObject)
+        }
+      )
+
+    await makeGetHandler()(requestMock, hMock)
+
+    expect(error).toEqual(Boom.notFound('No model found for /some-path'))
   })
 })
 
