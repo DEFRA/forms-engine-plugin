@@ -1333,63 +1333,142 @@ describe('Save and Return functionality', () => {
 
   describe('handleSaveAndReturn', () => {
     it('should save state and redirect to exit page', async () => {
+      const sessionPersisterMock = jest.fn()
       const state: FormSubmissionState = {
         $$__referenceNumber: 'foobar',
         yesNoField: true
       }
       const request = {
         ...requestPage1,
+        server: {
+          plugins: {
+            'forms-engine-plugin': {
+              saveAndReturn: {
+                sessionPersister: sessionPersisterMock
+              }
+            }
+          }
+        },
         method: 'post',
         payload: { yesNoField: true, action: 'save-and-return' }
       } as unknown as FormRequestPayload
 
       const context = model.getFormContext(request, state)
 
-      jest.spyOn(controller1, 'setState').mockResolvedValue(state)
-
       await controller1.handleSaveAndReturn(request, context, h)
 
-      expect(controller1.setState).toHaveBeenCalledWith(request, state)
+      expect(sessionPersisterMock).toHaveBeenCalledWith(context.state, request)
       expect(h.redirect).toHaveBeenCalledWith('/test/exit')
     })
 
-    it('should handle save-and-return with incomplete data', async () => {
+    it('should redirect without saving state if no sessionPersister', async () => {
+      const sessionPersisterMock = jest.fn()
       const state: FormSubmissionState = {
         $$__referenceNumber: 'foobar',
-        yesNoField: null
+        yesNoField: true
       }
       const request = {
         ...requestPage1,
+        server: {
+          plugins: {
+            'forms-engine-plugin': {
+              // No sessionPersister object
+              saveAndReturn: {}
+            }
+          }
+        },
         method: 'post',
-        payload: { yesNoField: '', action: 'save-and-return' }
+        payload: { yesNoField: true, action: 'save-and-return' }
       } as unknown as FormRequestPayload
 
       const context = model.getFormContext(request, state)
 
-      jest.spyOn(controller1, 'setState').mockResolvedValue(state)
-
       await controller1.handleSaveAndReturn(request, context, h)
 
-      expect(controller1.setState).toHaveBeenCalledWith(request, state)
+      expect(sessionPersisterMock).not.toHaveBeenCalled()
       expect(h.redirect).toHaveBeenCalledWith('/test/exit')
     })
 
-    it('should handle save-and-return with validation errors', async () => {
+    it('should redirect without saving state if no saveAndReturnOption', async () => {
+      const sessionPersisterMock = jest.fn()
+      const state: FormSubmissionState = {
+        $$__referenceNumber: 'foobar',
+        yesNoField: true
+      }
+      const request = {
+        ...requestPage1,
+        server: {
+          plugins: {
+            'forms-engine-plugin': {
+              // No saveAndReturn object
+            }
+          }
+        },
+        method: 'post',
+        payload: { yesNoField: true, action: 'save-and-return' }
+      } as unknown as FormRequestPayload
+
+      const context = model.getFormContext(request, state)
+
+      await controller1.handleSaveAndReturn(request, context, h)
+
+      expect(sessionPersisterMock).not.toHaveBeenCalled()
+      expect(h.redirect).toHaveBeenCalledWith('/test/exit')
+    })
+
+    it('should not throw if saveAndReturn is missing entirely', async () => {
+      const state: FormSubmissionState = {
+        $$__referenceNumber: 'foobar',
+        yesNoField: true
+      }
+      const request = {
+        ...requestPage1,
+        server: {
+          plugins: {
+            'forms-engine-plugin': {
+              // No saveAndReturn object
+            }
+          }
+        },
+        method: 'post',
+        payload: { yesNoField: true, action: 'save-and-return' }
+      } as unknown as FormRequestPayload
+
+      const context = model.getFormContext(request, state)
+
+      await expect(
+        controller1.handleSaveAndReturn(request, context, h)
+      ).resolves.toEqual(h.redirect('/test/exit'))
+    })
+
+    it('should throw if sessionPersister throws as well with validation errors', async () => {
+      const sessionPersisterMock = jest.fn().mockImplementation(() => {
+        throw new Error('Session persister error')
+      })
       const state: FormSubmissionState = { $$__referenceNumber: 'foobar' }
       const request = {
         ...requestPage1,
         method: 'post',
+        server: {
+          plugins: {
+            'forms-engine-plugin': {
+              saveAndReturn: {
+                sessionPersister: sessionPersisterMock
+              }
+            }
+          }
+        },
         payload: { action: 'save-and-return' }
       } as unknown as FormRequestPayload
 
       const context = model.getFormContext(request, state)
 
-      jest.spyOn(controller1, 'setState').mockResolvedValue(state)
+      await expect(
+        controller1.handleSaveAndReturn(request, context, h)
+      ).rejects.toThrow('Session persister error')
 
-      await controller1.handleSaveAndReturn(request, context, h)
-
-      expect(controller1.setState).toHaveBeenCalledWith(request, state)
-      expect(h.redirect).toHaveBeenCalledWith('/test/exit')
+      expect(sessionPersisterMock).toHaveBeenCalledWith(context.state, request)
+      expect(h.redirect).not.toHaveBeenCalledWith('/test/exit')
     })
   })
 

@@ -548,7 +548,12 @@ export class QuestionPageController extends PageController {
     const { state } = context
 
     // Save the current state and redirect to exit page
-    await this.setState(request, state)
+    const saveAndReturn =
+      request.server.plugins['forms-engine-plugin'].saveAndReturn
+
+    if (saveAndReturn?.sessionPersister) {
+      await saveAndReturn.sessionPersister(state, request)
+    }
     return h.redirect(this.getHref('/exit'))
   }
 

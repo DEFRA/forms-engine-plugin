@@ -370,7 +370,6 @@ export interface PluginOptions {
     keyGenerator: (request: RequestType) => string
     sessionHydrator: (request: RequestType) => Promise<FormSubmissionState>
     sessionPersister: (
-      key: string,
       state: FormSubmissionState,
       request: RequestType
     ) => Promise<void>
