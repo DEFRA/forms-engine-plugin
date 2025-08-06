@@ -41,15 +41,15 @@ export const formsService = async () => {
     ...metadata,
     id: '511db05e-ebbd-42e8-8270-5fe93f5c9762',
     title: 'Page events demo',
-    slug: 'page-events-demo'
+    slug: 'page-events-demo',
+    notificationEmail: 'dummy@defra.gov.uk'
   })
 
   await loader.addForm('src/server/forms/components.json', {
     ...metadata,
     id: '6a872d3b-13f9e-804ce3e-4830-5c45fb32',
     title: 'Components',
-    slug: 'components',
-    notificationEmail: 'dummy@defra.gov.uk'
+    slug: 'components'
   })
 
   return loader.toFormsService()
