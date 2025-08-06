@@ -553,7 +553,11 @@ export class QuestionPageController extends PageController {
 
     if (saveAndReturn?.sessionPersister) {
       await saveAndReturn.sessionPersister(state, request)
+
+      const cacheService = getCacheService(request.server)
+      await cacheService.clearState(request)
     }
+
     return h.redirect(this.getHref('/exit'))
   }
 
