@@ -294,6 +294,51 @@ describe('makePostHandler', () => {
     expect(nock.pendingMocks()).not.toBeEmpty()
   })
 
+  it('does not call the callback when events.onSave.type is http and the page controller was unsuccessful', async () => {
+    const mockPostResponse: ResponseObject = {
+      statusCode: 500
+    } as ResponseObject
+
+    const modelMock = {
+      basePath: 'some-base-path',
+      def: { name: 'Hello world' }
+    } as FormModel
+
+    const pageMock = createMockPageController(
+      modelMock,
+      (
+        _request: FormRequest,
+        _context: FormContext,
+        _h: Pick<ResponseToolkit, 'redirect' | 'view'>
+      ) => {
+        // do return a valid ResponseObject wrapped in Promise.resolve
+        return mockPostResponse
+      }
+    )
+
+    const contextMock = { data: {}, model: {} } as unknown as FormContext
+
+    const requestMock = {
+      params: { path: 'some-path' },
+      app: { model: modelMock },
+      payload: { some: 'payload' }
+    } as unknown as FormRequestPayload
+
+    jest
+      .mocked(redirectOrMakeHandler)
+      .mockImplementation(
+        (
+          _req: FormRequest | FormRequestPayload,
+          _h: Pick<ResponseToolkit, 'redirect' | 'view'>,
+          fn
+        ) => Promise.resolve(fn(pageMock, contextMock))
+      )
+
+    await makePostHandler()(requestMock, hMock)
+
+    expect(nock.pendingMocks()).not.toBeEmpty()
+  })
+
   it('throws when model is missing', async () => {
     let error
 
