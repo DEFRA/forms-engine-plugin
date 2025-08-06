@@ -159,5 +159,5 @@ describe('Page Events Demo Journey', () => {
  */
 
 /**
- * @typedef {Awaited<ReturnType<typeof import('../helpers/component-helpers.js').renderResponse>>['container']} Container
+ * @typedef {Awaited<ReturnType<typeof renderResponse>>['container']} Container
  */
