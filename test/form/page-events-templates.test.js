@@ -157,8 +157,8 @@ describe('Page Events Demo Journey', () => {
       })
 
       // post requests should always redirect to next page
-      expect(postRes.headers.location).toBe(expectedNextPath)
       expect(postRes.statusCode).toBe(303)
+      expect(postRes.headers.location).toBe(expectedNextPath)
     }
   )
 })
