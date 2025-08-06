@@ -43,8 +43,7 @@ export const plugin = {
       cacheName,
       options: {
         keyGenerator: saveAndReturn?.keyGenerator,
-        sessionHydrator: saveAndReturn?.sessionHydrator,
-        sessionPersister: saveAndReturn?.sessionPersister
+        sessionHydrator: saveAndReturn?.sessionHydrator
       }
     })
 
