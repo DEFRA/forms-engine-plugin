@@ -1,6 +1,7 @@
 import { type PageQuestion } from '@defra/forms-model'
 import { type ResponseToolkit } from '@hapi/hapi'
 
+import { getCacheService } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
@@ -1345,7 +1346,10 @@ describe('Save and Return functionality', () => {
             'forms-engine-plugin': {
               saveAndReturn: {
                 sessionPersister: sessionPersisterMock
-              }
+              },
+              cacheService: {
+                clearState: jest.fn()
+              } as unknown as CacheService
             }
           }
         },
@@ -1353,15 +1357,18 @@ describe('Save and Return functionality', () => {
         payload: { yesNoField: true, action: 'save-and-return' }
       } as unknown as FormRequestPayload
 
+      const cacheService = getCacheService(request.server)
+
       const context = model.getFormContext(request, state)
 
       await controller1.handleSaveAndReturn(request, context, h)
 
       expect(sessionPersisterMock).toHaveBeenCalledWith(context.state, request)
+      expect(cacheService.clearState).toHaveBeenCalledWith(request)
       expect(h.redirect).toHaveBeenCalledWith('/test/exit')
     })
 
-    it('should redirect without saving state if no sessionPersister', async () => {
+    it('should throw if sessionPersister inside saveAndReturn options provided', async () => {
       const sessionPersisterMock = jest.fn()
       const state: FormSubmissionState = {
         $$__referenceNumber: 'foobar',
@@ -1383,40 +1390,16 @@ describe('Save and Return functionality', () => {
 
       const context = model.getFormContext(request, state)
 
-      await controller1.handleSaveAndReturn(request, context, h)
+      await expect(
+        controller1.handleSaveAndReturn(request, context, h)
+      ).rejects.toThrow('Server misconfigured for save and return')
 
       expect(sessionPersisterMock).not.toHaveBeenCalled()
-      expect(h.redirect).toHaveBeenCalledWith('/test/exit')
+      expect(h.redirect).not.toHaveBeenCalled()
     })
 
-    it('should redirect without saving state if no saveAndReturnOption', async () => {
+    it('should throw if no saveAndReturn options provided', async () => {
       const sessionPersisterMock = jest.fn()
-      const state: FormSubmissionState = {
-        $$__referenceNumber: 'foobar',
-        yesNoField: true
-      }
-      const request = {
-        ...requestPage1,
-        server: {
-          plugins: {
-            'forms-engine-plugin': {
-              // No saveAndReturn object
-            }
-          }
-        },
-        method: 'post',
-        payload: { yesNoField: true, action: 'save-and-return' }
-      } as unknown as FormRequestPayload
-
-      const context = model.getFormContext(request, state)
-
-      await controller1.handleSaveAndReturn(request, context, h)
-
-      expect(sessionPersisterMock).not.toHaveBeenCalled()
-      expect(h.redirect).toHaveBeenCalledWith('/test/exit')
-    })
-
-    it('should not throw if saveAndReturn is missing entirely', async () => {
       const state: FormSubmissionState = {
         $$__referenceNumber: 'foobar',
         yesNoField: true
@@ -1438,7 +1421,10 @@ describe('Save and Return functionality', () => {
 
       await expect(
         controller1.handleSaveAndReturn(request, context, h)
-      ).resolves.toEqual(h.redirect('/test/exit'))
+      ).rejects.toThrow('Server misconfigured for save and return')
+
+      expect(sessionPersisterMock).not.toHaveBeenCalled()
+      expect(h.redirect).not.toHaveBeenCalled()
     })
 
     it('should throw if sessionPersister throws as well with validation errors', async () => {
