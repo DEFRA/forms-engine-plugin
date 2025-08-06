@@ -1,3 +1,10 @@
+---
+layout: default
+title: Contributing
+render_with_liquid: false
+nav_order: 4
+---
+
 # Contributing to DXT
 
 > **Note:** This guide is for developers within the Department for Environment, Food & Rural Affairs. We do not guarantee support for those outside of this organisation.

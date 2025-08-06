@@ -1,3 +1,9 @@
+---
+layout: default
+title: Form definition formats
+render_with_liquid: false
+---
+
 # Form definition formats
 
 Form definitions are retrieved by `forms-engine-plugin` using the `formsService` plugin registration option. The relevant function is `getFormDefinition()`, which must return a JavaScript object that matches the schema of a form definition.

@@ -1,3 +1,9 @@
+---
+layout: default
+title: Request lifecycle
+render_with_liquid: false
+---
+
 # Request Lifecycle
 
 The `forms-engine-plugin` is built on top of Hapi.js and follows the standard Hapi request lifecycle while adding specialized layers for form handling, page controllers, and event execution.

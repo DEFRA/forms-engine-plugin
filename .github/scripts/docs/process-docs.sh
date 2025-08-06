@@ -50,22 +50,6 @@ for doc_file in $(find . -maxdepth 1 -name "*.md"); do
   fi
 
   case "$base_name" in
-    "index"|"INDEX")
-      nav_order=1
-      title="DXT Documentation"
-      ;;
-    "GETTING_STARTED")
-      nav_order=2
-      title="Getting Started"
-      ;;
-    "PLUGIN_OPTIONS")
-      nav_order=3
-      title="Plugin Options"
-      ;;
-    "CONTRIBUTING")
-      nav_order=4
-      title="Contributing"
-      ;;
     "SCHEMA_REFERENCE")
       nav_order=5
       title="Schema Reference"

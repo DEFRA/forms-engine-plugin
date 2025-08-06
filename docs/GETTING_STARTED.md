@@ -1,3 +1,10 @@
+---
+layout: default
+title: Getting started
+render_with_liquid: false
+nav_order: 2
+---
+
 # Getting started with DXT
 
 1. [Foundational knowledge](#foundational-knowledge)
