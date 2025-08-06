@@ -62,4 +62,35 @@ describe('Dummy API', () => {
       submissionReferenceNumber: payload.meta.referenceNumber
     })
   })
+
+  it('should calculate age correctly when birthday has not occurred yet this year', async () => {
+    // Set today's date to just before the birthday in 2025
+    MockDate.set('2025-01-01T00:00:00Z')
+
+    const payloadWithFutureBirthday = {
+      meta: {
+        referenceNumber: 'FOO-BAR-456'
+      },
+      data: {
+        main: {
+          applicantFirstName: 'Jane',
+          applicantLastName: 'Doe',
+          dateOfBirth: '2020-02-01' // Birthday is in February, today is January
+        }
+      }
+    }
+
+    const res = await server.inject({
+      method: 'POST',
+      url: '/api/example/on-summary',
+      payload: payloadWithFutureBirthday
+    })
+
+    expect(res.statusCode).toBe(200)
+    expect(res.result).toMatchObject({
+      calculatedAge: 4, // Should be 4, not 5, because birthday hasn't occurred yet
+      submissionEvent: 'POST',
+      submissionReferenceNumber: payloadWithFutureBirthday.meta.referenceNumber
+    })
+  })
 })
