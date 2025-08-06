@@ -136,7 +136,7 @@ describe('CacheService', () => {
   })
 
   describe('setState', () => {
-    it('should set state with correct TTL', async () => {
+    it('should set state with correct TTL and return updated state', async () => {
       const mockRequest = {
         yar: { id: 'some-session' },
         params: { state: 'form1', slug: 'page1' }
@@ -146,7 +146,12 @@ describe('CacheService', () => {
 
       jest.spyOn(config, 'get').mockReturnValue(mockTTL)
 
-      await cacheService.setState(mockRequest, mockState)
+      // Mock getState to return the updated state after set
+      jest.spyOn(cacheService, 'getState').mockResolvedValue(mockState)
+
+      await expect(
+        cacheService.setState(mockRequest, mockState)
+      ).resolves.toEqual(mockState)
 
       expect(mockCache.set).toHaveBeenCalledWith(
         {
@@ -156,6 +161,7 @@ describe('CacheService', () => {
         mockState,
         mockTTL
       )
+      expect(cacheService.getState).toHaveBeenCalledWith(mockRequest)
     })
   })
 

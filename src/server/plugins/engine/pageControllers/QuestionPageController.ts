@@ -8,6 +8,7 @@ import {
   type Link,
   type Page
 } from '@defra/forms-model'
+import Boom from '@hapi/boom'
 import { type ResponseToolkit, type RouteOptions } from '@hapi/hapi'
 import { type ValidationErrorItem } from 'joi'
 
@@ -17,6 +18,7 @@ import { type BackLink } from '~/src/server/plugins/engine/components/types.js'
 import {
   getCacheService,
   getErrors,
+  getSaveAndReturnHelpers,
   normalisePath,
   proceed
 } from '~/src/server/plugins/engine/helpers.js'
@@ -548,7 +550,17 @@ export class QuestionPageController extends PageController {
     const { state } = context
 
     // Save the current state and redirect to exit page
-    await this.setState(request, state)
+    const saveAndReturn = getSaveAndReturnHelpers(request.server)
+
+    if (!saveAndReturn?.sessionPersister) {
+      throw Boom.internal('Server misconfigured for save and return')
+    }
+
+    await saveAndReturn.sessionPersister(state, request)
+
+    const cacheService = getCacheService(request.server)
+    await cacheService.clearState(request)
+
     return h.redirect(this.getHref('/exit'))
   }
 

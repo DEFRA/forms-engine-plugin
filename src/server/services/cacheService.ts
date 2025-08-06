@@ -30,12 +30,6 @@ export class CacheService {
     request: Request | FormRequest | FormRequestPayload
   ) => Promise<FormSubmissionState | null>
 
-  customPersister?: (
-    key: string,
-    state: FormSubmissionState,
-    request: Request | FormRequest | FormRequestPayload
-  ) => Promise<void>
-
   logger: Server['logger']
 
   constructor({
@@ -52,14 +46,9 @@ export class CacheService {
       sessionHydrator?: (
         request: Request | FormRequest | FormRequestPayload
       ) => Promise<FormSubmissionState | null>
-      sessionPersister?: (
-        key: string,
-        state: FormSubmissionState,
-        request: Request | FormRequest | FormRequestPayload
-      ) => Promise<void>
     }
   }) {
-    const { keyGenerator, sessionHydrator, sessionPersister } = options ?? {}
+    const { keyGenerator, sessionHydrator } = options ?? {}
     if (!cacheName) {
       server.log(
         'warn',
@@ -68,7 +57,6 @@ export class CacheService {
     }
     this.generateKey = keyGenerator ?? this.defaultKeyGenerator.bind(this)
     this.customFetcher = sessionHydrator ?? undefined
-    this.customPersister = sessionPersister ?? undefined
     this.cache = server.cache({ cache: cacheName, segment: 'formSubmission' })
     this.logger = server.logger
   }
