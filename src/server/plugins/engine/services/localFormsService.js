@@ -48,7 +48,8 @@ export const formsService = async () => {
     ...metadata,
     id: '6a872d3b-13f9e-804ce3e-4830-5c45fb32',
     title: 'Components',
-    slug: 'components'
+    slug: 'components',
+    notificationEmail: 'dummy@defra.gov.uk'
   })
 
   return loader.toFormsService()
