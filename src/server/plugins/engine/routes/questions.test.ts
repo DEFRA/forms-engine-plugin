@@ -6,7 +6,10 @@ import nock from 'nock'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { redirectOrMakeHandler } from '~/src/server/plugins/engine/routes/index.js'
-import { makeGetHandler } from '~/src/server/plugins/engine/routes/questions.js'
+import {
+  makeGetHandler,
+  makePostHandler
+} from '~/src/server/plugins/engine/routes/questions.js'
 import { type FormContext } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
@@ -38,20 +41,14 @@ describe('makeGetHandler', () => {
   }
 
   beforeEach(() => {
-    nock('http://test')
-      .persist()
-      .post('/load')
-      .reply(200, {
-        wasGetCalled: true
-      })
-      .post('/save')
-      .reply(200, {
-        wasPostCalled: true
-      })
+    nock('http://test').persist().post('/load').reply(200, {
+      wasGetCalled: true
+    })
   })
 
   afterEach(() => {
     jest.mocked(redirectOrMakeHandler).mockRestore()
+    nock.cleanAll()
   })
 
   it('calls the callback when events.onLoad.type is http', async () => {
@@ -64,7 +61,11 @@ describe('makeGetHandler', () => {
 
     const pageMock = createMockPageController(
       modelMock,
-      (_request, context, _h) => {
+      (
+        _request: FormRequest,
+        context: FormContext,
+        _h: Pick<ResponseToolkit, 'redirect' | 'view'>
+      ) => {
         data = context.data
         return Promise.resolve({} as unknown as ResponseObject)
       }
@@ -104,7 +105,11 @@ describe('makeGetHandler', () => {
 
     const pageMock = createMockPageController(
       modelMock,
-      (_request, context, _h) => {
+      (
+        _request: FormRequest,
+        context: FormContext,
+        _h: Pick<ResponseToolkit, 'redirect' | 'view'>
+      ) => {
         data = context.data
         return Promise.resolve({} as unknown as ResponseObject)
       }
@@ -144,7 +149,11 @@ describe('makeGetHandler', () => {
 
     const pageMock = createMockPageController(
       modelMock,
-      (_request, _context, _h) => {
+      (
+        _request: FormRequest,
+        _context: FormContext,
+        _h: Pick<ResponseToolkit, 'redirect' | 'view'>
+      ) => {
         return Promise.resolve({} as unknown as ResponseObject)
       }
     )
@@ -180,6 +189,162 @@ describe('makeGetHandler', () => {
   })
 })
 
+describe('makePostHandler', () => {
+  const hMock: Pick<ResponseToolkit, 'redirect' | 'view'> = {
+    redirect: jest.fn(),
+    view: jest.fn()
+  }
+
+  beforeEach(() => {
+    nock('http://test').post('/save').reply(200, {
+      wasPostCalled: true
+    })
+  })
+
+  afterEach(() => {
+    jest.mocked(redirectOrMakeHandler).mockRestore()
+    nock.cleanAll()
+  })
+
+  it('calls the callback when events.onSave.type is http and the page controller was successful', async () => {
+    const mockPostResponse: ResponseObject = {
+      statusCode: 200
+    } as ResponseObject
+
+    const modelMock = {
+      basePath: 'some-base-path',
+      def: { name: 'Hello world' }
+    } as FormModel
+
+    const pageMock = createMockPageController(
+      modelMock,
+      (
+        _request: FormRequest,
+        _context: FormContext,
+        _h: Pick<ResponseToolkit, 'redirect' | 'view'>
+      ) => {
+        // do return a valid ResponseObject wrapped in Promise.resolve
+        return mockPostResponse
+      }
+    )
+
+    const contextMock = { data: {}, model: {} } as unknown as FormContext
+
+    const requestMock = {
+      params: { path: 'some-path' },
+      app: { model: modelMock },
+      payload: { some: 'payload' }
+    } as unknown as FormRequestPayload
+
+    jest
+      .mocked(redirectOrMakeHandler)
+      .mockImplementation(
+        (
+          _req: FormRequest | FormRequestPayload,
+          _h: Pick<ResponseToolkit, 'redirect' | 'view'>,
+          fn
+        ) => Promise.resolve(fn(pageMock, contextMock))
+      )
+
+    const response = await makePostHandler()(requestMock, hMock)
+
+    expect(nock.pendingMocks()).toBeEmpty()
+    expect(response).toBe(mockPostResponse)
+  })
+
+  it('does not call the callback when the events.onSave.type is not http', async () => {
+    const modelMock = {
+      basePath: 'some-base-path',
+      def: { name: 'Hello world' }
+    } as FormModel
+
+    const pageMock = createMockPageController(
+      modelMock,
+      (
+        _request: FormRequest,
+        _context: FormContext,
+        _h: Pick<ResponseToolkit, 'redirect' | 'view'>
+      ) => {
+        return Promise.resolve({} as unknown as ResponseObject)
+      }
+    )
+
+    pageMock.events = {}
+
+    const contextMock = { data: {}, model: {} } as unknown as FormContext
+
+    const requestMock = {
+      params: { path: 'some-path' },
+      app: { model: modelMock },
+      payload: { some: 'payload' }
+    } as unknown as FormRequestPayload
+
+    jest
+      .mocked(redirectOrMakeHandler)
+      .mockImplementation(
+        (
+          _req: FormRequest | FormRequestPayload,
+          _h: Pick<ResponseToolkit, 'redirect' | 'view'>,
+          fn
+        ) => Promise.resolve(fn(pageMock, contextMock))
+      )
+
+    await makePostHandler()(requestMock, hMock)
+
+    expect(nock.pendingMocks()).not.toBeEmpty()
+  })
+
+  it('throws when model is missing', async () => {
+    let error
+
+    const modelMock = {
+      basePath: 'some-base-path',
+      def: { name: 'Hello world' }
+    } as FormModel
+
+    const pageMock = createMockPageController(
+      modelMock,
+      (
+        _request: FormRequest,
+        _context: FormContext,
+        _h: Pick<ResponseToolkit, 'redirect' | 'view'>
+      ) => {
+        return Promise.resolve({} as unknown as ResponseObject)
+      }
+    )
+
+    const contextMock = { data: {}, model: {} } as unknown as FormContext
+
+    const requestMock = {
+      params: { path: 'some-path' },
+      app: {},
+      payload: { some: 'payload' }
+    } as unknown as FormRequestPayload
+
+    jest
+      .mocked(redirectOrMakeHandler)
+      .mockImplementation(
+        async (
+          _req: FormRequest | FormRequestPayload,
+          _h: Pick<ResponseToolkit, 'redirect' | 'view'>,
+          fn
+        ) => {
+          try {
+            await fn(pageMock, contextMock)
+          } catch (err) {
+            error = err
+          }
+
+          return Promise.resolve({} as unknown as ResponseObject)
+        }
+      )
+
+    await makePostHandler()(requestMock, hMock)
+
+    expect(error).toEqual(Boom.notFound('No model found for /some-path'))
+  })
+})
+
 function createMockPageController(
   model: FormModel,
   routeHandler: (
@@ -200,11 +365,7 @@ function createMockPageController(
         options: { method: 'POST', url: 'http://test/save' }
       }
     },
-    makeGetRouteHandler: () => {
-      return routeHandler
-    },
-    makePostRouteHandler: () => {
-      return routeHandler
-    }
+    makeGetRouteHandler: () => routeHandler,
+    makePostRouteHandler: () => routeHandler
   } as unknown as PageControllerClass
 }
