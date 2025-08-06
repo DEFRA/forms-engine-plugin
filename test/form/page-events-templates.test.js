@@ -39,19 +39,10 @@ describe('Page Events Demo Journey', () => {
       .persist()
       .post('/files/persist')
       .reply(200, {
-        main: [
-          {
-            name: 'fileUpload',
-            title: 'Upload something',
-            value: [
-              'a9e7470b-86a5-4826-a908-360a36aac71d',
-              'a9e7470b-86a5-4826-a908-360a36aac72a'
-            ].join(',')
-          }
-        ],
+        main: [],
         repeaters: [],
         retrievalKey: 'enrique.chase@defra.gov.uk',
-        sessionId: expect.any(String)
+        sessionId: '00000000-0000-0000-0000-000000000000'
       })
       .post('/submit')
       .reply(200, {
