@@ -27,7 +27,11 @@ on:
     branches:
       - main
       - 'release/v[0-9]*'
-
+  create:
+    branches:
+      - main
+      - 'release/v[0-9]*'
+  
 concurrency:
   group: publish-engine-plugin-${{ github.ref }}
 
