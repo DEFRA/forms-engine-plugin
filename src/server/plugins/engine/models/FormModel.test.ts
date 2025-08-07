@@ -1,5 +1,6 @@
 import {
   SchemaVersion,
+  formDefinitionSchema,
   formDefinitionV2Schema,
   type FormDefinition
 } from '@defra/forms-model'
@@ -138,6 +139,48 @@ describe('FormModel', () => {
 
       expect(model.schemaVersion).toBe(SchemaVersion.V1)
     })
+
+    it.each([
+      {
+        input: undefined,
+        expected: SchemaVersion.V1,
+        schema: formDefinitionSchema
+      },
+      {
+        input: SchemaVersion.V1,
+        expected: SchemaVersion.V1,
+        schema: formDefinitionSchema
+      },
+      {
+        input: SchemaVersion.V2,
+        expected: SchemaVersion.V2,
+        schema: formDefinitionV2Schema
+      }
+    ])(
+      'assigns $expected to the schema when defined',
+      ({ input, expected, schema }) => {
+        const definitionWithSchema: FormDefinition = {
+          ...definition,
+          schema: input
+        }
+
+        // we just want to test that we're validating the right schema
+        // we don't care about the actual validation logic, this isn't an integration test
+        const spy = jest.spyOn(schema, 'validate').mockReturnValue({
+          value: definitionWithSchema,
+          error: undefined
+        })
+
+        const model = new FormModel(definitionWithSchema, { basePath: 'test' })
+
+        expect(model.schemaVersion).toBe(expected)
+        expect(spy).toHaveBeenCalledWith(definitionWithSchema, {
+          abortEarly: false
+        })
+
+        spy.mockRestore()
+      }
+    )
   })
 
   describe('getFormContext', () => {

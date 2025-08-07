@@ -27,6 +27,7 @@ import { add, format } from 'date-fns'
 import { Parser, type Value } from 'expr-eval'
 import joi from 'joi'
 
+import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { type ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
 import {} from '~/src/server/plugins/engine/components/YesNoField.js'
 import {
@@ -58,6 +59,8 @@ import {
 import { FormAction } from '~/src/server/routes/types.js'
 import { merge } from '~/src/server/services/cacheService.js'
 import { type Services } from '~/src/server/types.js'
+
+const logger = createLogger()
 
 export class FormModel {
   /** The runtime engine that should be used */
@@ -95,10 +98,13 @@ export class FormModel {
     services: Services = defaultServices,
     controllers?: Record<string, typeof PageController>
   ) {
-    let schema = formDefinitionSchema
+    let schema = formDefinitionV2Schema
 
-    if (def.schema === SchemaVersion.V2) {
-      schema = formDefinitionV2Schema
+    if (!def.schema || def.schema === SchemaVersion.V1) {
+      logger.warn(
+        `[DEPRECATION NOTICE] Form "${def.name}" constructed with legacy V1 schema. See https://defra.github.io/forms-engine-plugin/schemas/form-definition-schema.html.`
+      )
+      schema = formDefinitionSchema
     }
 
     const result = schema.validate(def, { abortEarly: false })
