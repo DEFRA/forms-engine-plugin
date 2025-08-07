@@ -51,5 +51,12 @@ export const formsService = async () => {
     slug: 'components'
   })
 
+  await loader.addForm('src/server/forms/save-and-return.yaml', {
+    ...metadata,
+    id: 'd1f8b3c2-4f5e-4a6b-9c0e-7f8d9e0a1b2c',
+    title: 'Save and return demo',
+    slug: 'save-and-return-demo'
+  })
+
   return loader.toFormsService()
 }

@@ -541,7 +541,11 @@ function validateFormPayload(
   const { action } = page.getFormParams(request)
 
   // Skip validation GET requests or other actions
-  if (!request.payload || action !== FormAction.Validate) {
+  if (
+    !request.payload ||
+    (action &&
+      ![FormAction.Validate, FormAction.SaveAndReturn].includes(action))
+  ) {
     return context
   }
 
