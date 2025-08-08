@@ -46,6 +46,7 @@ arch -x86_64 bundle exec jekyll serve
 ```
 
 5. **View the documentation:**
-   Open your browser and go to: http://127.0.0.1:4000/forms-engine-plugin/
+
+Open your browser and go to: http://127.0.0.1:4000/forms-engine-plugin/
 
 To stop the server: Press `Ctrl+C`
