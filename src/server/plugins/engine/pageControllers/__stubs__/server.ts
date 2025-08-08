@@ -20,7 +20,8 @@ export const serverWithSaveAndReturn: Server = {
       saveAndReturn: {
         keyGenerator: jest.fn().mockReturnValue('foobar'),
         sessionHydrator: jest.fn().mockReturnValue({}),
-        sessionPersister: jest.fn().mockImplementation(() => Promise.resolve())
+        sessionPersister: jest.fn().mockImplementation(() => Promise.resolve()),
+        sessionPurger: jest.fn().mockImplementation(() => Promise.resolve())
       } as Pick<PluginOptions, 'saveAndReturn'>
     }
   }
