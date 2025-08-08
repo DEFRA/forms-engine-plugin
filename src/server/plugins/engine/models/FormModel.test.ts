@@ -9,6 +9,7 @@ import { todayAsDateOnly } from '~/src/server/plugins/engine/date-helper.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { type FormContextRequest } from '~/src/server/plugins/engine/types.js'
+import { FormAction } from '~/src/server/routes/types.js'
 import { V2 as definitionV2 } from '~/test/form/definitions/conditions-basic.js'
 import definition from '~/test/form/definitions/conditions-escaping.js'
 import conditionsListDefinition from '~/test/form/definitions/conditions-list.js'
@@ -184,6 +185,69 @@ describe('FormModel', () => {
   })
 
   describe('getFormContext', () => {
+    it.each([FormAction.Validate, FormAction.SaveAndReturn, undefined])(
+      'returns a form context with the correct payload and state when action is %s',
+      (action) => {
+        const formModel = new FormModel(fieldsRequiredDefinition, {
+          basePath: '/components'
+        })
+
+        const state = {
+          $$__referenceNumber: 'foobar'
+        }
+        const pageUrl = new URL('http://example.com/components/fields-required')
+
+        const request: FormContextRequest = buildFormContextRequest({
+          method: 'post',
+          payload: {
+            crumb: 'dummyCrumb',
+            action,
+            textField: 'Hello world'
+          },
+          query: {},
+          path: pageUrl.pathname,
+          params: { path: 'components', slug: 'fields-required' },
+          url: pageUrl,
+          app: { model: formModel }
+        })
+
+        const context = formModel.getFormContext(request, state)
+
+        expect(context.payload.textField).toBe('Hello world')
+        expect(context.state.textField).toBe('Hello world')
+        expect(context.referenceNumber).toEqual(expect.any(String))
+      }
+    )
+
+    it('returns without updating the state when the action is not validate or saveAndReturn', () => {
+      const formModel = new FormModel(fieldsRequiredDefinition, {
+        basePath: '/components'
+      })
+
+      const state = {
+        $$__referenceNumber: 'foobar',
+        textField: 'old'
+      }
+      const pageUrl = new URL('http://example.com/components/fields-required')
+
+      const request: FormContextRequest = buildFormContextRequest({
+        method: 'post',
+        payload: { crumb: 'dummyCrumb', action: 'continue', textField: 'new' },
+        query: {},
+        path: pageUrl.pathname,
+        params: { path: 'components', slug: 'fields-required' },
+        url: pageUrl,
+        app: { model: formModel }
+      })
+
+      const context = formModel.getFormContext(request, state)
+
+      // Early return branch should not merge payload into state
+      expect(context.state.textField).toBe('old')
+      expect(context.errors).toBeUndefined()
+      expect(context.referenceNumber).toEqual(expect.any(String))
+    })
+
     it('clears a previous checkbox field value when the field is omitted from the payload', () => {
       const formModel = new FormModel(fieldsRequiredDefinition, {
         basePath: '/components'
