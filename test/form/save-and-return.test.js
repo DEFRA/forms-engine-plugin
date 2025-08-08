@@ -49,7 +49,10 @@ describe('Save and Return functionality', () => {
   })
 
   beforeEach(() => {
-    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+    jest.mocked(getFormMetadata).mockResolvedValue({
+      ...fixtures.form.metadata,
+      notificationEmail: 'test@dummy.defra.gov.uk'
+    })
   })
 
   afterAll(async () => {
@@ -120,7 +123,7 @@ describe('Save and Return functionality', () => {
       expect(options.saveAndReturn).toBeUndefined()
 
       const payload = {
-        licenceLength: '2',
+        licenceLength: '1',
         action: 'save-and-return',
         crumb: csrfToken
       }
@@ -136,7 +139,7 @@ describe('Save and Return functionality', () => {
       expect(response.headers.location).toBe(`${basePath}/exit`)
     })
 
-    it('should save incomplete form data without validation errors', async () => {
+    it('should prevent invalid form state being persisted', async () => {
       const payload = {
         licenceLength: '',
         action: 'save-and-return',
@@ -150,8 +153,8 @@ describe('Save and Return functionality', () => {
         payload
       })
 
-      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-      expect(response.headers.location).toBe(`${basePath}/exit`)
+      expect(response.headers.location).not.toBe(`${basePath}/exit`)
+      expect(response.statusCode).not.toBe(StatusCodes.MOVED_TEMPORARILY) // we shouldn't be redirected to the next question
     })
 
     it('should return 404 for non-existent page', async () => {
