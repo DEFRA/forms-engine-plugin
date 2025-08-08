@@ -49,10 +49,7 @@ describe('Save and Return functionality', () => {
   })
 
   beforeEach(() => {
-    jest.mocked(getFormMetadata).mockResolvedValue({
-      ...fixtures.form.metadata,
-      notificationEmail: 'test@dummy.defra.gov.uk'
-    })
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
   })
 
   afterAll(async () => {
