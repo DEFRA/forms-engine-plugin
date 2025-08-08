@@ -61,7 +61,7 @@ async function handleHttpEvent(
 
   // @ts-expect-error - function signature will be refactored in the next iteration of the formatter
   const payload = format(context, items, model, undefined, undefined)
-  const opts = { payload }
+  const opts: httpService.RequestOptions = { payload, timeout: 5000 }
 
   if (preparePageEventRequestOptions) {
     preparePageEventRequestOptions(opts, event, page, context)
