@@ -129,14 +129,14 @@ await server.register({
         return savedState || null
       },
 
-      sessionPersister: async (key, state, request) => {
+      sessionPersister: async (state, request) => {
         // Save state to database/API
-        await saveUserSession(key, state, request)
+        await saveUserSession(state, request)
       },
 
-      sessionPurger: async (key, request) => {
+      sessionPurger: async (request) => {
         // Clear state from database/API
-        await clearUserSession(key, request)
+        await clearUserSession(request)
       }
     }
   }
