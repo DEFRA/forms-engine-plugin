@@ -115,7 +115,7 @@
     "@babel/preset-env": "^7.28.0",
     "@babel/preset-typescript": "^7.27.1",
     "@hapi/basic": "^7.0.2",
-    "@testing-library/dom": "^10.4.0",
+    "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.6.4",
     "@types/atob": "^2.1.4",
     "@types/btoa": "^1.2.5",
