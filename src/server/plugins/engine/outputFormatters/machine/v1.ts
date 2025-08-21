@@ -30,7 +30,8 @@ export function format(
       schemaVersion: '1',
       timestamp: now.toISOString(),
       referenceNumber: context.referenceNumber,
-      definition: model.def
+      formId: model.def.name,
+      formName: model.name
     },
     data: categorisedData
   }

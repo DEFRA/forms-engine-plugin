@@ -162,21 +162,6 @@ export const config = convict({
   },
 
   /**
-   * Email outputs
-   * Email outputs will use notify to send an email to a single inbox.
-   */
-  notifyTemplateId: {
-    format: String,
-    default: '',
-    env: 'NOTIFY_TEMPLATE_ID'
-  } as SchemaObj<string>,
-  notifyAPIKey: {
-    format: String,
-    default: '',
-    env: 'NOTIFY_API_KEY'
-  } as SchemaObj<string>,
-
-  /**
    * API integrations
    */
   designerUrl: {
