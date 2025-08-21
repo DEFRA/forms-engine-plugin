@@ -150,7 +150,7 @@ type FileUploadFieldDetailitem = Omit<DetailItemField, 'field'> & {
   field: FileUploadField
 }
 
-type RichFormValue =
+export type RichFormValue =
   | FormValue
   | FormPayload
   | DatePartsState
