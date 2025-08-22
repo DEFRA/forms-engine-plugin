@@ -1,5 +1,6 @@
 import {
   hasComponentsEvenIfNoNext,
+  type FormMetadata,
   type Page,
   type SubmitPayload
 } from '@defra/forms-model'
@@ -111,7 +112,8 @@ export class SummaryPageController extends QuestionPageController {
       const { getFormMetadata } = formsService
 
       // Get the form metadata using the `slug` param
-      const { notificationEmail } = await getFormMetadata(params.slug)
+      const formMetadata = await getFormMetadata(params.slug)
+      const { notificationEmail } = formMetadata
       const { isPreview } = checkFormStatus(request.params)
       const emailAddress = notificationEmail ?? this.model.def.outputEmail
 
@@ -120,7 +122,14 @@ export class SummaryPageController extends QuestionPageController {
       // Send submission email
       if (emailAddress) {
         const viewModel = this.getSummaryViewModel(request, context)
-        await submitForm(context, request, viewModel, model, emailAddress)
+        await submitForm(
+          context,
+          request,
+          viewModel,
+          model,
+          emailAddress,
+          formMetadata
+        )
       }
 
       await cacheService.setConfirmationState(request, { confirmed: true })
@@ -150,7 +159,8 @@ async function submitForm(
   request: FormRequestPayload,
   summaryViewModel: SummaryViewModel,
   model: FormModel,
-  emailAddress: string
+  emailAddress: string,
+  formMetadata: FormMetadata
 ) {
   await extendFileRetention(model, context.state, emailAddress)
 
@@ -184,7 +194,8 @@ async function submitForm(
     model,
     emailAddress,
     items,
-    submitResponse
+    submitResponse,
+    formMetadata
   )
 }
 

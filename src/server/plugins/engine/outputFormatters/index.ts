@@ -1,4 +1,7 @@
-import { type SubmitResponsePayload } from '@defra/forms-model'
+import {
+  type FormMetadata,
+  type SubmitResponsePayload
+} from '@defra/forms-model'
 
 import { type checkFormStatus } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
@@ -14,7 +17,8 @@ type Formatter = (
   items: DetailItem[],
   model: FormModel,
   submitResponse: SubmitResponsePayload,
-  formStatus: ReturnType<typeof checkFormStatus>
+  formStatus: ReturnType<typeof checkFormStatus>,
+  formMetadata?: FormMetadata
 ) => string
 
 const formatters: Record<

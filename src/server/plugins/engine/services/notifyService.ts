@@ -1,4 +1,8 @@
-import { getErrorMessage, type SubmitResponsePayload } from '@defra/forms-model'
+import {
+  getErrorMessage,
+  type FormMetadata,
+  type SubmitResponsePayload
+} from '@defra/forms-model'
 
 import { config } from '~/src/config/index.js'
 import { escapeMarkdown } from '~/src/server/plugins/engine/components/helpers.js'
@@ -23,7 +27,8 @@ export async function submit(
   model: FormModel,
   emailAddress: string,
   items: DetailItem[],
-  submitResponse: SubmitResponsePayload
+  submitResponse: SubmitResponsePayload,
+  formMetadata?: FormMetadata
 ) {
   if (!templateId) {
     return Promise.resolve()
@@ -44,7 +49,14 @@ export async function submit(
   const outputVersion = model.def.output?.version ?? '1'
 
   const outputFormatter = getFormatter(outputAudience, outputVersion)
-  let body = outputFormatter(context, items, model, submitResponse, formStatus)
+  let body = outputFormatter(
+    context,
+    items,
+    model,
+    submitResponse,
+    formStatus,
+    formMetadata
+  )
 
   // GOV.UK Notify transforms quotes into curly quotes, so we can't just send the raw payload
   // This is logic specific to Notify, so we include the logic here rather than in the formatter

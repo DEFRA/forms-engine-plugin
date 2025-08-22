@@ -1,4 +1,7 @@
-import { type SubmitResponsePayload } from '@defra/forms-model'
+import {
+  type FormMetadata,
+  type SubmitResponsePayload
+} from '@defra/forms-model'
 
 import { type checkFormStatus } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
@@ -17,7 +20,8 @@ export function format(
   items: DetailItem[],
   model: FormModel,
   submitResponse: SubmitResponsePayload,
-  formStatus: ReturnType<typeof checkFormStatus>
+  formStatus: ReturnType<typeof checkFormStatus>,
+  formMetadata?: FormMetadata
 ): string {
   const v2DataString = machineV2(
     context,
@@ -30,17 +34,14 @@ export function format(
     data: FormAdapterSubmissionMessageData
   }
 
-  // Extract slug from basePath as form identifier
-  const formId = extractSlugFromBasePath(model.basePath) ?? ''
-
   const payload: FormAdapterSubmissionMessagePayload = {
     meta: {
       schemaVersion: FormAdapterSubmissionSchemaVersion.V1,
       timestamp: new Date(),
       referenceNumber: context.referenceNumber,
       formName: model.name,
-      formId,
-      formSlug: model.name,
+      formId: formMetadata?.id ?? '',
+      formSlug: formMetadata?.slug ?? '',
       status: formStatus.isPreview ? FormStatus.Draft : FormStatus.Live,
       isPreview: formStatus.isPreview,
       notificationEmail: ''
@@ -49,14 +50,6 @@ export function format(
   }
 
   return JSON.stringify(payload)
-}
-
-export function extractSlugFromBasePath(basePath: string): string | null {
-  // basePath formats:
-  // - "slug" (live)
-  // - "preview/live/slug" or "preview/draft/slug" (preview)
-  const parts = basePath.split('/')
-  return parts[parts.length - 1] ?? null
 }
 
 /**
@@ -68,6 +61,7 @@ export function createPayload(
   model: FormModel,
   submitResponse: SubmitResponsePayload,
   formStatus: ReturnType<typeof checkFormStatus>,
+  formMetadata?: FormMetadata,
   metadata: {
     formSlug?: string
     notificationEmail?: string
@@ -84,17 +78,14 @@ export function createPayload(
     data: FormAdapterSubmissionMessageData
   }
 
-  // Extract slug from basePath as form identifier
-  const formId = extractSlugFromBasePath(model.basePath) ?? ''
-
   return {
     meta: {
       schemaVersion: FormAdapterSubmissionSchemaVersion.V1,
       timestamp: new Date(),
       referenceNumber: context.referenceNumber,
       formName: model.name,
-      formId,
-      formSlug: metadata.formSlug ?? '',
+      formId: formMetadata?.id ?? '',
+      formSlug: metadata.formSlug ?? formMetadata?.slug ?? model.name,
       status: formStatus.isPreview ? FormStatus.Draft : FormStatus.Live,
       isPreview: formStatus.isPreview,
       notificationEmail: metadata.notificationEmail ?? ''

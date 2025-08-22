@@ -59,6 +59,7 @@ export interface OutputService {
     model: FormModel,
     emailAddress: string,
     items: DetailItem[],
-    submitResponse: SubmitResponsePayload
+    submitResponse: SubmitResponsePayload,
+    formMetadata?: FormMetadata
   ) => Promise<void>
 }
