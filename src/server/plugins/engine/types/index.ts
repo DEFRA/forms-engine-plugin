@@ -82,3 +82,11 @@ export type {
 } from '~/src/server/types.js'
 
 export type { RichFormValue } from '~/src/server/plugins/engine/outputFormatters/machine/v2.js'
+
+export type {
+  FormAdapterSubmissionMessageData,
+  FormAdapterSubmissionMessageMeta,
+  FormAdapterSubmissionMessagePayload
+} from '~/src/server/plugins/engine/types.js'
+
+export { FormAdapterSubmissionSchemaVersion } from '~/src/server/plugins/engine/types.js'

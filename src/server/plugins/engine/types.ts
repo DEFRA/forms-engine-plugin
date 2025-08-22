@@ -18,6 +18,7 @@ import {
   type ComponentViewModel
 } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { type RichFormValue } from '~/src/server/plugins/engine/outputFormatters/machine/v2.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { type ViewContext } from '~/src/server/plugins/nunjucks/types.js'
@@ -25,7 +26,8 @@ import {
   type FormAction,
   type FormParams,
   type FormRequest,
-  type FormRequestPayload
+  type FormRequestPayload,
+  type FormStatus
 } from '~/src/server/routes/types.js'
 import { type RequestOptions } from '~/src/server/services/httpService.js'
 import { type Services } from '~/src/server/types.js'
@@ -383,4 +385,31 @@ export interface PluginOptions {
   preparePageEventRequestOptions?: PreparePageEventRequestOptions
   onRequest?: OnRequestCallback
   baseUrl: string // base URL of the application, protocol and hostname e.g. "https://myapp.com"
+}
+
+export interface FormAdapterSubmissionMessagePayload {
+  meta: FormAdapterSubmissionMessageMeta
+  data: FormAdapterSubmissionMessageData
+}
+
+export interface FormAdapterSubmissionMessageMeta {
+  schemaVersion: FormAdapterSubmissionSchemaVersion
+  timestamp: Date
+  referenceNumber: string
+  formName: string
+  formId: string
+  formSlug: string
+  status: FormStatus
+  isPreview: boolean
+  notificationEmail: string
+}
+
+export interface FormAdapterSubmissionMessageData {
+  main: Record<string, RichFormValue>
+  repeaters: Record<string, Record<string, RichFormValue>[]>
+  files: Record<string, Record<string, string>[]>
+}
+
+export enum FormAdapterSubmissionSchemaVersion {
+  V1 = 1
 }
