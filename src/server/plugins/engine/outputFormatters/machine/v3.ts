@@ -44,52 +44,10 @@ export function format(
       formSlug: formMetadata?.slug ?? '',
       status: formStatus.isPreview ? FormStatus.Draft : FormStatus.Live,
       isPreview: formStatus.isPreview,
-      notificationEmail: ''
+      notificationEmail: formMetadata?.notificationEmail ?? ''
     },
     data: v2DataParsed.data
   }
 
   return JSON.stringify(payload)
-}
-
-/**
- * Creates a FormAdapterSubmissionMessagePayload with custom metadata
- */
-export function createPayload(
-  context: FormContext,
-  items: DetailItem[],
-  model: FormModel,
-  submitResponse: SubmitResponsePayload,
-  formStatus: ReturnType<typeof checkFormStatus>,
-  formMetadata?: FormMetadata,
-  metadata: {
-    formSlug?: string
-    notificationEmail?: string
-  } = {}
-): FormAdapterSubmissionMessagePayload {
-  const v2DataString = machineV2(
-    context,
-    items,
-    model,
-    submitResponse,
-    formStatus
-  )
-  const v2DataParsed = JSON.parse(v2DataString) as {
-    data: FormAdapterSubmissionMessageData
-  }
-
-  return {
-    meta: {
-      schemaVersion: FormAdapterSubmissionSchemaVersion.V1,
-      timestamp: new Date(),
-      referenceNumber: context.referenceNumber,
-      formName: model.name,
-      formId: formMetadata?.id ?? '',
-      formSlug: metadata.formSlug ?? formMetadata?.slug ?? model.name,
-      status: formStatus.isPreview ? FormStatus.Draft : FormStatus.Live,
-      isPreview: formStatus.isPreview,
-      notificationEmail: metadata.notificationEmail ?? ''
-    },
-    data: v2DataParsed.data
-  }
 }
