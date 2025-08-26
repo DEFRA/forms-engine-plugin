@@ -5,6 +5,12 @@ export type {
   FeaturedFormPageViewModel,
   FileState,
   FilterFunction,
+  FormAdapterSubmissionMessage,
+  FormAdapterSubmissionMessageData,
+  FormAdapterSubmissionMessageMeta,
+  FormAdapterSubmissionMessageMetaSerialised,
+  FormAdapterSubmissionMessagePayload,
+  FormAdapterSubmissionService,
   FormContext,
   FormContextRequest,
   FormPageViewModel,
@@ -35,7 +41,11 @@ export type {
   UploadStatusResponse
 } from '~/src/server/plugins/engine/types.js'
 
-export { FileStatus, UploadStatus } from '~/src/server/plugins/engine/types.js'
+export {
+  FileStatus,
+  FormAdapterSubmissionSchemaVersion,
+  UploadStatus
+} from '~/src/server/plugins/engine/types.js'
 
 export type {
   Detail,
@@ -83,10 +93,4 @@ export type {
 
 export type { RichFormValue } from '~/src/server/plugins/engine/outputFormatters/machine/v2.js'
 
-export type {
-  FormAdapterSubmissionMessageData,
-  FormAdapterSubmissionMessageMeta,
-  FormAdapterSubmissionMessagePayload
-} from '~/src/server/plugins/engine/types.js'
-
-export { FormAdapterSubmissionSchemaVersion } from '~/src/server/plugins/engine/types.js'
+export * from '~/src/server/plugins/engine/types/schema.js'

@@ -387,11 +387,6 @@ export interface PluginOptions {
   baseUrl: string // base URL of the application, protocol and hostname e.g. "https://myapp.com"
 }
 
-export interface FormAdapterSubmissionMessagePayload {
-  meta: FormAdapterSubmissionMessageMeta
-  data: FormAdapterSubmissionMessageData
-}
-
 export interface FormAdapterSubmissionMessageMeta {
   schemaVersion: FormAdapterSubmissionSchemaVersion
   timestamp: Date
@@ -404,6 +399,15 @@ export interface FormAdapterSubmissionMessageMeta {
   notificationEmail: string
 }
 
+export type FormAdapterSubmissionMessageMetaSerialised = Omit<
+  FormAdapterSubmissionMessageMeta,
+  'schemaVersion' | 'timestamp' | 'status'
+> & {
+  schemaVersion: string
+  status: string
+  timestamp: string
+}
+
 export interface FormAdapterSubmissionMessageData {
   main: Record<string, RichFormValue>
   repeaters: Record<string, Record<string, RichFormValue>[]>
@@ -412,4 +416,21 @@ export interface FormAdapterSubmissionMessageData {
 
 export enum FormAdapterSubmissionSchemaVersion {
   V1 = 1
+}
+
+export interface FormAdapterSubmissionMessagePayload {
+  meta: FormAdapterSubmissionMessageMeta
+  data: FormAdapterSubmissionMessageData
+}
+
+export interface FormAdapterSubmissionMessage
+  extends FormAdapterSubmissionMessagePayload {
+  messageId: string
+  recordCreatedAt: Date
+}
+
+export interface FormAdapterSubmissionService {
+  handleFormSubmission: (
+    submissionMessage: FormAdapterSubmissionMessage
+  ) => unknown
 }
