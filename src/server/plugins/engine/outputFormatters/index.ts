@@ -23,15 +23,17 @@ type Formatter = (
 
 const formatters: Record<
   string,
-  Record<string, Formatter | undefined> | undefined
+  Record<string, Formatter | typeof formatMachineV3 | undefined> | undefined
 > = {
   human: {
     '1': formatHumanV1
   },
   machine: {
     '1': formatMachineV1,
-    '2': formatMachineV2,
-    '3': formatMachineV3
+    '2': formatMachineV2
+  },
+  adapter: {
+    '1': formatMachineV3
   }
 }
 
