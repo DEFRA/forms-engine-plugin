@@ -2,11 +2,13 @@
 
 import { type Plugin } from '@hapi/hapi'
 import { type ServerYar, type Yar } from '@hapi/yar'
+import { type Schema as JoiSchema } from 'joi'
 import { type Logger } from 'pino'
 
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PluginOptions } from '~/src/server/plugins/engine/types.ts'
 import {
+  type FormAction,
   type FormRequest,
   type FormRequestPayload
 } from '~/src/server/routes/types.js'
@@ -26,6 +28,19 @@ declare module '@hapi/hapi' {
         request: FormRequest | FormRequestPayload | null
       ) => Record<string, unknown> | Promise<Record<string, unknown>>
       saveAndReturn?: PluginOptions['saveAndReturn']
+      buttons?: {
+        text: string
+        name?: string
+        action?: string
+      }[]
+      actionHandlers: Record<
+        FormAction | string,
+        (request: FormRequestPayload, context: FormContext) => Promise<string>
+      >
+      schemas: {
+        actionSchema: JoiSchema
+        paramsSchema: JoiSchema
+      }
     }
   }
 

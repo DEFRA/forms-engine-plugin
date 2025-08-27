@@ -4,10 +4,12 @@ import Boom from '@hapi/boom'
 import {
   type ResponseToolkit,
   type RouteOptions,
+  type Server,
   type ServerRoute
 } from '@hapi/hapi'
 import Joi from 'joi'
 
+import { getSchemas } from '~/src/server/plugins/engine/helpers.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { redirectOrMakeHandler } from '~/src/server/plugins/engine/routes/index.js'
 import {
@@ -17,7 +19,6 @@ import {
   type FormRequestRefs
 } from '~/src/server/routes/types.js'
 import {
-  actionSchema,
   crumbSchema,
   pathSchema,
   stateSchema
@@ -56,9 +57,12 @@ function postHandler(
 }
 
 export function getRoutes(
+  server: Server,
   getRouteOptions: RouteOptions<FormRequestRefs>,
   postRouteOptions: RouteOptions<FormRequestPayloadRefs>
 ): (ServerRoute<FormRequestRefs> | ServerRoute<FormRequestPayloadRefs>)[] {
+  const { actionSchema } = getSchemas(server)
+
   return [
     {
       method: 'get',

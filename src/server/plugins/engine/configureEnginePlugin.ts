@@ -53,7 +53,10 @@ export const configureEnginePlugin = async ({
       cacheName: 'session',
       nunjucks: {
         baseLayoutPath: 'dxt-devtool-baselayout.html',
-        paths: [join(findPackageRoot(), 'src/server/devserver')] // custom layout to make it really clear this is not the same as the runner
+        paths: [
+          join(findPackageRoot(), 'src/server/devserver'), // custom layout to make it really clear this is not the same as the runner
+          join(findPackageRoot(), 'src/server/plugins/engine/views') // add engine views path so dxt-devtool-baselayout.html can find index.html
+        ]
       },
       viewContext: devtoolContext,
       preparePageEventRequestOptions,
@@ -61,6 +64,40 @@ export const configureEnginePlugin = async ({
       baseUrl: 'http://localhost:3009', // always runs locally
       saveAndReturn
     }
+
+    /*
+    To enable custom buttons, use this config:
+
+    ```
+      actionHandlers: {
+        'withdraw-submission': async (request, _) => {
+          await getCacheService(request.server).clearState(request)
+          return '/summary'
+        }
+      }
+    ```
+
+    /*
+    To enable save and return for testing purposes, use this config:
+
+    ```
+    saveAndReturn: {
+      keyGenerator: (_) => {
+        return `save-and-return`
+      },
+      sessionHydrator: (_) => {
+        return Promise.resolve({
+          applicantFirstName: 'Joe'
+        })
+      },
+      sessionPersister: () => {
+        console.log('no-op')
+      }
+    }
+    ```
+
+    Then load http://localhost:3009/page-events-demo and the applicantFirstName should be pre-filled as 'Joe'
+     */
   }
 }
 

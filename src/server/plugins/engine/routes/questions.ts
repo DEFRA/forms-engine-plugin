@@ -4,11 +4,13 @@ import {
   type ResponseObject,
   type ResponseToolkit,
   type RouteOptions,
+  type Server,
   type ServerRoute
 } from '@hapi/hapi'
 import Joi from 'joi'
 
 import {
+  getSchemas,
   normalisePath,
   proceed,
   redirectPath
@@ -35,7 +37,6 @@ import {
   type FormRequestRefs
 } from '~/src/server/routes/types.js'
 import {
-  actionSchema,
   crumbSchema,
   itemIdSchema,
   pathSchema,
@@ -164,10 +165,13 @@ function isSuccessful(response: ResponseObject): boolean {
 }
 
 export function getRoutes(
+  server: Server,
   getRouteOptions: RouteOptions<FormRequestRefs>,
   postRouteOptions: RouteOptions<FormRequestPayloadRefs>,
   preparePageEventRequestOptions?: PreparePageEventRequestOptions
 ): (ServerRoute<FormRequestRefs> | ServerRoute<FormRequestPayloadRefs>)[] {
+  const { actionSchema } = getSchemas(server)
+
   return [
     {
       method: 'get',

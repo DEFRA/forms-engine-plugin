@@ -4,23 +4,27 @@
 <form method="post" novalidate>
   <input type="hidden" name="crumb" value="{{ crumb }}">
 
-  {{ componentList(components) }}
+  {% block components %}
+    {{ componentList(components) }}
+  {% endblock %}
 
-  <div class="govuk-button-group">
-    {{ govukButton({
-      text: "Start now" if isStartPage else "Continue",
-      isStartButton: isStartPage,
-      preventDoubleClick: true
-    }) }}
-
-    {% if allowSaveAndReturn %}
+  {% block buttons %}
+    <div class="govuk-button-group">
       {{ govukButton({
-        text: "Save and return",
-        classes: "govuk-button--secondary",
-        name: "action",
-        value: "save-and-return",
+        text: "Start now" if isStartPage else "Continue",
+        isStartButton: isStartPage,
         preventDoubleClick: true
       }) }}
-    {% endif %}
-  </div>
+
+      {% if allowSaveAndReturn %}
+        {{ govukButton({
+          text: "Save and return",
+          classes: "govuk-button--secondary",
+          name: "action",
+          value: "save-and-return",
+          preventDoubleClick: true
+        }) }}
+      {% endif %}
+    </div>
+  {% endblock %}
 </form>

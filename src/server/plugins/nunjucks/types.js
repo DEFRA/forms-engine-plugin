@@ -17,6 +17,7 @@
  * @property {string} [currentPath] - Current path
  * @property {string} [previewMode] - Preview mode
  * @property {string} [slug] - Form slug
+ * @property {object[]} [buttons] - Button override
  * @property {FormContext} [context] - the current form context
  */
 

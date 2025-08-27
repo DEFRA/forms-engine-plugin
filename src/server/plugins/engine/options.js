@@ -24,7 +24,8 @@ const pluginRegistrationOptionsSchema = Joi.object({
     keyGenerator: Joi.function(),
     sessionHydrator: Joi.function(),
     sessionPersister: Joi.function()
-  }).optional()
+  }).optional(),
+  actionHandlers: Joi.object().pattern(Joi.string(), Joi.function())
 })
 
 /**

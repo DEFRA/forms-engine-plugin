@@ -1,7 +1,14 @@
-{% extends baseLayoutPath %}
+{% extends "govuk/template.njk" %}
 
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "partials/components.html" import componentList with context %}
+
+{% block beforeContent %}
+  {% if backLink %}
+    {{ govukBackLink(backLink) }}
+  {% endif %}
+{% endblock %}
 
 {% block content %}
   <div class="govuk-grid-row">
@@ -25,9 +32,37 @@
 
       {% block form %}
         {% if page.allowContinue %}
-          {% include "partials/form.html" %}
+          <form method="post" novalidate>
+            <input type="hidden" name="crumb" value="{{ crumb }}">
+
+            {% block formComponents %}
+              {{ componentList(components) }}
+            {% endblock %}
+
+            {% block formButtons %}
+              <div class="govuk-button-group">
+                {{ govukButton({
+                  text: "Start now" if isStartPage else "Continue",
+                  isStartButton: isStartPage,
+                  preventDoubleClick: true
+                }) }}
+
+                {% if allowSaveAndReturn %}
+                  {{ govukButton({
+                    text: "Save and return",
+                    classes: "govuk-button--secondary",
+                    name: "action",
+                    value: "save-and-return",
+                    preventDoubleClick: true
+                  }) }}
+                {% endif %}
+              </div>
+            {% endblock %}
+          </form>
         {% else %}
-          {{ componentList(components) }}
+          {% block nonFormComponents %}
+            {{ componentList(components) }}
+          {% endblock %}
         {% endif %}
       {% endblock %}
     </div>

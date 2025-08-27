@@ -8,6 +8,7 @@ import {
 
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { validatePluginOptions } from '~/src/server/plugins/engine/options.js'
+import { handleSaveAndReturn } from '~/src/server/plugins/engine/pageControllers/buttonHandlers.js'
 import { getRoutes as getSaveAndReturnExitRoutes } from '~/src/server/plugins/engine/routes/exit.js'
 import { getRoutes as getFileUploadStatusRoutes } from '~/src/server/plugins/engine/routes/file-upload.js'
 import { makeLoadFormPreHandler } from '~/src/server/plugins/engine/routes/index.js'
@@ -17,9 +18,14 @@ import { getRoutes as getRepeaterSummaryRoutes } from '~/src/server/plugins/engi
 import { type PluginOptions } from '~/src/server/plugins/engine/types.js'
 import { registerVision } from '~/src/server/plugins/engine/vision.js'
 import {
+  FormAction,
   type FormRequestPayloadRefs,
   type FormRequestRefs
 } from '~/src/server/routes/types.js'
+import {
+  buildActionSchema,
+  buildParamsSchema
+} from '~/src/server/schemas/index.js'
 import { CacheService } from '~/src/server/services/index.js'
 
 export const plugin = {
@@ -49,10 +55,18 @@ export const plugin = {
 
     await registerVision(server, options)
 
+    const actionHandlers = getActionHandlers(options)
+    const customActions = Object.keys(actionHandlers)
+
     server.expose('baseLayoutPath', nunjucksOptions.baseLayoutPath)
     server.expose('viewContext', viewContext)
     server.expose('cacheService', cacheService)
     server.expose('saveAndReturn', saveAndReturn)
+    server.expose('actionHandlers', actionHandlers)
+    server.expose('schemas', {
+      actionSchema: buildActionSchema(customActions),
+      paramsSchema: buildParamsSchema(customActions)
+    })
 
     server.app.model = model
 
@@ -86,12 +100,13 @@ export const plugin = {
 
     const routes = [
       ...getQuestionRoutes(
+        server,
         getRouteOptions,
         postRouteOptions,
         preparePageEventRequestOptions
       ),
-      ...getRepeaterSummaryRoutes(getRouteOptions, postRouteOptions),
-      ...getRepeaterItemDeleteRoutes(getRouteOptions, postRouteOptions),
+      ...getRepeaterSummaryRoutes(server, getRouteOptions, postRouteOptions),
+      ...getRepeaterItemDeleteRoutes(server, getRouteOptions, postRouteOptions),
       ...getSaveAndReturnExitRoutes(getRouteOptions),
       ...getFileUploadStatusRoutes()
     ]
@@ -99,3 +114,15 @@ export const plugin = {
     server.route(routes as unknown as ServerRoute[]) // TODO
   }
 } satisfies Plugin<PluginOptions>
+
+function getActionHandlers(pluginOptions: PluginOptions) {
+  let actionHandlers: PluginOptions['actionHandlers'] = {
+    [FormAction.SaveAndReturn]: handleSaveAndReturn
+  }
+
+  if (pluginOptions.actionHandlers) {
+    actionHandlers = pluginOptions.actionHandlers
+  }
+
+  return actionHandlers
+}

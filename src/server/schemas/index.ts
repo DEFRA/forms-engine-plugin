@@ -7,7 +7,7 @@ export const stateSchema = Joi.string<FormStatus>()
   .valid(FormStatus.Draft, FormStatus.Live)
   .required()
 
-export const actionSchema = Joi.string<FormAction>()
+const actionSchema = Joi.string<FormAction>()
   .valid(
     FormAction.Continue,
     FormAction.Validate,
@@ -24,7 +24,7 @@ export const itemIdSchema = Joi.string().uuid().required()
 export const crumbSchema = Joi.string().optional().allow('')
 export const confirmSchema = Joi.boolean().empty(false)
 
-export const paramsSchema = Joi.object<FormPayloadParams>()
+const paramsSchema = Joi.object<FormPayloadParams>()
   .keys({
     action: actionSchema,
     confirm: confirmSchema,
@@ -33,3 +33,13 @@ export const paramsSchema = Joi.object<FormPayloadParams>()
   })
   .default({})
   .optional()
+
+export function buildActionSchema(customActions: string[]) {
+  return actionSchema.valid(...customActions)
+}
+
+export function buildParamsSchema(customActions: string[]) {
+  return paramsSchema.alter({
+    action: (schema) => schema.valid(...customActions)
+  })
+}

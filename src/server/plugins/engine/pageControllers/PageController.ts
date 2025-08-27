@@ -46,7 +46,7 @@ export class PageController {
   condition?: ExecutableCondition
   events?: Events
   collection?: ComponentCollection
-  viewName = 'index'
+  viewName = 'dxt-devtool-baselayout.html'
   allowSaveAndReturn = false
 
   constructor(model: FormModel, pageDef: Page) {

@@ -8,9 +8,8 @@ import {
   type Link,
   type Page
 } from '@defra/forms-model'
-import Boom from '@hapi/boom'
 import { type ResponseToolkit, type RouteOptions } from '@hapi/hapi'
-import { type ValidationErrorItem } from 'joi'
+import Joi, { type ValidationErrorItem } from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
@@ -18,7 +17,7 @@ import { type BackLink } from '~/src/server/plugins/engine/components/types.js'
 import {
   getCacheService,
   getErrors,
-  getSaveAndReturnHelpers,
+  getSchemas,
   normalisePath,
   proceed
 } from '~/src/server/plugins/engine/helpers.js'
@@ -35,17 +34,12 @@ import {
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import {
-  FormAction,
   type FormRequest,
   type FormRequestPayload,
   type FormRequestPayloadRefs,
   type FormRequestRefs
 } from '~/src/server/routes/types.js'
-import {
-  actionSchema,
-  crumbSchema,
-  paramsSchema
-} from '~/src/server/schemas/index.js'
+import { crumbSchema } from '~/src/server/schemas/index.js'
 import { merge } from '~/src/server/services/cacheService.js'
 
 export class QuestionPageController extends PageController {
@@ -64,7 +58,7 @@ export class QuestionPageController extends PageController {
 
     this.collection.formSchema = this.collection.formSchema.keys({
       crumb: crumbSchema,
-      action: actionSchema
+      action: Joi.string()
     })
   }
 
@@ -276,7 +270,7 @@ export class QuestionPageController extends PageController {
   getFormParams(request?: FormContextRequest): FormPayloadParams {
     const { payload } = request ?? {}
 
-    const result = paramsSchema.validate(payload, {
+    const result = getSchemas(request?.server).paramsSchema.validate(payload, {
       abortEarly: false,
       stripUnknown: true
     })
@@ -515,10 +509,13 @@ export class QuestionPageController extends PageController {
         return h.view(viewName, viewModel)
       }
 
-      // Check if this is a save-and-return action
+      // Check if this is a custom action that needs handling
       const { action } = request.payload
-      if (action === FormAction.SaveAndReturn) {
-        return this.handleSaveAndReturn(request, context, h)
+      const { actionHandlers } = request.server.plugins['forms-engine-plugin']
+
+      if (action && action in actionHandlers) {
+        const exitPath = await actionHandlers[action](request, context)
+        return h.redirect(this.getHref(exitPath))
       }
 
       // Save and proceed
@@ -537,31 +534,6 @@ export class QuestionPageController extends PageController {
       : this.href // Redirect to current page (refresh)
 
     return proceed(request, h, nextUrl)
-  }
-
-  /**
-   * Handle save-and-return action by processing form data and redirecting to exit page
-   */
-  async handleSaveAndReturn(
-    request: FormRequestPayload,
-    context: FormContext,
-    h: Pick<ResponseToolkit, 'redirect' | 'view'>
-  ) {
-    const { state } = context
-
-    // Save the current state and redirect to exit page
-    const saveAndReturn = getSaveAndReturnHelpers(request.server)
-
-    if (!saveAndReturn?.sessionPersister) {
-      throw Boom.internal('Server misconfigured for save and return')
-    }
-
-    await saveAndReturn.sessionPersister(state, request)
-
-    const cacheService = getCacheService(request.server)
-    await cacheService.clearState(request)
-
-    return h.redirect(this.getHref('/exit'))
   }
 
   /**

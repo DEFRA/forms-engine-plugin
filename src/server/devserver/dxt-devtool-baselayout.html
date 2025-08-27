@@ -1,4 +1,4 @@
-{% extends "govuk/template.njk" %}
+{% extends "index.html" %}
 
 {% from "govuk/components/back-link/macro.njk" import govukBackLink -%}
 {% from "govuk/components/footer/macro.njk" import govukFooter -%}
@@ -31,6 +31,10 @@
   }) }}
 {% endblock %}
 
+{% block buttons %}
+I've overridden the buttons
+{% endblock %}
+
 {% block header %}
   {{ govukHeader({
     homepageUrl: currentPath if context.isForceAccess else "https://defra.github.io/forms-engine-plugin/",
@@ -39,16 +43,6 @@
     serviceName: config.serviceName,
     serviceUrl: currentPath if context.isForceAccess else serviceUrl
   }) }}
-{% endblock %}
-
-{% block beforeContent %}
-  {% if backLink %}
-    {{ govukBackLink(backLink) }}
-  {% endif %}
-{% endblock %}
-
-{% block content %}
-  <h1 class="govuk-heading-l">Default page template</h1>
 {% endblock %}
 
 {% block bodyEnd %}

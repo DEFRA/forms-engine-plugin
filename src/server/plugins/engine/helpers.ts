@@ -12,7 +12,7 @@ import Boom from '@hapi/boom'
 import { type ResponseToolkit, type Server } from '@hapi/hapi'
 import { format, parseISO } from 'date-fns'
 import { StatusCodes } from 'http-status-codes'
-import { type Schema, type ValidationErrorItem } from 'joi'
+import Joi, { type Schema, type ValidationErrorItem } from 'joi'
 import { Liquid } from 'liquidjs'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
@@ -374,6 +374,18 @@ export function evaluateTemplate(
   return engine.parseAndRenderSync(template, context.relevantState, {
     globals
   })
+}
+
+export function getSchemas(server?: Server) {
+  if (!server) {
+    // only used in debug UI helper where validation isn't really important
+    return {
+      actionSchema: Joi.any().required(),
+      paramsSchema: Joi.any().required()
+    }
+  }
+
+  return getPluginOptions(server).schemas
 }
 
 export function getCacheService(server: Server) {
