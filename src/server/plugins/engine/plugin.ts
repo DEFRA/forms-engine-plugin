@@ -8,7 +8,7 @@ import {
 
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { validatePluginOptions } from '~/src/server/plugins/engine/options.js'
-import { getRoutes as getSaveAndReturnExitRoutes } from '~/src/server/plugins/engine/routes/exit.js'
+import { getRoutes as getSaveAndExitExitRoutes } from '~/src/server/plugins/engine/routes/exit.js'
 import { getRoutes as getFileUploadStatusRoutes } from '~/src/server/plugins/engine/routes/file-upload.js'
 import { makeLoadFormPreHandler } from '~/src/server/plugins/engine/routes/index.js'
 import { getRoutes as getQuestionRoutes } from '~/src/server/plugins/engine/routes/questions.js'
@@ -92,7 +92,7 @@ export const plugin = {
       ),
       ...getRepeaterSummaryRoutes(getRouteOptions, postRouteOptions),
       ...getRepeaterItemDeleteRoutes(getRouteOptions, postRouteOptions),
-      ...getSaveAndReturnExitRoutes(getRouteOptions),
+      ...getSaveAndExitExitRoutes(getRouteOptions),
       ...getFileUploadStatusRoutes()
     ]
 

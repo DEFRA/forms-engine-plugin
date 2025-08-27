@@ -8,7 +8,7 @@ import { type FormRequestPayload } from '~/src/server/routes/types.js'
 
 export class TerminalPageController extends QuestionPageController {
   declare pageDef: PageTerminal
-  allowSaveAndReturn = false
+  allowSaveAndExit = false
 
   makePostRouteHandler(): (
     request: FormRequestPayload,

@@ -16,7 +16,7 @@ jest.mock('~/src/server/utils/notify.ts')
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
 jest.mock('~/src/server/plugins/engine/services/formSubmissionService.js')
 
-describe('Save and Return functionality', () => {
+describe('Save and Exit functionality', () => {
   /** @type {Server} */
   let server
 
@@ -56,7 +56,7 @@ describe('Save and Return functionality', () => {
     await server.stop()
   })
 
-  describe('Save and Return button', () => {
+  describe('Save and Exit button', () => {
     it('should render the save and exit button on question pages with the correct name and value attributes', async () => {
       const { container } = await renderResponse(server, {
         url: `${basePath}/licence`,
@@ -64,7 +64,7 @@ describe('Save and Return functionality', () => {
       })
 
       const $saveButton = container.getByRole('button', {
-        name: 'Save and return'
+        name: 'Save and exit'
       })
 
       expect($saveButton).toBeInTheDocument()
@@ -74,7 +74,7 @@ describe('Save and Return functionality', () => {
     })
   })
 
-  describe('Save and Return POST functionality', () => {
+  describe('Save and Exit POST functionality', () => {
     it('should save form data and redirect to exit page when action is save-and-exit', async () => {
       const payload = {
         licenceLength: '1',

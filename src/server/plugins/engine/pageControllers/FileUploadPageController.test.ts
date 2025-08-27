@@ -14,7 +14,7 @@ import {
   prepareStatus
 } from '~/src/server/plugins/engine/pageControllers/FileUploadPageController.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
-import { serverWithSaveAndReturn } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
+import { serverWithSaveAndExit } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
 import * as pageHelpers from '~/src/server/plugins/engine/pageControllers/helpers/index.js'
 import * as uploadService from '~/src/server/plugins/engine/services/uploadService.js'
 import {
@@ -1119,11 +1119,9 @@ describe('FileUploadPageController', () => {
     })
   })
 
-  describe('shouldShowSaveAndReturn', () => {
+  describe('shouldShowSaveAndExit', () => {
     it('should return true when save and exit is enabled', () => {
-      expect(controller.shouldShowSaveAndReturn(serverWithSaveAndReturn)).toBe(
-        true
-      )
+      expect(controller.shouldShowSaveAndExit(serverWithSaveAndExit)).toBe(true)
     })
   })
 })

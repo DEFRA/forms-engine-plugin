@@ -8,7 +8,7 @@ import {
   buildFormContextRequest,
   buildFormRequest
 } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
-import { serverWithSaveAndReturn } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
+import { serverWithSaveAndExit } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
 import {
   type FormContext,
   type FormPageViewModel,
@@ -1283,7 +1283,7 @@ describe('QuestionPageController V2', () => {
   })
 })
 
-describe('Save and Return functionality', () => {
+describe('Save and Exit functionality', () => {
   let model: FormModel
   let controller1: QuestionPageController
   let requestPage1: FormRequest
@@ -1324,15 +1324,15 @@ describe('Save and Return functionality', () => {
     jest.spyOn(CacheService.prototype, 'setState')
   })
 
-  describe('shouldShowSaveAndReturn', () => {
+  describe('shouldShowSaveAndExit', () => {
     it('should return true by default', () => {
-      expect(controller1.shouldShowSaveAndReturn(serverWithSaveAndReturn)).toBe(
+      expect(controller1.shouldShowSaveAndExit(serverWithSaveAndExit)).toBe(
         true
       )
     })
   })
 
-  describe('handleSaveAndReturn', () => {
+  describe('handleSaveAndExit', () => {
     it('should save state and redirect to exit page', async () => {
       const sessionPersisterMock = jest.fn()
       const state: FormSubmissionState = {
@@ -1361,7 +1361,7 @@ describe('Save and Return functionality', () => {
 
       const context = model.getFormContext(request, state)
 
-      await controller1.handleSaveAndReturn(request, context, h)
+      await controller1.handleSaveAndExit(request, context, h)
 
       expect(sessionPersisterMock).toHaveBeenCalledWith(context.state, request)
       expect(cacheService.clearState).toHaveBeenCalledWith(request)
@@ -1391,7 +1391,7 @@ describe('Save and Return functionality', () => {
       const context = model.getFormContext(request, state)
 
       await expect(
-        controller1.handleSaveAndReturn(request, context, h)
+        controller1.handleSaveAndExit(request, context, h)
       ).rejects.toThrow('Server misconfigured for save and exit')
 
       expect(sessionPersisterMock).not.toHaveBeenCalled()
@@ -1420,7 +1420,7 @@ describe('Save and Return functionality', () => {
       const context = model.getFormContext(request, state)
 
       await expect(
-        controller1.handleSaveAndReturn(request, context, h)
+        controller1.handleSaveAndExit(request, context, h)
       ).rejects.toThrow('Server misconfigured for save and exit')
 
       expect(sessionPersisterMock).not.toHaveBeenCalled()
@@ -1450,7 +1450,7 @@ describe('Save and Return functionality', () => {
       const context = model.getFormContext(request, state)
 
       await expect(
-        controller1.handleSaveAndReturn(request, context, h)
+        controller1.handleSaveAndExit(request, context, h)
       ).rejects.toThrow('Session persister error')
 
       expect(sessionPersisterMock).toHaveBeenCalledWith(context.state, request)
@@ -1459,7 +1459,7 @@ describe('Save and Return functionality', () => {
   })
 
   describe('POST handler with save-and-exit action', () => {
-    it('should handle FormAction.SaveAndReturn', async () => {
+    it('should handle FormAction.SaveAndExit', async () => {
       const state: FormSubmissionState = {
         $$__referenceNumber: 'foobar',
         yesNoField: true
@@ -1474,20 +1474,20 @@ describe('Save and Return functionality', () => {
 
       jest.spyOn(controller1, 'getState').mockResolvedValue({})
       jest
-        .spyOn(controller1, 'handleSaveAndReturn')
+        .spyOn(controller1, 'handleSaveAndExit')
         .mockResolvedValue(h.redirect('/test/exit'))
 
       const postHandler = controller1.makePostRouteHandler()
       await postHandler(request, context, h)
 
-      expect(controller1.handleSaveAndReturn).toHaveBeenCalledWith(
+      expect(controller1.handleSaveAndExit).toHaveBeenCalledWith(
         request,
         context,
         h
       )
     })
 
-    it('should not call handleSaveAndReturn for continue action', async () => {
+    it('should not call handleSaveAndExit for continue action', async () => {
       const state: FormSubmissionState = {
         $$__referenceNumber: 'foobar',
         yesNoField: true
@@ -1502,7 +1502,7 @@ describe('Save and Return functionality', () => {
 
       jest.spyOn(controller1, 'getState').mockResolvedValue({})
       jest
-        .spyOn(controller1, 'handleSaveAndReturn')
+        .spyOn(controller1, 'handleSaveAndExit')
         .mockResolvedValue(h.redirect('/test/exit'))
       jest.spyOn(controller1, 'setState').mockResolvedValue(state)
 
@@ -1518,7 +1518,7 @@ describe('Save and Return functionality', () => {
       const postHandler = controller1.makePostRouteHandler()
       await postHandler(request, context, mockH)
 
-      expect(controller1.handleSaveAndReturn).not.toHaveBeenCalled()
+      expect(controller1.handleSaveAndExit).not.toHaveBeenCalled()
     })
   })
 })

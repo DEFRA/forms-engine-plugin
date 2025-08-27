@@ -14,7 +14,7 @@ export const actionSchema = Joi.string<FormAction>()
     FormAction.Delete,
     FormAction.AddAnother,
     FormAction.Send,
-    FormAction.SaveAndReturn
+    FormAction.SaveAndExit
   )
   .default(FormAction.Validate)
   .optional()

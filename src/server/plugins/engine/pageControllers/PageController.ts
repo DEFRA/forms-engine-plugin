@@ -16,7 +16,7 @@ import {
 import { type ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import {
   encodeUrl,
-  getSaveAndReturnHelpers,
+  getSaveAndExitHelpers,
   getStartPath,
   normalisePath
 } from '~/src/server/plugins/engine/helpers.js'
@@ -47,7 +47,7 @@ export class PageController {
   events?: Events
   collection?: ComponentCollection
   viewName = 'index'
-  allowSaveAndReturn = false
+  allowSaveAndExit = false
 
   constructor(model: FormModel, pageDef: Page) {
     const { def } = model
@@ -187,9 +187,7 @@ export class PageController {
     throw Boom.badRequest('Unsupported POST route handler for this page')
   }
 
-  shouldShowSaveAndReturn(server: Server): boolean {
-    return (
-      getSaveAndReturnHelpers(server) !== undefined && this.allowSaveAndReturn
-    )
+  shouldShowSaveAndExit(server: Server): boolean {
+    return getSaveAndExitHelpers(server) !== undefined && this.allowSaveAndExit
   }
 }

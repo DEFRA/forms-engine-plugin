@@ -12,7 +12,7 @@ export const server: Server = {
   }
 } as Server // only mocking out properties we care about;
 
-export const serverWithSaveAndReturn: Server = {
+export const serverWithSaveAndExit: Server = {
   plugins: {
     ...server.plugins,
     'forms-engine-plugin': {

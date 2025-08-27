@@ -5,7 +5,7 @@ import {
 } from '~/src/server/plugins/engine/models/index.js'
 import { SummaryPageController } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
-import { serverWithSaveAndReturn } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
+import { serverWithSaveAndExit } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
 import {
   createPage,
   type PageControllerClass
@@ -274,13 +274,13 @@ describe('SummaryPageController', () => {
       },
       query: {},
       app: { model },
-      server: serverWithSaveAndReturn
+      server: serverWithSaveAndExit
     }
   })
 
-  describe('Save and Return functionality', () => {
+  describe('Save and Exit functionality', () => {
     it('should show save and exit button on summary page', () => {
-      expect(controller.shouldShowSaveAndReturn(request.server)).toBe(true)
+      expect(controller.shouldShowSaveAndExit(request.server)).toBe(true)
     })
 
     it('should handle save and exit from summary page', () => {
@@ -293,7 +293,7 @@ describe('SummaryPageController', () => {
       const context = model.getFormContext(request, state)
       const viewModel = controller.getViewModel(request, context)
 
-      expect(viewModel).toHaveProperty('allowSaveAndReturn', true)
+      expect(viewModel).toHaveProperty('allowSaveAndExit', true)
     })
 
     it('should display correct page title', () => {

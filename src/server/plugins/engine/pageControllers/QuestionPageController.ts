@@ -18,7 +18,7 @@ import { type BackLink } from '~/src/server/plugins/engine/components/types.js'
 import {
   getCacheService,
   getErrors,
-  getSaveAndReturnHelpers,
+  getSaveAndExitHelpers,
   normalisePath,
   proceed
 } from '~/src/server/plugins/engine/helpers.js'
@@ -51,7 +51,7 @@ import { merge } from '~/src/server/services/cacheService.js'
 export class QuestionPageController extends PageController {
   collection: ComponentCollection
   errorSummaryTitle = 'There is a problem'
-  allowSaveAndReturn = true
+  allowSaveAndExit = true
 
   constructor(model: FormModel, pageDef: Page) {
     super(model, pageDef)
@@ -177,7 +177,7 @@ export class QuestionPageController extends PageController {
       showTitle,
       components,
       errors,
-      allowSaveAndReturn: this.shouldShowSaveAndReturn(request.server)
+      allowSaveAndExit: this.shouldShowSaveAndExit(request.server)
     }
   }
 
@@ -517,8 +517,8 @@ export class QuestionPageController extends PageController {
 
       // Check if this is a save-and-exit action
       const { action } = request.payload
-      if (action === FormAction.SaveAndReturn) {
-        return this.handleSaveAndReturn(request, context, h)
+      if (action === FormAction.SaveAndExit) {
+        return this.handleSaveAndExit(request, context, h)
       }
 
       // Save and proceed
@@ -542,7 +542,7 @@ export class QuestionPageController extends PageController {
   /**
    * Handle save-and-exit action by processing form data and redirecting to exit page
    */
-  async handleSaveAndReturn(
+  async handleSaveAndExit(
     request: FormRequestPayload,
     context: FormContext,
     h: Pick<ResponseToolkit, 'redirect' | 'view'>
@@ -550,7 +550,7 @@ export class QuestionPageController extends PageController {
     const { state } = context
 
     // Save the current state and redirect to exit page
-    const saveAndExit = getSaveAndReturnHelpers(request.server)
+    const saveAndExit = getSaveAndExitHelpers(request.server)
 
     if (!saveAndExit?.sessionPersister) {
       throw Boom.internal('Server misconfigured for save and exit')

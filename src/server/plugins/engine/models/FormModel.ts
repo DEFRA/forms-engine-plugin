@@ -543,8 +543,7 @@ function validateFormPayload(
   // Skip validation GET requests or other actions
   if (
     !request.payload ||
-    (action &&
-      ![FormAction.Validate, FormAction.SaveAndReturn].includes(action))
+    (action && ![FormAction.Validate, FormAction.SaveAndExit].includes(action))
   ) {
     return context
   }

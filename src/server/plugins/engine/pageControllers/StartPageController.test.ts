@@ -1,6 +1,6 @@
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { StartPageController } from '~/src/server/plugins/engine/pageControllers/StartPageController.js'
-import { serverWithSaveAndReturn } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
+import { serverWithSaveAndExit } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
 import definition from '~/test/form/definitions/basic.js'
 
 describe('StartPageController', () => {
@@ -22,9 +22,9 @@ describe('StartPageController', () => {
     controller = new StartPageController(model, mockPage as any)
   })
 
-  describe('shouldShowSaveAndReturn', () => {
+  describe('shouldShowSaveAndExit', () => {
     it('should return false (StartPageController does not allow save and exit)', () => {
-      expect(controller.shouldShowSaveAndReturn(serverWithSaveAndReturn)).toBe(
+      expect(controller.shouldShowSaveAndExit(serverWithSaveAndExit)).toBe(
         false
       )
     })

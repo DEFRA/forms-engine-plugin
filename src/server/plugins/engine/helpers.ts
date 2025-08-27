@@ -380,7 +380,7 @@ export function getCacheService(server: Server) {
   return getPluginOptions(server).cacheService
 }
 
-export function getSaveAndReturnHelpers(server: Server) {
+export function getSaveAndExitHelpers(server: Server) {
   return getPluginOptions(server).saveAndExit
 }
 

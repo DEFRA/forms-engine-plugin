@@ -1,12 +1,12 @@
 ---
 layout: default
-title: Save and return
+title: Save and exit
 parent: Code-based Features
 grand_parent: Features
 render_with_liquid: false
 ---
 
-# Save and Return
+# Save and Exit
 
 The forms engine supports save and exit capabilities through the `saveAndExit` plugin option. This feature enables advanced session handling for applications that need custom session storage, retrieval, and management beyond the default in-memory Redis cache.
 

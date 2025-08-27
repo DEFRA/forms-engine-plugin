@@ -106,7 +106,7 @@ await server.register({
 
 ## saveAndExit
 
-The `saveAndExit` plugin option enables custom session handling to enable "Save and Return" functionality. It consists of three optional functions:
+The `saveAndExit` plugin option enables custom session handling to enable "Save and Exit" functionality. It consists of three optional functions:
 
 - `keyGenerator` - Generates unique cache keys for session storage
 - `sessionHydrator` - Retrieves saved session data from external sources
@@ -137,4 +137,4 @@ await server.register({
 })
 ```
 
-For detailed documentation and examples, see [Save and Return](./features/code-based/SAVE_AND_EXIT.md).
+For detailed documentation and examples, see [Save and Exit](./features/code-based/SAVE_AND_EXIT.md).

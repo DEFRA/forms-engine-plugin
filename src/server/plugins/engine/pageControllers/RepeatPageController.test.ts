@@ -3,7 +3,7 @@ import { RepeatPageController } from '~/src/server/plugins/engine/pageController
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import {
   server,
-  serverWithSaveAndReturn
+  serverWithSaveAndExit
 } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
 import {
   type FormContextRequest,
@@ -271,11 +271,9 @@ describe('RepeatPageController', () => {
     })
   })
 
-  describe('shouldShowSaveAndReturn', () => {
+  describe('shouldShowSaveAndExit', () => {
     it('should return true when save and exit is enabled', () => {
-      expect(controller.shouldShowSaveAndReturn(serverWithSaveAndReturn)).toBe(
-        true
-      )
+      expect(controller.shouldShowSaveAndExit(serverWithSaveAndExit)).toBe(true)
     })
   })
 })

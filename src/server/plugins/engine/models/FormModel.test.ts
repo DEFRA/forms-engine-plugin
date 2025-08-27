@@ -185,7 +185,7 @@ describe('FormModel', () => {
   })
 
   describe('getFormContext', () => {
-    it.each([FormAction.Validate, FormAction.SaveAndReturn, undefined])(
+    it.each([FormAction.Validate, FormAction.SaveAndExit, undefined])(
       'returns a form context with the correct payload and state when action is %s',
       (action) => {
         const formModel = new FormModel(fieldsRequiredDefinition, {
