@@ -1,4 +1,7 @@
-import { type SubmitResponsePayload } from '@defra/forms-model'
+import {
+  type FormMetadata,
+  type SubmitResponsePayload
+} from '@defra/forms-model'
 import { addDays, format as dateFormat } from 'date-fns'
 
 import { config } from '~/src/config/index.js'
@@ -18,7 +21,8 @@ export function format(
   items: DetailItem[],
   model: FormModel,
   submitResponse: SubmitResponsePayload,
-  formStatus: ReturnType<typeof checkFormStatus>
+  formStatus: ReturnType<typeof checkFormStatus>,
+  _formMetadata?: FormMetadata
 ) {
   const { files } = submitResponse.result
 
