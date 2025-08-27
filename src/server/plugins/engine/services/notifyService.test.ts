@@ -1,3 +1,6 @@
+import { type FormMetadata } from '@defra/forms-model'
+
+import { escapeMarkdown } from '~/src/server/plugins/engine/components/helpers.js'
 import { checkFormStatus } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type DetailItem } from '~/src/server/plugins/engine/models/types.js'
@@ -13,6 +16,7 @@ import { sendNotification } from '~/src/server/utils/notify.js'
 jest.mock('~/src/server/utils/notify')
 jest.mock('~/src/server/plugins/engine/helpers')
 jest.mock('~/src/server/plugins/engine/outputFormatters/index')
+jest.mock('~/src/server/plugins/engine/components/helpers')
 
 describe('notifyService', () => {
   const submitResponse = {
@@ -32,7 +36,8 @@ describe('notifyService', () => {
   const mockRequest: FormRequestPayload = jest.mocked<FormRequestPayload>({
     path: 'test',
     logger: {
-      info: jest.fn()
+      info: jest.fn(),
+      error: jest.fn()
     }
   } as unknown as FormRequestPayload)
   let model: FormModel
@@ -41,6 +46,7 @@ describe('notifyService', () => {
 
   beforeEach(() => {
     jest.resetAllMocks()
+    jest.mocked(escapeMarkdown).mockImplementation((text) => text)
   })
 
   it('creates a subject line for real forms', async () => {
@@ -148,6 +154,115 @@ describe('notifyService', () => {
         personalisation: {
           subject: `TEST FORM SUBMISSION: foobar`,
           body: 'ZHVtbXktcHJldmlldyAiIEhlbGxvIHdvcmxkICcgIUAv'
+        }
+      })
+    )
+  })
+
+  it('calls outputFormatter with all correct arguments', async () => {
+    const mockFormatter = jest.fn().mockReturnValue('formatted-output')
+    jest.mocked(getFormatter).mockReturnValue(mockFormatter)
+
+    const formMetadata: FormMetadata = {
+      id: 'form-id',
+      slug: 'form-slug',
+      title: 'Form Title'
+    } as FormMetadata
+
+    const formStatus = {
+      isPreview: false,
+      state: FormStatus.Live
+    }
+
+    jest.mocked(checkFormStatus).mockReturnValue(formStatus)
+
+    model = {
+      name: 'foobar',
+      def: {
+        output: {
+          audience: 'human',
+          version: '1'
+        }
+      }
+    } as FormModel
+
+    await submit(
+      formContext,
+      mockRequest,
+      model,
+      'test@defra.gov.uk',
+      items,
+      submitResponse,
+      formMetadata
+    )
+
+    expect(getFormatter).toHaveBeenCalledWith('human', '1')
+
+    expect(mockFormatter).toHaveBeenCalledWith(
+      formContext,
+      items,
+      model,
+      submitResponse,
+      formStatus,
+      formMetadata
+    )
+
+    expect(sendNotificationMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        personalisation: {
+          subject: 'Form submission: foobar',
+          body: 'formatted-output'
+        }
+      })
+    )
+  })
+
+  it('calls outputFormatter without formMetadata when not provided', async () => {
+    const mockFormatter = jest.fn().mockReturnValue('formatted-output')
+    jest.mocked(getFormatter).mockReturnValue(mockFormatter)
+
+    const formStatus = {
+      isPreview: true,
+      state: FormStatus.Draft
+    }
+
+    jest.mocked(checkFormStatus).mockReturnValue(formStatus)
+
+    model = {
+      name: 'foobar',
+      def: {
+        output: {
+          audience: 'machine',
+          version: '2'
+        }
+      }
+    } as FormModel
+
+    await submit(
+      formContext,
+      mockRequest,
+      model,
+      'test@defra.gov.uk',
+      items,
+      submitResponse
+    )
+
+    expect(getFormatter).toHaveBeenCalledWith('machine', '2')
+
+    expect(mockFormatter).toHaveBeenCalledWith(
+      formContext,
+      items,
+      model,
+      submitResponse,
+      formStatus,
+      undefined
+    )
+
+    expect(sendNotificationMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        personalisation: {
+          subject: 'TEST FORM SUBMISSION: foobar',
+          body: Buffer.from('formatted-output').toString('base64')
         }
       })
     )
