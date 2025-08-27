@@ -23,7 +23,8 @@ const pluginRegistrationOptionsSchema = Joi.object({
   saveAndReturn: Joi.object({
     keyGenerator: Joi.function(),
     sessionHydrator: Joi.function(),
-    sessionPersister: Joi.function()
+    sessionPersister: Joi.function(),
+    sessionPurger: Joi.function()
   }).optional()
 })
 

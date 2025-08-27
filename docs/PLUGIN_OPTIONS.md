@@ -19,7 +19,7 @@ The forms plugin is configured with [registration options](https://hapi.dev/api/
 - `cacheName` (optional) - The cache name to use. Defaults to hapi's [default server cache]. Recommended for production. See [here](#custom-cache) for more details
 - `pluginPath` (optional) - The location of the plugin (defaults to `node_modules/@defra/forms-engine-plugin`)
 - `preparePageEventRequestOptions` (optional) - A function that will be invoked for http-based [page events](./features/configuration-based/PAGE_EVENTS.md). See [here](./features/configuration-based/PAGE_EVENTS.md#authenticating-a-http-page-event-request-from-dxt-in-your-api) for details
-- `saveAndReturn` (optional) - Configuration for custom session management including key generation, session hydration, and persistence. See [save and return documentation](./features/code-based/SAVE_AND_RETURN.md) for details
+- `saveAndReturn` (optional) - Configuration for custom session management including key generation, session hydration, persistence, and purging. See [save and return documentation](./features/code-based/SAVE_AND_RETURN.md) for details
 - `onRequest` (optional) - A function that will be invoked on each request to any form route e.g `/{slug}/{path}`. See [here](#onrequest) for more details
 
 ## Services
@@ -111,6 +111,7 @@ The `saveAndReturn` plugin option enables custom session handling to enable "Sav
 - `keyGenerator` - Generates unique cache keys for session storage
 - `sessionHydrator` - Retrieves saved session data from external sources
 - `sessionPersister` - Stores session data to external systems
+- `sessionPurger` - Clears session data from external systems
 
 ```js
 await server.register({
@@ -128,9 +129,14 @@ await server.register({
         return savedState || null
       },
 
-      sessionPersister: async (key, state, request) => {
+      sessionPersister: async (state, request) => {
         // Save state to database/API
-        await saveUserSession(key, state, request)
+        await saveUserSession(state, request)
+      },
+
+      sessionPurger: async (request) => {
+        // Clear state from database/API
+        await clearUserSession(request)
       }
     }
   }
