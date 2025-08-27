@@ -267,4 +267,44 @@ describe('notifyService', () => {
       })
     )
   })
+
+  it('should handle sendNotification errors and rethrow', async () => {
+    const mockFormatter = jest.fn().mockReturnValue('formatted-output')
+    jest.mocked(getFormatter).mockReturnValue(mockFormatter)
+    jest.mocked(checkFormStatus).mockReturnValue({
+      isPreview: false,
+      state: FormStatus.Live
+    })
+
+    const testError = new Error('Notification service unavailable')
+    sendNotificationMock.mockRejectedValue(testError)
+
+    model = {
+      name: 'foobar',
+      def: {
+        output: {
+          audience: 'human',
+          version: '1'
+        }
+      }
+    } as FormModel
+
+    await expect(
+      submit(
+        formContext,
+        mockRequest,
+        model,
+        'test@defra.gov.uk',
+        items,
+        submitResponse
+      )
+    ).rejects.toThrow('Notification service unavailable')
+
+    expect(mockRequest.logger.error).toHaveBeenCalledWith(
+      'Notification service unavailable',
+      expect.stringContaining(
+        '[emailSendFailed] Error sending notification email'
+      )
+    )
+  })
 })
