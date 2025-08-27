@@ -23,7 +23,7 @@ describe('StartPageController', () => {
   })
 
   describe('shouldShowSaveAndReturn', () => {
-    it('should return false (StartPageController does not allow save and return)', () => {
+    it('should return false (StartPageController does not allow save and exit)', () => {
       expect(controller.shouldShowSaveAndReturn(serverWithSaveAndReturn)).toBe(
         false
       )

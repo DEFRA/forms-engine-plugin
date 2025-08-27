@@ -1120,7 +1120,7 @@ describe('FileUploadPageController', () => {
   })
 
   describe('shouldShowSaveAndReturn', () => {
-    it('should return true when save and return is enabled', () => {
+    it('should return true when save and exit is enabled', () => {
       expect(controller.shouldShowSaveAndReturn(serverWithSaveAndReturn)).toBe(
         true
       )

@@ -31,7 +31,7 @@ describe('Save and Return functionality', () => {
       formFileName: 'basic.js',
       formFilePath: join(import.meta.dirname, 'definitions'),
       enforceCsrf: true,
-      saveAndReturn: {
+      saveAndExit: {
         keyGenerator: () => 'test-key',
         sessionHydrator: () => Promise.resolve({ someState: 'value' }),
         sessionPersister: () => Promise.resolve(undefined)
@@ -57,7 +57,7 @@ describe('Save and Return functionality', () => {
   })
 
   describe('Save and Return button', () => {
-    it('should render the save and return button on question pages with the correct name and value attributes', async () => {
+    it('should render the save and exit button on question pages with the correct name and value attributes', async () => {
       const { container } = await renderResponse(server, {
         url: `${basePath}/licence`,
         headers
@@ -70,15 +70,15 @@ describe('Save and Return functionality', () => {
       expect($saveButton).toBeInTheDocument()
       expect($saveButton).toHaveClass('govuk-button--secondary')
       expect($saveButton).toHaveAttribute('name', 'action')
-      expect($saveButton).toHaveAttribute('value', 'save-and-return')
+      expect($saveButton).toHaveAttribute('value', 'save-and-exit')
     })
   })
 
   describe('Save and Return POST functionality', () => {
-    it('should save form data and redirect to exit page when action is save-and-return', async () => {
+    it('should save form data and redirect to exit page when action is save-and-exit', async () => {
       const payload = {
         licenceLength: '1',
-        action: 'save-and-return',
+        action: 'save-and-exit',
         crumb: csrfToken
       }
 
@@ -111,17 +111,17 @@ describe('Save and Return functionality', () => {
       expect(response.headers.location).not.toBe(`${basePath}/exit`)
     })
 
-    it('should work correctly when no saveAndReturn is provided', async () => {
+    it('should work correctly when no saveAndExit is provided', async () => {
       const { options } = await configureEnginePlugin({
         formFileName: 'basic.js',
         formFilePath: join(import.meta.dirname, 'definitions')
       })
 
-      expect(options.saveAndReturn).toBeUndefined()
+      expect(options.saveAndExit).toBeUndefined()
 
       const payload = {
         licenceLength: '1',
-        action: 'save-and-return',
+        action: 'save-and-exit',
         crumb: csrfToken
       }
 
@@ -139,7 +139,7 @@ describe('Save and Return functionality', () => {
     it('should prevent invalid form state being persisted', async () => {
       const payload = {
         licenceLength: '',
-        action: 'save-and-return',
+        action: 'save-and-exit',
         crumb: csrfToken
       }
 
@@ -156,7 +156,7 @@ describe('Save and Return functionality', () => {
 
     it('should return 404 for non-existent page', async () => {
       const payload = {
-        action: 'save-and-return',
+        action: 'save-and-exit',
         crumb: csrfToken
       }
 
@@ -218,7 +218,7 @@ describe('Save and Return functionality', () => {
     it('should handle CSRF token validation', async () => {
       const payload = {
         licenceLength: '1',
-        action: 'save-and-return',
+        action: 'save-and-exit',
         crumb: 'invalid-csrf-token'
       }
 
@@ -235,7 +235,7 @@ describe('Save and Return functionality', () => {
     it('should handle missing CSRF token', async () => {
       const payload = {
         licenceLength: '1',
-        action: 'save-and-return'
+        action: 'save-and-exit'
       }
 
       const response = await server.inject({

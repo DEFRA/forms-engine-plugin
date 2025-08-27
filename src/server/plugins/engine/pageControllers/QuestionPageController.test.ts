@@ -1344,7 +1344,7 @@ describe('Save and Return functionality', () => {
         server: {
           plugins: {
             'forms-engine-plugin': {
-              saveAndReturn: {
+              saveAndExit: {
                 sessionPersister: sessionPersisterMock
               },
               cacheService: {
@@ -1354,7 +1354,7 @@ describe('Save and Return functionality', () => {
           }
         },
         method: 'post',
-        payload: { yesNoField: true, action: 'save-and-return' }
+        payload: { yesNoField: true, action: 'save-and-exit' }
       } as unknown as FormRequestPayload
 
       const cacheService = getCacheService(request.server)
@@ -1368,7 +1368,7 @@ describe('Save and Return functionality', () => {
       expect(h.redirect).toHaveBeenCalledWith('/test/exit')
     })
 
-    it('should throw if sessionPersister inside saveAndReturn options provided', async () => {
+    it('should throw if sessionPersister inside saveAndExit options provided', async () => {
       const sessionPersisterMock = jest.fn()
       const state: FormSubmissionState = {
         $$__referenceNumber: 'foobar',
@@ -1380,25 +1380,25 @@ describe('Save and Return functionality', () => {
           plugins: {
             'forms-engine-plugin': {
               // No sessionPersister object
-              saveAndReturn: {}
+              saveAndExit: {}
             }
           }
         },
         method: 'post',
-        payload: { yesNoField: true, action: 'save-and-return' }
+        payload: { yesNoField: true, action: 'save-and-exit' }
       } as unknown as FormRequestPayload
 
       const context = model.getFormContext(request, state)
 
       await expect(
         controller1.handleSaveAndReturn(request, context, h)
-      ).rejects.toThrow('Server misconfigured for save and return')
+      ).rejects.toThrow('Server misconfigured for save and exit')
 
       expect(sessionPersisterMock).not.toHaveBeenCalled()
       expect(h.redirect).not.toHaveBeenCalled()
     })
 
-    it('should throw if no saveAndReturn options provided', async () => {
+    it('should throw if no saveAndExit options provided', async () => {
       const sessionPersisterMock = jest.fn()
       const state: FormSubmissionState = {
         $$__referenceNumber: 'foobar',
@@ -1409,19 +1409,19 @@ describe('Save and Return functionality', () => {
         server: {
           plugins: {
             'forms-engine-plugin': {
-              // No saveAndReturn object
+              // No saveAndExit object
             }
           }
         },
         method: 'post',
-        payload: { yesNoField: true, action: 'save-and-return' }
+        payload: { yesNoField: true, action: 'save-and-exit' }
       } as unknown as FormRequestPayload
 
       const context = model.getFormContext(request, state)
 
       await expect(
         controller1.handleSaveAndReturn(request, context, h)
-      ).rejects.toThrow('Server misconfigured for save and return')
+      ).rejects.toThrow('Server misconfigured for save and exit')
 
       expect(sessionPersisterMock).not.toHaveBeenCalled()
       expect(h.redirect).not.toHaveBeenCalled()
@@ -1438,13 +1438,13 @@ describe('Save and Return functionality', () => {
         server: {
           plugins: {
             'forms-engine-plugin': {
-              saveAndReturn: {
+              saveAndExit: {
                 sessionPersister: sessionPersisterMock
               }
             }
           }
         },
-        payload: { action: 'save-and-return' }
+        payload: { action: 'save-and-exit' }
       } as unknown as FormRequestPayload
 
       const context = model.getFormContext(request, state)
@@ -1458,7 +1458,7 @@ describe('Save and Return functionality', () => {
     })
   })
 
-  describe('POST handler with save-and-return action', () => {
+  describe('POST handler with save-and-exit action', () => {
     it('should handle FormAction.SaveAndReturn', async () => {
       const state: FormSubmissionState = {
         $$__referenceNumber: 'foobar',
@@ -1467,7 +1467,7 @@ describe('Save and Return functionality', () => {
       const request = {
         ...requestPage1,
         method: 'post',
-        payload: { yesNoField: true, action: 'save-and-return' }
+        payload: { yesNoField: true, action: 'save-and-exit' }
       } as unknown as FormRequestPayload
 
       const context = model.getFormContext(request, state)

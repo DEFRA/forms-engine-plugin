@@ -8,7 +8,7 @@ render_with_liquid: false
 
 # Save and Return
 
-The forms engine supports save and return capabilities through the `saveAndReturn` plugin option. This feature enables advanced session handling for applications that need custom session storage, retrieval, and management beyond the default in-memory Redis cache.
+The forms engine supports save and exit capabilities through the `saveAndExit` plugin option. This feature enables advanced session handling for applications that need custom session storage, retrieval, and management beyond the default in-memory Redis cache.
 
 ## Overview
 
@@ -22,14 +22,14 @@ Using the above, users can save their progress and continue filling out forms la
 
 ## Configuration
 
-The `saveAndReturn` option is configured when registering the forms engine plugin:
+The `saveAndExit` option is configured when registering the forms engine plugin:
 
 ```js
 await server.register({
   plugin: formsEnginePlugin,
   options: {
     // ... other options
-    saveAndReturn: {
+    saveAndExit: {
       keyGenerator: (request) => string,
       sessionHydrator: (request) => Promise<FormSubmissionState | null>,
       sessionPersister: (state, request) => Promise<void>

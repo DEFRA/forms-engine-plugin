@@ -279,11 +279,11 @@ describe('SummaryPageController', () => {
   })
 
   describe('Save and Return functionality', () => {
-    it('should show save and return button on summary page', () => {
+    it('should show save and exit button on summary page', () => {
       expect(controller.shouldShowSaveAndReturn(request.server)).toBe(true)
     })
 
-    it('should handle save and return from summary page', () => {
+    it('should handle save and exit from summary page', () => {
       const state: FormState = {
         $$__referenceNumber: 'foobar',
         orderType: 'collection',

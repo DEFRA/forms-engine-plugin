@@ -49,7 +49,7 @@ export interface RouteConfig {
   controllers?: Record<string, typeof PageController>
   preparePageEventRequestOptions?: PreparePageEventRequestOptions
   onRequest?: OnRequestCallback
-  saveAndReturn?: PluginOptions['saveAndReturn']
+  saveAndExit?: PluginOptions['saveAndExit']
 }
 
 export interface OutputService {

@@ -219,7 +219,7 @@ describe('FormModel', () => {
       }
     )
 
-    it('returns without updating the state when the action is not validate or saveAndReturn', () => {
+    it('returns without updating the state when the action is not validate or saveAndExit', () => {
       const formModel = new FormModel(fieldsRequiredDefinition, {
         basePath: '/components'
       })

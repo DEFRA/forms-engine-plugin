@@ -28,7 +28,7 @@ describe('TerminalController', () => {
   })
 
   describe('shouldShowSaveAndReturn', () => {
-    it('should return false (TerminalPageController does not allow save and return)', () => {
+    it('should return false (TerminalPageController does not allow save and exit)', () => {
       expect(controller1.shouldShowSaveAndReturn(serverWithSaveAndReturn)).toBe(
         false
       )

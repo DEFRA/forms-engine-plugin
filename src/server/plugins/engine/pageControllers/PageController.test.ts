@@ -206,10 +206,10 @@ describe('PageController', () => {
       )
     })
 
-    it('supports save and return functionality', async () => {
+    it('supports save and exit functionality', async () => {
       const mockRequest = {
         ...request,
-        payload: { saveAndReturn: true }
+        payload: { saveAndExit: true }
       } as FormRequest
 
       const mockResponse = {
@@ -233,7 +233,7 @@ describe('PageController', () => {
   })
 
   describe('shouldShowSaveAndReturn', () => {
-    it('should return false (PageController does not allow save and return)', () => {
+    it('should return false (PageController does not allow save and exit)', () => {
       expect(controller1.shouldShowSaveAndReturn(serverWithSaveAndReturn)).toBe(
         false
       )

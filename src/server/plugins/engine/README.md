@@ -88,7 +88,7 @@ There are a number of `LiquidJS` filters available to you from within the templa
 
 ### Save and return
 
-See [our save and return feature page](/docs/features/code-based/SAVE_AND_RETURN.md).
+See [our save and exit feature page](/docs/features/code-based/SAVE_AND_EXIT.md).
 
 ### Additional notes
 

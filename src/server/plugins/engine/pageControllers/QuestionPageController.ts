@@ -515,7 +515,7 @@ export class QuestionPageController extends PageController {
         return h.view(viewName, viewModel)
       }
 
-      // Check if this is a save-and-return action
+      // Check if this is a save-and-exit action
       const { action } = request.payload
       if (action === FormAction.SaveAndReturn) {
         return this.handleSaveAndReturn(request, context, h)
@@ -540,7 +540,7 @@ export class QuestionPageController extends PageController {
   }
 
   /**
-   * Handle save-and-return action by processing form data and redirecting to exit page
+   * Handle save-and-exit action by processing form data and redirecting to exit page
    */
   async handleSaveAndReturn(
     request: FormRequestPayload,
@@ -550,13 +550,13 @@ export class QuestionPageController extends PageController {
     const { state } = context
 
     // Save the current state and redirect to exit page
-    const saveAndReturn = getSaveAndReturnHelpers(request.server)
+    const saveAndExit = getSaveAndReturnHelpers(request.server)
 
-    if (!saveAndReturn?.sessionPersister) {
-      throw Boom.internal('Server misconfigured for save and return')
+    if (!saveAndExit?.sessionPersister) {
+      throw Boom.internal('Server misconfigured for save and exit')
     }
 
-    await saveAndReturn.sessionPersister(state, request)
+    await saveAndExit.sessionPersister(state, request)
 
     const cacheService = getCacheService(request.server)
     await cacheService.clearState(request)

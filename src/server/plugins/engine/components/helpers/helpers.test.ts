@@ -25,7 +25,7 @@ describe('helpers tests', () => {
 })
 
 describe('ComponentBase tests', () => {
-  test('should handle save and return functionality', () => {
+  test('should handle save and exit functionality', () => {
     const mockComponentDef = {
       type: 'TextField',
       name: 'testField',

@@ -19,7 +19,7 @@ The forms plugin is configured with [registration options](https://hapi.dev/api/
 - `cacheName` (optional) - The cache name to use. Defaults to hapi's [default server cache]. Recommended for production. See [here](#custom-cache) for more details
 - `pluginPath` (optional) - The location of the plugin (defaults to `node_modules/@defra/forms-engine-plugin`)
 - `preparePageEventRequestOptions` (optional) - A function that will be invoked for http-based [page events](./features/configuration-based/PAGE_EVENTS.md). See [here](./features/configuration-based/PAGE_EVENTS.md#authenticating-a-http-page-event-request-from-dxt-in-your-api) for details
-- `saveAndReturn` (optional) - Configuration for custom session management including key generation, session hydration, and persistence. See [save and return documentation](./features/code-based/SAVE_AND_RETURN.md) for details
+- `saveAndExit` (optional) - Configuration for custom session management including key generation, session hydration, and persistence. See [save and exit documentation](./features/code-based/SAVE_AND_EXIT.md) for details
 - `onRequest` (optional) - A function that will be invoked on each request to any form route e.g `/{slug}/{path}`. See [here](#onrequest) for more details
 
 ## Services
@@ -104,9 +104,9 @@ await server.register({
 })
 ```
 
-## saveAndReturn
+## saveAndExit
 
-The `saveAndReturn` plugin option enables custom session handling to enable "Save and Return" functionality. It consists of three optional functions:
+The `saveAndExit` plugin option enables custom session handling to enable "Save and Return" functionality. It consists of three optional functions:
 
 - `keyGenerator` - Generates unique cache keys for session storage
 - `sessionHydrator` - Retrieves saved session data from external sources
@@ -116,7 +116,7 @@ The `saveAndReturn` plugin option enables custom session handling to enable "Sav
 await server.register({
   plugin,
   options: {
-    saveAndReturn: {
+    saveAndExit: {
       keyGenerator: (request) => {
         const { userId, applicationId } = fetchSubmissionAttributes(request)
         return `${userId}:${applicationId}`
@@ -137,4 +137,4 @@ await server.register({
 })
 ```
 
-For detailed documentation and examples, see [Save and Return](./features/code-based/SAVE_AND_RETURN.md).
+For detailed documentation and examples, see [Save and Return](./features/code-based/SAVE_AND_EXIT.md).

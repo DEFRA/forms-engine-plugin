@@ -32,7 +32,7 @@ export const plugin = {
     const {
       model,
       cacheName,
-      saveAndReturn,
+      saveAndExit,
       nunjucks: nunjucksOptions,
       viewContext,
       preparePageEventRequestOptions
@@ -42,8 +42,8 @@ export const plugin = {
       server,
       cacheName,
       options: {
-        keyGenerator: saveAndReturn?.keyGenerator,
-        sessionHydrator: saveAndReturn?.sessionHydrator
+        keyGenerator: saveAndExit?.keyGenerator,
+        sessionHydrator: saveAndExit?.sessionHydrator
       }
     })
 
@@ -52,7 +52,7 @@ export const plugin = {
     server.expose('baseLayoutPath', nunjucksOptions.baseLayoutPath)
     server.expose('viewContext', viewContext)
     server.expose('cacheService', cacheService)
-    server.expose('saveAndReturn', saveAndReturn)
+    server.expose('saveAndExit', saveAndExit)
 
     server.app.model = model
 

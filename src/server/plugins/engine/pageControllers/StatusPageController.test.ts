@@ -23,7 +23,7 @@ describe('StatusPageController', () => {
   })
 
   describe('shouldShowSaveAndReturn', () => {
-    it('should return false (StatusPageController does not allow save and return)', () => {
+    it('should return false (StatusPageController does not allow save and exit)', () => {
       expect(controller.shouldShowSaveAndReturn(serverWithSaveAndReturn)).toBe(
         false
       )

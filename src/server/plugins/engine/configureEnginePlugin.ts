@@ -19,7 +19,7 @@ export const configureEnginePlugin = async ({
   controllers,
   preparePageEventRequestOptions,
   onRequest,
-  saveAndReturn
+  saveAndExit
 }: RouteConfig = {}): Promise<{
   plugin: typeof plugin
   options: PluginOptions
@@ -59,7 +59,7 @@ export const configureEnginePlugin = async ({
       preparePageEventRequestOptions,
       onRequest,
       baseUrl: 'http://localhost:3009', // always runs locally
-      saveAndReturn
+      saveAndExit
     }
   }
 }
