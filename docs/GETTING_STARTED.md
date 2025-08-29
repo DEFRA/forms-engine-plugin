@@ -325,7 +325,7 @@ Conditions bring logic to the form, when assigned to a page they make the page "
 
       // 2. `RelativeDate` - relative date for date-based conditions
       // The `value` of a `RelativeDate` should be an object with a listId and itemId keys pointing to the list and list item
-      "type": "ListItemRef",
+      "type": "RelativeDate",
       "value": {
         "period": 1, // Numeric amount of the time period
         "unit": "weeks", // Time unit (days, weeks, months, years),
