@@ -128,9 +128,9 @@ await server.register({
         return savedState || null
       },
 
-      sessionPersister: async (key, state, request) => {
+      sessionPersister: async (state, request) => {
         // Save state to database/API
-        await saveUserSession(key, state, request)
+        await saveUserSession(state, request)
       }
     }
   }
