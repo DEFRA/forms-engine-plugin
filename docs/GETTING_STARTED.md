@@ -144,14 +144,29 @@ await server.register({
 await server.start()
 ```
 
-## Step 4: Handling static assets
+## Step 4: Include forms-engine-plugin's client-side assets
 
-TODO: CSS will be updated with a proper build process using SASS.
+1. Import forms-engine-plugin's styling
 
-1. [Update webpack to bundle the DXT application assets (CSS, JavaScript, etc)](https://github.com/DEFRA/forms-engine-plugin-example-ui/pull/1/files#diff-1fb26bc12ac780c7ad7325730ed09fc4c2c3d757c276c3dacc44bfe20faf166f)
-2. [Serve the newly bundled assets from your web server](https://github.com/DEFRA/forms-engine-plugin-example-ui/pull/1/files#diff-e5b183306056f90c7f606b526dbc0d0b7e17bccd703945703a0811b6e6bb3503)
+If you are using the CDP templates, you just need to ensure your `src/client/stylesheets/application.scss` file contains:
 
-DXT plans to prefix to these asset paths to prevent collisions with your assets. Contact [#defra-forms-support](https://defra-digital-team.slack.com) if this is a blocker for you.
+```sass
+@use "pkg:@defra/forms-engine-plugin";
+```
+
+Example: https://github.com/DEFRA/forms-runner/blob/24c5623946cdfddca593bcba8a688f24bc0cb0e6/src/client/stylesheets/application.scss
+
+2. Import forms-engine-plugin's Javascript
+
+If you are on CDP, this just means ensuring your `src/client/javascripts/application.js` file contains:
+
+```javascript
+import { initAll } from '@defra/forms-engine-plugin/shared.js'
+
+initAll()
+```
+
+Example: https://github.com/DEFRA/forms-runner/blob/24c5623946cdfddca593bcba8a688f24bc0cb0e6/src/client/javascripts/application.js
 
 ## Step 5: Environment variables
 
