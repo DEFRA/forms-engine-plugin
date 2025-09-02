@@ -271,10 +271,10 @@ describe('RepeatPageController', () => {
     })
   })
 
-  describe('shouldShowSaveAndReturn', () => {
-    it('should return true when save and return is enabled', () => {
+  describe('shouldNotShowSaveAndReturnByDefault', () => {
+    it('should return false when save and return is disabled by default', () => {
       expect(controller.shouldShowSaveAndReturn(serverWithSaveAndReturn)).toBe(
-        true
+        false
       )
     })
   })

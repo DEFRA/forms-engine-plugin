@@ -279,11 +279,11 @@ describe('SummaryPageController', () => {
   })
 
   describe('Save and Return functionality', () => {
-    it('should show save and return button on summary page', () => {
-      expect(controller.shouldShowSaveAndReturn(request.server)).toBe(true)
+    it('should not show save and return button on summary page by default', () => {
+      expect(controller.shouldShowSaveAndReturn(request.server)).toBe(false)
     })
 
-    it('should handle save and return from summary page', () => {
+    it('should not handle save and return from summary page by default', () => {
       const state: FormState = {
         $$__referenceNumber: 'foobar',
         orderType: 'collection',
@@ -293,7 +293,7 @@ describe('SummaryPageController', () => {
       const context = model.getFormContext(request, state)
       const viewModel = controller.getViewModel(request, context)
 
-      expect(viewModel).toHaveProperty('allowSaveAndReturn', true)
+      expect(viewModel).toHaveProperty('allowSaveAndReturn', false)
     })
 
     it('should display correct page title', () => {

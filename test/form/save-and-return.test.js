@@ -57,20 +57,17 @@ describe('Save and Return functionality', () => {
   })
 
   describe('Save and Return button', () => {
-    it('should render the save and return button on question pages with the correct name and value attributes', async () => {
+    it('should not render the save and return button on question pages with the correct name and value attributes', async () => {
       const { container } = await renderResponse(server, {
         url: `${basePath}/licence`,
         headers
       })
 
-      const $saveButton = container.getByRole('button', {
+      const $saveButton = container.queryByRole('button', {
         name: 'Save and return'
       })
 
-      expect($saveButton).toBeInTheDocument()
-      expect($saveButton).toHaveClass('govuk-button--secondary')
-      expect($saveButton).toHaveAttribute('name', 'action')
-      expect($saveButton).toHaveAttribute('value', 'save-and-return')
+      expect($saveButton).not.toBeInTheDocument()
     })
   })
 

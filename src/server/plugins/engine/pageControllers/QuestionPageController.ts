@@ -51,7 +51,6 @@ import { merge } from '~/src/server/services/cacheService.js'
 export class QuestionPageController extends PageController {
   collection: ComponentCollection
   errorSummaryTitle = 'There is a problem'
-  allowSaveAndReturn = true
 
   constructor(model: FormModel, pageDef: Page) {
     super(model, pageDef)

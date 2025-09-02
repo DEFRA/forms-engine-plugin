@@ -1327,7 +1327,7 @@ describe('Save and Return functionality', () => {
   describe('shouldShowSaveAndReturn', () => {
     it('should return true by default', () => {
       expect(controller1.shouldShowSaveAndReturn(serverWithSaveAndReturn)).toBe(
-        true
+        false
       )
     })
   })
