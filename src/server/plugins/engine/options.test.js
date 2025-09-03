@@ -19,7 +19,7 @@ describe('validatePluginOptions', () => {
     expect(validatePluginOptions(validOptions)).toEqual(validOptions)
   })
 
-  it('accepts optional properties keyGenerator, sessionHydrator, and sessionPersister', () => {
+  it('accepts optional property saveAndExit', () => {
     /**
      * @type {PluginOptions}
      */
@@ -32,11 +32,7 @@ describe('validatePluginOptions', () => {
         return { hello: 'world' }
       },
       baseUrl: 'http://localhost:3009',
-      saveAndExit: {
-        keyGenerator: () => 'test-key',
-        sessionHydrator: () => Promise.resolve({ someState: 'value' }),
-        sessionPersister: () => Promise.resolve(undefined)
-      }
+      saveAndExit: (request, h) => h.redirect('/save-and-exit')
     }
 
     expect(validatePluginOptions(validOptionsWithOptionals)).toEqual(
