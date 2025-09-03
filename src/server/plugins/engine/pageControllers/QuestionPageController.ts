@@ -39,7 +39,8 @@ import {
   type FormRequest,
   type FormRequestPayload,
   type FormRequestPayloadRefs,
-  type FormRequestRefs
+  type FormRequestRefs,
+  type FormResponseToolkit
 } from '~/src/server/routes/types.js'
 import {
   actionSchema,
@@ -540,28 +541,20 @@ export class QuestionPageController extends PageController {
   }
 
   /**
-   * Handle save-and-exit action by processing form data and redirecting to exit page
+   * Handle save-and-exit action
    */
-  async handleSaveAndExit(
+  handleSaveAndExit(
     request: FormRequestPayload,
     context: FormContext,
-    h: Pick<ResponseToolkit, 'redirect' | 'view'>
+    h: FormResponseToolkit
   ) {
-    const { state } = context
-
-    // Save the current state and redirect to exit page
     const saveAndExit = getSaveAndExitHelpers(request.server)
 
-    if (!saveAndExit?.sessionPersister) {
+    if (!saveAndExit) {
       throw Boom.internal('Server misconfigured for save and exit')
     }
 
-    await saveAndExit.sessionPersister(state, request)
-
-    const cacheService = getCacheService(request.server)
-    await cacheService.clearState(request)
-
-    return h.redirect(this.getHref('/exit'))
+    return saveAndExit(request, h, context)
   }
 
   /**

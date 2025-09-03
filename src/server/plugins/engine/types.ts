@@ -7,7 +7,7 @@ import {
   type List,
   type Page
 } from '@defra/forms-model'
-import { type PluginProperties, type Request } from '@hapi/hapi'
+import { type PluginProperties, type ResponseObject } from '@hapi/hapi'
 import { type JoiExpression, type ValidationErrorItem } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
@@ -32,12 +32,11 @@ import {
   type FormParams,
   type FormRequest,
   type FormRequestPayload,
+  type FormResponseToolkit,
   type FormStatus
 } from '~/src/server/routes/types.js'
 import { type RequestOptions } from '~/src/server/services/httpService.js'
 import { type Services } from '~/src/server/types.js'
-
-type RequestType = Request | FormRequest | FormRequestPayload
 
 /**
  * Form submission state stores the following in Redis:
@@ -359,6 +358,12 @@ export type OnRequestCallback = (
   metadata: FormMetadata
 ) => void
 
+export type SaveAndExitHandler = (
+  request: FormRequestPayload,
+  h: FormResponseToolkit,
+  context: FormContext
+) => ResponseObject
+
 export interface PluginOptions {
   model?: FormModel
   services?: Services
@@ -366,14 +371,7 @@ export interface PluginOptions {
   cacheName?: string
   globals?: Record<string, GlobalFunction>
   filters?: Record<string, FilterFunction>
-  saveAndExit?: {
-    keyGenerator: (request: RequestType) => string
-    sessionHydrator: (request: RequestType) => Promise<FormSubmissionState>
-    sessionPersister: (
-      state: FormSubmissionState,
-      request: RequestType
-    ) => Promise<void>
-  }
+  saveAndExit?: SaveAndExitHandler
   pluginPath?: string
   nunjucks: {
     baseLayoutPath: string
