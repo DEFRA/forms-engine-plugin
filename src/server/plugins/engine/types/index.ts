@@ -74,7 +74,8 @@ export type {
   FormRequest,
   FormRequestPayload,
   FormRequestPayloadRefs,
-  FormRequestRefs
+  FormRequestRefs,
+  FormResponseToolkit
 } from '~/src/server/routes/types.js'
 
 export { FormAction, FormStatus } from '~/src/server/routes/types.js'

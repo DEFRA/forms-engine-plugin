@@ -1,4 +1,8 @@
-import { type ReqRefDefaults, type Request } from '@hapi/hapi'
+import {
+  type ReqRefDefaults,
+  type Request,
+  type ResponseToolkit
+} from '@hapi/hapi'
 
 import { type FormPayload } from '~/src/server/plugins/engine/types.js'
 
@@ -33,6 +37,7 @@ export interface FormRequestPayloadRefs extends FormRequestRefs {
 
 export type FormRequest = Request<FormRequestRefs>
 export type FormRequestPayload = Request<FormRequestPayloadRefs>
+export type FormResponseToolkit = Pick<ResponseToolkit, 'redirect' | 'view'>
 
 export enum FormAction {
   Continue = 'continue',
