@@ -315,7 +315,7 @@ export function getAnswerMarkdown(
   } else if (field instanceof Components.MultilineTextField) {
     // Preserve Multiline text new lines
     answerEscaped = answer
-      .split(/\r?\n/)
+      .split(/(?:\r?\n)+/)
       .map(escapeMarkdown)
       .join('\n')
       .concat('\n')
