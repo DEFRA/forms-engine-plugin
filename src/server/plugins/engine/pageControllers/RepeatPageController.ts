@@ -2,7 +2,6 @@ import { randomUUID } from 'crypto'
 
 import { type PageRepeat, type Repeat } from '@defra/forms-model'
 import Boom from '@hapi/boom'
-import { type ResponseToolkit } from '@hapi/hapi'
 import Joi from 'joi'
 
 import { isRepeatState } from '~/src/server/plugins/engine/components/FormComponent.js'
@@ -25,7 +24,8 @@ import {
 import {
   FormAction,
   type FormRequest,
-  type FormRequestPayload
+  type FormRequestPayload,
+  type FormResponseToolkit
 } from '~/src/server/routes/types.js'
 
 export class RepeatPageController extends QuestionPageController {
@@ -128,10 +128,7 @@ export class RepeatPageController extends QuestionPageController {
     }
   }
 
-  proceed(
-    request: FormContextRequest,
-    h: Pick<ResponseToolkit, 'redirect' | 'view'>
-  ) {
+  proceed(request: FormContextRequest, h: FormResponseToolkit) {
     const nextPath = this.getSummaryPath(request)
     return super.proceed(request, h, nextPath)
   }
@@ -151,7 +148,7 @@ export class RepeatPageController extends QuestionPageController {
     return async (
       request: FormRequest,
       context: FormContext,
-      h: Pick<ResponseToolkit, 'redirect' | 'view'>
+      h: FormResponseToolkit
     ) => {
       const { path } = this
       const { query } = request
@@ -179,7 +176,7 @@ export class RepeatPageController extends QuestionPageController {
     return (
       request: FormRequest,
       context: FormContext,
-      h: Pick<ResponseToolkit, 'redirect' | 'view'>
+      h: FormResponseToolkit
     ) => {
       const { path } = this
       const { query } = request
@@ -205,7 +202,7 @@ export class RepeatPageController extends QuestionPageController {
     return (
       request: FormRequestPayload,
       context: FormContext,
-      h: Pick<ResponseToolkit, 'redirect' | 'view'>
+      h: FormResponseToolkit
     ) => {
       const { path, repeat } = this
       const { query } = request
@@ -269,7 +266,7 @@ export class RepeatPageController extends QuestionPageController {
     return (
       request: FormRequest,
       context: FormContext,
-      h: Pick<ResponseToolkit, 'redirect' | 'view'>
+      h: FormResponseToolkit
     ) => {
       const { viewModel } = this
       const { state } = context
@@ -304,7 +301,7 @@ export class RepeatPageController extends QuestionPageController {
     return async (
       request: FormRequestPayload,
       context: FormContext,
-      h: Pick<ResponseToolkit, 'redirect' | 'view'>
+      h: FormResponseToolkit
     ) => {
       const { repeat } = this
       const { state } = context

@@ -6,12 +6,7 @@ import {
   type Section
 } from '@defra/forms-model'
 import Boom from '@hapi/boom'
-import {
-  type Lifecycle,
-  type ResponseToolkit,
-  type RouteOptions,
-  type Server
-} from '@hapi/hapi'
+import { type Lifecycle, type RouteOptions, type Server } from '@hapi/hapi'
 
 import { type ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import {
@@ -30,7 +25,8 @@ import {
   type FormRequest,
   type FormRequestPayload,
   type FormRequestPayloadRefs,
-  type FormRequestRefs
+  type FormRequestRefs,
+  type FormResponseToolkit
 } from '~/src/server/routes/types.js'
 
 export class PageController {
@@ -171,7 +167,7 @@ export class PageController {
   makeGetRouteHandler(): (
     request: FormRequest,
     context: FormContext,
-    h: Pick<ResponseToolkit, 'redirect' | 'view'>
+    h: FormResponseToolkit
   ) => ReturnType<Lifecycle.Method<FormRequestRefs>> {
     return (request, context, h) => {
       const { viewModel, viewName } = this
@@ -182,7 +178,7 @@ export class PageController {
   makePostRouteHandler(): (
     request: FormRequestPayload,
     context: FormContext,
-    h: Pick<ResponseToolkit, 'redirect' | 'view'>
+    h: FormResponseToolkit
   ) => ReturnType<Lifecycle.Method<FormRequestPayloadRefs>> {
     throw Boom.badRequest('Unsupported POST route handler for this page')
   }

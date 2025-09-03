@@ -9,7 +9,7 @@ import {
   type Page
 } from '@defra/forms-model'
 import Boom from '@hapi/boom'
-import { type ResponseToolkit, type RouteOptions } from '@hapi/hapi'
+import { type RouteOptions } from '@hapi/hapi'
 import { type ValidationErrorItem } from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
@@ -398,7 +398,7 @@ export class QuestionPageController extends PageController {
     return async (
       request: FormRequest,
       context: FormContext,
-      h: Pick<ResponseToolkit, 'redirect' | 'view'>
+      h: FormResponseToolkit
     ) => {
       const { collection, model, viewName } = this
       const { evaluationState } = context
@@ -493,7 +493,7 @@ export class QuestionPageController extends PageController {
     return async (
       request: FormRequestPayload,
       context: FormContext,
-      h: Pick<ResponseToolkit, 'redirect' | 'view'>
+      h: FormResponseToolkit
     ) => {
       const { collection, viewName, model } = this
       const { isForceAccess, state, evaluationState } = context
@@ -530,7 +530,7 @@ export class QuestionPageController extends PageController {
 
   proceed(
     request: FormContextRequest,
-    h: Pick<ResponseToolkit, 'redirect' | 'view'>,
+    h: FormResponseToolkit,
     nextPath?: string
   ) {
     const nextUrl = nextPath

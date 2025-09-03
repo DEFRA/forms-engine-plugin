@@ -26,12 +26,13 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
-  type FormRequestPayload
+  type FormRequestPayload,
+  type FormResponseToolkit
 } from '~/src/server/routes/types.js'
 
 export async function redirectOrMakeHandler(
   request: FormRequest | FormRequestPayload,
-  h: Pick<ResponseToolkit, 'redirect' | 'view'>,
+  h: FormResponseToolkit,
   makeHandler: (
     page: PageControllerClass,
     context: FormContext
@@ -181,10 +182,7 @@ export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
   return handler
 }
 
-export function dispatchHandler(
-  request: FormRequest,
-  h: Pick<ResponseToolkit, 'redirect' | 'view'>
-) {
+export function dispatchHandler(request: FormRequest, h: FormResponseToolkit) {
   const { model } = request.app
 
   const servicePath = model ? `/${model.basePath}` : ''

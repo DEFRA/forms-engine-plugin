@@ -4,7 +4,10 @@ import { FORM_PREFIX } from '~/src/server/constants.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { serverWithSaveAndExit } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
-import { type FormRequest } from '~/src/server/routes/types.js'
+import {
+  type FormRequest,
+  type FormResponseToolkit
+} from '~/src/server/routes/types.js'
 import definition from '~/test/form/definitions/basic.js'
 
 describe('PageController', () => {
@@ -155,7 +158,7 @@ describe('PageController', () => {
       app: { model }
     } as FormRequest
 
-    const h: Pick<ResponseToolkit, 'redirect' | 'view'> = {
+    const h: FormResponseToolkit = {
       redirect: jest.fn(),
       view: jest.fn()
     }

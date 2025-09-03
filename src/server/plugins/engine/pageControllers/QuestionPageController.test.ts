@@ -1,5 +1,4 @@
 import { type PageQuestion } from '@defra/forms-model'
-import { type ResponseToolkit } from '@hapi/hapi'
 
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
@@ -16,7 +15,8 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
-  type FormRequestPayload
+  type FormRequestPayload,
+  type FormResponseToolkit
 } from '~/src/server/routes/types.js'
 import { CacheService } from '~/src/server/services/cacheService.js'
 import conditionalReveal from '~/test/form/definitions/conditional-reveal.js'
@@ -593,7 +593,7 @@ describe('QuestionPageController', () => {
       code: jest.fn().mockImplementation(() => response)
     }
 
-    const h: Pick<ResponseToolkit, 'redirect' | 'view'> = {
+    const h: FormResponseToolkit = {
       redirect: jest.fn().mockReturnValue(response),
       view: jest.fn()
     }
@@ -1154,7 +1154,7 @@ describe('QuestionPageController V2', () => {
       code: jest.fn().mockImplementation(() => response)
     }
 
-    const h: Pick<ResponseToolkit, 'redirect' | 'view'> = {
+    const h: FormResponseToolkit = {
       redirect: jest.fn().mockReturnValue(response),
       view: jest.fn()
     }
@@ -1313,7 +1313,7 @@ describe('Save and Exit functionality', () => {
     code: jest.fn().mockImplementation(() => response)
   }
 
-  const h: Pick<ResponseToolkit, 'redirect' | 'view'> = {
+  const h: FormResponseToolkit = {
     redirect: jest.fn().mockReturnValue(response),
     view: jest.fn()
   }

@@ -1,5 +1,5 @@
 import Boom from '@hapi/boom'
-import { type ResponseObject, type ResponseToolkit } from '@hapi/hapi'
+import { type ResponseObject } from '@hapi/hapi'
 // eslint-disable-next-line n/no-unpublished-import
 import nock from 'nock'
 
@@ -13,7 +13,8 @@ import {
 import { type FormContext } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
-  type FormRequestPayload
+  type FormRequestPayload,
+  type FormResponseToolkit
 } from '~/src/server/routes/types.js'
 jest.mock('~/src/server/plugins/engine/models/SummaryViewModel', () => ({
   SummaryViewModel: class {
@@ -35,7 +36,7 @@ jest.mock('~/src/server/plugins/engine/outputFormatters/machine/v1', () => ({
 jest.mock('~/src/server/plugins/engine/routes/index')
 
 describe('makeGetHandler', () => {
-  const hMock: Pick<ResponseToolkit, 'redirect' | 'view'> = {
+  const hMock: FormResponseToolkit = {
     redirect: jest.fn(),
     view: jest.fn()
   }
@@ -64,7 +65,7 @@ describe('makeGetHandler', () => {
       (
         _request: FormRequest,
         context: FormContext,
-        _h: Pick<ResponseToolkit, 'redirect' | 'view'>
+        _h: FormResponseToolkit
       ) => {
         data = context.data
         return Promise.resolve({} as unknown as ResponseObject)
@@ -81,11 +82,8 @@ describe('makeGetHandler', () => {
     jest
       .mocked(redirectOrMakeHandler)
       .mockImplementation(
-        (
-          _req: FormRequest | FormRequestPayload,
-          _h: Pick<ResponseToolkit, 'redirect' | 'view'>,
-          fn
-        ) => Promise.resolve(fn(pageMock, contextMock))
+        (_req: FormRequest | FormRequestPayload, _h: FormResponseToolkit, fn) =>
+          Promise.resolve(fn(pageMock, contextMock))
       )
 
     await makeGetHandler()(requestMock, hMock)
@@ -108,7 +106,7 @@ describe('makeGetHandler', () => {
       (
         _request: FormRequest,
         context: FormContext,
-        _h: Pick<ResponseToolkit, 'redirect' | 'view'>
+        _h: FormResponseToolkit
       ) => {
         data = context.data
         return Promise.resolve({} as unknown as ResponseObject)
@@ -127,11 +125,8 @@ describe('makeGetHandler', () => {
     jest
       .mocked(redirectOrMakeHandler)
       .mockImplementation(
-        (
-          _req: FormRequest | FormRequestPayload,
-          _h: Pick<ResponseToolkit, 'redirect' | 'view'>,
-          fn
-        ) => Promise.resolve(fn(pageMock, contextMock))
+        (_req: FormRequest | FormRequestPayload, _h: FormResponseToolkit, fn) =>
+          Promise.resolve(fn(pageMock, contextMock))
       )
 
     await makeGetHandler()(requestMock, hMock)
@@ -152,7 +147,7 @@ describe('makeGetHandler', () => {
       (
         _request: FormRequest,
         _context: FormContext,
-        _h: Pick<ResponseToolkit, 'redirect' | 'view'>
+        _h: FormResponseToolkit
       ) => {
         return Promise.resolve({} as unknown as ResponseObject)
       }
@@ -170,7 +165,7 @@ describe('makeGetHandler', () => {
       .mockImplementation(
         async (
           _req: FormRequest | FormRequestPayload,
-          _h: Pick<ResponseToolkit, 'redirect' | 'view'>,
+          _h: FormResponseToolkit,
           fn
         ) => {
           try {
@@ -190,7 +185,7 @@ describe('makeGetHandler', () => {
 })
 
 describe('makePostHandler', () => {
-  const hMock: Pick<ResponseToolkit, 'redirect' | 'view'> = {
+  const hMock: FormResponseToolkit = {
     redirect: jest.fn(),
     view: jest.fn()
   }
@@ -221,7 +216,7 @@ describe('makePostHandler', () => {
       (
         _request: FormRequest,
         _context: FormContext,
-        _h: Pick<ResponseToolkit, 'redirect' | 'view'>
+        _h: FormResponseToolkit
       ) => {
         // do return a valid ResponseObject wrapped in Promise.resolve
         return mockPostResponse
@@ -239,11 +234,8 @@ describe('makePostHandler', () => {
     jest
       .mocked(redirectOrMakeHandler)
       .mockImplementation(
-        (
-          _req: FormRequest | FormRequestPayload,
-          _h: Pick<ResponseToolkit, 'redirect' | 'view'>,
-          fn
-        ) => Promise.resolve(fn(pageMock, contextMock))
+        (_req: FormRequest | FormRequestPayload, _h: FormResponseToolkit, fn) =>
+          Promise.resolve(fn(pageMock, contextMock))
       )
 
     const response = await makePostHandler()(requestMock, hMock)
@@ -263,7 +255,7 @@ describe('makePostHandler', () => {
       (
         _request: FormRequest,
         _context: FormContext,
-        _h: Pick<ResponseToolkit, 'redirect' | 'view'>
+        _h: FormResponseToolkit
       ) => {
         return Promise.resolve({} as unknown as ResponseObject)
       }
@@ -282,11 +274,8 @@ describe('makePostHandler', () => {
     jest
       .mocked(redirectOrMakeHandler)
       .mockImplementation(
-        (
-          _req: FormRequest | FormRequestPayload,
-          _h: Pick<ResponseToolkit, 'redirect' | 'view'>,
-          fn
-        ) => Promise.resolve(fn(pageMock, contextMock))
+        (_req: FormRequest | FormRequestPayload, _h: FormResponseToolkit, fn) =>
+          Promise.resolve(fn(pageMock, contextMock))
       )
 
     await makePostHandler()(requestMock, hMock)
@@ -309,7 +298,7 @@ describe('makePostHandler', () => {
       (
         _request: FormRequest,
         _context: FormContext,
-        _h: Pick<ResponseToolkit, 'redirect' | 'view'>
+        _h: FormResponseToolkit
       ) => {
         // do return a valid ResponseObject wrapped in Promise.resolve
         return mockPostResponse
@@ -327,11 +316,8 @@ describe('makePostHandler', () => {
     jest
       .mocked(redirectOrMakeHandler)
       .mockImplementation(
-        (
-          _req: FormRequest | FormRequestPayload,
-          _h: Pick<ResponseToolkit, 'redirect' | 'view'>,
-          fn
-        ) => Promise.resolve(fn(pageMock, contextMock))
+        (_req: FormRequest | FormRequestPayload, _h: FormResponseToolkit, fn) =>
+          Promise.resolve(fn(pageMock, contextMock))
       )
 
     await makePostHandler()(requestMock, hMock)
@@ -352,7 +338,7 @@ describe('makePostHandler', () => {
       (
         _request: FormRequest,
         _context: FormContext,
-        _h: Pick<ResponseToolkit, 'redirect' | 'view'>
+        _h: FormResponseToolkit
       ) => {
         return Promise.resolve({} as unknown as ResponseObject)
       }
@@ -371,7 +357,7 @@ describe('makePostHandler', () => {
       .mockImplementation(
         async (
           _req: FormRequest | FormRequestPayload,
-          _h: Pick<ResponseToolkit, 'redirect' | 'view'>,
+          _h: FormResponseToolkit,
           fn
         ) => {
           try {
@@ -395,7 +381,7 @@ function createMockPageController(
   routeHandler: (
     request: FormRequest,
     context: FormContext,
-    h: Pick<ResponseToolkit, 'redirect' | 'view'>
+    h: FormResponseToolkit
   ) => ResponseObject | Promise<ResponseObject>
 ): PageControllerClass {
   return {

@@ -30,7 +30,8 @@ import {
 import {
   FormAction,
   FormStatus,
-  type FormRequest
+  type FormRequest,
+  type FormResponseToolkit
 } from '~/src/server/routes/types.js'
 import definition from '~/test/form/definitions/basic.js'
 import templateDefinition from '~/test/form/definitions/templates.js'
@@ -47,7 +48,7 @@ type HrefFilter = (this: NunjucksContext, path: string) => string | undefined
 describe('Helpers', () => {
   let page: PageControllerClass
   let request: FormContextRequest
-  let h: Pick<ResponseToolkit, 'redirect' | 'view'>
+  let h: FormResponseToolkit
 
   beforeEach(() => {
     const model = new FormModel(definition, {

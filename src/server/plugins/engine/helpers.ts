@@ -33,7 +33,8 @@ import {
   type FormParams,
   type FormQuery,
   type FormRequest,
-  type FormRequestPayload
+  type FormRequestPayload,
+  type FormResponseToolkit
 } from '~/src/server/routes/types.js'
 
 const logger = createLogger()
@@ -117,7 +118,7 @@ engine.registerFilter('answer', function (name: string) {
 
 export function proceed(
   request: Pick<FormContextRequest, 'method' | 'payload' | 'query'>,
-  h: Pick<ResponseToolkit, 'redirect' | 'view'>,
+  h: FormResponseToolkit,
   nextUrl: string
 ) {
   const { method, payload, query } = request

@@ -1,6 +1,5 @@
 import { ComponentType, type PageFileUpload } from '@defra/forms-model'
 import Boom from '@hapi/boom'
-import { type ResponseToolkit } from '@hapi/hapi'
 import { wait } from '@hapi/hoek'
 import { type ValidationErrorItem } from 'joi'
 
@@ -35,7 +34,8 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
-  type FormRequestPayload
+  type FormRequestPayload,
+  type FormResponseToolkit
 } from '~/src/server/routes/types.js'
 
 const MAX_UPLOADS = 25
@@ -148,7 +148,7 @@ export class FileUploadPageController extends QuestionPageController {
     return (
       request: FormRequest,
       context: FormContext,
-      h: Pick<ResponseToolkit, 'redirect' | 'view'>
+      h: FormResponseToolkit
     ) => {
       const { viewModel } = this
       const { params } = request
@@ -183,7 +183,7 @@ export class FileUploadPageController extends QuestionPageController {
     return async (
       request: FormRequestPayload,
       context: FormContext,
-      h: Pick<ResponseToolkit, 'redirect' | 'view'>
+      h: FormResponseToolkit
     ) => {
       const { path } = this
       const { state } = context

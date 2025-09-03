@@ -1,11 +1,7 @@
 // List summary GET route
 import { slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
-import {
-  type ResponseToolkit,
-  type RouteOptions,
-  type ServerRoute
-} from '@hapi/hapi'
+import { type RouteOptions, type ServerRoute } from '@hapi/hapi'
 import Joi from 'joi'
 
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
@@ -14,7 +10,8 @@ import {
   type FormRequest,
   type FormRequestPayload,
   type FormRequestPayloadRefs,
-  type FormRequestRefs
+  type FormRequestRefs,
+  type FormResponseToolkit
 } from '~/src/server/routes/types.js'
 import {
   actionSchema,
@@ -23,10 +20,7 @@ import {
   stateSchema
 } from '~/src/server/schemas/index.js'
 
-function getHandler(
-  request: FormRequest,
-  h: Pick<ResponseToolkit, 'redirect' | 'view'>
-) {
+function getHandler(request: FormRequest, h: FormResponseToolkit) {
   const { params } = request
 
   return redirectOrMakeHandler(request, h, (page, context) => {
@@ -38,10 +32,7 @@ function getHandler(
   })
 }
 
-function postHandler(
-  request: FormRequestPayload,
-  h: Pick<ResponseToolkit, 'redirect' | 'view'>
-) {
+function postHandler(request: FormRequestPayload, h: FormResponseToolkit) {
   const { params } = request
 
   return redirectOrMakeHandler(request, h, (page, context) => {
