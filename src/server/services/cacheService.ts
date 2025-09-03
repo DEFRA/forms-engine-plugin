@@ -1,9 +1,10 @@
-import { type Request, type Server } from '@hapi/hapi'
+import { type Server } from '@hapi/hapi'
 import * as Hoek from '@hapi/hoek'
 
 import { config } from '~/src/config/index.js'
 import { type createServer } from '~/src/server/index.js'
 import {
+  type AnyRequest,
   type FormPayload,
   type FormState,
   type FormSubmissionError,
@@ -39,9 +40,7 @@ export class CacheService {
     this.logger = server.logger
   }
 
-  async getState(
-    request: Request | FormRequest | FormRequestPayload
-  ): Promise<FormSubmissionState> {
+  async getState(request: AnyRequest): Promise<FormSubmissionState> {
     const key = this.Key(request)
     const cached = await this.cache.get(key)
 
@@ -111,10 +110,7 @@ export class CacheService {
    * @param request - hapi request object
    * @param additionalIdentifier - appended to the id
    */
-  Key(
-    request: Request | FormRequest | FormRequestPayload,
-    additionalIdentifier?: ADDITIONAL_IDENTIFIER
-  ) {
+  Key(request: AnyRequest, additionalIdentifier?: ADDITIONAL_IDENTIFIER) {
     if (!request.yar.id) {
       throw new Error('No session ID found')
     }

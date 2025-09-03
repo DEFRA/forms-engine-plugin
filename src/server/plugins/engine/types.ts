@@ -7,7 +7,11 @@ import {
   type List,
   type Page
 } from '@defra/forms-model'
-import { type PluginProperties, type ResponseObject } from '@hapi/hapi'
+import {
+  type PluginProperties,
+  type Request,
+  type ResponseObject
+} from '@hapi/hapi'
 import { type JoiExpression, type ValidationErrorItem } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
@@ -37,6 +41,8 @@ import {
 } from '~/src/server/routes/types.js'
 import { type RequestOptions } from '~/src/server/services/httpService.js'
 import { type Services } from '~/src/server/types.js'
+
+export type AnyRequest = Request | FormRequest | FormRequestPayload
 
 /**
  * Form submission state stores the following in Redis:
