@@ -43,6 +43,7 @@ import {
   type FormResponseToolkit,
   type FormStatus
 } from '~/src/server/routes/types.js'
+import { type CacheService } from '~/src/server/services/cacheService.js'
 import { type RequestOptions } from '~/src/server/services/httpService.js'
 import { type Services } from '~/src/server/types.js'
 
@@ -391,7 +392,8 @@ export interface PluginOptions {
   viewContext: PluginProperties['forms-engine-plugin']['viewContext']
   preparePageEventRequestOptions?: PreparePageEventRequestOptions
   onRequest?: OnRequestCallback
-  baseUrl: string // base URL of the application, protocol and hostname e.g. "https://myapp.com"
+  baseUrl: string // base URL of the application, protocol and hostname e.g. "https://myapp.com",
+  cacheServiceClass?: typeof CacheService
 }
 
 export interface FormAdapterSubmissionMessageMeta {

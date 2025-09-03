@@ -50,6 +50,7 @@ export interface RouteConfig {
   preparePageEventRequestOptions?: PreparePageEventRequestOptions
   onRequest?: OnRequestCallback
   saveAndExit?: PluginOptions['saveAndExit']
+  cacheServiceClass?: PluginOptions['cacheServiceClass']
 }
 
 export interface OutputService {

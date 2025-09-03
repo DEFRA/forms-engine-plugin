@@ -37,10 +37,8 @@ export const plugin = {
       preparePageEventRequestOptions
     } = options
 
-    const cacheService = new CacheService({
-      server,
-      cacheName
-    })
+    const CacheServiceClass = options.cacheServiceClass ?? CacheService
+    const cacheService = new CacheServiceClass({ server, cacheName })
 
     await registerVision(server, options)
 
