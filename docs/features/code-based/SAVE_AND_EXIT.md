@@ -65,8 +65,6 @@ The `FormSubmissionState` object can be found at `context.state` and contains al
 
 This is the data you'll need to save to allow users to pick up from where they left.
 
-TODO: How to re-hydrate a session
-
 ```typescript
 interface FormSubmissionState {
   // User's form field values
@@ -78,4 +76,13 @@ interface FormSubmissionState {
   // File upload state (if applicable)
   upload?: Record<string, TempFileState>
 }
+```
+
+## Restore session data
+
+To restore a user's previous state use the `cacheService.setState` method.
+The current request is passed in order to generate the cache key as so should include the correct form `slug` and `status` (if using the draft/live feature)
+
+```js
+await cacheService.setState(request, state)
 ```
