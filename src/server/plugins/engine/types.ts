@@ -42,7 +42,8 @@ import {
 import { type RequestOptions } from '~/src/server/services/httpService.js'
 import { type Services } from '~/src/server/types.js'
 
-export type AnyRequest = Request | FormRequest | FormRequestPayload
+export type AnyFormRequest = FormRequest | FormRequestPayload
+export type AnyRequest = Request | AnyFormRequest
 
 /**
  * Form submission state stores the following in Redis:
@@ -358,7 +359,7 @@ export type PreparePageEventRequestOptions = (
 ) => void
 
 export type OnRequestCallback = (
-  request: FormRequest | FormRequestPayload,
+  request: AnyFormRequest,
   params: FormParams,
   definition: FormDefinition,
   metadata: FormMetadata

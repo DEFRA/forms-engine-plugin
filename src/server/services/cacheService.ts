@@ -4,16 +4,13 @@ import * as Hoek from '@hapi/hoek'
 import { config } from '~/src/config/index.js'
 import { type createServer } from '~/src/server/index.js'
 import {
+  type AnyFormRequest,
   type AnyRequest,
   type FormPayload,
   type FormState,
   type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
-import {
-  type FormRequest,
-  type FormRequestPayload
-} from '~/src/server/routes/types.js'
 
 const partition = 'cache'
 
@@ -47,10 +44,7 @@ export class CacheService {
     return cached ?? {}
   }
 
-  async setState(
-    request: FormRequest | FormRequestPayload,
-    state: FormSubmissionState
-  ) {
+  async setState(request: AnyFormRequest, state: FormSubmissionState) {
     const key = this.Key(request)
     const ttl = config.get('sessionTimeout')
 
@@ -60,7 +54,7 @@ export class CacheService {
   }
 
   async getConfirmationState(
-    request: FormRequest | FormRequestPayload
+    request: AnyFormRequest
   ): Promise<{ confirmed?: true }> {
     const key = this.Key(request, ADDITIONAL_IDENTIFIER.Confirmation)
     const value = await this.cache.get(key)
@@ -69,7 +63,7 @@ export class CacheService {
   }
 
   async setConfirmationState(
-    request: FormRequest | FormRequestPayload,
+    request: AnyFormRequest,
     confirmationState: { confirmed?: true }
   ) {
     const key = this.Key(request, ADDITIONAL_IDENTIFIER.Confirmation)
@@ -78,14 +72,14 @@ export class CacheService {
     return this.cache.set(key, confirmationState, ttl)
   }
 
-  async clearState(request: FormRequest | FormRequestPayload) {
+  async clearState(request: AnyFormRequest) {
     if (request.yar.id) {
       await this.cache.drop(this.Key(request))
     }
   }
 
   getFlash(
-    request: FormRequest | FormRequestPayload
+    request: AnyFormRequest
   ): { errors: FormSubmissionError[] } | undefined {
     const key = this.Key(request)
     const messages = request.yar.flash(key.id)
@@ -96,7 +90,7 @@ export class CacheService {
   }
 
   setFlash(
-    request: FormRequest | FormRequestPayload,
+    request: AnyFormRequest,
     message: { errors: FormSubmissionError[] }
   ) {
     const key = this.Key(request)

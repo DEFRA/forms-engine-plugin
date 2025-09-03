@@ -22,6 +22,7 @@ import {
 import {
   FileStatus,
   UploadStatus,
+  type AnyFormRequest,
   type FeaturedFormPageViewModel,
   type FileState,
   type FormContext,
@@ -111,7 +112,7 @@ export class FileUploadPageController extends QuestionPageController {
     return payload
   }
 
-  async getState(request: FormRequest | FormRequestPayload) {
+  async getState(request: AnyFormRequest) {
     const { fileUpload } = this
 
     // Get the actual state
@@ -279,7 +280,7 @@ export class FileUploadPageController extends QuestionPageController {
    * @param state - the form state
    */
   private async refreshUpload(
-    request: FormRequest | FormRequestPayload,
+    request: AnyFormRequest,
     state: FormSubmissionState
   ) {
     state = await this.checkUploadStatus(request, state)
@@ -295,7 +296,7 @@ export class FileUploadPageController extends QuestionPageController {
    * @param depth - the number of retries so far
    */
   private async checkUploadStatus(
-    request: FormRequest | FormRequestPayload,
+    request: AnyFormRequest,
     state: FormSubmissionState,
     depth = 1
   ): Promise<FormSubmissionState> {
@@ -417,7 +418,7 @@ export class FileUploadPageController extends QuestionPageController {
    * @param state - the form state
    */
   private async initiateAndStoreNewUpload(
-    request: FormRequest | FormRequestPayload,
+    request: AnyFormRequest,
     state: FormSubmissionState
   ) {
     const { fileUpload, href, path } = this

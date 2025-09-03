@@ -80,7 +80,7 @@ If provided, the `onRequest` plugin option will be invoked on each request to an
 
 ```ts
 export type OnRequestCallback = (
-  request: FormRequest | FormRequestPayload,
+  request: AnyFormRequest,
   params: FormParams,
   definition: FormDefinition,
   metadata: FormMetadata

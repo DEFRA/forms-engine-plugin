@@ -24,6 +24,7 @@ import {
   redirectOrMakeHandler
 } from '~/src/server/plugins/engine/routes/index.js'
 import {
+  type AnyFormRequest,
   type FormContext,
   type PreparePageEventRequestOptions
 } from '~/src/server/plugins/engine/types.js'
@@ -44,7 +45,7 @@ import {
 import * as httpService from '~/src/server/services/httpService.js'
 
 async function handleHttpEvent(
-  request: FormRequest | FormRequestPayload,
+  request: AnyFormRequest,
   page: PageControllerClass,
   context: FormContext,
   event: Event,

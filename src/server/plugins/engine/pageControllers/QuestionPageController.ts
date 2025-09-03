@@ -25,6 +25,7 @@ import {
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
+  type AnyFormRequest,
   type FormContext,
   type FormContextRequest,
   type FormPageViewModel,
@@ -182,10 +183,7 @@ export class QuestionPageController extends PageController {
     }
   }
 
-  getRelevantPath(
-    request: FormRequest | FormRequestPayload,
-    context: FormContext
-  ) {
+  getRelevantPath(request: AnyFormRequest, context: FormContext) {
     const { paths } = context
 
     const startPath = this.getStartPath()
@@ -297,7 +295,7 @@ export class QuestionPageController extends PageController {
     return getErrors(details)
   }
 
-  async getState(request: FormRequest | FormRequestPayload) {
+  async getState(request: AnyFormRequest) {
     const { query } = request
 
     // Skip get for preview URL direct access
@@ -310,10 +308,7 @@ export class QuestionPageController extends PageController {
     return cacheService.getState(request)
   }
 
-  async setState(
-    request: FormRequest | FormRequestPayload,
-    state: FormSubmissionState
-  ) {
+  async setState(request: AnyFormRequest, state: FormSubmissionState) {
     const { query } = request
 
     // Skip set for preview URL direct access
@@ -327,7 +322,7 @@ export class QuestionPageController extends PageController {
   }
 
   async mergeState(
-    request: FormRequest | FormRequestPayload,
+    request: AnyFormRequest,
     state: FormSubmissionState,
     update: object
   ) {
