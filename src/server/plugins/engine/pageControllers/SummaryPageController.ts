@@ -30,6 +30,7 @@ import {
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import {
+  FormAction,
   type FormRequest,
   type FormRequestPayload,
   type FormRequestPayloadRefs,
@@ -38,6 +39,7 @@ import {
 
 export class SummaryPageController extends QuestionPageController {
   declare pageDef: Page
+  allowSaveAndExit = true
 
   /**
    * The controller which is used when Page["controller"] is defined as "./pages/summary.js"
@@ -107,6 +109,13 @@ export class SummaryPageController extends QuestionPageController {
     ) => {
       const { model } = this
       const { params } = request
+
+      // Check if this is a save-and-exit action
+      const { action } = request.payload
+      if (action === FormAction.SaveAndExit) {
+        return this.handleSaveAndExit(request, context, h)
+      }
+
       const cacheService = getCacheService(request.server)
 
       const { formsService } = this.model.services

@@ -2,6 +2,7 @@
 
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "partials/components.html" import componentList with context %}
 
 {% block content %}
@@ -31,7 +32,6 @@
 
       <form method="post" novalidate>
         <input type="hidden" name="crumb" value="{{ crumb }}">
-        <input type="hidden" name="action" value="send">
 
         {% if declaration %}
           <h2 class="govuk-heading-m" id="declaration">Declaration</h2>
@@ -42,10 +42,26 @@
 
         {{ componentList(components) }}
 
-        {% set isDeclaration = declaration or components | length %}
-        <button data-prevent-double-click="true" class="govuk-button" data-module="govuk-button">
-          {{ "Accept and send" if isDeclaration else "Send" }}
-        </button>
+        <div class="govuk-button-group">
+          {% set isDeclaration = declaration or components | length %}
+
+          {{ govukButton({
+            text: "Accept and send" if isDeclaration else "Send",
+            name: "action",
+            value: "send",
+            preventDoubleClick: true
+          }) }}
+
+          {% if allowSaveAndExit %}
+            {{ govukButton({
+              text: "Save and exit",
+              classes: "govuk-button--secondary",
+              name: "action",
+              value: "save-and-exit",
+              preventDoubleClick: true
+            }) }}
+          {% endif %}
+        </div>
       </form>
     </div>
   </div>
