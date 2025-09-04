@@ -4,6 +4,7 @@ import {
   type SubmitPayload,
   type SubmitResponsePayload
 } from '@defra/forms-model'
+import { type Server } from '@hapi/hapi'
 
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type DetailItem } from '~/src/server/plugins/engine/models/types.js'
@@ -18,6 +19,7 @@ import {
   type FormRequestPayload,
   type FormStatus
 } from '~/src/server/routes/types.js'
+import { type CacheService } from '~/src/server/services/cacheService.js'
 
 export interface FormsService {
   getFormMetadata: (slug: string) => Promise<FormMetadata>
@@ -50,7 +52,7 @@ export interface RouteConfig {
   preparePageEventRequestOptions?: PreparePageEventRequestOptions
   onRequest?: OnRequestCallback
   saveAndExit?: PluginOptions['saveAndExit']
-  cacheServiceClass?: PluginOptions['cacheServiceClass']
+  cacheServiceCreator?: (server: Server) => CacheService
 }
 
 export interface OutputService {

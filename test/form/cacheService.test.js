@@ -34,7 +34,7 @@ describe('CacheService', () => {
   /** @type {ReturnType<typeof getCookieHeader>} */
   let headers
 
-  afterAll(async () => {
+  afterEach(async () => {
     await server.stop()
   })
 
@@ -46,7 +46,8 @@ describe('CacheService', () => {
     server = await createServer({
       formFileName: 'minimal.js',
       formFilePath: join(import.meta.dirname, 'definitions'),
-      cacheServiceClass: NewCacheService
+      cacheServiceCreator: (server) =>
+        new NewCacheService({ server, cacheName: 'session' })
     })
 
     await server.initialize()

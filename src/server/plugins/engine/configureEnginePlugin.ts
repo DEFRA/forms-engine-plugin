@@ -10,18 +10,21 @@ import { formsService } from '~/src/server/plugins/engine/services/localFormsSer
 import { type PluginOptions } from '~/src/server/plugins/engine/types.js'
 import { findPackageRoot } from '~/src/server/plugins/engine/vision.js'
 import { devtoolContext } from '~/src/server/plugins/nunjucks/context.js'
+import { type CacheService } from '~/src/server/services/cacheService.js'
 import { type RouteConfig } from '~/src/server/types.js'
 
-export const configureEnginePlugin = async ({
-  formFileName,
-  formFilePath,
-  services,
-  controllers,
-  preparePageEventRequestOptions,
-  onRequest,
-  saveAndExit,
-  cacheServiceClass
-}: RouteConfig = {}): Promise<{
+export const configureEnginePlugin = async (
+  {
+    formFileName,
+    formFilePath,
+    services,
+    controllers,
+    preparePageEventRequestOptions,
+    onRequest,
+    saveAndExit
+  }: RouteConfig = {},
+  cache?: CacheService
+): Promise<{
   plugin: typeof plugin
   options: PluginOptions
 }> => {
@@ -51,7 +54,7 @@ export const configureEnginePlugin = async ({
         formsService: await formsService()
       },
       controllers,
-      cacheName: 'session',
+      cache: cache ?? 'session',
       nunjucks: {
         baseLayoutPath: 'dxt-devtool-baselayout.html',
         paths: [join(findPackageRoot(), 'src/server/devserver')] // custom layout to make it really clear this is not the same as the runner
@@ -60,8 +63,7 @@ export const configureEnginePlugin = async ({
       preparePageEventRequestOptions,
       onRequest,
       baseUrl: 'http://localhost:3009', // always runs locally
-      saveAndExit,
-      cacheServiceClass
+      saveAndExit
     }
   }
 }

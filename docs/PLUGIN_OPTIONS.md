@@ -16,7 +16,10 @@ The forms plugin is configured with [registration options](https://hapi.dev/api/
 - `controllers` (optional) - Object map of custom page controllers used to override the default. See [custom controllers](#custom-controllers)
 - `globals` (optional) - A map of custom template globals to include
 - `filters` (optional) - A map of custom template filters to include
-- `cacheName` (optional) - The cache name to use. Defaults to hapi's [default server cache]. Recommended for production. See [here](#custom-cache) for more details
+- `cache` (optional) - Caching options
+  - `cache` (optional) - Caching options. Recommended for production. This can be either:
+    - a string representing the cache name to use (e.g. hapi's default server cache). See [here](#custom-cache) for more details.
+    - a custom `CacheService` instance implementing your own caching logic
 - `pluginPath` (optional) - The location of the plugin (defaults to `node_modules/@defra/forms-engine-plugin`)
 - `preparePageEventRequestOptions` (optional) - A function that will be invoked for http-based [page events](./features/configuration-based/PAGE_EVENTS.md). See [here](./features/configuration-based/PAGE_EVENTS.md#authenticating-a-http-page-event-request-from-dxt-in-your-api) for details
 - `saveAndExit` (optional) - Configuration for custom session management including key generation, session hydration, and persistence. See [save and exit documentation](./features/code-based/SAVE_AND_EXIT.md) for details

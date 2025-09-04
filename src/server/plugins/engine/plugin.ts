@@ -30,15 +30,17 @@ export const plugin = {
 
     const {
       model,
-      cacheName,
+      cache,
       saveAndExit,
       nunjucks: nunjucksOptions,
       viewContext,
       preparePageEventRequestOptions
     } = options
 
-    const CacheServiceClass = options.cacheServiceClass ?? CacheService
-    const cacheService = new CacheServiceClass({ server, cacheName })
+    const cacheService =
+      typeof cache === 'string'
+        ? new CacheService({ server, cacheName: cache })
+        : cache
 
     await registerVision(server, options)
 

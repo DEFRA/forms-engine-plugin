@@ -1,6 +1,7 @@
 import Joi from 'joi'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+import { CacheService } from '~/src/server/services/index.js'
 
 const logger = createLogger()
 
@@ -8,7 +9,10 @@ const pluginRegistrationOptionsSchema = Joi.object({
   model: Joi.object().optional(),
   services: Joi.object().optional(),
   controllers: Joi.object().pattern(Joi.string(), Joi.any()).optional(),
-  cacheName: Joi.string().optional(),
+  cache: Joi.alternatives().try(
+    Joi.object().instance(CacheService),
+    Joi.string()
+  ),
   globals: Joi.object().pattern(Joi.string(), Joi.any()).optional(),
   filters: Joi.object().pattern(Joi.string(), Joi.any()).optional(),
   pluginPath: Joi.string().optional(),
@@ -20,8 +24,7 @@ const pluginRegistrationOptionsSchema = Joi.object({
   preparePageEventRequestOptions: Joi.function().optional(),
   onRequest: Joi.function().optional(),
   baseUrl: Joi.string().uri().required(),
-  saveAndExit: Joi.function().optional(),
-  cacheServiceClass: Joi.function().optional()
+  saveAndExit: Joi.function().optional()
 })
 
 /**
