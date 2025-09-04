@@ -161,6 +161,17 @@ describe('MultilineTextField', () => {
         expect(answer2).toBe('')
       })
 
+      it('returns multiline text from state, collapsing multiple newlines into one', () => {
+        const state1 = getFormState('Line 1\r\nLine 2\r\nLine 3')
+        const state2 = getFormState('Line 1\r\n\r\nLine 2\r\n\r\n\r\nLine 3')
+
+        const answer1 = getAnswer(field, state1)
+        const answer2 = getAnswer(field, state2)
+
+        expect(answer1).toBe('Line 1<br>Line 2<br>Line 3<br>')
+        expect(answer2).toBe('Line 1<br>Line 2<br>Line 3<br>')
+      })
+
       it('returns payload from state', () => {
         const state1 = getFormState('Textarea')
         const state2 = getFormState(null)
