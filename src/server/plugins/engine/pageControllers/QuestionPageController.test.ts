@@ -1,7 +1,5 @@
 import { type PageQuestion } from '@defra/forms-model'
-import { type ResponseToolkit } from '@hapi/hapi'
 
-import { getCacheService } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
@@ -17,7 +15,8 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
-  type FormRequestPayload
+  type FormRequestPayload,
+  type FormResponseToolkit
 } from '~/src/server/routes/types.js'
 import { CacheService } from '~/src/server/services/cacheService.js'
 import conditionalReveal from '~/test/form/definitions/conditional-reveal.js'
@@ -594,7 +593,7 @@ describe('QuestionPageController', () => {
       code: jest.fn().mockImplementation(() => response)
     }
 
-    const h: Pick<ResponseToolkit, 'redirect' | 'view'> = {
+    const h: FormResponseToolkit = {
       redirect: jest.fn().mockReturnValue(response),
       view: jest.fn()
     }
@@ -1155,7 +1154,7 @@ describe('QuestionPageController V2', () => {
       code: jest.fn().mockImplementation(() => response)
     }
 
-    const h: Pick<ResponseToolkit, 'redirect' | 'view'> = {
+    const h: FormResponseToolkit = {
       redirect: jest.fn().mockReturnValue(response),
       view: jest.fn()
     }
@@ -1314,7 +1313,7 @@ describe('Save and Exit functionality', () => {
     code: jest.fn().mockImplementation(() => response)
   }
 
-  const h: Pick<ResponseToolkit, 'redirect' | 'view'> = {
+  const h: FormResponseToolkit = {
     redirect: jest.fn().mockReturnValue(response),
     view: jest.fn()
   }
@@ -1333,8 +1332,8 @@ describe('Save and Exit functionality', () => {
   })
 
   describe('handleSaveAndExit', () => {
-    it('should save state and redirect to exit page', async () => {
-      const sessionPersisterMock = jest.fn()
+    it('should invoke saveAndExit plugin option', () => {
+      const saveAndExitMock = jest.fn(() => ({}))
       const state: FormSubmissionState = {
         $$__referenceNumber: 'foobar',
         yesNoField: true
@@ -1344,9 +1343,7 @@ describe('Save and Exit functionality', () => {
         server: {
           plugins: {
             'forms-engine-plugin': {
-              saveAndExit: {
-                sessionPersister: sessionPersisterMock
-              },
+              saveAndExit: saveAndExitMock,
               cacheService: {
                 clearState: jest.fn()
               } as unknown as CacheService
@@ -1357,19 +1354,15 @@ describe('Save and Exit functionality', () => {
         payload: { yesNoField: true, action: 'save-and-exit' }
       } as unknown as FormRequestPayload
 
-      const cacheService = getCacheService(request.server)
-
       const context = model.getFormContext(request, state)
 
-      await controller1.handleSaveAndExit(request, context, h)
+      controller1.handleSaveAndExit(request, context, h)
 
-      expect(sessionPersisterMock).toHaveBeenCalledWith(context.state, request)
-      expect(cacheService.clearState).toHaveBeenCalledWith(request)
-      expect(h.redirect).toHaveBeenCalledWith('/test/exit')
+      expect(saveAndExitMock).toHaveBeenCalledWith(request, h, context)
     })
 
-    it('should throw if sessionPersister inside saveAndExit options provided', async () => {
-      const sessionPersisterMock = jest.fn()
+    it('should throw if saveAndExit option not provided', () => {
+      const saveAndExitMock = jest.fn()
       const state: FormSubmissionState = {
         $$__referenceNumber: 'foobar',
         yesNoField: true
@@ -1379,8 +1372,8 @@ describe('Save and Exit functionality', () => {
         server: {
           plugins: {
             'forms-engine-plugin': {
-              // No sessionPersister object
-              saveAndExit: {}
+              // No function
+              saveAndExit: undefined
             }
           }
         },
@@ -1390,71 +1383,11 @@ describe('Save and Exit functionality', () => {
 
       const context = model.getFormContext(request, state)
 
-      await expect(
-        controller1.handleSaveAndExit(request, context, h)
-      ).rejects.toThrow('Server misconfigured for save and exit')
+      expect(() => controller1.handleSaveAndExit(request, context, h)).toThrow(
+        'Server misconfigured for save and exit'
+      )
 
-      expect(sessionPersisterMock).not.toHaveBeenCalled()
-      expect(h.redirect).not.toHaveBeenCalled()
-    })
-
-    it('should throw if no saveAndExit options provided', async () => {
-      const sessionPersisterMock = jest.fn()
-      const state: FormSubmissionState = {
-        $$__referenceNumber: 'foobar',
-        yesNoField: true
-      }
-      const request = {
-        ...requestPage1,
-        server: {
-          plugins: {
-            'forms-engine-plugin': {
-              // No saveAndExit object
-            }
-          }
-        },
-        method: 'post',
-        payload: { yesNoField: true, action: 'save-and-exit' }
-      } as unknown as FormRequestPayload
-
-      const context = model.getFormContext(request, state)
-
-      await expect(
-        controller1.handleSaveAndExit(request, context, h)
-      ).rejects.toThrow('Server misconfigured for save and exit')
-
-      expect(sessionPersisterMock).not.toHaveBeenCalled()
-      expect(h.redirect).not.toHaveBeenCalled()
-    })
-
-    it('should throw if sessionPersister throws as well with validation errors', async () => {
-      const sessionPersisterMock = jest.fn().mockImplementation(() => {
-        throw new Error('Session persister error')
-      })
-      const state: FormSubmissionState = { $$__referenceNumber: 'foobar' }
-      const request = {
-        ...requestPage1,
-        method: 'post',
-        server: {
-          plugins: {
-            'forms-engine-plugin': {
-              saveAndExit: {
-                sessionPersister: sessionPersisterMock
-              }
-            }
-          }
-        },
-        payload: { action: 'save-and-exit' }
-      } as unknown as FormRequestPayload
-
-      const context = model.getFormContext(request, state)
-
-      await expect(
-        controller1.handleSaveAndExit(request, context, h)
-      ).rejects.toThrow('Session persister error')
-
-      expect(sessionPersisterMock).toHaveBeenCalledWith(context.state, request)
-      expect(h.redirect).not.toHaveBeenCalledWith('/test/exit')
+      expect(saveAndExitMock).not.toHaveBeenCalled()
     })
   })
 
@@ -1475,7 +1408,7 @@ describe('Save and Exit functionality', () => {
       jest.spyOn(controller1, 'getState').mockResolvedValue({})
       jest
         .spyOn(controller1, 'handleSaveAndExit')
-        .mockResolvedValue(h.redirect('/test/exit'))
+        .mockReturnValue(h.redirect('/custom-save-and-exit'))
 
       const postHandler = controller1.makePostRouteHandler()
       await postHandler(request, context, h)
@@ -1503,7 +1436,7 @@ describe('Save and Exit functionality', () => {
       jest.spyOn(controller1, 'getState').mockResolvedValue({})
       jest
         .spyOn(controller1, 'handleSaveAndExit')
-        .mockResolvedValue(h.redirect('/test/exit'))
+        .mockReturnValue(h.redirect('/custom-save-and-exit'))
       jest.spyOn(controller1, 'setState').mockResolvedValue(state)
 
       const mockResponse = {

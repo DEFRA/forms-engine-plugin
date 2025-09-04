@@ -2,7 +2,6 @@ import { hasFormComponents, slugSchema, type Event } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
   type ResponseObject,
-  type ResponseToolkit,
   type RouteOptions,
   type ServerRoute
 } from '@hapi/hapi'
@@ -25,6 +24,7 @@ import {
   redirectOrMakeHandler
 } from '~/src/server/plugins/engine/routes/index.js'
 import {
+  type AnyFormRequest,
   type FormContext,
   type PreparePageEventRequestOptions
 } from '~/src/server/plugins/engine/types.js'
@@ -32,7 +32,8 @@ import {
   type FormRequest,
   type FormRequestPayload,
   type FormRequestPayloadRefs,
-  type FormRequestRefs
+  type FormRequestRefs,
+  type FormResponseToolkit
 } from '~/src/server/routes/types.js'
 import {
   actionSchema,
@@ -44,7 +45,7 @@ import {
 import * as httpService from '~/src/server/services/httpService.js'
 
 async function handleHttpEvent(
-  request: FormRequest | FormRequestPayload,
+  request: AnyFormRequest,
   page: PageControllerClass,
   context: FormContext,
   event: Event,
@@ -75,10 +76,7 @@ async function handleHttpEvent(
 export function makeGetHandler(
   preparePageEventRequestOptions?: PreparePageEventRequestOptions
 ) {
-  return function getHandler(
-    request: FormRequest,
-    h: Pick<ResponseToolkit, 'redirect' | 'view'>
-  ) {
+  return function getHandler(request: FormRequest, h: FormResponseToolkit) {
     const { params } = request
 
     if (normalisePath(params.path) === '') {
@@ -116,7 +114,7 @@ export function makePostHandler(
 ) {
   return function postHandler(
     request: FormRequestPayload,
-    h: Pick<ResponseToolkit, 'redirect' | 'view'>
+    h: FormResponseToolkit
   ) {
     const { query } = request
 

@@ -18,7 +18,7 @@ const logger = createLogger()
 let webpackManifest
 
 /**
- * @param {FormRequest | FormRequestPayload | null} request
+ * @param {AnyFormRequest | null} request
  */
 export async function context(request) {
   const { params, response } = request ?? {}
@@ -62,7 +62,7 @@ export async function context(request) {
 
 /**
  * Returns the context for the devtool. Consumers won't have access to this.
- * @param {FormRequest | FormRequestPayload | null} _request
+ * @param {AnyFormRequest | null} _request
  * @returns {Record<string, unknown> & { assetPath: string, getDxtAssetPath: (asset: string) => string }}
  */
 export function devtoolContext(_request) {
@@ -97,5 +97,5 @@ export function devtoolContext(_request) {
 
 /**
  * @import { ViewContext } from '~/src/server/plugins/nunjucks/types.js'
- * @import { FormRequest, FormRequestPayload } from '~/src/server/routes/types.js'
+ * @import { AnyFormRequest } from '~/src/server/plugins/engine/types.js'
  */

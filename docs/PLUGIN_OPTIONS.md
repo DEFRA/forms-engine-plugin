@@ -80,7 +80,7 @@ If provided, the `onRequest` plugin option will be invoked on each request to an
 
 ```ts
 export type OnRequestCallback = (
-  request: FormRequest | FormRequestPayload,
+  request: AnyFormRequest,
   params: FormParams,
   definition: FormDefinition,
   metadata: FormMetadata
@@ -106,32 +106,30 @@ await server.register({
 
 ## saveAndExit
 
-The `saveAndExit` plugin option enables custom session handling to enable "Save and Exit" functionality. It consists of three optional functions:
+The `saveAndExit` plugin option enables custom session handling to enable "Save and Exit" functionality. It is an optional route handler function that is called with the hapi request and response toolkit in addition to the last argument which is the [form context](./REQUEST_LIFECYCLE.md) of the current page from which the save and exit button was pressed:
 
-- `keyGenerator` - Generates unique cache keys for session storage
-- `sessionHydrator` - Retrieves saved session data from external sources
-- `sessionPersister` - Stores session data to external systems
+```ts
+export type SaveAndExitHandler = (
+  request: FormRequestPayload,
+  h: FormResponseToolkit,
+  context: FormContext
+) => ResponseObject
+```
 
 ```js
 await server.register({
   plugin,
   options: {
-    saveAndExit: {
-      keyGenerator: (request) => {
-        const { userId, applicationId } = fetchSubmissionAttributes(request)
-        return `${userId}:${applicationId}`
-      },
+    saveAndExit: (
+      request: FormRequestPayload,
+      h: FormResponseToolkit,
+      context: FormContext
+    ) => {
+      const { params } = request
+      const { slug } = params
 
-      sessionHydrator: async (request) => {
-        // Fetch saved state from database/API
-        const savedState = await fetchUserSession(request)
-        return savedState || null
-      },
-
-      sessionPersister: async (state, request) => {
-        // Save state to database/API
-        await saveUserSession(state, request)
-      }
+      // Redirect user to custom page to handle saving
+      return h.redirect(`/custom-magic-link-save-and-exit/${slug}`)
     }
   }
 })

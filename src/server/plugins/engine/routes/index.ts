@@ -21,17 +21,18 @@ import { type PageControllerClass } from '~/src/server/plugins/engine/pageContro
 import { generateUniqueReference } from '~/src/server/plugins/engine/referenceNumbers.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import {
+  type AnyFormRequest,
   type FormContext,
   type PluginOptions
 } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
-  type FormRequestPayload
+  type FormResponseToolkit
 } from '~/src/server/routes/types.js'
 
 export async function redirectOrMakeHandler(
-  request: FormRequest | FormRequestPayload,
-  h: Pick<ResponseToolkit, 'redirect' | 'view'>,
+  request: AnyFormRequest,
+  h: FormResponseToolkit,
   makeHandler: (
     page: PageControllerClass,
     context: FormContext
@@ -92,10 +93,7 @@ export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
 
   const { formsService } = services
 
-  async function handler(
-    request: FormRequest | FormRequestPayload,
-    h: ResponseToolkit
-  ) {
+  async function handler(request: AnyFormRequest, h: ResponseToolkit) {
     if (server.app.model) {
       request.app.model = server.app.model
 
@@ -181,10 +179,7 @@ export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
   return handler
 }
 
-export function dispatchHandler(
-  request: FormRequest,
-  h: Pick<ResponseToolkit, 'redirect' | 'view'>
-) {
+export function dispatchHandler(request: FormRequest, h: FormResponseToolkit) {
   const { model } = request.app
 
   const servicePath = model ? `/${model.basePath}` : ''

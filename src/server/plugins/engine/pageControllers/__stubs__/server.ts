@@ -17,11 +17,10 @@ export const serverWithSaveAndExit: Server = {
     ...server.plugins,
     'forms-engine-plugin': {
       ...server.plugins['forms-engine-plugin'],
-      saveAndExit: {
-        keyGenerator: jest.fn().mockReturnValue('foobar'),
-        sessionHydrator: jest.fn().mockReturnValue({}),
-        sessionPersister: jest.fn().mockImplementation(() => Promise.resolve())
-      } as Pick<PluginOptions, 'saveAndExit'>
+      saveAndExit: jest.fn().mockReturnValue({}) as Pick<
+        PluginOptions,
+        'saveAndExit'
+      >
     }
   }
 } as Server // only mocking out properties we care about

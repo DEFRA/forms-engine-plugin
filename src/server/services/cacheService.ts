@@ -1,18 +1,16 @@
-import { type Request, type Server } from '@hapi/hapi'
+import { type Server } from '@hapi/hapi'
 import * as Hoek from '@hapi/hoek'
 
 import { config } from '~/src/config/index.js'
 import { type createServer } from '~/src/server/index.js'
 import {
+  type AnyFormRequest,
+  type AnyRequest,
   type FormPayload,
   type FormState,
   type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
-import {
-  type FormRequest,
-  type FormRequestPayload
-} from '~/src/server/routes/types.js'
 
 const partition = 'cache'
 
@@ -25,66 +23,28 @@ export class CacheService {
    * This service is responsible for getting, storing or deleting a user's session data in the cache. This service has been registered by {@link createServer}
    */
   cache
-  generateKey?: (request: Request | FormRequest | FormRequestPayload) => string
-  customFetcher?: (
-    request: Request | FormRequest | FormRequestPayload
-  ) => Promise<FormSubmissionState | null>
-
   logger: Server['logger']
 
-  constructor({
-    server,
-    cacheName,
-    options
-  }: {
-    server: Server
-    cacheName?: string
-    options?: {
-      keyGenerator?: (
-        request: Request | FormRequest | FormRequestPayload
-      ) => string
-      sessionHydrator?: (
-        request: Request | FormRequest | FormRequestPayload
-      ) => Promise<FormSubmissionState | null>
-    }
-  }) {
-    const { keyGenerator, sessionHydrator } = options ?? {}
+  constructor({ server, cacheName }: { server: Server; cacheName?: string }) {
     if (!cacheName) {
       server.log(
         'warn',
         'You are using the default hapi cache. Please provide a cache name in plugin registration options.'
       )
     }
-    this.generateKey = keyGenerator ?? this.defaultKeyGenerator.bind(this)
-    this.customFetcher = sessionHydrator ?? undefined
+
     this.cache = server.cache({ cache: cacheName, segment: 'formSubmission' })
     this.logger = server.logger
   }
 
-  async getState(
-    request: Request | FormRequest | FormRequestPayload
-  ): Promise<FormSubmissionState> {
+  async getState(request: AnyRequest): Promise<FormSubmissionState> {
     const key = this.Key(request)
-
-    let cached = await this.cache.get(key)
-
-    // If nothing in Redis, attempt to rehydrate from backend DB
-    if (!cached && this.customFetcher) {
-      const rehydrated = await this.customFetcher(request)
-
-      if (rehydrated != null) {
-        await this.cache.set(key, rehydrated, config.get('sessionTimeout'))
-        cached = await this.getState(request)
-      }
-    }
+    const cached = await this.cache.get(key)
 
     return cached ?? {}
   }
 
-  async setState(
-    request: FormRequest | FormRequestPayload,
-    state: FormSubmissionState
-  ) {
+  async setState(request: AnyFormRequest, state: FormSubmissionState) {
     const key = this.Key(request)
     const ttl = config.get('sessionTimeout')
 
@@ -94,7 +54,7 @@ export class CacheService {
   }
 
   async getConfirmationState(
-    request: FormRequest | FormRequestPayload
+    request: AnyFormRequest
   ): Promise<{ confirmed?: true }> {
     const key = this.Key(request, ADDITIONAL_IDENTIFIER.Confirmation)
     const value = await this.cache.get(key)
@@ -103,7 +63,7 @@ export class CacheService {
   }
 
   async setConfirmationState(
-    request: FormRequest | FormRequestPayload,
+    request: AnyFormRequest,
     confirmationState: { confirmed?: true }
   ) {
     const key = this.Key(request, ADDITIONAL_IDENTIFIER.Confirmation)
@@ -112,14 +72,14 @@ export class CacheService {
     return this.cache.set(key, confirmationState, ttl)
   }
 
-  async clearState(request: FormRequest | FormRequestPayload) {
+  async clearState(request: AnyFormRequest) {
     if (request.yar.id) {
       await this.cache.drop(this.Key(request))
     }
   }
 
   getFlash(
-    request: FormRequest | FormRequestPayload
+    request: AnyFormRequest
   ): { errors: FormSubmissionError[] } | undefined {
     const key = this.Key(request)
     const messages = request.yar.flash(key.id)
@@ -130,24 +90,12 @@ export class CacheService {
   }
 
   setFlash(
-    request: FormRequest | FormRequestPayload,
+    request: AnyFormRequest,
     message: { errors: FormSubmissionError[] }
   ) {
     const key = this.Key(request)
 
     request.yar.flash(key.id, message)
-  }
-
-  private defaultKeyGenerator(
-    request: Request | FormRequest | FormRequestPayload
-  ): string {
-    if (!request.yar.id) {
-      throw new Error('No session ID found')
-    }
-
-    const state = (request.params.state as string) || ''
-    const slug = (request.params.slug as string) || ''
-    return `${request.yar.id}:${state}:${slug}:`
   }
 
   /**
@@ -156,17 +104,18 @@ export class CacheService {
    * @param request - hapi request object
    * @param additionalIdentifier - appended to the id
    */
-  Key(
-    request: Request | FormRequest | FormRequestPayload,
-    additionalIdentifier?: ADDITIONAL_IDENTIFIER
-  ) {
-    const baseKey = this.generateKey
-      ? this.generateKey(request)
-      : this.defaultKeyGenerator(request)
+  Key(request: AnyRequest, additionalIdentifier?: ADDITIONAL_IDENTIFIER) {
+    if (!request.yar.id) {
+      throw new Error('No session ID found')
+    }
+
+    const state = (request.params.state as string) || ''
+    const slug = (request.params.slug as string) || ''
+    const key = `${request.yar.id}:${state}:${slug}:`
 
     return {
       segment: partition,
-      id: `${baseKey}${additionalIdentifier ?? ''}`
+      id: `${key}${additionalIdentifier ?? ''}`
     }
   }
 }

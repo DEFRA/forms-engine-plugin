@@ -28,6 +28,7 @@
     "./services/*": "./.server/server/plugins/engine/services/*",
     "./engine/*": "./.server/server/plugins/engine/*",
     "./helpers.js": "./.server/server/plugins/engine/components/helpers.js",
+    "./schema.js": "./.server/server/schemas/index.js",
     "./templates/*": "./.server/server/plugins/engine/views/*",
     "./package.json": "./package.json"
   },

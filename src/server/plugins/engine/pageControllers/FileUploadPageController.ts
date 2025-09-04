@@ -1,6 +1,5 @@
 import { ComponentType, type PageFileUpload } from '@defra/forms-model'
 import Boom from '@hapi/boom'
-import { type ResponseToolkit } from '@hapi/hapi'
 import { wait } from '@hapi/hoek'
 import { type ValidationErrorItem } from 'joi'
 
@@ -23,6 +22,7 @@ import {
 import {
   FileStatus,
   UploadStatus,
+  type AnyFormRequest,
   type FeaturedFormPageViewModel,
   type FileState,
   type FormContext,
@@ -35,7 +35,8 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
-  type FormRequestPayload
+  type FormRequestPayload,
+  type FormResponseToolkit
 } from '~/src/server/routes/types.js'
 
 const MAX_UPLOADS = 25
@@ -111,7 +112,7 @@ export class FileUploadPageController extends QuestionPageController {
     return payload
   }
 
-  async getState(request: FormRequest | FormRequestPayload) {
+  async getState(request: AnyFormRequest) {
     const { fileUpload } = this
 
     // Get the actual state
@@ -148,7 +149,7 @@ export class FileUploadPageController extends QuestionPageController {
     return (
       request: FormRequest,
       context: FormContext,
-      h: Pick<ResponseToolkit, 'redirect' | 'view'>
+      h: FormResponseToolkit
     ) => {
       const { viewModel } = this
       const { params } = request
@@ -183,7 +184,7 @@ export class FileUploadPageController extends QuestionPageController {
     return async (
       request: FormRequestPayload,
       context: FormContext,
-      h: Pick<ResponseToolkit, 'redirect' | 'view'>
+      h: FormResponseToolkit
     ) => {
       const { path } = this
       const { state } = context
@@ -279,7 +280,7 @@ export class FileUploadPageController extends QuestionPageController {
    * @param state - the form state
    */
   private async refreshUpload(
-    request: FormRequest | FormRequestPayload,
+    request: AnyFormRequest,
     state: FormSubmissionState
   ) {
     state = await this.checkUploadStatus(request, state)
@@ -295,7 +296,7 @@ export class FileUploadPageController extends QuestionPageController {
    * @param depth - the number of retries so far
    */
   private async checkUploadStatus(
-    request: FormRequest | FormRequestPayload,
+    request: AnyFormRequest,
     state: FormSubmissionState,
     depth = 1
   ): Promise<FormSubmissionState> {
@@ -417,7 +418,7 @@ export class FileUploadPageController extends QuestionPageController {
    * @param state - the form state
    */
   private async initiateAndStoreNewUpload(
-    request: FormRequest | FormRequestPayload,
+    request: AnyFormRequest,
     state: FormSubmissionState
   ) {
     const { fileUpload, href, path } = this

@@ -23,6 +23,7 @@ import {
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import {
+  type AnyFormRequest,
   type FormContext,
   type FormContextRequest,
   type FormSubmissionError
@@ -32,8 +33,7 @@ import {
   FormStatus,
   type FormParams,
   type FormQuery,
-  type FormRequest,
-  type FormRequestPayload
+  type FormResponseToolkit
 } from '~/src/server/routes/types.js'
 
 const logger = createLogger()
@@ -117,7 +117,7 @@ engine.registerFilter('answer', function (name: string) {
 
 export function proceed(
   request: Pick<FormContextRequest, 'method' | 'payload' | 'query'>,
-  h: Pick<ResponseToolkit, 'redirect' | 'view'>,
+  h: FormResponseToolkit,
   nextUrl: string
 ) {
   const { method, payload, query } = request
@@ -327,7 +327,7 @@ export function getError(detail: ValidationErrorItem): FormSubmissionError {
  * is not disabled on the current route, and that cookies/state are present.
  */
 export function safeGenerateCrumb(
-  request: FormRequest | FormRequestPayload | null
+  request: AnyFormRequest | null
 ): string | undefined {
   // no request or no .state
   if (!request?.state) {

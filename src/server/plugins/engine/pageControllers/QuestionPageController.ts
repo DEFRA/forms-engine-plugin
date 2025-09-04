@@ -9,7 +9,7 @@ import {
   type Page
 } from '@defra/forms-model'
 import Boom from '@hapi/boom'
-import { type ResponseToolkit, type RouteOptions } from '@hapi/hapi'
+import { type RouteOptions } from '@hapi/hapi'
 import { type ValidationErrorItem } from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
@@ -25,6 +25,7 @@ import {
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
+  type AnyFormRequest,
   type FormContext,
   type FormContextRequest,
   type FormPageViewModel,
@@ -39,7 +40,8 @@ import {
   type FormRequest,
   type FormRequestPayload,
   type FormRequestPayloadRefs,
-  type FormRequestRefs
+  type FormRequestRefs,
+  type FormResponseToolkit
 } from '~/src/server/routes/types.js'
 import {
   actionSchema,
@@ -181,10 +183,7 @@ export class QuestionPageController extends PageController {
     }
   }
 
-  getRelevantPath(
-    request: FormRequest | FormRequestPayload,
-    context: FormContext
-  ) {
+  getRelevantPath(request: AnyFormRequest, context: FormContext) {
     const { paths } = context
 
     const startPath = this.getStartPath()
@@ -296,7 +295,7 @@ export class QuestionPageController extends PageController {
     return getErrors(details)
   }
 
-  async getState(request: FormRequest | FormRequestPayload) {
+  async getState(request: AnyFormRequest) {
     const { query } = request
 
     // Skip get for preview URL direct access
@@ -309,10 +308,7 @@ export class QuestionPageController extends PageController {
     return cacheService.getState(request)
   }
 
-  async setState(
-    request: FormRequest | FormRequestPayload,
-    state: FormSubmissionState
-  ) {
+  async setState(request: AnyFormRequest, state: FormSubmissionState) {
     const { query } = request
 
     // Skip set for preview URL direct access
@@ -326,7 +322,7 @@ export class QuestionPageController extends PageController {
   }
 
   async mergeState(
-    request: FormRequest | FormRequestPayload,
+    request: AnyFormRequest,
     state: FormSubmissionState,
     update: object
   ) {
@@ -397,7 +393,7 @@ export class QuestionPageController extends PageController {
     return async (
       request: FormRequest,
       context: FormContext,
-      h: Pick<ResponseToolkit, 'redirect' | 'view'>
+      h: FormResponseToolkit
     ) => {
       const { collection, model, viewName } = this
       const { evaluationState } = context
@@ -492,7 +488,7 @@ export class QuestionPageController extends PageController {
     return async (
       request: FormRequestPayload,
       context: FormContext,
-      h: Pick<ResponseToolkit, 'redirect' | 'view'>
+      h: FormResponseToolkit
     ) => {
       const { collection, viewName, model } = this
       const { isForceAccess, state, evaluationState } = context
@@ -529,7 +525,7 @@ export class QuestionPageController extends PageController {
 
   proceed(
     request: FormContextRequest,
-    h: Pick<ResponseToolkit, 'redirect' | 'view'>,
+    h: FormResponseToolkit,
     nextPath?: string
   ) {
     const nextUrl = nextPath
@@ -540,28 +536,20 @@ export class QuestionPageController extends PageController {
   }
 
   /**
-   * Handle save-and-exit action by processing form data and redirecting to exit page
+   * Handle save-and-exit action
    */
-  async handleSaveAndExit(
+  handleSaveAndExit(
     request: FormRequestPayload,
     context: FormContext,
-    h: Pick<ResponseToolkit, 'redirect' | 'view'>
+    h: FormResponseToolkit
   ) {
-    const { state } = context
-
-    // Save the current state and redirect to exit page
     const saveAndExit = getSaveAndExitHelpers(request.server)
 
-    if (!saveAndExit?.sessionPersister) {
+    if (!saveAndExit) {
       throw Boom.internal('Server misconfigured for save and exit')
     }
 
-    await saveAndExit.sessionPersister(state, request)
-
-    const cacheService = getCacheService(request.server)
-    await cacheService.clearState(request)
-
-    return h.redirect(this.getHref('/exit'))
+    return saveAndExit(request, h, context)
   }
 
   /**

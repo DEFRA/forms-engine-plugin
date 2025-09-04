@@ -5,7 +5,7 @@ import {
   type SubmitPayload
 } from '@defra/forms-model'
 import Boom from '@hapi/boom'
-import { type ResponseToolkit, type RouteOptions } from '@hapi/hapi'
+import { type RouteOptions } from '@hapi/hapi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FileUploadField } from '~/src/server/plugins/engine/components/FileUploadField.js'
@@ -32,7 +32,8 @@ import {
 import {
   type FormRequest,
   type FormRequestPayload,
-  type FormRequestPayloadRefs
+  type FormRequestPayloadRefs,
+  type FormResponseToolkit
 } from '~/src/server/routes/types.js'
 
 export class SummaryPageController extends QuestionPageController {
@@ -81,7 +82,7 @@ export class SummaryPageController extends QuestionPageController {
     return async (
       request: FormRequest,
       context: FormContext,
-      h: Pick<ResponseToolkit, 'redirect' | 'view'>
+      h: FormResponseToolkit
     ) => {
       const { viewName } = this
 
@@ -102,7 +103,7 @@ export class SummaryPageController extends QuestionPageController {
     return async (
       request: FormRequestPayload,
       context: FormContext,
-      h: Pick<ResponseToolkit, 'redirect' | 'view'>
+      h: FormResponseToolkit
     ) => {
       const { model } = this
       const { params } = request

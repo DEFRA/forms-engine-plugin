@@ -1,11 +1,13 @@
 import { type PageStatus } from '@defra/forms-model'
-import { type ResponseToolkit } from '@hapi/hapi'
 
 import { getCacheService } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import { type FormContext } from '~/src/server/plugins/engine/types.js'
-import { type FormRequest } from '~/src/server/routes/types.js'
+import {
+  type FormRequest,
+  type FormResponseToolkit
+} from '~/src/server/routes/types.js'
 
 export class StatusPageController extends QuestionPageController {
   declare pageDef: PageStatus
@@ -24,7 +26,7 @@ export class StatusPageController extends QuestionPageController {
     return async (
       request: FormRequest,
       context: FormContext,
-      h: Pick<ResponseToolkit, 'redirect' | 'view'>
+      h: FormResponseToolkit
     ) => {
       const { viewModel, viewName } = this
 

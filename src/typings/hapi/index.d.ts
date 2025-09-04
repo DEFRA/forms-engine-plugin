@@ -5,11 +5,10 @@ import { type ServerYar, type Yar } from '@hapi/yar'
 import { type Logger } from 'pino'
 
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
-import { type PluginOptions } from '~/src/server/plugins/engine/types.ts'
 import {
-  type FormRequest,
-  type FormRequestPayload
-} from '~/src/server/routes/types.js'
+  type AnyFormRequest,
+  type PluginOptions
+} from '~/src/server/plugins/engine/types.ts'
 import { type CacheService } from '~/src/server/services/index.js'
 
 declare module '@hapi/hapi' {
@@ -17,13 +16,13 @@ declare module '@hapi/hapi' {
   // props from plugins which doesn't export @types
   interface PluginProperties {
     crumb: {
-      generate?: (request: Request | FormRequest | FormRequestPayload) => string
+      generate?: (request: AnyRequest) => string
     }
     'forms-engine-plugin': {
       baseLayoutPath: string
       cacheService: CacheService
       viewContext?: (
-        request: FormRequest | FormRequestPayload | null
+        request: AnyFormRequest | null
       ) => Record<string, unknown> | Promise<Record<string, unknown>>
       saveAndExit?: PluginOptions['saveAndExit']
     }
