@@ -30,6 +30,7 @@
     "./helpers.js": "./.server/server/plugins/engine/components/helpers.js",
     "./schema.js": "./.server/server/schemas/index.js",
     "./templates/*": "./.server/server/plugins/engine/views/*",
+    "./cacheService.js": "./.server/server/services/cacheService.js",
     "./package.json": "./package.json"
   },
   "scripts": {
