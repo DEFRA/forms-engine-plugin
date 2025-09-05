@@ -28,12 +28,6 @@ describe('CacheService', () => {
   /** @type {Server} */
   let server
 
-  /** @type {string} */
-  let csrfToken
-
-  /** @type {ReturnType<typeof getCookieHeader>} */
-  let headers
-
   afterEach(async () => {
     await server.stop()
   })
@@ -53,20 +47,21 @@ describe('CacheService', () => {
     await server.initialize()
 
     // Navigate to start
+    const headers = undefined
     const response = await server.inject({
       url: `${basePath}/start`,
       headers
     })
 
     // Extract the session cookie
-    csrfToken = getCookie(response, 'crumb')
-    headers = getCookieHeader(response, ['session', 'crumb'])
+    const csrfToken = getCookie(response, 'crumb')
+    const newHeaders = getCookieHeader(response, ['session', 'crumb'])
 
     // Submit answers
     await server.inject({
       url: `${basePath}/start`,
       method: 'POST',
-      headers,
+      headers: newHeaders,
       payload: {
         crumb: csrfToken,
         field: 'value'
@@ -101,20 +96,21 @@ describe('CacheService', () => {
     await server.initialize()
 
     // Navigate to start
+    const headers = undefined
     const response = await server.inject({
       url: `${basePath}/start`,
       headers
     })
 
     // Extract the session cookie
-    csrfToken = getCookie(response, 'crumb')
-    headers = getCookieHeader(response, ['session', 'crumb'])
+    const csrfToken = getCookie(response, 'crumb')
+    const newHeaders = getCookieHeader(response, ['session', 'crumb'])
 
     // Submit answers
     await server.inject({
       url: `${basePath}/start`,
       method: 'POST',
-      headers,
+      headers: newHeaders,
       payload: {
         crumb: csrfToken,
         field: 'value'
