@@ -82,8 +82,11 @@ export async function createServer(routeConfig?: RouteConfig) {
     prepareSecureContext(server)
   }
 
+  const cacheService = routeConfig?.cacheServiceCreator
+    ? routeConfig.cacheServiceCreator(server)
+    : undefined
   const pluginCrumb = configureCrumbPlugin(routeConfig)
-  const pluginEngine = await configureEnginePlugin(routeConfig)
+  const pluginEngine = await configureEnginePlugin(routeConfig, cacheService)
 
   await server.register(pluginSession)
   await server.register(pluginPulse)

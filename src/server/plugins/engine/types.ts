@@ -43,6 +43,7 @@ import {
   type FormResponseToolkit,
   type FormStatus
 } from '~/src/server/routes/types.js'
+import { type CacheService } from '~/src/server/services/cacheService.js'
 import { type RequestOptions } from '~/src/server/services/httpService.js'
 import { type Services } from '~/src/server/types.js'
 
@@ -379,7 +380,7 @@ export interface PluginOptions {
   model?: FormModel
   services?: Services
   controllers?: Record<string, typeof PageController>
-  cacheName?: string
+  cache?: CacheService | string
   globals?: Record<string, GlobalFunction>
   filters?: Record<string, FilterFunction>
   saveAndExit?: SaveAndExitHandler

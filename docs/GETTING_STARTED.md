@@ -111,7 +111,7 @@ const paths = [join(config.get('appDir'), 'views')]
 await server.register({
   plugin,
   options: {
-    cacheName: 'session', // must match a session you've instantiated in your hapi server config
+    cache: 'session', // must match a session you've instantiated in your hapi server config. Also accepts a CacheService instance for advanced use-cases.
     /**
      * Options that DXT uses to render Nunjucks templates
      */
