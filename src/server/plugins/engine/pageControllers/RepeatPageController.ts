@@ -34,6 +34,7 @@ export class RepeatPageController extends QuestionPageController {
   listSummaryViewName = 'repeat-list-summary'
   listDeleteViewName = 'item-delete'
   repeat: Repeat
+  allowSaveAndExit = true
 
   constructor(model: FormModel, pageDef: PageRepeat) {
     super(model, pageDef)
@@ -257,6 +258,11 @@ export class RepeatPageController extends QuestionPageController {
         return super.proceed(request, h, nextPath)
       }
 
+      // Check if this is a save-and-exit action
+      if (action === FormAction.SaveAndExit) {
+        return this.handleSaveAndExit(request, context, h)
+      }
+
       const nextPath = this.getNextPath(context)
       return super.proceed(request, h, nextPath)
     }
@@ -433,7 +439,8 @@ export class RepeatPageController extends QuestionPageController {
       showTitle: true,
       context,
       errors,
-      checkAnswers: [{ summaryList }]
+      checkAnswers: [{ summaryList }],
+      allowSaveAndExit: this.shouldShowSaveAndExit(request.server)
     }
   }
 

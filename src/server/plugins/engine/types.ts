@@ -329,6 +329,7 @@ export interface RepeaterSummaryPageViewModel extends PageViewModelBase {
   errors?: FormSubmissionError[]
   checkAnswers: CheckAnswers[]
   repeatTitle: string
+  allowSaveAndExit: boolean
 }
 
 export interface FeaturedFormPageViewModel extends FormPageViewModel {

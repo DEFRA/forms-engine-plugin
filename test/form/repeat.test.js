@@ -362,7 +362,8 @@ describe('Repeat POST tests', () => {
   beforeAll(async () => {
     server = await createServer({
       formFileName: 'repeat.js',
-      formFilePath: resolve(import.meta.dirname, '../form/definitions')
+      formFilePath: resolve(import.meta.dirname, '../form/definitions'),
+      saveAndExit: (request, h, _context) => h.redirect('/my-save-and-exit')
     })
 
     const model = server.app.model
@@ -629,6 +630,24 @@ describe('Repeat POST tests', () => {
       retrievalKey: 'enrique.chase@defra.gov.uk',
       sessionId: expect.any(String)
     })
+  })
+
+  test('POST /pizza-order/summary with 2 items SAVE_AND_EXIT returns 303 to /summary', async () => {
+    const { headers } = await createRepeatItem(server, repeatPage)
+
+    await createRepeatItem(server, repeatPage, 2, headers)
+
+    const res1 = await server.inject({
+      url: `${basePath}/pizza-order/summary`,
+      method: 'POST',
+      headers,
+      payload: {
+        action: FormAction.SaveAndExit
+      }
+    })
+
+    expect(res1.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res1.headers.location).toBe('/my-save-and-exit')
   })
 })
 

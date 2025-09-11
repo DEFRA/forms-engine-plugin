@@ -24,10 +24,10 @@
         {{ govukSummaryList(section.summaryList) }}
       {% endfor %}
 
-      <div class="govuk-button-group">
-        <form method="post" novalidate>
-          <input type="hidden" name="crumb" value="{{ crumb }}">
+      <form method="post" novalidate>
+        <input type="hidden" name="crumb" value="{{ crumb }}">
 
+        <div class="govuk-button-group">
           {{ govukButton({
             text: "Continue",
             name: "action",
@@ -42,8 +42,18 @@
             classes: "govuk-button--secondary",
             preventDoubleClick: true
           }) }}
-        </form>
-      </div>
+
+          {% if allowSaveAndExit %}
+            {{ govukButton({
+              text: "Save and exit",
+              classes: "govuk-button--secondary",
+              name: "action",
+              value: "save-and-exit",
+              preventDoubleClick: true
+            }) }}
+          {% endif %}
+        </div>
+      </form>
     </div>
   </div>
 
