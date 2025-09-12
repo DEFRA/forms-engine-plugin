@@ -511,14 +511,16 @@ export class QuestionPageController extends PageController {
         return h.view(viewName, viewModel)
       }
 
+      // Save state
+      await this.setState(request, state)
+
       // Check if this is a save-and-exit action
       const { action } = request.payload
       if (action === FormAction.SaveAndExit) {
         return this.handleSaveAndExit(request, context, h)
       }
 
-      // Save and proceed
-      await this.setState(request, state)
+      // Proceed to the next page
       return this.proceed(request, h, this.getNextPath(context))
     }
   }

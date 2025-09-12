@@ -1409,6 +1409,7 @@ describe('Save and Exit functionality', () => {
       jest
         .spyOn(controller1, 'handleSaveAndExit')
         .mockReturnValue(h.redirect('/custom-save-and-exit'))
+      jest.spyOn(controller1, 'setState').mockResolvedValue(state)
 
       const postHandler = controller1.makePostRouteHandler()
       await postHandler(request, context, h)
