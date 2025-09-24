@@ -23,11 +23,10 @@ export async function getHandler(
     }
 
     return h.response(status)
-  } catch (error) {
-    const errMsg = getErrorMessage(error)
+  } catch (err) {
     request.logger.error(
-      errMsg,
-      `[uploadStatusFailed] Upload status check failed for uploadId: ${uploadId} - ${errMsg}`
+      err,
+      `[uploadStatusFailed] Upload status check failed for uploadId: ${uploadId} - ${getErrorMessage(err)}`
     )
     return h.response({ error: 'Status check error' }).code(500)
   }

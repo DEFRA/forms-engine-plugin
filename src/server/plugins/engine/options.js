@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@defra/forms-model'
 import Joi from 'joi'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
@@ -39,7 +40,8 @@ export function validatePluginOptions(options) {
 
   if (result.error) {
     logger.error(
-      `Missing required properties in plugin options: ${result.error.message}`
+      result.error,
+      `Missing required properties in plugin options: ${getErrorMessage(result.error)}`
     )
     throw new Error('Invalid plugin options', result.error)
   }

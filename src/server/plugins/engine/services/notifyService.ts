@@ -79,10 +79,9 @@ export async function submit(
 
     request.logger.info(logTags, 'Email sent successfully')
   } catch (err) {
-    const errMsg = getErrorMessage(err)
     request.logger.error(
-      errMsg,
-      `[emailSendFailed] Error sending notification email - templateId: ${templateId} - recipient: ${emailAddress} - ${errMsg}`
+      err,
+      `[emailSendFailed] Error sending notification email - templateId: ${templateId} - recipient: ${emailAddress} - ${getErrorMessage(err)}`
     )
 
     throw err

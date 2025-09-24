@@ -149,10 +149,9 @@ export function encodeUrl(link?: string) {
     try {
       return new URL(link).toString() // escape the search params without breaking the ? and & reserved characters in rfc2368
     } catch (err) {
-      const errMsg = getErrorMessage(err)
       logger.error(
-        errMsg,
-        `[urlEncodingFailed] Failed to encode URL: ${link} - ${errMsg}`
+        err,
+        `[urlEncodingFailed] Failed to encode URL: ${link} - ${getErrorMessage(err)}`
       )
       throw err
     }

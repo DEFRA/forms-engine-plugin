@@ -326,11 +326,11 @@ export class FileUploadPageController extends QuestionPageController {
       // Depth 1: 2000ms, Depth 2: 4000ms, Depth 3: 8000ms, Depth 4: 16000ms, Depth 5+: 30000ms (capped)
       // A depth of 5 (or more) implies cumulative delays roughly reaching 55 seconds.
       if (depth >= 5) {
-        const error = new Error(
+        const err = new Error(
           `Exceeded cumulative retry delay for ${uploadId} (depth: ${depth}). Re-initiating a new upload.`
         )
         request.logger.error(
-          error,
+          err,
           `[uploadTimeout] Exceeded cumulative retry delay for uploadId: ${uploadId} at depth: ${depth} - re-initiating new upload`
         )
         await this.initiateAndStoreNewUpload(request, state)
