@@ -301,7 +301,7 @@ describe('notifyService', () => {
     ).rejects.toThrow('Notification service unavailable')
 
     expect(mockRequest.logger.error).toHaveBeenCalledWith(
-      'Notification service unavailable',
+      new Error('Notification service unavailable'),
       expect.stringContaining(
         '[emailSendFailed] Error sending notification email'
       )
