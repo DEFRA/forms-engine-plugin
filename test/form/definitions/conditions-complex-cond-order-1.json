@@ -1,0 +1,2472 @@
+{
+  "name": "Steve test for HM",
+  "engine": "V2",
+  "schema": 2,
+  "startPage": "/summary",
+  "pages": [
+    {
+      "title": "Installations and medium combustion plant and specified generator permits: ask for pre-application advice",
+      "path": "/installations-and-medium-combustion-plant-and-specified-generator-permits-ask-for-pre-application-advice",
+      "components": [
+        {
+          "id": "0ecc4ac1-baad-4529-ad71-a37ad57834a2",
+          "type": "Markdown",
+          "content": "Please answer the following questions as accurately as possible in order for us to be able to find the team best placed to advise you",
+          "options": {},
+          "schema": {}
+        },
+        {
+          "type": "YesNoField",
+          "title": "Will or does your activity take place in England?",
+          "name": "NKpEWI",
+          "shortDescription": "Activity in England?",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "4f0214e8-0086-4f4b-9031-017aeca5750a"
+        }
+      ],
+      "next": [],
+      "id": "5d70159d-673d-4430-aef8-1bd24397c57d"
+    },
+    {
+      "title": "You will need to use a different service",
+      "controller": "TerminalPageController",
+      "path": "/you-will-need-to-use-a-different-service",
+      "components": [
+        {
+          "type": "Markdown",
+          "content": "This pre-application advice service is only for activities in England. You may find similar services at other relevant agencies:  \r\n\r\n[Scottish Environment Protection Agency](https://www.sepa.org.uk/regulations/authorisations-and-permits/)\r\n\r\n[Natural Resources Wales](https://naturalresources.wales/permits-and-permissions/environmental-permits/pre-application-advice-for-environmental-permits/?lang=en) \r\n\r\n[Northern Ireland Environment Agency](https://www.daera-ni.gov.uk/publications/pollution-prevention-control-permits) \r\n\r\nThis is the end of the form.",
+          "options": {},
+          "schema": {},
+          "name": "gZYuhm",
+          "id": "c9aa263e-1154-4bac-8e85-ad284732b497"
+        }
+      ],
+      "next": [],
+      "id": "72db5b74-87ac-4248-a7af-f1cbfdaf55d2",
+      "condition": "66643dc0-0ea7-48d6-8cd4-04c6bf3f708e"
+    },
+    {
+      "title": "",
+      "path": "/what-is-the-main-activity-you-want-advice-for",
+      "components": [
+        {
+          "type": "CheckboxesField",
+          "title": "What is the main  activity you want advice for?",
+          "name": "DXJWgF",
+          "shortDescription": "Main activity",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "list": "0e46ab6f-b75e-476e-96bf-2f92d6b86ca8",
+          "id": "c2208a47-8087-4137-80c2-178b82b49d5d"
+        }
+      ],
+      "next": [],
+      "id": "26216281-08b5-4675-bfad-12d3180fc6ff"
+    },
+    {
+      "title": "You need to use a different form",
+      "controller": "TerminalPageController",
+      "path": "/you-need-to-use-a-different-form",
+      "components": [
+        {
+          "type": "Markdown",
+          "content": "This form is just for enquiries related to installations and medium combustion plant and specified generators.\r\n\r\nYou will need to use the [water quality pre-application advice form](https://www.gov.uk/government/publications/environmental-permit-pre-application-advice-form) instead.\r\n\r\nThis is the end of the form.",
+          "options": {},
+          "schema": {},
+          "name": "MlHvjz",
+          "id": "9009d412-0a7c-4a62-88e8-90aa48af1bf5"
+        }
+      ],
+      "next": [],
+      "id": "bf0935df-732a-4c23-8e02-3ccf81255a67",
+      "condition": "8617e03b-1014-408e-a9dd-2c16b85ed205"
+    },
+    {
+      "title": "You need to apply for pre-application with Water Resources",
+      "controller": "TerminalPageController",
+      "path": "/you-need-to-apply-for-pre-application-with-water-resources",
+      "components": [
+        {
+          "type": "Markdown",
+          "content": "This form is just for enquiries related to installations and medium combustion plant and specified generators.\r\n\r\nYou will need to use the [water resources pre-application advice form](https://www.gov.uk/guidance/water-management-apply-for-a-water-abstraction-or-impoundment-licence) instead.\r\n\r\nThis is the end of the form.",
+          "options": {},
+          "schema": {},
+          "name": "yfJtSC",
+          "id": "f075c012-fb13-4018-9916-f4758c7bcf4c"
+        }
+      ],
+      "next": [],
+      "id": "27727f46-a7b7-42a9-a52a-fbc5e322c38b",
+      "condition": "9f0d038c-fbe9-4b84-a955-051868f3330d"
+    },
+    {
+      "title": "You need to use another form",
+      "controller": "TerminalPageController",
+      "path": "/you-need-to-use-another-form",
+      "components": [
+        {
+          "type": "Markdown",
+          "content": "This form is just for enquiries related to installations and medium combustion plant and specified generators.\r\n\r\nYou will need to complete the [flood risk management pre-application advice form](https://www.gov.uk/government/publications/environmental-permit-pre-application-advice-form) instead.\r\n\r\nThis is the end of the form.",
+          "options": {},
+          "schema": {},
+          "name": "JNbwLz",
+          "id": "fdae316e-4f10-4b90-94f4-2475a3193586"
+        }
+      ],
+      "next": [],
+      "id": "1bea70c1-0b8d-4337-aaa6-297a3677565b",
+      "condition": "83dc71f1-8cbb-4d66-9b0f-a1f3a68b4d7f"
+    },
+    {
+      "title": "You need to apply for radioactive substances pre-application advice",
+      "controller": "TerminalPageController",
+      "path": "/you-need-to-apply-for-radioactive-substances-pre-application-advice",
+      "components": [
+        {
+          "type": "Markdown",
+          "content": "This form is just for enquiries related to installations and medium combustion plant and specified generators.\r\n\r\nYou will need to use the [radioactive substances pre-application advice form](https://www.gov.uk/government/publications/environmental-permit-pre-application-advice-form) instead.\r\n\r\nThis is the end of the form.",
+          "options": {},
+          "schema": {},
+          "name": "lKtGvi",
+          "id": "8911d01a-d0a1-41eb-b145-1b77528b7fbb"
+        }
+      ],
+      "next": [],
+      "id": "120a1e2b-8f7d-4f59-ae7a-4136314202be",
+      "condition": "67b719b2-1656-476d-b98d-20702540eb1e"
+    },
+    {
+      "title": "",
+      "path": "/is-your-pre-application-request-related-to-a-priority-tracked-application",
+      "components": [
+        {
+          "type": "YesNoField",
+          "title": "Is your pre-application request related to a priority tracked application?",
+          "name": "dxNvxj",
+          "shortDescription": "Tracked?",
+          "hint": "Information about the Priority Tracked Service is available here: Request environmental permit coordination for major projects - GOV.UK",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "755f9a75-13e9-45c8-a52c-30f788fea842"
+        }
+      ],
+      "next": [],
+      "id": "f035d8fd-390b-41e4-a744-8f729dd61fc2"
+    },
+    {
+      "title": "",
+      "path": "/what-is-your-priority-tracked-reference-number-if-known",
+      "components": [
+        {
+          "type": "TextField",
+          "title": "What is your priority tracked reference number (if known)?",
+          "name": "DyAYQx",
+          "shortDescription": "Tracked ref.",
+          "hint": "Usually in the format ENV/TRK/NPS0001",
+          "options": {
+            "required": false
+          },
+          "schema": {},
+          "id": "fd5370be-d166-4b5a-b8c2-0ab8fa3b8a51"
+        }
+      ],
+      "next": [],
+      "id": "ab4fde96-518b-426f-81f3-73d8979ee404",
+      "condition": "141e984b-3fb8-4f62-a05a-95031f387391"
+    },
+    {
+      "title": "",
+      "path": "/do-you-want-to-know-more-about-permit-applications-for-the-following-types-of-activities-known-as-a1-installations-or-are-you-carrying-out-a-medium-combustion-or-specified-generator-activity",
+      "components": [
+        {
+          "type": "RadiosField",
+          "title": "Do you want to know more about permit applications for the following types of activities, known as 'A1 installations' or are you carrying out a medium combustion or specified generator activity?",
+          "name": "mOPwGp",
+          "shortDescription": "Installation type",
+          "hint": "If yes, select which category your main activity will or does fall into. If no, select 'none of the above'. If you are unsure which type of A1 installation your main activity will fall into, then make your selection based on what you think is the most likely option.",
+          "list": "872f7bbe-cfb1-4bdc-b908-9b5516e2fbc0",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "4c4f44c5-f88f-4a2a-9cf2-22326d0e501f"
+        }
+      ],
+      "next": [],
+      "id": "faaf410c-e93a-4def-b844-a48276a7e29a"
+    },
+    {
+      "title": "",
+      "path": "/what-is-or-will-be-your-main-a1-installations-activity-that-you-need-pre-application-advice-about",
+      "components": [
+        {
+          "type": "CheckboxesField",
+          "title": "What is or will be your main A1 installations activity that you need pre-application advice about?",
+          "name": "MYHGhL",
+          "shortDescription": "Energy activity type",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "list": "2edb42ba-ebb0-405f-8e84-cc0441d0f5c5",
+          "id": "ee356461-6954-4838-ae04-bd7ccecb700d"
+        }
+      ],
+      "next": [],
+      "id": "356305b4-72ea-4e5f-804f-b2a35a7fa6fd",
+      "condition": "bc1c2f80-0e2b-431f-8715-2515bc6ce792"
+    },
+    {
+      "title": "",
+      "path": "/what-is-or-will-be-your-main-installations-activity-that-you-need-pre-application-advice-about",
+      "components": [
+        {
+          "type": "CheckboxesField",
+          "title": "What is or will be your main installations activity that you need pre-application advice about?",
+          "name": "gMpHrA",
+          "shortDescription": "Metal activity type",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "list": "d211c595-4b0b-4d76-8c60-2f7508a7d969",
+          "id": "25fcd583-a676-4b55-8cc8-16c91f76bea4"
+        }
+      ],
+      "next": [],
+      "id": "34789866-464b-4f4e-b074-138e2368abe0",
+      "condition": "51798c75-895b-4a87-a95e-e6d6370bcadd"
+    },
+    {
+      "title": "",
+      "path": "/what-is-or-will-be-your-main-a1-installations-activity-that-you-need-advice-about",
+      "components": [
+        {
+          "type": "CheckboxesField",
+          "title": "What is or will be your main A1 installations activity that you need advice about?",
+          "name": "AIxDks",
+          "shortDescription": "Mineral activity",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "list": "54a787c3-4e92-480c-ad0e-e83953166f15",
+          "id": "e7835760-4c67-4712-853b-a481769dc2a7"
+        }
+      ],
+      "next": [],
+      "id": "c1bcbe42-20e6-4f00-8783-1e1b49f3b29f",
+      "condition": "5c537d20-de01-4276-8a8e-c7159104101b"
+    },
+    {
+      "title": "",
+      "path": "/what-is-or-will-be-your-main-chemicals-a1-installations-activity-that-you-need-pre-application-advice-about",
+      "components": [
+        {
+          "type": "CheckboxesField",
+          "title": "What is or will be your main chemicals A1 installations activity that you need pre-application advice about?",
+          "name": "zmhOBi",
+          "shortDescription": "Chemical activity type",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "list": "0bddde4f-d9a2-4141-b60a-0db898d7edc0",
+          "id": "742361f1-fb0f-4435-9fe8-c6f278bd3964"
+        }
+      ],
+      "next": [],
+      "id": "e3ea6047-86c3-4b22-a9cd-07f6c6793a9b",
+      "condition": "6317917c-ce82-4292-a669-003aacebf04c"
+    },
+    {
+      "title": "",
+      "path": "/what-is-or-will-be-your-main-a1-waste-installation-activity-that-you-need-pre-application-advice-about",
+      "components": [
+        {
+          "type": "CheckboxesField",
+          "title": "What is or will be your main A1 waste installation activity that you need pre-application advice about?",
+          "name": "tFwpaW",
+          "shortDescription": "Waste activity type",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "list": "c5986924-4d12-4d0f-8401-e4cc7224348b",
+          "id": "8b3f4e22-e124-4c6b-a67d-70ab232821a7"
+        }
+      ],
+      "next": [],
+      "id": "45f103b6-45d9-4f7b-b38f-022b3d7944b6",
+      "condition": "d09d187b-0587-490b-ad5c-29b7053a8751"
+    },
+    {
+      "title": "",
+      "path": "/what-is-or-will-be-the-main-a1-installations-activity-that-you-need-pre-application-advice-about",
+      "components": [
+        {
+          "type": "CheckboxesField",
+          "title": "What is or will be the main A1 installations activity that you need pre-application advice about?",
+          "name": "GpKNIy",
+          "shortDescription": "Other activity type",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "list": "16bc2037-9d7b-471b-9401-8f348b9efa08",
+          "id": "5365ca00-688a-4f3e-a809-758d0d644b76"
+        }
+      ],
+      "next": [],
+      "id": "16250577-847b-443d-bdc0-789d780746fc",
+      "condition": "8e7d9829-eae4-4e0c-a79d-3831b279e7e6"
+    },
+    {
+      "title": "",
+      "path": "/will-you-be-operating-standby-generators-within-a-data-centre",
+      "components": [
+        {
+          "type": "YesNoField",
+          "title": "Will you be operating standby generators within a data centre?",
+          "name": "FWvNGn",
+          "shortDescription": "Data centre",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "2f05fa1b-07f3-4667-b351-0e6373e792aa"
+        }
+      ],
+      "next": [],
+      "id": "a9c42be7-0ba4-4b88-8f4c-ef5fef90d8d8",
+      "condition": "60f3f4e4-bc84-412e-a335-d9801d31ab2d"
+    },
+    {
+      "title": "",
+      "path": "/do-your-proposed-activities-include-lithium-ion-li-ion-battery-shredding",
+      "components": [
+        {
+          "type": "YesNoField",
+          "title": "Do your proposed activities include Lithium Ion (Li-Ion) battery shredding?",
+          "name": "tSVQCJ",
+          "shortDescription": "Li-ion shredding",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "5b3ae24d-698b-4c8e-8ad8-4d2854cc97a8"
+        }
+      ],
+      "next": [],
+      "id": "a6c658c2-d685-4d0d-ad8c-4cdabfdb551c",
+      "condition": "4fdaef93-3401-4f08-85ad-f15f25c2e0fc"
+    },
+    {
+      "title": "",
+      "path": "/are-you-a-water-company-or-a-newly-appointed-variation",
+      "components": [
+        {
+          "type": "YesNoField",
+          "title": "Are you a water company or a newly appointed variation?",
+          "name": "GjKnGw",
+          "shortDescription": "Water company",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "1d368ed8-ac0d-457f-9950-504ce3dc9201"
+        }
+      ],
+      "next": [],
+      "id": "0a1391d2-2180-426b-9e66-4be94a4083b8",
+      "condition": "28da836a-4864-4c8e-83a2-699dc6e6db29"
+    },
+    {
+      "title": "",
+      "path": "/does-your-proposal-include-the-production-of-hydrogen",
+      "components": [
+        {
+          "type": "YesNoField",
+          "title": "Does your proposal include the production of hydrogen?",
+          "name": "COmJlN",
+          "shortDescription": "Hydrogen production",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "80b79efc-825f-4c98-8775-b096f58e0184"
+        }
+      ],
+      "next": [],
+      "id": "922a2d3f-7a22-4300-810d-d3472ab92f51",
+      "condition": "8096444c-1454-4be2-9a36-4c6bbf2f36f5"
+    },
+    {
+      "title": "Hydrogen production by electrolysis of water",
+      "path": "/hydrogen-production-by-electrolysis-of-water",
+      "components": [
+        {
+          "type": "Markdown",
+          "content": "Guidance on hydrogen by water electrolysis can be found here on the gov.uk website: [Hydrogen production by electrolysis of water: emerging techniques - GOV.UK](https://www.gov.uk/guidance/hydrogen-production-by-electrolysis-of-water-emerging-techniques)",
+          "options": {},
+          "schema": {},
+          "id": "35aefcac-0d57-4481-b90a-40bc286285cc"
+        },
+        {
+          "type": "YesNoField",
+          "title": "Do you propose to produce hydrogen by electrolysis of water?",
+          "name": "iejpzo",
+          "shortDescription": "Electrolysis",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "49e5cbba-a691-427d-ac08-5f2f4341c7d0"
+        }
+      ],
+      "next": [],
+      "id": "441fdbbf-055f-43f1-a243-d8597f281e1f",
+      "condition": "7565fdad-f031-41d0-a9a2-091532a5caed"
+    },
+    {
+      "title": "CO2 Capture",
+      "path": "/co2-capture",
+      "components": [
+        {
+          "type": "Markdown",
+          "content": "Guidance for carbon dioxide (CO2) capture can be seen here on the gov.uk website:\r\n\r\n[Post-combustion carbon dioxide capture: emerging techniques - GOV.UK](https://www.gov.uk/guidance/post-combustion-carbon-dioxide-capture-best-available-techniques-bat)\r\n\r\n[Hydrogen production with carbon capture: emerging techniques - GOV.UK](https://www.gov.uk/guidance/hydrogen-production-with-carbon-capture-emerging-techniques)",
+          "options": {},
+          "schema": {},
+          "id": "d8b325c8-4e97-4523-a97d-29548f0b5eb1"
+        },
+        {
+          "type": "YesNoField",
+          "title": "Do you intend to capture the CO2 from your process?",
+          "name": "ROjlJT",
+          "shortDescription": "CO2 Capture",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "307ff362-0539-426a-bdb6-37f1e2949d42"
+        }
+      ],
+      "next": [],
+      "id": "1f1fc806-960b-40b8-8f31-790d9e414cea",
+      "condition": "72b0d455-9d85-43f6-b3ad-8833a7658557"
+    },
+    {
+      "title": "",
+      "path": "/does-the-method-of-carbon-dioxide-co2-capture-use-amines",
+      "components": [
+        {
+          "type": "YesNoField",
+          "title": "Does the method of carbon dioxide (CO2) capture use amines?",
+          "name": "zKdAit",
+          "shortDescription": "Amine capture",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "a065dc62-194a-42c7-b0a5-c9b5e53d9fb4"
+        }
+      ],
+      "next": [],
+      "id": "bd04ba86-b58e-4310-8528-769d4aa35486",
+      "condition": "b6149ab0-d0c6-44d4-aa64-bef2fe1ced81"
+    },
+    {
+      "title": "",
+      "path": "/what-type-of-intensive-farming-permit-application-do-you-want-pre-application-advice-about",
+      "components": [
+        {
+          "type": "RadiosField",
+          "title": "What type of intensive farming permit application do you want pre-application advice about?",
+          "name": "htiYbK",
+          "shortDescription": "Intensive farming application type",
+          "hint": "If you wish to reduce your site boundary you should ask for advice about cancelling (surrendering) part of an existing permit.",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "list": "175c727f-59ca-4d1b-af0e-ad83b2f77dc1",
+          "id": "f381ee0b-e876-469a-a6ca-89443023f12d"
+        }
+      ],
+      "next": [],
+      "id": "25a51df3-1710-45cb-8d14-03f458053a54",
+      "condition": "163f7ec0-add0-4e32-91cf-562eca0e7812"
+    },
+    {
+      "title": "",
+      "path": "/would-you-like-us-to-carry-out-a-free-intensive-farming-ammonia-screening-for-you-to-consider-as-part-of-your-application",
+      "components": [
+        {
+          "type": "YesNoField",
+          "title": "Would you like us to carry out a free intensive farming ammonia screening for you to consider as part of your application?",
+          "name": "ERYsRk",
+          "shortDescription": "Ammonia screening",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "5dc914fa-0afd-4ea6-a5cf-378cfcb4f486"
+        }
+      ],
+      "next": [],
+      "id": "702a75da-fb47-4a2f-87ed-b051d2ec7477",
+      "condition": "cdf0c04e-500c-48d5-ba60-77eae9be5e40"
+    },
+    {
+      "title": "",
+      "path": "/which-type-of-intensive-farming-ammonia-screening-do-you-need",
+      "components": [
+        {
+          "type": "RadiosField",
+          "title": "Which type of intensive farming ammonia screening do you need?",
+          "name": "geAqlA",
+          "shortDescription": "Screening type",
+          "hint": "Once you've sent your enquiry, the Environment Agency will email you a more detailed form to fill in. This is so we can gather all of the information needed to complete your intensive farming ammonia screening. We will also ask you for any site layout and location plans. The email will also include a basic advice document specific to intensive farming permit applications.",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "list": "822207c6-6d99-4e45-aac9-e18b7128f577",
+          "id": "8ea21430-c766-4fe9-a1f5-f22545b23f3c"
+        }
+      ],
+      "next": [],
+      "id": "0339991b-3ab0-4954-b36c-549795aeeff7",
+      "condition": "8af730c3-8d30-4732-8b52-c39aba487326"
+    },
+    {
+      "title": "",
+      "path": "/what-type-of-permit-application-do-you-want-pre-application-advice-about",
+      "components": [
+        {
+          "type": "RadiosField",
+          "title": "What type of permit application do you want pre-application advice about?",
+          "name": "KIXmUp",
+          "shortDescription": "Application type",
+          "hint": "If you wish to reduce your site boundary you should ask for advice about cancelling (surrendering) part of an existing permit.",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "list": "61dcb65d-24ac-442b-9615-1dd10efc061a",
+          "id": "5a5c71e8-6dba-487f-98da-0904bb86de48"
+        }
+      ],
+      "next": [],
+      "id": "b87229c2-488d-41f3-996a-0fe0e96dc193"
+    },
+    {
+      "id": "449a45f6-4541-4a46-91bd-8b8931b07b50",
+      "title": "Summary",
+      "path": "/summary",
+      "controller": "SummaryPageController",
+      "next": []
+    }
+  ],
+  "conditions": [
+    {
+      "items": [
+        {
+          "id": "786ea471-f5bb-4071-973a-0bea993d5a84",
+          "componentId": "4f0214e8-0086-4f4b-9031-017aeca5750a",
+          "operator": "is",
+          "value": true,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "Is England",
+      "id": "937ccfb2-9ceb-4e3f-a7b4-1935ffeca448"
+    },
+    {
+      "items": [
+        {
+          "id": "1d56bc49-3bea-4108-900f-f732181ee5c8",
+          "componentId": "4f0214e8-0086-4f4b-9031-017aeca5750a",
+          "operator": "is",
+          "value": false,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "Is not England.",
+      "id": "66643dc0-0ea7-48d6-8cd4-04c6bf3f708e"
+    },
+    {
+      "items": [
+        {
+          "id": "b922db55-77ba-44af-a66a-34d6e06d0b99",
+          "componentId": "c2208a47-8087-4137-80c2-178b82b49d5d",
+          "operator": "contains",
+          "value": {
+            "itemId": "90b33699-1416-4551-9855-c7ef48b12125",
+            "listId": "0e46ab6f-b75e-476e-96bf-2f92d6b86ca8"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "End WQ",
+      "id": "8617e03b-1014-408e-a9dd-2c16b85ed205"
+    },
+    {
+      "items": [
+        {
+          "id": "5c63fc3a-69d2-4b7f-ace7-e7d54cdf61ce",
+          "componentId": "c2208a47-8087-4137-80c2-178b82b49d5d",
+          "operator": "contains",
+          "value": {
+            "itemId": "6dc69a87-76b1-43bc-ac69-c8198fead4fe",
+            "listId": "0e46ab6f-b75e-476e-96bf-2f92d6b86ca8"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "WR End.",
+      "id": "9f0d038c-fbe9-4b84-a955-051868f3330d"
+    },
+    {
+      "items": [
+        {
+          "id": "22417c21-8864-4060-9ec4-befadd511977",
+          "componentId": "c2208a47-8087-4137-80c2-178b82b49d5d",
+          "operator": "contains",
+          "value": {
+            "itemId": "1082d25e-2753-45d2-ac77-d0d99a1f3543",
+            "listId": "0e46ab6f-b75e-476e-96bf-2f92d6b86ca8"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "FRAP End.",
+      "id": "83dc71f1-8cbb-4d66-9b0f-a1f3a68b4d7f"
+    },
+    {
+      "items": [
+        {
+          "id": "d742e1af-b362-49d2-99da-be3a26857691",
+          "componentId": "c2208a47-8087-4137-80c2-178b82b49d5d",
+          "operator": "contains",
+          "value": {
+            "itemId": "e9a24244-993c-4459-baa3-6ddef6daaa0a",
+            "listId": "0e46ab6f-b75e-476e-96bf-2f92d6b86ca8"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Radioactive end.",
+      "id": "67b719b2-1656-476d-b98d-20702540eb1e"
+    },
+    {
+      "items": [
+        {
+          "id": "d253997e-b32c-4f79-8b9c-4e46929e7ddd",
+          "componentId": "755f9a75-13e9-45c8-a52c-30f788fea842",
+          "operator": "is",
+          "value": true,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "Is tracked.",
+      "id": "141e984b-3fb8-4f62-a05a-95031f387391"
+    },
+    {
+      "items": [
+        {
+          "id": "0289412a-3121-4757-af18-a0d79d9481da",
+          "componentId": "4c4f44c5-f88f-4a2a-9cf2-22326d0e501f",
+          "operator": "is",
+          "value": {
+            "itemId": "b3d152d0-03c7-4f91-905c-1e615c9f2755",
+            "listId": "872f7bbe-cfb1-4bdc-b908-9b5516e2fbc0"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "energy activity",
+      "id": "bc1c2f80-0e2b-431f-8715-2515bc6ce792"
+    },
+    {
+      "items": [
+        {
+          "id": "3be6dd4e-cd5e-4884-b8c7-03061de71789",
+          "componentId": "4c4f44c5-f88f-4a2a-9cf2-22326d0e501f",
+          "operator": "is",
+          "value": {
+            "itemId": "df87634c-346f-4c65-ab0a-2f2ccded5b94",
+            "listId": "872f7bbe-cfb1-4bdc-b908-9b5516e2fbc0"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Metal activity",
+      "id": "51798c75-895b-4a87-a95e-e6d6370bcadd"
+    },
+    {
+      "items": [
+        {
+          "id": "5225c7f3-f616-4ee9-a0dd-0e8249d34f33",
+          "componentId": "4c4f44c5-f88f-4a2a-9cf2-22326d0e501f",
+          "operator": "is",
+          "value": {
+            "itemId": "590f11b9-3e31-4f28-8295-1a901183c83c",
+            "listId": "872f7bbe-cfb1-4bdc-b908-9b5516e2fbc0"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "mineral activity",
+      "id": "5c537d20-de01-4276-8a8e-c7159104101b"
+    },
+    {
+      "items": [
+        {
+          "id": "4e4a81c5-65a2-4eab-9f53-bac1b3cd9ce7",
+          "componentId": "4c4f44c5-f88f-4a2a-9cf2-22326d0e501f",
+          "operator": "is",
+          "value": {
+            "itemId": "1d700ca0-dbd9-46c7-8cee-e0654364c0d5",
+            "listId": "872f7bbe-cfb1-4bdc-b908-9b5516e2fbc0"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Chemical type",
+      "id": "6317917c-ce82-4292-a669-003aacebf04c"
+    },
+    {
+      "items": [
+        {
+          "id": "e115afc6-8daa-4dc6-84e3-e9f825752cfb",
+          "componentId": "4c4f44c5-f88f-4a2a-9cf2-22326d0e501f",
+          "operator": "is",
+          "value": {
+            "itemId": "313d152f-2fa0-40db-ac33-d1b59fe5a710",
+            "listId": "872f7bbe-cfb1-4bdc-b908-9b5516e2fbc0"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "waste type - incineration",
+      "id": "d72d6b34-c495-476a-ab62-b47f6350746c"
+    },
+    {
+      "items": [
+        {
+          "id": "e22400e6-798b-441c-a95d-262ea80a9244",
+          "componentId": "4c4f44c5-f88f-4a2a-9cf2-22326d0e501f",
+          "operator": "is",
+          "value": {
+            "itemId": "e5e05f0c-709c-4612-8f44-010e730fb4a3",
+            "listId": "872f7bbe-cfb1-4bdc-b908-9b5516e2fbc0"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "other type",
+      "id": "8e7d9829-eae4-4e0c-a79d-3831b279e7e6"
+    },
+    {
+      "items": [
+        {
+          "id": "85415744-c749-435e-b3d4-2071dca33278",
+          "componentId": "ee356461-6954-4838-ae04-bd7ccecb700d",
+          "operator": "contains",
+          "value": {
+            "itemId": "75266e3f-9f04-4d00-a694-7b85aaa40d64",
+            "listId": "2edb42ba-ebb0-405f-8e84-cc0441d0f5c5"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "data centre",
+      "id": "60f3f4e4-bc84-412e-a335-d9801d31ab2d"
+    },
+    {
+      "items": [
+        {
+          "id": "075ab690-7279-42f5-bb8e-55d0b6e03155",
+          "componentId": "8b3f4e22-e124-4c6b-a67d-70ab232821a7",
+          "operator": "contains",
+          "value": {
+            "itemId": "432b1776-36d8-481f-ba3e-43089a8ef70b",
+            "listId": "c5986924-4d12-4d0f-8401-e4cc7224348b"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Li-ion batteries",
+      "id": "ab49c44a-3597-4f7a-b2bc-91a279f0cab8"
+    },
+    {
+      "items": [
+        {
+          "id": "2f97490c-137c-4d3c-9d9f-be89394f79f5",
+          "componentId": "8b3f4e22-e124-4c6b-a67d-70ab232821a7",
+          "operator": "contains",
+          "value": {
+            "itemId": "6ecf5297-f3b6-4afb-9289-14bb4b8ddf28",
+            "listId": "c5986924-4d12-4d0f-8401-e4cc7224348b"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Water company",
+      "id": "28da836a-4864-4c8e-83a2-699dc6e6db29"
+    },
+    {
+      "items": [
+        {
+          "id": "6e9c185d-1f62-40e9-ad14-99ae0293269f",
+          "componentId": "742361f1-fb0f-4435-9fe8-c6f278bd3964",
+          "operator": "contains",
+          "value": {
+            "itemId": "0f83ba28-97a4-4319-8972-26cb7415f802",
+            "listId": "0bddde4f-d9a2-4141-b60a-0db898d7edc0"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Hydrogen production",
+      "id": "8096444c-1454-4be2-9a36-4c6bbf2f36f5"
+    },
+    {
+      "items": [
+        {
+          "id": "be5a3373-6b58-4850-9d39-c6558b4ebc5d",
+          "componentId": "80b79efc-825f-4c98-8775-b096f58e0184",
+          "operator": "is",
+          "value": true,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "electrolysis",
+      "id": "7565fdad-f031-41d0-a9a2-091532a5caed"
+    },
+    {
+      "items": [
+        {
+          "id": "33b5275a-9c58-4e4e-9730-d518bbb36d06",
+          "componentId": "2f05fa1b-07f3-4667-b351-0e6373e792aa",
+          "operator": "is",
+          "value": true,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "Capture co2",
+      "id": "c9e9e161-16d1-4e5b-8892-0c5b3b15ecc9"
+    },
+    {
+      "items": [
+        {
+          "id": "0a290d75-d710-4aea-a358-68d5e0edad0f",
+          "componentId": "2f05fa1b-07f3-4667-b351-0e6373e792aa",
+          "operator": "is",
+          "value": false,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "not capturing co2",
+      "id": "9618e225-9ac4-496d-874a-8df602546fed"
+    },
+    {
+      "items": [
+        {
+          "id": "c855318d-ee39-4e13-a214-8070b7f6aa87",
+          "componentId": "e7835760-4c67-4712-853b-a481769dc2a7",
+          "operator": "contains",
+          "value": {
+            "itemId": "966ef781-b4ff-4da2-9b03-a58702538e7a",
+            "listId": "54a787c3-4e92-480c-ad0e-e83953166f15"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "lime co2",
+      "id": "7c1bc50e-2cb1-4ba3-a13e-ecdc3aeb0f5a"
+    },
+    {
+      "items": [
+        {
+          "id": "bdb590fe-8665-47b5-abb6-598df44f66b8",
+          "componentId": "e7835760-4c67-4712-853b-a481769dc2a7",
+          "operator": "contains",
+          "value": {
+            "itemId": "f71a35bf-9cbc-4e56-b07f-2269a3055f9b",
+            "listId": "54a787c3-4e92-480c-ad0e-e83953166f15"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "glass co2",
+      "id": "aaac50a6-bb2f-45a3-800f-f8e7575e681e"
+    },
+    {
+      "items": [
+        {
+          "id": "c0ef25c1-708a-4de3-bebc-8ee5905d6ab0",
+          "componentId": "307ff362-0539-426a-bdb6-37f1e2949d42",
+          "operator": "is",
+          "value": true,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "co2 amines",
+      "id": "bcc0a39a-65d6-431f-80de-0e12808d0006"
+    },
+    {
+      "items": [
+        {
+          "id": "0fc7148c-23f4-482b-875a-670cf827916e",
+          "componentId": "5365ca00-688a-4f3e-a809-758d0d644b76",
+          "operator": "contains",
+          "value": {
+            "itemId": "313ca69d-b974-4932-9ebd-389bbc098e0e",
+            "listId": "16bc2037-9d7b-471b-9401-8f348b9efa08"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "IF",
+      "id": "163f7ec0-add0-4e32-91cf-562eca0e7812"
+    },
+    {
+      "items": [
+        {
+          "id": "55a9201a-fa57-4d07-b74e-34c0236896b7",
+          "componentId": "f381ee0b-e876-469a-a6ca-89443023f12d",
+          "operator": "is",
+          "value": {
+            "itemId": "ec4c632f-deca-4599-9a59-a426ce6657bb",
+            "listId": "175c727f-59ca-4d1b-af0e-ad83b2f77dc1"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "IF is new screening",
+      "id": "ddb14d75-68cd-45c8-90aa-b1e0cbc13ebc"
+    },
+    {
+      "items": [
+        {
+          "id": "acdfc662-27fb-4d31-874a-1c62ff8d7813",
+          "componentId": "f381ee0b-e876-469a-a6ca-89443023f12d",
+          "operator": "is",
+          "value": {
+            "itemId": "8353982f-80c2-49f5-bfb3-db4df4260a60",
+            "listId": "175c727f-59ca-4d1b-af0e-ad83b2f77dc1"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "IF is vary screening",
+      "id": "eb33d667-6c0d-40d0-9772-462765a45721"
+    },
+    {
+      "items": [
+        {
+          "id": "f5ff339e-2a74-47d9-8739-9cddbc1d69f1",
+          "componentId": "5dc914fa-0afd-4ea6-a5cf-378cfcb4f486",
+          "operator": "is",
+          "value": true,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "IF screening is yes",
+      "id": "8af730c3-8d30-4732-8b52-c39aba487326"
+    },
+    {
+      "items": [
+        {
+          "id": "9f3d7722-cefb-42bb-b154-a5dccd8239d1",
+          "componentId": "307ff362-0539-426a-bdb6-37f1e2949d42",
+          "operator": "is",
+          "value": false,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "no co2 capture",
+      "id": "5eef4850-2f77-472e-a374-31cd0b69a9da"
+    },
+    {
+      "items": [
+        {
+          "id": "01b34d25-e8a8-4177-95ef-20c15af5b404",
+          "componentId": "49e5cbba-a691-427d-ac08-5f2f4341c7d0",
+          "operator": "is",
+          "value": true,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "yes hydrogen electrolysis",
+      "id": "fe6b3ee3-dd72-40dc-be79-ba3b4c0c7f63"
+    },
+    {
+      "items": [
+        {
+          "id": "558dcdc6-1caf-4067-9e44-23e6df848467",
+          "componentId": "4c4f44c5-f88f-4a2a-9cf2-22326d0e501f",
+          "operator": "is",
+          "value": {
+            "itemId": "30f1310f-ffde-48e7-b020-7ec4a6e2b8d6",
+            "listId": "872f7bbe-cfb1-4bdc-b908-9b5516e2fbc0"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Is MCP",
+      "id": "c0004f3b-529a-4038-b227-086eef8b585d"
+    },
+    {
+      "items": [
+        {
+          "id": "cd0b07d0-3ade-44ce-81f5-45ca7671ffbb",
+          "componentId": "80b79efc-825f-4c98-8775-b096f58e0184",
+          "operator": "is",
+          "value": false,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "No hydrogen",
+      "id": "97641c1d-efbe-4d5b-9d73-0c2a2e8348a2"
+    },
+    {
+      "items": [
+        {
+          "id": "29ef2040-6ce0-41ac-9624-18fd014d2651",
+          "componentId": "ee356461-6954-4838-ae04-bd7ccecb700d",
+          "operator": "contains",
+          "value": {
+            "itemId": "a70d6341-f20c-4697-b098-888d91ce5132",
+            "listId": "2edb42ba-ebb0-405f-8e84-cc0441d0f5c5"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Is gasification",
+      "id": "7c712e0b-142c-447e-b8a6-115c7524bfd5"
+    },
+    {
+      "items": [
+        {
+          "id": "69f5ba9a-fbf6-4c07-bcf9-10f1f6a7e486",
+          "componentId": "ee356461-6954-4838-ae04-bd7ccecb700d",
+          "operator": "contains",
+          "value": {
+            "itemId": "aebb2681-c629-4504-9227-1641b6cdaf10",
+            "listId": "2edb42ba-ebb0-405f-8e84-cc0441d0f5c5"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Is liquification",
+      "id": "7c72da8d-14d1-46e3-86c0-ed379b3b0bdf"
+    },
+    {
+      "items": [
+        {
+          "id": "3a7686aa-a946-4b1c-876c-4b10b673af1a",
+          "componentId": "ee356461-6954-4838-ae04-bd7ccecb700d",
+          "operator": "contains",
+          "value": {
+            "itemId": "3c2b3575-d75f-4040-a069-6cc3f3951d3c",
+            "listId": "2edb42ba-ebb0-405f-8e84-cc0441d0f5c5"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Is refining",
+      "id": "a24e01bb-2c38-429f-bbf5-e062eb281266"
+    },
+    {
+      "items": [
+        {
+          "id": "47faf9bd-40fe-4276-9e23-b44a82a787fc",
+          "componentId": "25fcd583-a676-4b55-8cc8-16c91f76bea4",
+          "operator": "contains",
+          "value": {
+            "itemId": "9159aa2f-fa42-466e-b647-224a36c835a6",
+            "listId": "d211c595-4b0b-4d76-8c60-2f7508a7d969"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "is ferrous",
+      "id": "c65b5090-055b-436b-9c96-c7a612e81131"
+    },
+    {
+      "items": [
+        {
+          "id": "342d2424-4701-433e-a8aa-2aa765fc6294",
+          "componentId": "25fcd583-a676-4b55-8cc8-16c91f76bea4",
+          "operator": "contains",
+          "value": {
+            "itemId": "a505e923-658a-480a-8c80-908d6963b047",
+            "listId": "d211c595-4b0b-4d76-8c60-2f7508a7d969"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "is non-ferrous",
+      "id": "aed0eb1a-4e1a-42ac-bc7a-2aaf0a87b668"
+    },
+    {
+      "items": [
+        {
+          "id": "2c6b1a04-ca85-4641-b618-0d905d0d124e",
+          "componentId": "25fcd583-a676-4b55-8cc8-16c91f76bea4",
+          "operator": "contains",
+          "value": {
+            "itemId": "6bd11ddd-9707-4b32-9302-6221964f5ce3",
+            "listId": "d211c595-4b0b-4d76-8c60-2f7508a7d969"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "is surface treating",
+      "id": "c353857d-ed12-4007-89cd-c65f9fbffe9e"
+    },
+    {
+      "items": [
+        {
+          "id": "1dfe5a24-203b-4022-96b8-a399e05dd559",
+          "componentId": "25fcd583-a676-4b55-8cc8-16c91f76bea4",
+          "operator": "contains",
+          "value": {
+            "itemId": "e6257666-3fed-4e0b-8090-20545ed84664",
+            "listId": "d211c595-4b0b-4d76-8c60-2f7508a7d969"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "is plastic",
+      "id": "8d5ed744-9028-42fd-baf3-e3282ed52461"
+    },
+    {
+      "items": [
+        {
+          "id": "5b79dc99-9a12-4ef5-a05d-fa85075de0f8",
+          "componentId": "e7835760-4c67-4712-853b-a481769dc2a7",
+          "operator": "contains",
+          "value": {
+            "itemId": "966ef781-b4ff-4da2-9b03-a58702538e7a",
+            "listId": "54a787c3-4e92-480c-ad0e-e83953166f15"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "is cement",
+      "id": "ca4e2bb2-dace-4d0b-b177-2f7ad81814d1"
+    },
+    {
+      "items": [
+        {
+          "id": "2975d215-f0d6-4930-ac4a-c60c3b1ebdda",
+          "componentId": "e7835760-4c67-4712-853b-a481769dc2a7",
+          "operator": "contains",
+          "value": {
+            "itemId": "2949cc5e-5224-4965-ac02-b914c4e1e346",
+            "listId": "54a787c3-4e92-480c-ad0e-e83953166f15"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "is asbestos",
+      "id": "cdb2493d-4e61-4720-a68e-065313159c6d"
+    },
+    {
+      "items": [
+        {
+          "id": "c2b24736-9fc5-4101-aeb1-556aca4b231d",
+          "componentId": "e7835760-4c67-4712-853b-a481769dc2a7",
+          "operator": "contains",
+          "value": {
+            "itemId": "f71a35bf-9cbc-4e56-b07f-2269a3055f9b",
+            "listId": "54a787c3-4e92-480c-ad0e-e83953166f15"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "is glass",
+      "id": "fc597aef-1ebe-40b6-a947-8b5188afa352"
+    },
+    {
+      "items": [
+        {
+          "id": "aa784cdc-b9ab-4a8f-884f-805e9605bb18",
+          "componentId": "e7835760-4c67-4712-853b-a481769dc2a7",
+          "operator": "contains",
+          "value": {
+            "itemId": "1e799a54-552c-423e-9df3-4d3b43a54e37",
+            "listId": "54a787c3-4e92-480c-ad0e-e83953166f15"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "is other mineral",
+      "id": "39ba4056-f7d2-4cc8-a44b-54fe96f3d85b"
+    },
+    {
+      "items": [
+        {
+          "id": "5ef66b0e-7439-4a27-a41e-7722478899e8",
+          "componentId": "e7835760-4c67-4712-853b-a481769dc2a7",
+          "operator": "contains",
+          "value": {
+            "itemId": "b75ca710-1858-4616-8b92-f760fd2be65e",
+            "listId": "54a787c3-4e92-480c-ad0e-e83953166f15"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "is ceramic",
+      "id": "f4f31eda-751f-4a74-8125-fd11b98f3ed9"
+    },
+    {
+      "items": [
+        {
+          "id": "6246b708-8323-4f0c-8a11-b93c439455ec",
+          "componentId": "742361f1-fb0f-4435-9fe8-c6f278bd3964",
+          "operator": "contains",
+          "value": {
+            "itemId": "40d9d2f4-fdaf-44c4-9a6d-23152e62dbd5",
+            "listId": "0bddde4f-d9a2-4141-b60a-0db898d7edc0"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "is organic",
+      "id": "a1f62d6c-3f18-4f8b-8f48-4a9fdfc752de"
+    },
+    {
+      "items": [
+        {
+          "id": "423c5ff7-5426-4339-8a59-c9c4752271f1",
+          "componentId": "742361f1-fb0f-4435-9fe8-c6f278bd3964",
+          "operator": "contains",
+          "value": {
+            "itemId": "ad339802-3a3a-491d-b66d-7981820e43a1",
+            "listId": "0bddde4f-d9a2-4141-b60a-0db898d7edc0"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "is fertiliser",
+      "id": "9b3b01fe-349a-49cd-8700-4e2869ac951b"
+    },
+    {
+      "items": [
+        {
+          "id": "9545f94d-9375-4cd2-ae4d-dbdca0475cd1",
+          "componentId": "742361f1-fb0f-4435-9fe8-c6f278bd3964",
+          "operator": "contains",
+          "value": {
+            "itemId": "0cdce133-4bb8-428a-a1f8-775e64a3ccc1",
+            "listId": "0bddde4f-d9a2-4141-b60a-0db898d7edc0"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Is plant health",
+      "id": "b6c5d8ad-032f-4b3f-ac81-91894e4b68d2"
+    },
+    {
+      "items": [
+        {
+          "id": "965f6fe3-71e1-45cd-8f73-13a34f5a60f8",
+          "componentId": "742361f1-fb0f-4435-9fe8-c6f278bd3964",
+          "operator": "contains",
+          "value": {
+            "itemId": "5e21c4f9-c9e7-4a6d-917f-5602feda06c6",
+            "listId": "0bddde4f-d9a2-4141-b60a-0db898d7edc0"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Is pharmaceuticals",
+      "id": "90a20f3c-790a-45ce-acef-6177336dbfdc"
+    },
+    {
+      "items": [
+        {
+          "id": "b8e5789b-30a4-4215-abe8-335d778c3bbd",
+          "componentId": "742361f1-fb0f-4435-9fe8-c6f278bd3964",
+          "operator": "contains",
+          "value": {
+            "itemId": "4f6c2ab2-f343-400c-b98f-302eb6cb1d70",
+            "listId": "0bddde4f-d9a2-4141-b60a-0db898d7edc0"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Is explosives",
+      "id": "564fee5b-78c4-43f7-b8d9-d5992cbe3230"
+    },
+    {
+      "items": [
+        {
+          "id": "b2cf32ce-2382-4073-9489-64cd16383773",
+          "componentId": "742361f1-fb0f-4435-9fe8-c6f278bd3964",
+          "operator": "contains",
+          "value": {
+            "itemId": "b5fa261b-f588-4cf7-807d-382add921fd7",
+            "listId": "0bddde4f-d9a2-4141-b60a-0db898d7edc0"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Is ammonia manufacturing",
+      "id": "c8ea506f-2a23-4c0b-aaee-80b5c26175d5"
+    },
+    {
+      "items": [
+        {
+          "id": "bace56fd-d083-4f98-b5a8-5dd8558a2111",
+          "componentId": "a065dc62-194a-42c7-b0a5-c9b5e53d9fb4",
+          "operator": "is",
+          "value": true,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "co2 capture amines",
+      "id": "5d9032d3-2b54-4018-a553-18857114fee8"
+    },
+    {
+      "items": [
+        {
+          "id": "eec56bd3-bdb1-4f59-98b0-68e4e4218efe",
+          "componentId": "a065dc62-194a-42c7-b0a5-c9b5e53d9fb4",
+          "operator": "is",
+          "value": false,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "co2 capture not amines",
+      "id": "7ef77546-3446-4007-add7-cbf10e1fe1ec"
+    },
+    {
+      "items": [
+        {
+          "id": "6f283f1b-fa1f-4331-a375-5751c1f67242",
+          "componentId": "8b3f4e22-e124-4c6b-a67d-70ab232821a7",
+          "operator": "contains",
+          "value": {
+            "itemId": "6a697b9d-1990-4420-b31a-78d4875335dc",
+            "listId": "c5986924-4d12-4d0f-8401-e4cc7224348b"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "is landfill",
+      "id": "65e50edb-7bb7-4a5e-95ba-02a433fb07f1"
+    },
+    {
+      "items": [
+        {
+          "id": "dca8e2a7-5ec8-48a9-898a-0af87022b9a1",
+          "componentId": "8b3f4e22-e124-4c6b-a67d-70ab232821a7",
+          "operator": "contains",
+          "value": {
+            "itemId": "a3bf2b45-92b6-4808-887c-671e8fab2ab9",
+            "listId": "c5986924-4d12-4d0f-8401-e4cc7224348b"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "is biological",
+      "id": "e3ead972-a294-4ab2-bc62-ed4babdee5a0"
+    },
+    {
+      "items": [
+        {
+          "id": "1aa224df-50a9-4dc5-a353-0e8decf47119",
+          "componentId": "8b3f4e22-e124-4c6b-a67d-70ab232821a7",
+          "operator": "contains",
+          "value": {
+            "itemId": "75e77104-803b-4069-8081-0ed6b9d8b0f4",
+            "listId": "c5986924-4d12-4d0f-8401-e4cc7224348b"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Is haz disposal or recovery",
+      "id": "9c4edc9d-30ae-48c7-93f1-75cc012b3242"
+    },
+    {
+      "items": [
+        {
+          "id": "2657dabb-a017-4d83-a9e2-9320bb163416",
+          "componentId": "8b3f4e22-e124-4c6b-a67d-70ab232821a7",
+          "operator": "contains",
+          "value": {
+            "itemId": "035cbc86-18bb-4b28-970f-f05ac30108f4",
+            "listId": "c5986924-4d12-4d0f-8401-e4cc7224348b"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Is temp haz waste",
+      "id": "8f9ff19c-ba83-4ea8-8818-9323a7e65513"
+    },
+    {
+      "items": [
+        {
+          "id": "166e6e91-b604-484a-92b8-1bdbd08871a5",
+          "componentId": "8b3f4e22-e124-4c6b-a67d-70ab232821a7",
+          "operator": "contains",
+          "value": {
+            "itemId": "c05fd1ca-0df1-4930-804d-99486be4cefe",
+            "listId": "c5986924-4d12-4d0f-8401-e4cc7224348b"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Non-haz disposal",
+      "id": "63f0306a-4b60-482b-8a66-23ef15184c67"
+    },
+    {
+      "items": [
+        {
+          "id": "83e56aa1-d8ab-43ad-bca6-6862d7a50afe",
+          "componentId": "8b3f4e22-e124-4c6b-a67d-70ab232821a7",
+          "operator": "contains",
+          "value": {
+            "itemId": "23615337-2664-471d-9c8d-5b637c941d66",
+            "listId": "c5986924-4d12-4d0f-8401-e4cc7224348b"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Is fuel from waste",
+      "id": "0a58bf85-2847-4597-8f3c-940c33c8bf90"
+    },
+    {
+      "items": [
+        {
+          "id": "1c18bb4f-c890-4b2e-8c36-a40ca2b528ef",
+          "componentId": "1d368ed8-ac0d-457f-9950-504ce3dc9201",
+          "operator": "is",
+          "value": false,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "Not water company",
+      "id": "c5b9fbbe-a047-4605-99ea-502fffb3053d"
+    },
+    {
+      "items": [
+        {
+          "id": "d11704c6-8324-46e6-a205-b782bcb1e1e8",
+          "componentId": "5365ca00-688a-4f3e-a809-758d0d644b76",
+          "operator": "contains",
+          "value": {
+            "itemId": "7b92e579-bacb-44c4-8428-44c580605fe5",
+            "listId": "16bc2037-9d7b-471b-9401-8f348b9efa08"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Is paper",
+      "id": "d2172191-d7dc-4d77-acb8-9dea963d879d"
+    },
+    {
+      "items": [
+        {
+          "id": "68be2b2a-34fe-4d2a-b54c-0bf11cdad8da",
+          "componentId": "5365ca00-688a-4f3e-a809-758d0d644b76",
+          "operator": "contains",
+          "value": {
+            "itemId": "179d1bbb-e60d-43b5-be61-a3bddf4c08ad",
+            "listId": "16bc2037-9d7b-471b-9401-8f348b9efa08"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Is carbon tar",
+      "id": "3a0863c7-a7b6-42c6-bd12-a40cb6a35142"
+    },
+    {
+      "items": [
+        {
+          "id": "6bd6bfb8-498b-45b4-bbb1-98f86e1fdc2a",
+          "componentId": "5365ca00-688a-4f3e-a809-758d0d644b76",
+          "operator": "contains",
+          "value": {
+            "itemId": "9660bd97-be4d-4008-af09-91bdea1d3394",
+            "listId": "16bc2037-9d7b-471b-9401-8f348b9efa08"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Is printing",
+      "id": "19567fe7-7593-4c41-8c62-fe1d2ea02c43"
+    },
+    {
+      "items": [
+        {
+          "id": "3769933f-c0c9-4fa2-9b85-00605c856ede",
+          "componentId": "5365ca00-688a-4f3e-a809-758d0d644b76",
+          "operator": "contains",
+          "value": {
+            "itemId": "8f819ecb-e5a1-4953-8adb-90f4b3a63103",
+            "listId": "16bc2037-9d7b-471b-9401-8f348b9efa08"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Is food and drink",
+      "id": "83eb8b68-26a4-489e-ab01-136bdb1b0742"
+    },
+    {
+      "items": [
+        {
+          "id": "eb3dbba7-26a2-4ada-91e4-37c775e4a920",
+          "componentId": "49e5cbba-a691-427d-ac08-5f2f4341c7d0",
+          "operator": "is",
+          "value": false,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "is not electrolysis",
+      "id": "032bddc2-8778-4c1d-a8a2-dbfed54f63fc"
+    },
+    {
+      "id": "dd4466ac-4020-4a84-b4eb-4a841560712e",
+      "displayName": "To page 22 - capture co2",
+      "coordinator": "or",
+      "items": [
+        {
+          "id": "125df72b-5823-4be9-8052-e6e1479ba0b6",
+          "conditionId": "c9e9e161-16d1-4e5b-8892-0c5b3b15ecc9"
+        },
+        {
+          "id": "0cc1efbc-b559-468d-894e-7cbe700b1e5e",
+          "conditionId": "aaac50a6-bb2f-45a3-800f-f8e7575e681e"
+        },
+        {
+          "id": "e8aed164-d0a8-4bf5-8ccd-c27dfebc3362",
+          "conditionId": "032bddc2-8778-4c1d-a8a2-dbfed54f63fc"
+        },
+        {
+          "id": "4e10aa03-5d93-458a-9f88-b69527775009",
+          "conditionId": "7c1bc50e-2cb1-4ba3-a13e-ecdc3aeb0f5a"
+        },
+        {
+          "id": "001c179b-8180-4c2a-a856-c23898367e79",
+          "conditionId": "9618e225-9ac4-496d-874a-8df602546fed"
+        },
+        {
+          "id": "b9916e7d-37c3-4140-98ba-103f85d581d5",
+          "conditionId": "d72d6b34-c495-476a-ab62-b47f6350746c"
+        }
+      ]
+    },
+    {
+      "items": [
+        {
+          "id": "d363f69f-4f01-49f0-ad12-4ff35d3f846b",
+          "componentId": "5365ca00-688a-4f3e-a809-758d0d644b76",
+          "operator": "contains",
+          "value": {
+            "itemId": "17346b9f-2793-4bc4-b73e-ad38f029f460",
+            "listId": "16bc2037-9d7b-471b-9401-8f348b9efa08"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Other activity is carbon capture",
+      "id": "60387408-3932-423a-a288-be70febb9b84"
+    },
+    {
+      "displayName": "To page 23 - amines",
+      "coordinator": "or",
+      "items": [
+        {
+          "id": "e619fc1e-3266-446a-bc92-457e96e37acc",
+          "conditionId": "bcc0a39a-65d6-431f-80de-0e12808d0006"
+        },
+        {
+          "id": "8ab9bee6-ce37-4c0a-acc2-b3a1c5c87e05",
+          "conditionId": "60387408-3932-423a-a288-be70febb9b84"
+        }
+      ],
+      "id": "b6149ab0-d0c6-44d4-aa64-bef2fe1ced81"
+    },
+    {
+      "displayName": "To page 25 - ammonia screening",
+      "coordinator": "or",
+      "items": [
+        {
+          "id": "7108a6d6-370a-4f26-a4eb-513329338413",
+          "conditionId": "ddb14d75-68cd-45c8-90aa-b1e0cbc13ebc"
+        },
+        {
+          "id": "e4981e5b-4736-4a8b-bda0-9af2004b7fd9",
+          "conditionId": "eb33d667-6c0d-40d0-9772-462765a45721"
+        }
+      ],
+      "id": "cdf0c04e-500c-48d5-ba60-77eae9be5e40"
+    },
+    {
+      "items": [
+        {
+          "id": "02a76d90-e665-4f21-b73f-16860bb600b1",
+          "componentId": "5b3ae24d-698b-4c8e-8ad8-4d2854cc97a8",
+          "operator": "is",
+          "value": true,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "Is Li-ion battery shredding",
+      "id": "360f4db9-8ae3-4cfb-812e-ac39dd686b95"
+    },
+    {
+      "items": [
+        {
+          "id": "7c4e6945-1865-4de4-9e79-947e65cbcbcd",
+          "componentId": "5b3ae24d-698b-4c8e-8ad8-4d2854cc97a8",
+          "operator": "is",
+          "value": false,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "Is not Li-ion battery shredding",
+      "id": "56a64e48-3798-408d-8b2f-bedb2cb857c1"
+    },
+    {
+      "items": [
+        {
+          "id": "b8b97f7a-7152-474c-a522-2e4db3acdd2e",
+          "componentId": "8ea21430-c766-4fe9-a1f5-f22545b23f3c",
+          "operator": "is",
+          "value": {
+            "itemId": "3d699cce-563e-4511-bf80-765af81fbab0",
+            "listId": "822207c6-6d99-4e45-aac9-e18b7128f577"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Ammonia screen type is poultry",
+      "id": "43c8968a-3ffb-49c4-b7be-bd5744c1f339"
+    },
+    {
+      "items": [
+        {
+          "id": "adf38019-a2c2-4ace-9313-7095806dff73",
+          "componentId": "8ea21430-c766-4fe9-a1f5-f22545b23f3c",
+          "operator": "is",
+          "value": {
+            "itemId": "f10b794e-e276-4a77-bb4f-4fde3b9b23bf",
+            "listId": "822207c6-6d99-4e45-aac9-e18b7128f577"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Ammonia screen type is pigs",
+      "id": "02e711c0-de13-4664-81bb-0f7c1256a822"
+    },
+    {
+      "items": [
+        {
+          "id": "a89e6675-5c95-46a6-9c83-9f3a8ad65bec",
+          "componentId": "8ea21430-c766-4fe9-a1f5-f22545b23f3c",
+          "operator": "is",
+          "value": {
+            "itemId": "cf72a7eb-be6d-4181-aba6-b79e8c11fdfa",
+            "listId": "822207c6-6d99-4e45-aac9-e18b7128f577"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Ammonia screen type is both",
+      "id": "f21c7478-706d-4a1b-a4d6-3977e8b6c44b"
+    },
+    {
+      "id": "6696faa9-a599-44c9-9f60-f993d9652003",
+      "displayName": "To page 27 - app type - all groups",
+      "coordinator": "or",
+      "items": [
+        {
+          "id": "7b1af53e-6dc0-4a94-8242-45264ca04e26",
+          "conditionId": "5d9032d3-2b54-4018-a553-18857114fee8"
+        },
+        {
+          "id": "9f3c23e2-5083-4a7f-a1ec-72112ee73ce7",
+          "conditionId": "7ef77546-3446-4007-add7-cbf10e1fe1ec"
+        },
+        {
+          "id": "002e2ad0-105d-4829-9a61-440bf5338b1a",
+          "conditionId": "360f4db9-8ae3-4cfb-812e-ac39dd686b95"
+        },
+        {
+          "id": "d74705fb-39b9-4361-b7b1-d8e556874bed",
+          "conditionId": "c0004f3b-529a-4038-b227-086eef8b585d"
+        },
+        {
+          "id": "83fb4ae4-f59c-450f-8347-a805ca3b18d8",
+          "conditionId": "56a64e48-3798-408d-8b2f-bedb2cb857c1"
+        },
+        {
+          "id": "72977bda-aa63-4c37-a12a-e6488ca2eabe",
+          "conditionId": "5eef4850-2f77-472e-a374-31cd0b69a9da"
+        },
+        {
+          "id": "0d2aec62-c5e0-4b7a-8fe3-4ce30cea3eaf",
+          "conditionId": "c5b9fbbe-a047-4605-99ea-502fffb3053d"
+        },
+        {
+          "id": "762f8182-9f11-4435-af29-207b439217f0",
+          "conditionId": "e9c4700f-d51b-45c8-a0ad-e1b97eebf71d"
+        },
+        {
+          "id": "e4deebeb-8aad-4eb1-8a1f-24979c131db8",
+          "conditionId": "61ae0900-2b86-4b10-80ec-e958c4cbc6c8"
+        },
+        {
+          "id": "ff3d2c9b-c0c7-46ac-8f97-16069ab75e72",
+          "conditionId": "680cf8a7-a58c-4409-86a4-f107f54b1381"
+        },
+        {
+          "id": "46acbb16-c376-4aaf-98b3-856c692ad085",
+          "conditionId": "d6b06537-df21-450d-acda-60b5e20420cc"
+        },
+        {
+          "id": "f9809039-471a-4fec-8f80-2c97c9684fa4",
+          "conditionId": "fe6b3ee3-dd72-40dc-be79-ba3b4c0c7f63"
+        }
+      ]
+    },
+    {
+      "displayName": "To page 27 - energy group",
+      "coordinator": "or",
+      "items": [
+        {
+          "id": "65cfd86c-8c62-450c-9155-aefab53a71c0",
+          "conditionId": "7c712e0b-142c-447e-b8a6-115c7524bfd5"
+        },
+        {
+          "id": "f4e37308-f0a4-4384-ba20-35a25b0f684d",
+          "conditionId": "7c72da8d-14d1-46e3-86c0-ed379b3b0bdf"
+        },
+        {
+          "id": "710ced7f-cb94-415c-b7bd-78de1d9802ff",
+          "conditionId": "a24e01bb-2c38-429f-bbf5-e062eb281266"
+        }
+      ],
+      "id": "61ae0900-2b86-4b10-80ec-e958c4cbc6c8"
+    },
+    {
+      "displayName": "To page 27 - metals group",
+      "coordinator": "or",
+      "items": [
+        {
+          "id": "1f316dfb-c2d8-4e36-9920-8ab7ca85f39e",
+          "conditionId": "c65b5090-055b-436b-9c96-c7a612e81131"
+        },
+        {
+          "id": "6bc6a012-0a0b-46a4-b4d6-1f580e4b91ff",
+          "conditionId": "aed0eb1a-4e1a-42ac-bc7a-2aaf0a87b668"
+        },
+        {
+          "id": "cf61c141-99da-4582-bc9d-2a54865ec743",
+          "conditionId": "8d5ed744-9028-42fd-baf3-e3282ed52461"
+        },
+        {
+          "id": "3aae7ce6-c7d0-47dd-bfb8-e3bdda865056",
+          "conditionId": "c353857d-ed12-4007-89cd-c65f9fbffe9e"
+        }
+      ],
+      "id": "680cf8a7-a58c-4409-86a4-f107f54b1381"
+    },
+    {
+      "displayName": "To page 27 - minerals group",
+      "coordinator": "or",
+      "items": [
+        {
+          "id": "1de43d99-d810-4fa0-913e-2c26664bbbd4",
+          "conditionId": "cdb2493d-4e61-4720-a68e-065313159c6d"
+        },
+        {
+          "id": "a31ac1ca-2b99-4a73-9412-3d366d3601ab",
+          "conditionId": "f4f31eda-751f-4a74-8125-fd11b98f3ed9"
+        },
+        {
+          "id": "69384eb6-4cbc-440c-9ecf-b969e7c9485f",
+          "conditionId": "39ba4056-f7d2-4cc8-a44b-54fe96f3d85b"
+        }
+      ],
+      "id": "d6b06537-df21-450d-acda-60b5e20420cc"
+    },
+    {
+      "displayName": "To page 27 - chemicals group",
+      "coordinator": "or",
+      "items": [
+        {
+          "id": "e1b602fd-eda0-46c6-8e82-26e7ff811c3d",
+          "conditionId": "c8ea506f-2a23-4c0b-aaee-80b5c26175d5"
+        },
+        {
+          "id": "8e363da6-39d5-46c9-85e0-b46a0b6f3ab6",
+          "conditionId": "564fee5b-78c4-43f7-b8d9-d5992cbe3230"
+        },
+        {
+          "id": "c5852f58-9088-4f08-ac0c-e65e0edb8361",
+          "conditionId": "9b3b01fe-349a-49cd-8700-4e2869ac951b"
+        },
+        {
+          "id": "de49ae87-2107-41c8-b266-a58ca49e65cf",
+          "conditionId": "a1f62d6c-3f18-4f8b-8f48-4a9fdfc752de"
+        },
+        {
+          "id": "9ac58a94-2790-482f-bfd9-0a0145312c48",
+          "conditionId": "90a20f3c-790a-45ce-acef-6177336dbfdc"
+        },
+        {
+          "id": "14679db5-7638-4521-a34c-f2dda9cd53b4",
+          "conditionId": "b6c5d8ad-032f-4b3f-ac81-91894e4b68d2"
+        }
+      ],
+      "id": "e9c4700f-d51b-45c8-a0ad-e1b97eebf71d"
+    },
+    {
+      "displayName": "To page 27 - waste group",
+      "coordinator": "or",
+      "items": [
+        {
+          "id": "f9ece016-fb7c-4f2a-b778-53620561ca84",
+          "conditionId": "e3ead972-a294-4ab2-bc62-ed4babdee5a0"
+        },
+        {
+          "id": "bead5781-dbfd-44ce-8804-c23490cb47ab",
+          "conditionId": "0a58bf85-2847-4597-8f3c-940c33c8bf90"
+        },
+        {
+          "id": "b0fda816-f89d-4283-b191-f448dd04d5b7",
+          "conditionId": "9c4edc9d-30ae-48c7-93f1-75cc012b3242"
+        },
+        {
+          "id": "d72c9956-99b4-413b-94ef-7e6cc780f259",
+          "conditionId": "65e50edb-7bb7-4a5e-95ba-02a433fb07f1"
+        },
+        {
+          "id": "ec0b156f-9040-4198-98e1-d2396f9250c3",
+          "conditionId": "8f9ff19c-ba83-4ea8-8818-9323a7e65513"
+        },
+        {
+          "id": "14414d46-38a3-4fe8-9622-dc8989ba6c3b",
+          "conditionId": "63f0306a-4b60-482b-8a66-23ef15184c67"
+        }
+      ],
+      "id": "9fda7ab2-dfc4-4786-8d5e-7eaa9fe04f16"
+    },
+    {
+      "displayName": "To page 27 - 'other' activity group",
+      "coordinator": "or",
+      "items": [
+        {
+          "id": "17309315-bb4d-4735-ae1a-7e51d801c11e",
+          "conditionId": "3a0863c7-a7b6-42c6-bd12-a40cb6a35142"
+        },
+        {
+          "id": "ac7b6b0f-b97a-4573-ba8f-a0385b1b00b8",
+          "conditionId": "83eb8b68-26a4-489e-ab01-136bdb1b0742"
+        },
+        {
+          "id": "f44ad08b-404d-4218-85a3-39807fab18bc",
+          "conditionId": "d2172191-d7dc-4d77-acb8-9dea963d879d"
+        },
+        {
+          "id": "dd3b6bf4-acca-43b0-a352-d620363a1db9",
+          "conditionId": "19567fe7-7593-4c41-8c62-fe1d2ea02c43"
+        }
+      ],
+      "id": "18ce1663-7b44-4fca-91be-40cb6fa5ad0f"
+    },
+    {
+      "items": [
+        {
+          "id": "d7d9d36d-cd4d-414e-9f44-f03fc697dcf1",
+          "componentId": "8b3f4e22-e124-4c6b-a67d-70ab232821a7",
+          "operator": "contains",
+          "value": {
+            "itemId": "432b1776-36d8-481f-ba3e-43089a8ef70b",
+            "listId": "c5986924-4d12-4d0f-8401-e4cc7224348b"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "To page 18 - non-haz waste rec or disp",
+      "id": "4fdaef93-3401-4f08-85ad-f15f25c2e0fc"
+    },
+    {
+      "items": [
+        {
+          "id": "5768fdc9-7f6f-4329-955c-faa91e82d1e7",
+          "componentId": "4c4f44c5-f88f-4a2a-9cf2-22326d0e501f",
+          "operator": "is",
+          "value": {
+            "itemId": "313d152f-2fa0-40db-ac33-d1b59fe5a710",
+            "listId": "872f7bbe-cfb1-4bdc-b908-9b5516e2fbc0"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "App type is waste",
+      "id": "d09d187b-0587-490b-ad5c-29b7053a8751"
+    },
+    {
+      "items": [
+        {
+          "id": "fa96a4f1-08d6-40dd-a87a-8496f20b7996",
+          "componentId": "8b3f4e22-e124-4c6b-a67d-70ab232821a7",
+          "operator": "does not contain",
+          "value": {
+            "itemId": "432b1776-36d8-481f-ba3e-43089a8ef70b",
+            "listId": "c5986924-4d12-4d0f-8401-e4cc7224348b"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Is not 'Recovery (or mix of recovery and disposal) of non-hazardous waste with a capacity exceeding 75 tonnes a day'",
+      "id": "cf158835-3e49-4547-83e3-cc38163ff60a"
+    },
+    {
+      "items": [
+        {
+          "id": "2b71d3fd-8c8c-4245-a867-c29cab716f85",
+          "componentId": "2f05fa1b-07f3-4667-b351-0e6373e792aa",
+          "operator": "is",
+          "value": true,
+          "type": "BooleanValue"
+        },
+        {
+          "id": "c0e6b777-d65e-44f9-98f5-179c994ec2cc",
+          "componentId": "2f05fa1b-07f3-4667-b351-0e6373e792aa",
+          "operator": "is",
+          "value": false,
+          "type": "BooleanValue"
+        },
+        {
+          "id": "55ca1f72-3341-4c73-87da-975c31e69f9e",
+          "componentId": "e7835760-4c67-4712-853b-a481769dc2a7",
+          "operator": "contains",
+          "value": {
+            "itemId": "f71a35bf-9cbc-4e56-b07f-2269a3055f9b",
+            "listId": "54a787c3-4e92-480c-ad0e-e83953166f15"
+          },
+          "type": "ListItemRef"
+        },
+        {
+          "id": "92593af7-0d95-40cc-b101-58a3f45ec3eb",
+          "componentId": "8b3f4e22-e124-4c6b-a67d-70ab232821a7",
+          "operator": "contains",
+          "value": {
+            "itemId": "5fbdba15-1f4b-496d-9f33-3631e6786b5b",
+            "listId": "c5986924-4d12-4d0f-8401-e4cc7224348b"
+          },
+          "type": "ListItemRef"
+        },
+        {
+          "id": "2109d3b2-6aaa-459a-b0f2-07c2de642901",
+          "componentId": "e7835760-4c67-4712-853b-a481769dc2a7",
+          "operator": "contains",
+          "value": {
+            "itemId": "966ef781-b4ff-4da2-9b03-a58702538e7a",
+            "listId": "54a787c3-4e92-480c-ad0e-e83953166f15"
+          },
+          "type": "ListItemRef"
+        },
+        {
+          "id": "3918a68a-f73e-47c4-8e23-55c65367818b",
+          "componentId": "49e5cbba-a691-427d-ac08-5f2f4341c7d0",
+          "operator": "is",
+          "value": true,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "Steve test condition for 'Are you intending to capture the CO2'",
+      "id": "72b0d455-9d85-43f6-b3ad-8833a7658557",
+      "coordinator": "or"
+    },
+    {
+      "items": [
+        {
+          "id": "fc43ec99-1e8a-42e1-96b4-3db96dda0dd6",
+          "componentId": "5365ca00-688a-4f3e-a809-758d0d644b76",
+          "operator": "does not contain",
+          "value": {
+            "itemId": "313ca69d-b974-4932-9ebd-389bbc098e0e",
+            "listId": "16bc2037-9d7b-471b-9401-8f348b9efa08"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Steve - when to show page 'what type of permit application do you want pre-application advice about?'",
+      "id": "239d2eb3-fada-4c15-a931-4bd1e3b45592"
+    }
+  ],
+  "sections": [],
+  "lists": [
+    {
+      "name": "ECqYyI",
+      "title": "List for question DXJWgF",
+      "type": "string",
+      "items": [
+        {
+          "id": "17d60fa0-e923-48e0-afc9-2c24549a69c1",
+          "text": "Using, treating, storing or disposing of waste or mining waste, an industrial process, intensive farms, manufacturing or any other business that produce potentially harmful substances.",
+          "value": "Using, treating, storing or disposing of waste or mining waste, an industrial process, intensive farms, manufacturing or any other business that produce potentially harmful substances."
+        },
+        {
+          "id": "90b33699-1416-4551-9855-c7ef48b12125",
+          "text": "Discharging (releasing) waste water or liquid to rivers, streams, estuaries, lakes, canals or coastal waters, or to the ground only. For example, if you have a property with a septic tank.",
+          "value": "Discharging (releasing) waste water or liquid to rivers, streams, estuaries, lakes, canals or coastal waters, or to the ground only. For example, if you have a property with a septic tank."
+        },
+        {
+          "id": "6dc69a87-76b1-43bc-ac69-c8198fead4fe",
+          "text": "Taking water from a river, pond, lake or ground only.",
+          "value": "Taking water from a river, pond, lake or ground only."
+        },
+        {
+          "id": "1082d25e-2753-45d2-ac77-d0d99a1f3543",
+          "text": "Activities involving flood risk management only.",
+          "value": "Activities involving flood risk management only."
+        },
+        {
+          "id": "e9a24244-993c-4459-baa3-6ddef6daaa0a",
+          "text": "Activities involving radioactive sources or substances only.",
+          "value": "Activities involving radioactive sources or substances only."
+        }
+      ],
+      "id": "0e46ab6f-b75e-476e-96bf-2f92d6b86ca8"
+    },
+    {
+      "name": "bcSSEp",
+      "title": "List for question mOPwGp",
+      "type": "string",
+      "items": [
+        {
+          "id": "b3d152d0-03c7-4f91-905c-1e615c9f2755",
+          "text": "Energy: combustion with on site aggregated rated thermal input of 50 megawatts or more, gasification, liquefaction and refining activities (not including medium combustion plant and specified generators - select specific option below instead)",
+          "value": "Energy: combustion with on site aggregated rated thermal input of 50 megawatts or more, gasification, liquefaction and refining activities (not including medium combustion plant and specified generators - select specific option below instead)."
+        },
+        {
+          "id": "30f1310f-ffde-48e7-b020-7ec4a6e2b8d6",
+          "text": "Standalone medium combustion plant and specified generator activities (less than 50 megawatts)",
+          "value": "Standalone medium combustion plant and specified generator activities (less than 50 megawatts)"
+        },
+        {
+          "id": "df87634c-346f-4c65-ab0a-2f2ccded5b94",
+          "text": "Metals: ferrous metals, non-ferrous metals, surface treating metals and plastic materials",
+          "value": "Metals: ferrous metals, non-ferrous metals, surface treating metals and plastic materials"
+        },
+        {
+          "id": "590f11b9-3e31-4f28-8295-1a901183c83c",
+          "text": "Minerals: production of cement and lime, activities involving asbestos, manufacture of glass and glass fibre, other minerals, ceramics",
+          "value": "Minerals: production of cement and lime, activities involving asbestos, manufacture of glass and glass fibre, other minerals, ceramics"
+        },
+        {
+          "id": "1d700ca0-dbd9-46c7-8cee-e0654364c0d5",
+          "text": "Chemicals: organic, inorganic, fertiliser production, plant health products and biocides, pharmaceutical production, explosives production, manufacturing involving ammonia",
+          "value": "Chemicals: organic, inorganic, fertiliser production, plant health products and biocides, pharmaceutical production, explosives production, manufacturing involving ammonia"
+        },
+        {
+          "id": "313d152f-2fa0-40db-ac33-d1b59fe5a710",
+          "text": "Waste management: incineration and co-incineration of waste, landfills, other forms of disposal of waste, recovery of waste, temporary or underground storage of hazardous waste and treatment of waste water",
+          "value": "Waste management: incineration and co-incineration of waste, landfills, other forms of disposal of waste, recovery of waste, temporary or underground storage of hazardous waste and treatment of waste water"
+        },
+        {
+          "id": "e5e05f0c-709c-4612-8f44-010e730fb4a3",
+          "text": "Other: paper, pulp and board manufacture, carbon, tar and bitumen, coating activities, printing and textile treatments, food industries, intensive farming, and carbon capture & storage",
+          "value": "Other: paper, pulp and board manufacture, carbon, tar and bitumen, coating activities, printing and textile treatments, food industries, intensive farming, and carbon capture & storage"
+        },
+        {
+          "id": "e6b3c2f1-d400-4427-8459-2a787d5b360e",
+          "text": "None of the above",
+          "value": "None of the above"
+        }
+      ],
+      "id": "872f7bbe-cfb1-4bdc-b908-9b5516e2fbc0"
+    },
+    {
+      "name": "iOKJtd",
+      "title": "List for question MYHGhL",
+      "type": "string",
+      "items": [
+        {
+          "id": "75266e3f-9f04-4d00-a694-7b85aaa40d64",
+          "text": "Combustion (on site aggregated rated thermal input of 50 megawatts or more)",
+          "value": "Combustion (on site aggregated rated thermal input of 50 megawatts or more)"
+        },
+        {
+          "id": "a70d6341-f20c-4697-b098-888d91ce5132",
+          "text": "Gasification",
+          "value": "Gasification"
+        },
+        {
+          "id": "aebb2681-c629-4504-9227-1641b6cdaf10",
+          "text": "Liquefaction",
+          "value": "Liquefaction"
+        },
+        {
+          "id": "3c2b3575-d75f-4040-a069-6cc3f3951d3c",
+          "text": "Refining activities",
+          "value": "Refining activities"
+        }
+      ],
+      "id": "2edb42ba-ebb0-405f-8e84-cc0441d0f5c5"
+    },
+    {
+      "name": "BjlhtY",
+      "title": "List for question YMLdUM",
+      "type": "string",
+      "items": [
+        {
+          "id": "9159aa2f-fa42-466e-b647-224a36c835a6",
+          "text": "Ferrous metals",
+          "value": "Ferrous metals"
+        },
+        {
+          "id": "a505e923-658a-480a-8c80-908d6963b047",
+          "text": "Non-ferrous metals",
+          "value": "Non-ferrous metals"
+        },
+        {
+          "id": "6bd11ddd-9707-4b32-9302-6221964f5ce3",
+          "text": "Surface treating metals",
+          "value": "Surface treating metals"
+        },
+        {
+          "id": "e6257666-3fed-4e0b-8090-20545ed84664",
+          "text": "Plastic materials",
+          "value": "Plastic materials"
+        }
+      ],
+      "id": "91e353b7-5672-4b34-b1e9-7713ca246190"
+    },
+    {
+      "name": "ERMlrB",
+      "title": "List for question gMpHrA",
+      "type": "string",
+      "items": [
+        {
+          "id": "9159aa2f-fa42-466e-b647-224a36c835a6",
+          "text": "Ferrous metals",
+          "value": "Ferrous metals"
+        },
+        {
+          "id": "a505e923-658a-480a-8c80-908d6963b047",
+          "text": "Non-ferrous metals",
+          "value": "Non-ferrous metals"
+        },
+        {
+          "id": "6bd11ddd-9707-4b32-9302-6221964f5ce3",
+          "text": "Surface treating metals",
+          "value": "Surface treating metals"
+        },
+        {
+          "id": "e6257666-3fed-4e0b-8090-20545ed84664",
+          "text": "Plastic materials",
+          "value": "Plastic materials"
+        }
+      ],
+      "id": "d211c595-4b0b-4d76-8c60-2f7508a7d969"
+    },
+    {
+      "name": "wQqGQl",
+      "title": "List for question AIxDks",
+      "type": "string",
+      "items": [
+        {
+          "id": "966ef781-b4ff-4da2-9b03-a58702538e7a",
+          "text": "Production of cement and lime",
+          "value": "Production of cement and lime"
+        },
+        {
+          "id": "2949cc5e-5224-4965-ac02-b914c4e1e346",
+          "text": "Activities involving asbestos",
+          "value": "Activities involving asbestos"
+        },
+        {
+          "id": "f71a35bf-9cbc-4e56-b07f-2269a3055f9b",
+          "text": "Manufacture of glass and glass fibre",
+          "value": "Manufacture of glass and glass fibre"
+        },
+        {
+          "id": "1e799a54-552c-423e-9df3-4d3b43a54e37",
+          "text": "Other minerals activities",
+          "value": "Other minerals activities"
+        },
+        {
+          "id": "b75ca710-1858-4616-8b92-f760fd2be65e",
+          "text": "Ceramics",
+          "value": "Ceramics"
+        }
+      ],
+      "id": "54a787c3-4e92-480c-ad0e-e83953166f15"
+    },
+    {
+      "name": "yrePHV",
+      "title": "List for question zmhOBi",
+      "type": "string",
+      "items": [
+        {
+          "id": "40d9d2f4-fdaf-44c4-9a6d-23152e62dbd5",
+          "text": "Organic chemicals",
+          "value": "Organic chemicals"
+        },
+        {
+          "id": "0f83ba28-97a4-4319-8972-26cb7415f802",
+          "text": "Inorganic chemicals",
+          "value": "Inorganic chemicals"
+        },
+        {
+          "id": "ad339802-3a3a-491d-b66d-7981820e43a1",
+          "text": "Fertiliser production",
+          "value": "Fertiliser production"
+        },
+        {
+          "id": "0cdce133-4bb8-428a-a1f8-775e64a3ccc1",
+          "text": "Plant health products and biocides",
+          "value": "Plant health products and biocides"
+        },
+        {
+          "id": "5e21c4f9-c9e7-4a6d-917f-5602feda06c6",
+          "text": "Pharmaceutical production",
+          "value": "Pharmaceutical production"
+        },
+        {
+          "id": "4f6c2ab2-f343-400c-b98f-302eb6cb1d70",
+          "text": "Explosives production",
+          "value": "Explosives production"
+        },
+        {
+          "id": "b5fa261b-f588-4cf7-807d-382add921fd7",
+          "text": "Manufacturing involving ammonia",
+          "value": "Manufacturing involving ammonia"
+        }
+      ],
+      "id": "0bddde4f-d9a2-4141-b60a-0db898d7edc0"
+    },
+    {
+      "name": "TrlZWy",
+      "title": "List for question tFwpaW",
+      "type": "string",
+      "items": [
+        {
+          "id": "5fbdba15-1f4b-496d-9f33-3631e6786b5b",
+          "text": "Incineration and co-incineration of waste exceeding 10 tonnes a day of hazardous waste or 3 tonnes an hour of non-hazardous waste",
+          "value": "Incineration and co-incineration of waste exceeding 10 tonnes a day of hazardous waste or 3 tonnes an hour of non-hazardous waste"
+        },
+        {
+          "id": "6a697b9d-1990-4420-b31a-78d4875335dc",
+          "text": "Landfill for hazardous or non-hazardous waste (not including inert waste only landfill)",
+          "value": "Landfill for hazardous or non-hazardous waste (not including inert waste only landfill)"
+        },
+        {
+          "id": "a3bf2b45-92b6-4808-887c-671e8fab2ab9",
+          "text": "Biological treatment (anaerobic and aerobic digestion, composting in open windrows or in vessel, mechanical and biological treatment) of hazardous waste (greater than 10 tonnes/day) or non hazardous (greater than 75 tonnes a day or 100 tonnes a day if only treatment is anaerobic digestion)",
+          "value": "Biological treatment (anaerobic and aerobic digestion, composting in open windrows or in vessel, mechanical and biological treatment) of hazardous waste (greater than 10 tonnes/day) or non hazardous (greater than 75 tonnes a day or 100 tonnes a day if only treatment is anaerobic digestion)"
+        },
+        {
+          "id": "75e77104-803b-4069-8081-0ed6b9d8b0f4",
+          "text": "Disposal or recovery of hazardous waste exceeding 10 tonnes a day",
+          "value": "Disposal or recovery of hazardous waste exceeding 10 tonnes a day"
+        },
+        {
+          "id": "035cbc86-18bb-4b28-970f-f05ac30108f4",
+          "text": "Temporary or underground storage of hazardous wastes with a total capacity exceeding 50 tonnes",
+          "value": "Temporary or underground storage of hazardous wastes with a total capacity exceeding 50 tonnes"
+        },
+        {
+          "id": "c05fd1ca-0df1-4930-804d-99486be4cefe",
+          "text": "Disposal of non-hazardous waste with a capacity exceeding 50 tonnes a day",
+          "value": "Disposal of non-hazardous waste with a capacity exceeding 50 tonnes a day"
+        },
+        {
+          "id": "432b1776-36d8-481f-ba3e-43089a8ef70b",
+          "text": "Recovery (or mix of recovery and disposal) of non-hazardous waste with a capacity exceeding 75 tonnes a day",
+          "value": "Recovery (or mix of recovery and disposal) of non-hazardous waste with a capacity exceeding 75 tonnes a day"
+        },
+        {
+          "id": "23615337-2664-471d-9c8d-5b637c941d66",
+          "text": "Production of fuel from waste",
+          "value": "Production of fuel from waste"
+        },
+        {
+          "id": "6ecf5297-f3b6-4afb-9289-14bb4b8ddf28",
+          "text": "Treatment of waste water discharged by an A1 installation",
+          "value": "Treatment of waste water discharged by an A1 installation"
+        },
+        {
+          "id": "7d363572-1232-46e6-b5b1-632a06185e6b",
+          "text": "None of the above",
+          "value": "None of the above"
+        }
+      ],
+      "id": "c5986924-4d12-4d0f-8401-e4cc7224348b"
+    },
+    {
+      "name": "iGxtxW",
+      "title": "List for question GpKNIy",
+      "type": "string",
+      "items": [
+        {
+          "id": "7b92e579-bacb-44c4-8428-44c580605fe5",
+          "text": "Paper, pulp and board manufacture",
+          "value": "Paper, pulp and board manufacture"
+        },
+        {
+          "id": "179d1bbb-e60d-43b5-be61-a3bddf4c08ad",
+          "text": "Carbon tar and bitumen coating activities",
+          "value": "Carbon tar and bitumen coating activities"
+        },
+        {
+          "id": "9660bd97-be4d-4008-af09-91bdea1d3394",
+          "text": "Printing and textile treatments",
+          "value": "Printing and textile treatments"
+        },
+        {
+          "id": "8f819ecb-e5a1-4953-8adb-90f4b3a63103",
+          "text": "Food and drink industries",
+          "value": "Food and drink industries"
+        },
+        {
+          "id": "17346b9f-2793-4bc4-b73e-ad38f029f460",
+          "text": "Carbon capture and storage",
+          "value": "Carbon capture and storage"
+        },
+        {
+          "id": "313ca69d-b974-4932-9ebd-389bbc098e0e",
+          "text": "Intensive farming",
+          "value": "Intensive farming"
+        }
+      ],
+      "id": "16bc2037-9d7b-471b-9401-8f348b9efa08"
+    },
+    {
+      "name": "pbeyuT",
+      "title": "List for question htiYbK",
+      "type": "string",
+      "items": [
+        {
+          "id": "ec4c632f-deca-4599-9a59-a426ce6657bb",
+          "text": "A new permit application",
+          "value": "A new permit application"
+        },
+        {
+          "id": "8353982f-80c2-49f5-bfb3-db4df4260a60",
+          "text": "A change (variation) to an existing permit",
+          "value": "A change (variation) to an existing permit"
+        },
+        {
+          "id": "c0331fe1-1e86-4956-8f54-4234e90c6513",
+          "text": "A transfer in full of an existing permit to another operator",
+          "value": "A transfer in full of an existing permit to another operator"
+        },
+        {
+          "id": "36ffa9ee-a353-4ade-a385-33d4bc2c558f",
+          "text": "A partial transfer of an existing permit to another operator",
+          "value": "A partial transfer of an existing permit to another operator"
+        },
+        {
+          "id": "838fe415-43c1-4690-89c3-d2fdba210433",
+          "text": "Cancel (surrender) in full an existing permit",
+          "value": "Cancel (surrender) in full an existing permit"
+        },
+        {
+          "id": "804c962c-46c4-4c87-8690-ea3093f633bd",
+          "text": "Cancel (surrender) part of an existing permit",
+          "value": "Cancel (surrender) part of an existing permit"
+        }
+      ],
+      "id": "175c727f-59ca-4d1b-af0e-ad83b2f77dc1"
+    },
+    {
+      "name": "NKuHNv",
+      "title": "List for question geAqlA",
+      "type": "string",
+      "items": [
+        {
+          "id": "3d699cce-563e-4511-bf80-765af81fbab0",
+          "text": "Poultry",
+          "value": "Poultry"
+        },
+        {
+          "id": "f10b794e-e276-4a77-bb4f-4fde3b9b23bf",
+          "text": "Pigs",
+          "value": "Pigs"
+        },
+        {
+          "id": "cf72a7eb-be6d-4181-aba6-b79e8c11fdfa",
+          "text": "Poultry and pigs",
+          "value": "Poultry and pigs"
+        }
+      ],
+      "id": "822207c6-6d99-4e45-aac9-e18b7128f577"
+    },
+    {
+      "name": "DPEaRv",
+      "title": "List for question KIXmUp",
+      "type": "string",
+      "items": [
+        {
+          "id": "457b9881-e17f-42e5-a4b4-46d9bade6213",
+          "text": "A new permit application",
+          "value": "A new permit application"
+        },
+        {
+          "id": "3647fa3e-ce4f-4cdb-9955-ec577a13c11b",
+          "text": "A change (variation) to an existing permit",
+          "value": "A change (variation) to an existing permit"
+        },
+        {
+          "id": "ede536e6-cf45-4343-98f9-83fc3e67abd9",
+          "text": "A transfer in full of an existing permit to another operator",
+          "value": "A transfer in full of an existing permit to another operator"
+        },
+        {
+          "id": "cd747672-5755-4e5c-a9b2-c1d60dc179da",
+          "text": "A partial transfer of an existing permit to another operator",
+          "value": "A partial transfer of an existing permit to another operator"
+        },
+        {
+          "id": "b4d132e6-253a-4853-8844-f6e84b1b0dc8",
+          "text": "Cancel (surrender) in full an existing permit",
+          "value": "Cancel (surrender) in full an existing permit"
+        },
+        {
+          "id": "ebcce8ba-4082-4499-9923-71e33d9baa6b",
+          "text": "Cancel (surrender) part of an existing permit",
+          "value": "Cancel (surrender) part of an existing permit"
+        }
+      ],
+      "id": "61dcb65d-24ac-442b-9615-1dd10efc061a"
+    }
+  ]
+}
