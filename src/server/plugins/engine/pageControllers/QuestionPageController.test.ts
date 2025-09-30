@@ -321,7 +321,11 @@ describe('QuestionPageController', () => {
           'AddressLine2',
           'Town',
           'Postcode'
-        ]
+        ],
+        applicantTwoAddress: null,
+        applicantTwoFirstName: null,
+        applicantTwoLastName: null,
+        applicantTwoMiddleName: null
       })
 
       // Our context should know which pages are relevant
@@ -358,15 +362,18 @@ describe('QuestionPageController', () => {
         '/summary'
       ])
 
-      // Our context should no longer know anything about our applicant
-      expect(stateAfter).not.toHaveProperty('numberOfApplicants')
-      expect(stateAfter).not.toHaveProperty('applicantOneFirstName')
-      expect(stateAfter).not.toHaveProperty('applicantOneMiddleName')
-      expect(stateAfter).not.toHaveProperty('applicantOneLastName')
-      expect(stateAfter).not.toHaveProperty('applicantOneAddress')
-
+      // Our evaluation context should have default values for irrelevant fields
       expect(stateAfter).toEqual({
-        ukPassport: false
+        ukPassport: false,
+        numberOfApplicants: null,
+        applicantOneFirstName: null,
+        applicantOneMiddleName: null,
+        applicantOneLastName: null,
+        applicantOneAddress: null,
+        applicantTwoAddress: null,
+        applicantTwoFirstName: null,
+        applicantTwoLastName: null,
+        applicantTwoMiddleName: null
       })
     })
 
@@ -1005,7 +1012,11 @@ describe('QuestionPageController V2', () => {
           'AddressLine2',
           'Town',
           'Postcode'
-        ]
+        ],
+        applicantTwoAddress: null,
+        applicantTwoFirstName: null,
+        applicantTwoLastName: null,
+        applicantTwoMiddleName: null
       })
 
       // Our context should know which pages are relevant
@@ -1042,15 +1053,18 @@ describe('QuestionPageController V2', () => {
         '/summary'
       ])
 
-      // Our context should no longer know anything about our applicant
-      expect(stateAfter).not.toHaveProperty('numberOfApplicants')
-      expect(stateAfter).not.toHaveProperty('applicantOneFirstName')
-      expect(stateAfter).not.toHaveProperty('applicantOneMiddleName')
-      expect(stateAfter).not.toHaveProperty('applicantOneLastName')
-      expect(stateAfter).not.toHaveProperty('applicantOneAddress')
-
+      // Our evaluation context should have default values for irrelevant fields
       expect(stateAfter).toEqual({
-        ukPassport: false
+        ukPassport: false,
+        numberOfApplicants: null,
+        applicantOneFirstName: null,
+        applicantOneMiddleName: null,
+        applicantOneLastName: null,
+        applicantOneAddress: null,
+        applicantTwoAddress: null,
+        applicantTwoFirstName: null,
+        applicantTwoLastName: null,
+        applicantTwoMiddleName: null
       })
     })
 
