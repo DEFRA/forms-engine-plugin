@@ -1,5 +1,6 @@
 import { type PageQuestion } from '@defra/forms-model'
 
+import { getForm } from '~/src/server/plugins/engine/configureEnginePlugin.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
@@ -8,6 +9,8 @@ import {
 } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { serverWithSaveAndExit } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
 import {
+  FileStatus,
+  UploadStatus,
   type FormContext,
   type FormPageViewModel,
   type FormState,
@@ -527,6 +530,206 @@ describe('QuestionPageController', () => {
           value: '4'
         }
       ])
+    })
+
+    it('correctly initialises default values', async () => {
+      const components = await getForm(
+        '../../../../test/form/definitions/components.json'
+      )
+      const { pages } = components
+
+      const model = new FormModel(components, {
+        basePath: 'test'
+      })
+
+      const controller = new QuestionPageController(model, pages[0])
+
+      const state: FormSubmissionState = { $$__referenceNumber: 'foobar' }
+
+      let request = buildFormContextRequest({
+        method: 'get',
+        url: new URL('http://example.com/test/all-components'),
+        path: '/test/all-components',
+        params: {
+          path: 'all-components',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+
+      // Calculate our context based on the page we're attempting to load and the above state we provide
+      let context = controller.model.getFormContext(request, state)
+
+      // Context paths should be all pages up to the one we requested
+      expect(context.paths).toEqual(['/all-components'])
+
+      // Our context should have default values for all input fields
+      expect(context.evaluationState).toEqual({
+        textField: null,
+        multilineTextField: null,
+        numberField: null,
+        datePartsField: null,
+        monthYearField: null,
+        yesNoField: null,
+        emailAddressField: null,
+        telephoneNumberField: null,
+        addressField: null,
+        radiosField: null,
+        selectField: null,
+        autocompleteField: null,
+        checkboxesSingle: [],
+        checkboxesMultiple: [],
+        checkboxesSingleNumber: [],
+        checkboxesMultipleNumber: [],
+        fileUpload: null
+      })
+
+      Object.assign(state, {
+        textField: 'Text field',
+        multilineTextField: 'Multiline text field',
+        numberField: 1,
+        datePartsField__day: 12,
+        datePartsField__month: 12,
+        datePartsField__year: 2012,
+        monthYearField__month: 12,
+        monthYearField__year: 2012,
+        yesNoField: 'true',
+        emailAddressField: 'user@email.com',
+        telephoneNumberField: '+447900000000',
+        addressField__addressLine1: 'Address line 1',
+        addressField__addressLine2: 'Address line 2',
+        addressField__town: 'Town or city',
+        addressField__county: 'Cheshire',
+        addressField__postcode: 'CW1 1AB',
+        radiosField: 'privateLimitedCompany',
+        selectField: 910400000,
+        autocompleteField: 910400044,
+        checkboxesSingle: ['Shetland'],
+        checkboxesMultiple: ['Arabian', 'Shire', 'Race'],
+        checkboxesSingleNumber: [1],
+        checkboxesMultipleNumber: [0, 1]
+      })
+
+      request = buildFormContextRequest({
+        method: 'get',
+        url: new URL('http://example.com/test/methodology-statement'),
+        path: '/test/methodology-statement',
+        params: {
+          path: 'methodology-statement',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+
+      // Calculate our context based on the page we're attempting to load and the above state we provide
+      context = controller.model.getFormContext(request, state)
+
+      // Context paths should be all pages up to the one we requested
+      expect(context.paths).toEqual([
+        '/all-components',
+        '/methodology-statement'
+      ])
+
+      // Our context should have evaluation state values for relevant fields and default values for everything else
+      expect(context.evaluationState).toEqual({
+        textField: 'Text field',
+        multilineTextField: 'Multiline text field',
+        numberField: 1,
+        datePartsField: '2012-12-12',
+        monthYearField: '2012-12',
+        yesNoField: null,
+        emailAddressField: 'user@email.com',
+        telephoneNumberField: '+447900000000',
+        addressField: [
+          'Address line 1',
+          'Address line 2',
+          'Town or city',
+          'Cheshire',
+          'CW1 1AB'
+        ],
+        radiosField: 'privateLimitedCompany',
+        selectField: 910400000,
+        autocompleteField: 910400044,
+        checkboxesSingle: ['Shetland'],
+        checkboxesMultiple: ['Arabian', 'Shire', 'Race'],
+        checkboxesSingleNumber: [1],
+        checkboxesMultipleNumber: [0, 1],
+        fileUpload: null
+      })
+
+      Object.assign(state, {
+        fileUpload: [
+          {
+            uploadId: '348e1878-59c0-4d2e-a52b-e5042ad729f0',
+            status: {
+              uploadStatus: UploadStatus.ready,
+              metadata: {
+                retrievalKey: 'enrique.chase@defra.gov.uk'
+              },
+              form: {
+                file: {
+                  fileId: 'fd5db541-179c-4107-a4d0-149d09672ffc',
+                  filename: 'test.jpg',
+                  fileStatus: FileStatus.complete,
+                  contentLength: 3671
+                }
+              },
+              numberOfRejectedFiles: 0
+            }
+          }
+        ]
+      })
+
+      request = buildFormContextRequest({
+        method: 'get',
+        url: new URL('http://example.com/test/summary'),
+        path: '/test/summary',
+        params: {
+          path: 'summary',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+
+      // Calculate our context based on the page we're attempting to load and the above state we provide
+      context = controller.model.getFormContext(request, state)
+
+      // Context paths should be all pages up to the one we requested
+      expect(context.paths).toEqual([
+        '/all-components',
+        '/methodology-statement',
+        '/summary'
+      ])
+
+      // Our context should now have evaluation state values all fields
+      expect(context.evaluationState).toEqual({
+        textField: 'Text field',
+        multilineTextField: 'Multiline text field',
+        numberField: 1,
+        datePartsField: '2012-12-12',
+        monthYearField: '2012-12',
+        yesNoField: null,
+        emailAddressField: 'user@email.com',
+        telephoneNumberField: '+447900000000',
+        addressField: [
+          'Address line 1',
+          'Address line 2',
+          'Town or city',
+          'Cheshire',
+          'CW1 1AB'
+        ],
+        radiosField: 'privateLimitedCompany',
+        selectField: 910400000,
+        autocompleteField: 910400044,
+        checkboxesSingle: ['Shetland'],
+        checkboxesMultiple: ['Arabian', 'Shire', 'Race'],
+        checkboxesSingleNumber: [1],
+        checkboxesMultipleNumber: [0, 1],
+        fileUpload: ['fd5db541-179c-4107-a4d0-149d09672ffc']
+      })
     })
   })
 
