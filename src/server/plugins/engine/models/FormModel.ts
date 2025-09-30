@@ -3,7 +3,6 @@ import {
   ConditionsModel,
   ControllerPath,
   ControllerType,
-  Engine,
   SchemaVersion,
   convertConditionWrapperFromV2,
   formDefinitionSchema,
@@ -19,6 +18,7 @@ import {
   type ConditionWrapperV2,
   type ConditionsModelData,
   type DateUnits,
+  type Engine,
   type FormDefinition,
   type List,
   type Page
@@ -389,19 +389,19 @@ export class FormModel {
   }
 
   private initialiseContext(context: FormContext) {
-    // For the V2 engine, we initialise `evaluationState` for all keys.
+    // Initialise `evaluationState` for all keys using empty state.
     // This is because the current condition evaluation library (eval-expr)
     // will throw if an expression uses a key that is undefined.
-    if (this.engine === Engine.V2) {
-      for (const page of this.pages) {
-        const { collection, pageDef } = page
+    const emptyState = Object.freeze({})
 
-        if (!hasRepeater(pageDef)) {
-          Object.assign(
-            context.evaluationState,
-            collection.getContextValueFromState({})
-          )
-        }
+    for (const page of this.pages) {
+      const { collection, pageDef } = page
+
+      if (!hasRepeater(pageDef)) {
+        Object.assign(
+          context.evaluationState,
+          collection.getContextValueFromState(emptyState)
+        )
       }
     }
   }
