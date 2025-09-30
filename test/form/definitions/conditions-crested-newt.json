@@ -1,0 +1,2433 @@
+{
+  "name": "Great crested newt survey licence return",
+  "engine": "V2",
+  "schema": 2,
+  "startPage": "/summary",
+  "pages": [
+    {
+      "title": "Before you start",
+      "path": "/before-you-start",
+      "components": [
+        {
+          "id": "cf6f259e-5ed4-4fdb-bc5f-380eaa529fb8",
+          "type": "Markdown",
+          "content": "Before you begin to complete this form you should know or have ready: \r\n\r\n- details of your licence and any accredited agents \r\n\r\n- survey information from when you used licensable methods,  regardless of whether or not you found great crested newts \r\n\r\n- the total number of great crested newts you found or captured at a water body (for example, a pond or lake) using each method across all the surveys there – and the peak count of great crested newts on any one survey\r\n\r\n-  the Habitat Suitability Index scores and any records of native amphibians or non-native species, if noted during your surveys\r\n\r\n- details of any welfare concerns such as killed or injured newts",
+          "options": {},
+          "schema": {}
+        }
+      ],
+      "next": [],
+      "id": "575d44e8-e266-44d9-a5ca-284ab349229f"
+    },
+    {
+      "title": "What is your name?",
+      "path": "/what-is-your-name",
+      "components": [
+        {
+          "id": "d6f176ad-57bb-407f-a1f0-fbb5f9423a54",
+          "type": "Markdown",
+          "content": "Provide the name you are currently registered with at Natural England - you will have the option to change this later in the form",
+          "options": {},
+          "schema": {}
+        },
+        {
+          "type": "TextField",
+          "title": "First name",
+          "name": "tYzJxB",
+          "shortDescription": "First name",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "a02c7bca-a3d6-4db2-8ecb-7e24d34de40b"
+        },
+        {
+          "type": "TextField",
+          "title": "Last name",
+          "name": "YBXSrh",
+          "shortDescription": "Last name",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "55ad31db-f0f4-488a-a776-b54d1d0928aa"
+        }
+      ],
+      "next": [],
+      "id": "b71a863e-f2dd-489d-bfc9-94beae904143"
+    },
+    {
+      "title": "",
+      "path": "/have-your-contact-details-changed-since-your-registration-or-last-renewal",
+      "components": [
+        {
+          "type": "RadiosField",
+          "title": "Have your contact details changed since your registration or last renewal?",
+          "name": "ycsEmC",
+          "shortDescription": "Contact details changed",
+          "hint": "",
+          "list": "efbaad69-5642-44a0-84d1-254e2c3db44a",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "fda49b94-8e2a-4939-985d-5e230b722145"
+        }
+      ],
+      "next": [],
+      "id": "aa3c57f9-fba1-4c9f-bce8-190ca69c6431"
+    },
+    {
+      "title": "",
+      "path": "/which-of-your-contact-details-have-changed-since-your-registration-or-last-renewal",
+      "components": [
+        {
+          "type": "CheckboxesField",
+          "title": "Which of your contact details have changed since your registration or last renewal?",
+          "name": "EhzlBB",
+          "shortDescription": "Contact details changed",
+          "hint": "",
+          "list": "9945a184-7b66-4f2f-8197-abee57955fef",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "81924f8e-07c0-4d67-a4c6-3990f12330e9"
+        }
+      ],
+      "next": [],
+      "id": "5de74432-cb8a-4b24-860b-4f621ac8fbb6",
+      "condition": "6778f9db-c54b-477d-9a71-f6496528a53c"
+    },
+    {
+      "title": "",
+      "path": "/which-of-your-contact-details-might-have-changed-since-your-registration-or-last-renewal",
+      "components": [
+        {
+          "type": "CheckboxesField",
+          "title": "Which of your contact details might have changed since your registration or last renewal?",
+          "name": "TxIdxa",
+          "shortDescription": "Contact details changed",
+          "hint": "If you're not sure, select all that you think may need updating",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "list": "aaa03316-ac72-4367-883f-3cab7344dea7",
+          "id": "3f18485e-61cf-4c3a-81bc-21cdfde42b3a"
+        }
+      ],
+      "next": [],
+      "id": "5bdddf59-ef9e-49ad-a6e5-ec34ababa3b0",
+      "condition": "21cff778-18ff-46eb-9f42-cbcf1dec3c5c"
+    },
+    {
+      "title": "Update your name",
+      "path": "/update-your-name",
+      "components": [
+        {
+          "id": "dfd89fca-b79a-415e-8908-fab1da75a44b",
+          "type": "Markdown",
+          "content": "Tell us your current full name",
+          "options": {},
+          "schema": {}
+        },
+        {
+          "type": "TextField",
+          "title": "What is your first name?",
+          "name": "UIBCeA",
+          "shortDescription": "Updated first name",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "f91b2aca-afcf-4b86-9b71-eccd8a40522e"
+        },
+        {
+          "type": "TextField",
+          "title": "What is your last name?",
+          "name": "hzLefN",
+          "shortDescription": "Updated last name",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "2d8c924a-6696-4e76-aa1f-499b358a4da1"
+        }
+      ],
+      "next": [],
+      "id": "9d82b88c-29d5-4931-9c79-715aed7836e0",
+      "condition": "8fc8a819-58ce-4dc4-ba68-471167a755c8"
+    },
+    {
+      "title": "",
+      "path": "/what-is-your-new-address",
+      "components": [
+        {
+          "type": "UkAddressField",
+          "title": "What is your new address?",
+          "name": "YPHUJl",
+          "shortDescription": "Updated address",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "971922e2-b351-423b-82d5-26c613d91f3d"
+        }
+      ],
+      "next": [],
+      "id": "5e2d9f6f-0511-477e-8753-17434a28032a",
+      "condition": "6f8809e5-cdc5-4c7b-9b70-c8d7705dc3e6"
+    },
+    {
+      "title": "",
+      "path": "/what-is-your-new-email-address",
+      "components": [
+        {
+          "type": "EmailAddressField",
+          "title": "What is your new email address?",
+          "name": "sygKTC",
+          "shortDescription": "Updated email address",
+          "hint": "We will use this if we need to contact you about this survey licence return",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "29d705ad-dec7-484a-aa97-8ef617f4ecb6"
+        }
+      ],
+      "next": [],
+      "id": "c51a31e0-7a04-477c-84ef-b804bfc04ee0",
+      "condition": "397b8f1d-fd4c-479b-87d3-b4e1b93719aa"
+    },
+    {
+      "title": "",
+      "path": "/what-is-your-new-contact-number",
+      "components": [
+        {
+          "type": "TelephoneNumberField",
+          "title": "What is your new contact number?",
+          "name": "YgJRFo",
+          "shortDescription": "Updated contact number",
+          "hint": "This can be your phone or mobile number",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "038c5b2c-7fe8-4235-a9f9-c0897cba453d"
+        }
+      ],
+      "next": [],
+      "id": "9a483b47-612d-4daa-ae22-4c537297a3a7",
+      "condition": "9e20d999-de1d-4913-bfe9-546da697520b"
+    },
+    {
+      "title": "",
+      "path": "/what-is-your-email-address",
+      "components": [
+        {
+          "type": "EmailAddressField",
+          "title": "What is your email address?",
+          "name": "NHHjhG",
+          "shortDescription": "Email address",
+          "hint": "We will use this if we need to contact you about this survey licence return",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "5f9aee28-e9bb-4e2a-8573-1def10618e2a"
+        }
+      ],
+      "next": [],
+      "id": "7bcd094f-f130-4902-9056-7f44cf4c8351",
+      "condition": "1b26f4ce-2a75-4c5a-967d-e7f1cd027a79"
+    },
+    {
+      "title": "",
+      "path": "/what-is-your-contact-number",
+      "components": [
+        {
+          "type": "TelephoneNumberField",
+          "title": "What is your contact number?",
+          "name": "LdBpUT",
+          "shortDescription": "Contact number",
+          "hint": "This can be your phone or mobile number",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "a7a68fd0-bdf6-4df8-9287-622e3c5eaa07"
+        }
+      ],
+      "next": [],
+      "id": "6e8ec513-5124-444e-be17-b0b26dab96cf",
+      "condition": "acfd0dc4-4bfd-44e2-8b72-775eaea275e2"
+    },
+    {
+      "title": "",
+      "path": "/what-is-your-survey-licence-reference-number",
+      "components": [
+        {
+          "type": "TextField",
+          "title": "What is your survey licence reference number?",
+          "name": "HKJjqd",
+          "shortDescription": "Survey licence reference number",
+          "hint": "For example, 2015-12345-CLS-CLS",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "7d204a78-1799-481d-91e5-551264d7fc26"
+        }
+      ],
+      "next": [],
+      "id": "dfeeede4-672c-4da5-8815-07f315b812f9"
+    },
+    {
+      "title": "",
+      "path": "/what-level-of-great-crested-newt-survey-class-licence-are-you-registered-to-use",
+      "components": [
+        {
+          "type": "RadiosField",
+          "title": "What level of great crested newt survey class licence are you registered to use?",
+          "name": "xyYjHt",
+          "shortDescription": "Survey class licence level",
+          "hint": "",
+          "list": "4171cc57-28b1-4e60-8491-ab322b9851f5",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "96e9afbd-4220-4971-8702-d8f4a428a93c"
+        }
+      ],
+      "next": [],
+      "id": "876d5348-f220-4743-a913-79a67acf55a6"
+    },
+    {
+      "title": "Actions under your licence",
+      "path": "/actions-under-your-licence",
+      "components": [
+        {
+          "id": "39ad6d67-6ecd-41b4-9ba7-c16b951fb679",
+          "type": "Markdown",
+          "content": "You must report your actions from 1 October to 30 September each year. This includes surveys carried out by your accredited agents. An accredited agent is a suitably trained and experienced person who is able to carry out work under a licence without your personal supervision.\r\n\r\nUse this form to tell us about the surveys carried out under this licence using licensable methods. The licensable methods for great crested newt survey class licences include:\r\n\r\n- disturbing great crested newts using a torch\r\n- taking great crested newts by hand or using nets\r\n- using aquatic funnel traps, including bottle traps, while surveying\r\n- using pitfall traps while surveying\r\n\r\nThe methods you’re allowed to use depend on which licence level you're registered for. \r\n\r\nYou must tell us about all surveys where the licensable methods were used, even if great crested newts were not found. \r\n\r\nYou do not need to tell us about surveys:\r\n\r\n- that were carried out under a different licence, such as a great crested newt mitigation licence\r\n- where you were an accredited agent on another person's survey class licence",
+          "options": {},
+          "schema": {}
+        },
+        {
+          "type": "YesNoField",
+          "title": "Did you or your accredited agents carry out surveys where you used the licensable methods?",
+          "name": "vsWJYH",
+          "shortDescription": "Surveys conducted in reporting period",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "2c2e9dc5-4809-4574-a7c2-26000faaf212"
+        }
+      ],
+      "next": [],
+      "id": "f138c942-c630-47ab-a5e2-7aca970c1355"
+    },
+    {
+      "title": "Reporting results to the Local Record Centre",
+      "path": "/reporting-results-to-the-local-record-centre",
+      "components": [
+        {
+          "id": "a4f92ae5-d7d5-40aa-8c91-e124d80540bc",
+          "type": "Markdown",
+          "content": "You are reporting that you have not used any licensable methods under this survey licence in this reporting period. This is a nil return.\r\n\r\nWe would still encourage you to provide your records to your Local Record Centre. You can do this by recording your results on the [iRecord website](https://irecord.org.uk/) or contacting the [Local Record Centre](https://www.alerc.org.uk/).\r\n\r\nYou do not need to submit your survey data to Natural England but do need to complete this return.\r\n\r\nSelect continue to complete the rest of your return.",
+          "options": {},
+          "schema": {}
+        }
+      ],
+      "next": [],
+      "id": "a5f67429-604d-4baa-9024-b547fbdd0aa5",
+      "condition": "f7f271a1-25ba-4a77-88b1-2103834fc0eb"
+    },
+    {
+      "title": "",
+      "path": "/are-you-submitting-survey-data-for-the-reporting-period-1-october-to-30-september-only",
+      "components": [
+        {
+          "type": "YesNoField",
+          "title": "Are you submitting survey data for the reporting period 1 October to 30 September only?",
+          "name": "xhiodt",
+          "shortDescription": "Data is for this reporting period",
+          "hint": "This means the period from 1 October last year to 30 September this year, or a shorter range if you were first registered in this reporting period",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "9756780b-f786-40f0-8567-7f5ef8cf04c1"
+        }
+      ],
+      "next": [],
+      "id": "02146522-4a34-4e0c-938f-c2d18bdbec0b",
+      "condition": "bde19222-d446-48d7-b001-ef91e7bf9c05"
+    },
+    {
+      "title": "Alternative reporting period",
+      "path": "/alternative-reporting-period",
+      "components": [
+        {
+          "type": "MultilineTextField",
+          "title": "Why are you submitting data outside of the reporting period?",
+          "name": "wJKSPp",
+          "shortDescription": "Survey data outside of reporting period",
+          "hint": "For example, you have been asked to provide older survey data from missed licence returns so you can be re-registered",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "189f6c3c-27ba-4792-aab5-ad89ca55c9a3"
+        },
+        {
+          "type": "DatePartsField",
+          "title": "What is the start date of the period you are reporting for?",
+          "name": "SStfbl",
+          "shortDescription": "Start date of reporting period",
+          "hint": "For example, 01 01 2025 for 1 January 2025",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "d9a6f94c-0610-4616-ae5b-51546ec9d0b0"
+        },
+        {
+          "type": "DatePartsField",
+          "title": "What is the end date of the period you are reporting for?",
+          "name": "XDtiJb",
+          "shortDescription": "End date of reporting period",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "a0888e86-dee9-4e7e-83d0-5e7e17ff1812"
+        }
+      ],
+      "next": [],
+      "id": "5fd31622-a8e7-4e5b-ab82-d7c3c0d60bd5",
+      "condition": "e3532ca5-fa49-4528-91dc-d91392dbf212"
+    },
+    {
+      "title": "Licensable methods",
+      "path": "/licensable-methods",
+      "components": [
+        {
+          "id": "fc2b11f8-3411-4a82-a34c-676792a37f8f",
+          "type": "Markdown",
+          "content": "You should only select the methods where you were using this survey class licence. This includes surveys where no great crested newts were found.\r\n\r\nYou should not select methods where you:\r\n\r\n- were working under a different licence such as a mitigation licence\r\n- were an accredited agent on someone else's licence \r\n- did not need a licence, for example to rescue an injured great crested newt where the cause of the injury wasn't unlawful",
+          "options": {},
+          "schema": {}
+        },
+        {
+          "type": "CheckboxesField",
+          "title": "What licensable methods did you use?",
+          "name": "NtgjNd",
+          "shortDescription": "Licensable methods used",
+          "hint": "",
+          "list": "01b42626-93f0-4400-80ce-05281f5cc0fa",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "41604883-f020-454c-a781-c039ed343a6a"
+        }
+      ],
+      "next": [],
+      "id": "79bbb231-4daa-402e-ad5f-dbead2d41b1f",
+      "condition": "bde19222-d446-48d7-b001-ef91e7bf9c05"
+    },
+    {
+      "title": "Pitfall trapping carried out under your CL08 licence",
+      "path": "/pitfall-trapping-carried-out-under-your-cl08-licence",
+      "components": [
+        {
+          "id": "5000ed5e-8d6f-4585-b54f-c1c852518bfc",
+          "type": "Markdown",
+          "content": "Under the conditions of your [CL08 (level 1) great crested newt survey licence](https://www.gov.uk/government/publications/great-crested-newts-survey-or-research-licence-level-1/class-licence-cl08-great-crested-newts-survey-or-research-level-1), you and your accredited agents and assistants are allowed to:\r\n\r\n- take great crested newts by hand or using nets\r\n- disturb great crested newts using torches\r\n- use aquatic funnel traps, including bottle traps\r\n\r\nYou've said that you used pitfall traps, which is not covered by the CL08 licence.",
+          "options": {},
+          "schema": {}
+        },
+        {
+          "type": "MultilineTextField",
+          "title": "Why did you use pitfall trapping?",
+          "name": "AuQKwq",
+          "shortDescription": "Pitfall trapping carried out under CL08 licence",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "ea46253f-ad22-4224-b572-ca8aad6603c4"
+        },
+        {
+          "type": "MultilineTextField",
+          "title": "Were any great crested newts injured or killed using pitfall trapping?",
+          "name": "hbVNwE",
+          "shortDescription": "Great crested newts injured or killed when using pitfall trapping",
+          "hint": "If great crested newts were harmed or killed, you must tell us how this happened and the number of great crested newts harmed",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "9832913c-c58c-47b3-9f40-7b930083ff6d"
+        }
+      ],
+      "next": [],
+      "id": "004831d0-a864-423f-ae88-8dd97bedb274",
+      "condition": "aa7bd497-05d9-4c25-a42b-c6bc618fe0f4"
+    },
+    {
+      "title": "",
+      "path": "/did-you-tell-natural-england-that-you-planned-to-start-pitfall-trapping-at-least-5-working-days-before-installing-fences-or-traps",
+      "components": [
+        {
+          "type": "YesNoField",
+          "title": "Did you tell Natural England that you planned to start pitfall trapping at least 5 working days before installing fences or traps?",
+          "name": "zXNlOo",
+          "shortDescription": "Pitfall trapping",
+          "hint": "This is a condition of the CL09 licence",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "3b7bfe3c-f61b-4e09-a798-c895cb710777"
+        }
+      ],
+      "next": [],
+      "id": "ccaa21cc-b707-4ddc-8a68-08852dc8424d",
+      "condition": "0b0d149f-0ff6-4f88-a692-d745426c3b1b"
+    },
+    {
+      "title": "Pitfall trapping - additional information",
+      "path": "/pitfall-trapping-additional-information",
+      "components": [
+        {
+          "id": "02b9e110-b59e-4353-a12c-0dc26030c355",
+          "type": "Markdown",
+          "content": "You must inform Natural England at least 5 working days before installing fences or pitfall traps. This is detailed in Licence Condition 7 of the [CL09 licence](https://www.gov.uk/government/publications/great-crested-newts-survey-or-research-licence-level-2/great-crested-newts-survey-or-research-licence-level-2-cl09).  \r\n\r\nIf you did not tell Natural England 5 working days before starting pitfall trapping, you need to:\r\n\r\n- explain why you did not tell Natural England before trapping\r\n- show that great crested newt welfare wasn’t harmed, and the favourable conservation status was not affected",
+          "options": {},
+          "schema": {}
+        },
+        {
+          "type": "MultilineTextField",
+          "title": "Why did you not give 5 working days' notice before you started pitfall trapping?",
+          "name": "sODJBe",
+          "shortDescription": "Pitfall trapping notice not given",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "317214ca-e006-42e4-882e-776f5f7edd80"
+        },
+        {
+          "type": "MultilineTextField",
+          "title": "Were any great crested newts injured or killed using pitfall trapping?",
+          "name": "khbRbr",
+          "shortDescription": "Great crested newts injured or killed using pitfall trapping",
+          "hint": "If great crested newts were injured or killed, you must tell us the number impacted and how this happened",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "23141fe3-8b17-4ba0-b42b-d766b8728838"
+        }
+      ],
+      "next": [],
+      "id": "5b68606c-8d7b-4d6c-8cfe-61f5de7148b1",
+      "condition": "2121d344-b822-457b-a64a-31a388c9abc5"
+    },
+    {
+      "title": "Survey results",
+      "path": "/survey-results",
+      "components": [
+        {
+          "id": "866749b8-4e59-4715-b323-254d0475e652",
+          "type": "Markdown",
+          "content": "You must give the results of all surveys carried out under this class licence that used licensable methods. This includes surveys carried out by accredited agents.\r\n\r\nThe next page will ask you to summarise the overall survey results for one water body, regardless of the number of survey visits.\r\n\r\nYou must include:\r\n\r\n- all surveys where great crested newts were observed\r\n- all surveys where you searched for great crested newts using one or more of the licensable methods but they were not found - this helps with 'likely absence' data\r\n\r\nDo not include surveys that were carried out under a different licence, for example:\r\n\r\n- a great crested newt mitigation licence or science and conservation project licence\r\n- where you were an accredited agent on another person's survey class licence\r\n\r\nYou can add information about killed or injured great crested newts later in this form.",
+          "options": {},
+          "schema": {}
+        }
+      ],
+      "next": [],
+      "id": "517cd83b-cf05-4975-94a6-0431ebe99ed4",
+      "condition": "bde19222-d446-48d7-b001-ef91e7bf9c05"
+    },
+    {
+      "title": "Survey details",
+      "path": "/survey-details",
+      "components": [
+        {
+          "id": "d6485ea6-725a-4e4c-8614-ead5108c29e2",
+          "type": "Markdown",
+          "content": "Complete one page for each water body where you or your accredited agents carried out surveys using licensable techniques. You can add more water bodies on the next pages. The button to 'add another' water body is located at the bottom of this page.\r\n\r\nYou must answer all questions if they apply to you - even if they're marked as 'optional'. You should only leave a question blank if you:\r\n- did not use that method\r\n- do not have the relevant information\r\n\r\n## Grid reference\r\n\r\nTo find your grid reference:\r\n\r\n1. Open the free [Ordnance Survey Maps](https://explore.osmaps.com/?lat=54.48471&lon=-0.64347&zoom=12.6715&style=Standard&type=2d) website.\r\n2. In the search bar in the top left corner, type the site location or nearest postcode.\r\n3. Click on the location in the list of results that appears below the search bar.\r\n4. Right click on the site location on the map to find the grid reference.\r\n5. Copy the grid reference from the pop-up box.\r\n\r\n## How to enter great crested newt numbers\r\n- For the adult peak count, enter the highest number of adults seen during one survey visit, and specify how many of these were male, female, or of unknown sex\r\n- For the juvenile peak count, enter the highest number of juvenile great crested newts seen during any one survey - this may be from the same survey as the adult peak count, or a different one\r\n- Enter ‘0’ if no great crested newts were present\r\n\r\n##",
+          "options": {},
+          "schema": {}
+        },
+        {
+          "type": "TextField",
+          "title": "Grid reference",
+          "name": "sQuBOH",
+          "shortDescription": "Grid reference",
+          "hint": "Give the OS 10-figure grid reference number for the centre of the water body, for example SE 12345 67891",
+          "options": {
+            "required": true
+          },
+          "schema": {
+            "min": 12,
+            "max": 14
+          },
+          "id": "0e9e122d-d481-4d12-b794-f3afe5b73561"
+        },
+        {
+          "type": "AutocompleteField",
+          "title": "What county is this water body located in?",
+          "name": "TKJJIm",
+          "shortDescription": "County",
+          "hint": "",
+          "list": "fe35c11b-e0e9-45e4-a0e4-a523d7e90a07",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "1898671a-3b0c-4106-9a85-e9c778a014f9"
+        },
+        {
+          "type": "DatePartsField",
+          "title": "What was the date of the first survey at this water body?",
+          "name": "ysDlvw",
+          "shortDescription": "Date of first survey",
+          "hint": "For example, 01 01 2025 for 1 January 2025",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "38618992-ad9d-4dab-b884-8657923e7a22"
+        },
+        {
+          "type": "DatePartsField",
+          "title": "What was the date of the last survey at this water body?",
+          "name": "lOUXnX",
+          "shortDescription": "Date of last survey",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "76332816-3e56-4815-89e2-4ba1e2681d2d"
+        },
+        {
+          "type": "RadiosField",
+          "title": "What was the main purpose of the surveys?",
+          "name": "rwhQdt",
+          "shortDescription": "Main purpose of surveys",
+          "hint": "Choose one option",
+          "list": "64a6a6bc-615b-46f9-ac43-3a04a861e822",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "fba4ef9b-452e-4a45-9ce0-536437de248e"
+        },
+        {
+          "type": "RadiosField",
+          "title": "Were great crested newts present or absent?",
+          "name": "UBPdwg",
+          "shortDescription": "Great crested newts present or absent",
+          "hint": "",
+          "list": "794e0e2f-39a7-445c-8684-23f8f4a07bf4",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "8d02cb74-c599-4eff-b88d-6181287d315e"
+        },
+        {
+          "type": "NumberField",
+          "title": "What was the peak count of adult great crested newts?",
+          "name": "oTAQAX",
+          "shortDescription": "Peak count of adult great crested newts",
+          "hint": "This should be the highest total number of adult great crested newts seen on any one survey visit at this water body",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "d3d6ea7f-160b-41ec-a583-c75c83118098"
+        },
+        {
+          "type": "NumberField",
+          "title": "How many adults from the peak count were male?",
+          "name": "OhgUdS",
+          "shortDescription": "Number of adult male great crested newts",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "763562ff-5065-4de1-9a59-b333e2432112"
+        },
+        {
+          "type": "NumberField",
+          "title": "How many adults from the peak count were female?",
+          "name": "apoSyz",
+          "shortDescription": "Number of adult female great crested newts",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "24cce82b-52fe-4b85-be4d-69c1769cf174"
+        },
+        {
+          "type": "NumberField",
+          "title": "How many adults from the peak count were of unknown sex?",
+          "name": "fJudcU",
+          "shortDescription": "Number of adult great crested newts of unknown sex",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "ccee8b20-a503-438a-943d-aa4b7566c114"
+        },
+        {
+          "type": "NumberField",
+          "title": "What was the peak count of immature great crested newts, including juveniles, efts and tadpoles?",
+          "name": "DxFLvZ",
+          "shortDescription": "Peak count of immature great crested newts",
+          "hint": "This should be the highest number of immature great crested newts seen on any one survey visit at this water body",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "59f4227d-c214-4f4d-b098-83643b0faf1c"
+        },
+        {
+          "type": "NumberField",
+          "title": "Number of great crested newts taken by bottle trap across all surveys at this water body",
+          "name": "fmkumS",
+          "shortDescription": "Number of great crested newts taken by bottle trap",
+          "hint": "Give the total number of great crested newts of all ages across all surveys or leave blank if you did not use this method",
+          "options": {
+            "required": false
+          },
+          "schema": {},
+          "id": "581320f1-ea47-4f29-805f-63adc8b7a766"
+        },
+        {
+          "type": "NumberField",
+          "title": "Number of great crested newts taken by hand net across all surveys at this water body",
+          "name": "EQYqRH",
+          "shortDescription": "Number of great crested newts taken by hand net",
+          "hint": "Give the total number of great crested newts of all ages across all surveys or leave blank if you did not use this method",
+          "options": {
+            "required": false
+          },
+          "schema": {},
+          "id": "34c1b318-74e5-4c60-a0a1-145ebe309a04"
+        },
+        {
+          "type": "NumberField",
+          "title": "Number of great crested newts disturbed by torch across all surveys at this water body",
+          "name": "gmgoBT",
+          "shortDescription": "Number of great crested newts disturbed by torch",
+          "hint": "Give the total number of great crested newts of all ages across all surveys or leave blank if you did not use this method",
+          "options": {
+            "required": false
+          },
+          "schema": {},
+          "id": "859281d5-0342-4d4a-841c-3f1d2c84d758"
+        },
+        {
+          "type": "NumberField",
+          "title": "Number of great crested newts disturbed by refugia search across all surveys at this water body",
+          "name": "Qplmfv",
+          "shortDescription": "Number of great crested newts disturbed by refugia search",
+          "hint": "Give the total number of great crested newts of all ages across all surveys or leave blank if you did not use this method",
+          "options": {
+            "required": false
+          },
+          "schema": {},
+          "id": "f951ec77-49b4-4cca-aad6-c3dc9af20cf9"
+        },
+        {
+          "type": "RadiosField",
+          "title": "Did you find great crested newt eggs during egg searches?",
+          "name": "DOqGtr",
+          "shortDescription": "Great crested newt eggs found",
+          "hint": "",
+          "list": "d8406d75-1f90-4db9-b99f-1add63cc6ea0",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "3cc7871f-931d-4755-b81f-050418bd67f8"
+        },
+        {
+          "type": "RadiosField",
+          "title": "What was the result of eDNA surveys?",
+          "name": "ZTngVf",
+          "shortDescription": "eDNA surveys",
+          "hint": "",
+          "list": "a1996e58-d090-4090-b1aa-9ee81b19c9d6",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "0c331a0f-e054-49ef-8116-25577c15ff51"
+        },
+        {
+          "type": "RadiosField",
+          "title": "What was the Habitat Suitability Index score for this water body?",
+          "name": "iNNJrB",
+          "shortDescription": "Habitat Suitability Index",
+          "hint": "",
+          "list": "b788fe39-8833-4c25-8215-89538a5240fe",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "6b979b02-17c4-4731-9718-db593d699598"
+        },
+        {
+          "type": "CheckboxesField",
+          "title": "Did you find any of the following native amphibians at this water body?",
+          "name": "hqvRCe",
+          "shortDescription": "Native amphibians found",
+          "hint": "Select all that apply",
+          "list": "5fc0f865-f2f5-4285-8bb9-3aa64daa4cec",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "e898850b-ba9f-4afb-8e6b-fbe121ccf061"
+        },
+        {
+          "type": "RadiosField",
+          "title": "Were any non-native amphibians found at this water body in any of the surveys?",
+          "name": "OogWRE",
+          "shortDescription": "Non-native amphibians",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "list": "e4567024-d219-493f-9bb7-17101bbe05f6",
+          "id": "d0b8c287-1ca6-4eec-836d-fc1013ca471b"
+        },
+        {
+          "type": "MultilineTextField",
+          "title": "If non-native amphibians were found at this water body, what species were they?",
+          "name": "kBIyJC",
+          "shortDescription": "Non-native amphibians found",
+          "hint": "",
+          "options": {
+            "required": false
+          },
+          "schema": {},
+          "id": "92668e70-9205-454f-b089-be1567365718"
+        },
+        {
+          "type": "RadiosField",
+          "title": "Were any non-native plants found at this water body in any of the surveys?",
+          "name": "jfRwIl",
+          "shortDescription": "Non-native plants",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "list": "5682f410-09de-4842-a51d-aad6af1dd431",
+          "id": "ed9ecaa3-4557-4b3c-bd88-87fd6f57af9b"
+        },
+        {
+          "type": "MultilineTextField",
+          "title": "If non-native plants were found at this water body, what species were they?",
+          "name": "ZMIxEI",
+          "shortDescription": "Non-native plants found",
+          "hint": "",
+          "options": {
+            "required": false
+          },
+          "schema": {},
+          "id": "8a2ccec5-680d-4a12-a8ed-dcd4dd197352"
+        }
+      ],
+      "next": [],
+      "id": "ebcaba82-5872-4aa2-998c-9c8c324bbd0d",
+      "condition": "bde19222-d446-48d7-b001-ef91e7bf9c05"
+    },
+    {
+      "title": "Reporting your results",
+      "path": "/reporting-your-results",
+      "components": [
+        {
+          "id": "7f0e997b-9b98-4a58-98e5-86cb77195b8d",
+          "type": "Markdown",
+          "content": "As you or your accredited agents used licensable techniques, you must send your survey data to the Local Environmental Record Centre.\r\n\r\nYou can do this by recording your results on the [iRecord website](https://irecord.org.uk/) or contacting the [Local Record Centre](https://www.alerc.org.uk/).",
+          "options": {},
+          "schema": {}
+        },
+        {
+          "type": "YesNoField",
+          "title": "Have you submitted your survey results to your Local Environmental Record Centre?",
+          "name": "JwjLBr",
+          "shortDescription": "Survey results sent to records centre",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "113cccb4-c632-4395-9956-4d8ef46e9fe7"
+        }
+      ],
+      "next": [],
+      "id": "9da5ecdb-7d98-4587-af09-b662da54b37f",
+      "condition": "bde19222-d446-48d7-b001-ef91e7bf9c05"
+    },
+    {
+      "title": "Report your survey results by 31 October",
+      "path": "/report-your-survey-results-by-31-october",
+      "components": [
+        {
+          "id": "7803a326-8fcc-42d7-9811-5e9e5a95a08f",
+          "type": "Markdown",
+          "content": "You must submit survey data collected under this licence to the  [local record centre](https://www.alerc.org.uk/) by no later than 31 October this year. You can do this by recording your results on the [iRecord website](https://irecord.org.uk/)\r\n\r\nYou may authorise other individuals to submit survey data on your behalf. It is your responsibility as the registered person to make sure that records are accurate and submitted in accordance with the terms of the licence.",
+          "options": {},
+          "schema": {}
+        }
+      ],
+      "next": [],
+      "id": "4e64b33e-48b9-4725-a48f-aeab80f7e18a",
+      "condition": "fd0d85b4-ef27-4d2a-8c30-69dcb3706fca"
+    },
+    {
+      "title": "",
+      "path": "/were-all-captured-great-crested-newts-freed-immediately-after-examination-at-the-site-of-capture",
+      "components": [
+        {
+          "type": "RadiosField",
+          "title": "Were all captured great crested newts freed immediately after examination at the site of capture?",
+          "name": "kVJEkv",
+          "shortDescription": "All captured great crested newts freed",
+          "hint": "",
+          "list": "e73aeaaa-72f5-45a5-ac7f-ff558ce69570",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "ff80fac7-abf0-4bce-9241-10ba78cf542a"
+        }
+      ],
+      "next": [],
+      "id": "17c99bbe-55a3-4e57-b9ae-072b811312b0",
+      "condition": "bde19222-d446-48d7-b001-ef91e7bf9c05"
+    },
+    {
+      "title": "",
+      "path": "/why-were-all-captured-great-crested-newts-not-freed-immediately-after-examination-at-the-site-of-capture",
+      "components": [
+        {
+          "type": "MultilineTextField",
+          "title": "Why were all captured great crested newts not freed immediately after examination at the site of capture?",
+          "name": "OHtrUt",
+          "shortDescription": "Great crested newts not freed at capture site",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "a8b36239-cd45-40e1-a221-cd995a403426"
+        }
+      ],
+      "next": [],
+      "id": "e755161e-329e-45d2-94c9-5aaaab75348f",
+      "condition": "4cf2695e-a1bd-4e11-85c4-6b10423f0e7e"
+    },
+    {
+      "title": "",
+      "path": "/were-any-great-crested-newts-killed-or-injured",
+      "components": [
+        {
+          "type": "YesNoField",
+          "title": "Were any great crested newts killed or injured?",
+          "name": "HTgBMI",
+          "shortDescription": "Great crested newts killed or injured",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "c88cab48-f60d-45e1-885d-c5bd3de89e01"
+        }
+      ],
+      "next": [],
+      "id": "f86fbfc4-9f5d-4d88-9f09-ea2151df2814",
+      "condition": "bde19222-d446-48d7-b001-ef91e7bf9c05"
+    },
+    {
+      "title": "",
+      "path": "/give-details-of-any-great-crested-newts-that-were-killed-or-injured-and-the-likely-cause-of-injury-or-death-if-known",
+      "components": [
+        {
+          "type": "MultilineTextField",
+          "title": "Give details of any great crested newts that were killed or injured and the likely cause of injury or death, if known",
+          "name": "VjVhBk",
+          "shortDescription": "Details of great crested newts killed or injured",
+          "hint": "Include the location where the great crested newts were observed",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "d4d4faa3-9435-4ebe-8318-24e332b375e4"
+        }
+      ],
+      "next": [],
+      "id": "a729676d-5a18-4591-983f-ca63e3c22595",
+      "condition": "8d90a53b-e56f-4652-a903-bd97af53c2e5"
+    },
+    {
+      "title": "Accredited agents",
+      "path": "/accredited-agents",
+      "components": [
+        {
+          "id": "8b724dfe-4a6f-4259-9477-f947ef38e7cf",
+          "type": "Markdown",
+          "content": "You must give details of any accredited agents appointed under your licence.\r\n\r\nYou do not need to include assistants. An assistant is a person working under the direct supervision of the registered person or their accredited agent.",
+          "options": {},
+          "schema": {}
+        },
+        {
+          "type": "YesNoField",
+          "title": "Did you use any accredited agents under your survey class licence in this reporting period?",
+          "name": "fOLmIK",
+          "shortDescription": "Accredited agents used",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "e6092ccd-9b0b-41d9-95d7-dcfb0f5cd56d"
+        }
+      ],
+      "next": [],
+      "id": "50820005-8a4f-4b4a-9c7b-cd693b083997",
+      "condition": "bde19222-d446-48d7-b001-ef91e7bf9c05"
+    },
+    {
+      "title": "",
+      "path": "/provide-the-full-names-of-all-accredited-agents-who-acted-under-your-licence-during-this-reporting-period",
+      "components": [
+        {
+          "type": "MultilineTextField",
+          "title": "Provide the full names of all accredited agents who acted under your licence during this reporting period",
+          "name": "fYdjIu",
+          "shortDescription": "Accredited agents names",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "236dc74e-d674-4494-8aa4-9ae7a1bef04e"
+        }
+      ],
+      "next": [],
+      "id": "34e29cf7-e917-490e-a037-4d57e4003cdd",
+      "condition": "9c936f86-6012-4b55-a1f6-3127847c9562"
+    },
+    {
+      "title": "Accredited agents - additional information",
+      "path": "/accredited-agents-additional-information",
+      "components": [
+        {
+          "type": "YesNoField",
+          "title": "Were the accredited agents suitably trained and experienced to work under the terms of this survey class licence?",
+          "name": "fpQsgu",
+          "shortDescription": "Accredited agents experience",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "15d169c2-3aea-489a-ba09-0db6a9bf61bc"
+        },
+        {
+          "type": "YesNoField",
+          "title": "Did you appoint the accredited agents by signed written letter?",
+          "name": "RONQPH",
+          "shortDescription": "Accredited agents appointed by written letter",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "125cb7e0-18cf-4183-8b65-aeececea5082"
+        },
+        {
+          "type": "YesNoField",
+          "title": "Did all the accredited agents follow up to date industry standard guidelines?",
+          "name": "hfzHIV",
+          "shortDescription": "Accredited agents followed guidelines",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "e503dad7-42b0-4f4c-9207-1413011afbdd"
+        }
+      ],
+      "next": [],
+      "id": "07faf3f8-8838-49a6-82da-d8f08c56e2e0",
+      "condition": "9c936f86-6012-4b55-a1f6-3127847c9562"
+    },
+    {
+      "title": "Accredited agents were not suitably experienced",
+      "path": "/accredited-agents-were-not-suitably-experienced",
+      "components": [
+        {
+          "type": "MultilineTextField",
+          "title": "Why were the accredited agents not suitably trained and experienced?",
+          "name": "EDARLw",
+          "shortDescription": "Accredited agents not experienced",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "11901c2a-1575-4392-b6a0-6e340714abe1"
+        },
+        {
+          "type": "MultilineTextField",
+          "title": "Was great crested newt welfare or favourable conservation status impacted by this?",
+          "name": "vVIKMO",
+          "shortDescription": "Impact on great crested newt welfare",
+          "hint": "Give reasons for your answer",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "d19f8db9-9691-4fd8-bd0b-6baa01e8de75"
+        }
+      ],
+      "next": [],
+      "id": "1afdd928-75f6-4273-83bf-178ad916c748",
+      "condition": "4cc425bb-152c-40d2-9a51-20c79f110162"
+    },
+    {
+      "title": "Accredited agents were not appointed by signed written letter",
+      "path": "/accredited-agents-were-not-appointed-by-signed-written-letter",
+      "components": [
+        {
+          "type": "MultilineTextField",
+          "title": "Why were the accredited agents not appointed by signed written letter?",
+          "name": "vobOpy",
+          "shortDescription": "Accredited agents not appointed by letter",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "8303add4-572f-4524-8833-e948d12f727a"
+        },
+        {
+          "type": "MultilineTextField",
+          "title": "Was great crested newt welfare or favourable conservation status impacted by this?",
+          "name": "Wckrxd",
+          "shortDescription": "Impact on great crested newt welfare",
+          "hint": "Give reasons for your answer",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "6d4c9369-c576-4fae-b039-862ab45823bf"
+        }
+      ],
+      "next": [],
+      "id": "b4533337-fb42-4995-8810-97c47a265111",
+      "condition": "5c012f74-59d0-45f2-9711-99c0da629d75"
+    },
+    {
+      "title": "Accredited agents did not follow industry standard guidelines",
+      "path": "/accredited-agents-did-not-follow-industry-standard-guidelines",
+      "components": [
+        {
+          "type": "MultilineTextField",
+          "title": "Why did the accredited agents not follow industry standard guidelines?",
+          "name": "idBywI",
+          "shortDescription": "Accredited agents not followed guidelines",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "77554272-1a08-48a7-8efd-811a8faa7488"
+        },
+        {
+          "type": "MultilineTextField",
+          "title": "Was great crested newt welfare or favourable conservation status impacted by this?",
+          "name": "IwdadD",
+          "shortDescription": "Impact on great crested newt welfare",
+          "hint": "Give reasons for your answer",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "a9596a1b-fbb4-4fa5-8949-2c3188f1e8dd"
+        }
+      ],
+      "next": [],
+      "id": "25235046-b28d-4fc3-b370-d3045b19393d",
+      "condition": "ceb398b7-06b7-4427-9a40-8e04d163ac6c"
+    },
+    {
+      "title": "",
+      "path": "/do-you-want-to-stay-registered-to-use-this-licence-for-the-year-ahead",
+      "components": [
+        {
+          "type": "YesNoField",
+          "title": "Do you want to stay registered to use this licence for the year ahead?",
+          "name": "qWXGPe",
+          "shortDescription": "Stay registered for the year ahead",
+          "hint": "You must pay a fee of £35 to stay registered unless you are exempt",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "cce2b166-6cbf-4ced-89d5-56fb0d877ad2"
+        }
+      ],
+      "next": [],
+      "id": "0104f4a4-1dcd-407b-a7a1-539192d7d52d"
+    },
+    {
+      "title": "End your registration",
+      "path": "/end-your-registration",
+      "components": [
+        {
+          "id": "f5318fc0-1db4-47e8-9cf5-ded3285a2cb4",
+          "type": "Markdown",
+          "content": "You’ve said you do not want to stay registered to use this licence for the year ahead. Your registration will end if you do not re-register.\r\n\r\nIf you want to stay registered, click 'back' at the top of this page to return to the previous question.\r\n\r\nIf you end your registration:\r\n- during the current registration period, your registration will end on the date you submit the form\r\n- after the registration period has closed, your registration will formally have ended on 31 October this year\r\n\r\nYou can apply to re-register in the future by visiting the [great crested newt licences](https://www.gov.uk/government/collections/great-crested-newt-licences) and selecting the level of great crested newt survey licence you want to register for.\r\n\r\nClick 'continue' to go to the declaration page and submit your form.",
+          "options": {},
+          "schema": {}
+        }
+      ],
+      "next": [],
+      "id": "8ee9a7f5-4479-4543-88fe-5c6782e4ac86",
+      "condition": "c76fdc17-141c-4b54-885c-4423c6a36927"
+    },
+    {
+      "title": "When you need to pay",
+      "path": "/when-you-need-to-pay",
+      "components": [
+        {
+          "id": "b5c83bdb-a970-452c-bb1f-302ad83eb636",
+          "type": "Markdown",
+          "content": "You do not need to pay if the licence is only used for:\r\n\r\n- voluntary purposes - unpaid voluntary work for an organisation, charity or local recording group\r\n- science or education purposes - paid or unpaid research on the protected species by a student or employee of an academic institution, research organisation, local wildlife group or environmental non-governmental organisation\r\n\r\nYou must pay if you use the licence for:\r\n\r\n- other purposes such as surveys to inform development projects\r\n- a mix of surveys to inform development projects and voluntary purposes or science and education",
+          "options": {},
+          "schema": {}
+        }
+      ],
+      "next": [],
+      "id": "d1196402-27b4-4a93-997e-97505f915cb3",
+      "condition": "c2926bdd-bfe3-42c7-980e-3ed0256c0543"
+    },
+    {
+      "title": "",
+      "path": "/how-will-you-use-your-licence-in-the-year-ahead",
+      "components": [
+        {
+          "type": "CheckboxesField",
+          "title": "How will you use your licence in the year ahead?",
+          "name": "xzoljN",
+          "shortDescription": "How will you use your licence",
+          "hint": "Select all that apply",
+          "list": "85263abf-7c98-4207-b0a1-d887f7809158",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "aa654ad1-e521-4321-8644-1b3b410b6992"
+        }
+      ],
+      "next": [],
+      "id": "387e5bfb-d5ac-4c1e-81e0-c86dd19b1cd6",
+      "condition": "c2926bdd-bfe3-42c7-980e-3ed0256c0543"
+    },
+    {
+      "title": "You do not need to pay for your licence",
+      "path": "/you-do-not-need-to-pay-for-your-licence",
+      "components": [
+        {
+          "id": "0ab6115c-0c79-4e43-b6fd-73a4580bb1ab",
+          "type": "Markdown",
+          "content": "Click continue to proceed to the declaration and submit your form.",
+          "options": {},
+          "schema": {}
+        }
+      ],
+      "next": [],
+      "id": "cb9ad8fa-40c0-4c26-b44f-bb4403ac9c55",
+      "condition": "966a195c-e6e5-4352-9118-0e1eaaf91a43"
+    },
+    {
+      "title": "You need to pay for your licence",
+      "path": "/you-need-to-pay-for-your-licence",
+      "components": [
+        {
+          "id": "faa45fd0-20a0-4912-a544-1d25851ee827",
+          "type": "Markdown",
+          "content": "Read the [terms and conditions for paying for a wildlife licence](https://www.gov.uk/government/publications/terms-and-conditions-for-paying-for-a-wildlife-licence).\r\n\r\nGo to [GOV.UK Pay](https://products.payments.service.gov.uk/pay/a766662a747442e58ef55b1e7874ea9f) to pay for your licence. It costs £35 to re-register your licence for another year.\r\n\r\nYou must return to this form to complete and submit it once you have paid. You will need your payment reference number.",
+          "options": {},
+          "schema": {}
+        },
+        {
+          "type": "TextField",
+          "title": "What is your payment reference number?",
+          "name": "UjJHuq",
+          "shortDescription": "Payment reference number",
+          "hint": "This will be 10 characters long, made up of both letters and numbers",
+          "options": {
+            "required": true
+          },
+          "schema": {
+            "min": 10,
+            "max": 10
+          },
+          "id": "34fe468e-1707-40f0-bbd8-e7e0cfc797e2"
+        }
+      ],
+      "next": [],
+      "id": "28b05720-62bf-4c4e-9f14-6abf440f87c3",
+      "condition": "8dd5dd95-3b3c-4568-930e-ff7e16709b64"
+    },
+    {
+      "id": "449a45f6-4541-4a46-91bd-8b8931b07b50",
+      "title": "Summary",
+      "path": "/summary",
+      "controller": "SummaryPageController",
+      "next": [],
+      "components": [
+        {
+          "id": "83d75c5f-6b66-48c8-afa6-879a65753bd0",
+          "type": "Markdown",
+          "content": "By submitting this form, I confirm that:\r\n\r\n- I have included details of all surveys where licensable actions were used under this licence, including surveys carried out by accredited agents.\r\n\r\n- I declare that the details given in this report are correct to the best of my knowledge and belief.\r\n\r\n- I have read and understood the [wildlife licensing privacy notice](https://www.gov.uk/government/publications/natural-england-privacy-notices/wildlife-licensing-privacy-notice).\r\n\r\nBy selecting 'Accept and send', I agree to these declarations.",
+          "options": {},
+          "schema": {}
+        }
+      ]
+    }
+  ],
+  "conditions": [
+    {
+      "items": [
+        {
+          "id": "41dab7f4-ce9e-42e0-bf18-2ad03361a3f3",
+          "componentId": "2c2e9dc5-4809-4574-a7c2-26000faaf212",
+          "operator": "is",
+          "value": true,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "Surveys carried out",
+      "id": "bde19222-d446-48d7-b001-ef91e7bf9c05"
+    },
+    {
+      "items": [
+        {
+          "id": "e7b836a6-442a-4c37-ac4b-cce26a386d50",
+          "componentId": "fda49b94-8e2a-4939-985d-5e230b722145",
+          "operator": "is",
+          "value": {
+            "itemId": "660f26d5-c478-4d5a-ae7f-45034449c6a7",
+            "listId": "efbaad69-5642-44a0-84d1-254e2c3db44a"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Contact details have changed",
+      "id": "6778f9db-c54b-477d-9a71-f6496528a53c"
+    },
+    {
+      "items": [
+        {
+          "id": "f8b56469-ccc8-4379-acc1-63849e184394",
+          "componentId": "9756780b-f786-40f0-8567-7f5ef8cf04c1",
+          "operator": "is",
+          "value": false,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "Data out of reporting period",
+      "id": "e3532ca5-fa49-4528-91dc-d91392dbf212"
+    },
+    {
+      "items": [
+        {
+          "id": "f33501d1-74a2-4a21-b455-a5ec99af8c10",
+          "componentId": "e6092ccd-9b0b-41d9-95d7-dcfb0f5cd56d",
+          "operator": "is",
+          "value": true,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "Accredited agents used",
+      "id": "9c936f86-6012-4b55-a1f6-3127847c9562"
+    },
+    {
+      "items": [
+        {
+          "id": "7b66ebc5-a132-40bb-ab82-6ff8f6c77f37",
+          "componentId": "15d169c2-3aea-489a-ba09-0db6a9bf61bc",
+          "operator": "is",
+          "value": false,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "Accredited agents not trained",
+      "id": "4cc425bb-152c-40d2-9a51-20c79f110162"
+    },
+    {
+      "items": [
+        {
+          "id": "4aef87df-4ded-4c78-9fca-0d7bd8b3ebdc",
+          "componentId": "125cb7e0-18cf-4183-8b65-aeececea5082",
+          "operator": "is",
+          "value": false,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "Accredited agents not appointed",
+      "id": "5c012f74-59d0-45f2-9711-99c0da629d75"
+    },
+    {
+      "items": [
+        {
+          "id": "90a66b9e-f13c-4e3b-9f25-084c162c8841",
+          "componentId": "e503dad7-42b0-4f4c-9207-1413011afbdd",
+          "operator": "is",
+          "value": false,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "Accredited agents not following guidelines",
+      "id": "ceb398b7-06b7-4427-9a40-8e04d163ac6c"
+    },
+    {
+      "items": [
+        {
+          "id": "841051e4-c11a-46df-b474-6f95ccc200f6",
+          "componentId": "113cccb4-c632-4395-9956-4d8ef46e9fe7",
+          "operator": "is",
+          "value": false,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "Survey results not reported",
+      "id": "fd0d85b4-ef27-4d2a-8c30-69dcb3706fca"
+    },
+    {
+      "items": [
+        {
+          "id": "9752fe7e-22a9-4ef5-a6f0-e482f15e4a16",
+          "componentId": "aa654ad1-e521-4321-8644-1b3b410b6992",
+          "operator": "contains",
+          "value": {
+            "itemId": "fbe05962-5073-4858-a47e-aad6144478f1",
+            "listId": "85263abf-7c98-4207-b0a1-d887f7809158"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Licence to be paid for",
+      "id": "8dd5dd95-3b3c-4568-930e-ff7e16709b64"
+    },
+    {
+      "items": [
+        {
+          "id": "c80570ce-d6f6-4d9c-a8dd-6f5a9096bebf",
+          "componentId": "ff80fac7-abf0-4bce-9241-10ba78cf542a",
+          "operator": "is",
+          "value": {
+            "itemId": "4525a064-5784-4eba-b67b-291c5082834f",
+            "listId": "e73aeaaa-72f5-45a5-ac7f-ff558ce69570"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Captured great crested newts not freed",
+      "id": "4cf2695e-a1bd-4e11-85c4-6b10423f0e7e"
+    },
+    {
+      "items": [
+        {
+          "id": "acfa3389-c556-4ac0-ba71-d4c6a0d73d14",
+          "componentId": "c88cab48-f60d-45e1-885d-c5bd3de89e01",
+          "operator": "is",
+          "value": true,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "Great crested newts killed or injured",
+      "id": "8d90a53b-e56f-4652-a903-bd97af53c2e5"
+    },
+    {
+      "items": [
+        {
+          "id": "c3cc6c59-b85f-4f32-915e-10404b277072",
+          "componentId": "aa654ad1-e521-4321-8644-1b3b410b6992",
+          "operator": "does not contain",
+          "value": {
+            "itemId": "fbe05962-5073-4858-a47e-aad6144478f1",
+            "listId": "85263abf-7c98-4207-b0a1-d887f7809158"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Licence is free",
+      "id": "966a195c-e6e5-4352-9118-0e1eaaf91a43"
+    },
+    {
+      "items": [
+        {
+          "id": "d5037033-141b-4139-9a51-7abf2f60f0b1",
+          "componentId": "cce2b166-6cbf-4ced-89d5-56fb0d877ad2",
+          "operator": "is",
+          "value": false,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "End registration",
+      "id": "c76fdc17-141c-4b54-885c-4423c6a36927"
+    },
+    {
+      "items": [
+        {
+          "id": "ba47921b-6891-4f0f-9ec2-a1e73ef42cb1",
+          "componentId": "2c2e9dc5-4809-4574-a7c2-26000faaf212",
+          "operator": "is",
+          "value": false,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "No licensable methods used",
+      "id": "f7f271a1-25ba-4a77-88b1-2103834fc0eb"
+    },
+    {
+      "items": [
+        {
+          "id": "4fa1d643-7904-426c-9903-b07cbf33d945",
+          "componentId": "96e9afbd-4220-4971-8702-d8f4a428a93c",
+          "operator": "is",
+          "value": {
+            "itemId": "a9c5f324-936d-4c0d-9d80-c61a15a2201b",
+            "listId": "4171cc57-28b1-4e60-8491-ab322b9851f5"
+          },
+          "type": "ListItemRef"
+        },
+        {
+          "id": "2491929f-ad88-4a63-b402-f1c82a5384e6",
+          "componentId": "41604883-f020-454c-a781-c039ed343a6a",
+          "operator": "contains",
+          "value": {
+            "itemId": "8659dc0f-5068-490f-9b25-8989baa5de94",
+            "listId": "01b42626-93f0-4400-80ce-05281f5cc0fa"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Not registered for CL09 and used pitfall traps",
+      "id": "aa7bd497-05d9-4c25-a42b-c6bc618fe0f4",
+      "coordinator": "and"
+    },
+    {
+      "items": [
+        {
+          "id": "2e021b5f-cc02-45a2-9ef0-47c2ec9fadb3",
+          "componentId": "41604883-f020-454c-a781-c039ed343a6a",
+          "operator": "contains",
+          "value": {
+            "itemId": "8659dc0f-5068-490f-9b25-8989baa5de94",
+            "listId": "01b42626-93f0-4400-80ce-05281f5cc0fa"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Pitfall traps used",
+      "id": "0b0d149f-0ff6-4f88-a692-d745426c3b1b"
+    },
+    {
+      "items": [
+        {
+          "id": "37155ab6-468b-4014-bae9-c0c668a66752",
+          "componentId": "3b7bfe3c-f61b-4e09-a798-c895cb710777",
+          "operator": "is",
+          "value": false,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "Pitfall trapping - notice not given",
+      "id": "2121d344-b822-457b-a64a-31a388c9abc5"
+    },
+    {
+      "items": [
+        {
+          "id": "32e3239a-649f-4039-8532-0fd5073c9d0f",
+          "componentId": "cce2b166-6cbf-4ced-89d5-56fb0d877ad2",
+          "operator": "is",
+          "value": true,
+          "type": "BooleanValue"
+        }
+      ],
+      "displayName": "Continue registration",
+      "id": "c2926bdd-bfe3-42c7-980e-3ed0256c0543"
+    },
+    {
+      "items": [
+        {
+          "id": "40c5deba-d7a9-4835-bd5a-30be5d522a0f",
+          "componentId": "81924f8e-07c0-4d67-a4c6-3990f12330e9",
+          "operator": "contains",
+          "value": {
+            "itemId": "7da05d8a-182c-4be8-bd74-ac662a3d12ab",
+            "listId": "9945a184-7b66-4f2f-8197-abee57955fef"
+          },
+          "type": "ListItemRef"
+        },
+        {
+          "id": "a5cf5f1d-4cdc-4baa-b186-ae5981ee36e1",
+          "componentId": "3f18485e-61cf-4c3a-81bc-21cdfde42b3a",
+          "operator": "contains",
+          "value": {
+            "itemId": "64acaf10-f99b-4e2a-9447-7c6226c572b2",
+            "listId": "aaa03316-ac72-4367-883f-3cab7344dea7"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Name has changed",
+      "id": "8fc8a819-58ce-4dc4-ba68-471167a755c8",
+      "coordinator": "or"
+    },
+    {
+      "items": [
+        {
+          "id": "cd180bc4-78d4-4372-8b12-aee6b5184398",
+          "componentId": "81924f8e-07c0-4d67-a4c6-3990f12330e9",
+          "operator": "contains",
+          "value": {
+            "itemId": "e592a79e-aec0-46fe-b502-51f85fb3bb56",
+            "listId": "9945a184-7b66-4f2f-8197-abee57955fef"
+          },
+          "type": "ListItemRef"
+        },
+        {
+          "id": "145e8edd-c099-4378-819f-8cc34fe4dd9f",
+          "componentId": "3f18485e-61cf-4c3a-81bc-21cdfde42b3a",
+          "operator": "contains",
+          "value": {
+            "itemId": "25060848-8231-4c84-a68e-45cd2bbf5f7c",
+            "listId": "aaa03316-ac72-4367-883f-3cab7344dea7"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Address has changed",
+      "id": "6f8809e5-cdc5-4c7b-9b70-c8d7705dc3e6",
+      "coordinator": "or"
+    },
+    {
+      "items": [
+        {
+          "id": "3f3dc1aa-3c8f-4ef8-9538-6ca487708153",
+          "componentId": "81924f8e-07c0-4d67-a4c6-3990f12330e9",
+          "operator": "contains",
+          "value": {
+            "itemId": "920145c7-c4fd-4268-b827-9b319bd1e841",
+            "listId": "9945a184-7b66-4f2f-8197-abee57955fef"
+          },
+          "type": "ListItemRef"
+        },
+        {
+          "id": "5cbe7bc6-6ed8-4bba-a80f-b05ae2ce1996",
+          "componentId": "3f18485e-61cf-4c3a-81bc-21cdfde42b3a",
+          "operator": "contains",
+          "value": {
+            "itemId": "8a72226c-d607-478a-a4f3-20d701f91617",
+            "listId": "aaa03316-ac72-4367-883f-3cab7344dea7"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Email address has changed",
+      "id": "397b8f1d-fd4c-479b-87d3-b4e1b93719aa",
+      "coordinator": "or"
+    },
+    {
+      "items": [
+        {
+          "id": "21d17e9f-ff9f-4ec1-8ebb-8bebc3ce401d",
+          "componentId": "81924f8e-07c0-4d67-a4c6-3990f12330e9",
+          "operator": "contains",
+          "value": {
+            "itemId": "1f39a0ab-ec53-45c9-a1d8-ed9e173b87b6",
+            "listId": "9945a184-7b66-4f2f-8197-abee57955fef"
+          },
+          "type": "ListItemRef"
+        },
+        {
+          "id": "2ccc2f3d-2571-4268-936d-fca7ee6095d0",
+          "componentId": "3f18485e-61cf-4c3a-81bc-21cdfde42b3a",
+          "operator": "contains",
+          "value": {
+            "itemId": "7fb22ed9-be69-46e7-a18b-c30d2971326c",
+            "listId": "aaa03316-ac72-4367-883f-3cab7344dea7"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Contact number has changed",
+      "id": "9e20d999-de1d-4913-bfe9-546da697520b",
+      "coordinator": "or"
+    },
+    {
+      "items": [
+        {
+          "id": "729757b6-1317-4a1e-ac83-e6f998c2d61d",
+          "componentId": "81924f8e-07c0-4d67-a4c6-3990f12330e9",
+          "operator": "does not contain",
+          "value": {
+            "itemId": "920145c7-c4fd-4268-b827-9b319bd1e841",
+            "listId": "9945a184-7b66-4f2f-8197-abee57955fef"
+          },
+          "type": "ListItemRef"
+        },
+        {
+          "id": "4cbbb6c6-26c7-44ea-b7a9-d7fed4cce69f",
+          "componentId": "3f18485e-61cf-4c3a-81bc-21cdfde42b3a",
+          "operator": "does not contain",
+          "value": {
+            "itemId": "8a72226c-d607-478a-a4f3-20d701f91617",
+            "listId": "aaa03316-ac72-4367-883f-3cab7344dea7"
+          },
+          "type": "ListItemRef"
+        },
+        {
+          "id": "d8d656a9-6dc7-4fa0-a268-d68dc6214d6c",
+          "componentId": "fda49b94-8e2a-4939-985d-5e230b722145",
+          "operator": "is",
+          "value": {
+            "itemId": "40d62e4d-f125-4e0d-872d-246ca300741c",
+            "listId": "efbaad69-5642-44a0-84d1-254e2c3db44a"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Email address has not changed",
+      "id": "1b26f4ce-2a75-4c5a-967d-e7f1cd027a79",
+      "coordinator": "or"
+    },
+    {
+      "items": [
+        {
+          "id": "8332f154-7b71-4f93-9aec-b3e86f8af25c",
+          "componentId": "81924f8e-07c0-4d67-a4c6-3990f12330e9",
+          "operator": "does not contain",
+          "value": {
+            "itemId": "1f39a0ab-ec53-45c9-a1d8-ed9e173b87b6",
+            "listId": "9945a184-7b66-4f2f-8197-abee57955fef"
+          },
+          "type": "ListItemRef"
+        },
+        {
+          "id": "7f2a479c-368a-4719-a9eb-b564145c636a",
+          "componentId": "3f18485e-61cf-4c3a-81bc-21cdfde42b3a",
+          "operator": "does not contain",
+          "value": {
+            "itemId": "7fb22ed9-be69-46e7-a18b-c30d2971326c",
+            "listId": "aaa03316-ac72-4367-883f-3cab7344dea7"
+          },
+          "type": "ListItemRef"
+        },
+        {
+          "id": "40c87a5e-8aa6-4a80-ad34-9ac8f87392df",
+          "componentId": "fda49b94-8e2a-4939-985d-5e230b722145",
+          "operator": "is",
+          "value": {
+            "itemId": "40d62e4d-f125-4e0d-872d-246ca300741c",
+            "listId": "efbaad69-5642-44a0-84d1-254e2c3db44a"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Contact number has not changed",
+      "id": "acfd0dc4-4bfd-44e2-8b72-775eaea275e2",
+      "coordinator": "or"
+    },
+    {
+      "items": [
+        {
+          "id": "87cb2347-0968-4ec9-a103-9e46723a3b52",
+          "componentId": "fda49b94-8e2a-4939-985d-5e230b722145",
+          "operator": "is",
+          "value": {
+            "itemId": "ae21adf3-ba59-4091-97bf-14f5e354c1ad",
+            "listId": "efbaad69-5642-44a0-84d1-254e2c3db44a"
+          },
+          "type": "ListItemRef"
+        }
+      ],
+      "displayName": "Contact details might have changed",
+      "id": "21cff778-18ff-46eb-9f42-cbcf1dec3c5c"
+    }
+  ],
+  "sections": [],
+  "lists": [
+    {
+      "name": "MWJZbW",
+      "title": "List for question NtgjNd",
+      "type": "string",
+      "items": [
+        {
+          "id": "e547bc49-3ef7-4b46-ba4a-ca5a511a514b",
+          "text": "Capture by hand",
+          "value": "Capture by hand"
+        },
+        {
+          "id": "f230e95b-83f8-45f1-9715-cf764e39dbbc",
+          "text": "Capture by net",
+          "value": "Capture by net"
+        },
+        {
+          "id": "5aa56c38-46aa-4341-b33f-cb425882cf02",
+          "text": "Disturb using a torch",
+          "value": "Disturb using a torch"
+        },
+        {
+          "id": "1b5e8702-2b0f-4837-97ff-248afb875290",
+          "text": "Aquatic funnel traps, including bottle traps",
+          "value": "Aquatic funnel traps, including bottle traps"
+        },
+        {
+          "id": "8659dc0f-5068-490f-9b25-8989baa5de94",
+          "text": "Pitfall traps",
+          "value": "Pitfall traps"
+        }
+      ],
+      "id": "01b42626-93f0-4400-80ce-05281f5cc0fa"
+    },
+    {
+      "name": "oRKuiO",
+      "title": "List for question xyYjHt",
+      "type": "string",
+      "items": [
+        {
+          "id": "a9c5f324-936d-4c0d-9d80-c61a15a2201b",
+          "text": "CL08",
+          "value": "CL08",
+          "hint": {
+            "text": "(Level 1)",
+            "id": "a0453840-4747-499c-968f-ca3a803315b1"
+          }
+        },
+        {
+          "id": "5bb11803-8a03-46e1-ba3a-d0726ca81209",
+          "text": "CL09",
+          "value": "CL09",
+          "hint": {
+            "text": "(Level 2)",
+            "id": "634fdd94-be7f-4eaa-bc75-c217de4bc6ff"
+          }
+        }
+      ],
+      "id": "4171cc57-28b1-4e60-8491-ab322b9851f5"
+    },
+    {
+      "name": "VwFkij",
+      "title": "List for question xzoljN",
+      "type": "string",
+      "items": [
+        {
+          "id": "aeb5429a-8746-4245-a820-8b367d861d12",
+          "text": "Voluntary purposes",
+          "value": "Voluntary purposes"
+        },
+        {
+          "id": "ef33e141-b01a-4be1-9a74-5bcdcd799634",
+          "text": "Science or education purposes, including research",
+          "value": "Science or education purposes, including research"
+        },
+        {
+          "id": "fbe05962-5073-4858-a47e-aad6144478f1",
+          "text": "Other purposes, such as surveys to inform development projects",
+          "value": "Other purposes, such as surveys to inform development projects"
+        }
+      ],
+      "id": "85263abf-7c98-4207-b0a1-d887f7809158"
+    },
+    {
+      "name": "RRDGvR",
+      "title": "List for question ycsEmC",
+      "type": "string",
+      "items": [
+        {
+          "id": "660f26d5-c478-4d5a-ae7f-45034449c6a7",
+          "text": "Yes",
+          "value": "Yes"
+        },
+        {
+          "id": "40d62e4d-f125-4e0d-872d-246ca300741c",
+          "text": "No",
+          "value": "No"
+        },
+        {
+          "text": "Not sure",
+          "value": "Not sure",
+          "id": "ae21adf3-ba59-4091-97bf-14f5e354c1ad"
+        }
+      ],
+      "id": "efbaad69-5642-44a0-84d1-254e2c3db44a"
+    },
+    {
+      "name": "zZEuhK",
+      "title": "List for question kVJEkv",
+      "type": "string",
+      "items": [
+        {
+          "id": "eb60fcce-863d-4e05-ad60-0f3170bc9993",
+          "text": "Yes",
+          "value": "Yes"
+        },
+        {
+          "id": "4525a064-5784-4eba-b67b-291c5082834f",
+          "text": "No",
+          "value": "No"
+        },
+        {
+          "id": "4f30fab3-89b0-4252-8a21-18c58801ed0c",
+          "text": "No great crested newts were captured in this reporting period",
+          "value": "No great crested newts were captured in this reporting period"
+        }
+      ],
+      "id": "e73aeaaa-72f5-45a5-ac7f-ff558ce69570"
+    },
+    {
+      "name": "mhMloq",
+      "title": "List for question TKJJIm",
+      "type": "string",
+      "items": [
+        {
+          "id": "bfb5dd99-d4dc-4e86-bf92-1dda0b8fa663",
+          "text": "Bedfordshire",
+          "value": "Bedfordshire"
+        },
+        {
+          "id": "99264827-a462-4eee-8390-c96b47fa4e5d",
+          "text": "Berkshire",
+          "value": "Berkshire"
+        },
+        {
+          "id": "94692fb1-0127-419b-bdcb-269a640b4a08",
+          "text": "Bristol",
+          "value": "Bristol"
+        },
+        {
+          "id": "5a9b46d0-59f4-45ad-b13d-334d1ad184ae",
+          "text": "Buckinghamshire",
+          "value": "Buckinghamshire"
+        },
+        {
+          "id": "93853450-ab9d-473b-9440-1a64aa86f226",
+          "text": "Cambridgeshire",
+          "value": "Cambridgeshire"
+        },
+        {
+          "id": "cbb8a0c6-5255-487b-bf08-dca45e055bc8",
+          "text": "Cheshire",
+          "value": "Cheshire"
+        },
+        {
+          "id": "8f242a69-b3c7-4f74-ab7c-7546f2d6dce7",
+          "text": "Cornwall",
+          "value": "Cornwall"
+        },
+        {
+          "id": "d77947df-36a2-4e43-af28-a41a95071a73",
+          "text": "Cumbria",
+          "value": "Cumbria"
+        },
+        {
+          "id": "0cf6e74a-db5a-4ad9-aeb7-9bda9ea9ba86",
+          "text": "Derbyshire",
+          "value": "Derbyshire"
+        },
+        {
+          "id": "13600070-95c3-4024-b9f5-7e6fe8589a46",
+          "text": "Devon",
+          "value": "Devon"
+        },
+        {
+          "id": "e343fb35-9d7e-47c5-9416-3bd0f6986276",
+          "text": "Dorset",
+          "value": "Dorset"
+        },
+        {
+          "id": "e2b9068c-9b32-4495-82f8-27226394f527",
+          "text": "County Durham",
+          "value": "County Durham"
+        },
+        {
+          "id": "74e2c8f8-f58c-4e66-9612-ad6b13f47002",
+          "text": "East Riding of Yorkshire",
+          "value": "East Riding of Yorkshire"
+        },
+        {
+          "id": "1f15fa86-e85c-4621-b264-96f006ccfac3",
+          "text": "East Sussex",
+          "value": "East Sussex"
+        },
+        {
+          "id": "8445a4f1-2130-44ad-aaf8-d22408bdaaa5",
+          "text": "Essex",
+          "value": "Essex"
+        },
+        {
+          "id": "c12bb617-4cad-4baf-8b06-34a577464f77",
+          "text": "Gloucestershire",
+          "value": "Gloucestershire"
+        },
+        {
+          "id": "e80a94a6-0a70-42c5-af18-36977b4553ce",
+          "text": "Greater London",
+          "value": "Greater London"
+        },
+        {
+          "id": "8f585913-0555-41ec-b689-43a7e21b07f1",
+          "text": "Greater Manchester",
+          "value": "Greater Manchester"
+        },
+        {
+          "id": "f2978e17-aeb6-43b0-a491-ac5196f18ca5",
+          "text": "Hampshire",
+          "value": "Hampshire"
+        },
+        {
+          "id": "208c8827-1f7f-4806-97ff-7793d619367c",
+          "text": "Herefordshire",
+          "value": "Herefordshire"
+        },
+        {
+          "id": "b8ba2015-7925-4d7c-9bd0-b53d29016651",
+          "text": "Hertfordshire",
+          "value": "Hertfordshire"
+        },
+        {
+          "id": "f437f5ca-c0b9-44d6-b432-0d1950b9386b",
+          "text": "Isle of Wight",
+          "value": "Isle of Wight"
+        },
+        {
+          "id": "70848a79-a4d6-4d98-bad7-ed71b240ead1",
+          "text": "Kent",
+          "value": "Kent"
+        },
+        {
+          "id": "1961efdf-786d-4bb8-b18c-1e0dfcc9f527",
+          "text": "Lancashire",
+          "value": "Lancashire"
+        },
+        {
+          "id": "6678746b-2afd-4669-89be-f1d813cde87d",
+          "text": "Leicestershire",
+          "value": "Leicestershire"
+        },
+        {
+          "id": "0496b62d-20da-4de8-9530-2b504ca8618d",
+          "text": "Lincolnshire",
+          "value": "Lincolnshire"
+        },
+        {
+          "id": "98566804-a874-46ea-825b-eb21739f4f70",
+          "text": "Merseyside",
+          "value": "Merseyside"
+        },
+        {
+          "id": "216be907-fcf0-41d6-b1ea-f64b03de5621",
+          "text": "Norfolk",
+          "value": "Norfolk"
+        },
+        {
+          "id": "e6f67fa2-de47-469d-a7d9-b1656263d453",
+          "text": "North Yorkshire",
+          "value": "North Yorkshire"
+        },
+        {
+          "id": "90a6d9c2-9397-4ccd-8166-274fddd2b31a",
+          "text": "Northamptonshire",
+          "value": "Northamptonshire"
+        },
+        {
+          "id": "2da86a50-0f41-40a3-a5b5-3739d08f9048",
+          "text": "Northumberland",
+          "value": "Northumberland"
+        },
+        {
+          "id": "0b52f2ec-4e0d-4a2c-ac91-ab8b4b313e09",
+          "text": "Nottinghamshire",
+          "value": "Nottinghamshire"
+        },
+        {
+          "id": "a4f70900-fb76-4a75-9294-a68e6ff6e0a5",
+          "text": "Oxfordshire",
+          "value": "Oxfordshire"
+        },
+        {
+          "id": "7a50abec-2630-484d-b7e6-26f730358114",
+          "text": "Rutland",
+          "value": "Rutland"
+        },
+        {
+          "id": "78bec779-2d93-49ae-8efb-b63c7a22537d",
+          "text": "Shropshire",
+          "value": "Shropshire"
+        },
+        {
+          "id": "23befee9-946e-4d11-95e2-150d31f50152",
+          "text": "Somerset",
+          "value": "Somerset"
+        },
+        {
+          "id": "f2ba7459-75c8-49b2-beba-5bf0e800df9c",
+          "text": "South Yorkshire",
+          "value": "South Yorkshire"
+        },
+        {
+          "id": "0eba4e70-4c42-4e8c-988f-87f047747c28",
+          "text": "Staffordshire",
+          "value": "Staffordshire"
+        },
+        {
+          "id": "7e1a2541-46d5-4cac-9be4-6eb8f2ffb98b",
+          "text": "Suffolk",
+          "value": "Suffolk"
+        },
+        {
+          "id": "3151eba7-6105-4a84-bc76-8e19b4d1d0a4",
+          "text": "Surrey",
+          "value": "Surrey"
+        },
+        {
+          "id": "8780c74a-81d7-417a-a193-0e811a116cfa",
+          "text": "Tyne and Wear",
+          "value": "Tyne and Wear"
+        },
+        {
+          "id": "6943bf49-3c9d-47b7-8347-b3db08641c67",
+          "text": "Warwickshire",
+          "value": "Warwickshire"
+        },
+        {
+          "id": "3e9bf077-424f-4e5a-bf07-b17a760f43fe",
+          "text": "West Midlands",
+          "value": "West Midlands"
+        },
+        {
+          "id": "a52c0e61-a497-4e5d-a520-57ced7bccad9",
+          "text": "West Sussex",
+          "value": "West Sussex"
+        },
+        {
+          "id": "4b3df77d-f2e2-4854-a099-aa264f07bc4b",
+          "text": "West Yorkshire",
+          "value": "West Yorkshire"
+        },
+        {
+          "id": "bfaca592-3e89-471f-8dd0-fd82574aa5b0",
+          "text": "Wiltshire",
+          "value": "Wiltshire"
+        },
+        {
+          "id": "a7d41a79-b7a2-435d-99a2-b425ada73ead",
+          "text": "Worcestershire",
+          "value": "Worcestershire"
+        }
+      ],
+      "id": "fe35c11b-e0e9-45e4-a0e4-a523d7e90a07"
+    },
+    {
+      "name": "ruVdXm",
+      "title": "List for question rwhQdt",
+      "type": "string",
+      "items": [
+        {
+          "id": "101940b1-793d-45ba-b4c1-6e6a0589a740",
+          "text": "Voluntary purposes",
+          "value": "Voluntary purposes"
+        },
+        {
+          "id": "16703f55-1579-4042-bb8d-f40fb25f6902",
+          "text": "Science or education purposes, including research",
+          "value": "Science or education purposes, including research"
+        },
+        {
+          "id": "572ccc97-2149-461b-a06e-b3b18b69eb97",
+          "text": "Other purposes, such as surveys to inform development projects",
+          "value": "Other purposes, such as surveys to inform development projects"
+        }
+      ],
+      "id": "64a6a6bc-615b-46f9-ac43-3a04a861e822"
+    },
+    {
+      "name": "FphYES",
+      "title": "List for question UBPdwg",
+      "type": "string",
+      "items": [
+        {
+          "id": "9781bc25-d019-49bb-9962-cdf4b9bab21b",
+          "text": "Present",
+          "value": "Present"
+        },
+        {
+          "id": "6e7527d4-819b-4ecd-ba06-5b7aa282f8ef",
+          "text": "Absent",
+          "value": "Absent"
+        }
+      ],
+      "id": "794e0e2f-39a7-445c-8684-23f8f4a07bf4"
+    },
+    {
+      "name": "zqLKjV",
+      "title": "List for question DOqGtr",
+      "type": "string",
+      "items": [
+        {
+          "id": "ccb42129-c33f-4ef5-b8bc-a1f2302396e2",
+          "text": "Yes",
+          "value": "Yes"
+        },
+        {
+          "id": "a6daaa94-ebac-4cf1-b2bc-543174ed3469",
+          "text": "No",
+          "value": "No"
+        },
+        {
+          "id": "30e6aa91-4d57-4602-a62b-0db89f593a00",
+          "text": "I did not egg search this pond or water body",
+          "value": "I did not egg search this pond or water body"
+        }
+      ],
+      "id": "d8406d75-1f90-4db9-b99f-1add63cc6ea0"
+    },
+    {
+      "name": "yZIEQj",
+      "title": "List for question ZTngVf",
+      "type": "string",
+      "items": [
+        {
+          "id": "99153d4b-719d-44ed-b25c-cd0d66d24fec",
+          "text": "Great crested newts present",
+          "value": "Great crested newts present"
+        },
+        {
+          "id": "41a68c30-794d-4c34-861e-0980822eb961",
+          "text": "Great crested newts absent",
+          "value": "Great crested newts absent"
+        },
+        {
+          "id": "9287dba1-8490-4850-a6fe-67b143176d69",
+          "text": "I did not complete eDNA surveys",
+          "value": "I did not complete eDNA surveys"
+        }
+      ],
+      "id": "a1996e58-d090-4090-b1aa-9ee81b19c9d6"
+    },
+    {
+      "name": "jxwBcO",
+      "title": "List for question iNNJrB",
+      "type": "string",
+      "items": [
+        {
+          "id": "9bec4078-77f2-489a-b0ff-26473d20c8b6",
+          "text": "Excellent",
+          "value": "Excellent"
+        },
+        {
+          "id": "dc257704-4eff-4558-b155-089aa79912b3",
+          "text": "Good",
+          "value": "Good"
+        },
+        {
+          "id": "1faf21e1-82c4-49e6-a6ce-8f49d8e8fc95",
+          "text": "Average",
+          "value": "Average"
+        },
+        {
+          "id": "9734690b-9bb1-4601-9472-10bea81aff03",
+          "text": "Below average",
+          "value": "Below average"
+        },
+        {
+          "id": "50cc384d-2fc3-4c73-a6ac-67fc5e723a96",
+          "text": "Poor",
+          "value": "Poor"
+        },
+        {
+          "id": "f27e365d-4c05-49f1-957f-f29230bf501f",
+          "text": "I did not record this information",
+          "value": "I did not record this information"
+        }
+      ],
+      "id": "b788fe39-8833-4c25-8215-89538a5240fe"
+    },
+    {
+      "name": "EncOnF",
+      "title": "List for question hqvRCe",
+      "type": "string",
+      "items": [
+        {
+          "id": "32775610-4436-417c-80b8-a9af20d3dc9f",
+          "text": "Common toad",
+          "value": "Common toad"
+        },
+        {
+          "id": "8cbd40b7-9312-43d5-9e59-0a0facbf6a2a",
+          "text": "Smooth newt",
+          "value": "Smooth newt"
+        },
+        {
+          "id": "c4aaae25-d625-47b1-abda-a6888fe21a11",
+          "text": "Palmate newt",
+          "value": "Palmate newt"
+        },
+        {
+          "id": "631c6ba9-e776-485c-8875-4d84a6ab6019",
+          "text": "Common frog",
+          "value": "Common frog"
+        },
+        {
+          "id": "01827943-ffa1-4c8b-b98f-1ca6352643f3",
+          "text": "I did not find any native amphibians at this pond or water body",
+          "value": "I did not find any native amphibians at this pond or water body"
+        },
+        {
+          "text": "I did not record this information",
+          "value": "I did not record this information",
+          "id": "a31b0bbc-3610-4c8a-ae2a-2def76ca0409"
+        }
+      ],
+      "id": "5fc0f865-f2f5-4285-8bb9-3aa64daa4cec"
+    },
+    {
+      "name": "cTdtwk",
+      "title": "List for question EhzlBB",
+      "type": "string",
+      "items": [
+        {
+          "id": "7da05d8a-182c-4be8-bd74-ac662a3d12ab",
+          "text": "Name",
+          "value": "Name"
+        },
+        {
+          "id": "e592a79e-aec0-46fe-b502-51f85fb3bb56",
+          "text": "Address",
+          "value": "Address"
+        },
+        {
+          "id": "920145c7-c4fd-4268-b827-9b319bd1e841",
+          "text": "Email address",
+          "value": "Email address"
+        },
+        {
+          "id": "1f39a0ab-ec53-45c9-a1d8-ed9e173b87b6",
+          "text": "Contact number",
+          "value": "Contact number"
+        }
+      ],
+      "id": "9945a184-7b66-4f2f-8197-abee57955fef"
+    },
+    {
+      "name": "lYiRIk",
+      "title": "List for question OogWRE",
+      "type": "string",
+      "items": [
+        {
+          "id": "36b85673-775b-4cb7-8498-98e2ac8ffea3",
+          "text": "Yes",
+          "value": "Yes"
+        },
+        {
+          "id": "d3e601aa-4b2a-4d2f-9fa1-ed7a2700fc95",
+          "text": "No",
+          "value": "No"
+        },
+        {
+          "id": "ee668f4f-ad46-4eb8-b3a1-efe7a50a9592",
+          "text": "I did not record this information",
+          "value": "I did not record this information"
+        }
+      ],
+      "id": "e4567024-d219-493f-9bb7-17101bbe05f6"
+    },
+    {
+      "name": "FoiFKd",
+      "title": "List for question jfRwIl",
+      "type": "string",
+      "items": [
+        {
+          "id": "c58b4981-29f8-4825-a6fc-787d18e9d533",
+          "text": "Yes",
+          "value": "Yes"
+        },
+        {
+          "id": "a853a369-1c61-4385-9660-a401abfe5b5c",
+          "text": "No",
+          "value": "No"
+        },
+        {
+          "id": "04181b41-a607-4667-a9a7-4006f122ef5c",
+          "text": "I did not record this information",
+          "value": "I did not record this information"
+        }
+      ],
+      "id": "5682f410-09de-4842-a51d-aad6af1dd431"
+    },
+    {
+      "name": "jVeuha",
+      "title": "List for question TxIdxa",
+      "type": "string",
+      "items": [
+        {
+          "id": "64acaf10-f99b-4e2a-9447-7c6226c572b2",
+          "text": "Name",
+          "value": "Name"
+        },
+        {
+          "id": "25060848-8231-4c84-a68e-45cd2bbf5f7c",
+          "text": "Address",
+          "value": "Address"
+        },
+        {
+          "id": "8a72226c-d607-478a-a4f3-20d701f91617",
+          "text": "Email address",
+          "value": "Email address"
+        },
+        {
+          "id": "7fb22ed9-be69-46e7-a18b-c30d2971326c",
+          "text": "Contact number",
+          "value": "Contact number"
+        }
+      ],
+      "id": "aaa03316-ac72-4367-883f-3cab7344dea7"
+    }
+  ]
+}
