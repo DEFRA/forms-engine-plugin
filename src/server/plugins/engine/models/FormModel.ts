@@ -363,10 +363,7 @@ export class FormModel {
       // Add page to context
       context.relevantPages.push(nextPage)
 
-      // Engine.V2 is excluded here as this will have already been done in initialiseContext()
-      if (this.engine !== Engine.V2) {
-        this.assignEvaluationState(context, nextPage)
-      }
+      this.assignEvaluationState(context, nextPage)
 
       this.assignRelevantState(context, nextPage)
 
@@ -397,7 +394,14 @@ export class FormModel {
     // will throw if an expression uses a key that is undefined.
     if (this.engine === Engine.V2) {
       for (const page of this.pages) {
-        this.assignEvaluationState(context, page)
+        const { collection, pageDef } = page
+
+        if (!hasRepeater(pageDef)) {
+          Object.assign(
+            context.evaluationState,
+            collection.getContextValueFromState({})
+          )
+        }
       }
     }
   }
