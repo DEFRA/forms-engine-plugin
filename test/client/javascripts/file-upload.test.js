@@ -1346,7 +1346,7 @@ describe('File Upload Client JS', () => {
 })
 
 describe('buildUploadStatusUrl', () => {
-  it('works without a prefix to the path', () => {
+  it('works with no prefix', () => {
     expect(buildUploadStatusUrl('/my-form/file-upload-page', '123')).toBe(
       '/upload-status/123'
     )
@@ -1360,7 +1360,7 @@ describe('buildUploadStatusUrl', () => {
     ).toBe('/upload-status/123')
   })
 
-  it('works with a prefix to the path', () => {
+  it('works with a prefix with a single level', () => {
     expect(buildUploadStatusUrl('/form/my-form/file-upload-page', '123')).toBe(
       '/form/upload-status/123'
     )
@@ -1377,7 +1377,7 @@ describe('buildUploadStatusUrl', () => {
     ).toBe('/form/upload-status/123')
   })
 
-  it('works nested prefixes to the path', () => {
+  it('works with a prefix with multiple levels', () => {
     expect(
       buildUploadStatusUrl('/org/form/my-form/file-upload-page', '123')
     ).toBe('/org/form/upload-status/123')
@@ -1395,5 +1395,11 @@ describe('buildUploadStatusUrl', () => {
         '123'
       )
     ).toBe('/org/form/upload-status/123')
+  })
+
+  it('trims trailing slashes', () => {
+    expect(buildUploadStatusUrl('/my-form/file-upload-page/', '123')).toBe(
+      '/upload-status/123'
+    )
   })
 })
