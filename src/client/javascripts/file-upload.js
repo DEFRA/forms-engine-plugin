@@ -230,13 +230,27 @@ function reloadPage() {
 
 /**
  * Build the upload status URL given the current pathname and the upload ID.
+ * This only works when called on a file upload page that has a maximum depth of 1 URL segments following the slug.
  * @param {string} pathname – e.g. window.location.pathname
  * @param {string} uploadId
  * @returns {string} e.g. "/form/upload-status/abc123"
  */
 export function buildUploadStatusUrl(pathname, uploadId) {
-  const pathSegments = pathname.split('/').filter((segment) => segment)
-  const prefix = pathSegments.length > 0 ? `/${pathSegments[0]}` : ''
+  // Remove preview markers and duplicate slashes
+  const normalisedPath = pathname
+    .replace(/\/preview\/(draft|live)/g, '')
+    .replace(/\/{2,}/g, '/')
+    .replace(/\/$/, '')
+
+  const segments = normalisedPath.split('/').filter(Boolean)
+
+  // The slug is always the second to last segment
+  // The prefix is everything before the slug
+  const prefix =
+    segments.length > 2
+      ? `/${segments.slice(0, segments.length - 2).join('/')}`
+      : ''
+
   return `${prefix}/upload-status/${uploadId}`
 }
 
