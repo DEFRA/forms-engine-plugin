@@ -508,7 +508,9 @@ describe('Upload status route', () => {
     const res = await server.inject(options)
 
     expect(res.statusCode).toBe(StatusCodes.OK)
-    expect(res.result).toEqual(mockStatus)
+    expect(res.result).toEqual({
+      uploadStatus: UploadStatus.ready
+    })
     expect(getUploadStatus).toHaveBeenCalledWith(
       '123e4567-e89b-12d3-a456-426614174000'
     )
