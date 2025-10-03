@@ -230,28 +230,13 @@ function reloadPage() {
 
 /**
  * Build the upload status URL given the current pathname and the upload ID.
- * This only works when called on a file upload page that has a maximum depth of 1 URL segments following the slug.
- * @param {string} pathname – e.g. window.location.pathname
  * @param {string} uploadId
- * @returns {string} e.g. "/form/upload-status/abc123"
+ * @returns {Promise<string>} e.g. "/form/upload-status/abc123"
  */
-export function buildUploadStatusUrl(pathname, uploadId) {
-  // Remove preview markers and duplicate slashes
-  const normalisedPath = pathname
-    .replace(/\/preview\/(draft|live)/g, '')
-    .replace(/\/{2,}/g, '/')
-    .replace(/\/$/, '')
-
-  const segments = normalisedPath.split('/').filter(Boolean)
-
-  // The slug is always the second to last segment
-  // The prefix is everything before the slug
-  const prefix =
-    segments.length > 2
-      ? `/${segments.slice(0, segments.length - 2).join('/')}`
-      : ''
-
-  return `${prefix}/upload-status/${uploadId}`
+export function buildUploadStatusUrl(uploadId) {
+  return fetch('/forms-manifest')
+    .then((res) => res.json())
+    .then((manifest) => `${manifest.engineBaseUrl}/upload-status/${uploadId}`)
 }
 
 /**
@@ -269,16 +254,14 @@ function pollUploadStatus(uploadId) {
       return
     }
 
-    const uploadStatusUrl = buildUploadStatusUrl(
-      window.location.pathname,
-      uploadId
-    )
-
-    fetch(uploadStatusUrl, {
-      headers: {
-        Accept: 'application/json'
-      }
-    })
+    buildUploadStatusUrl(uploadId)
+      .then((uploadStatusUrl) => {
+        return fetch(uploadStatusUrl, {
+          headers: {
+            Accept: 'application/json'
+          }
+        })
+      })
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response was not ok')
