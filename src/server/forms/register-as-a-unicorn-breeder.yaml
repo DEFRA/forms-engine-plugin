@@ -1,5 +1,6 @@
 ---
 name: Register as a unicorn breeder
+declaration: "<p class=\"govuk-body\">All the answers you have provided are true to the best of your knowledge.</p>"
 pages:
   - path: '/whats-your-name'
     title: What's your name?
@@ -18,7 +19,7 @@ pages:
     section: section
   - title: Summary
     path: '/summary'
-    controller: './pages/summary.js'
+    controller: './pages/summary-with-confirmation-email.js'
     components: []
     next: []
   - path: '/whats-your-email-address'

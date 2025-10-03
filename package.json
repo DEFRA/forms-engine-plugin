@@ -70,7 +70,7 @@
   },
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
-    "@defra/forms-model": "^3.0.555",
+    "@defra/forms-model": "^3.0.558",
     "@defra/hapi-tracing": "^1.26.0",
     "@elastic/ecs-pino-format": "^1.5.0",
     "@hapi/boom": "^10.0.1",

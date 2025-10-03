@@ -5,7 +5,6 @@ import {
   type SubmitPayload
 } from '@defra/forms-model'
 import Boom from '@hapi/boom'
-import { type RouteOptions } from '@hapi/hapi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FileUploadField } from '~/src/server/plugins/engine/components/FileUploadField.js'
@@ -33,9 +32,9 @@ import {
   FormAction,
   type FormRequest,
   type FormRequestPayload,
-  type FormRequestPayloadRefs,
   type FormResponseToolkit
 } from '~/src/server/routes/types.js'
+import { actionSchema, crumbSchema } from '~/src/server/schemas/index.js'
 
 export class SummaryPageController extends QuestionPageController {
   declare pageDef: Page
@@ -54,6 +53,11 @@ export class SummaryPageController extends QuestionPageController {
       hasComponentsEvenIfNoNext(pageDef) ? pageDef.components : [],
       { model, page: this }
     )
+
+    this.collection.formSchema = this.collection.formSchema.keys({
+      crumb: crumbSchema,
+      action: actionSchema
+    })
   }
 
   getSummaryViewModel(
@@ -66,6 +70,8 @@ export class SummaryPageController extends QuestionPageController {
     const { payload, errors } = context
     const components = this.collection.getViewModel(payload, errors, query)
 
+    this.applyLabelOrLegendClass(components)
+
     // We already figure these out in the base page controller. Take them and apply them to our page-specific model.
     // This is a stop-gap until we can add proper inheritance in place.
     viewModel.backLink = this.getBackLink(request, context)
@@ -73,6 +79,7 @@ export class SummaryPageController extends QuestionPageController {
     viewModel.phaseTag = this.phaseTag
     viewModel.components = components
     viewModel.allowSaveAndExit = this.shouldShowSaveAndExit(request.server)
+    viewModel.errors = errors
 
     return viewModel
   }
@@ -109,11 +116,23 @@ export class SummaryPageController extends QuestionPageController {
     ) => {
       const { model } = this
       const { params } = request
+      const { viewName } = this
+      const { isForceAccess } = context
 
       // Check if this is a save-and-exit action
       const { action } = request.payload
       if (action === FormAction.SaveAndExit) {
         return this.handleSaveAndExit(request, context, h)
+      }
+
+      /**
+       * If there are any errors, render the page with the parsed errors
+       * @todo Refactor to match POST REDIRECT GET pattern
+       */
+      if (context.errors || isForceAccess) {
+        const viewModel = this.getSummaryViewModel(request, context)
+        viewModel.errors = this.collection.getViewErrors(viewModel.errors)
+        return h.view(viewName, viewModel)
       }
 
       const cacheService = getCacheService(request.server)
@@ -148,18 +167,6 @@ export class SummaryPageController extends QuestionPageController {
       await cacheService.clearState(request)
 
       return this.proceed(request, h, this.getStatusPath())
-    }
-  }
-
-  get postRouteOptions(): RouteOptions<FormRequestPayloadRefs> {
-    return {
-      ext: {
-        onPreHandler: {
-          method(request, h) {
-            return h.continue
-          }
-        }
-      }
     }
   }
 }
