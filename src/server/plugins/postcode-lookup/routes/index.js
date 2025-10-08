@@ -91,179 +91,189 @@ async function updateComponentState(request, componentName, address) {
 
 /**
  * Gets the postcode lookup routes
- * @param {RouteOptions<PostcodeLookupRequestRefs>} getRouteOptions
- * @param {string} apiKey
+ * @param {RouteOptions<PostcodeLookupRequestRefs>} getRouteOptions - hapi route options
+ * @param {string} apiKey - ordnance survey api key
  */
 export function getRoutes(getRouteOptions, apiKey) {
-  /**
-   * Post handler for the details step
-   * @param {PostcodeLookupPostRequest} request
-   * @param {ResponseToolkit<PostcodeLookupPostRequestRefs>} h
-   */
-  async function detailsPostHandler(request, h) {
-    const { params, payload } = request
-    const { slug, state: status } = params
-    const { title, page, component } = getJourneyDetails(request)
+  return [getRoute(getRouteOptions), postRoute(getRouteOptions, apiKey)]
+}
 
-    const { value: details, error } = detailsPayloadSchema.validate(payload)
+/**
+ * @param {RouteOptions<PostcodeLookupRequestRefs>} getRouteOptions
+ * @returns {ServerRoute<PostcodeLookupGetRequestRefs>}
+ */
+function getRoute(getRouteOptions) {
+  return {
+    method: 'GET',
+    path: `${JOURNEY_BASE_URL}/{slug}/{path}/{componentName}/{state?}`,
+    handler(request, h) {
+      const { params, query } = request
+      const { slug, state: status } = params
+      const { title, page, component } = getJourneyDetails(request)
 
-    let data, model
+      // Get the previous details from session
+      const previous = request.yar.get(getKey(slug, status))
 
-    if (error) {
-      data = { slug, title, page, component, status }
-      model = detailsViewModel(data, details, error)
+      const data = { slug, page, title, component, status }
+      const model =
+        query.step === steps.manual
+          ? manualViewModel(data)
+          : detailsViewModel(data, previous)
 
       return h.view(viewName, model)
+    },
+    // @ts-expect-error - Request typing
+    options: {
+      ...getRouteOptions,
+      validate: {
+        params: paramsSchema,
+        query: Joi.object()
+          .keys({
+            step: Joi.string().allow(steps.details, steps.manual).optional()
+          })
+          .optional()
+      }
     }
+  }
+}
 
-    // Store the details in session
-    request.yar.set(getKey(slug, status), details)
+/**
+ * @param {RouteOptions<PostcodeLookupRequestRefs>} getRouteOptions
+ * @param {string} apiKey - ordnance survey api key
+ * @returns {ServerRoute<PostcodeLookupPostRequestRefs>}
+ */
+function postRoute(getRouteOptions, apiKey) {
+  return {
+    method: 'POST',
+    path: `${JOURNEY_BASE_URL}/{slug}/{path}/{componentName}/{state?}`,
+    async handler(request, h) {
+      const { payload } = request
+      const { step } = payload
 
-    data = { slug, page, component, details, status, apiKey }
-    model = await selectViewModel(data)
+      switch (step) {
+        case steps.details: {
+          return detailsPostHandler(request, h, apiKey)
+        }
+        case steps.select: {
+          return selectPostHandler(request, h, apiKey)
+        }
+        case steps.manual: {
+          return manualPostHandler(request, h)
+        }
+        default:
+          throw Boom.badRequest(`Invalid step ${step}`)
+      }
+    },
+    // @ts-expect-error - Request typing
+    options: {
+      ...getRouteOptions,
+      validate: {
+        params: paramsSchema,
+        payload: Joi.object()
+          .keys({
+            step: stepSchema
+          })
+          .unknown(true)
+      }
+    }
+  }
+}
+
+/**
+ * Post handler for the details step
+ * @param {PostcodeLookupPostRequest} request
+ * @param {ResponseToolkit<PostcodeLookupPostRequestRefs>} h
+ * @param {string} apiKey - ordnance survey api key
+ */
+async function detailsPostHandler(request, h, apiKey) {
+  const { params, payload } = request
+  const { slug, state: status } = params
+  const { title, page, component } = getJourneyDetails(request)
+
+  const { value: details, error } = detailsPayloadSchema.validate(payload)
+
+  let data, model
+
+  if (error) {
+    data = { slug, title, page, component, status }
+    model = detailsViewModel(data, details, error)
 
     return h.view(viewName, model)
   }
 
-  /**
-   * Post handler for the select step
-   * @param {PostcodeLookupPostRequest} request
-   * @param {ResponseToolkit<PostcodeLookupPostRequestRefs>} h
-   */
-  async function selectPostHandler(request, h) {
-    const { params, payload } = request
-    const { slug, path, componentName, state: status } = params
-    const { page, component } = getJourneyDetails(request)
+  // Store the details in session
+  request.yar.set(getKey(slug, status), details)
 
-    const { value: select, error } = selectPayloadSchema.validate(payload)
+  data = { slug, page, component, details, status, apiKey }
+  model = await selectViewModel(data)
 
-    if (error) {
-      const { postcodeQuery, buildingNameQuery } = select
-      const details = { postcodeQuery, buildingNameQuery }
-      const data = { slug, page, component, details, status, apiKey }
-      const model = await selectViewModel(data, select, error)
+  return h.view(viewName, model)
+}
 
-      return h.view(viewName, model)
-    }
+/**
+ * Post handler for the select step
+ * @param {PostcodeLookupPostRequest} request
+ * @param {ResponseToolkit<PostcodeLookupPostRequestRefs>} h
+ * @param {string} apiKey - ordnance survey api key
+ */
+async function selectPostHandler(request, h, apiKey) {
+  const { params, payload } = request
+  const { slug, path, componentName, state: status } = params
+  const { page, component } = getJourneyDetails(request)
 
-    const addresses = await service.searchByUPRN(select.uprn, apiKey)
-    const property = addresses.at(0)
+  const { value: select, error } = selectPayloadSchema.validate(payload)
 
-    if (!property) {
-      throw Boom.internal(`UPRN ${property} not found`)
-    }
+  if (error) {
+    const { postcodeQuery, buildingNameQuery } = select
+    const details = { postcodeQuery, buildingNameQuery }
+    const data = { slug, page, component, details, status, apiKey }
+    const model = await selectViewModel(data, select, error)
 
-    await updateComponentState(request, componentName, property)
-
-    // Redirect back to the source form page
-    return h
-      .redirect(`${FORM_PREFIX}/${slug}/${path}`)
-      .code(StatusCodes.SEE_OTHER)
+    return h.view(viewName, model)
   }
 
-  /**
-   * Post handler for the manual step
-   * @param {PostcodeLookupPostRequest} request
-   * @param {ResponseToolkit<PostcodeLookupPostRequestRefs>} h
-   */
-  async function manualPostHandler(request, h) {
-    const { params, payload } = request
-    const { slug, path, componentName, state: status } = params
-    const { title, page, component } = getJourneyDetails(request)
+  const addresses = await service.searchByUPRN(select.uprn, apiKey)
+  const property = addresses.at(0)
 
-    const { value: manual, error } = manualPayloadSchema.validate(payload, {
-      abortEarly: false
-    })
-
-    if (error) {
-      const data = { slug, title, page, component, status }
-      const model = manualViewModel(data, manual, error)
-
-      return h.view(viewName, model)
-    }
-
-    await updateComponentState(request, componentName, manual)
-
-    // Redirect back to the source form page
-    return h
-      .redirect(`${FORM_PREFIX}/${slug}/${path}`)
-      .code(StatusCodes.SEE_OTHER)
+  if (!property) {
+    throw Boom.internal(`UPRN ${property} not found`)
   }
 
-  return [
-    /**
-     * @satisfies {ServerRoute<PostcodeLookupGetRequestRefs>}
-     */
-    ({
-      method: 'GET',
-      path: `${JOURNEY_BASE_URL}/{slug}/{path}/{componentName}/{state?}`,
-      handler(request, h) {
-        const { params, query } = request
-        const { slug, state: status } = params
-        const { title, page, component } = getJourneyDetails(request)
+  await updateComponentState(request, componentName, property)
 
-        // Get the previous details from session
-        const previous = request.yar.get(getKey(slug, status))
+  // Redirect back to the source form page
+  return h
+    .redirect(`${FORM_PREFIX}/${slug}/${path}`)
+    .code(StatusCodes.SEE_OTHER)
+}
 
-        const data = { slug, page, title, component, status }
-        const model =
-          query.step === steps.manual
-            ? manualViewModel(data)
-            : detailsViewModel(data, previous)
+/**
+ * Post handler for the manual step
+ * @param {PostcodeLookupPostRequest} request
+ * @param {ResponseToolkit<PostcodeLookupPostRequestRefs>} h
+ */
+async function manualPostHandler(request, h) {
+  const { params, payload } = request
+  const { slug, path, componentName, state: status } = params
+  const { title, page, component } = getJourneyDetails(request)
 
-        return h.view(viewName, model)
-      },
-      // @ts-expect-error - Request typing
-      options: {
-        ...getRouteOptions,
-        validate: {
-          params: paramsSchema,
-          query: Joi.object()
-            .keys({
-              step: Joi.string().allow(steps.details, steps.manual).optional()
-            })
-            .optional()
-        }
-      }
-    }),
-    /**
-     * @satisfies {ServerRoute<PostcodeLookupPostRequestRefs>}
-     */
-    ({
-      method: 'POST',
-      path: `${JOURNEY_BASE_URL}/{slug}/{path}/{componentName}/{state?}`,
-      async handler(request, h) {
-        const { payload } = request
-        const { step } = payload
+  const { value: manual, error } = manualPayloadSchema.validate(payload, {
+    abortEarly: false
+  })
 
-        switch (step) {
-          case steps.details: {
-            return detailsPostHandler(request, h)
-          }
-          case steps.select: {
-            return selectPostHandler(request, h)
-          }
-          case steps.manual: {
-            return manualPostHandler(request, h)
-          }
-          default:
-            throw Boom.badRequest(`Invalid step ${step}`)
-        }
-      },
-      // @ts-expect-error - Request typing
-      options: {
-        ...getRouteOptions,
-        validate: {
-          params: paramsSchema,
-          payload: Joi.object()
-            .keys({
-              step: stepSchema
-            })
-            .unknown(true)
-        }
-      }
-    })
-  ]
+  if (error) {
+    const data = { slug, title, page, component, status }
+    const model = manualViewModel(data, manual, error)
+
+    return h.view(viewName, model)
+  }
+
+  await updateComponentState(request, componentName, manual)
+
+  // Redirect back to the source form page
+  return h
+    .redirect(`${FORM_PREFIX}/${slug}/${path}`)
+    .code(StatusCodes.SEE_OTHER)
 }
 
 /**
