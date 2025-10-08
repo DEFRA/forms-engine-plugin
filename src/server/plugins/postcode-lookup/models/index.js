@@ -24,6 +24,8 @@ const townFieldName = 'town'
 const countyFieldName = 'county'
 const postcodeFieldName = 'postcode'
 
+const selectLabelText = 'Select an address'
+
 export const steps = {
   // Step 1: Postcode/building name input
   details: 'details',
@@ -195,7 +197,7 @@ export const selectPayloadSchema = Joi.object()
   .keys({
     ...sharedPayloadSchemaKeys,
     [uprnFieldName]: Joi.number().required().messages({
-      '*': 'Select an address'
+      '*': selectLabelText
     })
   })
   .required()
@@ -396,13 +398,13 @@ export async function selectViewModel(data, payload, err) {
       name: uprnFieldName,
       label: hasMultipleAddresses
         ? {
-            text: 'Select an address'
+            text: selectLabelText
           }
         : undefined,
       value: singleAddress ? singleAddress.uprn : payload?.uprn,
       errorMessage: uprnError && { text: uprnError.message },
       items: hasMultipleAddresses
-        ? [{ text: 'Select an address' }].concat(
+        ? [{ text: selectLabelText }].concat(
             addresses.map((item) => ({
               text: item.address,
               value: item.uprn
