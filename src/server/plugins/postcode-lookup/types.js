@@ -10,6 +10,16 @@
  */
 
 /**
+ * The postcode lookup details form view model data
+ * @typedef {object} PostcodeLookupDetailsModelData
+ * @property {string} slug - the form slug
+ * @property {string} title - the form title
+ * @property {Page} page - the form page
+ * @property {UkAddressFieldComponent} component - the form component
+ * @property {FormStatus} [status] - the form status
+ */
+
+/**
  * The postcode lookup select form view model data
  * @typedef {object} PostcodeLookupSelectModelData
  * @property {string} slug - the form slug

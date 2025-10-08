@@ -73,7 +73,7 @@ function buildErrors(err) {
   /**
    * Push error
    * @param {string} fieldName - the field name
-   * @param {Joi.ValidationErrorItem} [item] - the joi validation error
+   * @param {ValidationErrorItem} [item] - the joi validation error
    */
   const pushError = (fieldName, item) => {
     if (item) {
@@ -107,6 +107,32 @@ function buildErrors(err) {
 }
 
 /**
+ * Search ordnance survey for addresses
+ * @param {string} postcodeQuery
+ * @param {string} buildingNameQuery
+ * @param {string} apiKey
+ */
+async function getAddresses(postcodeQuery, buildingNameQuery, apiKey) {
+  const addresses = await service.search(
+    postcodeQuery,
+    buildingNameQuery,
+    apiKey
+  )
+  const addressCount = addresses.length
+  const singleAddress = addressCount === 1 ? addresses.at(0) : undefined
+  const hasAddresses = addressCount > 0
+  const hasMultipleAddresses = addressCount > 1
+
+  return {
+    hasAddresses,
+    hasMultipleAddresses,
+    singleAddress,
+    addresses,
+    addressCount
+  }
+}
+
+/**
  * @param {string} slug
  * @param {FormStatus} [status]
  */
@@ -116,6 +142,162 @@ function constructFormUrl(slug, status) {
   }
 
   return `${FORM_PREFIX}/preview/${status}/${slug}`
+}
+
+/**
+ * Get the details view fields
+ * @param {PostcodeLookupDetailsPayload | undefined} payload
+ * @param {OptionalValidationErrorItem} postcodeQueryError
+ * @param {OptionalValidationErrorItem} buildingNameQueryError
+ */
+function getDetailsFields(payload, postcodeQueryError, buildingNameQueryError) {
+  return {
+    [postcodeQueryFieldName]: {
+      id: postcodeQueryFieldName,
+      name: postcodeQueryFieldName,
+      label: {
+        text: 'Postcode'
+      },
+      hint: {
+        text: 'For example, AA3 1AB'
+      },
+      value: payload?.postcodeQuery,
+      errorMessage: postcodeQueryError && { text: postcodeQueryError.message }
+    },
+    [buildingNameQueryFieldName]: {
+      id: buildingNameQueryFieldName,
+      name: buildingNameQueryFieldName,
+      label: {
+        text: 'Building name or number (optional)'
+      },
+      hint: {
+        text: 'For example, 15 or Prospect Cottage'
+      },
+      value: payload?.buildingNameQuery,
+      errorMessage: buildingNameQueryError && {
+        text: buildingNameQueryError.message
+      }
+    }
+  }
+}
+
+/**
+ * Get the select view fields
+ * @param {PostcodeLookupDetailsData} details
+ * @param {boolean} hasMultipleAddresses
+ * @param {Address | undefined} singleAddress
+ * @param {PostcodeLookupSelectPayload | undefined} payload
+ * @param {OptionalValidationErrorItem} uprnError
+ * @param {Address[]} addresses
+ */
+function getSelectViewFields(
+  details,
+  hasMultipleAddresses,
+  singleAddress,
+  payload,
+  uprnError,
+  addresses
+) {
+  return {
+    [postcodeQueryFieldName]: {
+      id: postcodeQueryFieldName,
+      name: postcodeQueryFieldName,
+      type: 'hidden',
+      value: details.postcodeQuery
+    },
+    [buildingNameQueryFieldName]: {
+      id: buildingNameQueryFieldName,
+      name: buildingNameQueryFieldName,
+      type: 'hidden',
+      value: details.buildingNameQuery
+    },
+    [uprnFieldName]: {
+      id: uprnFieldName,
+      name: uprnFieldName,
+      label: hasMultipleAddresses
+        ? {
+            text: selectLabelText
+          }
+        : undefined,
+      value: singleAddress ? singleAddress.uprn : payload?.uprn,
+      errorMessage: uprnError && { text: uprnError.message },
+      items: hasMultipleAddresses
+        ? [{ text: selectLabelText }].concat(
+            addresses.map((item) => ({
+              text: item.address,
+              value: item.uprn
+            }))
+          )
+        : undefined,
+      type: singleAddress ? 'hidden' : undefined
+    }
+  }
+}
+
+/**
+ * Get the manual view fields
+ * @param {PostcodeLookupManualPayload | undefined} payload
+ * @param {OptionalValidationErrorItem} line1Error
+ * @param {OptionalValidationErrorItem} line2Error
+ * @param {OptionalValidationErrorItem} townError
+ * @param {OptionalValidationErrorItem} countyError
+ * @param {OptionalValidationErrorItem} postcodeError
+ */
+function getManualFields(
+  payload,
+  line1Error,
+  line2Error,
+  townError,
+  countyError,
+  postcodeError
+) {
+  return {
+    [line1FieldName]: {
+      id: line1FieldName,
+      name: line1FieldName,
+      label: {
+        text: 'Address line 1'
+      },
+      value: payload?.addressLine1,
+      errorMessage: line1Error && { text: line1Error.message }
+    },
+    [line2FieldName]: {
+      id: line2FieldName,
+      name: line2FieldName,
+      label: {
+        text: 'Address line 2 (optional)'
+      },
+      value: payload?.addressLine2,
+      errorMessage: line2Error && { text: line2Error.message }
+    },
+    [townFieldName]: {
+      id: townFieldName,
+      name: townFieldName,
+      label: {
+        text: 'Town or city'
+      },
+      value: payload?.town,
+      errorMessage: townError && { text: townError.message }
+    },
+    [countyFieldName]: {
+      id: countyFieldName,
+      name: countyFieldName,
+      label: {
+        text: 'County (optional)'
+      },
+      value: payload?.county,
+      errorMessage: countyError && { text: countyError.message }
+    },
+    [postcodeFieldName]: {
+      id: postcodeFieldName,
+      name: postcodeFieldName,
+      label: {
+        text: 'Postcode'
+      },
+      value: payload?.postcode,
+      errorMessage: postcodeError && { text: postcodeError.message }
+    }
+  }
 }
 
 /**
@@ -238,18 +420,8 @@ function getHref(slug, page, component, status, step) {
 }
 
 /**
- * The postcode lookup details form view model data
- * @typedef {object} DetailsModelData
- * @property {string} slug - the form slug
- * @property {string} title - the form title
- * @property {Page} page - the form page
- * @property {UkAddressFieldComponent} component - the form component
- * @property {FormStatus} [status] - the form status
- */
-
-/**
  * The postcode lookup details form view model
- * @param {DetailsModelData} data
+ * @param {PostcodeLookupDetailsModelData} data
  * @param {PostcodeLookupDetailsPayload} [payload]
  * @param {Error} [err]
  */
@@ -267,34 +439,11 @@ export function detailsViewModel(data, payload, err) {
     buildErrors(err)
 
   // Model fields
-  const fields = {
-    [postcodeQueryFieldName]: {
-      id: postcodeQueryFieldName,
-      name: postcodeQueryFieldName,
-      label: {
-        text: 'Postcode'
-      },
-      hint: {
-        text: 'For example, AA3 1AB'
-      },
-      value: payload?.postcodeQuery,
-      errorMessage: postcodeQueryError && { text: postcodeQueryError.message }
-    },
-    [buildingNameQueryFieldName]: {
-      id: buildingNameQueryFieldName,
-      name: buildingNameQueryFieldName,
-      label: {
-        text: 'Building name or number (optional)'
-      },
-      hint: {
-        text: 'For example, 15 or Prospect Cottage'
-      },
-      value: payload?.buildingNameQuery,
-      errorMessage: buildingNameQueryError && {
-        text: buildingNameQueryError.message
-      }
-    }
-  }
+  const fields = getDetailsFields(
+    payload,
+    postcodeQueryError,
+    buildingNameQueryError
+  )
 
   // Model buttons
   const continueButton = {
@@ -330,15 +479,13 @@ export async function selectViewModel(data, payload, err) {
   const { postcodeQuery, buildingNameQuery } = details
 
   // Search for addresses
-  const addresses = await service.search(
-    postcodeQuery,
-    buildingNameQuery,
-    apiKey
-  )
-  const addressCount = addresses.length
-  const singleAddress = addressCount === 1 ? addresses.at(0) : undefined
-  const hasAddresses = addressCount > 0
-  const hasMultipleAddresses = addressCount > 1
+  const {
+    hasAddresses,
+    hasMultipleAddresses,
+    singleAddress,
+    addresses,
+    addressCount
+  } = await getAddresses(postcodeQuery, buildingNameQuery, apiKey)
 
   const title = hasAddresses
     ? getComponentTitle(page, component)
@@ -353,40 +500,14 @@ export async function selectViewModel(data, payload, err) {
   const { errors, uprnError } = buildErrors(err)
 
   // Model fields
-  const fields = {
-    [postcodeQueryFieldName]: {
-      id: postcodeQueryFieldName,
-      name: postcodeQueryFieldName,
-      type: 'hidden',
-      value: details.postcodeQuery
-    },
-    [buildingNameQueryFieldName]: {
-      id: buildingNameQueryFieldName,
-      name: buildingNameQueryFieldName,
-      type: 'hidden',
-      value: details.buildingNameQuery
-    },
-    [uprnFieldName]: {
-      id: uprnFieldName,
-      name: uprnFieldName,
-      label: hasMultipleAddresses
-        ? {
-            text: selectLabelText
-          }
-        : undefined,
-      value: singleAddress ? singleAddress.uprn : payload?.uprn,
-      errorMessage: uprnError && { text: uprnError.message },
-      items: hasMultipleAddresses
-        ? [{ text: selectLabelText }].concat(
-            addresses.map((item) => ({
-              text: item.address,
-              value: item.uprn
-            }))
-          )
-        : undefined,
-      type: singleAddress ? 'hidden' : undefined
-    }
-  }
+  const fields = getSelectViewFields(
+    details,
+    hasMultipleAddresses,
+    singleAddress,
+    payload,
+    uprnError,
+    addresses
+  )
 
   const href = getHref(slug, page, component, status)
   const searchAgainLink = {
@@ -425,7 +546,7 @@ export async function selectViewModel(data, payload, err) {
 
 /**
  * The postcode lookup manual form view model
- * @param {DetailsModelData} data
+ * @param {PostcodeLookupDetailsModelData} data
  * @param {PostcodeLookupManualPayload} [payload]
  * @param {Error} [err]
  */
@@ -449,53 +570,14 @@ export function manualViewModel(data, payload, err) {
   } = buildErrors(err)
 
   // Model fields
-  const fields = {
-    [line1FieldName]: {
-      id: line1FieldName,
-      name: line1FieldName,
-      label: {
-        text: 'Address line 1'
-      },
-      value: payload?.addressLine1,
-      errorMessage: line1Error && { text: line1Error.message }
-    },
-    [line2FieldName]: {
-      id: line2FieldName,
-      name: line2FieldName,
-      label: {
-        text: 'Address line 2 (optional)'
-      },
-      value: payload?.addressLine2,
-      errorMessage: line2Error && { text: line2Error.message }
-    },
-    [townFieldName]: {
-      id: townFieldName,
-      name: townFieldName,
-      label: {
-        text: 'Town or city'
-      },
-      value: payload?.town,
-      errorMessage: townError && { text: townError.message }
-    },
-    [countyFieldName]: {
-      id: countyFieldName,
-      name: countyFieldName,
-      label: {
-        text: 'County (optional)'
-      },
-      value: payload?.county,
-      errorMessage: countyError && { text: countyError.message }
-    },
-    [postcodeFieldName]: {
-      id: postcodeFieldName,
-      name: postcodeFieldName,
-      label: {
-        text: 'Postcode'
-      },
-      value: payload?.postcode,
-      errorMessage: postcodeError && { text: postcodeError.message }
-    }
-  }
+  const fields = getManualFields(
+    payload,
+    line1Error,
+    line2Error,
+    townError,
+    countyError,
+    postcodeError
+  )
 
   // Model buttons
   const continueButton = {
@@ -519,9 +601,11 @@ export function manualViewModel(data, payload, err) {
   }
 }
 
+/** @typedef { ValidationErrorItem | undefined } OptionalValidationErrorItem */
+
 /**
  * @import { UkAddressFieldComponent, Page, ComponentDef } from '@defra/forms-model'
- * @import { ObjectSchema } from 'joi'
+ * @import { ObjectSchema, ValidationErrorItem } from 'joi'
  * @import { FormStatus } from '~/src/server/routes/types.js'
- * @import { PostcodeLookupDetailsPayload, PostcodeLookupManualPayload, PostcodeLookupSelectModelData, PostcodeLookupSelectPayload } from '~/src/server/plugins/postcode-lookup/types.js'
+ * @import { Address, PostcodeLookupDetailsData, PostcodeLookupDetailsModelData, PostcodeLookupDetailsPayload, PostcodeLookupManualPayload, PostcodeLookupSelectModelData, PostcodeLookupSelectPayload } from '~/src/server/plugins/postcode-lookup/types.js'
  */
