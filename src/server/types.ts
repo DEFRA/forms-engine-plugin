@@ -53,6 +53,7 @@ export interface RouteConfig {
   onRequest?: OnRequestCallback
   saveAndExit?: PluginOptions['saveAndExit']
   cacheServiceCreator?: (server: Server) => CacheService
+  ordnanceSurveyApiKey?: string
 }
 
 export interface OutputService {

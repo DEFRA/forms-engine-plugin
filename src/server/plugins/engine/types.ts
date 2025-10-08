@@ -396,6 +396,7 @@ export interface PluginOptions {
   preparePageEventRequestOptions?: PreparePageEventRequestOptions
   onRequest?: OnRequestCallback
   baseUrl: string // base URL of the application, protocol and hostname e.g. "https://myapp.com"
+  ordnanceSurveyApiKey?: string
 }
 
 export interface FormAdapterSubmissionMessageMeta {

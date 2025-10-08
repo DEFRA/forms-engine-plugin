@@ -252,6 +252,14 @@ export const config = convict({
     format: String,
     default: '',
     env: 'SUBMISSION_EMAIL_ADDRESS'
+  } as SchemaObj<string>,
+
+  ordnanceSurveyApiKey: {
+    doc: 'The ordnance survey api key use by the postcode lookup plugin',
+    format: String,
+    nullable: true,
+    default: '',
+    env: 'ORDNANCE_SURVEY_API_KEY'
   } as SchemaObj<string>
 })
 

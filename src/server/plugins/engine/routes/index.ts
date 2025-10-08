@@ -89,7 +89,12 @@ export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- hapi types are wrong
   const prefix = server.realm.modifiers.route.prefix ?? ''
 
-  const { services = defaultServices, controllers, onRequest } = options
+  const {
+    services = defaultServices,
+    controllers,
+    onRequest,
+    ordnanceSurveyApiKey
+  } = options
 
   const { formsService } = services
 
@@ -156,7 +161,7 @@ export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
       // Construct the form model
       const model = new FormModel(
         definition,
-        { basePath, versionNumber },
+        { basePath, versionNumber, ordnanceSurveyApiKey },
         services,
         controllers
       )

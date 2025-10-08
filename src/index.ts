@@ -13,19 +13,20 @@ process.on('unhandledRejection', (error) => {
   throw error
 })
 
+const port = config.get('port')
+const ordnanceSurveyApiKey = config.get('ordnanceSurveyApiKey')
+
 /**
  * Main entrypoint to the application.
  */
 async function startServer() {
-  const server = await createServer()
+  const server = await createServer({ ordnanceSurveyApiKey })
   await server.start()
 
   process.send?.('online')
 
   server.logger.info('Server started successfully')
-  server.logger.info(
-    `Access your frontend on http://localhost:${config.get('port')}`
-  )
+  server.logger.info(`Access your frontend on http://localhost:${port}`)
 }
 
 startServer().catch((error: unknown) => {

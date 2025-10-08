@@ -175,10 +175,19 @@ export class UkAddressField extends FormComponent {
 
     components = collection.getViewModel(payload, errors)
 
+    const usePostcodeLookup = !!(
+      this.options.usePostcodeLookup && this.model.ordnanceSurveyApiKey
+    )
+    const value = usePostcodeLookup
+      ? this.getDisplayStringFromState(payload)
+      : undefined
+
     return {
       ...viewModel,
+      value,
       fieldset,
-      components
+      components,
+      usePostcodeLookup
     }
   }
 
