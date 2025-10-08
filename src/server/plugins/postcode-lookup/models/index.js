@@ -231,7 +231,10 @@ export function getKey(slug, state) {
  * @param {string} [step] - the postcode lookup step
  */
 function getHref(slug, page, component, status, step) {
-  return `${JOURNEY_BASE_URL}/${slug}${page.path}/${component.name}${status ? `/${status}` : ''}${step ? `?step=${step}` : ''}`
+  const query = step ? `?step=${step}` : ''
+  const state = status ? `/${status}` : ''
+
+  return `${JOURNEY_BASE_URL}/${slug}${page.path}/${component.name}${state}${query}`
 }
 
 /**
