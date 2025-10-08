@@ -150,7 +150,7 @@ export class UkAddressField extends FormComponent {
     const { collection, name, options } = this
 
     const viewModel = super.getViewModel(payload, errors)
-    let { components, fieldset, hint, label } = viewModel
+    let { fieldset, hint, label } = viewModel
 
     fieldset ??= {
       legend: {
@@ -173,7 +173,7 @@ export class UkAddressField extends FormComponent {
       }
     }
 
-    components = collection.getViewModel(payload, errors)
+    const components = collection.getViewModel(payload, errors)
 
     const usePostcodeLookup = !!(
       this.options.usePostcodeLookup && this.model.ordnanceSurveyApiKey
