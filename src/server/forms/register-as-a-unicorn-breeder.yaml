@@ -56,8 +56,23 @@ pages:
       - name: wZLWPy
         options:
           required: true
+          usePostcodeLookup: true
         type: UkAddressField
-        title: Address
+        title: What is your billing address
+        schema: {}
+        hint: This is a UK address. Users must enter address line 1, town and a postcode
+      - name: uvBxTz
+        options:
+          required: true
+        type: EmailAddressField
+        title: What is your email adress
+        schema: {}
+        hint: This is an email address. An email address must contain an at sign @
+      - name: drGHuj
+        options:
+          required: true
+        type: UkAddressField
+        title: What is your delivery address
         schema: {}
         hint: This is a UK address. Users must enter address line 1, town and a postcode
     next:

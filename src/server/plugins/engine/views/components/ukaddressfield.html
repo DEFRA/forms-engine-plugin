@@ -1,8 +1,40 @@
 {% from "partials/components.html" import componentList %}
 {% from "govuk/components/fieldset/macro.njk" import govukFieldset %}
 {% from "govuk/components/hint/macro.njk" import govukHint %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
 
 {% macro UkAddressField(component) %}
+  {% set usePostcodeLookup = component.model.usePostcodeLookup %}
+
+  {% if usePostcodeLookup %}
+    {% set value = component.model.value %}
+    {% set postcodeLookupHref = "/postcode-lookup/" + slug + page.path + "/" + component.model.name %}
+
+    {% if value %}
+      {% set insetHtml %}
+        <strong>Selected address:</strong>
+        <br><br>
+        {{ value }}
+        <br><br>
+        <a href="{{ postcodeLookupHref }}" class="govuk-link govuk-link--no-visited-state">Use a different address</a>
+      {% endset %}
+
+      {{ govukInsetText({
+        html: insetHtml
+      }) }}
+    {% else %}
+      <div class="govuk-button-group">
+        {{ govukButton({
+          text: "Find an address",
+          href: postcodeLookupHref,
+          classes: "govuk-button--secondary govuk-!-margin-right-1"
+        }) }}
+        <p class="govuk-body">or <a href="{{ postcodeLookupHref }}?step=manual" class="govuk-link govuk-link--no-visited-state">enter address manually</a></p>
+      </div>
+    {% endif %}
+  {% endif %}
+
   {% set fieldset = component.model.fieldset %}
   {% set addressFieldHtml = componentList(component.model.components) %}
 
@@ -17,9 +49,11 @@
     {% set addressFieldHtml = addressHintHtml + addressFieldHtml %}
   {% endif %}
 
-  {{ govukFieldset({
-    legend: fieldset.legend,
-    attributes: fieldset.attributes,
-    html: addressFieldHtml
-  }) if fieldset else addressFieldHtml }}
+  <div {{"hidden" if usePostcodeLookup }}>
+    {{ govukFieldset({
+      legend: fieldset.legend,
+      attributes: fieldset.attributes,
+      html: addressFieldHtml
+    }) if fieldset else addressFieldHtml }}
+  </div>
 {% endmacro %}
