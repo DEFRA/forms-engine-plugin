@@ -5,10 +5,13 @@ import {
 } from '@defra/forms-model'
 import Joi from 'joi'
 
-import { crumbSchema, stateSchema } from '@defra/forms-engine-plugin/schema.js'
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import * as service from '~/src/server/plugins/postcode-lookup/service.js'
-import { pathSchema } from '~/src/server/schemas/index.js'
+import {
+  crumbSchema,
+  pathSchema,
+  stateSchema
+} from '~/src/server/schemas/index.js'
 
 // Field names/ids
 const postcodeQueryFieldName = 'postcodeQuery'
@@ -544,6 +547,6 @@ export function manualViewModel(data, payload, err) {
 /**
  * @import { UkAddressFieldComponent, Page, ComponentDef } from '@defra/forms-model'
  * @import { ObjectSchema } from 'joi'
- * @import { FormStatus } from '@defra/forms-engine-plugin/types'
+ * @import { FormStatus } from '~/src/server/routes/types.js'
  * @import { PostcodeLookupDetailsPayload, PostcodeLookupManualPayload, PostcodeLookupSelectModelData, PostcodeLookupSelectPayload } from '~/src/server/plugins/postcode-lookup/types.js'
  */
