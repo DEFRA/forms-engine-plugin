@@ -73,12 +73,12 @@ function buildErrors(err) {
   /**
    * Push error
    * @param {string} fieldName - the field name
-   * @param {Joi.ValidationErrorItem} [err] - the joi validation error
+   * @param {Joi.ValidationErrorItem} [item] - the joi validation error
    */
-  const pushError = (fieldName, err) => {
-    if (err) {
+  const pushError = (fieldName, item) => {
+    if (item) {
       errors.push({
-        text: err.message,
+        text: item.message,
         href: `#${fieldName}`
       })
     }
