@@ -130,22 +130,6 @@ function formatAddress(dpa) {
   const addressLine1 = formatAddressLine1(dpa)
   const addressLine2 = formatAddressLine2(dpa)
 
-  // const lines = [
-  //   buildingName,
-  //   numberStreet,
-  //   dpa.POST_TOWN || '',
-  //   dpa.POSTCODE || ''
-  // ]
-
-  // const formatted = titleCase(
-  //       lines
-  //         .filter((i) => i)
-  //         .slice(0, -1)
-  //         .join(', ')
-  //     ) +
-  //     ', ' +
-  //   (dpa.POSTCODE || '')
-
   /**
    * @type {Address}
    */
@@ -157,7 +141,6 @@ function formatAddress(dpa) {
     town: dpa.POST_TOWN,
     county: '',
     postcode: dpa.POSTCODE
-    // formatted
   }
 
   return address
@@ -191,17 +174,6 @@ function formatAddressLine1(dpa) {
         .join(' ')
     : ''
 }
-
-// /**
-//  *
-//  * @param {string} address
-//  */
-// function titleCase(address) {
-//   return address
-//     .split(' ')
-//     .map((item) => item.charAt(0).toUpperCase() + item.slice(1).toLowerCase())
-//     .join(' ')
-// }
 
 /**
  * @import { Address, DeliveryPointAddress, DeliveryPointAddressResult } from '~/src/server/plugins/postcode-lookup/types.js'
