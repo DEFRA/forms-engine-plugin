@@ -23,6 +23,8 @@ import {
 } from '~/src/server/plugins/postcode-lookup/models/index.js'
 import * as service from '~/src/server/plugins/postcode-lookup/service.js'
 
+const viewName = 'postcode-lookup-details'
+
 /**
  * Get the details of the source form elements associated with this journey
  * @param {PostcodeLookupRequest} request
@@ -114,7 +116,7 @@ export function getRoutes(getRouteOptions, apiKey) {
             ? manualViewModel(data)
             : detailsViewModel(data, previous)
 
-        return h.view('postcode-lookup-details', model)
+        return h.view(viewName, model)
       },
       // @ts-expect-error - Request typing
       options: {
@@ -150,7 +152,7 @@ export function getRoutes(getRouteOptions, apiKey) {
               const data = { slug, title, page, component, status }
               const model = detailsViewModel(data, details, error)
 
-              return h.view('postcode-lookup-details', model)
+              return h.view(viewName, model)
             }
 
             // Store the details in session
@@ -159,7 +161,7 @@ export function getRoutes(getRouteOptions, apiKey) {
             const data = { slug, page, component, details, status, apiKey }
             const model = await selectViewModel(data)
 
-            return h.view('postcode-lookup-details', model)
+            return h.view(viewName, model)
           }
           case steps.select: {
             const { value: select, error } =
@@ -171,7 +173,7 @@ export function getRoutes(getRouteOptions, apiKey) {
               const data = { slug, page, component, details, status, apiKey }
               const model = await selectViewModel(data, select, error)
 
-              return h.view('postcode-lookup-details', model)
+              return h.view(viewName, model)
             }
 
             const addresses = await service.searchByUPRN(select.uprn, apiKey)
@@ -198,7 +200,7 @@ export function getRoutes(getRouteOptions, apiKey) {
               const data = { slug, title, page, component, status }
               const model = manualViewModel(data, manual, error)
 
-              return h.view('postcode-lookup-details', model)
+              return h.view(viewName, model)
             }
 
             await updateComponentState(request, componentName, manual)
