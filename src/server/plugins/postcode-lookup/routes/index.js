@@ -107,9 +107,11 @@ export function getRoutes(getRouteOptions, apiKey) {
 
     const { value: details, error } = detailsPayloadSchema.validate(payload)
 
+    let data, model
+
     if (error) {
-      const data = { slug, title, page, component, status }
-      const model = detailsViewModel(data, details, error)
+      data = { slug, title, page, component, status }
+      model = detailsViewModel(data, details, error)
 
       return h.view(viewName, model)
     }
@@ -117,8 +119,8 @@ export function getRoutes(getRouteOptions, apiKey) {
     // Store the details in session
     request.yar.set(getKey(slug, status), details)
 
-    const data = { slug, page, component, details, status, apiKey }
-    const model = await selectViewModel(data)
+    data = { slug, page, component, details, status, apiKey }
+    model = await selectViewModel(data)
 
     return h.view(viewName, model)
   }
