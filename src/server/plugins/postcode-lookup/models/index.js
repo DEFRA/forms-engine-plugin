@@ -48,80 +48,50 @@ function buildErrors(err) {
     return {}
   }
 
-  const postcodeQueryError = err.details.find(
-    (item) => item.path[0] === postcodeQueryFieldName
-  )
-  const buildingNameQueryError = err.details.find(
-    (item) => item.path[0] === buildingNameQueryFieldName
-  )
-  const uprnError = err.details.find((item) => item.path[0] === uprnFieldName)
-  const line1Error = err.details.find((item) => item.path[0] === line1FieldName)
-  const line2Error = err.details.find((item) => item.path[0] === line2FieldName)
-  const townError = err.details.find((item) => item.path[0] === townFieldName)
-  const countyError = err.details.find(
-    (item) => item.path[0] === countyFieldName
-  )
-  const postcodeError = err.details.find(
-    (item) => item.path[0] === postcodeFieldName
-  )
+  /**
+   * Get error by path
+   * @param {string} fieldName
+   */
+  const getError = (fieldName) => {
+    return err.details.find((item) => item.path[0] === fieldName)
+  }
 
+  const postcodeQueryError = getError(postcodeQueryFieldName)
+  const buildingNameQueryError = getError(buildingNameQueryFieldName)
+  const uprnError = getError(uprnFieldName)
+  const line1Error = getError(line1FieldName)
+  const line2Error = getError(line2FieldName)
+  const townError = getError(townFieldName)
+  const countyError = getError(countyFieldName)
+  const postcodeError = getError(postcodeFieldName)
+
+  /**
+   * @type {{ text: string, href: string }[]}
+   */
   const errors = []
 
-  if (postcodeQueryError) {
-    errors.push({
-      text: postcodeQueryError.message,
-      href: `#${postcodeQueryFieldName}`
-    })
+  /**
+   * Push error
+   * @param {string} fieldName - the field name
+   * @param {Joi.ValidationErrorItem} [err] - the joi validation error
+   */
+  const pushError = (fieldName, err) => {
+    if (err) {
+      errors.push({
+        text: err.message,
+        href: `#${fieldName}`
+      })
+    }
   }
 
-  if (buildingNameQueryError) {
-    errors.push({
-      text: buildingNameQueryError.message,
-      href: `#${buildingNameQueryFieldName}`
-    })
-  }
-
-  if (uprnError) {
-    errors.push({
-      text: uprnError.message,
-      href: `#${uprnFieldName}`
-    })
-  }
-
-  if (line1Error) {
-    errors.push({
-      text: line1Error.message,
-      href: `#${line1FieldName}`
-    })
-  }
-
-  if (line2Error) {
-    errors.push({
-      text: line2Error.message,
-      href: `#${line2FieldName}`
-    })
-  }
-
-  if (townError) {
-    errors.push({
-      text: townError.message,
-      href: `#${townFieldName}`
-    })
-  }
-
-  if (countyError) {
-    errors.push({
-      text: countyError.message,
-      href: `#${countyFieldName}`
-    })
-  }
-
-  if (postcodeError) {
-    errors.push({
-      text: postcodeError.message,
-      href: `#${postcodeFieldName}`
-    })
-  }
+  pushError(postcodeQueryFieldName, postcodeQueryError)
+  pushError(buildingNameQueryFieldName, buildingNameQueryError)
+  pushError(uprnFieldName, uprnError)
+  pushError(line1FieldName, line1Error)
+  pushError(line2FieldName, line2Error)
+  pushError(townFieldName, townError)
+  pushError(countyFieldName, countyError)
+  pushError(postcodeFieldName, postcodeError)
 
   return {
     errors,
