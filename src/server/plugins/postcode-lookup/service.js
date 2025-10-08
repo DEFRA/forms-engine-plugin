@@ -127,25 +127,8 @@ export async function search(postcodeQuery, buildingNameQuery, apiKey) {
  * @param {DeliveryPointAddress} dpa
  */
 function formatAddress(dpa) {
-  const buildingName =
-    dpa.ORGANISATION_NAME || dpa.SUB_BUILDING_NAME || dpa.BUILDING_NAME
-      ? [
-          dpa.ORGANISATION_NAME || '',
-          dpa.SUB_BUILDING_NAME || '',
-          dpa.BUILDING_NAME || ''
-        ]
-          .filter((item) => !!item)
-          .join(' ')
-      : ''
-  const numberStreet =
-    dpa.BUILDING_NUMBER || dpa.THOROUGHFARE_NAME
-      ? [
-          dpa.BUILDING_NUMBER ? dpa.BUILDING_NUMBER.toString() : '',
-          dpa.THOROUGHFARE_NAME || ''
-        ]
-          .filter((item) => !!item)
-          .join(' ')
-      : ''
+  const addressLine1 = formatAddressLine1(dpa)
+  const addressLine2 = formatAddressLine2(dpa)
 
   // const lines = [
   //   buildingName,
@@ -169,8 +152,8 @@ function formatAddress(dpa) {
   const address = {
     uprn: dpa.UPRN,
     address: dpa.ADDRESS,
-    addressLine1: buildingName,
-    addressLine2: numberStreet,
+    addressLine1,
+    addressLine2,
     town: dpa.POST_TOWN,
     county: '',
     postcode: dpa.POSTCODE
@@ -178,6 +161,35 @@ function formatAddress(dpa) {
   }
 
   return address
+}
+
+/**
+ * @param {DeliveryPointAddress} dpa
+ */
+function formatAddressLine2(dpa) {
+  return dpa.BUILDING_NUMBER || dpa.THOROUGHFARE_NAME
+    ? [
+        dpa.BUILDING_NUMBER ? dpa.BUILDING_NUMBER.toString() : '',
+        dpa.THOROUGHFARE_NAME || ''
+      ]
+        .filter((item) => !!item)
+        .join(' ')
+    : ''
+}
+
+/**
+ * @param {DeliveryPointAddress} dpa
+ */
+function formatAddressLine1(dpa) {
+  return dpa.ORGANISATION_NAME || dpa.SUB_BUILDING_NAME || dpa.BUILDING_NAME
+    ? [
+        dpa.ORGANISATION_NAME || '',
+        dpa.SUB_BUILDING_NAME || '',
+        dpa.BUILDING_NAME || ''
+      ]
+        .filter((item) => !!item)
+        .join(' ')
+    : ''
 }
 
 // /**
