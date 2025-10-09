@@ -447,10 +447,11 @@ export function detailsViewModel(data, payload, err) {
 
   // Model buttons
   const continueButton = {
-    text: 'Find address'
+    text: 'Find address',
+    classes: 'govuk-!-margin-right-1'
   }
   const manualLink = {
-    text: 'Enter address manually',
+    text: 'enter address manually',
     href: getHref(slug, page, component, status, steps.manual)
   }
 
@@ -518,10 +519,11 @@ export async function selectViewModel(data, payload, err) {
   // Model buttons
   const continueButton = {
     href: !hasAddresses ? href : undefined,
-    text: hasAddresses ? 'Use this address' : 'Search again'
+    text: hasAddresses ? 'Use this address' : 'Search again',
+    classes: 'govuk-!-margin-right-1'
   }
   const manualLink = {
-    text: 'Enter address manually',
+    text: 'enter address manually',
     href: `${href}?step=${steps.manual}`
   }
 
@@ -586,10 +588,11 @@ export function manualViewModel(data, payload, err) {
 
   // Model buttons
   const continueButton = {
-    text: 'Use this address'
+    text: 'Use this address',
+    classes: 'govuk-!-margin-right-1'
   }
-  const lookupLink = {
-    text: 'Find an address instead',
+  const detailsLink = {
+    text: 'find an address instead',
     href: getHref(slug, page, component, status)
   }
 
@@ -603,7 +606,7 @@ export function manualViewModel(data, payload, err) {
     errors,
     hint,
     fields,
-    buttons: { continueButton, lookupLink }
+    buttons: { continueButton, detailsLink }
   }
 }
 

@@ -74,15 +74,13 @@
 
         <div class="govuk-button-group">
           {{ govukButton(buttons.continueButton) }}
-        </div>
 
-        <p class="govuk-body">
           {% if buttons.manualLink %}
-            <a class="govuk-link govuk-link--no-visited-state" href="{{ buttons.manualLink.href }}">{{buttons.manualLink.text}}</a>
-          {% elif buttons.lookupLink %}
-            <a class="govuk-link govuk-link--no-visited-state" href="{{ buttons.lookupLink.href }}">{{buttons.lookupLink.text}}</a>
+            <p class="govuk-body">or <a class="govuk-link govuk-link--no-visited-state" href="{{ buttons.manualLink.href }}">{{buttons.manualLink.text}}</a></p>
+          {% elif buttons.detailsLink %}
+            <p class="govuk-body">or <a class="govuk-link govuk-link--no-visited-state" href="{{ buttons.detailsLink.href }}">{{buttons.detailsLink.text}}</a></p>
           {% endif %}
-        </p>
+        </div>
       </form>
     </div>
   </div>
