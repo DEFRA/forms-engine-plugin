@@ -276,6 +276,7 @@ function getManualFields(
       label: {
         text: 'Town or city'
       },
+      classes: 'govuk-!-width-two-thirds',
       value: payload?.town,
       errorMessage: townError && { text: townError.message }
     },
@@ -294,6 +295,7 @@ function getManualFields(
       label: {
         text: 'Postcode'
       },
+      classes: 'govuk-input--width-10',
       value: payload?.postcode,
       errorMessage: postcodeError && { text: postcodeError.message }
     }
