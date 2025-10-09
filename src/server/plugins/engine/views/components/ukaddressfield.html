@@ -5,7 +5,31 @@
 {% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
 
 {% macro UkAddressField(component) %}
+  {% set fieldset = component.model.fieldset %}
   {% set usePostcodeLookup = component.model.usePostcodeLookup %}
+
+  {% set addressFieldHtml %}
+    <div {{"hidden" if usePostcodeLookup }}>
+      {{ componentList(component.model.components) }}
+    </div>
+  {% endset %}
+
+  {% if component.model.hint %}
+    {% set addressHintHtml %}
+      {{ govukHint({
+        id: component.model.name + "-hint",
+        text: component.model.hint.text
+      } if fieldset else component.model.hint) }}
+    {% endset %}
+
+    {% set addressFieldHtml = addressHintHtml + addressFieldHtml %}
+  {% endif %}
+
+  {{ govukFieldset({
+    legend: fieldset.legend,
+    attributes: fieldset.attributes,
+    html: addressFieldHtml
+  }) if fieldset else addressFieldHtml }}
 
   {% if usePostcodeLookup %}
     {% set value = component.model.value %}
@@ -21,7 +45,8 @@
       {% endset %}
 
       {{ govukInsetText({
-        html: insetHtml
+        html: insetHtml,
+        classes: "govuk-!-margin-top-2"
       }) }}
     {% else %}
       <div class="govuk-button-group">
@@ -34,26 +59,4 @@
       </div>
     {% endif %}
   {% endif %}
-
-  {% set fieldset = component.model.fieldset %}
-  {% set addressFieldHtml = componentList(component.model.components) %}
-
-  {% if component.model.hint %}
-    {% set addressHintHtml %}
-      {{ govukHint({
-        id: component.model.name + "-hint",
-        text: component.model.hint.text
-      } if fieldset else component.model.hint) }}
-    {% endset %}
-
-    {% set addressFieldHtml = addressHintHtml + addressFieldHtml %}
-  {% endif %}
-
-  <div {{"hidden" if usePostcodeLookup }}>
-    {{ govukFieldset({
-      legend: fieldset.legend,
-      attributes: fieldset.attributes,
-      html: addressFieldHtml
-    }) if fieldset else addressFieldHtml }}
-  </div>
 {% endmacro %}
