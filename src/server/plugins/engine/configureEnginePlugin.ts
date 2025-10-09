@@ -4,11 +4,11 @@ import { type FormDefinition } from '@defra/forms-model'
 
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import { plugin } from '~/src/server/plugins/engine/plugin.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import { formsService } from '~/src/server/plugins/engine/services/localFormsService.js'
-import { type PluginOptions } from '~/src/server/plugins/engine/types.js'
 import { findPackageRoot } from '~/src/server/plugins/engine/vision.js'
+import { plugin as formsPlugin } from '~/src/server/plugins/forms/index.js'
+import { type PluginOptions } from '~/src/server/plugins/forms/types.js'
 import { devtoolContext } from '~/src/server/plugins/nunjucks/context.js'
 import { type CacheService } from '~/src/server/services/cacheService.js'
 import { type RouteConfig } from '~/src/server/types.js'
@@ -25,7 +25,8 @@ export const configureEnginePlugin = async (
   }: RouteConfig = {},
   cache?: CacheService
 ): Promise<{
-  plugin: typeof plugin
+  // plugin: typeof enginePlugin
+  plugin: typeof formsPlugin
   options: PluginOptions
 }> => {
   let model: FormModel | undefined
@@ -45,25 +46,32 @@ export const configureEnginePlugin = async (
   }
 
   return {
-    plugin,
+    plugin: formsPlugin,
     options: {
-      model,
-      services: services ?? {
-        // services for testing, else use the disk loader option for running this service locally
-        ...defaultServices,
-        formsService: await formsService()
+      engine: {
+        model,
+        services: services ?? {
+          // services for testing, else use the disk loader option for running this service locally
+          ...defaultServices,
+          formsService: await formsService()
+        },
+        controllers,
+        cache: cache ?? 'session',
+        nunjucks: {
+          baseLayoutPath: 'dxt-devtool-baselayout.html',
+          paths: [join(findPackageRoot(), 'src/server/devserver')] // custom layout to make it really clear this is not the same as the runner
+        },
+        viewContext: devtoolContext,
+        preparePageEventRequestOptions,
+        onRequest,
+        baseUrl: 'http://localhost:3009', // always runs locally
+        saveAndExit
       },
-      controllers,
-      cache: cache ?? 'session',
-      nunjucks: {
-        baseLayoutPath: 'dxt-devtool-baselayout.html',
-        paths: [join(findPackageRoot(), 'src/server/devserver')] // custom layout to make it really clear this is not the same as the runner
-      },
-      viewContext: devtoolContext,
-      preparePageEventRequestOptions,
-      onRequest,
-      baseUrl: 'http://localhost:3009', // always runs locally
-      saveAndExit
+      serverRegistrationOptions: {
+        routes: {
+          prefix: FORM_PREFIX
+        }
+      }
     }
   }
 }

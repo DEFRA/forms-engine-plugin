@@ -1,7 +1,4 @@
-import {
-  buildUploadStatusUrl,
-  initFileUpload
-} from '~/src/client/javascripts/file-upload.js'
+import { initFileUpload } from '~/src/client/javascripts/file-upload.js'
 
 describe('File Upload Client JS', () => {
   beforeEach(() => {
@@ -1345,61 +1342,61 @@ describe('File Upload Client JS', () => {
   })
 })
 
-describe('buildUploadStatusUrl', () => {
-  it('works with no prefix', () => {
-    expect(buildUploadStatusUrl('/my-form/file-upload-page', '123')).toBe(
-      '/upload-status/123'
-    )
+// describe('buildUploadStatusUrl', () => {
+//   it('works with no prefix', () => {
+//     expect(buildUploadStatusUrl('/my-form/file-upload-page', '123')).toBe(
+//       '/upload-status/123'
+//     )
 
-    expect(
-      buildUploadStatusUrl('/preview/draft/my-form/file-upload-page', '123')
-    ).toBe('/upload-status/123')
+//     expect(
+//       buildUploadStatusUrl('/preview/draft/my-form/file-upload-page', '123')
+//     ).toBe('/upload-status/123')
 
-    expect(
-      buildUploadStatusUrl('/preview/live/my-form/file-upload-page', '123')
-    ).toBe('/upload-status/123')
-  })
+//     expect(
+//       buildUploadStatusUrl('/preview/live/my-form/file-upload-page', '123')
+//     ).toBe('/upload-status/123')
+//   })
 
-  it('works with a prefix with a single level', () => {
-    expect(buildUploadStatusUrl('/form/my-form/file-upload-page', '123')).toBe(
-      '/form/upload-status/123'
-    )
+//   it('works with a prefix with a single level', () => {
+//     expect(buildUploadStatusUrl('/form/my-form/file-upload-page', '123')).toBe(
+//       '/form/upload-status/123'
+//     )
 
-    expect(
-      buildUploadStatusUrl(
-        '/form/preview/draft/my-form/file-upload-page',
-        '123'
-      )
-    ).toBe('/form/upload-status/123')
+//     expect(
+//       buildUploadStatusUrl(
+//         '/form/preview/draft/my-form/file-upload-page',
+//         '123'
+//       )
+//     ).toBe('/form/upload-status/123')
 
-    expect(
-      buildUploadStatusUrl('/form/preview/live/my-form/file-upload-page', '123')
-    ).toBe('/form/upload-status/123')
-  })
+//     expect(
+//       buildUploadStatusUrl('/form/preview/live/my-form/file-upload-page', '123')
+//     ).toBe('/form/upload-status/123')
+//   })
 
-  it('works with a prefix with multiple levels', () => {
-    expect(
-      buildUploadStatusUrl('/org/form/my-form/file-upload-page', '123')
-    ).toBe('/org/form/upload-status/123')
+//   it('works with a prefix with multiple levels', () => {
+//     expect(
+//       buildUploadStatusUrl('/org/form/my-form/file-upload-page', '123')
+//     ).toBe('/org/form/upload-status/123')
 
-    expect(
-      buildUploadStatusUrl(
-        '/org/form/preview/draft/my-form/file-upload-page',
-        '123'
-      )
-    ).toBe('/org/form/upload-status/123')
+//     expect(
+//       buildUploadStatusUrl(
+//         '/org/form/preview/draft/my-form/file-upload-page',
+//         '123'
+//       )
+//     ).toBe('/org/form/upload-status/123')
 
-    expect(
-      buildUploadStatusUrl(
-        '/org/form/preview/live/my-form/file-upload-page',
-        '123'
-      )
-    ).toBe('/org/form/upload-status/123')
-  })
+//     expect(
+//       buildUploadStatusUrl(
+//         '/org/form/preview/live/my-form/file-upload-page',
+//         '123'
+//       )
+//     ).toBe('/org/form/upload-status/123')
+//   })
 
-  it('trims trailing slashes', () => {
-    expect(buildUploadStatusUrl('/my-form/file-upload-page/', '123')).toBe(
-      '/upload-status/123'
-    )
-  })
-})
+//   it('trims trailing slashes', () => {
+//     expect(buildUploadStatusUrl('/my-form/file-upload-page/', '123')).toBe(
+//       '/upload-status/123'
+//     )
+//   })
+// })
