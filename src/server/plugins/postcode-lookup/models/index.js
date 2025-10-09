@@ -569,6 +569,11 @@ export function manualViewModel(data, payload, err) {
     postcodeError
   } = buildErrors(err)
 
+  // Model hint
+  const hint = component.hint && {
+    text: component.hint
+  }
+
   // Model fields
   const fields = getManualFields(
     payload,
@@ -596,6 +601,7 @@ export function manualViewModel(data, payload, err) {
     pageTitle,
     backLink,
     errors,
+    hint,
     fields,
     buttons: { continueButton, lookupLink }
   }
