@@ -129,6 +129,10 @@ export async function search(postcodeQuery, buildingNameQuery, apiKey) {
 function formatAddress(dpa) {
   const addressLine1 = formatAddressLine1(dpa)
   const addressLine2 = formatAddressLine2(dpa)
+  const town = titleCase(dpa.POST_TOWN || '')
+  const postcode = dpa.POSTCODE || ''
+  const lines = [addressLine1, addressLine2, town]
+  const formatted = `${lines.filter((i) => i).join(', ')}, ${postcode}`
 
   /**
    * @type {Address}
@@ -138,9 +142,10 @@ function formatAddress(dpa) {
     address: dpa.ADDRESS,
     addressLine1,
     addressLine2,
-    town: dpa.POST_TOWN,
+    town,
     county: '',
-    postcode: dpa.POSTCODE
+    postcode,
+    formatted
   }
 
   return address
@@ -149,30 +154,46 @@ function formatAddress(dpa) {
 /**
  * @param {DeliveryPointAddress} dpa
  */
-function formatAddressLine2(dpa) {
-  return dpa.BUILDING_NUMBER || dpa.THOROUGHFARE_NAME
-    ? [
-        dpa.BUILDING_NUMBER ? dpa.BUILDING_NUMBER.toString() : '',
-        dpa.THOROUGHFARE_NAME || ''
-      ]
-        .filter((item) => !!item)
-        .join(' ')
-    : ''
+function formatAddressLine1(dpa) {
+  return titleCase(
+    dpa.ORGANISATION_NAME || dpa.SUB_BUILDING_NAME || dpa.BUILDING_NAME
+      ? [
+          dpa.ORGANISATION_NAME || '',
+          dpa.SUB_BUILDING_NAME || '',
+          dpa.BUILDING_NAME || ''
+        ]
+          .filter((item) => !!item)
+          .join(' ')
+      : ''
+  )
 }
 
 /**
  * @param {DeliveryPointAddress} dpa
  */
-function formatAddressLine1(dpa) {
-  return dpa.ORGANISATION_NAME || dpa.SUB_BUILDING_NAME || dpa.BUILDING_NAME
-    ? [
-        dpa.ORGANISATION_NAME || '',
-        dpa.SUB_BUILDING_NAME || '',
-        dpa.BUILDING_NAME || ''
-      ]
-        .filter((item) => !!item)
-        .join(' ')
-    : ''
+function formatAddressLine2(dpa) {
+  return titleCase(
+    dpa.BUILDING_NUMBER || dpa.THOROUGHFARE_NAME
+      ? [
+          dpa.BUILDING_NUMBER ? dpa.BUILDING_NUMBER.toString() : '',
+          dpa.THOROUGHFARE_NAME || '',
+          dpa.DEPENDENT_LOCALITY || ''
+        ]
+          .filter((item) => !!item)
+          .join(', ')
+      : ''
+  )
+}
+
+/**
+ * Title case address
+ * @param {string} address
+ */
+function titleCase(address) {
+  return address
+    .split(' ')
+    .map((item) => item.charAt(0).toUpperCase() + item.slice(1).toLowerCase())
+    .join(' ')
 }
 
 /**

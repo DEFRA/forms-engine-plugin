@@ -190,7 +190,7 @@ function getDetailsFields(payload, postcodeQueryError, buildingNameQueryError) {
  * @param {OptionalValidationErrorItem} uprnError
  * @param {Address[]} addresses
  */
-function getSelectViewFields(
+function getSelectFields(
   details,
   hasMultipleAddresses,
   singleAddress,
@@ -224,7 +224,7 @@ function getSelectViewFields(
       items: hasMultipleAddresses
         ? [{ text: selectLabelText }].concat(
             addresses.map((item) => ({
-              text: item.address,
+              text: item.formatted,
               value: item.uprn
             }))
           )
@@ -500,7 +500,7 @@ export async function selectViewModel(data, payload, err) {
   const { errors, uprnError } = buildErrors(err)
 
   // Model fields
-  const fields = getSelectViewFields(
+  const fields = getSelectFields(
     details,
     hasMultipleAddresses,
     singleAddress,
