@@ -492,11 +492,9 @@ export async function selectViewModel(data, payload, err) {
     ? getComponentTitle(page, component)
     : 'No address found'
   const formPath = constructFormUrl(slug, status)
-  const pagePath = constructFormPageUrl(formPath, page.path)
+  const href = getHref(slug, page, component, status)
 
-  const backLink = {
-    href: pagePath
-  }
+  const backLink = { href }
 
   const { errors, uprnError } = buildErrors(err)
 
@@ -510,7 +508,6 @@ export async function selectViewModel(data, payload, err) {
     addresses
   )
 
-  const href = getHref(slug, page, component, status)
   const searchAgainLink = {
     text: 'Search again',
     href
@@ -556,10 +553,10 @@ export function manualViewModel(data, payload, err) {
   const { slug, title, page, component, status } = data
   const pageTitle = getComponentTitle(page, component)
   const formPath = constructFormUrl(slug, status)
-  const pagePath = constructFormPageUrl(formPath, page.path)
+  const href = getHref(slug, page, component, status)
 
   const backLink = {
-    href: pagePath
+    href
   }
 
   const {
@@ -593,7 +590,7 @@ export function manualViewModel(data, payload, err) {
   }
   const detailsLink = {
     text: 'find an address instead',
-    href: getHref(slug, page, component, status)
+    href
   }
 
   return {
