@@ -156,11 +156,15 @@ function formatAddress(dpa) {
  */
 function formatAddressLine1(dpa) {
   return titleCase(
-    dpa.ORGANISATION_NAME || dpa.SUB_BUILDING_NAME || dpa.BUILDING_NAME
+    dpa.ORGANISATION_NAME ||
+      dpa.SUB_BUILDING_NAME ||
+      dpa.BUILDING_NAME ||
+      dpa.BUILDING_NUMBER
       ? [
           dpa.ORGANISATION_NAME || '',
           dpa.SUB_BUILDING_NAME || '',
-          dpa.BUILDING_NAME || ''
+          dpa.BUILDING_NAME || '',
+          dpa.BUILDING_NUMBER || ''
         ]
           .filter((item) => !!item)
           .join(' ')
@@ -173,12 +177,8 @@ function formatAddressLine1(dpa) {
  */
 function formatAddressLine2(dpa) {
   return titleCase(
-    dpa.BUILDING_NUMBER || dpa.THOROUGHFARE_NAME
-      ? [
-          dpa.BUILDING_NUMBER ? dpa.BUILDING_NUMBER.toString() : '',
-          dpa.THOROUGHFARE_NAME || '',
-          dpa.DEPENDENT_LOCALITY || ''
-        ]
+    dpa.THOROUGHFARE_NAME || dpa.DEPENDENT_LOCALITY
+      ? [dpa.THOROUGHFARE_NAME || '', dpa.DEPENDENT_LOCALITY || '']
           .filter((item) => !!item)
           .join(', ')
       : ''

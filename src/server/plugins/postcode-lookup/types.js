@@ -122,7 +122,7 @@
  * @property {string} ORGANISATION_NAME - Organisation name
  * @property {string} SUB_BUILDING_NAME - Sub building name
  * @property {string} BUILDING_NAME - Building name
- * @property {number} BUILDING_NUMBER - Building number
+ * @property {string} BUILDING_NUMBER - Building number
  * @property {string} THOROUGHFARE_NAME - Throughfare name
  * @property {string} DEPENDENT_LOCALITY - Dependent locality
  * @property {string} POST_TOWN - Post town
