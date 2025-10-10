@@ -33,7 +33,7 @@
 
   {% if usePostcodeLookup %}
     {% set value = component.model.value %}
-    {% set postcodeLookupHref = "/postcode-lookup/" + slug + page.path + "/" + component.model.name %}
+    {% set postcodeLookupHref = "/postcode-lookup/" + slug + page.path + "/" + component.model.name + "?clear=true" %}
 
     {% if value %}
       {% set insetHtml %}
@@ -55,7 +55,7 @@
           href: postcodeLookupHref,
           classes: "govuk-button--secondary govuk-!-margin-right-1"
         }) }}
-        <p class="govuk-body">or <a href="{{ postcodeLookupHref }}?step=manual" class="govuk-link govuk-link--no-visited-state">enter address manually</a></p>
+        <p class="govuk-body">or <a href="{{ postcodeLookupHref }}&step=manual" class="govuk-link govuk-link--no-visited-state">enter address manually</a></p>
       </div>
     {% endif %}
   {% endif %}

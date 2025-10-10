@@ -71,7 +71,7 @@
  * Postcode lookup get request
  * @typedef {object} PostcodeLookupGetRequestRefs
  * @property {PostcodeLookupParams} Params - Request parameters
- * @property {{ step?: string }} Query - Request query
+ * @property {{ step?: string, clear?: boolean }} Query - Request query
  */
 
 /**

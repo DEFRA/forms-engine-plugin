@@ -109,14 +109,21 @@ function getRoute(getRouteOptions) {
     handler(request, h) {
       const { params, query } = request
       const { slug, state: status } = params
+      const { step, clear } = query
       const { title, page, component } = getJourneyDetails(request)
 
       // Get the previous details from session
-      const previous = request.yar.get(getKey(slug, status))
+      let previous
+
+      if (clear) {
+        request.yar.clear(getKey(slug, status))
+      } else {
+        previous = request.yar.get(getKey(slug, status))
+      }
 
       const data = { slug, page, title, component, status }
       const model =
-        query.step === steps.manual
+        step === steps.manual
           ? manualViewModel(data)
           : detailsViewModel(data, previous)
 
@@ -129,7 +136,8 @@ function getRoute(getRouteOptions) {
         params: paramsSchema,
         query: Joi.object()
           .keys({
-            step: Joi.string().allow(steps.details, steps.manual).optional()
+            step: Joi.string().allow(steps.details, steps.manual).optional(),
+            clear: Joi.boolean().optional()
           })
           .optional()
       }
