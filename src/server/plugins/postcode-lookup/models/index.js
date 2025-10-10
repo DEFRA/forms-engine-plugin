@@ -329,10 +329,10 @@ export const stepSchema = Joi.string()
 const sharedPayloadSchemaKeys = {
   crumb: crumbSchema,
   step: stepSchema,
-  [postcodeQueryFieldName]: Joi.string().required().messages({
+  [postcodeQueryFieldName]: Joi.string().trim().required().messages({
     '*': 'Enter a postcode'
   }),
-  [buildingNameQueryFieldName]: Joi.string().required().allow('').trim()
+  [buildingNameQueryFieldName]: Joi.string().trim().required().allow('').trim()
 }
 
 /**
@@ -364,15 +364,15 @@ export const manualPayloadSchema = Joi.object()
   .keys({
     crumb: crumbSchema,
     step: stepSchema,
-    [line1FieldName]: Joi.string().required().messages({
+    [line1FieldName]: Joi.string().trim().required().messages({
       '*': 'Enter address line 1'
     }),
-    [line2FieldName]: Joi.string().allow('').required(),
-    [townFieldName]: Joi.string().required().messages({
+    [line2FieldName]: Joi.string().trim().allow('').required(),
+    [townFieldName]: Joi.string().trim().required().messages({
       '*': 'Enter town or city'
     }),
-    [countyFieldName]: Joi.string().allow('').required(),
-    [postcodeFieldName]: Joi.string().required().messages({
+    [countyFieldName]: Joi.string().trim().allow('').required(),
+    [postcodeFieldName]: Joi.string().trim().required().messages({
       '*': 'Enter postcode'
     })
   })
