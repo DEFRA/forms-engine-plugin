@@ -350,7 +350,7 @@ export const detailsPayloadSchema = Joi.object()
 export const selectPayloadSchema = Joi.object()
   .keys({
     ...sharedPayloadSchemaKeys,
-    [uprnFieldName]: Joi.number().required().messages({
+    [uprnFieldName]: Joi.string().required().messages({
       '*': selectLabelText
     })
   })
@@ -615,5 +615,5 @@ export function manualViewModel(data, payload, err) {
  * @import { UkAddressFieldComponent, Page, ComponentDef } from '@defra/forms-model'
  * @import { ObjectSchema, ValidationErrorItem } from 'joi'
  * @import { FormStatus } from '~/src/server/routes/types.js'
- * @import { Address, PostcodeLookupDetailsData, PostcodeLookupDetailsModelData, PostcodeLookupDetailsPayload, PostcodeLookupManualPayload, PostcodeLookupSelectModelData, PostcodeLookupSelectPayload } from '~/src/server/plugins/postcode-lookup/types.js'
+ * @import { Address, PostcodeLookupDetailsData, PostcodeLookupDetailsModelData, PostcodeLookupDetailsPayload, PostcodeLookupManualPayload, PostcodeLookupSelectModelData, PostcodeLookupSelectPayload, PostcodeLookupSessionState } from '~/src/server/plugins/postcode-lookup/types.js'
  */

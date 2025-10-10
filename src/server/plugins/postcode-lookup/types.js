@@ -1,3 +1,10 @@
+/**
+ * @typedef {{
+ *   ordnanceSurveyApiKey: string
+ *   enginePluginOptions: PluginOptions
+ * }} PostcodeLookupConfiguration
+ */
+
 //
 // Model types
 //
@@ -30,15 +37,15 @@
  * @property {FormStatus} [status] - the form status
  */
 
-//
-// Payload/Param types
-//
+/**
+ * @typedef {object} PostcodeLookupSessionState
+ * @property {PostcodeLookupQuery} query - the source form page query
+ * @property {PostcodeLookupDetailsPayload | undefined} details - the current postcode lookup details
+ */
 
-// /**
-//  * @typedef {object} PostcodeLookupParamsType
-//  * @property {string} componentName - the source component name
-//  * @typedef {FormParams & PostcodeLookupParamsType} PostcodeLookupParams
-//  */
+//
+// Route types
+//
 
 /**
  * @typedef {object} PostcodeLookupParams
@@ -46,6 +53,15 @@
  * @property {string} path - the source page path
  * @property {string} componentName - the source component name
  * @property {FormStatus} [state] - the source form status (draft/live) when in preview mode
+ */
+
+/**
+ * Postcode lookup query params
+ * @typedef {object} PostcodeLookupQuery
+ * @property {string} [step] - step
+ * @property {boolean} [clear] - Clear session state flag
+ * @property {boolean} [force] - Force param (preview mode)
+ * @property {string} [returnUrl] - Return url (Back to summary page)
  */
 
 /**
@@ -71,7 +87,7 @@
  * Postcode lookup get request
  * @typedef {object} PostcodeLookupGetRequestRefs
  * @property {PostcodeLookupParams} Params - Request parameters
- * @property {{ step?: string, clear?: boolean }} Query - Request query
+ * @property {PostcodeLookupQuery} Query - Request query
  */
 
 /**
@@ -103,7 +119,7 @@
 
 /**
  * @typedef {object} Address
- * @property {number} uprn - The unique property reference
+ * @property {string} uprn - The unique property reference
  * @property {string} address - The full address
  * @property {string} addressLine1 - Address line 1
  * @property {string} addressLine2 - Address line 2
@@ -116,8 +132,8 @@
 /**
  * OS places address response
  * @typedef {object} DeliveryPointAddress
- * @property {number} UPRN - Unique property reference number
- * @property {number} UDPRN - Unique delivery point Reference Number
+ * @property {string} UPRN - Unique property reference number
+ * @property {string} UDPRN - Unique delivery point Reference Number
  * @property {string} ADDRESS - Address
  * @property {string} ORGANISATION_NAME - Organisation name
  * @property {string} SUB_BUILDING_NAME - Sub building name
@@ -144,5 +160,6 @@
 /**
  * @import { Request } from '@hapi/hapi'
  * @import { UkAddressFieldComponent, Page } from '@defra/forms-model'
+ * @import { PluginOptions } from '~/src/server/plugins/engine/types.js'
  * @import { FormStatus } from '~/src/server/routes/types.js'
  */

@@ -53,7 +53,7 @@
               <!-- Single address found - show single item -->
               {{ govukInput(fields.uprn) }}
               {{ govukInsetText({
-                text: singleAddress.address
+                text: singleAddress.formatted
               }) }}
             {% else %}
               <!-- No addresses found - show try again -->

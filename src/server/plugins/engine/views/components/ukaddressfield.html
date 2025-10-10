@@ -32,8 +32,10 @@
   }) if fieldset else addressFieldHtml }}
 
   {% if usePostcodeLookup %}
+    {% set postcodeLookupBaseUrl = component.model.postcodeLookupBaseUrl %}
+    {% set postcodeLookupQuery = component.model.postcodeLookupQuery %}
     {% set value = component.model.value %}
-    {% set postcodeLookupHref = "/postcode-lookup/" + slug + page.path + "/" + component.model.name + "?clear=true" %}
+    {% set postcodeLookupHref = postcodeLookupBaseUrl + "/" + slug + page.path + "/" + component.model.name + "?" + postcodeLookupQuery %}
 
     {% if value %}
       {% set insetHtml %}

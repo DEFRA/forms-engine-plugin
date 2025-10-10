@@ -79,6 +79,11 @@ async function updateComponentState(request, componentName, address) {
     [`${componentName}__postcode`]: address.postcode
   }
 
+  // Assign UPRN if available
+  if ('uprn' in address && address.uprn) {
+    addressState[`${componentName}__uprn`] = address.uprn
+  }
+
   const cacheService = getCacheService(request.server)
   // @ts-expect-error - Request typing
   const state = await cacheService.getState(request)
@@ -92,10 +97,10 @@ async function updateComponentState(request, componentName, address) {
 /**
  * Gets the postcode lookup routes
  * @param {RouteOptions<PostcodeLookupRequestRefs>} getRouteOptions - hapi route options
- * @param {string} apiKey - ordnance survey api key
+ * @param {PostcodeLookupConfiguration} options - ordnance survey api key
  */
-export function getRoutes(getRouteOptions, apiKey) {
-  return [getRoute(getRouteOptions), postRoute(getRouteOptions, apiKey)]
+export function getRoutes(getRouteOptions, options) {
+  return [getRoute(getRouteOptions), postRoute(getRouteOptions, options)]
 }
 
 /**
@@ -112,11 +117,22 @@ function getRoute(getRouteOptions) {
       const { step, clear } = query
       const { title, page, component } = getJourneyDetails(request)
 
-      // Get the previous details from session
+      /**
+       * Get the previous details from session
+       * @type {PostcodeLookupSessionState | undefined}
+       */
       let previous
 
       if (clear) {
-        request.yar.clear(getKey(slug, status))
+        /**
+         * @type {PostcodeLookupSessionState}
+         */
+        const state = {
+          query,
+          details: undefined
+        }
+
+        request.yar.set(getKey(slug, status), state)
       } else {
         previous = request.yar.get(getKey(slug, status))
       }
@@ -125,7 +141,7 @@ function getRoute(getRouteOptions) {
       const model =
         step === steps.manual
           ? manualViewModel(data)
-          : detailsViewModel(data, previous)
+          : detailsViewModel(data, previous?.details)
 
       return h.view(viewName, model)
     },
@@ -137,7 +153,9 @@ function getRoute(getRouteOptions) {
         query: Joi.object()
           .keys({
             step: Joi.string().allow(steps.details, steps.manual).optional(),
-            clear: Joi.boolean().optional()
+            clear: Joi.boolean().optional(),
+            returnUrl: Joi.string().optional(),
+            force: Joi.boolean().optional()
           })
           .optional()
       }
@@ -147,10 +165,10 @@ function getRoute(getRouteOptions) {
 
 /**
  * @param {RouteOptions<PostcodeLookupRequestRefs>} getRouteOptions
- * @param {string} apiKey - ordnance survey api key
+ * @param {PostcodeLookupConfiguration} options
  * @returns {ServerRoute<PostcodeLookupPostRequestRefs>}
  */
-function postRoute(getRouteOptions, apiKey) {
+function postRoute(getRouteOptions, options) {
   return {
     method: 'POST',
     path: `${JOURNEY_BASE_URL}/{slug}/{path}/{componentName}/{state?}`,
@@ -160,13 +178,13 @@ function postRoute(getRouteOptions, apiKey) {
 
       switch (step) {
         case steps.details: {
-          return detailsPostHandler(request, h, apiKey)
+          return detailsPostHandler(request, h, options)
         }
         case steps.select: {
-          return selectPostHandler(request, h, apiKey)
+          return selectPostHandler(request, h, options)
         }
         case steps.manual: {
-          return manualPostHandler(request, h)
+          return manualPostHandler(request, h, options)
         }
         default:
           throw Boom.badRequest(`Invalid step ${step}`)
@@ -191,13 +209,13 @@ function postRoute(getRouteOptions, apiKey) {
  * Post handler for the details step
  * @param {PostcodeLookupPostRequest} request
  * @param {ResponseToolkit<PostcodeLookupPostRequestRefs>} h
- * @param {string} apiKey - ordnance survey api key
+ * @param {PostcodeLookupConfiguration} options
  */
-async function detailsPostHandler(request, h, apiKey) {
+async function detailsPostHandler(request, h, options) {
   const { params, payload } = request
   const { slug, state: status } = params
   const { title, page, component } = getJourneyDetails(request)
-
+  const { ordnanceSurveyApiKey: apiKey } = options
   const { value: details, error } = detailsPayloadSchema.validate(payload)
 
   let data, model
@@ -208,12 +226,19 @@ async function detailsPostHandler(request, h, apiKey) {
 
     return h.view(viewName, model)
   }
-
-  // Store the details in session
-  request.yar.set(getKey(slug, status), details)
-
   data = { slug, page, component, details, status, apiKey }
   model = await selectViewModel(data)
+
+  const key = getKey(slug, status)
+
+  /**
+   * Get the previous details from session
+   * @type {PostcodeLookupSessionState | undefined}
+   */
+  const previous = request.yar.get(key)
+
+  // Store the new details in session
+  request.yar.set(key, previous ? { ...previous, details } : { details })
 
   return h.view(viewName, model)
 }
@@ -222,13 +247,13 @@ async function detailsPostHandler(request, h, apiKey) {
  * Post handler for the select step
  * @param {PostcodeLookupPostRequest} request
  * @param {ResponseToolkit<PostcodeLookupPostRequestRefs>} h
- * @param {string} apiKey - ordnance survey api key
+ * @param {PostcodeLookupConfiguration} options
  */
-async function selectPostHandler(request, h, apiKey) {
+async function selectPostHandler(request, h, options) {
   const { params, payload } = request
   const { slug, path, componentName, state: status } = params
   const { page, component } = getJourneyDetails(request)
-
+  const { ordnanceSurveyApiKey: apiKey } = options
   const { value: select, error } = selectPayloadSchema.validate(payload)
 
   if (error) {
@@ -250,17 +275,41 @@ async function selectPostHandler(request, h, apiKey) {
   await updateComponentState(request, componentName, property)
 
   // Redirect back to the source form page
-  return h
-    .redirect(`${FORM_PREFIX}/${slug}/${path}`)
-    .code(StatusCodes.SEE_OTHER)
+  const key = getKey(slug, status)
+
+  /**
+   * Get the previous details from session
+   * @type {PostcodeLookupSessionState | undefined}
+   */
+  const previous = request.yar.get(key)
+  const url = new URL(
+    `${FORM_PREFIX}/${slug}/${path}`,
+    options.enginePluginOptions.baseUrl
+  )
+
+  if (previous?.query) {
+    const query = previous.query
+
+    if (query.returnUrl) {
+      url.searchParams.append('returnUrl', query.returnUrl)
+    }
+
+    if (query.force !== undefined) {
+      url.searchParams.append('force', `${query.force}`)
+    }
+  }
+
+  // Redirect back to the source form page
+  return h.redirect(url.toString()).code(StatusCodes.SEE_OTHER)
 }
 
 /**
  * Post handler for the manual step
  * @param {PostcodeLookupPostRequest} request
  * @param {ResponseToolkit<PostcodeLookupPostRequestRefs>} h
+ * @param {PostcodeLookupConfiguration} options
  */
-async function manualPostHandler(request, h) {
+async function manualPostHandler(request, h, options) {
   const { params, payload } = request
   const { slug, path, componentName, state: status } = params
   const { title, page, component } = getJourneyDetails(request)
@@ -279,12 +328,35 @@ async function manualPostHandler(request, h) {
   await updateComponentState(request, componentName, manual)
 
   // Redirect back to the source form page
-  return h
-    .redirect(`${FORM_PREFIX}/${slug}/${path}`)
-    .code(StatusCodes.SEE_OTHER)
+  const key = getKey(slug, status)
+
+  /**
+   * Get the previous details from session
+   * @type {PostcodeLookupSessionState | undefined}
+   */
+  const previous = request.yar.get(key)
+  const url = new URL(
+    `${FORM_PREFIX}/${slug}/${path}`,
+    options.enginePluginOptions.baseUrl
+  )
+
+  if (previous?.query) {
+    const query = previous.query
+
+    if (query.returnUrl) {
+      url.searchParams.append('returnUrl', query.returnUrl)
+    }
+
+    if (query.force !== undefined) {
+      url.searchParams.append('force', `${query.force}`)
+    }
+  }
+
+  // Redirect back to the source form page
+  return h.redirect(url.toString()).code(StatusCodes.SEE_OTHER)
 }
 
 /**
  * @import { ResponseToolkit, RouteOptions, ServerRoute } from '@hapi/hapi'
- * @import { PostcodeLookupManualPayload, Address, PostcodeLookupGetRequestRefs, PostcodeLookupPostRequestRefs, PostcodeLookupRequest, PostcodeLookupRequestRefs, PostcodeLookupPostRequest } from '~/src/server/plugins/postcode-lookup/types.js'
+ * @import { PostcodeLookupManualPayload, Address, PostcodeLookupGetRequestRefs, PostcodeLookupPostRequestRefs, PostcodeLookupRequest, PostcodeLookupRequestRefs, PostcodeLookupPostRequest, PostcodeLookupSessionState, PostcodeLookupConfiguration } from '~/src/server/plugins/postcode-lookup/types.js'
  */

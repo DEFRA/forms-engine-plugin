@@ -27,20 +27,13 @@ export const postcodeLookupPlugin = {
     server.route(
       /** @type {ServerRoute[]} */ (
         // @ts-expect-error - Request typing
-        getRoutes(getRouteOptions, options.ordnanceSurveyApiKey)
+        getRoutes(getRouteOptions, options)
       )
     )
   }
 }
 
 /**
- * @typedef {{
- *   ordnanceSurveyApiKey: string
- *   enginePluginOptions: PluginOptions
- * }} PostcodeLookupConfiguration
- */
-
-/**
  * @import { NamedPlugin, ServerRoute } from '@hapi/hapi'
- * @import { PluginOptions } from '~/src/server/plugins/engine/types.js'
+ * @import { PostcodeLookupConfiguration } from '~/src/server/plugins/postcode-lookup/types.js'
  */
