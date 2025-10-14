@@ -8,7 +8,6 @@ import {
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
 import { type QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
-import { type FormQuery } from '~/src/server/plugins/engine/types/index.js'
 import {
   type ErrorMessageTemplateList,
   type FormPayload,
@@ -17,7 +16,6 @@ import {
   type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
-import { JOURNEY_BASE_URL } from '~/src/server/plugins/postcode-lookup/models/index.js'
 
 export class UkAddressField extends FormComponent {
   declare options: UkAddressFieldComponent['options']
@@ -160,11 +158,7 @@ export class UkAddressField extends FormComponent {
     )
   }
 
-  getViewModel(
-    payload: FormPayload,
-    errors?: FormSubmissionError[],
-    query?: FormQuery
-  ) {
+  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
     const { collection, name, options } = this
 
     const viewModel = super.getViewModel(payload, errors)
@@ -210,30 +204,12 @@ export class UkAddressField extends FormComponent {
       ? this.getDisplayStringFromState(payload)
       : undefined
 
-    let postcodeLookupBaseUrl
-    let postcodeLookupQuery
-
-    if (usePostcodeLookup) {
-      const searchParams = new URLSearchParams([['clear', 'true']])
-
-      if (query) {
-        Object.entries(query).forEach(([key, value]) => {
-          searchParams.append(key, value ?? '')
-        })
-      }
-
-      postcodeLookupBaseUrl = JOURNEY_BASE_URL
-      postcodeLookupQuery = searchParams.toString()
-    }
-
     return {
       ...viewModel,
       value,
       fieldset,
       components,
-      usePostcodeLookup,
-      postcodeLookupBaseUrl,
-      postcodeLookupQuery
+      usePostcodeLookup
     }
   }
 
