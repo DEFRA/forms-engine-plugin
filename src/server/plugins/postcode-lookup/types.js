@@ -63,7 +63,7 @@
 /**
  * @typedef {object} PostcodeLookupSelectPayload
  * @property {string} step - step
- * @property {number} uprn - postcode
+ * @property {string} uprn - postcode
  */
 
 /**
@@ -91,7 +91,7 @@
  * @property {string} addressLine2 - The address line 2
  * @property {string} town - The address town or city
  * @property {string} county - The address county
- * @property {number} postcode - The address postcode
+ * @property {string} postcode - The address postcode
  */
 
 //

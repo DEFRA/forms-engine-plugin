@@ -80,7 +80,7 @@ export async function searchByPostcode(postcode, apiKey) {
 
 /**
  * OS UPRN search
- * @param {number} uprn - the unique property reference number
+ * @param {string} uprn - the unique property reference number
  * @param {string} apiKey - the OS api key
  */
 export async function searchByUPRN(uprn, apiKey) {
