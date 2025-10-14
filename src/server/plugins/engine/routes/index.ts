@@ -24,6 +24,7 @@ import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import {
   type AnyFormRequest,
   type FormContext,
+  type FormPayload,
   type PluginOptions
 } from '~/src/server/plugins/engine/types.js'
 import { dispatch } from '~/src/server/plugins/postcode-lookup/routes/index.js'
@@ -73,50 +74,9 @@ export async function redirectOrMakeHandler(
   // External journey redirect
   const { action = '' } = page.getFormParams(request)
   if (payload && action.startsWith(FormAction.External)) {
-    // Find the external action and arguments
-    // `external-{externalAction}--{argname1}:{argvalue1}--{argname2}:{argvalue2}`
-    // E.g. external-postcode-lookup--name:wDFtgf--step:manual
-    const externalActionsWithArgs = action
-      .slice(`${FormAction.External}-`.length)
-      .split('--')
-    const externalAction = externalActionsWithArgs[0] as ExternalActions
-    const externalActionArgs = externalActionsWithArgs
-      .slice(1)
-      .map((arg) => arg.split(':'))
+    const opts = { action, model, payload, page }
 
-    switch (externalAction) {
-      case ExternalActions.PostcodeLookup: {
-        const args = Object.fromEntries(
-          externalActionArgs
-        ) as PostcodeLookupDispatchArgs
-        const componentName = args.name
-        const component = model.componentDefMap.get(componentName)
-
-        if (!component) {
-          throw Boom.notFound(`No component found for ${componentName}`)
-        }
-
-        if (component.type !== ComponentType.UkAddressField) {
-          throw Boom.internal(
-            `Invalid component type, expected UkAddressFieldComponent got ${component.type}`
-          )
-        }
-
-        return dispatch(request as FormRequestPayload, h, {
-          payload,
-          formName: model.name,
-          componentName,
-          componentHint: component.hint,
-          componentTitle: component.title || page.title,
-          step: args.step,
-          sourceUrl: request.url.toString()
-        })
-      }
-      default:
-        throw Boom.internal(
-          `Invalid external action, expected one of '${Object.values(ExternalActions).join('|')}' got '${externalAction}'`
-        )
-    }
+    return dispatchExternalHandler(request, h, opts)
   }
 
   const flash = cacheService.getFlash(request)
@@ -138,6 +98,64 @@ export async function redirectOrMakeHandler(
   }
 
   return proceed(request, h, page.getHref(relevantPath))
+}
+
+function dispatchExternalHandler(
+  request: AnyFormRequest,
+  h: FormResponseToolkit,
+  options: {
+    action: string
+    model: FormModel
+    payload: FormPayload
+    page: PageControllerClass
+  }
+) {
+  const { action, model, payload, page } = options
+
+  // Find the external action and arguments
+  // `external-{externalAction}--{argname1}:{argvalue1}--{argname2}:{argvalue2}`
+  // E.g. external-postcode-lookup--name:wDFtgf--step:manual
+  const externalActionsWithArgs = action
+    .slice(`${FormAction.External}-`.length)
+    .split('--')
+  const externalAction = externalActionsWithArgs[0] as ExternalActions
+  const externalActionArgs = externalActionsWithArgs
+    .slice(1)
+    .map((arg) => arg.split(':'))
+
+  switch (externalAction) {
+    case ExternalActions.PostcodeLookup: {
+      const args = Object.fromEntries(
+        externalActionArgs
+      ) as PostcodeLookupDispatchArgs
+      const componentName = args.name
+      const component = model.componentDefMap.get(componentName)
+
+      if (!component) {
+        throw Boom.notFound(`No component found for ${componentName}`)
+      }
+
+      if (component.type !== ComponentType.UkAddressField) {
+        throw Boom.internal(
+          `Invalid component type, expected UkAddressFieldComponent got ${component.type}`
+        )
+      }
+
+      return dispatch(request as FormRequestPayload, h, {
+        payload,
+        formName: model.name,
+        componentName,
+        componentHint: component.hint,
+        componentTitle: component.title || page.title,
+        step: args.step,
+        sourceUrl: request.url.toString()
+      })
+    }
+    default:
+      throw Boom.internal(
+        `Invalid external action, expected one of '${Object.values(ExternalActions).join('|')}' got '${externalAction}'`
+      )
+  }
 }
 
 export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
