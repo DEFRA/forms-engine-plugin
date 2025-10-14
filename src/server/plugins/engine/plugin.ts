@@ -51,8 +51,7 @@ export const plugin = {
       await server.register({
         plugin: postcodeLookupPlugin,
         options: {
-          ordnanceSurveyApiKey,
-          enginePluginOptions: options
+          ordnanceSurveyApiKey
         }
       })
     }
