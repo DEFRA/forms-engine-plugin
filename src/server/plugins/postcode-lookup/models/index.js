@@ -16,6 +16,8 @@ const postcodeFieldName = 'postcode'
 
 const selectLabelText = 'Select an address'
 
+const GOVUK_MARGIN_RIGHT_1 = 'govuk-!-margin-right-1'
+
 export const steps = {
   // Step 1: Postcode/building name input
   details: 'details',
@@ -377,7 +379,7 @@ export function detailsViewModel(data, payload, err) {
   // Model buttons
   const continueButton = {
     text: 'Find address',
-    classes: 'govuk-!-margin-right-1'
+    classes: GOVUK_MARGIN_RIGHT_1
   }
   const manualLink = {
     text: 'enter address manually',
@@ -444,7 +446,7 @@ export async function selectViewModel(data, payload, err) {
   const continueButton = {
     href: !hasAddresses ? href : undefined,
     text: hasAddresses ? 'Use this address' : 'Search again',
-    classes: 'govuk-!-margin-right-1'
+    classes: GOVUK_MARGIN_RIGHT_1
   }
   const manualLink = {
     text: 'enter address manually',
@@ -512,7 +514,7 @@ export function manualViewModel(data, payload, err) {
   // Model buttons
   const continueButton = {
     text: 'Use this address',
-    classes: 'govuk-!-margin-right-1'
+    classes: GOVUK_MARGIN_RIGHT_1
   }
   const detailsLink = {
     text: 'find an address instead',
