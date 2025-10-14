@@ -8,13 +8,11 @@ export const stateSchema = Joi.string<FormStatus>()
   .required()
 
 export const actionSchema = Joi.string<FormAction>()
-  .valid(
-    FormAction.Continue,
-    FormAction.Validate,
-    FormAction.Delete,
-    FormAction.AddAnother,
-    FormAction.Send,
-    FormAction.SaveAndExit
+  .pattern(new RegExp(`^${FormAction.External}-[a-zA-Z-:]*$`))
+  .allow(
+    ...Object.values(FormAction).filter(
+      (value) => value !== FormAction.External
+    )
   )
   .default(FormAction.Validate)
   .optional()

@@ -45,10 +45,16 @@ export enum FormAction {
   Delete = 'delete',
   AddAnother = 'add-another',
   Send = 'send',
-  SaveAndExit = 'save-and-exit'
+  SaveAndExit = 'save-and-exit',
+  External = 'external'
 }
 
 export enum FormStatus {
   Draft = 'draft',
   Live = 'live'
+}
+
+export enum ExternalActions {
+  PostcodeLookup = 'postcode-lookup',
+  AnotherExternalAction = 'another-external-action'
 }
