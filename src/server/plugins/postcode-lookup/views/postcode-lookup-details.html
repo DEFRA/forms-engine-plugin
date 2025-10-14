@@ -31,10 +31,6 @@
             {{ govukInput(fields.buildingNameQuery) }}
           {% case "select" %}
             <!-- Postcode lookup select -->
-            <!-- Include postcode lookup details (hidden fields) -->
-            {{ govukInput(fields.postcodeQuery) }}
-            {{ govukInput(fields.buildingNameQuery) }}
-
             <!-- Postcode lookup details display -->
             {%- set detailsHtml -%}
               <strong>{{ details.postcodeQuery }}</strong>{% if details.buildingNameQuery %} and <strong>{{ details.buildingNameQuery }}</strong>{% endif %}

@@ -1,17 +1,7 @@
-import {
-  hasComponentsEvenIfNoNext,
-  hasFormField,
-  slugSchema
-} from '@defra/forms-model'
 import Joi from 'joi'
 
-import { FORM_PREFIX } from '~/src/server/constants.js'
 import * as service from '~/src/server/plugins/postcode-lookup/service.js'
-import {
-  crumbSchema,
-  pathSchema,
-  stateSchema
-} from '~/src/server/schemas/index.js'
+import { crumbSchema } from '~/src/server/schemas/index.js'
 
 // Field names/ids
 const postcodeQueryFieldName = 'postcodeQuery'
@@ -133,24 +123,12 @@ async function getAddresses(postcodeQuery, buildingNameQuery, apiKey) {
 }
 
 /**
- * @param {string} slug
- * @param {FormStatus} [status]
- */
-function constructFormUrl(slug, status) {
-  if (!status) {
-    return `${FORM_PREFIX}/${slug}`
-  }
-
-  return `${FORM_PREFIX}/preview/${status}/${slug}`
-}
-
-/**
  * Get the details view fields
- * @param {PostcodeLookupDetailsPayload | undefined} payload
+ * @param {PostcodeLookupDetailsData | undefined} details
  * @param {OptionalValidationErrorItem} postcodeQueryError
  * @param {OptionalValidationErrorItem} buildingNameQueryError
  */
-function getDetailsFields(payload, postcodeQueryError, buildingNameQueryError) {
+function getDetailsFields(details, postcodeQueryError, buildingNameQueryError) {
   return {
     [postcodeQueryFieldName]: {
       id: postcodeQueryFieldName,
@@ -161,7 +139,7 @@ function getDetailsFields(payload, postcodeQueryError, buildingNameQueryError) {
       hint: {
         text: 'For example, AA3 1AB'
       },
-      value: payload?.postcodeQuery,
+      value: details?.postcodeQuery,
       errorMessage: postcodeQueryError && { text: postcodeQueryError.message }
     },
     [buildingNameQueryFieldName]: {
@@ -173,7 +151,7 @@ function getDetailsFields(payload, postcodeQueryError, buildingNameQueryError) {
       hint: {
         text: 'For example, 15 or Prospect Cottage'
       },
-      value: payload?.buildingNameQuery,
+      value: details?.buildingNameQuery,
       errorMessage: buildingNameQueryError && {
         text: buildingNameQueryError.message
       }
@@ -222,7 +200,7 @@ function getSelectFields(
       value: singleAddress ? singleAddress.uprn : payload?.uprn,
       errorMessage: uprnError && { text: uprnError.message },
       items: hasMultipleAddresses
-        ? [{ text: selectLabelText }].concat(
+        ? [{ text: selectLabelText, value: '' }].concat(
             addresses.map((item) => ({
               text: item.formatted,
               value: item.uprn
@@ -302,37 +280,13 @@ function getManualFields(
   }
 }
 
-/**
- * @param {string} formPath
- * @param {string} path
- */
-function constructFormPageUrl(formPath, path) {
-  return `${formPath}${path}`
-}
-
-/**
- * Postcode lookup params schema
- */
-export const paramsSchema = Joi.object()
-  .keys({
-    slug: slugSchema,
-    path: pathSchema,
-    componentName: Joi.string().required(),
-    state: stateSchema.optional()
-  })
-  .required()
-
 export const stepSchema = Joi.string()
   .valid(...Object.keys(steps))
   .required()
 
 const sharedPayloadSchemaKeys = {
   crumb: crumbSchema,
-  step: stepSchema,
-  [postcodeQueryFieldName]: Joi.string().trim().required().messages({
-    '*': 'Enter a postcode'
-  }),
-  [buildingNameQueryFieldName]: Joi.string().trim().required().allow('').trim()
+  step: stepSchema
 }
 
 /**
@@ -340,7 +294,17 @@ const sharedPayloadSchemaKeys = {
  * @type {ObjectSchema<PostcodeLookupDetailsPayload>}
  */
 export const detailsPayloadSchema = Joi.object()
-  .keys(sharedPayloadSchemaKeys)
+  .keys({
+    ...sharedPayloadSchemaKeys,
+    [postcodeQueryFieldName]: Joi.string().trim().required().messages({
+      '*': 'Enter a postcode'
+    }),
+    [buildingNameQueryFieldName]: Joi.string()
+      .trim()
+      .required()
+      .allow('')
+      .trim()
+  })
   .required()
 
 /**
@@ -362,8 +326,7 @@ export const selectPayloadSchema = Joi.object()
  */
 export const manualPayloadSchema = Joi.object()
   .keys({
-    crumb: crumbSchema,
-    step: stepSchema,
+    ...sharedPayloadSchemaKeys,
     [line1FieldName]: Joi.string().trim().required().messages({
       '*': 'Enter address line 1'
     }),
@@ -379,62 +342,26 @@ export const manualPayloadSchema = Joi.object()
   .required()
 
 /**
- * Gets page title
- * @param {Page} page
- * @param {ComponentDef} component
- */
-export function getComponentTitle(page, component) {
-  if (hasComponentsEvenIfNoNext(page)) {
-    const formFields = page.components.filter(hasFormField)
-
-    // When there's more than 1 form component on the page, use the component title
-    if (formFields.length > 1 || formFields[0] !== component) {
-      return component.title
-    }
-  }
-
-  // Otherwise use the page title
-  return page.title
-}
-
-/**
- * Get postcode lookup session key
- * @param {string} slug
- * @param {FormStatus} [state]
- */
-export function getKey(slug, state) {
-  return `postcode-lookup-${slug}-${state ?? ''}`
-}
-
-/**
  * Get the postcode lookup href
- * @param {string} slug - the form slug
- * @param {Page} page - the form page
- * @param {UkAddressFieldComponent} component - the form component
- * @param {FormStatus} [status] - the form status
  * @param {string} [step] - the postcode lookup step
  */
-function getHref(slug, page, component, status, step) {
+function getHref(step) {
   const query = step ? `?step=${step}` : ''
-  const state = status ? `/${status}` : ''
 
-  return `${JOURNEY_BASE_URL}/${slug}${page.path}/${component.name}${state}${query}`
+  return `${JOURNEY_BASE_URL}${query}`
 }
 
 /**
  * The postcode lookup details form view model
- * @param {PostcodeLookupDetailsModelData} data
- * @param {PostcodeLookupDetailsPayload} [payload]
+ * @param {PostcodeLookupSessionData} data
+ * @param {PostcodeLookupDetailsData} [payload]
  * @param {Error} [err]
  */
 export function detailsViewModel(data, payload, err) {
-  const { slug, title, page, component, status } = data
-  const pageTitle = getComponentTitle(page, component)
-  const formPath = constructFormUrl(slug, status)
-  const pagePath = constructFormPageUrl(formPath, page.path)
+  const { componentTitle: pageTitle, formName, sourceUrl } = data.initial
 
   const backLink = {
-    href: pagePath
+    href: sourceUrl
   }
 
   const { errors, postcodeQueryError, buildingNameQueryError } =
@@ -442,7 +369,7 @@ export function detailsViewModel(data, payload, err) {
 
   // Model fields
   const fields = getDetailsFields(
-    payload,
+    payload ?? data.details,
     postcodeQueryError,
     buildingNameQueryError
   )
@@ -454,14 +381,14 @@ export function detailsViewModel(data, payload, err) {
   }
   const manualLink = {
     text: 'enter address manually',
-    href: getHref(slug, page, component, status, steps.manual)
+    href: getHref(steps.manual)
   }
 
   return {
     step: steps.details,
     showTitle: true,
-    name: title,
-    serviceUrl: formPath,
+    name: formName,
+    serviceUrl: sourceUrl,
     pageTitle,
     backLink,
     errors,
@@ -472,13 +399,13 @@ export function detailsViewModel(data, payload, err) {
 
 /**
  * The postcode lookup select form view model
- * @param {PostcodeLookupSelectModelData} data
+ * @param {{ session: PostcodeLookupSessionData, apiKey: string }} data
  * @param {PostcodeLookupSelectPayload} [payload]
  * @param {Error} [err]
  */
 export async function selectViewModel(data, payload, err) {
-  const { slug, page, component, details, status, apiKey } = data
-
+  const { session, apiKey } = data
+  const { details, initial } = session
   const { postcodeQuery, buildingNameQuery } = details
 
   // Search for addresses
@@ -490,11 +417,9 @@ export async function selectViewModel(data, payload, err) {
     addressCount
   } = await getAddresses(postcodeQuery, buildingNameQuery, apiKey)
 
-  const title = hasAddresses
-    ? getComponentTitle(page, component)
-    : 'No address found'
-  const formPath = constructFormUrl(slug, status)
-  const href = getHref(slug, page, component, status)
+  const title = hasAddresses ? initial.componentTitle : 'No address found'
+  const formPath = initial.sourceUrl
+  const href = getHref()
 
   const backLink = { href }
 
@@ -547,15 +472,14 @@ export async function selectViewModel(data, payload, err) {
 
 /**
  * The postcode lookup manual form view model
- * @param {PostcodeLookupDetailsModelData} data
+ * @param {PostcodeLookupSessionData} data
  * @param {PostcodeLookupManualPayload} [payload]
  * @param {Error} [err]
  */
 export function manualViewModel(data, payload, err) {
-  const { slug, title, page, component, status } = data
-  const pageTitle = getComponentTitle(page, component)
-  const formPath = constructFormUrl(slug, status)
-  const href = getHref(slug, page, component, status)
+  const { componentTitle, sourceUrl, componentHint } = data.initial
+  const formPath = sourceUrl
+  const href = getHref()
 
   const backLink = {
     href
@@ -571,8 +495,8 @@ export function manualViewModel(data, payload, err) {
   } = buildErrors(err)
 
   // Model hint
-  const hint = component.hint && {
-    text: component.hint
+  const hint = componentHint && {
+    text: componentHint
   }
 
   // Model fields
@@ -598,9 +522,9 @@ export function manualViewModel(data, payload, err) {
   return {
     step: steps.manual,
     showTitle: true,
-    name: title,
+    name: componentTitle,
     serviceUrl: formPath,
-    pageTitle,
+    pageTitle: componentTitle,
     backLink,
     errors,
     hint,
@@ -612,8 +536,6 @@ export function manualViewModel(data, payload, err) {
 /** @typedef { ValidationErrorItem | undefined } OptionalValidationErrorItem */
 
 /**
- * @import { UkAddressFieldComponent, Page, ComponentDef } from '@defra/forms-model'
  * @import { ObjectSchema, ValidationErrorItem } from 'joi'
- * @import { FormStatus } from '~/src/server/routes/types.js'
- * @import { Address, PostcodeLookupDetailsData, PostcodeLookupDetailsModelData, PostcodeLookupDetailsPayload, PostcodeLookupManualPayload, PostcodeLookupSelectModelData, PostcodeLookupSelectPayload, PostcodeLookupSessionState } from '~/src/server/plugins/postcode-lookup/types.js'
+ * @import { Address, PostcodeLookupDetailsData, PostcodeLookupDetailsPayload, PostcodeLookupManualPayload, PostcodeLookupSelectPayload, PostcodeLookupSessionData } from '~/src/server/plugins/postcode-lookup/types.js'
  */
