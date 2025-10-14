@@ -1,3 +1,4 @@
+import { ComponentType } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
   type ResponseObject,
@@ -25,8 +26,13 @@ import {
   type FormContext,
   type PluginOptions
 } from '~/src/server/plugins/engine/types.js'
+import { dispatch } from '~/src/server/plugins/postcode-lookup/routes/index.js'
+import { type PostcodeLookupDispatchArgs } from '~/src/server/plugins/postcode-lookup/types.js'
 import {
+  ExternalActions,
+  FormAction,
   type FormRequest,
+  type FormRequestPayload,
   type FormResponseToolkit
 } from '~/src/server/routes/types.js'
 
@@ -38,7 +44,7 @@ export async function redirectOrMakeHandler(
     context: FormContext
   ) => ResponseObject | Promise<ResponseObject>
 ) {
-  const { app, params } = request
+  const { app, params, payload } = request
   const { model } = app
 
   if (!model) {
@@ -62,6 +68,55 @@ export async function redirectOrMakeHandler(
     state = await page.mergeState(request, state, {
       $$__referenceNumber: referenceNumber
     })
+  }
+
+  // External journey redirect
+  const { action = '' } = page.getFormParams(request)
+  if (payload && action.startsWith(FormAction.External)) {
+    // Find the external action and arguments
+    // `external-{externalAction}--{argname1}:{argvalue1}--{argname2}:{argvalue2}`
+    // E.g. external-postcode-lookup--name:wDFtgf--step:manual
+    const externalActionsWithArgs = action
+      .slice(`${FormAction.External}-`.length)
+      .split('--')
+    const externalAction = externalActionsWithArgs[0] as ExternalActions
+    const externalActionArgs = externalActionsWithArgs
+      .slice(1)
+      .map((arg) => arg.split(':'))
+
+    switch (externalAction) {
+      case ExternalActions.PostcodeLookup: {
+        const args = Object.fromEntries(
+          externalActionArgs
+        ) as PostcodeLookupDispatchArgs
+        const componentName = args.name
+        const component = model.componentDefMap.get(componentName)
+
+        if (!component) {
+          throw Boom.notFound(`No component found for ${componentName}`)
+        }
+
+        if (component.type !== ComponentType.UkAddressField) {
+          throw Boom.internal(
+            `Invalid component type, expected UkAddressFieldComponent got ${component.type}`
+          )
+        }
+
+        return dispatch(request as FormRequestPayload, h, {
+          payload,
+          formName: model.name,
+          componentName,
+          componentHint: component.hint,
+          componentTitle: component.title || page.title,
+          step: args.step,
+          sourceUrl: request.url.toString()
+        })
+      }
+      default:
+        throw Boom.internal(
+          `Invalid external action, expected one of '${Object.values(ExternalActions).join('|')}' got '${externalAction}'`
+        )
+    }
   }
 
   const flash = cacheService.getFlash(request)
