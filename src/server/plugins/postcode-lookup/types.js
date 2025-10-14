@@ -1,8 +1,33 @@
 /**
  * @typedef {{
  *   ordnanceSurveyApiKey: string
- *   enginePluginOptions: PluginOptions
  * }} PostcodeLookupConfiguration
+ */
+
+/**
+ * @typedef {{
+ *   name: string
+ *   step?: string
+ * }} PostcodeLookupDispatchArgs
+ */
+
+/**
+ * @typedef {{
+ *   sourceUrl: string,
+ *   formName: string
+ *   componentName: string
+ *   componentTitle: string,
+ *   componentHint?: string
+ *   step?: string,
+ *   payload: FormPayload
+ * }} PostcodeLookupDispatchData
+ */
+
+/**
+ * @typedef {{
+ *   initial: PostcodeLookupDispatchData
+ *   details: PostcodeLookupDetailsData
+ * }} PostcodeLookupSessionData
  */
 
 //
@@ -16,52 +41,14 @@
  * @property {string} buildingNameQuery - Building name or number query
  */
 
-/**
- * The postcode lookup details form view model data
- * @typedef {object} PostcodeLookupDetailsModelData
- * @property {string} slug - the form slug
- * @property {string} title - the form title
- * @property {Page} page - the form page
- * @property {UkAddressFieldComponent} component - the form component
- * @property {FormStatus} [status] - the form status
- */
-
-/**
- * The postcode lookup select form view model data
- * @typedef {object} PostcodeLookupSelectModelData
- * @property {string} slug - the form slug
- * @property {Page} page - the form page
- * @property {UkAddressFieldComponent} component - the form component
- * @property {PostcodeLookupDetailsData} details - the lookup details
- * @property {string} apiKey - the ordnance survey api key
- * @property {FormStatus} [status] - the form status
- */
-
-/**
- * @typedef {object} PostcodeLookupSessionState
- * @property {PostcodeLookupQuery} query - the source form page query
- * @property {PostcodeLookupDetailsPayload | undefined} details - the current postcode lookup details
- */
-
 //
 // Route types
 //
 
 /**
- * @typedef {object} PostcodeLookupParams
- * @property {string} slug - the source form slug
- * @property {string} path - the source page path
- * @property {string} componentName - the source component name
- * @property {FormStatus} [state] - the source form status (draft/live) when in preview mode
- */
-
-/**
  * Postcode lookup query params
  * @typedef {object} PostcodeLookupQuery
  * @property {string} [step] - step
- * @property {boolean} [clear] - Clear session state flag
- * @property {boolean} [force] - Force param (preview mode)
- * @property {string} [returnUrl] - Return url (Back to summary page)
  */
 
 /**
@@ -74,26 +61,20 @@
  */
 
 /**
- * @typedef {object} PostcodeLookupSelectPayloadProperties
+ * @typedef {object} PostcodeLookupSelectPayload
  * @property {string} step - step
  * @property {number} uprn - postcode
  */
 
 /**
- * @typedef {PostcodeLookupDetailsPayload & PostcodeLookupSelectPayloadProperties} PostcodeLookupSelectPayload
- */
-
-/**
  * Postcode lookup get request
  * @typedef {object} PostcodeLookupGetRequestRefs
- * @property {PostcodeLookupParams} Params - Request parameters
  * @property {PostcodeLookupQuery} Query - Request query
  */
 
 /**
  * Postcode lookup post request
  * @typedef {object} PostcodeLookupPostRequestRefs
- * @property {PostcodeLookupParams} Params - Request parameters
  * @property {PostcodeLookupDetailsPayload | PostcodeLookupSelectPayload} Payload - Request payload
  */
 
@@ -159,7 +140,5 @@
 
 /**
  * @import { Request } from '@hapi/hapi'
- * @import { UkAddressFieldComponent, Page } from '@defra/forms-model'
- * @import { PluginOptions } from '~/src/server/plugins/engine/types.js'
- * @import { FormStatus } from '~/src/server/routes/types.js'
+ * @import { FormPayload } from '~/src/server/plugins/engine/types.js'
  */
