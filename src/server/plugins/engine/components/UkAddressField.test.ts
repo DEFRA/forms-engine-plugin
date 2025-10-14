@@ -91,6 +91,7 @@ describe('UkAddressField', () => {
 
         expect(field.keys).toEqual([
           'myComponent',
+          'myComponent__uprn',
           'myComponent__addressLine1',
           'myComponent__addressLine2',
           'myComponent__town',
@@ -194,7 +195,8 @@ describe('UkAddressField', () => {
             addressLine2: '',
             town: '',
             county: '',
-            postcode: ''
+            postcode: '',
+            uprn: ''
           })
         )
 
@@ -208,7 +210,8 @@ describe('UkAddressField', () => {
             addressLine2: 'Knutsford Road',
             town: 'Warrington',
             county: 'Cheshire',
-            postcode: 'WA4 1HT'
+            postcode: 'WA4 1HT',
+            uprn: ''
           })
         )
 
@@ -218,7 +221,8 @@ describe('UkAddressField', () => {
             addressLine2: '', // Optional field
             town: 'Warrington',
             county: '', // Optional field
-            postcode: 'WA4 1HT'
+            postcode: 'WA4 1HT',
+            uprn: ''
           })
         )
 
@@ -233,7 +237,8 @@ describe('UkAddressField', () => {
             addressLine2: '',
             town: '',
             county: '',
-            postcode: ''
+            postcode: '',
+            uprn: ''
           })
         )
 
@@ -302,7 +307,7 @@ describe('UkAddressField', () => {
           'postal-code'
         ]
 
-        ukAddressField.collection.components.forEach((component) => {
+        ukAddressField.collection.components.slice(1).forEach((component) => {
           const addressFieldOptions =
             component.options as TextFieldComponent['options']
 
@@ -319,7 +324,8 @@ describe('UkAddressField', () => {
         addressLine2: 'Knutsford Road',
         town: 'Warrington',
         county: 'Cheshire',
-        postcode: 'WA4 1HT'
+        postcode: 'WA4 1HT',
+        uprn: '123456789'
       }
 
       it('returns text from state', () => {
@@ -481,7 +487,8 @@ describe('UkAddressField', () => {
       addressLine2: 'Knutsford Road',
       town: 'Warrington',
       county: 'Cheshire',
-      postcode: 'WA4 1HT'
+      postcode: 'WA4 1HT',
+      uprn: ''
     }
 
     const addressLine1Invalid =
@@ -514,7 +521,8 @@ describe('UkAddressField', () => {
               addressLine2: ' Knutsford Road',
               town: ' Warrington',
               county: 'Cheshire',
-              postcode: ' WA4 1HT'
+              postcode: ' WA4 1HT',
+              uprn: ''
             }),
             output: {
               value: getFormData(address),
@@ -527,7 +535,8 @@ describe('UkAddressField', () => {
               addressLine2: 'Knutsford Road ',
               town: 'Warrington ',
               county: 'Cheshire ',
-              postcode: 'WA4 1HT '
+              postcode: 'WA4 1HT ',
+              uprn: ''
             }),
             output: {
               value: getFormData(address),
@@ -540,7 +549,8 @@ describe('UkAddressField', () => {
               addressLine2: ' Knutsford Road \n\n',
               town: ' Warrington \n\n',
               county: ' Cheshire \n\n',
-              postcode: ' WA4 1HT \n\n'
+              postcode: ' WA4 1HT \n\n',
+              uprn: ''
             }),
             output: {
               value: getFormData(address),
@@ -564,7 +574,8 @@ describe('UkAddressField', () => {
               addressLine2: 'Knutsford Road',
               town: 'Warrington',
               county: 'Cheshire',
-              postcode: 'WA4 1HT'
+              postcode: 'WA4 1HT',
+              uprn: ''
             }),
             output: {
               value: getFormData({
@@ -572,7 +583,8 @@ describe('UkAddressField', () => {
                 addressLine2: 'Knutsford Road',
                 town: 'Warrington',
                 county: 'Cheshire',
-                postcode: 'WA4 1HT'
+                postcode: 'WA4 1HT',
+                uprn: ''
               }),
               errors: [
                 expect.objectContaining({
@@ -587,7 +599,8 @@ describe('UkAddressField', () => {
               addressLine2: addressLine2Invalid,
               town: 'Warrington',
               county: 'Cheshire',
-              postcode: 'WA4 1HT'
+              postcode: 'WA4 1HT',
+              uprn: ''
             }),
             output: {
               value: getFormData({
@@ -595,7 +608,8 @@ describe('UkAddressField', () => {
                 addressLine2: addressLine2Invalid,
                 town: 'Warrington',
                 county: 'Cheshire',
-                postcode: 'WA4 1HT'
+                postcode: 'WA4 1HT',
+                uprn: ''
               }),
               errors: [
                 expect.objectContaining({
@@ -610,7 +624,8 @@ describe('UkAddressField', () => {
               addressLine2: 'Knutsford Road',
               town: townInvalid,
               county: 'Cheshire',
-              postcode: 'WA4 1HT'
+              postcode: 'WA4 1HT',
+              uprn: ''
             }),
             output: {
               value: getFormData({
@@ -618,7 +633,8 @@ describe('UkAddressField', () => {
                 addressLine2: 'Knutsford Road',
                 town: townInvalid,
                 county: 'Cheshire',
-                postcode: 'WA4 1HT'
+                postcode: 'WA4 1HT',
+                uprn: ''
               }),
               errors: [
                 expect.objectContaining({
@@ -633,7 +649,8 @@ describe('UkAddressField', () => {
               addressLine2: 'Knutsford Road',
               town: 'Warrington',
               county: countyInvalid,
-              postcode: 'WA4 1HT'
+              postcode: 'WA4 1HT',
+              uprn: ''
             }),
             output: {
               value: getFormData({
@@ -641,7 +658,8 @@ describe('UkAddressField', () => {
                 addressLine2: 'Knutsford Road',
                 town: 'Warrington',
                 county: countyInvalid,
-                postcode: 'WA4 1HT'
+                postcode: 'WA4 1HT',
+                uprn: ''
               }),
               errors: [
                 expect.objectContaining({
@@ -656,7 +674,8 @@ describe('UkAddressField', () => {
               addressLine2: 'Knutsford Road',
               town: 'Warrington',
               county: 'Cheshire',
-              postcode: postcodeInvalid
+              postcode: postcodeInvalid,
+              uprn: ''
             }),
             output: {
               value: getFormData({
@@ -664,7 +683,8 @@ describe('UkAddressField', () => {
                 addressLine2: 'Knutsford Road',
                 town: 'Warrington',
                 county: 'Cheshire',
-                postcode: postcodeInvalid
+                postcode: postcodeInvalid,
+                uprn: ''
               }),
               errors: [
                 expect.objectContaining({
@@ -679,7 +699,8 @@ describe('UkAddressField', () => {
               addressLine2: '',
               town: '',
               county: '',
-              postcode: postcodeInvalid
+              postcode: postcodeInvalid,
+              uprn: ''
             }),
             output: {
               value: getFormData({
@@ -687,7 +708,8 @@ describe('UkAddressField', () => {
                 addressLine2: '',
                 town: '',
                 county: '',
-                postcode: postcodeInvalid
+                postcode: postcodeInvalid,
+                uprn: ''
               }),
               errors: [
                 expect.objectContaining({
@@ -761,7 +783,8 @@ function getFormData(address: FormPayload): FormPayload {
     myComponent__addressLine2: address.addressLine2,
     myComponent__town: address.town,
     myComponent__county: address.county,
-    myComponent__postcode: address.postcode
+    myComponent__postcode: address.postcode,
+    myComponent__uprn: address.uprn
   }
 }
 
@@ -769,15 +792,15 @@ function getFormData(address: FormPayload): FormPayload {
  * UK address session state
  */
 function getFormState(address: FormPayload): FormState {
-  const [addressLine1, addressLine2, town, county, postcode] = Object.values(
-    getFormData(address)
-  )
+  const [addressLine1, addressLine2, town, county, postcode, uprn] =
+    Object.values(getFormData(address))
 
   return {
     myComponent__addressLine1: addressLine1 ?? null,
     myComponent__addressLine2: addressLine2 ?? null,
     myComponent__town: town ?? null,
     myComponent__county: county ?? null,
-    myComponent__postcode: postcode ?? null
+    myComponent__postcode: postcode ?? null,
+    myComponent__uprn: uprn ?? null
   }
 }

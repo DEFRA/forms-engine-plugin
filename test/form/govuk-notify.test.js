@@ -358,6 +358,7 @@ describe('Submission journey test', () => {
       addressField__town: 'Town or city',
       addressField__county: 'Cheshire',
       addressField__postcode: 'CW1 1AB',
+      addressField__uprn: '',
       radiosField: 'privateLimitedCompany',
       selectField: '910400000',
       autocompleteField: '910400044',
