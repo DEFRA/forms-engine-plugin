@@ -16,6 +16,6 @@ export const postcodeLookupPlugin = {
 }
 
 /**
- * @import { NamedPlugin, ServerRoute } from '@hapi/hapi'
+ * @import { NamedPlugin } from '@hapi/hapi'
  * @import { PostcodeLookupConfiguration } from '~/src/server/plugins/postcode-lookup/types.js'
  */
