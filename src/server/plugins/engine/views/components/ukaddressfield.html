@@ -32,10 +32,7 @@
   }) if fieldset else addressFieldHtml }}
 
   {% if usePostcodeLookup %}
-    {% set postcodeLookupBaseUrl = component.model.postcodeLookupBaseUrl %}
-    {% set postcodeLookupQuery = component.model.postcodeLookupQuery %}
-    {% set value = component.model.value %}
-    {% set postcodeLookupHref = postcodeLookupBaseUrl + "/" + slug + page.path + "/" + component.model.name + "?" + postcodeLookupQuery %}
+  {% set value = component.model.value %}
 
     {% if value %}
       {% set insetHtml %}
@@ -43,7 +40,10 @@
         <br><br>
         {{ value }}
         <br><br>
-        <a href="{{ postcodeLookupHref }}" class="govuk-link govuk-link--no-visited-state">Use a different address</a>
+        <p class="govuk-body">
+          <button class="govuk-link govuk-button--link govuk-!-margin-right-1" name="action"
+            value="external-postcode-lookup--name:{{component.model.name}}">Use a different address</button>
+        </p>
       {% endset %}
 
       {{ govukInsetText({
@@ -54,10 +54,13 @@
       <div class="govuk-button-group">
         {{ govukButton({
           text: "Find an address",
-          href: postcodeLookupHref,
+          attributes: {
+            name: "action",
+            value: "external-postcode-lookup--name:" + component.model.name
+          },
           classes: "govuk-button--secondary govuk-!-margin-right-1"
         }) }}
-        <p class="govuk-body">or <a href="{{ postcodeLookupHref }}&step=manual" class="govuk-link govuk-link--no-visited-state">enter address manually</a></p>
+        <p class="govuk-body">or <button class="govuk-link govuk-button--link govuk-!-margin-right-1" name="action" value="external-postcode-lookup--name:{{component.model.name}}--step:manual">enter address manually</button></p>
       </div>
     {% endif %}
   {% endif %}
