@@ -77,7 +77,6 @@ export class FormModel {
   values: FormDefinition
   basePath: string
   versionNumber?: number
-  ordnanceSurveyApiKey?: string
   conditions: Partial<Record<string, ExecutableCondition>>
   pages: PageControllerClass[]
   services: Services
@@ -96,11 +95,7 @@ export class FormModel {
 
   constructor(
     def: typeof this.def,
-    options: {
-      basePath: string
-      versionNumber?: number
-      ordnanceSurveyApiKey?: string
-    },
+    options: { basePath: string; versionNumber?: number },
     services: Services = defaultServices,
     controllers?: Record<string, typeof PageController>
   ) {
@@ -155,7 +150,6 @@ export class FormModel {
     this.values = result.value
     this.basePath = options.basePath
     this.versionNumber = options.versionNumber
-    this.ordnanceSurveyApiKey = options.ordnanceSurveyApiKey
     this.conditions = {}
     this.services = services
     this.controllers = controllers
