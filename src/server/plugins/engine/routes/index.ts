@@ -80,6 +80,7 @@ export async function redirectOrMakeHandler(
 
     return dispatchExternalHandler(request, h, opts)
   }
+
   state = await importExternalComponentState(request, page, state)
 
   const flash = cacheService.getFlash(request)
