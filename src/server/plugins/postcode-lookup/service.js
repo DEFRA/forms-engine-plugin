@@ -118,7 +118,7 @@ function formatAddress(dpa) {
   const town = titleCase(dpa.POST_TOWN || '')
   const postcode = dpa.POSTCODE || ''
   const lines = [addressLine1, addressLine2, town]
-  const formatted = `${lines.filter((i) => Boolean(i)).join(', ')}, ${postcode}`
+  const formatted = `${lines.filter((i) => !!i).join(', ')}, ${postcode}`
 
   /**
    * @type {Address}
