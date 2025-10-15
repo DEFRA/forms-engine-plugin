@@ -1,142 +1,46 @@
 {
   "conditions": [],
+  "engine": "V2",
   "startPage": "/all-components",
   "pages": [
     {
       "path": "/all-components",
-      "title": "All Components",
+      "title": "Details about you",
       "components": [
         {
           "type": "TextField",
-          "name": "textField",
-          "title": "Text field",
-          "hint": "Help text",
+          "name": "applicantName",
+          "title": "What's your name?",
+          "shortDescription": "Your name",
+          "hint": "This must match exactly what's written on your passport.",
           "options": {},
           "schema": {}
         },
         {
           "type": "CustomerReferenceField",
           "name": "customerReferenceNumber",
-          "title": "Customer reference number",
-          "hint": "Help text",
+          "title": "What's your customer reference number?",
+          "shortDescription": "Your customer reference number",
+          "hint": "",
           "options": {},
           "schema": {}
         },
         {
-          "type": "MultilineTextField",
-          "name": "multilineTextField",
-          "title": "Multiline text field",
-          "hint": "Help text",
+          "type": "TextField",
+          "name": "applicantProfession",
+          "title": "What's your job title?",
+          "shortDescription": "Your job title",
+          "hint": "If you are unemployed, please enter 'unemployed'.",
           "options": {},
           "schema": {}
-        },
-        {
-          "type": "NumberField",
-          "name": "numberField",
-          "title": "Number field",
-          "options": {},
-          "schema": {}
-        },
-        {
-          "type": "DatePartsField",
-          "name": "datePartsField",
-          "title": "Date parts field",
-          "options": {},
-          "schema": {}
-        },
-        {
-          "type": "YesNoField",
-          "name": "yesNoField",
-          "title": "Yes/No field",
-          "options": {},
-          "schema": {}
-        },
-        {
-          "type": "EmailAddressField",
-          "name": "emailAddressField",
-          "title": "Email address field",
-          "options": {},
-          "schema": {}
-        },
-        {
-          "type": "TelephoneNumberField",
-          "name": "telephoneNumberField",
-          "title": "Telephone number field",
-          "options": {},
-          "schema": {}
-        },
-        {
-          "type": "UkAddressField",
-          "name": "addressField",
-          "title": "UK address field",
-          "options": {},
-          "schema": {}
-        },
-        {
-          "type": "RadiosField",
-          "name": "radiosField",
-          "title": "Radios field",
-          "list": "companyType",
-          "options": {},
-          "schema": {}
-        },
-        {
-          "type": "SelectField",
-          "name": "selectField",
-          "title": "Select field",
-          "list": "country",
-          "options": {},
-          "schema": {}
-        },
-        {
-          "options": {},
-          "list": "horseBreed",
-          "type": "CheckboxesField",
-          "name": "checkboxesField",
-          "title": "Checkboxes field",
-          "hint": "Please help",
-          "schema": {}
-        },
-        {
-          "type": "Html",
-          "name": "html",
-          "title": "Html",
-          "content": "<p class=\"govuk-body\">Paragraph...</p>",
-          "options": {},
-          "schema": {}
-        },
-        {
-          "type": "InsetText",
-          "name": "insetText",
-          "title": "Inset text",
-          "content": "Inset text",
-          "options": {},
-          "schema": {}
-        },
-        {
-          "type": "Details",
-          "name": "details",
-          "title": "Title",
-          "content": "Content",
-          "options": {},
-          "schema": {}
-        },
-        {
-          "type": "Markdown",
-          "name": "markdown",
-          "title": "Title",
-          "content": "### This is a H3 in markdown\n\n[An internal link](http://localhost:3009/fictional-page)\n\n[An external link](https://defra.gov.uk/fictional-page)",
-          "options": {},
-          "schema": {}
-        },
-        {
-          "title": "Summary",
-          "path": "/summary",
-          "controller": "SummaryPageController",
-          "components": [],
-          "next": []
         }
       ]
+    },
+    {
+      "title": "Summary",
+      "path": "/summary",
+      "controller": "SummaryPageController",
+      "next": []
     }
   ],
   "sections": [
