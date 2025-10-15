@@ -39,7 +39,7 @@ export const configureEnginePlugin = async (
 
     model = new FormModel(
       definition,
-      { basePath: initialBasePath },
+      { basePath: initialBasePath, ordnanceSurveyApiKey },
       services,
       controllers
     )
