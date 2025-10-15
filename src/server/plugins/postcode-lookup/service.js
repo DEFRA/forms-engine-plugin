@@ -73,7 +73,7 @@ export async function searchByQuery(query, apiKey) {
  */
 export async function searchByPostcode(postcode, apiKey) {
   const endpoint = 'postcode'
-  const url = `https://api.os.uk/search/places/v1/${endpoint}?postcode=${encodeURIComponent(postcode.replace(/\s/g, ''))}&key=${apiKey}`
+  const url = `https://api.os.uk/search/places/v1/${endpoint}?postcode=${encodeURIComponent(postcode.replaceAll(/\s/g, ''))}&key=${apiKey}`
 
   return getAddressData(url, endpoint)
 }
@@ -118,7 +118,7 @@ function formatAddress(dpa) {
   const town = titleCase(dpa.POST_TOWN || '')
   const postcode = dpa.POSTCODE || ''
   const lines = [addressLine1, addressLine2, town]
-  const formatted = `${lines.filter((i) => i).join(', ')}, ${postcode}`
+  const formatted = `${lines.filter((i) => Boolean(i)).join(', ')}, ${postcode}`
 
   /**
    * @type {Address}
