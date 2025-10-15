@@ -444,7 +444,7 @@ export async function selectViewModel(data, payload, err) {
 
   // Model buttons
   const continueButton = {
-    href: !hasAddresses ? href : undefined,
+    href: hasAddresses ? undefined : href,
     text: hasAddresses ? 'Use this address' : 'Search again',
     classes: GOVUK_MARGIN_RIGHT_1
   }
