@@ -350,6 +350,46 @@ describe('Postcode lookup form pages', () => {
     expect($useAddressButton).toBeInTheDocument()
   })
 
+  it('should render the select page after POST when a no addresses are found', async () => {
+    jest.mocked(search).mockResolvedValueOnce([])
+
+    const { csrfToken, headers } = await initialiseJourney(server)
+
+    // Dispatch to postcode journey
+    await server.inject({
+      url: `${basePath}/address`,
+      method: 'POST',
+      headers,
+      payload: {
+        action: 'external-postcode-lookup--name:ybMHIv',
+        crumb: csrfToken
+      }
+    })
+
+    const { response: selectResponse, container } = await renderResponse(
+      server,
+      {
+        url: '/postcode-lookup',
+        method: 'POST',
+        headers,
+        payload: {
+          step: 'details',
+          postcodeQuery: 'AA1 1AA',
+          buildingNameQuery: '100',
+          crumb: csrfToken
+        }
+      }
+    )
+
+    expect(selectResponse.statusCode).toBe(StatusCodes.OK)
+
+    const $noAddressesFound = container.getByRole('heading', {
+      name: 'No address found',
+      level: 1
+    })
+    expect($noAddressesFound).toBeInTheDocument()
+  })
+
   it('should redirect back to the source page after POST when multiple addresses are found', async () => {
     jest.mocked(searchByUPRN).mockResolvedValueOnce([
       {
