@@ -25,43 +25,45 @@
     {% set addressFieldHtml = addressHintHtml + addressFieldHtml %}
   {% endif %}
 
-  {{ govukFieldset({
-    legend: fieldset.legend,
-    attributes: fieldset.attributes,
-    html: addressFieldHtml
-  }) if fieldset else addressFieldHtml }}
+  <div class="govuk-form-group{{ ' govuk-form-group--error' if usePostcodeLookup and component.model.errors | length }}">
+    {{ govukFieldset({
+      legend: fieldset.legend,
+      attributes: fieldset.attributes,
+      html: addressFieldHtml
+    }) if fieldset else addressFieldHtml }}
 
-  {% if usePostcodeLookup %}
-  {% set value = component.model.value %}
+    {% if usePostcodeLookup %}
+      {% set value = component.model.value %}
 
-    {% if value %}
-      {% set insetHtml %}
-        <strong>Selected address:</strong>
-        <br><br>
-        {{ value }}
-        <br><br>
-        <p class="govuk-body">
-          <button class="govuk-link govuk-button--link govuk-!-margin-right-1" name="action"
-            value="external-{{component.model.name}}">Use a different address</button>
-        </p>
-      {% endset %}
+        {% if value %}
+          {% set insetHtml %}
+            <strong>Selected address:</strong>
+            <br><br>
+            {{ value }}
+            <br><br>
+            <p class="govuk-body">
+              <button class="govuk-link govuk-button--link govuk-!-margin-right-1" name="action"
+                value="external-{{component.model.name}}">Use a different address</button>
+            </p>
+          {% endset %}
 
-      {{ govukInsetText({
-        html: insetHtml,
-        classes: "govuk-!-margin-top-2"
-      }) }}
-    {% else %}
-      <div class="govuk-button-group">
-        {{ govukButton({
-          text: "Find an address",
-          attributes: {
-            name: "action",
-            value: "external-" + component.model.name
-          },
-          classes: "govuk-button--secondary govuk-!-margin-right-1"
-        }) }}
-        <p class="govuk-body">or <button class="govuk-link govuk-button--link govuk-!-margin-right-1" name="action" value="external-{{component.model.name}}--step:manual">enter address manually</button></p>
-      </div>
+          {{ govukInsetText({
+            html: insetHtml,
+            classes: "govuk-!-margin-top-2"
+          }) }}
+        {% else %}
+          <div class="govuk-button-group govuk-!-margin-bottom-0">
+            {{ govukButton({
+              text: "Find an address",
+              attributes: {
+                name: "action",
+                value: "external-" + component.model.name
+              },
+              classes: "govuk-button--secondary govuk-!-margin-right-1 govuk-!-margin-bottom-0"
+            }) }}
+            <p class="govuk-body govuk-!-margin-bottom-0">or <button class="govuk-link govuk-button--link govuk-!-margin-right-1 govuk-!-margin-bottom-0" name="action" value="external-{{component.model.name}}--step:manual">enter address manually</button></p>
+          </div>
+        {% endif %}
     {% endif %}
-  {% endif %}
+  </div>
 {% endmacro %}
