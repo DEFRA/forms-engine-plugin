@@ -18,8 +18,7 @@
  *   componentName: string
  *   componentTitle: string,
  *   componentHint?: string
- *   step?: string,
- *   payload: FormPayload
+ *   step?: string
  * }} PostcodeLookupDispatchData
  */
 
