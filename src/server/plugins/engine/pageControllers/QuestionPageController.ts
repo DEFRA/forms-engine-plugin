@@ -12,7 +12,10 @@ import Boom from '@hapi/boom'
 import { type RouteOptions } from '@hapi/hapi'
 import { type ValidationErrorItem } from 'joi'
 
-import { EXTERNAL_STATE_PAYLOAD } from '~/src/server/constants.js'
+import {
+  EXTERNAL_STATE_APPENDAGE,
+  EXTERNAL_STATE_PAYLOAD
+} from '~/src/server/constants.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import { type BackLink } from '~/src/server/plugins/engine/components/types.js'
@@ -497,7 +500,7 @@ export class QuestionPageController extends PageController {
       const action = request.payload.action
 
       if (action?.startsWith(FormAction.External)) {
-        return this.dispatchExternal(request, h)
+        return this.dispatchExternal(request, h, context)
       }
 
       /**
@@ -533,7 +536,8 @@ export class QuestionPageController extends PageController {
 
   private dispatchExternal(
     request: FormRequestPayload,
-    h: FormResponseToolkit
+    h: FormResponseToolkit,
+    context: FormContext
   ) {
     const { externalComponents } = getComponentsByType()
     const action = request.payload.action ?? ''
@@ -570,9 +574,16 @@ export class QuestionPageController extends PageController {
       throw Boom.internal(`External component ${componentName} not found`)
     }
 
-    // Stash payload without crumb
-    const stashedPayload = { ...request.payload, crumb: undefined }
+    // Stash payload without crumb and action
+    const stashedPayload = {
+      ...context.payload,
+      crumb: undefined,
+      action: undefined
+    }
     request.yar.flash(EXTERNAL_STATE_PAYLOAD, stashedPayload, true)
+
+    // Clear any previous state appendage
+    request.yar.clear(EXTERNAL_STATE_APPENDAGE)
 
     return selectedComponent.dispatcher(request, h, {
       component,
