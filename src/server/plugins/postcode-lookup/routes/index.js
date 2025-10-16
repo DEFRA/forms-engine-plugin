@@ -2,7 +2,7 @@ import Boom from '@hapi/boom'
 import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
-import { getCacheService } from '~/src/server/plugins/engine/helpers.js'
+import { EXTERNAL_STATE_APPENDAGE } from '~/src/server/constants.js'
 import {
   JOURNEY_BASE_URL,
   detailsPayloadSchema,
@@ -36,34 +36,30 @@ function getSessionState(request) {
 }
 
 /**
- * Update form component state
+ * Flash form component state
  * @param {PostcodeLookupRequest} request - the request
  * @param {string} componentName - the component name
  * @param {Address | PostcodeLookupManualPayload} address - the address from ordnance survey or manually entered
  */
-async function updateComponentState(request, componentName, address) {
-  // TODO: Set state another way
+function flashComponentState(request, componentName, address) {
   const addressState = {
-    [`${componentName}__addressLine1`]: address.addressLine1,
-    [`${componentName}__addressLine2`]: address.addressLine2,
-    [`${componentName}__town`]: address.town,
-    [`${componentName}__county`]: address.county,
-    [`${componentName}__postcode`]: address.postcode
+    addressLine1: address.addressLine1,
+    addressLine2: address.addressLine2,
+    town: address.town,
+    county: address.county,
+    postcode: address.postcode,
+    uprn: 'uprn' in address && address.uprn ? address.uprn : undefined
   }
 
-  // Assign UPRN if available
-  if ('uprn' in address && address.uprn) {
-    addressState[`${componentName}__uprn`] = address.uprn
+  /**
+   * @type {ExternalStateAppendage}
+   */
+  const appendage = {
+    component: componentName,
+    data: addressState
   }
 
-  const cacheService = getCacheService(request.server)
-  // @ts-expect-error - Request typing
-  const state = await cacheService.getState(request)
-  // @ts-expect-error - Request typing
-  await cacheService.setState(request, {
-    ...state,
-    ...addressState
-  })
+  request.yar.flash(EXTERNAL_STATE_APPENDAGE, appendage, true)
 }
 
 /**
@@ -222,7 +218,7 @@ async function selectPostHandler(request, h, options) {
   }
 
   const { componentName, sourceUrl } = session.initial
-  await updateComponentState(request, componentName, property)
+  flashComponentState(request, componentName, property)
 
   // Redirect back to the source form page
   return h.redirect(sourceUrl).code(StatusCodes.SEE_OTHER)
@@ -233,7 +229,7 @@ async function selectPostHandler(request, h, options) {
  * @param {PostcodeLookupPostRequest} request
  * @param {ResponseToolkit<PostcodeLookupPostRequestRefs>} h
  */
-async function manualPostHandler(request, h) {
+function manualPostHandler(request, h) {
   const { payload } = request
   const session = getSessionState(request)
 
@@ -248,7 +244,7 @@ async function manualPostHandler(request, h) {
   }
 
   const { componentName, sourceUrl } = session.initial
-  await updateComponentState(request, componentName, manual)
+  flashComponentState(request, componentName, manual)
 
   // Redirect back to the source form page
   return h.redirect(sourceUrl).code(StatusCodes.SEE_OTHER)
@@ -258,4 +254,5 @@ async function manualPostHandler(request, h) {
  * @import { ResponseToolkit, ServerRoute } from '@hapi/hapi'
  * @import { PostcodeLookupManualPayload, Address, PostcodeLookupGetRequestRefs, PostcodeLookupPostRequestRefs, PostcodeLookupRequest, PostcodeLookupPostRequest, PostcodeLookupConfiguration, PostcodeLookupDispatchData, PostcodeLookupSessionData } from '~/src/server/plugins/postcode-lookup/types.js'
  * @import { FormRequestPayload, FormResponseToolkit } from '~/src/server/routes/types.js'
+ * @import { ExternalStateAppendage } from '~/src/server/plugins/engine/types.js'
  */
