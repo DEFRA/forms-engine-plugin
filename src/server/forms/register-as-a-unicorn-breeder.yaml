@@ -60,21 +60,21 @@ pages:
         type: UkAddressField
         title: What is your billing address
         schema: {}
-        hint: This is a UK address. Users must enter address line 1, town and a postcode
-      - name: uvBxTz
-        options:
-          required: true
-        type: EmailAddressField
-        title: What is your email adress
+        hint: This is a UK billing address. Users must enter address line 1, town and a postcode
+      - name: dfTGhD
+        options: {}
         schema: {}
-        hint: This is an email address. An email address must contain an at sign @
+        type: MultilineTextField
+        title: Delivery notes
+        hint:
+          Enter some instructions for the delivery person
       - name: drGHuj
         options:
           required: true
         type: UkAddressField
         title: What is your delivery address
         schema: {}
-        hint: This is a UK address. Users must enter address line 1, town and a postcode
+        hint: This is a UK delivery address. Users must enter address line 1, town and a postcode
     next:
       - path: '/do-you-want-your-unicorn-breeder-certificate-sent-to-this-address'
     section: section
