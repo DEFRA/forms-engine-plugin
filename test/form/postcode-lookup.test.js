@@ -437,6 +437,8 @@ describe('Postcode lookup form pages', () => {
       url: `${basePath}/address`,
       headers
     })
+
+    expect(response.statusCode).toBe(StatusCodes.OK)
   })
 
   it('should render validation errors after POST when no address is selected', async () => {
@@ -565,6 +567,8 @@ describe('Postcode lookup form pages', () => {
       url: `${basePath}/address`,
       headers
     })
+
+    expect(response.statusCode).toBe(StatusCodes.OK)
   })
 })
 
