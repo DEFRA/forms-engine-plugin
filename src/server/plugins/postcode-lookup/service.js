@@ -110,6 +110,7 @@ export async function search(postcodeQuery, buildingNameQuery, apiKey) {
 
 /**
  * Converts a delivery point address to an address
+ * Taken from http://github.com/dwp/find-an-address-plugin/blob/main/utils/getData.js
  * @param {DeliveryPointAddress} dpa
  */
 function formatAddress(dpa) {
