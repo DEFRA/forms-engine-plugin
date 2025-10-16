@@ -6,7 +6,8 @@ import {
   type FormVersionMetadata,
   type Item,
   type List,
-  type Page
+  type Page,
+  type UkAddressFieldComponent
 } from '@defra/forms-model'
 import {
   type PluginProperties,
@@ -30,6 +31,7 @@ import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type DetailItemField } from '~/src/server/plugins/engine/models/types.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
+import { type QuestionPageController } from '~/src/server/plugins/engine/pageControllers/index.js'
 import {
   type FileStatus,
   type FormAdapterSubmissionSchemaVersion,
@@ -378,6 +380,23 @@ export type SaveAndExitHandler = (
   h: FormResponseToolkit,
   context: FormContext
 ) => ResponseObject
+
+export interface ExternalArgs {
+  component: ComponentDef
+  controller: QuestionPageController
+  sourceUrl: string
+  actionArgs: Record<string, string>
+}
+
+export interface PostcodeLookupExternalArgs extends ExternalArgs {
+  component: UkAddressFieldComponent
+  actionArgs: { step: string }
+}
+
+export interface ExternalStateAppendage {
+  component: string
+  data: FormStateValue | FormState
+}
 
 export interface PluginOptions {
   model?: FormModel
