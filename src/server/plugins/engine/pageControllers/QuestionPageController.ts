@@ -494,10 +494,9 @@ export class QuestionPageController extends PageController {
     ) => {
       const { collection, viewName, model } = this
       const { isForceAccess, state, evaluationState } = context
+      const action = request.payload.action
 
-      const action = request.payload.action ?? ''
-
-      if (action && action.startsWith(FormAction.External)) {
+      if (action?.startsWith(FormAction.External)) {
         return this.dispatchExternal(request, h)
       }
 
