@@ -29,7 +29,7 @@ function getSessionState(request) {
   const data = request.yar.get(JOURNEY_BASE_URL)
 
   if (!data) {
-    throw Boom.notFound(`No data found for ${JOURNEY_BASE_URL}`)
+    throw Boom.internal(`No postcode lookup data found for ${JOURNEY_BASE_URL}`)
   }
 
   return data
