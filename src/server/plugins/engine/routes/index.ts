@@ -106,7 +106,7 @@ async function importExternalComponentState(
   const externalComponentData = request.yar.flash(EXTERNAL_STATE_APPENDAGE)
 
   if (Array.isArray(externalComponentData)) {
-    return Promise.resolve(state)
+    return state
   }
 
   let componentName
