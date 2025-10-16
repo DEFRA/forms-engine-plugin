@@ -26,13 +26,13 @@ function getSessionState(request) {
   /**
    * @type {PostcodeLookupSessionData | undefined}
    */
-  const data = request.yar.get(JOURNEY_BASE_URL)
+  const state = request.yar.get(JOURNEY_BASE_URL)
 
-  if (!data) {
+  if (!state) {
     throw Boom.internal(`No postcode lookup data found for ${JOURNEY_BASE_URL}`)
   }
 
-  return data
+  return state
 }
 
 /**
