@@ -570,8 +570,9 @@ export class QuestionPageController extends PageController {
       throw Boom.internal(`External component ${componentName} not found`)
     }
 
-    // Stash payload
-    request.yar.flash(EXTERNAL_STATE_PAYLOAD, request.payload, true)
+    // Stash payload without crumb
+    const stashedPayload = { ...request.payload, crumb: undefined }
+    request.yar.flash(EXTERNAL_STATE_PAYLOAD, stashedPayload, true)
 
     return selectedComponent.dispatcher(request, h, {
       component,
