@@ -29,7 +29,6 @@ export type Field = InstanceType<
   | typeof Components.TextField
   | typeof Components.UkAddressField
   | typeof Components.FileUploadField
-  | typeof Components.CustomerReferenceField
 >
 
 // Guidance component instances only
