@@ -23,4 +23,3 @@ export { TelephoneNumberField } from '~/src/server/plugins/engine/components/Tel
 export { TextField } from '~/src/server/plugins/engine/components/TextField.js'
 export { UkAddressField } from '~/src/server/plugins/engine/components/UkAddressField.js'
 export { YesNoField } from '~/src/server/plugins/engine/components/YesNoField.js'
-export { CustomerReferenceField } from '~/src/server/plugins/engine/components/CustomerReferenceField/CustomerReferenceField.js'
