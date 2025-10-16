@@ -1,4 +1,3 @@
-import { ComponentType } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
   type ResponseObject,
@@ -7,7 +6,15 @@ import {
 } from '@hapi/hapi'
 import { isEqual } from 'date-fns'
 
-import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
+import {
+  EXTERNAL_STATE_APPENDAGE,
+  EXTERNAL_STATE_PAYLOAD,
+  PREVIEW_PATH_PREFIX
+} from '~/src/server/constants.js'
+import {
+  FormComponent,
+  isFormState
+} from '~/src/server/plugins/engine/components/FormComponent.js'
 import {
   checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
@@ -23,17 +30,14 @@ import { generateUniqueReference } from '~/src/server/plugins/engine/referenceNu
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import {
   type AnyFormRequest,
+  type ExternalStateAppendage,
   type FormContext,
   type FormPayload,
+  type FormSubmissionState,
   type PluginOptions
 } from '~/src/server/plugins/engine/types.js'
-import { dispatch } from '~/src/server/plugins/postcode-lookup/routes/index.js'
-import { type PostcodeLookupDispatchArgs } from '~/src/server/plugins/postcode-lookup/types.js'
 import {
-  ExternalActions,
-  FormAction,
   type FormRequest,
-  type FormRequestPayload,
   type FormResponseToolkit
 } from '~/src/server/routes/types.js'
 
@@ -45,7 +49,7 @@ export async function redirectOrMakeHandler(
     context: FormContext
   ) => ResponseObject | Promise<ResponseObject>
 ) {
-  const { app, params, payload } = request
+  const { app, params } = request
   const { model } = app
 
   if (!model) {
@@ -71,13 +75,7 @@ export async function redirectOrMakeHandler(
     })
   }
 
-  // External journey redirect
-  const { action = '' } = page.getFormParams(request)
-  if (payload && action.startsWith(FormAction.External)) {
-    const opts = { action, model, payload, page }
-
-    return dispatchExternalHandler(request, h, opts)
-  }
+  state = await importExternalComponentState(request, page, state)
 
   const flash = cacheService.getFlash(request)
   const context = model.getFormContext(request, state, flash?.errors)
@@ -100,62 +98,66 @@ export async function redirectOrMakeHandler(
   return proceed(request, h, page.getHref(relevantPath))
 }
 
-function dispatchExternalHandler(
+async function importExternalComponentState(
   request: AnyFormRequest,
-  h: FormResponseToolkit,
-  options: {
-    action: string
-    model: FormModel
-    payload: FormPayload
-    page: PageControllerClass
+  page: PageControllerClass,
+  state: FormSubmissionState
+): Promise<FormSubmissionState> {
+  const externalComponentData = request.yar.flash(EXTERNAL_STATE_APPENDAGE)
+
+  if (Array.isArray(externalComponentData)) {
+    return Promise.resolve(state)
   }
-) {
-  const { action, model, payload, page } = options
 
-  // Find the external action and arguments
-  // `external-{externalAction}--{argname1}:{argvalue1}--{argname2}:{argvalue2}`
-  // E.g. external-postcode-lookup--name:wDFtgf--step:manual
-  const externalActionsWithArgs = action
-    .slice(`${FormAction.External}-`.length)
-    .split('--')
-  const externalAction = externalActionsWithArgs[0] as ExternalActions
-  const externalActionArgs = externalActionsWithArgs
-    .slice(1)
-    .map((arg) => arg.split(':'))
+  let componentName
+  let stateAppendage
 
-  switch (externalAction) {
-    case ExternalActions.PostcodeLookup: {
-      const args = Object.fromEntries(
-        externalActionArgs
-      ) as PostcodeLookupDispatchArgs
-      const componentName = args.name
-      const component = model.componentDefMap.get(componentName)
+  try {
+    const parsedStateAppendage = externalComponentData as ExternalStateAppendage
 
-      if (!component) {
-        throw Boom.notFound(`No component found for ${componentName}`)
-      }
+    componentName = parsedStateAppendage.component
+    stateAppendage = parsedStateAppendage.data
+  } catch (err) {
+    request.logger.error(err, 'Error parsing external component state JSON')
 
-      if (component.type !== ComponentType.UkAddressField) {
-        throw Boom.internal(
-          `Invalid component type, expected UkAddressFieldComponent got ${component.type}`
-        )
-      }
+    throw new Error('Error parsing external component state')
+  }
 
-      return dispatch(request as FormRequestPayload, h, {
-        payload,
-        formName: model.name,
-        componentName,
-        componentHint: component.hint,
-        componentTitle: component.title || page.title,
-        step: args.step,
-        sourceUrl: request.url.toString()
-      })
-    }
-    default:
-      throw Boom.internal(
-        `Invalid external action, expected one of '${Object.values(ExternalActions).join('|')}' got '${externalAction}'`
+  const component = request.app.model?.componentMap.get(componentName)
+
+  if (!component) {
+    throw new Error(`Component ${componentName} not found in form`)
+  }
+
+  if (!(component instanceof FormComponent)) {
+    throw new Error(
+      `Component ${componentName} is not a FormComponent and does not support isState`
+    )
+  }
+
+  const isStateValid = component.isState(stateAppendage)
+
+  if (!isStateValid) {
+    throw new Error(`State for component ${componentName} is invalid`)
+  }
+
+  // TODO: A better way?
+  // const componentState = component.getStateFromValidForm(stateAppendage)
+  const componentState = isFormState(stateAppendage)
+    ? Object.fromEntries(
+        Object.entries(stateAppendage).map(([key, value]) => [
+          `${componentName}__${key}`,
+          value
+        ])
       )
-  }
+    : { [componentName]: stateAppendage }
+
+  // Save the component state
+  const updatedState = await page.mergeState(request, state, componentState)
+  const payload = request.yar.flash(EXTERNAL_STATE_PAYLOAD)
+  const stashedPayload = Array.isArray(payload) ? {} : (payload as FormPayload)
+
+  return { ...updatedState, ...stashedPayload }
 }
 
 export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {

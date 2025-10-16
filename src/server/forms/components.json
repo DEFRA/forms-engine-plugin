@@ -15,6 +15,14 @@
           "schema": {}
         },
         {
+          "type": "CustomerReferenceField",
+          "name": "customerReferenceNumber",
+          "title": "Customer reference number",
+          "hint": "Help text",
+          "options": {},
+          "schema": {}
+        },
+        {
           "type": "MultilineTextField",
           "name": "multilineTextField",
           "title": "Multiline text field",
@@ -120,6 +128,13 @@
           "content": "### This is a H3 in markdown\n\n[An internal link](http://localhost:3009/fictional-page)\n\n[An external link](https://defra.gov.uk/fictional-page)",
           "options": {},
           "schema": {}
+        },
+        {
+          "title": "Summary",
+          "path": "/summary",
+          "controller": "SummaryPageController",
+          "components": [],
+          "next": []
         }
       ]
     }

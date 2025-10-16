@@ -9,13 +9,19 @@ import {
 import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
 import { type QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
+  type FormRequestPayload,
+  type FormResponseToolkit
+} from '~/src/server/plugins/engine/types/index.js'
+import {
   type ErrorMessageTemplateList,
   type FormPayload,
   type FormState,
   type FormStateValue,
   type FormSubmissionError,
-  type FormSubmissionState
+  type FormSubmissionState,
+  type PostcodeLookupExternalArgs
 } from '~/src/server/plugins/engine/types.js'
+import { dispatch } from '~/src/server/plugins/postcode-lookup/routes/index.js'
 
 export class UkAddressField extends FormComponent {
   declare options: UkAddressFieldComponent['options']
@@ -248,6 +254,23 @@ export class UkAddressField extends FormComponent {
       TextField.isText(value.town) &&
       TextField.isText(value.postcode)
     )
+  }
+
+  static dispatcher(
+    request: FormRequestPayload,
+    h: FormResponseToolkit,
+    args: PostcodeLookupExternalArgs
+  ) {
+    const { controller, component } = args
+
+    return dispatch(request, h, {
+      formName: controller.model.name,
+      componentName: component.name,
+      componentHint: component.hint,
+      componentTitle: component.title || controller.title,
+      step: args.actionArgs.step,
+      sourceUrl: args.sourceUrl
+    })
   }
 }
 

@@ -42,7 +42,7 @@
         <br><br>
         <p class="govuk-body">
           <button class="govuk-link govuk-button--link govuk-!-margin-right-1" name="action"
-            value="external-postcode-lookup--name:{{component.model.name}}">Use a different address</button>
+            value="external-{{component.model.name}}">Use a different address</button>
         </p>
       {% endset %}
 
@@ -56,11 +56,11 @@
           text: "Find an address",
           attributes: {
             name: "action",
-            value: "external-postcode-lookup--name:" + component.model.name
+            value: "external-" + component.model.name
           },
           classes: "govuk-button--secondary govuk-!-margin-right-1"
         }) }}
-        <p class="govuk-body">or <button class="govuk-link govuk-button--link govuk-!-margin-right-1" name="action" value="external-postcode-lookup--name:{{component.model.name}}--step:manual">enter address manually</button></p>
+        <p class="govuk-body">or <button class="govuk-link govuk-button--link govuk-!-margin-right-1" name="action" value="external-{{component.model.name}}--step:manual">enter address manually</button></p>
       </div>
     {% endif %}
   {% endif %}
