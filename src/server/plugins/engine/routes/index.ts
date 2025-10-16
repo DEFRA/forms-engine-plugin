@@ -141,8 +141,10 @@ async function importExternalComponentState(
       )
     : { [componentName]: stateAppendage }
 
-  // Save the component state
+  // Save the external component state immediately
   const updatedState = await page.mergeState(request, state, componentState)
+
+  // Merge the stashed payload into the local state
   const payload = request.yar.flash(EXTERNAL_STATE_PAYLOAD)
   const stashedPayload = Array.isArray(payload) ? {} : (payload as FormPayload)
 
