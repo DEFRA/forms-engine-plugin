@@ -417,7 +417,7 @@ describe('Postcode lookup form pages', () => {
       }
     })
 
-    const { response } = await renderResponse(server, {
+    let { response } = await renderResponse(server, {
       url: '/postcode-lookup',
       method: 'POST',
       headers,
@@ -430,6 +430,13 @@ describe('Postcode lookup form pages', () => {
 
     expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
     expect(response.headers.location).toEndWith('/address')
+
+    // Follow the redirect back to the source
+    // page to exercise `importExternalComponentState`
+    response = await server.inject({
+      url: `${basePath}/address`,
+      headers
+    })
   })
 
   it('should render validation errors after POST when no address is selected', async () => {
@@ -534,7 +541,7 @@ describe('Postcode lookup form pages', () => {
       }
     })
 
-    const { response } = await renderResponse(server, {
+    let { response } = await renderResponse(server, {
       url: '/postcode-lookup?step=manual',
       method: 'POST',
       headers,
@@ -551,6 +558,13 @@ describe('Postcode lookup form pages', () => {
 
     expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
     expect(response.headers.location).toEndWith('/address')
+
+    // Follow the redirect back to the source
+    // page to exercise `importExternalComponentState`
+    response = await server.inject({
+      url: `${basePath}/address`,
+      headers
+    })
   })
 })
 
