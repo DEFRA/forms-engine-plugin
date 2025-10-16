@@ -109,20 +109,9 @@ async function importExternalComponentState(
     return state
   }
 
-  let componentName
-  let stateAppendage
-
-  try {
-    const parsedStateAppendage = externalComponentData as ExternalStateAppendage
-
-    componentName = parsedStateAppendage.component
-    stateAppendage = parsedStateAppendage.data
-  } catch (err) {
-    request.logger.error(err, 'Error parsing external component state JSON')
-
-    throw new Error('Error parsing external component state')
-  }
-
+  const typedStateAppendage = externalComponentData as ExternalStateAppendage
+  const componentName = typedStateAppendage.component
+  const stateAppendage = typedStateAppendage.data
   const component = request.app.model?.componentMap.get(componentName)
 
   if (!component) {
@@ -157,7 +146,7 @@ async function importExternalComponentState(
   const payload = request.yar.flash(EXTERNAL_STATE_PAYLOAD)
   const stashedPayload = Array.isArray(payload) ? {} : (payload as FormPayload)
 
-  return { ...updatedState, ...stashedPayload }
+  return { ...stashedPayload, ...updatedState }
 }
 
 export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
