@@ -119,7 +119,7 @@ async function importExternalComponentState(
   }
 
   if (!(component instanceof FormComponent)) {
-    throw new Error(
+    throw new TypeError(
       `Component ${componentName} is not a FormComponent and does not support isState`
     )
   }
