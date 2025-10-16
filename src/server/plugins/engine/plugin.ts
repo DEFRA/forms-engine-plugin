@@ -14,7 +14,6 @@ import { getRoutes as getQuestionRoutes } from '~/src/server/plugins/engine/rout
 import { getRoutes as getRepeaterItemDeleteRoutes } from '~/src/server/plugins/engine/routes/repeaters/item-delete.js'
 import { getRoutes as getRepeaterSummaryRoutes } from '~/src/server/plugins/engine/routes/repeaters/summary.js'
 import { type PluginOptions } from '~/src/server/plugins/engine/types.js'
-import { getComponentsByType } from '~/src/server/plugins/engine/validationHelpers.js'
 import { registerVision } from '~/src/server/plugins/engine/vision.js'
 import { postcodeLookupPlugin } from '~/src/server/plugins/postcode-lookup/index.js'
 import {
@@ -92,13 +91,6 @@ export const plugin = {
       ]
     }
 
-    // Collect routes from components with a static getRoutes method using getComponentsByType
-    const { externalComponents } = getComponentsByType()
-
-    const componentRoutes = Array.from(externalComponents.values()).flatMap(
-      (comp) => comp.getRoutes().routes
-    )
-
     const routes = [
       ...getQuestionRoutes(
         getRouteOptions,
@@ -107,8 +99,7 @@ export const plugin = {
       ),
       ...getRepeaterSummaryRoutes(getRouteOptions, postRouteOptions),
       ...getRepeaterItemDeleteRoutes(getRouteOptions, postRouteOptions),
-      ...getFileUploadStatusRoutes(),
-      ...componentRoutes
+      ...getFileUploadStatusRoutes()
     ]
 
     server.route(routes as unknown as ServerRoute[]) // TODO
