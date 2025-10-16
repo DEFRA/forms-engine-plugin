@@ -64,9 +64,7 @@ describe('Postcode lookup form pages', () => {
 
     expect($actionButton).toBeInTheDocument()
     expect($actionButton.getAttribute('name')).toBe('action')
-    expect($actionButton.getAttribute('value')).toBe(
-      'external-postcode-lookup--name:ybMHIv'
-    )
+    expect($actionButton.getAttribute('value')).toBe('external-ybMHIv')
 
     const $manualButton = container.getByRole('button', {
       name: 'enter address manually'
@@ -75,7 +73,7 @@ describe('Postcode lookup form pages', () => {
     expect($manualButton).toBeInTheDocument()
     expect($manualButton.getAttribute('name')).toBe('action')
     expect($manualButton.getAttribute('value')).toBe(
-      'external-postcode-lookup--name:ybMHIv--step:manual'
+      'external-ybMHIv--step:manual'
     )
   })
 
@@ -83,7 +81,7 @@ describe('Postcode lookup form pages', () => {
     let { csrfToken, response, headers } = await initialiseJourney(server)
 
     const payload = {
-      action: 'external-postcode-lookup--name:ybMHIv',
+      action: 'external-ybMHIv',
       crumb: csrfToken
     }
 
@@ -102,7 +100,7 @@ describe('Postcode lookup form pages', () => {
     let { csrfToken, response, headers } = await initialiseJourney(server)
 
     const payload = {
-      action: 'external-postcode-lookup--name:ybMHIv--step:manual',
+      action: 'external-ybMHIv--step:manual',
       crumb: csrfToken
     }
 
@@ -122,7 +120,7 @@ describe('Postcode lookup form pages', () => {
 
     // Dispatch to postcode journey
     const payload = {
-      action: 'external-postcode-lookup--name:ybMHIv',
+      action: 'external-ybMHIv',
       crumb: csrfToken
     }
 
@@ -152,7 +150,7 @@ describe('Postcode lookup form pages', () => {
 
     // Dispatch to postcode journey
     const payload = {
-      action: 'external-postcode-lookup--name:ybMHIv--step:manual',
+      action: 'external-ybMHIv--step:manual',
       crumb: csrfToken
     }
 
@@ -186,7 +184,7 @@ describe('Postcode lookup form pages', () => {
       method: 'POST',
       headers,
       payload: {
-        action: 'external-postcode-lookup--name:ybMHIv',
+        action: 'external-ybMHIv',
         crumb: csrfToken
       }
     })
@@ -249,7 +247,7 @@ describe('Postcode lookup form pages', () => {
       method: 'POST',
       headers,
       payload: {
-        action: 'external-postcode-lookup--name:ybMHIv',
+        action: 'external-ybMHIv',
         crumb: csrfToken
       }
     })
@@ -306,7 +304,7 @@ describe('Postcode lookup form pages', () => {
       method: 'POST',
       headers,
       payload: {
-        action: 'external-postcode-lookup--name:ybMHIv',
+        action: 'external-ybMHIv',
         crumb: csrfToken
       }
     })
@@ -361,7 +359,7 @@ describe('Postcode lookup form pages', () => {
       method: 'POST',
       headers,
       payload: {
-        action: 'external-postcode-lookup--name:ybMHIv',
+        action: 'external-ybMHIv',
         crumb: csrfToken
       }
     })
@@ -414,7 +412,7 @@ describe('Postcode lookup form pages', () => {
       method: 'POST',
       headers,
       payload: {
-        action: 'external-postcode-lookup--name:ybMHIv',
+        action: 'external-ybMHIv',
         crumb: csrfToken
       }
     })
@@ -458,7 +456,7 @@ describe('Postcode lookup form pages', () => {
       method: 'POST',
       headers,
       payload: {
-        action: 'external-postcode-lookup--name:ybMHIv',
+        action: 'external-ybMHIv',
         crumb: csrfToken
       }
     })
@@ -492,7 +490,7 @@ describe('Postcode lookup form pages', () => {
       method: 'POST',
       headers,
       payload: {
-        action: 'external-postcode-lookup--name:ybMHIv',
+        action: 'external-ybMHIv',
         crumb: csrfToken
       }
     })
@@ -531,7 +529,7 @@ describe('Postcode lookup form pages', () => {
       method: 'POST',
       headers,
       payload: {
-        action: 'external-postcode-lookup--name:ybMHIv',
+        action: 'external-ybMHIv',
         crumb: csrfToken
       }
     })
