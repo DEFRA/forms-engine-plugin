@@ -130,8 +130,6 @@ async function importExternalComponentState(
     throw new Error(`State for component ${componentName} is invalid`)
   }
 
-  // TODO: A better way?
-  // const componentState = component.getStateFromValidForm(stateAppendage)
   const componentState = isFormState(stateAppendage)
     ? Object.fromEntries(
         Object.entries(stateAppendage).map(([key, value]) => [
