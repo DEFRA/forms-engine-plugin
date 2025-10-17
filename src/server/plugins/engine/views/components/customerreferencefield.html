@@ -1,0 +1,21 @@
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/hint/macro.njk" import govukHint %}
+{% from "components/externalcomponent.html" import ExternalComponent %}
+
+
+{% macro CustomerReferenceField(component) %}
+  {% if component.model.value %}
+    {% set bodyHtml %}
+      <p class="govuk-body">Your reference number: <strong>{{ component.model.value }}</strong></p>
+    {% endset %}
+  {% else %}
+    {% set bodyHtml %}
+      <div class="govuk-body">
+        <span>Use the button below to look up your reference number from <i>name of external system</i>.</span>
+      </div>
+    {% endset %}
+  {% endif %}
+
+  {{ ExternalComponent(component, bodyHtml) }}
+{% endmacro %}

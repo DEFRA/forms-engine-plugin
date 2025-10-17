@@ -29,6 +29,7 @@ export type Field = InstanceType<
   | typeof Components.TextField
   | typeof Components.UkAddressField
   | typeof Components.FileUploadField
+  | typeof Components.CustomerReferenceField
 >
 
 // Guidance component instances only
@@ -196,6 +197,10 @@ export function createComponent(
 
     case ComponentType.FileUploadField:
       component = new Components.FileUploadField(def, options)
+      break
+
+    case 'CustomerReferenceField':
+      component = new Components.CustomerReferenceField(def, options)
       break
   }
 

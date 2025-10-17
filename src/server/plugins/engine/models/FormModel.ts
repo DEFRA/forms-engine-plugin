@@ -551,7 +551,12 @@ function validateFormPayload(
   // Skip validation GET requests or other actions
   if (
     !request.payload ||
-    (action && ![FormAction.Validate, FormAction.SaveAndExit].includes(action))
+    (action &&
+      ![
+        FormAction.Validate,
+        FormAction.SaveAndExit,
+        'external-component-edit-customerReferenceNumber'
+      ].includes(action))
   ) {
     return context
   }

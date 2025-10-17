@@ -51,5 +51,14 @@ export const formsService = async () => {
     slug: 'components'
   })
 
+  // external-components
+
+  await loader.addForm('src/server/forms/external-components.json', {
+    ...metadata,
+    id: 'z6a872d3b-13f9e-804ce3e-4830-5c45fb32',
+    title: 'external-components',
+    slug: 'external-components'
+  })
+
   return loader.toFormsService()
 }

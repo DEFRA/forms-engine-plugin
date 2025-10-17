@@ -8,14 +8,14 @@ export const stateSchema = Joi.string<FormStatus>()
   .required()
 
 export const actionSchema = Joi.string<FormAction>()
-  .valid(
-    FormAction.Continue,
-    FormAction.Validate,
-    FormAction.Delete,
-    FormAction.AddAnother,
-    FormAction.Send,
-    FormAction.SaveAndExit
-  )
+  // .valid(
+  //   FormAction.Continue,
+  //   FormAction.Validate,
+  //   FormAction.Delete,
+  //   FormAction.AddAnother,
+  //   FormAction.Send,
+  //   FormAction.SaveAndExit
+  // )
   .default(FormAction.Validate)
   .optional()
 

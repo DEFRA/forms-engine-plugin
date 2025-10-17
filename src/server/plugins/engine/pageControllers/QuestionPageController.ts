@@ -35,6 +35,7 @@ import {
   type FormStateValue,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
+import { getComponentsByType } from '~/src/server/plugins/engine/validationHelpers.js'
 import {
   FormAction,
   type FormRequest,
@@ -493,11 +494,16 @@ export class QuestionPageController extends PageController {
       const { collection, viewName, model } = this
       const { isForceAccess, state, evaluationState } = context
 
+      const action = request.payload.action ?? ''
+
       /**
        * If there are any errors, render the page with the parsed errors
        * @todo Refactor to match POST REDIRECT GET pattern
        */
-      if (context.errors || isForceAccess) {
+      if (
+        (!action.startsWith('external-component-edit') && context.errors) || // ensure that normal components still pass
+        isForceAccess
+      ) {
         const viewModel = this.getViewModel(request, context)
         viewModel.errors = collection.getViewErrors(viewModel.errors)
 
@@ -514,8 +520,33 @@ export class QuestionPageController extends PageController {
       // Save state
       await this.setState(request, state)
 
+      if (action && action.startsWith('external-component-edit-')) {
+        const { externalComponents } = getComponentsByType()
+
+        const componentName = action.split('external-component-edit-')[1]
+
+        const component = model.componentDefMap.get(componentName)
+        const componentType = component?.type
+
+        if (!componentType) {
+          throw Boom.internal(
+            `External component of type ${componentType} not found`
+          )
+        }
+
+        const selectedComponent = externalComponents.get(componentType)
+
+        if (!selectedComponent) {
+          throw Boom.internal(`External component ${componentName} not found`)
+        }
+
+        const { entrypoint } = selectedComponent.getRoutes()
+        return h.redirect(
+          `${entrypoint}?component=${componentName}&returnUrl=${encodeURI(`${request.url.origin}${request.url.pathname}`)}`
+        )
+      }
+
       // Check if this is a save-and-exit action
-      const { action } = request.payload
       if (action === FormAction.SaveAndExit) {
         return this.handleSaveAndExit(request, context, h)
       }
