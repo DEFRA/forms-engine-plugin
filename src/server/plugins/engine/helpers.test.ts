@@ -76,7 +76,8 @@ describe('Helpers', () => {
 
     h = {
       redirect: jest.fn().mockImplementation(() => response),
-      view: jest.fn()
+      view: jest.fn(),
+      continue: Symbol('continue')
     }
   })
 

@@ -23,6 +23,7 @@ import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import {
   type AnyFormRequest,
   type FormContext,
+  type OnRequestCallback,
   type PluginOptions
 } from '~/src/server/plugins/engine/types.js'
 import {
@@ -33,6 +34,7 @@ import {
 export async function redirectOrMakeHandler(
   request: AnyFormRequest,
   h: FormResponseToolkit,
+  onRequest: OnRequestCallback | undefined,
   makeHandler: (
     page: PageControllerClass,
     context: FormContext
@@ -69,6 +71,14 @@ export async function redirectOrMakeHandler(
   const relevantPath = page.getRelevantPath(request, context)
   const summaryPath = page.getSummaryPath()
 
+  // Call the onRequest callback if it has been supplied
+  if (onRequest) {
+    const result = await onRequest(request, h, context)
+    if (result !== h.continue) {
+      return result
+    }
+  }
+
   // Return handler for relevant pages or preview URL direct access
   if (relevantPath.startsWith(page.path) || context.isForceAccess) {
     return makeHandler(page, context)
@@ -89,7 +99,7 @@ export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- hapi types are wrong
   const prefix = server.realm.modifiers.route.prefix ?? ''
 
-  const { services = defaultServices, controllers, onRequest } = options
+  const { services = defaultServices, controllers } = options
 
   const { formsService } = services
 
@@ -164,11 +174,6 @@ export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
       // Create new item and add it to the item cache
       item = { model, updatedAt: state.updatedAt }
       server.app.models.set(key, item)
-    }
-
-    // Call the onRequest callback if it has been supplied
-    if (onRequest) {
-      onRequest(request, params, item.model.def, metadata)
     }
 
     // Assign the model to the request data

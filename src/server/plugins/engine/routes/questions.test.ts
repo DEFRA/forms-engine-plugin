@@ -40,8 +40,14 @@ jest.mock('~/src/server/plugins/engine/routes/index')
 
 describe('makeGetHandler', () => {
   const hMock: FormResponseToolkit = {
-    redirect: jest.fn(),
-    view: jest.fn()
+    redirect: jest.fn().mockReturnValue({
+      takeover: jest.fn().mockReturnValue({
+        statusCode: 302,
+        headers: { location: '/redirect-url' }
+      })
+    }),
+    view: jest.fn(),
+    continue: Symbol('continue')
   }
 
   beforeEach(() => {
@@ -84,8 +90,9 @@ describe('makeGetHandler', () => {
 
     jest
       .mocked(redirectOrMakeHandler)
-      .mockImplementation((_req: AnyFormRequest, _h: FormResponseToolkit, fn) =>
-        Promise.resolve(fn(pageMock, contextMock))
+      .mockImplementation(
+        (_req: AnyFormRequest, _h: FormResponseToolkit, _onRequest, fn) =>
+          Promise.resolve(fn(pageMock, contextMock))
       )
 
     await makeGetHandler()(requestMock, hMock)
@@ -126,8 +133,9 @@ describe('makeGetHandler', () => {
 
     jest
       .mocked(redirectOrMakeHandler)
-      .mockImplementation((_req: AnyFormRequest, _h: FormResponseToolkit, fn) =>
-        Promise.resolve(fn(pageMock, contextMock))
+      .mockImplementation(
+        (_req: AnyFormRequest, _h: FormResponseToolkit, _onRequest, fn) =>
+          Promise.resolve(fn(pageMock, contextMock))
       )
 
     await makeGetHandler()(requestMock, hMock)
@@ -164,7 +172,12 @@ describe('makeGetHandler', () => {
     jest
       .mocked(redirectOrMakeHandler)
       .mockImplementation(
-        async (_req: AnyFormRequest, _h: FormResponseToolkit, fn) => {
+        async (
+          _req: AnyFormRequest,
+          _h: FormResponseToolkit,
+          _onRequest,
+          fn
+        ) => {
           try {
             await fn(pageMock, contextMock)
           } catch (err) {
@@ -179,12 +192,57 @@ describe('makeGetHandler', () => {
 
     expect(error).toEqual(Boom.notFound('No model found for /some-path'))
   })
+
+  it('should pass onRequest callback to redirectOrMakeHandler', async () => {
+    const onRequestCallback = jest.fn().mockResolvedValue(undefined)
+    const modelMock = {
+      basePath: 'some-base-path',
+      def: { name: 'Hello world' }
+    } as FormModel
+
+    const pageMock = createMockPageController(
+      modelMock,
+      (
+        _request: FormRequest,
+        _context: FormContext,
+        _h: FormResponseToolkit
+      ) => {
+        return Promise.resolve({} as unknown as ResponseObject)
+      }
+    )
+
+    const contextMock = { data: {}, model: {} } as unknown as FormContext
+
+    const requestMock = {
+      params: { path: 'some-path' },
+      app: { model: modelMock }
+    } as FormRequest
+
+    jest
+      .mocked(redirectOrMakeHandler)
+      .mockImplementation(
+        (_req: AnyFormRequest, _h: FormResponseToolkit, onRequest, fn) => {
+          expect(onRequest).toBe(onRequestCallback)
+          return Promise.resolve(fn(pageMock, contextMock))
+        }
+      )
+
+    await makeGetHandler(undefined, onRequestCallback)(requestMock, hMock)
+
+    expect(redirectOrMakeHandler).toHaveBeenCalledWith(
+      requestMock,
+      hMock,
+      onRequestCallback,
+      expect.any(Function)
+    )
+  })
 })
 
 describe('makePostHandler', () => {
   const hMock: FormResponseToolkit = {
     redirect: jest.fn(),
-    view: jest.fn()
+    view: jest.fn(),
+    continue: Symbol('continue')
   }
 
   beforeEach(() => {
@@ -230,8 +288,9 @@ describe('makePostHandler', () => {
 
     jest
       .mocked(redirectOrMakeHandler)
-      .mockImplementation((_req: AnyFormRequest, _h: FormResponseToolkit, fn) =>
-        Promise.resolve(fn(pageMock, contextMock))
+      .mockImplementation(
+        (_req: AnyFormRequest, _h: FormResponseToolkit, _onRequest, fn) =>
+          Promise.resolve(fn(pageMock, contextMock))
       )
 
     const response = await makePostHandler()(requestMock, hMock)
@@ -269,8 +328,9 @@ describe('makePostHandler', () => {
 
     jest
       .mocked(redirectOrMakeHandler)
-      .mockImplementation((_req: AnyFormRequest, _h: FormResponseToolkit, fn) =>
-        Promise.resolve(fn(pageMock, contextMock))
+      .mockImplementation(
+        (_req: AnyFormRequest, _h: FormResponseToolkit, _onRequest, fn) =>
+          Promise.resolve(fn(pageMock, contextMock))
       )
 
     await makePostHandler()(requestMock, hMock)
@@ -310,8 +370,9 @@ describe('makePostHandler', () => {
 
     jest
       .mocked(redirectOrMakeHandler)
-      .mockImplementation((_req: AnyFormRequest, _h: FormResponseToolkit, fn) =>
-        Promise.resolve(fn(pageMock, contextMock))
+      .mockImplementation(
+        (_req: AnyFormRequest, _h: FormResponseToolkit, _onRequest, fn) =>
+          Promise.resolve(fn(pageMock, contextMock))
       )
 
     await makePostHandler()(requestMock, hMock)
@@ -349,7 +410,12 @@ describe('makePostHandler', () => {
     jest
       .mocked(redirectOrMakeHandler)
       .mockImplementation(
-        async (_req: AnyFormRequest, _h: FormResponseToolkit, fn) => {
+        async (
+          _req: AnyFormRequest,
+          _h: FormResponseToolkit,
+          _onRequest,
+          fn
+        ) => {
           try {
             await fn(pageMock, contextMock)
           } catch (err) {
@@ -363,6 +429,51 @@ describe('makePostHandler', () => {
     await makePostHandler()(requestMock, hMock)
 
     expect(error).toEqual(Boom.notFound('No model found for /some-path'))
+  })
+
+  it('should pass onRequest callback to redirectOrMakeHandler', async () => {
+    const onRequestCallback = jest.fn().mockResolvedValue(undefined)
+    const modelMock = {
+      basePath: 'some-base-path',
+      def: { name: 'Hello world' }
+    } as FormModel
+
+    const pageMock = createMockPageController(
+      modelMock,
+      (
+        _request: FormRequest,
+        _context: FormContext,
+        _h: FormResponseToolkit
+      ) => {
+        return Promise.resolve({} as unknown as ResponseObject)
+      }
+    )
+
+    const contextMock = { data: {}, model: {} } as unknown as FormContext
+
+    const requestMock = {
+      params: { path: 'some-path' },
+      app: { model: modelMock },
+      payload: { some: 'payload' }
+    } as unknown as FormRequestPayload
+
+    jest
+      .mocked(redirectOrMakeHandler)
+      .mockImplementation(
+        (_req: AnyFormRequest, _h: FormResponseToolkit, onRequest, fn) => {
+          expect(onRequest).toBe(onRequestCallback)
+          return Promise.resolve(fn(pageMock, contextMock))
+        }
+      )
+
+    await makePostHandler(undefined, onRequestCallback)(requestMock, hMock)
+
+    expect(redirectOrMakeHandler).toHaveBeenCalledWith(
+      requestMock,
+      hMock,
+      onRequestCallback,
+      expect.any(Function)
+    )
   })
 })
 

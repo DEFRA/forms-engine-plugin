@@ -34,7 +34,8 @@ export const plugin = {
       saveAndExit,
       nunjucks: nunjucksOptions,
       viewContext,
-      preparePageEventRequestOptions
+      preparePageEventRequestOptions,
+      onRequest
     } = options
 
     const cacheService =
@@ -83,10 +84,15 @@ export const plugin = {
       ...getQuestionRoutes(
         getRouteOptions,
         postRouteOptions,
-        preparePageEventRequestOptions
+        preparePageEventRequestOptions,
+        onRequest
       ),
-      ...getRepeaterSummaryRoutes(getRouteOptions, postRouteOptions),
-      ...getRepeaterItemDeleteRoutes(getRouteOptions, postRouteOptions),
+      ...getRepeaterSummaryRoutes(getRouteOptions, postRouteOptions, onRequest),
+      ...getRepeaterItemDeleteRoutes(
+        getRouteOptions,
+        postRouteOptions,
+        onRequest
+      ),
       ...getFileUploadStatusRoutes()
     ]
 

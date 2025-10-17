@@ -20,7 +20,8 @@ describe('SummaryPageController', () => {
   }
   const h: FormResponseToolkit = {
     redirect: jest.fn().mockReturnValue(response),
-    view: jest.fn()
+    view: jest.fn(),
+    continue: Symbol('continue')
   }
 
   beforeEach(() => {
