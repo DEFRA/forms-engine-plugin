@@ -25,7 +25,7 @@
     {% set addressFieldHtml = addressHintHtml + addressFieldHtml %}
   {% endif %}
 
-  <div class="govuk-form-group{{ ' govuk-form-group--error' if usePostcodeLookup and component.model.errors | length }}">
+  <div id="{{component.model.name}}" class="govuk-form-group{{ ' govuk-form-group--error' if usePostcodeLookup and component.model.errors | length }}">
     {{ govukFieldset({
       legend: fieldset.legend,
       attributes: fieldset.attributes,

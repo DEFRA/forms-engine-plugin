@@ -77,6 +77,34 @@ describe('Postcode lookup form pages', () => {
     )
   })
 
+  it('should return a single validation message', async () => {
+    const { csrfToken, headers } = await initialiseJourney(server)
+
+    const payload = {
+      crumb: csrfToken
+    }
+
+    const { response, container } = await renderResponse(server, {
+      url: `${basePath}/address`,
+      method: 'POST',
+      headers,
+      payload
+    })
+
+    expect(response.statusCode).toBe(StatusCodes.OK)
+    const $errorSummary = container.getByRole('alert')
+
+    const $heading = within($errorSummary).getByRole('heading', {
+      name: 'There is a problem',
+      level: 2
+    })
+    expect($heading).toBeInTheDocument()
+
+    const $errorItems = within($errorSummary).getAllByRole('listitem')
+    expect($errorItems).toHaveLength(1)
+    expect($errorItems[0]).toHaveTextContent('Enter address')
+  })
+
   it('should dispatch to details page on POST', async () => {
     let { csrfToken, response, headers } = await initialiseJourney(server)
 

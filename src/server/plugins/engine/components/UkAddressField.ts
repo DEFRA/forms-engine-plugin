@@ -1,5 +1,10 @@
-import { ComponentType, type UkAddressFieldComponent } from '@defra/forms-model'
+import {
+  ComponentType,
+  type FormComponentsDef,
+  type UkAddressFieldComponent
+} from '@defra/forms-model'
 import { type ObjectSchema } from 'joi'
+import lowerFirst from 'lodash/lowerFirst.js'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import {
@@ -29,13 +34,15 @@ export class UkAddressField extends FormComponent {
   declare stateSchema: ObjectSchema<FormState>
   declare collection: ComponentCollection
 
+  shortDescription: FormComponentsDef['shortDescription']
+
   constructor(
     def: UkAddressFieldComponent,
     props: ConstructorParameters<typeof FormComponent>[1]
   ) {
     super(def, props)
 
-    const { name, options } = def
+    const { name, options, shortDescription } = def
 
     const isRequired = options.required !== false
     const hideOptional = !!options.optionalText
@@ -119,6 +126,7 @@ export class UkAddressField extends FormComponent {
     this.options = options
     this.formSchema = this.collection.formSchema
     this.stateSchema = this.collection.stateSchema
+    this.shortDescription = shortDescription
   }
 
   getFormValueFromState(state: FormSubmissionState) {
@@ -158,10 +166,27 @@ export class UkAddressField extends FormComponent {
   getViewErrors(
     errors?: FormSubmissionError[]
   ): FormSubmissionError[] | undefined {
-    return this.getErrors(errors)?.filter(
+    const uniqueErrors = this.getErrors(errors)?.filter(
       (error, index, self) =>
         index === self.findIndex((err) => err.name === error.name)
     )
+
+    // When using postcode lookup, the address fields are hidden
+    // so we replace any individual validation messages with a single one
+    if (this.shouldUsePostcodeLookup() && uniqueErrors?.length) {
+      const { name, shortDescription } = this
+
+      return [
+        {
+          name,
+          path: [name],
+          href: `#${name}`,
+          text: `Enter ${lowerFirst(shortDescription)}`
+        }
+      ]
+    }
+
+    return uniqueErrors
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
@@ -203,9 +228,8 @@ export class UkAddressField extends FormComponent {
     uprn.model.formGroup = { classes: 'app-hidden' }
 
     // Postcode lookup
-    const usePostcodeLookup = !!(
-      this.options.usePostcodeLookup && this.model.ordnanceSurveyApiKey
-    )
+    const usePostcodeLookup = this.shouldUsePostcodeLookup()
+
     const value = usePostcodeLookup
       ? this.getDisplayStringFromState(payload)
       : undefined
@@ -228,6 +252,10 @@ export class UkAddressField extends FormComponent {
    */
   getAllPossibleErrors(): ErrorMessageTemplateList {
     return UkAddressField.getAllPossibleErrors()
+  }
+
+  private shouldUsePostcodeLookup() {
+    return !!(this.options.usePostcodeLookup && this.model.ordnanceSurveyApiKey)
   }
 
   /**

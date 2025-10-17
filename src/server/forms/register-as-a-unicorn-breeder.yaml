@@ -59,6 +59,7 @@ pages:
           usePostcodeLookup: true
         type: UkAddressField
         title: What is your billing address
+        shortDescription: Billing address
         schema: {}
         hint: This is a UK billing address. Users must enter address line 1, town and a postcode
       - name: dfTGhD
