@@ -92,8 +92,8 @@ describe('Postcode lookup form pages', () => {
     })
 
     expect(response.statusCode).toBe(StatusCodes.OK)
-    const $errorSummary = container.getByRole('alert')
 
+    const $errorSummary = container.getByRole('alert')
     const $heading = within($errorSummary).getByRole('heading', {
       name: 'There is a problem',
       level: 2
