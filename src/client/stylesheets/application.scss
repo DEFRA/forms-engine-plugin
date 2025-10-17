@@ -20,9 +20,9 @@
 
 .govuk-button--link {
   @extend %govuk-link;
-  @include govuk-font($size: 19);
   color: $govuk-link-colour;
   border: none;
   cursor: pointer;
   background-color: transparent;
+  @include govuk-font($size: 19);
 }
