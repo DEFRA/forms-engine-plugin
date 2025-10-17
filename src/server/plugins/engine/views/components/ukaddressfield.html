@@ -1,10 +1,18 @@
 {% from "partials/components.html" import componentList %}
 {% from "govuk/components/fieldset/macro.njk" import govukFieldset %}
 {% from "govuk/components/hint/macro.njk" import govukHint %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
 
 {% macro UkAddressField(component) %}
   {% set fieldset = component.model.fieldset %}
-  {% set addressFieldHtml = componentList(component.model.components) %}
+  {% set usePostcodeLookup = component.model.usePostcodeLookup %}
+
+  {% set addressFieldHtml %}
+    <div {{"hidden" if usePostcodeLookup }}>
+      {{ componentList(component.model.components) }}
+    </div>
+  {% endset %}
 
   {% if component.model.hint %}
     {% set addressHintHtml %}
@@ -17,9 +25,45 @@
     {% set addressFieldHtml = addressHintHtml + addressFieldHtml %}
   {% endif %}
 
-  {{ govukFieldset({
-    legend: fieldset.legend,
-    attributes: fieldset.attributes,
-    html: addressFieldHtml
-  }) if fieldset else addressFieldHtml }}
+  <div id="{{component.model.name}}" class="govuk-form-group{{ ' govuk-form-group--error' if usePostcodeLookup and component.model.errors | length }}">
+    {{ govukFieldset({
+      legend: fieldset.legend,
+      attributes: fieldset.attributes,
+      html: addressFieldHtml
+    }) if fieldset else addressFieldHtml }}
+
+    {% if usePostcodeLookup %}
+      {% set value = component.model.value %}
+
+        {% if value %}
+          {% set insetHtml %}
+            <strong>Selected address:</strong>
+            <br><br>
+            {{ value }}
+            <br><br>
+            <p class="govuk-body">
+              <button class="govuk-link govuk-button--link govuk-!-margin-right-1" name="action"
+                value="external-{{component.model.name}}">Use a different address</button>
+            </p>
+          {% endset %}
+
+          {{ govukInsetText({
+            html: insetHtml,
+            classes: "govuk-!-margin-top-2"
+          }) }}
+        {% else %}
+          <div class="govuk-button-group govuk-!-margin-bottom-0">
+            {{ govukButton({
+              text: "Find an address",
+              attributes: {
+                name: "action",
+                value: "external-" + component.model.name
+              },
+              classes: "govuk-button--secondary govuk-!-margin-right-1 govuk-!-margin-bottom-0"
+            }) }}
+            <p class="govuk-body govuk-!-margin-bottom-0">or <button class="govuk-link govuk-button--link govuk-!-margin-right-1 govuk-!-margin-bottom-0" name="action" value="external-{{component.model.name}}--step:manual">enter address manually</button></p>
+          </div>
+        {% endif %}
+    {% endif %}
+  </div>
 {% endmacro %}

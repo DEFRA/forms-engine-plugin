@@ -1,0 +1,83 @@
+{% extends baseLayoutPath %}
+
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/select/macro.njk" import govukSelect %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
+{% from "govuk/components/hint/macro.njk" import govukHint %}
+{% from "govuk/components/fieldset/macro.njk" import govukFieldset %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {% if errors %}
+        {{ govukErrorSummary({
+          titleText: "There is a problem",
+          errorList: errors
+        }) }}
+      {% endif %}
+
+      {% include "partials/heading.html" %}
+
+      <form method="post">
+        <input type="hidden" name="crumb" value="{{ crumb }}">
+        <input type="hidden" name="step" value="{{ step }}">
+
+        {% switch step %}
+          {% case "details" %}
+            <!-- Postcode lookup details -->
+            {{ govukInput(fields.postcodeQuery) }}
+            {{ govukInput(fields.buildingNameQuery) }}
+          {% case "select" %}
+            <!-- Postcode lookup select -->
+            <!-- Postcode lookup details display -->
+            {%- set detailsHtml -%}
+              <strong>{{ details.postcodeQuery }}</strong>{% if details.buildingNameQuery %} and <strong>{{ details.buildingNameQuery }}</strong>{% endif %}
+            {%- endset -%}
+
+            {% if hasAddresses %}
+              <p class="govuk-body">
+                {{addressCount}} address{{ "es" if hasMultipleAddresses }} found for {{ detailsHtml | safe }}. <a href="{{ searchAgainLink.href }}" class="govuk-link govuk-link--no-visited-state">{{ searchAgainLink.text }}</a>
+              </p>
+            {% endif %}
+
+            {% if hasMultipleAddresses %}
+              <!-- Multiple address found - show drop down select -->
+              {{ govukSelect(fields.uprn) }}
+            {% elif singleAddress %}
+              <!-- Single address found - show single item -->
+              {{ govukInput(fields.uprn) }}
+              {{ govukInsetText({
+                text: singleAddress.formatted
+              }) }}
+            {% else %}
+              <!-- No addresses found - show try again -->
+              <p class="govuk-body">We could not find an address that matches {{ detailsHtml | safe }}.</p>
+            {% endif %}
+          {% case "manual" %}
+            <!-- Postcode lookup manual entry -->
+            {% if hint %}
+              {{ govukHint(hint) }}
+            {% endif %}
+
+            {{ govukInput(fields.addressLine1) }}
+            {{ govukInput(fields.addressLine2) }}
+            {{ govukInput(fields.town) }}
+            {{ govukInput(fields.county) }}
+            {{ govukInput(fields.postcode) }}
+        {% endswitch %}
+
+        <div class="govuk-button-group">
+          {{ govukButton(buttons.continueButton) }}
+
+          {% if buttons.manualLink %}
+            <p class="govuk-body">or <a class="govuk-link govuk-link--no-visited-state" href="{{ buttons.manualLink.href }}">{{buttons.manualLink.text}}</a></p>
+          {% elif buttons.detailsLink %}
+            <p class="govuk-body">or <a class="govuk-link govuk-link--no-visited-state" href="{{ buttons.detailsLink.href }}">{{buttons.detailsLink.text}}</a></p>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}

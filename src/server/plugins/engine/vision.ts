@@ -13,6 +13,7 @@ import {
   prepareNunjucksEnvironment
 } from '~/src/server/plugins/engine/index.js'
 import { type PluginOptions } from '~/src/server/plugins/engine/types.js'
+import { VIEW_PATH as POSTCODE_LOOKUP_VIEW_PATH } from '~/src/server/plugins/postcode-lookup/index.js'
 
 export async function registerVision(
   server: Server,
@@ -24,10 +25,15 @@ export async function registerVision(
   )
 
   const viewPathResolved = join(packageRoot, VIEW_PATH)
+  const postcodeLookupPathResolved = join(
+    packageRoot,
+    POSTCODE_LOOKUP_VIEW_PATH
+  )
 
   const paths = [
     ...pluginOptions.nunjucks.paths,
     viewPathResolved,
+    postcodeLookupPathResolved,
     join(govukFrontendPath, 'dist')
   ]
 

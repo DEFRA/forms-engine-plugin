@@ -12,6 +12,10 @@ import Boom from '@hapi/boom'
 import { type RouteOptions } from '@hapi/hapi'
 import { type ValidationErrorItem } from 'joi'
 
+import {
+  EXTERNAL_STATE_APPENDAGE,
+  EXTERNAL_STATE_PAYLOAD
+} from '~/src/server/constants.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import { type BackLink } from '~/src/server/plugins/engine/components/types.js'
@@ -35,6 +39,7 @@ import {
   type FormStateValue,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
+import { getComponentsByType } from '~/src/server/plugins/engine/validationHelpers.js'
 import {
   FormAction,
   type FormRequest,
@@ -492,6 +497,11 @@ export class QuestionPageController extends PageController {
     ) => {
       const { collection, viewName, model } = this
       const { isForceAccess, state, evaluationState } = context
+      const action = request.payload.action
+
+      if (action?.startsWith(FormAction.External)) {
+        return this.dispatchExternal(request, h, context)
+      }
 
       /**
        * If there are any errors, render the page with the parsed errors
@@ -515,7 +525,6 @@ export class QuestionPageController extends PageController {
       await this.setState(request, state)
 
       // Check if this is a save-and-exit action
-      const { action } = request.payload
       if (action === FormAction.SaveAndExit) {
         return this.handleSaveAndExit(request, context, h)
       }
@@ -523,6 +532,65 @@ export class QuestionPageController extends PageController {
       // Proceed to the next page
       return this.proceed(request, h, this.getNextPath(context))
     }
+  }
+
+  private dispatchExternal(
+    request: FormRequestPayload,
+    h: FormResponseToolkit,
+    context: FormContext
+  ) {
+    const { externalComponents } = getComponentsByType()
+    const action = request.payload.action ?? ''
+
+    // Find the external action and arguments
+    // `external-{componentName}--{argname1}:{argvalue1}--{argname2}:{argvalue2}`
+    // E.g. external-abcdef--amount:10--step:manual
+    const externalActionsWithArgs = action
+      .slice(`${FormAction.External}-`.length)
+      .split('--')
+
+    const externalActionArgs = externalActionsWithArgs
+      .slice(1)
+      .map((arg) => arg.split(':'))
+
+    const args = Object.fromEntries(externalActionArgs) as Record<
+      string,
+      string
+    >
+
+    const componentName = externalActionsWithArgs[0]
+    const component = this.model.componentDefMap.get(componentName)
+    const componentType = component?.type
+
+    if (!componentType) {
+      throw Boom.internal(
+        `External component of type ${componentType} not found`
+      )
+    }
+
+    const selectedComponent = externalComponents.get(componentType)
+
+    if (!selectedComponent) {
+      throw Boom.internal(`External component ${componentName} not found`)
+    }
+
+    // Stash payload without crumb and action
+    const stashedPayload = {
+      ...context.payload,
+      crumb: undefined,
+      action: undefined
+    }
+    request.yar.flash(EXTERNAL_STATE_PAYLOAD, stashedPayload, true)
+
+    // Clear any previous state appendage
+    request.yar.clear(EXTERNAL_STATE_APPENDAGE)
+
+    return selectedComponent.dispatcher(request, h, {
+      component,
+      controller: this,
+      sourceUrl: request.url.toString(),
+      actionArgs: args
+    })
   }
 
   proceed(

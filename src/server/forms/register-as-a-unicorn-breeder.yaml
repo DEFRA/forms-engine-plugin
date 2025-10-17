@@ -56,10 +56,26 @@ pages:
       - name: wZLWPy
         options:
           required: true
+          usePostcodeLookup: true
         type: UkAddressField
-        title: Address
+        title: What is your billing address
+        shortDescription: Billing address
         schema: {}
-        hint: This is a UK address. Users must enter address line 1, town and a postcode
+        hint: This is a UK billing address. Users must enter address line 1, town and a postcode
+      - name: dfTGhD
+        options: {}
+        schema: {}
+        type: MultilineTextField
+        title: Delivery notes
+        hint:
+          Enter some instructions for the delivery person
+      - name: drGHuj
+        options:
+          required: true
+        type: UkAddressField
+        title: What is your delivery address
+        schema: {}
+        hint: This is a UK delivery address. Users must enter address line 1, town and a postcode
     next:
       - path: '/do-you-want-your-unicorn-breeder-certificate-sent-to-this-address'
     section: section

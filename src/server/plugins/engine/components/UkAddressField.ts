@@ -1,5 +1,10 @@
-import { ComponentType, type UkAddressFieldComponent } from '@defra/forms-model'
+import {
+  ComponentType,
+  type FormComponentsDef,
+  type UkAddressFieldComponent
+} from '@defra/forms-model'
 import { type ObjectSchema } from 'joi'
+import lowerFirst from 'lodash/lowerFirst.js'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import {
@@ -9,13 +14,19 @@ import {
 import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
 import { type QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
+  type FormRequestPayload,
+  type FormResponseToolkit
+} from '~/src/server/plugins/engine/types/index.js'
+import {
   type ErrorMessageTemplateList,
   type FormPayload,
   type FormState,
   type FormStateValue,
   type FormSubmissionError,
-  type FormSubmissionState
+  type FormSubmissionState,
+  type PostcodeLookupExternalArgs
 } from '~/src/server/plugins/engine/types.js'
+import { dispatch } from '~/src/server/plugins/postcode-lookup/routes/index.js'
 
 export class UkAddressField extends FormComponent {
   declare options: UkAddressFieldComponent['options']
@@ -23,13 +34,15 @@ export class UkAddressField extends FormComponent {
   declare stateSchema: ObjectSchema<FormState>
   declare collection: ComponentCollection
 
+  shortDescription: FormComponentsDef['shortDescription']
+
   constructor(
     def: UkAddressFieldComponent,
     props: ConstructorParameters<typeof FormComponent>[1]
   ) {
     super(def, props)
 
-    const { name, options } = def
+    const { name, options, shortDescription } = def
 
     const isRequired = options.required !== false
     const hideOptional = !!options.optionalText
@@ -37,6 +50,16 @@ export class UkAddressField extends FormComponent {
 
     this.collection = new ComponentCollection(
       [
+        {
+          type: ComponentType.TextField,
+          name: `${name}__uprn`,
+          title: 'UPRN',
+          schema: {},
+          options: {
+            required: false,
+            classes: 'hidden'
+          }
+        },
         {
           type: ComponentType.TextField,
           name: `${name}__addressLine1`,
@@ -103,6 +126,7 @@ export class UkAddressField extends FormComponent {
     this.options = options
     this.formSchema = this.collection.formSchema
     this.stateSchema = this.collection.stateSchema
+    this.shortDescription = shortDescription
   }
 
   getFormValueFromState(state: FormSubmissionState) {
@@ -115,7 +139,9 @@ export class UkAddressField extends FormComponent {
       return null
     }
 
-    return Object.values(value).filter(Boolean)
+    return Object.entries(value)
+      .filter(([key, value]) => key !== 'uprn' && Boolean(value))
+      .map(([, value]) => value)
   }
 
   getContextValueFromState(state: FormSubmissionState) {
@@ -140,17 +166,34 @@ export class UkAddressField extends FormComponent {
   getViewErrors(
     errors?: FormSubmissionError[]
   ): FormSubmissionError[] | undefined {
-    return this.getErrors(errors)?.filter(
+    const uniqueErrors = this.getErrors(errors)?.filter(
       (error, index, self) =>
         index === self.findIndex((err) => err.name === error.name)
     )
+
+    // When using postcode lookup, the address fields are hidden
+    // so we replace any individual validation messages with a single one
+    if (this.shouldUsePostcodeLookup() && uniqueErrors?.length) {
+      const { name, shortDescription } = this
+
+      return [
+        {
+          name,
+          path: [name],
+          href: `#${name}`,
+          text: `Enter ${lowerFirst(shortDescription)}`
+        }
+      ]
+    }
+
+    return uniqueErrors
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
     const { collection, name, options } = this
 
     const viewModel = super.getViewModel(payload, errors)
-    let { components, fieldset, hint, label } = viewModel
+    let { fieldset, hint, label } = viewModel
 
     fieldset ??= {
       legend: {
@@ -173,12 +216,30 @@ export class UkAddressField extends FormComponent {
       }
     }
 
-    components = collection.getViewModel(payload, errors)
+    const components = collection.getViewModel(payload, errors)
+
+    // Hide UPRN
+    const uprn = components.at(0)
+
+    if (!uprn) {
+      throw new Error('No UPRN')
+    }
+
+    uprn.model.formGroup = { classes: 'app-hidden' }
+
+    // Postcode lookup
+    const usePostcodeLookup = this.shouldUsePostcodeLookup()
+
+    const value = usePostcodeLookup
+      ? this.getDisplayStringFromState(payload)
+      : undefined
 
     return {
       ...viewModel,
+      value,
       fieldset,
-      components
+      components,
+      usePostcodeLookup
     }
   }
 
@@ -191,6 +252,10 @@ export class UkAddressField extends FormComponent {
    */
   getAllPossibleErrors(): ErrorMessageTemplateList {
     return UkAddressField.getAllPossibleErrors()
+  }
+
+  private shouldUsePostcodeLookup() {
+    return !!(this.options.usePostcodeLookup && this.model.ordnanceSurveyApiKey)
   }
 
   /**
@@ -218,9 +283,27 @@ export class UkAddressField extends FormComponent {
       TextField.isText(value.postcode)
     )
   }
+
+  static dispatcher(
+    request: FormRequestPayload,
+    h: FormResponseToolkit,
+    args: PostcodeLookupExternalArgs
+  ) {
+    const { controller, component } = args
+
+    return dispatch(request, h, {
+      formName: controller.model.name,
+      componentName: component.name,
+      componentHint: component.hint,
+      componentTitle: component.title || controller.title,
+      step: args.actionArgs.step,
+      sourceUrl: args.sourceUrl
+    })
+  }
 }
 
 export interface UkAddressState extends Record<string, string> {
+  uprn: string
   addressLine1: string
   addressLine2: string
   town: string

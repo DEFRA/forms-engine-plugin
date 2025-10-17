@@ -21,7 +21,8 @@ export const configureEnginePlugin = async (
     controllers,
     preparePageEventRequestOptions,
     onRequest,
-    saveAndExit
+    saveAndExit,
+    ordnanceSurveyApiKey
   }: RouteConfig = {},
   cache?: CacheService
 ): Promise<{
@@ -38,7 +39,7 @@ export const configureEnginePlugin = async (
 
     model = new FormModel(
       definition,
-      { basePath: initialBasePath },
+      { basePath: initialBasePath, ordnanceSurveyApiKey },
       services,
       controllers
     )
@@ -63,7 +64,8 @@ export const configureEnginePlugin = async (
       preparePageEventRequestOptions,
       onRequest,
       baseUrl: 'http://localhost:3009', // always runs locally
-      saveAndExit
+      saveAndExit,
+      ordnanceSurveyApiKey
     }
   }
 }

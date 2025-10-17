@@ -6,7 +6,15 @@ import {
 } from '@hapi/hapi'
 import { isEqual } from 'date-fns'
 
-import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
+import {
+  EXTERNAL_STATE_APPENDAGE,
+  EXTERNAL_STATE_PAYLOAD,
+  PREVIEW_PATH_PREFIX
+} from '~/src/server/constants.js'
+import {
+  FormComponent,
+  isFormState
+} from '~/src/server/plugins/engine/components/FormComponent.js'
 import {
   checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
@@ -22,7 +30,10 @@ import { generateUniqueReference } from '~/src/server/plugins/engine/referenceNu
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import {
   type AnyFormRequest,
+  type ExternalStateAppendage,
   type FormContext,
+  type FormPayload,
+  type FormSubmissionState,
   type PluginOptions
 } from '~/src/server/plugins/engine/types.js'
 import {
@@ -64,6 +75,8 @@ export async function redirectOrMakeHandler(
     })
   }
 
+  state = await importExternalComponentState(request, page, state)
+
   const flash = cacheService.getFlash(request)
   const context = model.getFormContext(request, state, flash?.errors)
   const relevantPath = page.getRelevantPath(request, context)
@@ -85,11 +98,67 @@ export async function redirectOrMakeHandler(
   return proceed(request, h, page.getHref(relevantPath))
 }
 
+async function importExternalComponentState(
+  request: AnyFormRequest,
+  page: PageControllerClass,
+  state: FormSubmissionState
+): Promise<FormSubmissionState> {
+  const externalComponentData = request.yar.flash(EXTERNAL_STATE_APPENDAGE)
+
+  if (Array.isArray(externalComponentData)) {
+    return state
+  }
+
+  const typedStateAppendage = externalComponentData as ExternalStateAppendage
+  const componentName = typedStateAppendage.component
+  const stateAppendage = typedStateAppendage.data
+  const component = request.app.model?.componentMap.get(componentName)
+
+  if (!component) {
+    throw new Error(`Component ${componentName} not found in form`)
+  }
+
+  if (!(component instanceof FormComponent)) {
+    throw new TypeError(
+      `Component ${componentName} is not a FormComponent and does not support isState`
+    )
+  }
+
+  const isStateValid = component.isState(stateAppendage)
+
+  if (!isStateValid) {
+    throw new Error(`State for component ${componentName} is invalid`)
+  }
+
+  const componentState = isFormState(stateAppendage)
+    ? Object.fromEntries(
+        Object.entries(stateAppendage).map(([key, value]) => [
+          `${componentName}__${key}`,
+          value
+        ])
+      )
+    : { [componentName]: stateAppendage }
+
+  // Save the external component state immediately
+  const updatedState = await page.mergeState(request, state, componentState)
+
+  // Merge the stashed payload into the local state
+  const payload = request.yar.flash(EXTERNAL_STATE_PAYLOAD)
+  const stashedPayload = Array.isArray(payload) ? {} : (payload as FormPayload)
+
+  return { ...stashedPayload, ...updatedState }
+}
+
 export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- hapi types are wrong
   const prefix = server.realm.modifiers.route.prefix ?? ''
 
-  const { services = defaultServices, controllers, onRequest } = options
+  const {
+    services = defaultServices,
+    controllers,
+    onRequest,
+    ordnanceSurveyApiKey
+  } = options
 
   const { formsService } = services
 
@@ -156,7 +225,7 @@ export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
       // Construct the form model
       const model = new FormModel(
         definition,
-        { basePath, versionNumber },
+        { basePath, versionNumber, ordnanceSurveyApiKey },
         services,
         controllers
       )
