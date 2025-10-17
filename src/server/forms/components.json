@@ -15,14 +15,6 @@
           "schema": {}
         },
         {
-          "type": "CustomerReferenceField",
-          "name": "customerReferenceNumber",
-          "title": "Customer reference number",
-          "hint": "Help text",
-          "options": {},
-          "schema": {}
-        },
-        {
           "type": "MultilineTextField",
           "name": "multilineTextField",
           "title": "Multiline text field",
