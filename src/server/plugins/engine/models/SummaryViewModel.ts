@@ -119,6 +119,8 @@ export class SummaryViewModel {
     const { context, errors } = this
     const { relevantPages, state } = context
 
+    const summaryPath = this.page.getSummaryPath(request)
+
     const details: Detail[] = []
 
     ;[undefined, ...sections].forEach((section) => {
@@ -135,12 +137,19 @@ export class SummaryViewModel {
           items.push(
             ItemRepeat(page, state, {
               path: page.getSummaryPath(request),
+              returnPath: summaryPath,
               errors
             })
           )
         } else {
           for (const field of collection.fields) {
-            items.push(ItemField(page, state, field, { path, errors }))
+            items.push(
+              ItemField(page, state, field, {
+                path,
+                returnPath: summaryPath,
+                errors
+              })
+            )
           }
         }
       })
@@ -167,6 +176,7 @@ function ItemRepeat(
   state: FormState,
   options: {
     path: string
+    returnPath: string | undefined
     errors?: FormSubmissionError[]
   }
 ): DetailItemRepeat {
@@ -182,7 +192,7 @@ function ItemRepeat(
     title: values.length ? `${unit} added` : unit,
     value: values.length ? `You added ${values.length} ${unit}` : '',
     href: getPageHref(page, options.path, {
-      returnUrl: getPageHref(page, page.getSummaryPath())
+      returnUrl: getPageHref(page, options.returnPath ?? page.getSummaryPath())
     }),
     state,
     page,
@@ -206,6 +216,7 @@ function ItemField(
   field: Field,
   options: {
     path: string
+    returnPath: string | undefined
     errors?: FormSubmissionError[]
   }
 ): DetailItemField {
@@ -216,7 +227,7 @@ function ItemField(
     error: field.getFirstError(options.errors),
     value: getAnswer(field, state),
     href: getPageHref(page, options.path, {
-      returnUrl: getPageHref(page, page.getSummaryPath())
+      returnUrl: getPageHref(page, options.returnPath ?? page.getSummaryPath())
     }),
     state,
     page,
