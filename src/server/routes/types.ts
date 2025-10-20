@@ -37,7 +37,10 @@ export interface FormRequestPayloadRefs extends FormRequestRefs {
 
 export type FormRequest = Request<FormRequestRefs>
 export type FormRequestPayload = Request<FormRequestPayloadRefs>
-export type FormResponseToolkit = Pick<ResponseToolkit, 'redirect' | 'view'>
+export type FormResponseToolkit = Pick<
+  ResponseToolkit,
+  'redirect' | 'view' | 'continue'
+>
 
 export enum FormAction {
   Continue = 'continue',

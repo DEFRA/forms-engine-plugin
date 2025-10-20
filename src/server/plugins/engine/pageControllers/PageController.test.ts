@@ -160,7 +160,8 @@ describe('PageController', () => {
 
     const h: FormResponseToolkit = {
       redirect: jest.fn(),
-      view: jest.fn()
+      view: jest.fn(),
+      continue: Symbol('continue')
     }
 
     it('returns default route options', () => {

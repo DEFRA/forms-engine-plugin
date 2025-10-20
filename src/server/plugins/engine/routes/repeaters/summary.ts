@@ -6,6 +6,7 @@ import Joi from 'joi'
 
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { redirectOrMakeHandler } from '~/src/server/plugins/engine/routes/index.js'
+import { type OnRequestCallback } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
   type FormRequestPayload,
@@ -20,41 +21,46 @@ import {
   stateSchema
 } from '~/src/server/schemas/index.js'
 
-function getHandler(request: FormRequest, h: FormResponseToolkit) {
-  const { params } = request
+function getHandler(onRequest?: OnRequestCallback) {
+  return async function (request: FormRequest, h: FormResponseToolkit) {
+    const { params } = request
 
-  return redirectOrMakeHandler(request, h, (page, context) => {
-    if (!(page instanceof RepeatPageController)) {
-      throw Boom.notFound(`No repeater page found for /${params.path}`)
-    }
+    return redirectOrMakeHandler(request, h, onRequest, (page, context) => {
+      if (!(page instanceof RepeatPageController)) {
+        throw Boom.notFound(`No repeater page found for /${params.path}`)
+      }
 
-    return page.makeGetListSummaryRouteHandler()(request, context, h)
-  })
+      return page.makeGetListSummaryRouteHandler()(request, context, h)
+    })
+  }
 }
 
-function postHandler(request: FormRequestPayload, h: FormResponseToolkit) {
-  const { params } = request
+function postHandler(onRequest?: OnRequestCallback) {
+  return async function (request: FormRequestPayload, h: FormResponseToolkit) {
+    const { params } = request
 
-  return redirectOrMakeHandler(request, h, (page, context) => {
-    const { isForceAccess } = context
+    return redirectOrMakeHandler(request, h, onRequest, (page, context) => {
+      const { isForceAccess } = context
 
-    if (isForceAccess || !(page instanceof RepeatPageController)) {
-      throw Boom.notFound(`No repeater page found for /${params.path}`)
-    }
+      if (isForceAccess || !(page instanceof RepeatPageController)) {
+        throw Boom.notFound(`No repeater page found for /${params.path}`)
+      }
 
-    return page.makePostListSummaryRouteHandler()(request, context, h)
-  })
+      return page.makePostListSummaryRouteHandler()(request, context, h)
+    })
+  }
 }
 
 export function getRoutes(
   getRouteOptions: RouteOptions<FormRequestRefs>,
-  postRouteOptions: RouteOptions<FormRequestPayloadRefs>
+  postRouteOptions: RouteOptions<FormRequestPayloadRefs>,
+  onRequest?: OnRequestCallback
 ): (ServerRoute<FormRequestRefs> | ServerRoute<FormRequestPayloadRefs>)[] {
   return [
     {
       method: 'get',
       path: '/{slug}/{path}/summary',
-      handler: getHandler,
+      handler: getHandler(onRequest),
       options: {
         ...getRouteOptions,
         validate: {
@@ -69,7 +75,7 @@ export function getRoutes(
     {
       method: 'get',
       path: '/preview/{state}/{slug}/{path}/summary',
-      handler: getHandler,
+      handler: getHandler(onRequest),
       options: {
         ...getRouteOptions,
         validate: {
@@ -85,7 +91,7 @@ export function getRoutes(
     {
       method: 'post',
       path: '/{slug}/{path}/summary',
-      handler: postHandler,
+      handler: postHandler(onRequest),
       options: {
         ...postRouteOptions,
         validate: {
@@ -106,7 +112,7 @@ export function getRoutes(
     {
       method: 'post',
       path: '/preview/{state}/{slug}/{path}/summary',
-      handler: postHandler,
+      handler: postHandler(onRequest),
       options: {
         ...postRouteOptions,
         validate: {

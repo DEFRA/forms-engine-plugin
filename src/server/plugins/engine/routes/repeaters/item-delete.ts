@@ -6,6 +6,7 @@ import Joi from 'joi'
 import { FileUploadPageController } from '~/src/server/plugins/engine/pageControllers/FileUploadPageController.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { redirectOrMakeHandler } from '~/src/server/plugins/engine/routes/index.js'
+import { type OnRequestCallback } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
   type FormRequestPayload,
@@ -23,52 +24,57 @@ import {
 } from '~/src/server/schemas/index.js'
 
 // Item delete GET route
-function getHandler(request: FormRequest, h: FormResponseToolkit) {
-  const { params } = request
+function getHandler(onRequest?: OnRequestCallback) {
+  return async function (request: FormRequest, h: FormResponseToolkit) {
+    const { params } = request
 
-  return redirectOrMakeHandler(request, h, (page, context) => {
-    if (
-      !(
-        page instanceof RepeatPageController ||
-        page instanceof FileUploadPageController
-      )
-    ) {
-      throw Boom.notFound(`No page found for /${params.path}`)
-    }
+    return redirectOrMakeHandler(request, h, onRequest, (page, context) => {
+      if (
+        !(
+          page instanceof RepeatPageController ||
+          page instanceof FileUploadPageController
+        )
+      ) {
+        throw Boom.notFound(`No page found for /${params.path}`)
+      }
 
-    return page.makeGetItemDeleteRouteHandler()(request, context, h)
-  })
+      return page.makeGetItemDeleteRouteHandler()(request, context, h)
+    })
+  }
 }
 
-function postHandler(request: FormRequestPayload, h: FormResponseToolkit) {
-  const { params } = request
+function postHandler(onRequest?: OnRequestCallback) {
+  return async function (request: FormRequestPayload, h: FormResponseToolkit) {
+    const { params } = request
 
-  return redirectOrMakeHandler(request, h, (page, context) => {
-    const { isForceAccess } = context
+    return redirectOrMakeHandler(request, h, onRequest, (page, context) => {
+      const { isForceAccess } = context
 
-    if (
-      isForceAccess ||
-      !(
-        page instanceof RepeatPageController ||
-        page instanceof FileUploadPageController
-      )
-    ) {
-      throw Boom.notFound(`No page found for /${params.path}`)
-    }
+      if (
+        isForceAccess ||
+        !(
+          page instanceof RepeatPageController ||
+          page instanceof FileUploadPageController
+        )
+      ) {
+        throw Boom.notFound(`No page found for /${params.path}`)
+      }
 
-    return page.makePostItemDeleteRouteHandler()(request, context, h)
-  })
+      return page.makePostItemDeleteRouteHandler()(request, context, h)
+    })
+  }
 }
 
 export function getRoutes(
   getRouteOptions: RouteOptions<FormRequestRefs>,
-  postRouteOptions: RouteOptions<FormRequestPayloadRefs>
+  postRouteOptions: RouteOptions<FormRequestPayloadRefs>,
+  onRequest?: OnRequestCallback
 ): (ServerRoute<FormRequestRefs> | ServerRoute<FormRequestPayloadRefs>)[] {
   return [
     {
       method: 'get',
       path: '/{slug}/{path}/{itemId}/confirm-delete',
-      handler: getHandler,
+      handler: getHandler(onRequest),
       options: {
         ...getRouteOptions,
         validate: {
@@ -84,7 +90,7 @@ export function getRoutes(
     {
       method: 'get',
       path: '/preview/{state}/{slug}/{path}/{itemId}/confirm-delete',
-      handler: getHandler,
+      handler: getHandler(onRequest),
       options: {
         ...getRouteOptions,
         validate: {
@@ -101,7 +107,7 @@ export function getRoutes(
     {
       method: 'post',
       path: '/{slug}/{path}/{itemId}/confirm-delete',
-      handler: postHandler,
+      handler: postHandler(onRequest),
       options: {
         ...postRouteOptions,
         validate: {
@@ -124,7 +130,7 @@ export function getRoutes(
     {
       method: 'post',
       path: '/preview/{state}/{slug}/{path}/{itemId}/confirm-delete',
-      handler: postHandler,
+      handler: postHandler(onRequest),
       options: {
         ...postRouteOptions,
         validate: {
