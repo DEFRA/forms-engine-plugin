@@ -1,8 +1,6 @@
 import {
   type ComponentDef,
   type Event,
-  type FormDefinition,
-  type FormMetadata,
   type FormVersionMetadata,
   type Item,
   type List,
@@ -40,7 +38,6 @@ import {
 import { type ViewContext } from '~/src/server/plugins/nunjucks/types.js'
 import {
   type FormAction,
-  type FormParams,
   type FormRequest,
   type FormRequestPayload,
   type FormResponseToolkit,
@@ -370,10 +367,12 @@ export type PreparePageEventRequestOptions = (
 
 export type OnRequestCallback = (
   request: AnyFormRequest,
-  params: FormParams,
-  definition: FormDefinition,
-  metadata: FormMetadata
-) => void
+  h: FormResponseToolkit,
+  context: FormContext
+) =>
+  | ResponseObject
+  | FormResponseToolkit['continue']
+  | Promise<ResponseObject | FormResponseToolkit['continue']>
 
 export type SaveAndExitHandler = (
   request: FormRequestPayload,

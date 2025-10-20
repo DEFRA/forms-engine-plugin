@@ -26,6 +26,7 @@ import {
 import {
   type AnyFormRequest,
   type FormContext,
+  type OnRequestCallback,
   type PreparePageEventRequestOptions
 } from '~/src/server/plugins/engine/types.js'
 import {
@@ -74,7 +75,8 @@ async function handleHttpEvent(
 }
 
 export function makeGetHandler(
-  preparePageEventRequestOptions?: PreparePageEventRequestOptions
+  preparePageEventRequestOptions?: PreparePageEventRequestOptions,
+  onRequest?: OnRequestCallback
 ) {
   return function getHandler(request: FormRequest, h: FormResponseToolkit) {
     const { params } = request
@@ -83,34 +85,40 @@ export function makeGetHandler(
       return dispatchHandler(request, h)
     }
 
-    return redirectOrMakeHandler(request, h, async (page, context) => {
-      // Check for a page onLoad HTTP event and if one exists,
-      // call it and assign the response to the context data
-      const { events } = page
-      const { model } = request.app
+    return redirectOrMakeHandler(
+      request,
+      h,
+      onRequest,
+      async (page, context) => {
+        // Check for a page onLoad HTTP event and if one exists,
+        // call it and assign the response to the context data
+        const { events } = page
+        const { model } = request.app
 
-      if (!model) {
-        throw Boom.notFound(`No model found for /${params.path}`)
+        if (!model) {
+          throw Boom.notFound(`No model found for /${params.path}`)
+        }
+
+        if (events?.onLoad && events.onLoad.type === 'http') {
+          await handleHttpEvent(
+            request,
+            page,
+            context,
+            events.onLoad,
+            model,
+            preparePageEventRequestOptions
+          )
+        }
+
+        return page.makeGetRouteHandler()(request, context, h)
       }
-
-      if (events?.onLoad && events.onLoad.type === 'http') {
-        await handleHttpEvent(
-          request,
-          page,
-          context,
-          events.onLoad,
-          model,
-          preparePageEventRequestOptions
-        )
-      }
-
-      return page.makeGetRouteHandler()(request, context, h)
-    })
+    )
   }
 }
 
 export function makePostHandler(
-  preparePageEventRequestOptions?: PreparePageEventRequestOptions
+  preparePageEventRequestOptions?: PreparePageEventRequestOptions,
+  onRequest?: OnRequestCallback
 ) {
   return function postHandler(
     request: FormRequestPayload,
@@ -118,40 +126,45 @@ export function makePostHandler(
   ) {
     const { query } = request
 
-    return redirectOrMakeHandler(request, h, async (page, context) => {
-      const { pageDef } = page
-      const { isForceAccess } = context
-      const { model } = request.app
-      const { events } = page
+    return redirectOrMakeHandler(
+      request,
+      h,
+      onRequest,
+      async (page, context) => {
+        const { pageDef } = page
+        const { isForceAccess } = context
+        const { model } = request.app
+        const { events } = page
 
-      // Redirect to GET for preview URL direct access
-      if (isForceAccess && !hasFormComponents(pageDef)) {
-        return proceed(request, h, redirectPath(page.href, query))
+        // Redirect to GET for preview URL direct access
+        if (isForceAccess && !hasFormComponents(pageDef)) {
+          return proceed(request, h, redirectPath(page.href, query))
+        }
+
+        if (!model) {
+          throw Boom.notFound(`No model found for /${request.params.path}`)
+        }
+
+        const response = await page.makePostRouteHandler()(request, context, h)
+
+        if (
+          events?.onSave &&
+          events.onSave.type === 'http' &&
+          isSuccessful(response)
+        ) {
+          await handleHttpEvent(
+            request,
+            page,
+            context,
+            events.onSave,
+            model,
+            preparePageEventRequestOptions
+          )
+        }
+
+        return response
       }
-
-      if (!model) {
-        throw Boom.notFound(`No model found for /${request.params.path}`)
-      }
-
-      const response = await page.makePostRouteHandler()(request, context, h)
-
-      if (
-        events?.onSave &&
-        events.onSave.type === 'http' &&
-        isSuccessful(response)
-      ) {
-        await handleHttpEvent(
-          request,
-          page,
-          context,
-          events.onSave,
-          model,
-          preparePageEventRequestOptions
-        )
-      }
-
-      return response
-    })
+    )
   }
 }
 
@@ -164,13 +177,14 @@ function isSuccessful(response: ResponseObject): boolean {
 export function getRoutes(
   getRouteOptions: RouteOptions<FormRequestRefs>,
   postRouteOptions: RouteOptions<FormRequestPayloadRefs>,
-  preparePageEventRequestOptions?: PreparePageEventRequestOptions
+  preparePageEventRequestOptions?: PreparePageEventRequestOptions,
+  onRequest?: OnRequestCallback
 ): (ServerRoute<FormRequestRefs> | ServerRoute<FormRequestPayloadRefs>)[] {
   return [
     {
       method: 'get',
       path: '/{slug}',
-      handler: makeGetHandler(preparePageEventRequestOptions),
+      handler: makeGetHandler(preparePageEventRequestOptions, onRequest),
       options: {
         ...getRouteOptions,
         validate: {
@@ -197,7 +211,7 @@ export function getRoutes(
     {
       method: 'get',
       path: '/{slug}/{path}/{itemId?}',
-      handler: makeGetHandler(preparePageEventRequestOptions),
+      handler: makeGetHandler(preparePageEventRequestOptions, onRequest),
       options: {
         ...getRouteOptions,
         validate: {
@@ -212,7 +226,7 @@ export function getRoutes(
     {
       method: 'get',
       path: '/preview/{state}/{slug}/{path}/{itemId?}',
-      handler: makeGetHandler(preparePageEventRequestOptions),
+      handler: makeGetHandler(preparePageEventRequestOptions, onRequest),
       options: {
         ...getRouteOptions,
         validate: {
@@ -228,7 +242,7 @@ export function getRoutes(
     {
       method: 'post',
       path: '/{slug}/{path}/{itemId?}',
-      handler: makePostHandler(preparePageEventRequestOptions),
+      handler: makePostHandler(preparePageEventRequestOptions, onRequest),
       options: {
         ...postRouteOptions,
         validate: {
@@ -250,7 +264,7 @@ export function getRoutes(
     {
       method: 'post',
       path: '/preview/{state}/{slug}/{path}/{itemId?}',
-      handler: makePostHandler(preparePageEventRequestOptions),
+      handler: makePostHandler(preparePageEventRequestOptions, onRequest),
       options: {
         ...postRouteOptions,
         validate: {

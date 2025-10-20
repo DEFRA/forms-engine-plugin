@@ -32,8 +32,6 @@ import {
   type AnyFormRequest,
   type ExternalStateAppendage,
   type FormContext,
-  type FormPayload,
-  type FormSubmissionState,
   type PluginOptions
 } from '~/src/server/plugins/engine/types.js'
 import {
@@ -44,6 +42,7 @@ import {
 export async function redirectOrMakeHandler(
   request: AnyFormRequest,
   h: FormResponseToolkit,
+  onRequest: OnRequestCallback | undefined,
   makeHandler: (
     page: PageControllerClass,
     context: FormContext
@@ -81,6 +80,14 @@ export async function redirectOrMakeHandler(
   const context = model.getFormContext(request, state, flash?.errors)
   const relevantPath = page.getRelevantPath(request, context)
   const summaryPath = page.getSummaryPath()
+
+  // Call the onRequest callback if it has been supplied
+  if (onRequest) {
+    const result = await onRequest(request, h, context)
+    if (result !== h.continue) {
+      return result
+    }
+  }
 
   // Return handler for relevant pages or preview URL direct access
   if (relevantPath.startsWith(page.path) || context.isForceAccess) {
@@ -156,7 +163,6 @@ export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
   const {
     services = defaultServices,
     controllers,
-    onRequest,
     ordnanceSurveyApiKey
   } = options
 
@@ -233,11 +239,6 @@ export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
       // Create new item and add it to the item cache
       item = { model, updatedAt: state.updatedAt }
       server.app.models.set(key, item)
-    }
-
-    // Call the onRequest callback if it has been supplied
-    if (onRequest) {
-      onRequest(request, params, item.model.def, metadata)
     }
 
     // Assign the model to the request data

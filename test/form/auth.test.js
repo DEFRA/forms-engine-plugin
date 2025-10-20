@@ -1,7 +1,6 @@
 import { join } from 'node:path'
 
 import basic from '@hapi/basic'
-import Boom from '@hapi/boom'
 import { StatusCodes } from 'http-status-codes'
 
 import { FORM_PREFIX } from '~/src/server/constants.js'
@@ -82,12 +81,14 @@ describe('Auth', () => {
 
     server = await createServer({
       services,
-      onRequest: (request /*, params, definition, metadata */) => {
+      onRequest: (request, h, _context) => {
         const { auth } = request
 
         if (!auth.isAuthenticated) {
-          throw Boom.unauthorized()
+          return h.redirect('/unauthorized').takeover()
         }
+
+        return h.continue
       }
     })
 
@@ -112,7 +113,8 @@ describe('Auth', () => {
       url: `${basePath}/first-page`
     })
 
-    expect(response.statusCode).toBe(StatusCodes.UNAUTHORIZED)
+    expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(response.headers.location).toBe('/unauthorized')
   })
 
   test('authenticated get request to restricted form returns 200 OK', async () => {
