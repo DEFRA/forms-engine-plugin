@@ -25,6 +25,7 @@ describe('redirectOrMakeHandler', () => {
   const mockRequest: AnyFormRequest = {
     server: mockServer,
     app: {},
+    yar: { flash: () => [] },
     params: { path: 'test-path' },
     query: {}
   } as unknown as AnyFormRequest
