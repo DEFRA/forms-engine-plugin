@@ -298,9 +298,15 @@ const sharedPayloadSchemaKeys = {
 export const detailsPayloadSchema = Joi.object()
   .keys({
     ...sharedPayloadSchemaKeys,
-    [postcodeQueryFieldName]: Joi.string().trim().required().messages({
-      '*': 'Enter a postcode'
-    }),
+    [postcodeQueryFieldName]: Joi.string()
+      .pattern(/^[a-zA-Z]{1,2}\d[a-zA-Z\d]?\s?\d[a-zA-Z]{2}$/)
+      .trim()
+      .required()
+      .messages({
+        'string.pattern.base':
+          'Enter a valid postcode or enter an address manually',
+        '*': 'Enter a postcode'
+      }),
     [buildingNameQueryFieldName]: Joi.string()
       .trim()
       .required()
