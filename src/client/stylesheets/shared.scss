@@ -9,3 +9,18 @@
 .autocomplete__option {
   @include govuk-typography-common;
 }
+
+.app-hidden {
+  display: none;
+  visibility: hidden;
+}
+
+// Used in postcode lookup
+.govuk-button--link {
+  @extend %govuk-link;
+  color: $govuk-link-colour;
+  border: none;
+  cursor: pointer;
+  background-color: transparent;
+  @include govuk-font($size: 19);
+}
