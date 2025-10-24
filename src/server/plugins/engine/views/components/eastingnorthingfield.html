@@ -1,0 +1,5 @@
+{% from "./_location-field-base.html" import LocationFieldBase %}
+
+{% macro EastingNorthingField(component) %}
+  {{ LocationFieldBase(component, "number", "numeric") }}
+{% endmacro %}

@@ -126,3 +126,13 @@ export interface MonthYearState extends Record<string, number> {
   month: number
   year: number
 }
+
+export interface EastingNorthingState extends Record<string, number> {
+  easting: number
+  northing: number
+}
+
+export interface LatLongState extends Record<string, number> {
+  latitude: number
+  longitude: number
+}

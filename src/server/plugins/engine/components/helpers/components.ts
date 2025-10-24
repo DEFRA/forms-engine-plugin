@@ -76,6 +76,7 @@ export const markdown = new Marked({
     const tokens: Token['type'][] = [
       'br',
       'escape',
+      'link',
       'list',
       'list_item',
       'paragraph',
@@ -196,6 +197,22 @@ export function createComponent(
 
     case ComponentType.FileUploadField:
       component = new Components.FileUploadField(def, options)
+      break
+
+    case ComponentType.EastingNorthingField:
+      component = new Components.EastingNorthingField(def, options)
+      break
+
+    case ComponentType.OsGridRefField:
+      component = new Components.OsGridRefField(def, options)
+      break
+
+    case ComponentType.NationalGridFieldNumberField:
+      component = new Components.NationalGridFieldNumberField(def, options)
+      break
+
+    case ComponentType.LatLongField:
+      component = new Components.LatLongField(def, options)
       break
   }
 

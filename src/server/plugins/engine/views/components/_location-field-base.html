@@ -1,0 +1,53 @@
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/fieldset/macro.njk" import govukFieldset %}
+{% from "govuk/components/details/macro.njk" import govukDetails %}
+{% from "govuk/components/hint/macro.njk" import govukHint %}
+
+{% macro LocationFieldBase(component, inputType, inputMode) %}
+  {% set fieldsetHtml %}
+    {% if component.model.hint %}
+      {{ govukHint({
+        id: component.model.name + "-hint",
+        text: component.model.hint.text
+      }) }}
+    {% endif %}
+
+    <div class="govuk-date-input">
+      {% for item in component.model.items %}
+        <div class="govuk-date-input__item">
+          <div class="govuk-form-group">
+            {{ govukInput({
+              id: item.id,
+              name: item.name,
+              label: {
+                text: item.label,
+                classes: "govuk-label--s"
+              },
+              classes: item.classes,
+              value: item.value,
+              type: inputType,
+              inputmode: inputMode
+            }) }}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    {% if component.model.instructionText %}
+      {{ govukDetails({
+        summaryText: "How to find location details",
+        html: component.model.instructionText | safe
+      }) }}
+    {% endif %}
+  {% endset %}
+
+  {{ govukFieldset({
+    legend: {
+      text: component.model.fieldset.legend.text,
+      classes: component.model.fieldset.legend.classes,
+      isPageHeading: false
+    },
+    html: fieldsetHtml
+  }) }}
+{% endmacro %}
+

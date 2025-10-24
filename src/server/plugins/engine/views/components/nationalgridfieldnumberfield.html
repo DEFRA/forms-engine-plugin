@@ -1,0 +1,13 @@
+{% from "components/textfield.html" import TextField %}
+{% from "govuk/components/details/macro.njk" import govukDetails %}
+
+{% macro NationalGridFieldNumberField(component) %}
+  {{ TextField(component) }}
+
+  {% if component.model.instructionText %}
+    {{ govukDetails({
+      summaryText: "How to find location details",
+      html: component.model.instructionText | safe
+    }) }}
+  {% endif %}
+{% endmacro %}

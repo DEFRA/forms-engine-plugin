@@ -1,0 +1,5 @@
+{% from "./_location-field-base.html" import LocationFieldBase %}
+
+{% macro LatLongField(component) %}
+  {{ LocationFieldBase(component, "text", "decimal") }}
+{% endmacro %}

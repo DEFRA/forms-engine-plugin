@@ -23,3 +23,7 @@ export { TelephoneNumberField } from '~/src/server/plugins/engine/components/Tel
 export { TextField } from '~/src/server/plugins/engine/components/TextField.js'
 export { UkAddressField } from '~/src/server/plugins/engine/components/UkAddressField.js'
 export { YesNoField } from '~/src/server/plugins/engine/components/YesNoField.js'
+export { EastingNorthingField } from '~/src/server/plugins/engine/components/EastingNorthingField.js'
+export { OsGridRefField } from '~/src/server/plugins/engine/components/OsGridRefField.js'
+export { NationalGridFieldNumberField } from '~/src/server/plugins/engine/components/NationalGridFieldNumberField.js'
+export { LatLongField } from '~/src/server/plugins/engine/components/LatLongField.js'
