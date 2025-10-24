@@ -721,7 +721,7 @@ export default /** @satisfies {FormDefinition} */ ({
     {
       path: ControllerPath.Summary,
       controller: ControllerType.Summary,
-      title: 'Check your answers before submitting your form'
+      title: 'Check your answers before sending your form'
     },
     {
       path: '/whats-your-business-address',

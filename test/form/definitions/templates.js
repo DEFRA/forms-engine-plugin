@@ -123,7 +123,7 @@ export default /** @satisfies {FormDefinition} */ ({
     {
       path: '/summary',
       controller: ControllerType.Summary,
-      title: 'Check your answers before submitting your form'
+      title: 'Check your answers before sending your form'
     }
   ],
   lists: [

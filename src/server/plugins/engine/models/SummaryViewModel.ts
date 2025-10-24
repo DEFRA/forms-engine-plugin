@@ -64,6 +64,9 @@ export class SummaryViewModel {
 
     this.page = page
     this.pageTitle = page.title
+      ? page.title
+      : 'Check your answers before sending your form'
+
     this.serviceUrl = `/${basePath}`
     this.name = def.name
     this.declaration = def.declaration

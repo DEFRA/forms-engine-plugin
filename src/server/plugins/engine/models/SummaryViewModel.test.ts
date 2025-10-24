@@ -15,6 +15,7 @@ import {
   type FormContextRequest,
   type FormState
 } from '~/src/server/plugins/engine/types.js'
+import v2Definition from '~/test/form/definitions/conditions-relative-dates-v2.js'
 import definition from '~/test/form/definitions/repeat-mixed.js'
 const basePath = `${FORM_PREFIX}/test`
 
@@ -326,7 +327,7 @@ describe('SummaryPageController', () => {
       expect(viewModel).toHaveProperty('allowSaveAndExit', true)
     })
 
-    it('should display correct page title', () => {
+    it('should display correct page title for v1 form', () => {
       const state: FormState = {
         $$__referenceNumber: 'foobar',
         orderType: 'collection',
@@ -334,9 +335,81 @@ describe('SummaryPageController', () => {
       }
 
       const context = model.getFormContext(request, state)
-      const viewModel = controller.getViewModel(request, context)
+      const viewModel = controller.getSummaryViewModel(request, context)
 
-      expect(viewModel.pageTitle).toBe('Check your answers')
+      expect(viewModel.pageTitle).toBe(
+        'Check your answers before sending your form'
+      )
+    })
+
+    it('should display default page title for v2 form when title not supplied', () => {
+      const state: FormState = {
+        $$__referenceNumber: 'foobar',
+        orderType: 'collection',
+        pizza: []
+      }
+
+      const titleModel = new FormModel(v2Definition, {
+        basePath: `${FORM_PREFIX}/test`
+      })
+
+      controller = new SummaryPageController(titleModel, v2Definition.pages[5])
+
+      request = {
+        method: 'get',
+        url: new URL('http://example.com/repeat/pizza-order/summary'),
+        path: '/test/summary',
+        params: {
+          path: 'summary',
+          slug: 'test'
+        },
+        query: {},
+        app: { model: titleModel },
+        server: serverWithSaveAndExit
+      }
+
+      const context = titleModel.getFormContext(request, state)
+      const viewModel = controller.getSummaryViewModel(request, context)
+
+      expect(viewModel.pageTitle).toBe(
+        'Check your answers before sending your form'
+      )
+    })
+
+    it('should display override page title for v2 form when title supplied', () => {
+      const state: FormState = {
+        $$__referenceNumber: 'foobar',
+        orderType: 'collection',
+        pizza: []
+      }
+
+      const v2DefinitionWithSummaryTitle = structuredClone(v2Definition)
+      const summaryPage = v2DefinitionWithSummaryTitle.pages[5]
+      summaryPage.title = 'Override summary title'
+
+      const titleModel = new FormModel(v2DefinitionWithSummaryTitle, {
+        basePath: `${FORM_PREFIX}/test`
+      })
+
+      controller = new SummaryPageController(titleModel, summaryPage)
+
+      request = {
+        method: 'get',
+        url: new URL('http://example.com/repeat/pizza-order/summary'),
+        path: '/test/summary',
+        params: {
+          path: 'summary',
+          slug: 'test'
+        },
+        query: {},
+        app: { model: titleModel },
+        server: serverWithSaveAndExit
+      }
+
+      const context = titleModel.getFormContext(request, state)
+      const viewModel = controller.getSummaryViewModel(request, context)
+
+      expect(viewModel.pageTitle).toBe('Override summary title')
     })
   })
 })

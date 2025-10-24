@@ -119,7 +119,7 @@ export default /** @satisfies {FormDefinition} */ ({
       condition: '581e72cc-8ee3-4bf1-80d2-b9a905724210'
     },
     {
-      title: 'Summary',
+      title: '',
       path: '/summary',
       controller: ControllerType.Summary,
       components: [],

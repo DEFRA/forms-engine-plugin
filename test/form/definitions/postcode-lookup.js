@@ -32,7 +32,7 @@ export default /** @satisfies {FormDefinition} */ ({
       id: 'c7ab16e8-819a-43bd-83fa-14c479d23961'
     },
     {
-      title: 'Summary',
+      title: '',
       path: '/summary',
       controller: ControllerType.Summary,
       components: [],

@@ -146,7 +146,7 @@ export const V2 = /** @satisfies {FormDefinition} */ ({
       next: []
     },
     {
-      title: 'Summary',
+      title: '',
       path: ControllerPath.Summary,
       controller: ControllerType.Summary
     }

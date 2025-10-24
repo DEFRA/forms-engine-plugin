@@ -45,7 +45,7 @@ export default /** @satisfies {FormDefinition} */ ({
     {
       path: ControllerPath.Summary,
       controller: ControllerType.Summary,
-      title: 'Summary'
+      title: ''
     }
   ]),
   sections: [
