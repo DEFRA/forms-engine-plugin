@@ -197,6 +197,9 @@ export function createComponent(
     case ComponentType.FileUploadField:
       component = new Components.FileUploadField(def, options)
       break
+
+    case ComponentType.DeclarationField:
+      component = new Components.DeclarationField(def, options)
   }
 
   if (typeof component === 'undefined') {

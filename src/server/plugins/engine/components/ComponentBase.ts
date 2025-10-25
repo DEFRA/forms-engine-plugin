@@ -90,6 +90,7 @@ export type ComponentSchema =
   | ArraySchema<boolean>
   | ArraySchema<object>
   | BooleanSchema<string>
+  | BooleanSchema
   | DateSchema
   | NumberSchema<string>
   | NumberSchema

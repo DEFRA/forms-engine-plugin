@@ -256,6 +256,7 @@ export class ComponentCollection {
    */
   validate(value: FormPayload = {}): FormValidationResult<FormPayload> {
     const result = this.formSchema.validate(value, opts)
+
     const details = result.error?.details
 
     return {

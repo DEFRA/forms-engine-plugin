@@ -1,0 +1,14 @@
+{% from "govuk/components/fieldset/macro.njk" import govukFieldset %}
+{% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
+{% from "govuk/components/hint/macro.njk" import govukHint %}
+
+{% macro DeclarationField(component) %}
+  {% set content %}
+    <div class="app-prose-scope">
+      {{ component.model.content | markdown | safe }}
+    </div>
+  {% endset %}
+  {% set checkboxes = component.model | merge({ formGroup: { beforeInputs: { html: content } } }) %}
+  {{ govukCheckboxes(checkboxes) }}
+  <input type="hidden" name="{{ component.model.name }}" value="unchecked">
+{% endmacro %}

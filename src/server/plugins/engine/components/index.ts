@@ -7,6 +7,7 @@
 export { AutocompleteField } from '~/src/server/plugins/engine/components/AutocompleteField.js'
 export { CheckboxesField } from '~/src/server/plugins/engine/components/CheckboxesField.js'
 export { DatePartsField } from '~/src/server/plugins/engine/components/DatePartsField.js'
+export { DeclarationField } from '~/src/server/plugins/engine/components/DeclarationField.js'
 export { Details } from '~/src/server/plugins/engine/components/Details.js'
 export { EmailAddressField } from '~/src/server/plugins/engine/components/EmailAddressField.js'
 export { FileUploadField } from '~/src/server/plugins/engine/components/FileUploadField.js'

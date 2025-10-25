@@ -20,6 +20,10 @@ const opts = {
  * see @link https://joi.dev/api/?v=17.4.2#template-syntax for template syntax
  */
 export const messageTemplate: Record<string, JoiExpression> = {
+  declarationRequired: joi.expression(
+    'You must confirm you understand and agree with {{lowerFirst(#label)}} to continue',
+    opts
+  ) as JoiExpression,
   required: joi.expression(
     'Enter {{lowerFirst(#label)}}',
     opts
