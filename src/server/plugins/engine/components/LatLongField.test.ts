@@ -537,17 +537,17 @@ describe('LatLongField', () => {
         assertions: [
           {
             input: getFormData({
-              latitude: '51.1234567',
+              latitude: '51.12345678',
               longitude: '-0.1'
             }),
             output: {
               value: getFormData({
-                latitude: 51.1234567,
+                latitude: 51.12345678,
                 longitude: -0.1
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'Latitude must be a decimal number'
+                  text: 'Latitude must have no more than 7 decimal places'
                 })
               ]
             }
@@ -555,16 +555,16 @@ describe('LatLongField', () => {
           {
             input: getFormData({
               latitude: '51.5',
-              longitude: '-0.1234567'
+              longitude: '-0.12345678'
             }),
             output: {
               value: getFormData({
                 latitude: 51.5,
-                longitude: -0.1234567
+                longitude: -0.12345678
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'Longitude must be a decimal number'
+                  text: 'Longitude must have no more than 7 decimal places'
                 })
               ]
             }

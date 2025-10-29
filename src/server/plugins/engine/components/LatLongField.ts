@@ -51,7 +51,8 @@ export class LatLongField extends FormComponent {
       convertToLanguageMessages({
         'any.required': messageTemplate.objectMissing,
         'number.base': messageTemplate.objectMissing,
-        'number.precision': '{{#label}} must be a decimal number',
+        'number.precision':
+          '{{#label}} must have no more than 7 decimal places',
         'number.unsafe': '{{#label}} must be a valid number'
       })
 
@@ -75,7 +76,7 @@ export class LatLongField extends FormComponent {
           type: ComponentType.NumberField,
           name: `${name}__latitude`,
           title: 'Latitude',
-          schema: { min: latitudeMin, max: latitudeMax, precision: 6 },
+          schema: { min: latitudeMin, max: latitudeMax, precision: 7 },
           options: {
             required: isRequired,
             optionalText: true,
@@ -88,7 +89,7 @@ export class LatLongField extends FormComponent {
           type: ComponentType.NumberField,
           name: `${name}__longitude`,
           title: 'Longitude',
-          schema: { min: longitudeMin, max: longitudeMax, precision: 6 },
+          schema: { min: longitudeMin, max: longitudeMax, precision: 7 },
           options: {
             required: isRequired,
             optionalText: true,
