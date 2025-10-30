@@ -26,12 +26,17 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 
+// British National Grid coordinate limits
+const DEFAULT_EASTING_MIN = 0
+const DEFAULT_EASTING_MAX = 70000
+const DEFAULT_NORTHING_MIN = 0
+const DEFAULT_NORTHING_MAX = 1300000
+
 export class EastingNorthingField extends FormComponent {
   declare options: EastingNorthingFieldComponent['options']
   declare formSchema: ObjectSchema<FormPayload>
   declare stateSchema: ObjectSchema<FormState>
   declare collection: ComponentCollection
-  instructionText?: string
 
   constructor(
     def: EastingNorthingFieldComponent,
@@ -42,12 +47,11 @@ export class EastingNorthingField extends FormComponent {
     const { name, options, schema } = def
 
     const isRequired = options.required !== false
-    this.instructionText = options.instructionText
 
-    const eastingMin = schema?.easting?.min ?? 0
-    const eastingMax = schema?.easting?.max ?? 70000
-    const northingMin = schema?.northing?.min ?? 0
-    const northingMax = schema?.northing?.max ?? 1300000
+    const eastingMin = schema?.easting?.min ?? DEFAULT_EASTING_MIN
+    const eastingMax = schema?.easting?.max ?? DEFAULT_EASTING_MAX
+    const northingMin = schema?.northing?.min ?? DEFAULT_NORTHING_MIN
+    const northingMax = schema?.northing?.max ?? DEFAULT_NORTHING_MAX
 
     const customValidationMessages: LanguageMessages =
       convertToLanguageMessages({
@@ -186,23 +190,19 @@ export class EastingNorthingField extends FormComponent {
       advancedSettingsErrors: [
         {
           type: 'eastingMin',
-          template:
-            'Easting for [short description] must be between 0 and 70000'
+          template: `Easting for [short description] must be between ${DEFAULT_EASTING_MIN} and ${DEFAULT_EASTING_MAX}`
         },
         {
           type: 'eastingMax',
-          template:
-            'Easting for [short description] must be between 0 and 70000'
+          template: `Easting for [short description] must be between ${DEFAULT_EASTING_MIN} and ${DEFAULT_EASTING_MAX}`
         },
         {
           type: 'northingMin',
-          template:
-            'Northing for [short description] must be between 0 and 1300000'
+          template: `Northing for [short description] must be between ${DEFAULT_NORTHING_MIN} and ${DEFAULT_NORTHING_MAX}`
         },
         {
           type: 'northingMax',
-          template:
-            'Northing for [short description] must be between 0 and 1300000'
+          template: `Northing for [short description] must be between ${DEFAULT_NORTHING_MIN} and ${DEFAULT_NORTHING_MAX}`
         }
       ]
     }

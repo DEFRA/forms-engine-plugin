@@ -22,7 +22,7 @@ export class ComponentBase {
   type: ComponentDef['type']
   name: ComponentDef['name']
   title: ComponentDef['title']
-  schema?: Extract<ComponentDef, { schema?: unknown }>['schema']
+  schema?: Extract<ComponentDef, { schema?: object }>['schema']
   options?: Extract<ComponentDef, { options: object }>['options']
 
   isFormComponent = false

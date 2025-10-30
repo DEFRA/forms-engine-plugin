@@ -28,7 +28,6 @@ export class LatLongField extends FormComponent {
   declare formSchema: ObjectSchema<FormPayload>
   declare stateSchema: ObjectSchema<FormState>
   declare collection: ComponentCollection
-  instructionText?: string
 
   constructor(
     def: LatLongFieldComponent,
@@ -39,7 +38,6 @@ export class LatLongField extends FormComponent {
     const { name, options, schema } = def
 
     const isRequired = options.required !== false
-    this.instructionText = options.instructionText
 
     // Read schema values from def.schema with fallback defaults
     const latitudeMin = schema?.latitude?.min ?? 49

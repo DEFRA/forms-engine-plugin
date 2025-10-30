@@ -81,10 +81,10 @@ export function getLocationFieldViewModel(
     items
   }
 
-  if (component.instructionText) {
+  if (component.options.instructionText) {
     return {
       ...result,
-      instructionText: markdown.parse(component.instructionText, {
+      instructionText: markdown.parse(component.options.instructionText, {
         async: false
       })
     }
