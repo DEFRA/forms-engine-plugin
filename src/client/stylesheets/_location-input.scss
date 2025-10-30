@@ -33,10 +33,14 @@
 .app-location-input__item {
   display: inline-block;
   margin-right: govuk-spacing(4);
-  margin-bottom: 0;
+  margin-bottom: govuk-spacing(4);
 
   &:last-child {
     margin-right: 0;
+  }
+
+  @include govuk-media-query($from: tablet) {
+    margin-bottom: 0;
   }
 
   .govuk-form-group {

@@ -5,6 +5,7 @@ import {
   FormComponent,
   isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers/index.js'
 import { markdown } from '~/src/server/plugins/engine/components/markdownParser.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
@@ -21,6 +22,7 @@ interface LocationFieldOptions {
   required?: boolean
   customValidationMessage?: string
   customValidationMessages?: LanguageMessages
+  classes?: string
 }
 
 interface ValidationConfig {
@@ -57,6 +59,8 @@ export abstract class LocationFieldBase extends FormComponent {
     const { options } = def
     const locationOptions = options as LocationFieldOptions
     this.instructionText = locationOptions.instructionText
+
+    addClassOptionIfNone(locationOptions, 'govuk-input--width-10')
 
     const config = this.getValidationConfig()
 
