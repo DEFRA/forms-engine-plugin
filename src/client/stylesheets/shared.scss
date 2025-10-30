@@ -25,3 +25,10 @@
   background-color: transparent;
   @include govuk-font($size: 19);
 }
+
+// Hide urls for hyperlinks when in print mode
+@media print {
+  .govuk-link[href]::after {
+    content: none;
+  }
+}
