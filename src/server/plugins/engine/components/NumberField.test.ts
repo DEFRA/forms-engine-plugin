@@ -597,21 +597,7 @@ describe('NumberField', () => {
       },
       {
         description: 'Schema minPrecision (minimum 1 decimal place)',
-        component: {
-          title: 'Example number field',
-          name: 'myComponent',
-          type: ComponentType.NumberField,
-          options: {
-            customValidationMessages: {
-              'number.minPrecision':
-                '{{#label}} must have at least {{#minPrecision}} decimal place'
-            }
-          },
-          schema: {
-            precision: 7,
-            minPrecision: 1
-          }
-        } as NumberFieldComponent,
+        component: createPrecisionTestComponent(1),
         assertions: [
           {
             input: getFormData('52'),
@@ -647,21 +633,7 @@ describe('NumberField', () => {
       },
       {
         description: 'Schema minPrecision (minimum 2 decimal places)',
-        component: {
-          title: 'Example number field',
-          name: 'myComponent',
-          type: ComponentType.NumberField,
-          options: {
-            customValidationMessages: {
-              'number.minPrecision':
-                '{{#label}} must have at least {{#minPrecision}} decimal places'
-            }
-          },
-          schema: {
-            precision: 7,
-            minPrecision: 2
-          }
-        } as NumberFieldComponent,
+        component: createPrecisionTestComponent(2),
         assertions: [
           {
             input: getFormData('52.1'),
@@ -686,20 +658,7 @@ describe('NumberField', () => {
       },
       {
         description: 'Schema minLength (minimum 3 characters)',
-        component: {
-          title: 'Example number field',
-          name: 'myComponent',
-          type: ComponentType.NumberField,
-          options: {
-            customValidationMessages: {
-              'number.minLength':
-                '{{#label}} must be at least {{#minLength}} characters'
-            }
-          },
-          schema: {
-            minLength: 3
-          }
-        } as NumberFieldComponent,
+        component: createLengthTestComponent(3, undefined),
         assertions: [
           {
             input: getFormData('12'),
@@ -724,20 +683,7 @@ describe('NumberField', () => {
       },
       {
         description: 'Schema maxLength (maximum 5 characters)',
-        component: {
-          title: 'Example number field',
-          name: 'myComponent',
-          type: ComponentType.NumberField,
-          options: {
-            customValidationMessages: {
-              'number.maxLength':
-                '{{#label}} must be no more than {{#maxLength}} characters'
-            }
-          },
-          schema: {
-            maxLength: 5
-          }
-        } as NumberFieldComponent,
+        component: createLengthTestComponent(undefined, 5),
         assertions: [
           {
             input: getFormData('123456'),
@@ -1225,4 +1171,45 @@ function createNumberComponent(
     options: { ...base.options, ...(overrides.options ?? {}) },
     schema: { ...base.schema, ...(overrides.schema ?? {}) }
   } satisfies NumberFieldComponent
+}
+
+/**
+ * Helper for precision validation tests
+ */
+function createPrecisionTestComponent(
+  minPrecision: number,
+  precision = 7
+): NumberFieldComponent {
+  const pluralSuffix = minPrecision > 1 ? 's' : ''
+  return createNumberComponent({
+    options: {
+      customValidationMessages: {
+        'number.minPrecision': `{{#label}} must have at least {{#minPrecision}} decimal place${pluralSuffix}`
+      }
+    },
+    schema: { precision, minPrecision }
+  })
+}
+
+/**
+ * Helper for length validation tests
+ */
+function createLengthTestComponent(
+  minLength?: number,
+  maxLength?: number
+): NumberFieldComponent {
+  const messages: Record<string, string> = {}
+  if (minLength) {
+    messages['number.minLength'] =
+      '{{#label}} must be at least {{#minLength}} characters'
+  }
+  if (maxLength) {
+    messages['number.maxLength'] =
+      '{{#label}} must be no more than {{#maxLength}} characters'
+  }
+
+  return createNumberComponent({
+    options: { customValidationMessages: messages },
+    schema: { minLength, maxLength }
+  })
 }

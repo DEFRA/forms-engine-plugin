@@ -616,9 +616,10 @@ describe('LatLongField', () => {
         ]
       },
       {
-        description: 'Length validation (latitude too short)',
+        description: 'Length and precision validation',
         component: createLatLongComponent(),
         assertions: [
+          // Latitude too short
           {
             input: getFormData({
               latitude: '52',
@@ -635,13 +636,8 @@ describe('LatLongField', () => {
                 })
               ]
             }
-          }
-        ]
-      },
-      {
-        description: 'Length validation (latitude too long)',
-        component: createLatLongComponent(),
-        assertions: [
+          },
+          // Latitude too long
           {
             input: getFormData({
               latitude: '52.12345678',
@@ -658,13 +654,8 @@ describe('LatLongField', () => {
                 })
               ]
             }
-          }
-        ]
-      },
-      {
-        description: 'Length validation (longitude too short)',
-        component: createLatLongComponent(),
-        assertions: [
+          },
+          // Longitude too short
           {
             input: getFormData({
               latitude: '52.1',
@@ -681,13 +672,8 @@ describe('LatLongField', () => {
                 })
               ]
             }
-          }
-        ]
-      },
-      {
-        description: 'Length validation (longitude too long)',
-        component: createLatLongComponent(),
-        assertions: [
+          },
+          // Longitude too long
           {
             input: getFormData({
               latitude: '52.1',
@@ -704,13 +690,8 @@ describe('LatLongField', () => {
                 })
               ]
             }
-          }
-        ]
-      },
-      {
-        description: 'Length validation (valid values)',
-        component: createLatLongComponent(),
-        assertions: [
+          },
+          // Valid values
           {
             input: getFormData({
               latitude: '52.1',
