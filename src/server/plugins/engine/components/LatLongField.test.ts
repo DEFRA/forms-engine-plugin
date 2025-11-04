@@ -628,6 +628,158 @@ describe('LatLongField', () => {
         ]
       },
       {
+        description: 'Length validation (latitude too short)',
+        component: {
+          title: 'Example lat long',
+          name: 'myComponent',
+          type: ComponentType.LatLongField,
+          options: {},
+          schema: {}
+        } satisfies LatLongFieldComponent,
+        assertions: [
+          {
+            input: getFormData({
+              latitude: '52',
+              longitude: '-1.5'
+            }),
+            output: {
+              value: getFormData({
+                latitude: 52,
+                longitude: -1.5
+              }),
+              errors: [
+                expect.objectContaining({
+                  text: 'Latitude must have at least 1 decimal place'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Length validation (latitude too long)',
+        component: {
+          title: 'Example lat long',
+          name: 'myComponent',
+          type: ComponentType.LatLongField,
+          options: {},
+          schema: {}
+        } satisfies LatLongFieldComponent,
+        assertions: [
+          {
+            input: getFormData({
+              latitude: '52.12345678',
+              longitude: '-1.5'
+            }),
+            output: {
+              value: getFormData({
+                latitude: 52.12345678,
+                longitude: -1.5
+              }),
+              errors: [
+                expect.objectContaining({
+                  text: 'Latitude must have no more than 7 decimal places'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Length validation (longitude too short)',
+        component: {
+          title: 'Example lat long',
+          name: 'myComponent',
+          type: ComponentType.LatLongField,
+          options: {},
+          schema: {}
+        } satisfies LatLongFieldComponent,
+        assertions: [
+          {
+            input: getFormData({
+              latitude: '52.1',
+              longitude: '-1'
+            }),
+            output: {
+              value: getFormData({
+                latitude: 52.1,
+                longitude: -1
+              }),
+              errors: [
+                expect.objectContaining({
+                  text: 'Longitude must have at least 1 decimal place'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Length validation (longitude too long)',
+        component: {
+          title: 'Example lat long',
+          name: 'myComponent',
+          type: ComponentType.LatLongField,
+          options: {},
+          schema: {}
+        } satisfies LatLongFieldComponent,
+        assertions: [
+          {
+            input: getFormData({
+              latitude: '52.1',
+              longitude: '-1.12345678'
+            }),
+            output: {
+              value: getFormData({
+                latitude: 52.1,
+                longitude: -1.12345678
+              }),
+              errors: [
+                expect.objectContaining({
+                  text: 'Longitude must have no more than 7 decimal places'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Length validation (valid values)',
+        component: {
+          title: 'Example lat long',
+          name: 'myComponent',
+          type: ComponentType.LatLongField,
+          options: {},
+          schema: {}
+        } satisfies LatLongFieldComponent,
+        assertions: [
+          {
+            input: getFormData({
+              latitude: '52.1',
+              longitude: '-1.5'
+            }),
+            output: {
+              value: getFormData({
+                latitude: 52.1,
+                longitude: -1.5
+              })
+            }
+          },
+          {
+            input: getFormData({
+              latitude: '52.1234',
+              longitude: '-1.123'
+            }),
+            output: {
+              value: getFormData({
+                latitude: 52.1234,
+                longitude: -1.123
+              })
+            }
+          }
+        ]
+      },
+      {
         description: 'Invalid format',
         component: {
           title: 'Example lat long',

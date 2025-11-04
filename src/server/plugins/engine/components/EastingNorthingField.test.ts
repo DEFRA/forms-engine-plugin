@@ -559,7 +559,12 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /Easting for .* must be between 1 and 5 digits/
+                    /Easting for .* must be between 1 and 6 digits/
+                  )
+                }),
+                expect.objectContaining({
+                  text: expect.stringMatching(
+                    /Easting for .* must be between 1 and 6 digits/
                   )
                 })
               ]
@@ -576,6 +581,11 @@ describe('EastingNorthingField', () => {
                 northing: 1234567.5
               }),
               errors: [
+                expect.objectContaining({
+                  text: expect.stringMatching(
+                    /Northing for .* must be between 1 and 7 digits/
+                  )
+                }),
                 expect.objectContaining({
                   text: expect.stringMatching(
                     /Northing for .* must be between 1 and 7 digits/

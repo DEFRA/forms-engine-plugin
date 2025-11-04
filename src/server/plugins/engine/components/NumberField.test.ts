@@ -593,6 +593,142 @@ describe('NumberField', () => {
         ]
       },
       {
+        description: 'Schema minLength (minimum 3 characters)',
+        component: {
+          title: 'Example number field',
+          name: 'myComponent',
+          type: ComponentType.NumberField,
+          options: {
+            customValidationMessages: {
+              'number.minLength':
+                '{{#label}} must be at least {{#minLength}} characters'
+            }
+          },
+          schema: {
+            minLength: 3
+          }
+        } as NumberFieldComponent,
+        assertions: [
+          {
+            input: getFormData('12'),
+            output: {
+              value: getFormData(12),
+              errors: [
+                expect.objectContaining({
+                  text: 'Example number field must be at least 3 characters'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData('123'),
+            output: { value: getFormData(123) }
+          },
+          {
+            input: getFormData('1234'),
+            output: { value: getFormData(1234) }
+          }
+        ]
+      },
+      {
+        description: 'Schema maxLength (maximum 5 characters)',
+        component: {
+          title: 'Example number field',
+          name: 'myComponent',
+          type: ComponentType.NumberField,
+          options: {
+            customValidationMessages: {
+              'number.maxLength':
+                '{{#label}} must be no more than {{#maxLength}} characters'
+            }
+          },
+          schema: {
+            maxLength: 5
+          }
+        } as NumberFieldComponent,
+        assertions: [
+          {
+            input: getFormData('123456'),
+            output: {
+              value: getFormData(123456),
+              errors: [
+                expect.objectContaining({
+                  text: 'Example number field must be no more than 5 characters'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData('12345'),
+            output: { value: getFormData(12345) }
+          },
+          {
+            input: getFormData('123'),
+            output: { value: getFormData(123) }
+          }
+        ]
+      },
+      {
+        description:
+          'Schema minLength and maxLength (3-8 characters, like latitude)',
+        component: {
+          title: 'Latitude field',
+          shortDescription: 'Latitude',
+          name: 'myComponent',
+          type: ComponentType.NumberField,
+          options: {
+            customValidationMessages: {
+              'number.minPrecision':
+                '{{#label}} must have at least {{#minPrecision}} decimal place',
+              'number.minLength':
+                '{{#label}} must be between 3 and 10 characters',
+              'number.maxLength':
+                '{{#label}} must be between 3 and 10 characters'
+            }
+          },
+          schema: {
+            min: 49,
+            max: 60,
+            precision: 7,
+            minPrecision: 1,
+            minLength: 3,
+            maxLength: 10
+          }
+        } as NumberFieldComponent,
+        assertions: [
+          {
+            input: getFormData('52'),
+            output: {
+              value: getFormData(52),
+              errors: [
+                expect.objectContaining({
+                  text: 'Latitude must have at least 1 decimal place'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData('52.12345678'),
+            output: {
+              value: getFormData(52.12345678),
+              errors: [
+                expect.objectContaining({
+                  text: 'Latitude must have 7 or fewer decimal places'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData('52.1'),
+            output: { value: getFormData(52.1) }
+          },
+          {
+            input: getFormData('52.1234'),
+            output: { value: getFormData(52.1234) }
+          }
+        ]
+      },
+      {
         description: 'Schema min and max',
         component: {
           title: 'Example number field',

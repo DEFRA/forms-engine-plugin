@@ -60,14 +60,18 @@ export class LatLongField extends FormComponent {
       ...customValidationMessages,
       'number.base': `Enter a valid latitude for ${this.title} like 51.519450`,
       'number.min': `Latitude for ${this.title} must be between ${latitudeMin} and ${latitudeMax}`,
-      'number.max': `Latitude for ${this.title} must be between ${latitudeMin} and ${latitudeMax}`
+      'number.max': `Latitude for ${this.title} must be between ${latitudeMin} and ${latitudeMax}`,
+      'number.minLength': `Latitude for ${this.title} must be between 3 and 10 characters`,
+      'number.maxLength': `Latitude for ${this.title} must be between 3 and 10 characters`
     })
 
     const longitudeMessages: LanguageMessages = convertToLanguageMessages({
       ...customValidationMessages,
       'number.base': `Enter a valid longitude for ${this.title} like -0.127758`,
       'number.min': `Longitude for ${this.title} must be between ${longitudeMin} and ${longitudeMax}`,
-      'number.max': `Longitude for ${this.title} must be between ${longitudeMin} and ${longitudeMax}`
+      'number.max': `Longitude for ${this.title} must be between ${longitudeMin} and ${longitudeMax}`,
+      'number.minLength': `Longitude for ${this.title} must be between 2 and 10 characters`,
+      'number.maxLength': `Longitude for ${this.title} must be between 2 and 10 characters`
     })
 
     this.collection = new ComponentCollection(
@@ -80,7 +84,9 @@ export class LatLongField extends FormComponent {
             min: latitudeMin,
             max: latitudeMax,
             precision: 7,
-            minPrecision: 1
+            minPrecision: 1,
+            minLength: 3,
+            maxLength: 10
           },
           options: {
             required: isRequired,
@@ -98,7 +104,9 @@ export class LatLongField extends FormComponent {
             min: longitudeMin,
             max: longitudeMax,
             precision: 7,
-            minPrecision: 1
+            minPrecision: 1,
+            minLength: 2,
+            maxLength: 10
           },
           options: {
             required: isRequired,

@@ -166,9 +166,24 @@ export function getValidatorPrecision(component: NumberField) {
     const { options, schema } = component
 
     const { customValidationMessage: custom } = options
-    const { precision: limit, minPrecision } = schema
+    const { precision: limit, minPrecision, minLength, maxLength } = schema
 
     if (!limit || limit <= 0) {
+      if (typeof minLength === 'number' || typeof maxLength === 'number') {
+        const valueStr = String(value)
+
+        if (typeof minLength === 'number' && valueStr.length < minLength) {
+          return custom
+            ? helpers.message({ custom }, { minLength, maxLength })
+            : helpers.error('number.minLength', { minLength })
+        }
+
+        if (typeof maxLength === 'number' && valueStr.length > maxLength) {
+          return custom
+            ? helpers.message({ custom }, { minLength, maxLength })
+            : helpers.error('number.maxLength', { maxLength })
+        }
+      }
       return value
     }
 
@@ -198,6 +213,23 @@ export function getValidatorPrecision(component: NumberField) {
         if (decimalPlaces < minPrecision) {
           return helpers.error('number.minPrecision', { minPrecision })
         }
+      }
+    }
+
+    // Check string length validation after precision checks
+    if (typeof minLength === 'number' || typeof maxLength === 'number') {
+      const valueStr = String(value)
+
+      if (typeof minLength === 'number' && valueStr.length < minLength) {
+        return custom
+          ? helpers.message({ custom }, { minLength, maxLength })
+          : helpers.error('number.minLength', { minLength })
+      }
+
+      if (typeof maxLength === 'number' && valueStr.length > maxLength) {
+        return custom
+          ? helpers.message({ custom }, { minLength, maxLength })
+          : helpers.error('number.maxLength', { maxLength })
       }
     }
 
