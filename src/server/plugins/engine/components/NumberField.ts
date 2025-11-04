@@ -166,7 +166,7 @@ export function getValidatorPrecision(component: NumberField) {
     const { options, schema } = component
 
     const { customValidationMessage: custom } = options
-    const { precision: limit } = schema
+    const { precision: limit, minPrecision } = schema
 
     if (!limit || limit <= 0) {
       return value
@@ -178,12 +178,30 @@ export function getValidatorPrecision(component: NumberField) {
       .prefs({ convert: false })
 
     try {
-      return joi.attempt(value, validationSchema)
+      joi.attempt(value, validationSchema)
     } catch {
       return custom
         ? helpers.message({ custom }, { limit })
         : helpers.error('number.precision', { limit })
     }
+
+    if (typeof minPrecision === 'number' && minPrecision > 0) {
+      if (Number.isInteger(value)) {
+        return helpers.error('number.minPrecision', { minPrecision })
+      }
+
+      const valueStr = String(value)
+      const decimalIndex = valueStr.indexOf('.')
+
+      if (decimalIndex !== -1) {
+        const decimalPlaces = valueStr.length - decimalIndex - 1
+        if (decimalPlaces < minPrecision) {
+          return helpers.error('number.minPrecision', { minPrecision })
+        }
+      }
+    }
+
+    return value
   }
 
   return validator

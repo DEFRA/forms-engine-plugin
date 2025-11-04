@@ -149,8 +149,8 @@ describe('LatLongField', () => {
 
         const result2 = collection.validate(
           getFormData({
-            latitude: '49',
-            longitude: '-9'
+            latitude: '49.1',
+            longitude: '-8.9'
           })
         )
 
@@ -567,6 +567,62 @@ describe('LatLongField', () => {
                   text: 'Longitude must have no more than 7 decimal places'
                 })
               ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Minimum precision validation',
+        component: {
+          title: 'Example lat long',
+          name: 'myComponent',
+          type: ComponentType.LatLongField,
+          options: {},
+          schema: {}
+        } satisfies LatLongFieldComponent,
+        assertions: [
+          {
+            input: getFormData({
+              latitude: '52',
+              longitude: '-1'
+            }),
+            output: {
+              value: getFormData({
+                latitude: 52,
+                longitude: -1
+              }),
+              errors: [
+                expect.objectContaining({
+                  text: 'Latitude must have at least 1 decimal place'
+                }),
+                expect.objectContaining({
+                  text: 'Longitude must have at least 1 decimal place'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData({
+              latitude: '52.1',
+              longitude: '-1.5'
+            }),
+            output: {
+              value: getFormData({
+                latitude: 52.1,
+                longitude: -1.5
+              })
+            }
+          },
+          {
+            input: getFormData({
+              latitude: '52.123456',
+              longitude: '-1.123456'
+            }),
+            output: {
+              value: getFormData({
+                latitude: 52.123456,
+                longitude: -1.123456
+              })
             }
           }
         ]

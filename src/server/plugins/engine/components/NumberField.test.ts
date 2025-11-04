@@ -504,6 +504,95 @@ describe('NumberField', () => {
         ]
       },
       {
+        description: 'Schema minPrecision (minimum 1 decimal place)',
+        component: {
+          title: 'Example number field',
+          name: 'myComponent',
+          type: ComponentType.NumberField,
+          options: {
+            customValidationMessages: {
+              'number.minPrecision':
+                '{{#label}} must have at least {{#minPrecision}} decimal place'
+            }
+          },
+          schema: {
+            precision: 7,
+            minPrecision: 1
+          }
+        } as NumberFieldComponent,
+        assertions: [
+          {
+            input: getFormData('52'),
+            output: {
+              value: getFormData(52),
+              errors: [
+                expect.objectContaining({
+                  text: 'Example number field must have at least 1 decimal place'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData('52.0'),
+            output: {
+              value: getFormData(52),
+              errors: [
+                expect.objectContaining({
+                  text: 'Example number field must have at least 1 decimal place'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData('52.1'),
+            output: { value: getFormData(52.1) }
+          },
+          {
+            input: getFormData('52.123456'),
+            output: { value: getFormData(52.123456) }
+          }
+        ]
+      },
+      {
+        description: 'Schema minPrecision (minimum 2 decimal places)',
+        component: {
+          title: 'Example number field',
+          name: 'myComponent',
+          type: ComponentType.NumberField,
+          options: {
+            customValidationMessages: {
+              'number.minPrecision':
+                '{{#label}} must have at least {{#minPrecision}} decimal places'
+            }
+          },
+          schema: {
+            precision: 7,
+            minPrecision: 2
+          }
+        } as NumberFieldComponent,
+        assertions: [
+          {
+            input: getFormData('52.1'),
+            output: {
+              value: getFormData(52.1),
+              errors: [
+                expect.objectContaining({
+                  text: 'Example number field must have at least 2 decimal places'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData('52.12'),
+            output: { value: getFormData(52.12) }
+          },
+          {
+            input: getFormData('52.1234567'),
+            output: { value: getFormData(52.1234567) }
+          }
+        ]
+      },
+      {
         description: 'Schema min and max',
         component: {
           title: 'Example number field',
