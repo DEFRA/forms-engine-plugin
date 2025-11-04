@@ -381,13 +381,7 @@ describe('LatLongField', () => {
     describe.each([
       {
         description: 'Trim empty spaces',
-        component: {
-          title: 'Example lat long',
-          name: 'myComponent',
-          type: ComponentType.LatLongField,
-          options: {},
-          schema: {}
-        } satisfies LatLongFieldComponent,
+        component: createLatLongComponent(),
         assertions: [
           {
             input: getFormData({
@@ -573,13 +567,7 @@ describe('LatLongField', () => {
       },
       {
         description: 'Minimum precision validation',
-        component: {
-          title: 'Example lat long',
-          name: 'myComponent',
-          type: ComponentType.LatLongField,
-          options: {},
-          schema: {}
-        } satisfies LatLongFieldComponent,
+        component: createLatLongComponent(),
         assertions: [
           {
             input: getFormData({
@@ -629,13 +617,7 @@ describe('LatLongField', () => {
       },
       {
         description: 'Length validation (latitude too short)',
-        component: {
-          title: 'Example lat long',
-          name: 'myComponent',
-          type: ComponentType.LatLongField,
-          options: {},
-          schema: {}
-        } satisfies LatLongFieldComponent,
+        component: createLatLongComponent(),
         assertions: [
           {
             input: getFormData({
@@ -658,13 +640,7 @@ describe('LatLongField', () => {
       },
       {
         description: 'Length validation (latitude too long)',
-        component: {
-          title: 'Example lat long',
-          name: 'myComponent',
-          type: ComponentType.LatLongField,
-          options: {},
-          schema: {}
-        } satisfies LatLongFieldComponent,
+        component: createLatLongComponent(),
         assertions: [
           {
             input: getFormData({
@@ -687,13 +663,7 @@ describe('LatLongField', () => {
       },
       {
         description: 'Length validation (longitude too short)',
-        component: {
-          title: 'Example lat long',
-          name: 'myComponent',
-          type: ComponentType.LatLongField,
-          options: {},
-          schema: {}
-        } satisfies LatLongFieldComponent,
+        component: createLatLongComponent(),
         assertions: [
           {
             input: getFormData({
@@ -716,13 +686,7 @@ describe('LatLongField', () => {
       },
       {
         description: 'Length validation (longitude too long)',
-        component: {
-          title: 'Example lat long',
-          name: 'myComponent',
-          type: ComponentType.LatLongField,
-          options: {},
-          schema: {}
-        } satisfies LatLongFieldComponent,
+        component: createLatLongComponent(),
         assertions: [
           {
             input: getFormData({
@@ -745,13 +709,7 @@ describe('LatLongField', () => {
       },
       {
         description: 'Length validation (valid values)',
-        component: {
-          title: 'Example lat long',
-          name: 'myComponent',
-          type: ComponentType.LatLongField,
-          options: {},
-          schema: {}
-        } satisfies LatLongFieldComponent,
+        component: createLatLongComponent(),
         assertions: [
           {
             input: getFormData({
@@ -781,13 +739,7 @@ describe('LatLongField', () => {
       },
       {
         description: 'Invalid format',
-        component: {
-          title: 'Example lat long',
-          name: 'myComponent',
-          type: ComponentType.LatLongField,
-          options: {},
-          schema: {}
-        } satisfies LatLongFieldComponent,
+        component: createLatLongComponent(),
         assertions: [
           {
             input: getFormData({
@@ -872,6 +824,22 @@ describe('LatLongField', () => {
     })
   })
 })
+
+/**
+ * Factory function to create a default LatLongField component with optional overrides
+ */
+function createLatLongComponent(
+  overrides: Partial<LatLongFieldComponent> = {}
+): LatLongFieldComponent {
+  return {
+    title: 'Example lat long',
+    name: 'myComponent',
+    type: ComponentType.LatLongField,
+    options: {},
+    schema: {},
+    ...overrides
+  } satisfies LatLongFieldComponent
+}
 
 function getFormData(
   value:

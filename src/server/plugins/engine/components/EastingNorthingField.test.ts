@@ -556,6 +556,8 @@ describe('EastingNorthingField', () => {
                 easting: 12345.5,
                 northing: 1234567
               }),
+              // Two errors expected: decimal input triggers both integer validation
+              // and length validation ('12345.5' is 7 chars, max is 6)
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
@@ -580,6 +582,8 @@ describe('EastingNorthingField', () => {
                 easting: 12345,
                 northing: 1234567.5
               }),
+              // Two errors expected: decimal input triggers both integer validation
+              // and length validation ('1234567.5' is 9 chars, max is 7)
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(

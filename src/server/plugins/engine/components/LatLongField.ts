@@ -23,6 +23,23 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 
+// Precision constants
+// UK latitude/longitude requires high precision for accurate location (within ~11mm)
+const DECIMAL_PRECISION = 7 // 7 decimal places
+const MIN_DECIMAL_PLACES = 1 // At least 1 decimal place required
+
+// Latitude length constraints
+// Min: 3 chars for values like "52.1" (2 digits + decimal + 1 decimal place)
+// Max: 10 chars for values like "59.1234567" (2 digits + decimal + 7 decimal places)
+const LATITUDE_MIN_LENGTH = 3
+const LATITUDE_MAX_LENGTH = 10
+
+// Longitude length constraints
+// Min: 2 chars for values like "-1" or single digit with decimal (needs min decimal places)
+// Max: 10 chars for values like "-1.1234567" (minus + 1 digit + decimal + 7 decimal places)
+const LONGITUDE_MIN_LENGTH = 2
+const LONGITUDE_MAX_LENGTH = 10
+
 export class LatLongField extends FormComponent {
   declare options: LatLongFieldComponent['options']
   declare formSchema: ObjectSchema<FormPayload>
@@ -83,10 +100,10 @@ export class LatLongField extends FormComponent {
           schema: {
             min: latitudeMin,
             max: latitudeMax,
-            precision: 7,
-            minPrecision: 1,
-            minLength: 3,
-            maxLength: 10
+            precision: DECIMAL_PRECISION,
+            minPrecision: MIN_DECIMAL_PLACES,
+            minLength: LATITUDE_MIN_LENGTH,
+            maxLength: LATITUDE_MAX_LENGTH
           },
           options: {
             required: isRequired,
@@ -103,10 +120,10 @@ export class LatLongField extends FormComponent {
           schema: {
             min: longitudeMin,
             max: longitudeMax,
-            precision: 7,
-            minPrecision: 1,
-            minLength: 2,
-            maxLength: 10
+            precision: DECIMAL_PRECISION,
+            minPrecision: MIN_DECIMAL_PLACES,
+            minLength: LONGITUDE_MIN_LENGTH,
+            maxLength: LONGITUDE_MAX_LENGTH
           },
           options: {
             required: isRequired,
