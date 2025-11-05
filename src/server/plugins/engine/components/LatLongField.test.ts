@@ -149,7 +149,7 @@ describe('LatLongField', () => {
 
         const result2 = collection.validate(
           getFormData({
-            latitude: '49.1',
+            latitude: '50.5',
             longitude: '-8.9'
           })
         )

@@ -57,10 +57,10 @@ export class LatLongField extends FormComponent {
     const isRequired = options.required !== false
 
     // Read schema values from def.schema with fallback defaults
-    const latitudeMin = schema?.latitude?.min ?? 49
-    const latitudeMax = schema?.latitude?.max ?? 60
-    const longitudeMin = schema?.longitude?.min ?? -9
-    const longitudeMax = schema?.longitude?.max ?? 2
+    const latitudeMin = schema?.latitude?.min ?? 49.85
+    const latitudeMax = schema?.latitude?.max ?? 60.859
+    const longitudeMin = schema?.longitude?.min ?? -13.687
+    const longitudeMax = schema?.longitude?.max ?? 1.767
 
     const customValidationMessages: LanguageMessages =
       convertToLanguageMessages({

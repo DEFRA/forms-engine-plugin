@@ -3,8 +3,7 @@ import { ComponentType, type NumberFieldComponent } from '@defra/forms-model'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import {
   NumberField,
-  validateMinimumPrecision,
-  validateStringLength
+  validateMinimumPrecision
 } from '~/src/server/plugins/engine/components/NumberField.js'
 import {
   getAnswer,
@@ -24,69 +23,6 @@ describe('NumberField', () => {
   })
 
   describe('Helper Functions', () => {
-    describe('validateStringLength', () => {
-      it('returns valid when no constraints provided', () => {
-        expect(validateStringLength(123)).toEqual({ isValid: true })
-        expect(validateStringLength(123, undefined, undefined)).toEqual({
-          isValid: true
-        })
-      })
-
-      it('validates minimum length correctly', () => {
-        expect(validateStringLength(12, 3)).toEqual({
-          isValid: false,
-          error: 'minLength'
-        })
-        expect(validateStringLength(123, 3)).toEqual({ isValid: true })
-        expect(validateStringLength(1234, 3)).toEqual({ isValid: true })
-      })
-
-      it('validates maximum length correctly', () => {
-        expect(validateStringLength(123456, undefined, 5)).toEqual({
-          isValid: false,
-          error: 'maxLength'
-        })
-        expect(validateStringLength(12345, undefined, 5)).toEqual({
-          isValid: true
-        })
-        expect(validateStringLength(123, undefined, 5)).toEqual({
-          isValid: true
-        })
-      })
-
-      it('validates both min and max length', () => {
-        expect(validateStringLength(12, 3, 5)).toEqual({
-          isValid: false,
-          error: 'minLength'
-        })
-        expect(validateStringLength(123456, 3, 5)).toEqual({
-          isValid: false,
-          error: 'maxLength'
-        })
-        expect(validateStringLength(1234, 3, 5)).toEqual({ isValid: true })
-      })
-
-      it('handles decimal numbers correctly', () => {
-        // "52.1" = 4 characters
-        expect(validateStringLength(52.1, 3, 5)).toEqual({ isValid: true })
-        // "52.123456" = 9 characters
-        expect(validateStringLength(52.123456, undefined, 8)).toEqual({
-          isValid: false,
-          error: 'maxLength'
-        })
-      })
-
-      it('handles negative numbers correctly', () => {
-        // "-1.5" = 4 characters
-        expect(validateStringLength(-1.5, 3, 5)).toEqual({ isValid: true })
-        // "-9.1234567" = 10 characters
-        expect(validateStringLength(-9.1234567, undefined, 9)).toEqual({
-          isValid: false,
-          error: 'maxLength'
-        })
-      })
-    })
-
     describe('validateMinimumPrecision', () => {
       it('returns false for integers', () => {
         expect(validateMinimumPrecision(52, 1)).toBe(false)

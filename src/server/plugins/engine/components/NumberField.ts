@@ -1,9 +1,5 @@
 import { type NumberFieldComponent } from '@defra/forms-model'
-import joi, {
-  type CustomHelpers,
-  type CustomValidator,
-  type NumberSchema
-} from 'joi'
+import joi, { type CustomValidator, type NumberSchema } from 'joi'
 
 import {
   FormComponent,
@@ -72,7 +68,9 @@ export class NumberField extends FormComponent {
         'number.precision': message,
         'number.integer': message,
         'number.min': message,
-        'number.max': message
+        'number.max': message,
+        'number.minLength': message,
+        'number.maxLength': message
       })
     } else if (options.customValidationMessages) {
       formSchema = formSchema.messages(options.customValidationMessages)
@@ -166,35 +164,6 @@ export class NumberField extends FormComponent {
 }
 
 /**
- * Validates string length of a numeric value
- * @param value - The numeric value to validate
- * @param minLength - Minimum required string length
- * @param maxLength - Maximum allowed string length
- * @returns Object with validation result
- */
-export function validateStringLength(
-  value: number,
-  minLength?: number,
-  maxLength?: number
-): { isValid: boolean; error?: 'minLength' | 'maxLength' } {
-  if (typeof minLength !== 'number' && typeof maxLength !== 'number') {
-    return { isValid: true }
-  }
-
-  const valueStr = String(value)
-
-  if (typeof minLength === 'number' && valueStr.length < minLength) {
-    return { isValid: false, error: 'minLength' }
-  }
-
-  if (typeof maxLength === 'number' && valueStr.length > maxLength) {
-    return { isValid: false, error: 'maxLength' }
-  }
-
-  return { isValid: true }
-}
-
-/**
  * Validates minimum decimal precision
  * @param value - The numeric value to validate
  * @param minPrecision - Minimum required decimal places
@@ -219,36 +188,49 @@ export function validateMinimumPrecision(
   return false
 }
 
-/**
- * Helper function to handle length validation errors
- * Returns the appropriate error response based on the validation result
- */
-function handleLengthValidationError(
-  lengthCheck: ReturnType<typeof validateStringLength>,
-  helpers: CustomHelpers,
-  custom: string | undefined,
+function validateStringLengthWithJoi(
+  value: number,
   minLength: number | undefined,
-  maxLength: number | undefined
+  maxLength: number | undefined,
+  helpers: joi.CustomHelpers,
+  custom: string | undefined,
+  customMessages: Record<string, string> | undefined
 ) {
-  if (!lengthCheck.isValid && lengthCheck.error) {
-    const errorType = `number.${lengthCheck.error}`
-
-    if (custom) {
-      // Only pass the relevant length value in context
-      const contextData =
-        lengthCheck.error === 'minLength'
-          ? { minLength: minLength ?? 0 }
-          : { maxLength: maxLength ?? 0 }
-      return helpers.message({ custom }, contextData)
-    }
-
-    const context =
-      lengthCheck.error === 'minLength'
-        ? { minLength: minLength ?? 0 }
-        : { maxLength: maxLength ?? 0 }
-    return helpers.error(errorType, context)
+  if (typeof minLength !== 'number' && typeof maxLength !== 'number') {
+    return null
   }
-  return null
+
+  const valueStr = String(value)
+  let stringValidator = joi.string()
+
+  if (typeof minLength === 'number') {
+    stringValidator = stringValidator.min(minLength)
+  }
+  if (typeof maxLength === 'number') {
+    stringValidator = stringValidator.max(maxLength)
+  }
+
+  const { error } = stringValidator.validate(valueStr)
+  if (!error) {
+    return null
+  }
+
+  const isMinError = error.details[0]?.type === 'string.min'
+  const messageKey = isMinError ? 'number.minLength' : 'number.maxLength'
+  const context = isMinError ? { minLength } : { maxLength }
+
+  if (custom) {
+    return helpers.message({ custom }, context)
+  }
+
+  if (customMessages?.[messageKey]) {
+    return helpers.message({ custom: customMessages[messageKey] }, context)
+  }
+
+  const defaultMessage = isMinError
+    ? `{{#label}} must be at least ${minLength} characters`
+    : `{{#label}} must be no more than ${maxLength} characters`
+  return helpers.message({ custom: defaultMessage })
 }
 
 export function getValidatorPrecision(component: NumberField) {
@@ -268,19 +250,18 @@ export function getValidatorPrecision(component: NumberField) {
     }
 
     if (!limit || limit <= 0) {
-      const lengthCheck = validateStringLength(value, minLength, maxLength)
-      const error = handleLengthValidationError(
-        lengthCheck,
+      const lengthError = validateStringLengthWithJoi(
+        value,
+        minLength,
+        maxLength,
         helpers,
         custom,
-        minLength,
-        maxLength
+        options.customValidationMessages as Record<string, string> | undefined
       )
-      if (error) return error
+      if (lengthError) return lengthError
       return value
     }
 
-    // Validate precision (max decimal places)
     const validationSchema = joi
       .number()
       .precision(limit)
@@ -294,23 +275,21 @@ export function getValidatorPrecision(component: NumberField) {
         : helpers.error('number.precision', { limit })
     }
 
-    // Validate minimum precision (min decimal places)
     if (typeof minPrecision === 'number' && minPrecision > 0) {
       if (!validateMinimumPrecision(value, minPrecision)) {
         return helpers.error('number.minPrecision', { minPrecision })
       }
     }
 
-    // Check string length validation after precision checks
-    const lengthCheck = validateStringLength(value, minLength, maxLength)
-    const error = handleLengthValidationError(
-      lengthCheck,
+    const lengthError = validateStringLengthWithJoi(
+      value,
+      minLength,
+      maxLength,
       helpers,
       custom,
-      minLength,
-      maxLength
+      options.customValidationMessages as Record<string, string> | undefined
     )
-    if (error) return error
+    if (lengthError) return lengthError
 
     return value
   }
