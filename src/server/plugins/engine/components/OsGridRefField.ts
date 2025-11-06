@@ -10,7 +10,7 @@ export class OsGridRefField extends LocationFieldBase {
     // Validates specific valid OS grid letter combinations with:
     // - 2 letters & 6 digits (e.g., SD865005 or SD 865 005)
     const pattern =
-      /^((([sS]|[nN])[a-hA-Hj-zJ-Z])|(([tT]|[oO])[abfglmqrvwABFGLMQRVW])|([hH][l-zL-Z])|([jJ][lmqrvwLMQRVW]))\s?(([0-9]{3})\s?([0-9]{3}))$/i
+      /^((([sS]|[nN])[a-hA-Hj-zJ-Z])|(([tT]|[oO])[abfglmqrvwABFGLMQRVW])|([hH][l-zL-Z])|([jJ][lmqrvwLMQRVW]))\s?(([0-9]{3})\s?([0-9]{3}))$/
 
     return {
       pattern,

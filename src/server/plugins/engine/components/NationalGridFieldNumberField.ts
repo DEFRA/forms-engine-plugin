@@ -11,7 +11,7 @@ export class NationalGridFieldNumberField extends LocationFieldBase {
     // - 2 letters & 8 digits in 2 blocks of 4 (parcel ID) e.g., ST 6789 6789
     // - 2 letters & 10 digits in 2 blocks of 5 (OS grid reference) e.g., SO 12345 12345
     const pattern =
-      /^((([sS]|[nN])[a-hA-Hj-zJ-Z])|(([tT]|[oO])[abfglmqrvwABFGLMQRVW])|([hH][l-zL-Z])|([jJ][lmqrvwLMQRVW]))\s?(([0-9]{4})\s?([0-9]{4})|([0-9]{5})\s?([0-9]{5}))$/i
+      /^((([sS]|[nN])[a-hA-Hj-zJ-Z])|(([tT]|[oO])[abfglmqrvwABFGLMQRVW])|([hH][l-zL-Z])|([jJ][lmqrvwLMQRVW]))\s?(([0-9]{4})\s?([0-9]{4})|([0-9]{5})\s?([0-9]{5}))$/
 
     return {
       pattern,
