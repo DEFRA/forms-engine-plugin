@@ -26,19 +26,6 @@ import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 // Precision constants
 // UK latitude/longitude requires high precision for accurate location (within ~11mm)
 const DECIMAL_PRECISION = 7 // 7 decimal places
-const MIN_DECIMAL_PLACES = 1 // At least 1 decimal place required
-
-// Latitude length constraints
-// Min: 3 chars for values like "52.1" (2 digits + decimal + 1 decimal place)
-// Max: 10 chars for values like "59.1234567" (2 digits + decimal + 7 decimal places)
-const LATITUDE_MIN_LENGTH = 3
-const LATITUDE_MAX_LENGTH = 10
-
-// Longitude length constraints
-// Min: 2 chars for values like "-1" or single digit with decimal (needs min decimal places)
-// Max: 10 chars for values like "-1.1234567" (minus + 1 digit + decimal + 7 decimal places)
-const LONGITUDE_MIN_LENGTH = 2
-const LONGITUDE_MAX_LENGTH = 10
 
 export class LatLongField extends FormComponent {
   declare options: LatLongFieldComponent['options']
@@ -68,8 +55,6 @@ export class LatLongField extends FormComponent {
         'number.base': messageTemplate.objectMissing,
         'number.precision':
           '{{#label}} must have no more than 7 decimal places',
-        'number.minPrecision':
-          '{{#label}} must have at least {{#minPrecision}} decimal place',
         'number.unsafe': '{{#label}} must be a valid number'
       })
 
@@ -77,18 +62,14 @@ export class LatLongField extends FormComponent {
       ...customValidationMessages,
       'number.base': `Enter a valid latitude for ${this.title} like 51.519450`,
       'number.min': `Latitude for ${this.title} must be between ${latitudeMin} and ${latitudeMax}`,
-      'number.max': `Latitude for ${this.title} must be between ${latitudeMin} and ${latitudeMax}`,
-      'number.minLength': `Latitude for ${this.title} must be between 3 and 10 characters`,
-      'number.maxLength': `Latitude for ${this.title} must be between 3 and 10 characters`
+      'number.max': `Latitude for ${this.title} must be between ${latitudeMin} and ${latitudeMax}`
     })
 
     const longitudeMessages: LanguageMessages = convertToLanguageMessages({
       ...customValidationMessages,
       'number.base': `Enter a valid longitude for ${this.title} like -0.127758`,
       'number.min': `Longitude for ${this.title} must be between ${longitudeMin} and ${longitudeMax}`,
-      'number.max': `Longitude for ${this.title} must be between ${longitudeMin} and ${longitudeMax}`,
-      'number.minLength': `Longitude for ${this.title} must be between 2 and 10 characters`,
-      'number.maxLength': `Longitude for ${this.title} must be between 2 and 10 characters`
+      'number.max': `Longitude for ${this.title} must be between ${longitudeMin} and ${longitudeMax}`
     })
 
     this.collection = new ComponentCollection(
@@ -100,10 +81,7 @@ export class LatLongField extends FormComponent {
           schema: {
             min: latitudeMin,
             max: latitudeMax,
-            precision: DECIMAL_PRECISION,
-            minPrecision: MIN_DECIMAL_PLACES,
-            minLength: LATITUDE_MIN_LENGTH,
-            maxLength: LATITUDE_MAX_LENGTH
+            precision: DECIMAL_PRECISION
           },
           options: {
             required: isRequired,
@@ -120,10 +98,7 @@ export class LatLongField extends FormComponent {
           schema: {
             min: longitudeMin,
             max: longitudeMax,
-            precision: DECIMAL_PRECISION,
-            minPrecision: MIN_DECIMAL_PLACES,
-            minLength: LONGITUDE_MIN_LENGTH,
-            maxLength: LONGITUDE_MAX_LENGTH
+            precision: DECIMAL_PRECISION
           },
           options: {
             required: isRequired,
