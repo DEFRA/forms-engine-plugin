@@ -15,6 +15,26 @@ import {
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 
+/**
+ * Checks if precision requires integer-only validation
+ * @param precision - The precision value from schema
+ * @returns true if integers only (precision <= 0 or undefined)
+ */
+function isIntegerOnlyPrecision(
+  precision: number | undefined
+): precision is number {
+  return typeof precision === 'number' && precision <= 0
+}
+
+/**
+ * Checks if field should use numeric inputmode
+ * @param precision - The precision value from schema
+ * @returns true if numeric inputmode should be used
+ */
+function shouldUseNumericInputMode(precision: number | undefined): boolean {
+  return typeof precision === 'undefined' || precision <= 0
+}
+
 export class NumberField extends FormComponent {
   declare options: NumberFieldComponent['options']
   declare schema: NumberFieldComponent['schema']
@@ -55,7 +75,7 @@ export class NumberField extends FormComponent {
       formSchema = formSchema.max(schema.max)
     }
 
-    if (typeof schema.precision === 'number' && schema.precision <= 0) {
+    if (isIntegerOnlyPrecision(schema.precision)) {
       formSchema = formSchema.integer()
     }
 
@@ -97,7 +117,7 @@ export class NumberField extends FormComponent {
     const viewModel = super.getViewModel(payload, errors)
     let { attributes, prefix, suffix, value } = viewModel
 
-    if (typeof schema.precision === 'undefined' || schema.precision <= 0) {
+    if (shouldUseNumericInputMode(schema.precision)) {
       // If precision isn't provided or provided and
       // less than or equal to 0, use numeric inputmode
       attributes.inputmode = 'numeric'
@@ -196,17 +216,20 @@ function validateStringLengthWithJoi(
   custom: string | undefined,
   customMessages: Record<string, string> | undefined
 ) {
-  if (typeof minLength !== 'number' && typeof maxLength !== 'number') {
+  const hasMinLength = typeof minLength === 'number'
+  const hasMaxLength = typeof maxLength === 'number'
+
+  if (!hasMinLength && !hasMaxLength) {
     return null
   }
 
   const valueStr = String(value)
   let stringValidator = joi.string()
 
-  if (typeof minLength === 'number') {
+  if (hasMinLength) {
     stringValidator = stringValidator.min(minLength)
   }
-  if (typeof maxLength === 'number') {
+  if (hasMaxLength) {
     stringValidator = stringValidator.max(maxLength)
   }
 
@@ -249,35 +272,25 @@ export function getValidatorPrecision(component: NumberField) {
       maxLength?: number
     }
 
-    if (!limit || limit <= 0) {
-      const lengthError = validateStringLengthWithJoi(
-        value,
-        minLength,
-        maxLength,
-        helpers,
-        custom,
-        options.customValidationMessages as Record<string, string> | undefined
-      )
-      if (lengthError) return lengthError
-      return value
-    }
+    // Validate maximum precision if limit is set
+    // Note: We need a separate schema with convert:false to prevent rounding
+    if (limit && limit > 0) {
+      const precisionSchema = joi
+        .number()
+        .precision(limit)
+        .prefs({ convert: false })
 
-    const validationSchema = joi
-      .number()
-      .precision(limit)
-      .prefs({ convert: false })
+      const { error } = precisionSchema.validate(value)
+      if (error) {
+        return custom
+          ? helpers.message({ custom }, { limit })
+          : helpers.error('number.precision', { limit })
+      }
 
-    try {
-      joi.attempt(value, validationSchema)
-    } catch {
-      return custom
-        ? helpers.message({ custom }, { limit })
-        : helpers.error('number.precision', { limit })
-    }
-
-    if (typeof minPrecision === 'number' && minPrecision > 0) {
-      if (!validateMinimumPrecision(value, minPrecision)) {
-        return helpers.error('number.minPrecision', { minPrecision })
+      if (typeof minPrecision === 'number' && minPrecision > 0) {
+        if (!validateMinimumPrecision(value, minPrecision)) {
+          return helpers.error('number.minPrecision', { minPrecision })
+        }
       }
     }
 

@@ -917,6 +917,47 @@ describe('NumberField', () => {
         ]
       },
       {
+        description: 'Default length validation messages (no custom messages)',
+        component: {
+          title: 'Example number field',
+          name: 'myComponent',
+          type: ComponentType.NumberField,
+          options: {},
+          schema: {
+            minLength: 3,
+            maxLength: 5
+          }
+        } satisfies NumberFieldComponent,
+        assertions: [
+          {
+            input: getFormData('12'),
+            output: {
+              value: getFormData(12),
+              errors: [
+                expect.objectContaining({
+                  text: 'Example number field must be at least 3 characters'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData('123456'),
+            output: {
+              value: getFormData(123456),
+              errors: [
+                expect.objectContaining({
+                  text: 'Example number field must be no more than 5 characters'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData('1234'),
+            output: { value: getFormData(1234) }
+          }
+        ]
+      },
+      {
         description: 'Optional field',
         component: {
           title: 'Example number field',
