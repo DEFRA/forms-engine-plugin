@@ -32,18 +32,6 @@ const DEFAULT_EASTING_MAX = 700000
 const DEFAULT_NORTHING_MIN = 0
 const DEFAULT_NORTHING_MAX = 1300000
 
-// Easting length constraints (integer values only, no decimals)
-// Min: 1 char for values like "0" or single digit values
-// Max: 6 chars for values up to 700000 (British National Grid easting limit)
-const EASTING_MIN_LENGTH = 1
-const EASTING_MAX_LENGTH = 6
-
-// Northing length constraints (integer values only, no decimals)
-// Min: 1 char for values like "0" or single digit values
-// Max: 7 chars for values up to 1300000 (British National Grid northing limit)
-const NORTHING_MIN_LENGTH = 1
-const NORTHING_MAX_LENGTH = 7
-
 export class EastingNorthingField extends FormComponent {
   declare options: EastingNorthingFieldComponent['options']
   declare formSchema: ObjectSchema<FormPayload>
@@ -73,9 +61,7 @@ export class EastingNorthingField extends FormComponent {
         'number.max': `{{#label}} for ${this.title} must be between ${eastingMin} and {{#limit}}`,
         'number.precision': `{{#label}} for ${this.title} must be between 1 and 6 digits`,
         'number.integer': `{{#label}} for ${this.title} must be between 1 and 6 digits`,
-        'number.unsafe': `{{#label}} for ${this.title} must be between 1 and 6 digits`,
-        'number.minLength': `{{#label}} for ${this.title} must be between 1 and 6 digits`,
-        'number.maxLength': `{{#label}} for ${this.title} must be between 1 and 6 digits`
+        'number.unsafe': `{{#label}} for ${this.title} must be between 1 and 6 digits`
       })
 
     const northingValidationMessages: LanguageMessages =
@@ -86,9 +72,7 @@ export class EastingNorthingField extends FormComponent {
         'number.max': `{{#label}} for ${this.title} must be between ${northingMin} and {{#limit}}`,
         'number.precision': `{{#label}} for ${this.title} must be between 1 and 7 digits`,
         'number.integer': `{{#label}} for ${this.title} must be between 1 and 7 digits`,
-        'number.unsafe': `{{#label}} for ${this.title} must be between 1 and 7 digits`,
-        'number.minLength': `{{#label}} for ${this.title} must be between 1 and 7 digits`,
-        'number.maxLength': `{{#label}} for ${this.title} must be between 1 and 7 digits`
+        'number.unsafe': `{{#label}} for ${this.title} must be between 1 and 7 digits`
       })
 
     this.collection = new ComponentCollection(
@@ -100,9 +84,7 @@ export class EastingNorthingField extends FormComponent {
           schema: {
             min: eastingMin,
             max: eastingMax,
-            precision: 0,
-            minLength: EASTING_MIN_LENGTH,
-            maxLength: EASTING_MAX_LENGTH
+            precision: 0
           },
           options: {
             required: isRequired,
@@ -118,9 +100,7 @@ export class EastingNorthingField extends FormComponent {
           schema: {
             min: northingMin,
             max: northingMax,
-            precision: 0,
-            minLength: NORTHING_MIN_LENGTH,
-            maxLength: NORTHING_MAX_LENGTH
+            precision: 0
           },
           options: {
             required: isRequired,
