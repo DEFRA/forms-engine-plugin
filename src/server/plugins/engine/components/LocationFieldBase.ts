@@ -28,11 +28,6 @@ interface LocationFieldOptions {
 interface ValidationConfig {
   pattern: RegExp
   patternErrorMessage: string
-  customValidation?: (
-    value: string,
-    helpers: joi.CustomHelpers
-  ) => string | joi.ErrorReport
-  additionalMessages?: LanguageMessages
 }
 
 /**
@@ -71,13 +66,8 @@ export abstract class LocationFieldBase extends FormComponent {
       .required()
       .pattern(config.pattern)
       .messages({
-        'string.pattern.base': config.patternErrorMessage,
-        ...config.additionalMessages
+        'string.pattern.base': config.patternErrorMessage
       })
-
-    if (config.customValidation) {
-      formSchema = formSchema.custom(config.customValidation)
-    }
 
     if (locationOptions.required === false) {
       formSchema = formSchema.allow('')
@@ -90,10 +80,6 @@ export abstract class LocationFieldBase extends FormComponent {
         'string.empty',
         'string.pattern.base'
       ]
-
-      if (config.additionalMessages) {
-        messageKeys.push(...Object.keys(config.additionalMessages))
-      }
 
       const messages = messageKeys.reduce<LanguageMessages>((acc, key) => {
         acc[key] = message
