@@ -203,7 +203,7 @@ pages:
     path: '/how-many-members-of-staff-will-look-after-the-unicorns'
     section: susaYr
     next:
-      - path: '/summary'
+      - path: '/declaration'
     components:
       - name: zhJMaM
         options:
@@ -219,7 +219,7 @@ pages:
     controller: FileUploadPageController
     section: Regnsa
     next:
-      - path: '/declaration'
+      - path: '/how-many-unicorns-do-you-expect-to-breed-each-year'
     components:
       - name: dLzALM
         title: Documents
