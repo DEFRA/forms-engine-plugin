@@ -15,26 +15,6 @@ import {
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 
-/**
- * Checks if precision requires integer-only validation
- * @param precision - The precision value from schema
- * @returns true if integers only (precision <= 0 or undefined)
- */
-function isIntegerOnlyPrecision(
-  precision: number | undefined
-): precision is number {
-  return typeof precision === 'number' && precision <= 0
-}
-
-/**
- * Checks if field should use numeric inputmode
- * @param precision - The precision value from schema
- * @returns true if numeric inputmode should be used
- */
-function shouldUseNumericInputMode(precision: number | undefined): boolean {
-  return typeof precision === 'undefined' || precision <= 0
-}
-
 export class NumberField extends FormComponent {
   declare options: NumberFieldComponent['options']
   declare schema: NumberFieldComponent['schema']
@@ -75,7 +55,7 @@ export class NumberField extends FormComponent {
       formSchema = formSchema.max(schema.max)
     }
 
-    if (isIntegerOnlyPrecision(schema.precision)) {
+    if (typeof schema.precision === 'number' && schema.precision <= 0) {
       formSchema = formSchema.integer()
     }
 
@@ -88,9 +68,7 @@ export class NumberField extends FormComponent {
         'number.precision': message,
         'number.integer': message,
         'number.min': message,
-        'number.max': message,
-        'number.minLength': message,
-        'number.maxLength': message
+        'number.max': message
       })
     } else if (options.customValidationMessages) {
       formSchema = formSchema.messages(options.customValidationMessages)
@@ -117,7 +95,7 @@ export class NumberField extends FormComponent {
     const viewModel = super.getViewModel(payload, errors)
     let { attributes, prefix, suffix, value } = viewModel
 
-    if (shouldUseNumericInputMode(schema.precision)) {
+    if (typeof schema.precision === 'undefined' || schema.precision <= 0) {
       // If precision isn't provided or provided and
       // less than or equal to 0, use numeric inputmode
       attributes.inputmode = 'numeric'
@@ -183,128 +161,29 @@ export class NumberField extends FormComponent {
   }
 }
 
-/**
- * Validates minimum decimal precision
- * @param value - The numeric value to validate
- * @param minPrecision - Minimum required decimal places
- * @returns true if valid, false if invalid
- */
-export function validateMinimumPrecision(
-  value: number,
-  minPrecision: number
-): boolean {
-  if (Number.isInteger(value)) {
-    return false
-  }
-
-  const valueStr = String(value)
-  const decimalIndex = valueStr.indexOf('.')
-
-  if (decimalIndex !== -1) {
-    const decimalPlaces = valueStr.length - decimalIndex - 1
-    return decimalPlaces >= minPrecision
-  }
-
-  return false
-}
-
-function validateStringLengthWithJoi(
-  value: number,
-  minLength: number | undefined,
-  maxLength: number | undefined,
-  helpers: joi.CustomHelpers,
-  custom: string | undefined,
-  customMessages: Record<string, string> | undefined
-) {
-  const hasMinLength = typeof minLength === 'number'
-  const hasMaxLength = typeof maxLength === 'number'
-
-  if (!hasMinLength && !hasMaxLength) {
-    return null
-  }
-
-  const valueStr = String(value)
-  let stringValidator = joi.string()
-
-  if (hasMinLength) {
-    stringValidator = stringValidator.min(minLength)
-  }
-  if (hasMaxLength) {
-    stringValidator = stringValidator.max(maxLength)
-  }
-
-  const { error } = stringValidator.validate(valueStr)
-  if (!error) {
-    return null
-  }
-
-  const isMinError = error.details[0]?.type === 'string.min'
-  const messageKey = isMinError ? 'number.minLength' : 'number.maxLength'
-  const context = isMinError ? { minLength } : { maxLength }
-
-  if (custom) {
-    return helpers.message({ custom }, context)
-  }
-
-  if (customMessages?.[messageKey]) {
-    return helpers.message({ custom: customMessages[messageKey] }, context)
-  }
-
-  const defaultMessage = isMinError
-    ? `{{#label}} must be at least ${minLength} characters`
-    : `{{#label}} must be no more than ${maxLength} characters`
-  return helpers.message({ custom: defaultMessage })
-}
-
 export function getValidatorPrecision(component: NumberField) {
   const validator: CustomValidator = (value: number, helpers) => {
     const { options, schema } = component
+
     const { customValidationMessage: custom } = options
-    const {
-      precision: limit,
-      minPrecision,
-      minLength,
-      maxLength
-    } = schema as {
-      precision?: number
-      minPrecision?: number
-      minLength?: number
-      maxLength?: number
+    const { precision: limit } = schema
+
+    if (!limit || limit <= 0) {
+      return value
     }
 
-    // Validate maximum precision if limit is set
-    // Note: We need a separate schema with convert:false to prevent rounding
-    if (limit && limit > 0) {
-      const precisionSchema = joi
-        .number()
-        .precision(limit)
-        .prefs({ convert: false })
+    const validationSchema = joi
+      .number()
+      .precision(limit)
+      .prefs({ convert: false })
 
-      const { error } = precisionSchema.validate(value)
-      if (error) {
-        return custom
-          ? helpers.message({ custom }, { limit })
-          : helpers.error('number.precision', { limit })
-      }
-
-      if (typeof minPrecision === 'number' && minPrecision > 0) {
-        if (!validateMinimumPrecision(value, minPrecision)) {
-          return helpers.error('number.minPrecision', { minPrecision })
-        }
-      }
+    try {
+      return joi.attempt(value, validationSchema)
+    } catch {
+      return custom
+        ? helpers.message({ custom }, { limit })
+        : helpers.error('number.precision', { limit })
     }
-
-    const lengthError = validateStringLengthWithJoi(
-      value,
-      minLength,
-      maxLength,
-      helpers,
-      custom,
-      options.customValidationMessages as Record<string, string> | undefined
-    )
-    if (lengthError) return lengthError
-
-    return value
   }
 
   return validator
