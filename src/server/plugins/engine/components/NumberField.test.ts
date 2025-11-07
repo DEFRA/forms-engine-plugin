@@ -1,10 +1,7 @@
 import { ComponentType, type NumberFieldComponent } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import {
-  NumberField,
-  validateMinimumPrecision
-} from '~/src/server/plugins/engine/components/NumberField.js'
+import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
 import {
   getAnswer,
   type Field
@@ -19,31 +16,6 @@ describe('NumberField', () => {
   beforeEach(() => {
     model = new FormModel(definition, {
       basePath: 'test'
-    })
-  })
-
-  describe('Helper Functions', () => {
-    describe('validateMinimumPrecision', () => {
-      it('returns false for integers', () => {
-        expect(validateMinimumPrecision(52, 1)).toBe(false)
-        expect(validateMinimumPrecision(100, 2)).toBe(false)
-      })
-
-      it('validates minimum precision correctly', () => {
-        expect(validateMinimumPrecision(52.1, 1)).toBe(true)
-        expect(validateMinimumPrecision(52.12, 2)).toBe(true)
-        expect(validateMinimumPrecision(52.123, 3)).toBe(true)
-      })
-
-      it('returns false when precision is insufficient', () => {
-        expect(validateMinimumPrecision(52.1, 2)).toBe(false)
-        expect(validateMinimumPrecision(52.12, 3)).toBe(false)
-      })
-
-      it('handles exact precision requirement', () => {
-        expect(validateMinimumPrecision(52.12345, 5)).toBe(true)
-        expect(validateMinimumPrecision(52.1234, 5)).toBe(false)
-      })
     })
   })
 
@@ -532,184 +504,17 @@ describe('NumberField', () => {
         ]
       },
       {
-        description: 'Schema minPrecision (minimum 1 decimal place)',
-        component: createPrecisionTestComponent(1),
-        assertions: [
-          {
-            input: getFormData('52'),
-            output: {
-              value: getFormData(52),
-              errors: [
-                expect.objectContaining({
-                  text: 'Example number field must have at least 1 decimal place'
-                })
-              ]
-            }
-          },
-          {
-            input: getFormData('52.0'),
-            output: {
-              value: getFormData(52),
-              errors: [
-                expect.objectContaining({
-                  text: 'Example number field must have at least 1 decimal place'
-                })
-              ]
-            }
-          },
-          {
-            input: getFormData('52.1'),
-            output: { value: getFormData(52.1) }
-          },
-          {
-            input: getFormData('52.123456'),
-            output: { value: getFormData(52.123456) }
-          }
-        ]
-      },
-      {
-        description: 'Schema minPrecision (minimum 2 decimal places)',
-        component: createPrecisionTestComponent(2),
-        assertions: [
-          {
-            input: getFormData('52.1'),
-            output: {
-              value: getFormData(52.1),
-              errors: [
-                expect.objectContaining({
-                  text: 'Example number field must have at least 2 decimal places'
-                })
-              ]
-            }
-          },
-          {
-            input: getFormData('52.12'),
-            output: { value: getFormData(52.12) }
-          },
-          {
-            input: getFormData('52.1234567'),
-            output: { value: getFormData(52.1234567) }
-          }
-        ]
-      },
-      {
-        description: 'Schema minLength (minimum 3 characters)',
-        component: createLengthTestComponent(3, undefined),
-        assertions: [
-          {
-            input: getFormData('12'),
-            output: {
-              value: getFormData(12),
-              errors: [
-                expect.objectContaining({
-                  text: 'Example number field must be at least 3 characters'
-                })
-              ]
-            }
-          },
-          {
-            input: getFormData('123'),
-            output: { value: getFormData(123) }
-          },
-          {
-            input: getFormData('1234'),
-            output: { value: getFormData(1234) }
-          }
-        ]
-      },
-      {
-        description: 'Schema maxLength (maximum 5 characters)',
-        component: createLengthTestComponent(undefined, 5),
-        assertions: [
-          {
-            input: getFormData('123456'),
-            output: {
-              value: getFormData(123456),
-              errors: [
-                expect.objectContaining({
-                  text: 'Example number field must be no more than 5 characters'
-                })
-              ]
-            }
-          },
-          {
-            input: getFormData('12345'),
-            output: { value: getFormData(12345) }
-          },
-          {
-            input: getFormData('123'),
-            output: { value: getFormData(123) }
-          }
-        ]
-      },
-      {
-        description:
-          'Schema minLength and maxLength (3-8 characters, like latitude)',
+        description: 'Schema min and max',
         component: {
-          title: 'Latitude field',
-          shortDescription: 'Latitude',
+          title: 'Example number field',
           name: 'myComponent',
           type: ComponentType.NumberField,
-          options: {
-            customValidationMessages: {
-              'number.minPrecision':
-                '{{#label}} must have at least {{#minPrecision}} decimal place',
-              'number.minLength':
-                '{{#label}} must be between 3 and 10 characters',
-              'number.maxLength':
-                '{{#label}} must be between 3 and 10 characters'
-            }
-          },
-          schema: {
-            min: 49,
-            max: 60,
-            precision: 7,
-            minPrecision: 1,
-            minLength: 3,
-            maxLength: 10
-          }
-        } as NumberFieldComponent,
-        assertions: [
-          {
-            input: getFormData('52'),
-            output: {
-              value: getFormData(52),
-              errors: [
-                expect.objectContaining({
-                  text: 'Latitude must have at least 1 decimal place'
-                })
-              ]
-            }
-          },
-          {
-            input: getFormData('52.12345678'),
-            output: {
-              value: getFormData(52.12345678),
-              errors: [
-                expect.objectContaining({
-                  text: 'Latitude must have 7 or fewer decimal places'
-                })
-              ]
-            }
-          },
-          {
-            input: getFormData('52.1'),
-            output: { value: getFormData(52.1) }
-          },
-          {
-            input: getFormData('52.1234'),
-            output: { value: getFormData(52.1234) }
-          }
-        ]
-      },
-      {
-        description: 'Schema min and max',
-        component: createNumberComponent({
+          options: {},
           schema: {
             min: 5,
             max: 8
           }
-        }),
+        } satisfies NumberFieldComponent,
         assertions: [
           {
             input: getFormData('4'),
@@ -737,7 +542,10 @@ describe('NumberField', () => {
       },
       {
         description: 'Custom validation message',
-        component: createNumberComponent({
+        component: {
+          title: 'Example number field',
+          name: 'myComponent',
+          type: ComponentType.NumberField,
           options: {
             customValidationMessage: 'This is a custom error',
             customValidationMessages: {
@@ -746,8 +554,9 @@ describe('NumberField', () => {
               'number.min': 'This is not used',
               'number.max': 'This is not used'
             }
-          }
-        }),
+          },
+          schema: {}
+        } satisfies NumberFieldComponent,
         assertions: [
           {
             input: getFormData(''),
@@ -878,86 +687,6 @@ describe('NumberField', () => {
         ]
       },
       {
-        description: 'Custom validation message overrides length validation',
-        component: {
-          title: 'Example number field',
-          name: 'myComponent',
-          type: ComponentType.NumberField,
-          options: {
-            customValidationMessage: 'This is a custom length error'
-          },
-          schema: {
-            minLength: 3,
-            maxLength: 5
-          }
-        } satisfies NumberFieldComponent,
-        assertions: [
-          {
-            input: getFormData('12'),
-            output: {
-              value: getFormData(12),
-              errors: [
-                expect.objectContaining({
-                  text: 'This is a custom length error'
-                })
-              ]
-            }
-          },
-          {
-            input: getFormData('123456'),
-            output: {
-              value: getFormData(123456),
-              errors: [
-                expect.objectContaining({
-                  text: 'This is a custom length error'
-                })
-              ]
-            }
-          }
-        ]
-      },
-      {
-        description: 'Default length validation messages (no custom messages)',
-        component: {
-          title: 'Example number field',
-          name: 'myComponent',
-          type: ComponentType.NumberField,
-          options: {},
-          schema: {
-            minLength: 3,
-            maxLength: 5
-          }
-        } satisfies NumberFieldComponent,
-        assertions: [
-          {
-            input: getFormData('12'),
-            output: {
-              value: getFormData(12),
-              errors: [
-                expect.objectContaining({
-                  text: 'Example number field must be at least 3 characters'
-                })
-              ]
-            }
-          },
-          {
-            input: getFormData('123456'),
-            output: {
-              value: getFormData(123456),
-              errors: [
-                expect.objectContaining({
-                  text: 'Example number field must be no more than 5 characters'
-                })
-              ]
-            }
-          },
-          {
-            input: getFormData('1234'),
-            output: { value: getFormData(1234) }
-          }
-        ]
-      },
-      {
         description: 'Optional field',
         component: {
           title: 'Example number field',
@@ -991,202 +720,4 @@ describe('NumberField', () => {
       )
     })
   })
-
-  describe('Edge cases', () => {
-    let collection: ComponentCollection
-
-    beforeEach(() => {
-      const def = createNumberComponent({
-        schema: {
-          min: -100,
-          max: 100,
-          precision: 2
-        }
-      })
-      collection = new ComponentCollection([def], { model })
-    })
-
-    it('handles negative numbers correctly', () => {
-      const result = collection.validate(getFormData('-50.5'))
-      expect(result).toEqual({
-        value: getFormData(-50.5)
-      })
-    })
-
-    it('handles zero correctly', () => {
-      const result = collection.validate(getFormData('0'))
-      expect(result).toEqual({
-        value: getFormData(0)
-      })
-    })
-
-    it('handles zero with decimal correctly', () => {
-      const result = collection.validate(getFormData('0.0'))
-      expect(result).toEqual({
-        value: getFormData(0)
-      })
-    })
-
-    it('handles negative zero correctly', () => {
-      const result = collection.validate(getFormData('-0'))
-      expect(result).toEqual({
-        value: getFormData(0)
-      })
-    })
-
-    it('handles scientific notation (parsed as number, may fail range)', () => {
-      // JavaScript parses '1e10' as 10000000000, which exceeds max of 100
-      const result = collection.validate(getFormData('1e10'))
-      expect(result).toEqual({
-        value: getFormData(10000000000),
-        errors: [
-          expect.objectContaining({
-            text: 'Example number field must be 100 or lower'
-          })
-        ]
-      })
-    })
-
-    it('handles scientific notation with negative exponent (parsed as number)', () => {
-      // JavaScript parses '1e-5' as 0.00001, which fails precision check (5 decimal places > 2)
-      const result = collection.validate(getFormData('1e-5'))
-      expect(result.value).toEqual(getFormData(0.00001))
-      expect(result.errors).toBeDefined()
-      expect(result.errors?.[0]).toMatchObject({
-        text: 'Example number field must have 2 or fewer decimal places'
-      })
-    })
-
-    it('handles large negative numbers', () => {
-      const result = collection.validate(getFormData('-99.99'))
-      expect(result).toEqual({
-        value: getFormData(-99.99)
-      })
-    })
-
-    it('handles numbers at boundary limits', () => {
-      const maxResult = collection.validate(getFormData('100'))
-      expect(maxResult).toEqual({
-        value: getFormData(100)
-      })
-
-      const minResult = collection.validate(getFormData('-100'))
-      expect(minResult).toEqual({
-        value: getFormData(-100)
-      })
-    })
-
-    describe('with length constraints', () => {
-      beforeEach(() => {
-        const def = createNumberComponent({
-          schema: {
-            min: -9,
-            max: 9,
-            precision: 7,
-            minPrecision: 1,
-            minLength: 2,
-            maxLength: 10
-          },
-          options: {
-            customValidationMessages: {
-              'number.minPrecision':
-                'Example number field must have at least {{minPrecision}} decimal place',
-              'number.precision':
-                'Example number field must have no more than {{limit}} decimal places',
-              'number.minLength':
-                'Example number field must be at least {{minLength}} characters',
-              'number.maxLength':
-                'Example number field must be no more than {{maxLength}} characters'
-            }
-          }
-        })
-        collection = new ComponentCollection([def], { model })
-      })
-
-      it('validates negative numbers with decimals', () => {
-        const result = collection.validate(getFormData('-5.1234567'))
-        expect(result).toEqual({
-          value: getFormData(-5.1234567)
-        })
-      })
-
-      it('rejects negative numbers that are too short', () => {
-        const result = collection.validate(getFormData('-5'))
-        expect(result.value).toEqual(getFormData(-5))
-        expect(result.errors).toBeDefined()
-        expect(result.errors?.[0].text).toContain('decimal place')
-      })
-
-      it('rejects numbers with too many characters', () => {
-        const result = collection.validate(getFormData('-5.12345678'))
-        expect(result.value).toEqual(getFormData(-5.12345678))
-        expect(result.errors).toBeDefined()
-        expect(result.errors?.[0].text).toContain('decimal places')
-      })
-    })
-  })
 })
-
-/**
- * Factory function to create a default NumberField component with optional overrides
- */
-function createNumberComponent(
-  overrides: Partial<NumberFieldComponent> = {}
-): NumberFieldComponent {
-  const base = {
-    title: 'Example number field',
-    name: 'myComponent',
-    type: ComponentType.NumberField,
-    options: {},
-    schema: {}
-  } satisfies NumberFieldComponent
-
-  // Deep merge for nested objects like options and schema
-  return {
-    ...base,
-    ...overrides,
-    options: { ...base.options, ...(overrides.options ?? {}) },
-    schema: { ...base.schema, ...(overrides.schema ?? {}) }
-  } satisfies NumberFieldComponent
-}
-
-/**
- * Helper for precision validation tests
- */
-function createPrecisionTestComponent(
-  minPrecision: number,
-  precision = 7
-): NumberFieldComponent {
-  const pluralSuffix = minPrecision > 1 ? 's' : ''
-  return createNumberComponent({
-    options: {
-      customValidationMessages: {
-        'number.minPrecision': `{{#label}} must have at least {{#minPrecision}} decimal place${pluralSuffix}`
-      }
-    },
-    schema: { precision, minPrecision }
-  })
-}
-
-/**
- * Helper for length validation tests
- */
-function createLengthTestComponent(
-  minLength?: number,
-  maxLength?: number
-): NumberFieldComponent {
-  const messages: Record<string, string> = {}
-  if (minLength) {
-    messages['number.minLength'] =
-      '{{#label}} must be at least {{#minLength}} characters'
-  }
-  if (maxLength) {
-    messages['number.maxLength'] =
-      '{{#label}} must be no more than {{#maxLength}} characters'
-  }
-
-  return createNumberComponent({
-    options: { customValidationMessages: messages },
-    schema: { minLength, maxLength }
-  })
-}

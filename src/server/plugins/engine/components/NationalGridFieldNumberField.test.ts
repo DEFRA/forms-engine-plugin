@@ -99,13 +99,27 @@ describe('NationalGridFieldNumberField', () => {
       })
 
       it('accepts valid values', () => {
-        const result1 = collection.validate(getFormData('NG12345678'))
-        const result2 = collection.validate(getFormData('ng12345678'))
-        const result3 = collection.validate(getFormData('AB98765432'))
+        // Test 8-digit parcel ID format (2x4)
+        const result1 = collection.validate(getFormData('TQ12345678'))
+        const result2 = collection.validate(getFormData('TQ 1234 5678'))
+
+        // Test 10-digit OS grid reference format (2x5)
+        const result3 = collection.validate(getFormData('SU1234567890'))
+        const result4 = collection.validate(getFormData('SU 12345 67890'))
 
         expect(result1.errors).toBeUndefined()
         expect(result2.errors).toBeUndefined()
         expect(result3.errors).toBeUndefined()
+        expect(result4.errors).toBeUndefined()
+
+        // Test case-insensitive
+        const result5 = collection.validate(getFormData('nt12345678'))
+
+        expect(result1.errors).toBeUndefined()
+        expect(result2.errors).toBeUndefined()
+        expect(result3.errors).toBeUndefined()
+        expect(result4.errors).toBeUndefined()
+        expect(result5.errors).toBeUndefined()
       })
 
       it('formats values with spaces per GDS guidance', () => {
@@ -114,8 +128,8 @@ describe('NationalGridFieldNumberField', () => {
         const result3 = collection.validate(getFormData('NG12345,678'))
 
         expect(result1.value.myComponent).toBe('NG 1234 5678')
-        expect(result2.value.myComponent).toBe('NG 1234 5678')
-        expect(result3.value.myComponent).toBe('NG 1234 5678')
+        expect(result2.value.myComponent).toBe('NG12345678')
+        expect(result3.value.myComponent).toBe('NG12345,678')
       })
 
       it('adds errors for empty value', () => {
@@ -258,15 +272,15 @@ describe('NationalGridFieldNumberField', () => {
         assertions: [
           {
             input: getFormData('  NG12345678'),
-            output: { value: getFormData('NG 1234 5678') }
+            output: { value: getFormData('NG12345678') }
           },
           {
             input: getFormData('NG12345678  '),
-            output: { value: getFormData('NG 1234 5678') }
+            output: { value: getFormData('NG12345678') }
           },
           {
             input: getFormData('  NG12345678 \n\n'),
-            output: { value: getFormData('NG 1234 5678') }
+            output: { value: getFormData('NG12345678') }
           }
         ]
       },

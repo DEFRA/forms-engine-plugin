@@ -100,46 +100,24 @@ describe('OsGridRefField', () => {
         const result1 = collection.validate(getFormData('SD865005'))
         const result2 = collection.validate(getFormData('SD 865 005'))
 
-        // Test 8-digit parcel ID format (2x4)
-        const result3 = collection.validate(getFormData('TQ12345678'))
-        const result4 = collection.validate(getFormData('TQ 1234 5678'))
-
-        // Test 10-digit OS grid reference format (2x5)
-        const result5 = collection.validate(getFormData('SU1234567890'))
-        const result6 = collection.validate(getFormData('SU 12345 67890'))
-
         // Test case-insensitive
-        const result7 = collection.validate(getFormData('nt12345678'))
-
-        // Test various valid OS grid formats
-        const result8 = collection.validate(getFormData('SN 1232 1223')) // parcel ID format
-        const result9 = collection.validate(getFormData('SN 12324 12234')) // OS grid ref format
-        const result10 = collection.validate(getFormData('ST 6789 6789')) // parcel ID with different letters
-        const result11 = collection.validate(getFormData('SO 12345 12345')) // OS grid ref with different letters
+        const result3 = collection.validate(getFormData('nt123456'))
 
         expect(result1.errors).toBeUndefined()
         expect(result2.errors).toBeUndefined()
         expect(result3.errors).toBeUndefined()
-        expect(result4.errors).toBeUndefined()
-        expect(result5.errors).toBeUndefined()
-        expect(result6.errors).toBeUndefined()
-        expect(result7.errors).toBeUndefined()
-        expect(result8.errors).toBeUndefined()
-        expect(result9.errors).toBeUndefined()
-        expect(result10.errors).toBeUndefined()
-        expect(result11.errors).toBeUndefined()
       })
 
-      it('formats values with spaces per GDS guidance', () => {
+      it('retains values with spaces per GDS guidance', () => {
         const result1 = collection.validate(getFormData('SD865005'))
         const result2 = collection.validate(getFormData('TQ 1234 5678'))
         const result3 = collection.validate(getFormData('SU1234567890'))
         const result4 = collection.validate(getFormData('TQ12345678'))
 
-        expect(result1.value.myComponent).toBe('SD 865 005')
+        expect(result1.value.myComponent).toBe('SD865005')
         expect(result2.value.myComponent).toBe('TQ 1234 5678')
-        expect(result3.value.myComponent).toBe('SU 12345 67890')
-        expect(result4.value.myComponent).toBe('TQ 1234 5678')
+        expect(result3.value.myComponent).toBe('SU1234567890')
+        expect(result4.value.myComponent).toBe('TQ12345678')
       })
 
       it('adds errors for empty value', () => {
@@ -289,16 +267,16 @@ describe('OsGridRefField', () => {
         },
         assertions: [
           {
-            input: getFormData('  TQ12345678'),
-            output: { value: getFormData('TQ 1234 5678') }
+            input: getFormData('  TQ123456'),
+            output: { value: getFormData('TQ123456') }
           },
           {
-            input: getFormData('TQ12345678  '),
-            output: { value: getFormData('TQ 1234 5678') }
+            input: getFormData('TQ123456  '),
+            output: { value: getFormData('TQ123456') }
           },
           {
-            input: getFormData('  TQ12345678 \n\n'),
-            output: { value: getFormData('TQ 1234 5678') }
+            input: getFormData('  TQ123456 \n\n'),
+            output: { value: getFormData('TQ123456') }
           }
         ]
       },

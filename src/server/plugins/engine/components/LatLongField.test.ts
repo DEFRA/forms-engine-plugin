@@ -578,15 +578,7 @@ describe('LatLongField', () => {
               value: getFormData({
                 latitude: 52,
                 longitude: -1
-              }),
-              errors: [
-                expect.objectContaining({
-                  text: 'Latitude must have at least 1 decimal place'
-                }),
-                expect.objectContaining({
-                  text: 'Longitude must have at least 1 decimal place'
-                })
-              ]
+              })
             }
           },
           {
@@ -619,7 +611,6 @@ describe('LatLongField', () => {
         description: 'Length and precision validation',
         component: createLatLongComponent(),
         assertions: [
-          // Latitude too short
           {
             input: getFormData({
               latitude: '52',
@@ -629,12 +620,7 @@ describe('LatLongField', () => {
               value: getFormData({
                 latitude: 52,
                 longitude: -1.5
-              }),
-              errors: [
-                expect.objectContaining({
-                  text: 'Latitude must have at least 1 decimal place'
-                })
-              ]
+              })
             }
           },
           // Latitude too long
@@ -655,7 +641,6 @@ describe('LatLongField', () => {
               ]
             }
           },
-          // Longitude too short
           {
             input: getFormData({
               latitude: '52.1',
@@ -665,12 +650,7 @@ describe('LatLongField', () => {
               value: getFormData({
                 latitude: 52.1,
                 longitude: -1
-              }),
-              errors: [
-                expect.objectContaining({
-                  text: 'Longitude must have at least 1 decimal place'
-                })
-              ]
+              })
             }
           },
           // Longitude too long
