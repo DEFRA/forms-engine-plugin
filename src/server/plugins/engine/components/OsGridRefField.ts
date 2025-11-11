@@ -7,7 +7,7 @@ export class OsGridRefField extends LocationFieldBase {
   declare options: OsGridRefFieldComponent['options']
 
   protected getValidationConfig() {
-    // Regex for OS grid references (NGR)
+    // Regex for OS national grid references (NGR)
     // Validates specific valid OS grid letter combinations with:
     // - 2 letters & 6 digits in 2 blocks of 3 e.g. ST 678 678
     // - 2 letters & 8 digits in 2 blocks of 4 e.g. ST 6789 6789
