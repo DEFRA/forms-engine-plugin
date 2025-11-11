@@ -100,12 +100,22 @@ describe('OsGridRefField', () => {
         const result1 = collection.validate(getFormData('SD865005'))
         const result2 = collection.validate(getFormData('SD 865 005'))
 
+        const result3 = collection.validate(getFormData('SD86565005'))
+        const result4 = collection.validate(getFormData('SD 8656 0065'))
+
+        const result5 = collection.validate(getFormData('SD8654454005'))
+        const result6 = collection.validate(getFormData('SD 86455 00545'))
+
         // Test case-insensitive
-        const result3 = collection.validate(getFormData('nt123456'))
+        const result7 = collection.validate(getFormData('nt123456'))
 
         expect(result1.errors).toBeUndefined()
         expect(result2.errors).toBeUndefined()
         expect(result3.errors).toBeUndefined()
+        expect(result4.errors).toBeUndefined()
+        expect(result5.errors).toBeUndefined()
+        expect(result6.errors).toBeUndefined()
+        expect(result7.errors).toBeUndefined()
       })
 
       it('retains values with spaces per GDS guidance', () => {
@@ -137,8 +147,9 @@ describe('OsGridRefField', () => {
         const result4 = collection.validate(getFormData('TQ1234567')) // Wrong number of digits (7)
 
         // Test mismatched digit counts (must be either 3+3, 4+4 or 5+5, not mixed)
-        const result5 = collection.validate(getFormData('SN 4444 55555')) // mismatched digit counts
-        const result6 = collection.validate(getFormData('SN 55555 4444')) // mismatched digit counts
+        const result5 = collection.validate(getFormData('SN 333 4444')) // mismatched digit counts
+        const result6 = collection.validate(getFormData('SN 4444 55555')) // mismatched digit counts
+        const result7 = collection.validate(getFormData('SN 55555 4444')) // mismatched digit counts
 
         expect(result1.errors).toBeTruthy()
         expect(result2.errors).toBeTruthy()
@@ -146,6 +157,7 @@ describe('OsGridRefField', () => {
         expect(result4.errors).toBeTruthy()
         expect(result5.errors).toBeTruthy()
         expect(result6.errors).toBeTruthy()
+        expect(result7.errors).toBeTruthy()
       })
     })
 
