@@ -27,7 +27,11 @@
             type: inputType,
             inputmode: inputMode,
             prefix: item.prefix,
-            suffix: item.suffix
+            suffix: item.suffix,
+            errorMessage: item.errorMessage,
+            formGroup: {
+              classes: "govuk-!-margin-bottom-0"
+            }
           }) }}
         </div>
       {% endfor %}
@@ -41,12 +45,20 @@
     {% endif %}
   {% endset %}
 
+  {% set hasErrors = false %}
+  {% for item in component.model.items %}
+    {% if item.errorMessage %}
+      {% set hasErrors = true %}
+    {% endif %}
+  {% endfor %}
+  
   {{ govukFieldset({
     legend: {
       text: component.model.fieldset.legend.text,
       classes: component.model.fieldset.legend.classes,
       isPageHeading: false
     },
+    classes: "govuk-form-group--error" if (hasErrors or component.model.errors),
     html: fieldsetHtml
   }) }}
 {% endmacro %}
