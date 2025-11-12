@@ -12,12 +12,14 @@
       margin-bottom: 0;
       margin-top: 0;
     }
+  }
 
-    > .govuk-grid-row {
-      .govuk-grid-column-two-thirds {
-        padding-left: govuk-spacing(3);
-      }
-    }
+  .govuk-fieldset > .govuk-grid-row {
+    margin-top: govuk-spacing(1);
+  }
+
+  .govuk-fieldset > .govuk-grid-row .govuk-grid-column-two-thirds {
+    padding-left: govuk-spacing(3);
   }
 }
 
