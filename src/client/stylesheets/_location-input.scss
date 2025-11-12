@@ -1,5 +1,15 @@
 @use "govuk-frontend" as *;
 
+.govuk-fieldset__legend {
+  &.govuk-fieldset__legend--m {
+    margin-bottom: govuk-spacing(3);
+  }
+}
+
+.govuk-hint + .app-location-input {
+  margin-top: govuk-spacing(3);
+}
+
 .app-location-input {
   @include govuk-clearfix;
   margin-bottom: govuk-spacing(6);
@@ -30,6 +40,10 @@
     padding-left: govuk-spacing(3);
     margin-bottom: 0;
   }
+
+  .govuk-hint + .app-location-input {
+    margin-top: 0;
+  }
 }
 
 .app-location-input__item {
@@ -50,7 +64,6 @@
 
   .govuk-label {
     display: block;
-    font-size: 1rem;
   }
 
   .govuk-input {
@@ -59,13 +72,12 @@
   }
 
   .govuk-input--error {
-    border: 2px solid $govuk-border-colour;
+    border: 2px solid $govuk-error-colour;
   }
 
   .govuk-error-message {
     display: block;
-    margin-bottom: govuk-spacing(1);
-    font-size: 1rem;
+    margin-bottom: govuk-spacing(3);
     white-space: normal;
     word-wrap: break-word;
   }
