@@ -13,6 +13,7 @@ import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookie, getCookieHeader } from '~/test/utils/get-cookie.js'
 
 const basePath = `${FORM_PREFIX}/basic`
+const returnUrlQueryString = `?returnUrl=%2Fbasic%2Fsummary`
 
 jest.mock('~/src/server/utils/notify.ts')
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
@@ -436,7 +437,9 @@ describe('Form journey', () => {
 
       // Redirect back to start
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-      expect(response.headers.location).toBe(`${basePath}/licence`)
+      expect(response.headers.location).toBe(
+        `${basePath}/licence${returnUrlQueryString}`
+      )
     })
   })
 })

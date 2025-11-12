@@ -13,6 +13,7 @@ jest.mock('~/src/server/plugins/engine/services/formsService.js')
 describe('Joined conditions functional tests', () => {
   describe('Simple joined conditions (V2)', () => {
     const basePath = `${FORM_PREFIX}/joined-conditions-simple-v2`
+    const returnUrlQueryString = `?returnUrl=%2Fjoined-conditions-simple-v2%2Fsummary`
 
     /** @type {Server} */
     let server
@@ -48,7 +49,9 @@ describe('Joined conditions functional tests', () => {
         })
 
         expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-        expect(res.headers.location).toBe(`${basePath}/name`)
+        expect(res.headers.location).toBe(
+          `${basePath}/name${returnUrlQueryString}`
+        )
       })
 
       test('GET /simple-and-page without session redirects to /name', async () => {
@@ -57,7 +60,9 @@ describe('Joined conditions functional tests', () => {
         })
 
         expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-        expect(res.headers.location).toBe(`${basePath}/name`)
+        expect(res.headers.location).toBe(
+          `${basePath}/name${returnUrlQueryString}`
+        )
       })
     })
 
@@ -98,9 +103,10 @@ describe('Joined conditions functional tests', () => {
         })
 
         expect(res2.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-        expect([`${basePath}/summary`, `${basePath}/status`]).toContain(
-          res2.headers.location
-        )
+        expect([
+          `${basePath}/summary`,
+          `${basePath}/status${returnUrlQueryString}`
+        ]).toContain(res2.headers.location)
       })
 
       test('POST /name with "bob" (lowercase) skips /age', async () => {
@@ -168,9 +174,10 @@ describe('Joined conditions functional tests', () => {
         })
 
         expect(res3.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-        expect([`${basePath}/summary`, `${basePath}/status`]).toContain(
-          res3.headers.location
-        )
+        expect([
+          `${basePath}/summary`,
+          `${basePath}/status${returnUrlQueryString}`
+        ]).toContain(res3.headers.location)
       })
 
       test('Alice (any age) cannot access /simple-and-page', async () => {
@@ -188,9 +195,10 @@ describe('Joined conditions functional tests', () => {
         })
 
         expect(res2.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-        expect([`${basePath}/summary`, `${basePath}/status`]).toContain(
-          res2.headers.location
-        )
+        expect([
+          `${basePath}/summary`,
+          `${basePath}/status${returnUrlQueryString}`
+        ]).toContain(res2.headers.location)
       })
     })
 
@@ -263,6 +271,7 @@ describe('Joined conditions functional tests', () => {
 
   describe('Complex joined conditions (V2)', () => {
     const basePath = `${FORM_PREFIX}/joined-conditions-complex-v2`
+    const returnUrlQueryString = `?returnUrl=%2Fjoined-conditions-complex-v2%2Fsummary`
 
     /** @type {Server} */
     let server
@@ -465,7 +474,9 @@ describe('Joined conditions functional tests', () => {
         })
 
         expect(res6.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-        expect(res6.headers.location).toBe(`${basePath}/are-you-over-18`)
+        expect(res6.headers.location).toBe(
+          `${basePath}/are-you-over-18${returnUrlQueryString}`
+        )
       })
 
       test('Alice born on 01/01/2001 who likes blue cannot access /complex-nested-page', async () => {
@@ -488,8 +499,8 @@ describe('Joined conditions functional tests', () => {
         expect(res2.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
         expect([
           `${basePath}/summary`,
-          `${basePath}/status`,
-          `${basePath}/what-is-your-dob`
+          `${basePath}/status${returnUrlQueryString}`,
+          `${basePath}/what-is-your-dob${returnUrlQueryString}`
         ]).toContain(res2.headers.location)
       })
     })
