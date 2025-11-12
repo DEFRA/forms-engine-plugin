@@ -17,7 +17,8 @@
   flex-wrap: nowrap;
   gap: govuk-spacing(4);
 
-  @include govuk-media-query($until: tablet) {
+  // Wrap items on tablet and below to prevent bleeding when error messages are present
+  @include govuk-media-query($until: desktop) {
     flex-wrap: wrap;
   }
 }
@@ -50,8 +51,13 @@
   flex: 1 1 0;
   min-width: 0;
 
-  @include govuk-media-query($until: tablet) {
-    flex: 1 1 100%; // Full width on mobile
+  @include govuk-media-query($until: desktop) {
+    flex: 1 1 100%;
+    min-width: 100%;
+  }
+
+  @include govuk-media-query($from: desktop) {
+    min-width: 280px;
   }
 
   .govuk-form-group,
@@ -69,6 +75,8 @@
   .govuk-input {
     margin-bottom: 0;
     width: auto;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   .govuk-input--error {
@@ -80,5 +88,8 @@
     margin-bottom: govuk-spacing(3);
     white-space: normal;
     word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 }
