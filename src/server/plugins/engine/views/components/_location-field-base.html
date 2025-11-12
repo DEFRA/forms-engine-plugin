@@ -12,29 +12,29 @@
       }) }}
     {% endif %}
 
-    <div class="app-location-input">
-      {% for item in component.model.items %}
-        <div class="app-location-input__item">
-          {{ govukInput({
-            id: item.id,
-            name: item.name,
-            label: {
-              text: item.label,
-              classes: "govuk-label--s"
-            },
-            classes: item.classes,
-            value: item.value,
-            type: inputType,
-            inputmode: inputMode,
-            prefix: item.prefix,
-            suffix: item.suffix,
-            errorMessage: item.errorMessage,
-            formGroup: {
-              classes: "govuk-!-margin-bottom-0"
-            }
-          }) }}
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-grid-row">
+          {% for item in component.model.items %}
+            <div class="govuk-grid-column-one-half">
+              {{ govukInput({
+                id: item.id,
+                name: item.name,
+                label: {
+                  text: item.label
+                },
+                classes: item.classes,
+                value: item.value,
+                type: inputType,
+                inputmode: inputMode,
+                prefix: item.prefix,
+                suffix: item.suffix,
+                errorMessage: item.errorMessage
+              }) }}
+            </div>
+          {% endfor %}
         </div>
-      {% endfor %}
+      </div>
     </div>
 
     {% if component.model.instructionText %}
@@ -52,13 +52,14 @@
     {% endif %}
   {% endfor %}
 
-  {{ govukFieldset({
-    legend: {
-      text: component.model.fieldset.legend.text,
-      classes: component.model.fieldset.legend.classes,
-      isPageHeading: false
-    },
-    classes: "govuk-form-group--error" if (hasErrors or component.model.errors),
-    html: fieldsetHtml
-  }) }}
+  <div class="govuk-form-group {{ "govuk-form-group--error" if (hasErrors or component.model.errors) }}">
+    {{ govukFieldset({
+      legend: {
+        text: component.model.fieldset.legend.text,
+        classes: component.model.fieldset.legend.classes,
+        isPageHeading: false
+      },
+      html: fieldsetHtml
+    }) }}
+  </div>
 {% endmacro %}
