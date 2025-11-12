@@ -33,7 +33,7 @@ export const prepareNunjucksEnvironment = function (
     env.addFilter(name, nunjucksFilter)
   }
 
-  env.addFilter('markdown', (text: string) =>
+  env.addFilter('markdown', (text: string, _numOfComponents = 0) =>
     markdownToHtml(text, pluginOptions.baseUrl)
   )
 
