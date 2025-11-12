@@ -42,10 +42,10 @@
 
   .govuk-form-group,
   .govuk-form-group--error {
-    margin-bottom: 0 !important;
-    display: block !important;
-    border: 0 !important;
-    padding: 0 !important;
+    margin-bottom: 0;
+    display: block;
+    border: 0;
+    padding: 0;
   }
 
   .govuk-label {
@@ -59,7 +59,7 @@
   }
 
   .govuk-input--error {
-    border: 2px solid $govuk-border-colour !important;
+    border: 2px solid $govuk-border-colour;
   }
 
   .govuk-error-message {
