@@ -163,11 +163,21 @@ pages:
     next:
       - path: '/how-many-members-of-staff-will-look-after-the-unicorns'
     components:
+      - name: mjAccx
+        options: {}
+        type: DatePartsField
+        title: Unicorn insurance policy start date
+        schema: {}
+        hint:
+          This is a date. We can add custom validation to the field based on your
+          requirements. For example, the date entered must be before or after a certain
+          date
       - name: dfGYuk
         options: {}
         schema: {}
         type: EastingNorthingField
         title: Easting and northing
+        shortDescription: Location
         hint:
           This is an Easting and Northing component
       - name: seTThb
@@ -175,6 +185,7 @@ pages:
         schema: {}
         type: LatLongField
         title: Latitude and longitude
+        shortDescription: Position
         hint:
           This is an Latitude and Longitude component
       - name: bhjloS
