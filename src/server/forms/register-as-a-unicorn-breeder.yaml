@@ -174,9 +174,9 @@ pages:
         options: {}
         schema: {}
         type: LatLongField
-        title: Latitute and longitude
+        title: Latitude and longitude
         hint:
-          This is an Latitute and Longitude component
+          This is an Latitude and Longitude component
       - name: bhjloS
         options: {}
         schema: {}
