@@ -12,22 +12,22 @@
       }) }}
     {% endif %}
 
-    <div class="app-location-input">
+    <div class="govuk-grid-row">
       {% for item in component.model.items %}
-        <div class="app-location-input__item">
+        <div class="govuk-grid-column-one-third">
           {{ govukInput({
             id: item.id,
             name: item.name,
             label: {
-              text: item.label,
-              classes: "govuk-label--s"
+              text: item.label
             },
             classes: item.classes,
             value: item.value,
             type: inputType,
             inputmode: inputMode,
             prefix: item.prefix,
-            suffix: item.suffix
+            suffix: item.suffix,
+            errorMessage: item.errorMessage
           }) }}
         </div>
       {% endfor %}
@@ -41,13 +41,21 @@
     {% endif %}
   {% endset %}
 
-  {{ govukFieldset({
-    legend: {
-      text: component.model.fieldset.legend.text,
-      classes: component.model.fieldset.legend.classes,
-      isPageHeading: false
-    },
-    html: fieldsetHtml
-  }) }}
-{% endmacro %}
+  {% set hasErrors = false %}
+  {% for item in component.model.items %}
+    {% if item.errorMessage %}
+      {% set hasErrors = true %}
+    {% endif %}
+  {% endfor %}
 
+  <div class="govuk-form-group {{ "govuk-form-group--error" if (hasErrors or component.model.errors) }}">
+    {{ govukFieldset({
+      legend: {
+        text: component.model.fieldset.legend.text,
+        classes: component.model.fieldset.legend.classes,
+        isPageHeading: false
+      },
+      html: fieldsetHtml
+    }) }}
+  </div>
+{% endmacro %}
