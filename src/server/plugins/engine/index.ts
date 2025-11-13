@@ -33,8 +33,8 @@ export const prepareNunjucksEnvironment = function (
     env.addFilter(name, nunjucksFilter)
   }
 
-  env.addFilter('markdown', (text: string, _numOfComponents = 0) =>
-    markdownToHtml(text, pluginOptions.baseUrl)
+  env.addFilter('markdown', (text: string, demoteH1?: boolean) =>
+    markdownToHtml(text, { baseUrl: pluginOptions.baseUrl, demoteH1 })
   )
 
   for (const [name, nunjucksGlobal] of Object.entries(globals)) {

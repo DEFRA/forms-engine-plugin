@@ -1,4 +1,4 @@
-import { type MarkdownComponent } from '@defra/forms-model'
+import { hasFormComponents, type MarkdownComponent } from '@defra/forms-model'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 
@@ -17,7 +17,9 @@ export class Markdown extends ComponentBase {
 
     this.content = content
     this.options = options
-    this.numOfComponents = props.page?.collection.components.length ?? 0
+    this.numOfComponents = hasFormComponents(props.page?.pageDef)
+      ? props.page.pageDef.components.length
+      : 0
   }
 
   getViewModel() {
