@@ -20,7 +20,8 @@ describe('Joined conditions functional tests', () => {
     beforeAll(async () => {
       server = await createServer({
         formFileName: 'joined-conditions-simple-v2.js',
-        formFilePath: resolve(import.meta.dirname, 'definitions')
+        formFilePath: resolve(import.meta.dirname, 'definitions'),
+        enforceCsrf: false
       })
       await server.initialize()
     })
@@ -270,7 +271,8 @@ describe('Joined conditions functional tests', () => {
     beforeAll(async () => {
       server = await createServer({
         formFileName: 'joined-conditions-complex-v2.js',
-        formFilePath: resolve(import.meta.dirname, 'definitions')
+        formFilePath: resolve(import.meta.dirname, 'definitions'),
+        enforceCsrf: false
       })
       await server.initialize()
     })
