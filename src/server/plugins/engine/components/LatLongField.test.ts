@@ -7,6 +7,7 @@ import {
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
 
 describe('LatLongField', () => {
@@ -358,6 +359,31 @@ describe('LatLongField', () => {
             name: 'myComponent__longitude'
           })
         )
+      })
+
+      it('getViewErrors returns all errors for error summary', () => {
+        const errors: FormSubmissionError[] = [
+          {
+            name: 'myComponent__latitude',
+            text: 'Enter valid latitude',
+            path: ['myComponent__latitude'],
+            href: '#myComponent__latitude'
+          },
+          {
+            name: 'myComponent__longitude',
+            text: 'Enter valid longitude',
+            path: ['myComponent__longitude'],
+            href: '#myComponent__longitude'
+          }
+        ]
+
+        const viewErrors = field.getViewErrors(errors)
+
+        expect(viewErrors).toHaveLength(2)
+        expect(viewErrors).toEqual([
+          expect.objectContaining({ text: 'Enter valid latitude' }),
+          expect.objectContaining({ text: 'Enter valid longitude' })
+        ])
       })
     })
 

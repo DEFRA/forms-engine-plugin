@@ -19,6 +19,34 @@ export type LocationField =
   | InstanceType<typeof EastingNorthingField>
   | InstanceType<typeof LatLongField>
 
+function formatErrorList(messages: string[]): string {
+  if (!messages.length) {
+    return ''
+  }
+
+  if (messages.length === 1) {
+    return messages[0]
+  }
+
+  const leading = messages.slice(0, -1).join(', ')
+  const last = messages[messages.length - 1]
+
+  return `${leading} and ${last}`
+}
+
+function mergeClasses(...classNames: (string | undefined)[]) {
+  const tokens = classNames
+    .flatMap((name) => name?.split(/\s+/) ?? [])
+    .map((token) => token.trim())
+    .filter(Boolean)
+
+  if (!tokens.length) {
+    return undefined
+  }
+
+  return Array.from(new Set(tokens)).join(' ')
+}
+
 export function getLocationFieldViewModel(
   component: LocationField,
   viewModel: ViewModel & {
@@ -33,34 +61,62 @@ export function getLocationFieldViewModel(
   const { collection } = component
   const { fieldset: existingFieldset, label } = viewModel
 
-  // Use the component collection to generate the subitems
-  const items: DateInputItem[] = collection
-    .getViewModel(payload, errors)
-    .map(({ model }): DateInputItem => {
+  const subViewModels = collection.getViewModel(payload, errors)
+
+  const fieldErrors: string[] = []
+  subViewModels.forEach(({ model }) => {
+    if (model.errorMessage?.text) {
+      fieldErrors.push(model.errorMessage.text)
+    }
+  })
+
+  const hasFieldErrors = fieldErrors.length > 0
+
+  const items: DateInputItem[] = subViewModels.map(
+    ({ model }): DateInputItem => {
       let { label, type, value, classes, prefix, suffix, errorMessage } = model
 
       if (label) {
-        label.toString = () => label.text // Use string labels
+        label.toString = () => label.text
       }
 
-      // Allow any `toString()`-able value so non-numeric
-      // values are shown alongside their error messages
       if (!isFormValue(value)) {
         value = undefined
       }
 
-      return {
+      const baseItem: DateInputItem = {
         label,
         id: model.id,
         name: model.name,
         type,
         value,
-        classes,
+        classes: mergeClasses(
+          classes,
+          hasFieldErrors ? 'govuk-input--error' : undefined
+        ),
         prefix,
-        suffix,
-        errorMessage
+        suffix
       }
-    })
+
+      if (!hasFieldErrors && errorMessage) {
+        baseItem.errorMessage = errorMessage
+      }
+
+      return baseItem
+    }
+  )
+
+  const showFieldsetError =
+    hasFieldErrors || Boolean(viewModel.errorMessage?.text)
+
+  viewModel.showFieldsetError = showFieldsetError
+
+  if (hasFieldErrors) {
+    viewModel.errorMessage = {
+      text:
+        fieldErrors.length === 1 ? fieldErrors[0] : formatErrorList(fieldErrors)
+    }
+  }
 
   const fieldset = existingFieldset ?? {
     legend: {

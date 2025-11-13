@@ -101,6 +101,7 @@ describe('LocationFieldHelpers', () => {
 
       // Check that errors are passed to the viewModel
       expect(viewModel.errors).toEqual(errors)
+      expect(viewModel.showFieldsetError).toBe(true)
 
       // Items should still have their structure
       expect(viewModel.items[0]).toEqual(
@@ -118,7 +119,7 @@ describe('LocationFieldHelpers', () => {
       )
     })
 
-    it('should pass error messages to individual items when subfield has errors', () => {
+    it('should display single errors at fieldset level', () => {
       const def: LatLongFieldComponent = {
         title: 'Example lat long',
         name: 'myComponent',
@@ -146,14 +147,108 @@ describe('LocationFieldHelpers', () => {
 
       const viewModel = field.getViewModel(payload, errors)
 
-      // Check that errorMessage is passed through to the item
-      expect(viewModel.items[0]).toEqual(
-        expect.objectContaining({
-          errorMessage: {
-            text: 'Invalid latitude'
-          }
-        })
-      )
+      // Single errors should be displayed at fieldset level
+      expect(viewModel.items[0].errorMessage).toBeUndefined()
+      expect(viewModel.items[1].errorMessage).toBeUndefined()
+
+      expect(viewModel.errorMessage).toEqual({
+        text: 'Invalid latitude'
+      })
+
+      expect(viewModel.showFieldsetError).toBe(true)
+
+      // Error styling should be applied to the field with error
+      expect(viewModel.items[0].classes).toContain('govuk-input--error')
+    })
+
+    it('should display multiple errors as combined message at fieldset level', () => {
+      const def: LatLongFieldComponent = {
+        title: 'Example lat long',
+        name: 'myComponent',
+        type: ComponentType.LatLongField,
+        options: {},
+        schema: {}
+      }
+
+      const collection = new ComponentCollection([def], { model })
+      const field = collection.fields[0] as LatLongField
+
+      const payload = {
+        myComponent__latitude: '',
+        myComponent__longitude: ''
+      }
+
+      const errors = [
+        {
+          name: 'myComponent__latitude',
+          text: 'Enter latitude',
+          path: ['myComponent__latitude'],
+          href: '#myComponent__latitude'
+        },
+        {
+          name: 'myComponent__longitude',
+          text: 'Enter longitude',
+          path: ['myComponent__longitude'],
+          href: '#myComponent__longitude'
+        }
+      ]
+
+      const viewModel = field.getViewModel(payload, errors)
+
+      expect(viewModel.items[0].errorMessage).toBeUndefined()
+      expect(viewModel.items[1].errorMessage).toBeUndefined()
+
+      expect(viewModel.errorMessage).toEqual({
+        text: 'Enter latitude and Enter longitude'
+      })
+      expect(viewModel.showFieldsetError).toBe(true)
+
+      expect(viewModel.items[0].classes).toContain('govuk-input--error')
+      expect(viewModel.items[1].classes).toContain('govuk-input--error')
+    })
+
+    it('should show fieldset error when viewModel has error but no field errors', () => {
+      const def: LatLongFieldComponent = {
+        title: 'Example lat long',
+        name: 'myComponent',
+        type: ComponentType.LatLongField,
+        options: {},
+        schema: {}
+      }
+
+      const collection = new ComponentCollection([def], { model })
+      const field = collection.fields[0] as LatLongField
+
+      const payload = {
+        myComponent__latitude: '51.5',
+        myComponent__longitude: '-0.1'
+      }
+
+      // Parent component error, not field-level
+      const errors = [
+        {
+          name: 'myComponent',
+          text: 'Location is required',
+          path: ['myComponent'],
+          href: '#myComponent'
+        }
+      ]
+
+      const viewModel = field.getViewModel(payload, errors)
+
+      // No individual field errors
+      expect(viewModel.items[0].errorMessage).toBeUndefined()
+      expect(viewModel.items[1].errorMessage).toBeUndefined()
+
+      // But fieldset error should still be shown
+      expect(viewModel.showFieldsetError).toBe(true)
+      expect(viewModel.errorMessage).toEqual({
+        text: 'Location is required'
+      })
+
+      // No error styling on inputs when no field errors
+      expect(viewModel.items[0].classes).not.toContain('govuk-input--error')
+      expect(viewModel.items[1].classes).not.toContain('govuk-input--error')
     })
 
     it('should handle labels correctly in view model items', () => {

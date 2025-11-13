@@ -167,6 +167,12 @@ export class EastingNorthingField extends FormComponent {
     return getLocationFieldViewModel(this, viewModel, payload, errors)
   }
 
+  getViewErrors(
+    errors?: FormSubmissionError[]
+  ): FormSubmissionError[] | undefined {
+    return this.getErrors(errors)
+  }
+
   isState(value?: FormStateValue | FormState) {
     return EastingNorthingField.isEastingNorthing(value)
   }

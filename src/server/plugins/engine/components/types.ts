@@ -110,6 +110,7 @@ export interface ViewModel extends Record<string, unknown> {
     classes?: string
     attributes?: string | Record<string, string>
   }
+  showFieldsetError?: boolean
   components?: ComponentViewModel[]
   upload?: {
     count: number

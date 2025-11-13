@@ -10,6 +10,7 @@ import {
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
 
 describe('EastingNorthingField', () => {
@@ -369,6 +370,32 @@ describe('EastingNorthingField', () => {
             name: 'myComponent__northing'
           })
         )
+      })
+
+      it('getViewErrors returns all errors for error summary', () => {
+        const errors: FormSubmissionError[] = [
+          {
+            name: 'myComponent__easting',
+            text: 'Enter easting',
+            path: ['myComponent__easting'],
+            href: '#myComponent__easting'
+          },
+          {
+            name: 'myComponent__northing',
+            text: 'Enter northing',
+            path: ['myComponent__northing'],
+            href: '#myComponent__northing'
+          }
+        ]
+
+        const viewErrors = field.getViewErrors(errors)
+
+        // Should return all errors, not just the first one
+        expect(viewErrors).toHaveLength(2)
+        expect(viewErrors).toEqual([
+          expect.objectContaining({ text: 'Enter easting' }),
+          expect.objectContaining({ text: 'Enter northing' })
+        ])
       })
     })
 
