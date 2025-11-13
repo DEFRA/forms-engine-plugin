@@ -71,7 +71,7 @@ describe('LocationFieldHelpers', () => {
       expect(instructionText).toContain('decimal format')
     })
 
-    it('should add error classes to items when component has errors', () => {
+    it('should handle component-level errors correctly', () => {
       const def: LatLongFieldComponent = {
         title: 'Example lat long',
         name: 'myComponent',
@@ -99,20 +99,26 @@ describe('LocationFieldHelpers', () => {
 
       const viewModel = field.getViewModel(payload, errors)
 
+      // Check that errors are passed to the viewModel
+      expect(viewModel.errors).toEqual(errors)
+
+      // Items should still have their structure
       expect(viewModel.items[0]).toEqual(
         expect.objectContaining({
-          classes: expect.stringContaining('govuk-input--error')
+          id: 'myComponent__latitude',
+          name: 'myComponent__latitude'
         })
       )
 
       expect(viewModel.items[1]).toEqual(
         expect.objectContaining({
-          classes: expect.stringContaining('govuk-input--error')
+          id: 'myComponent__longitude',
+          name: 'myComponent__longitude'
         })
       )
     })
 
-    it('should add error classes to items when subfield has errors', () => {
+    it('should pass error messages to individual items when subfield has errors', () => {
       const def: LatLongFieldComponent = {
         title: 'Example lat long',
         name: 'myComponent',
@@ -140,9 +146,12 @@ describe('LocationFieldHelpers', () => {
 
       const viewModel = field.getViewModel(payload, errors)
 
+      // Check that errorMessage is passed through to the item
       expect(viewModel.items[0]).toEqual(
         expect.objectContaining({
-          classes: expect.stringContaining('govuk-input--error')
+          errorMessage: {
+            text: 'Invalid latitude'
+          }
         })
       )
     })

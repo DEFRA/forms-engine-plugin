@@ -3,6 +3,7 @@ import {
   type EastingNorthingFieldComponent
 } from '@defra/forms-model'
 import { type LanguageMessages, type ObjectSchema } from 'joi'
+import lowerFirst from 'lodash/lowerFirst.js'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import {
@@ -57,22 +58,22 @@ export class EastingNorthingField extends FormComponent {
       convertToLanguageMessages({
         'any.required': messageTemplate.objectMissing,
         'number.base': messageTemplate.objectMissing,
-        'number.min': `{{#label}} for ${this.title} must be between {{#limit}} and ${eastingMax}`,
-        'number.max': `{{#label}} for ${this.title} must be between ${eastingMin} and {{#limit}}`,
-        'number.precision': `{{#label}} for ${this.title} must be between 1 and 6 digits`,
-        'number.integer': `{{#label}} for ${this.title} must be between 1 and 6 digits`,
-        'number.unsafe': `{{#label}} for ${this.title} must be between 1 and 6 digits`
+        'number.min': `{{#label}} for ${lowerFirst(this.label)} must be between {{#limit}} and ${eastingMax}`,
+        'number.max': `{{#label}} for ${lowerFirst(this.label)} must be between ${eastingMin} and {{#limit}}`,
+        'number.precision': `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 6 digits`,
+        'number.integer': `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 6 digits`,
+        'number.unsafe': `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 6 digits`
       })
 
     const northingValidationMessages: LanguageMessages =
       convertToLanguageMessages({
         'any.required': messageTemplate.objectMissing,
         'number.base': messageTemplate.objectMissing,
-        'number.min': `{{#label}} for ${this.title} must be between {{#limit}} and ${northingMax}`,
-        'number.max': `{{#label}} for ${this.title} must be between ${northingMin} and {{#limit}}`,
-        'number.precision': `{{#label}} for ${this.title} must be between 1 and 7 digits`,
-        'number.integer': `{{#label}} for ${this.title} must be between 1 and 7 digits`,
-        'number.unsafe': `{{#label}} for ${this.title} must be between 1 and 7 digits`
+        'number.min': `{{#label}} for ${lowerFirst(this.label)} must be between {{#limit}} and ${northingMax}`,
+        'number.max': `{{#label}} for ${lowerFirst(this.label)} must be between ${northingMin} and {{#limit}}`,
+        'number.precision': `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 7 digits`,
+        'number.integer': `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 7 digits`,
+        'number.unsafe': `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 7 digits`
       })
 
     this.collection = new ComponentCollection(
@@ -198,11 +199,11 @@ export class EastingNorthingField extends FormComponent {
       advancedSettingsErrors: [
         {
           type: 'eastingMin',
-          template: `Easting for [short description] must be between 0 and 700000`
+          template: `Easting for [short description] must be between ${DEFAULT_EASTING_MIN} and ${DEFAULT_EASTING_MAX}`
         },
         {
           type: 'eastingMax',
-          template: `Easting for [short description] must be between 0 and 700000`
+          template: `Easting for [short description] must be between ${DEFAULT_EASTING_MIN} and ${DEFAULT_EASTING_MAX}`
         },
         {
           type: 'northingMin',
