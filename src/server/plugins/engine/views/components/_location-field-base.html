@@ -13,28 +13,24 @@
     {% endif %}
 
     <div class="govuk-grid-row">
-      <div class="govuk-grid-column-two-thirds">
-        <div class="govuk-grid-row">
-          {% for item in component.model.items %}
-            <div class="govuk-grid-column-one-half">
-              {{ govukInput({
-                id: item.id,
-                name: item.name,
-                label: {
-                  text: item.label
-                },
-                classes: item.classes,
-                value: item.value,
-                type: inputType,
-                inputmode: inputMode,
-                prefix: item.prefix,
-                suffix: item.suffix,
-                errorMessage: item.errorMessage
-              }) }}
-            </div>
-          {% endfor %}
+      {% for item in component.model.items %}
+        <div class="govuk-grid-column-one-third">
+          {{ govukInput({
+            id: item.id,
+            name: item.name,
+            label: {
+              text: item.label
+            },
+            classes: item.classes,
+            value: item.value,
+            type: inputType,
+            inputmode: inputMode,
+            prefix: item.prefix,
+            suffix: item.suffix,
+            errorMessage: item.errorMessage
+          }) }}
         </div>
-      </div>
+      {% endfor %}
     </div>
 
     {% if component.model.instructionText %}
