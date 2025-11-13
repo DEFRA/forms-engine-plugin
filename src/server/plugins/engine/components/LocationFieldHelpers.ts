@@ -19,7 +19,7 @@ export type LocationField =
   | InstanceType<typeof EastingNorthingField>
   | InstanceType<typeof LatLongField>
 
-function formatErrorList(messages: string[]): string {
+export function formatErrorList(messages: string[]): string {
   if (!messages.length) {
     return ''
   }
@@ -34,7 +34,7 @@ function formatErrorList(messages: string[]): string {
   return `${leading} and ${last}`
 }
 
-function mergeClasses(...classNames: (string | undefined)[]) {
+export function mergeClasses(...classNames: (string | undefined)[]) {
   const tokens = classNames
     .flatMap((name) => name?.split(/\s+/) ?? [])
     .map((token) => token.trim())

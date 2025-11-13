@@ -2,6 +2,10 @@ import { ComponentType, type LatLongFieldComponent } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { type LatLongField } from '~/src/server/plugins/engine/components/LatLongField.js'
+import {
+  formatErrorList,
+  mergeClasses
+} from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import definition from '~/test/form/definitions/blank.js'
 
@@ -11,6 +15,64 @@ describe('LocationFieldHelpers', () => {
   beforeEach(() => {
     model = new FormModel(definition, {
       basePath: 'test'
+    })
+  })
+
+  describe('formatErrorList', () => {
+    it('should return empty string for empty array', () => {
+      expect(formatErrorList([])).toBe('')
+    })
+
+    it('should return single message without formatting', () => {
+      expect(formatErrorList(['Error message'])).toBe('Error message')
+    })
+
+    it('should format two messages with "and"', () => {
+      expect(formatErrorList(['First error', 'Second error'])).toBe(
+        'First error and Second error'
+      )
+    })
+
+    it('should format multiple messages with commas and "and"', () => {
+      expect(formatErrorList(['Error 1', 'Error 2', 'Error 3'])).toBe(
+        'Error 1, Error 2 and Error 3'
+      )
+    })
+  })
+
+  describe('mergeClasses', () => {
+    it('should return undefined for no arguments', () => {
+      expect(mergeClasses()).toBeUndefined()
+    })
+
+    it('should return undefined for all undefined arguments', () => {
+      expect(mergeClasses(undefined, undefined)).toBeUndefined()
+    })
+
+    it('should return undefined for empty strings', () => {
+      expect(mergeClasses('', '   ', '')).toBeUndefined()
+    })
+
+    it('should return single class', () => {
+      expect(mergeClasses('class1')).toBe('class1')
+    })
+
+    it('should merge multiple classes', () => {
+      expect(mergeClasses('class1', 'class2')).toBe('class1 class2')
+    })
+
+    it('should deduplicate classes', () => {
+      expect(mergeClasses('class1', 'class2 class1')).toBe('class1 class2')
+    })
+
+    it('should handle undefined mixed with classes', () => {
+      expect(mergeClasses('class1', undefined, 'class2')).toBe('class1 class2')
+    })
+
+    it('should handle multiple spaces in class strings', () => {
+      expect(mergeClasses('class1  class2', '  class3')).toBe(
+        'class1 class2 class3'
+      )
     })
   })
 
@@ -207,6 +269,39 @@ describe('LocationFieldHelpers', () => {
       expect(viewModel.items[1].classes).toContain('govuk-input--error')
     })
 
+    it('should preserve individual error messages when no field errors exist', () => {
+      const def: LatLongFieldComponent = {
+        title: 'Example lat long',
+        name: 'myComponent',
+        type: ComponentType.LatLongField,
+        options: {},
+        schema: {}
+      }
+
+      const collection = new ComponentCollection([def], { model })
+      const field = collection.fields[0] as LatLongField
+
+      const payload = {
+        myComponent__latitude: '',
+        myComponent__longitude: ''
+      }
+
+      // No errors passed in, but the subViewModels might have errors from elsewhere
+      const viewModel = field.getViewModel(payload, [])
+
+      // When no field errors, items should not have error messages
+      expect(viewModel.items[0].errorMessage).toBeUndefined()
+      expect(viewModel.items[1].errorMessage).toBeUndefined()
+
+      // No fieldset error when there are no field errors
+      expect(viewModel.showFieldsetError).toBe(false)
+      expect(viewModel.errorMessage).toBeUndefined()
+
+      // No error styling when no field errors
+      expect(viewModel.items[0].classes).not.toContain('govuk-input--error')
+      expect(viewModel.items[1].classes).not.toContain('govuk-input--error')
+    })
+
     it('should show fieldset error when viewModel has error but no field errors', () => {
       const def: LatLongFieldComponent = {
         title: 'Example lat long',
@@ -247,6 +342,30 @@ describe('LocationFieldHelpers', () => {
       })
 
       // No error styling on inputs when no field errors
+      expect(viewModel.items[0].classes).not.toContain('govuk-input--error')
+      expect(viewModel.items[1].classes).not.toContain('govuk-input--error')
+    })
+
+    it('should handle classes with undefined base classes correctly', () => {
+      const def: LatLongFieldComponent = {
+        title: 'Example lat long',
+        name: 'myComponent',
+        type: ComponentType.LatLongField,
+        options: {},
+        schema: {}
+      }
+
+      const collection = new ComponentCollection([def], { model })
+      const field = collection.fields[0] as LatLongField
+
+      const payload = {
+        myComponent__latitude: '51.5',
+        myComponent__longitude: '-0.1'
+      }
+
+      const viewModel = field.getViewModel(payload)
+
+      // When no errors and no additional classes, classes should not include govuk-input--error
       expect(viewModel.items[0].classes).not.toContain('govuk-input--error')
       expect(viewModel.items[1].classes).not.toContain('govuk-input--error')
     })
