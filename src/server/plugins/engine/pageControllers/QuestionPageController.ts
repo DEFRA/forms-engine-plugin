@@ -5,6 +5,7 @@ import {
   hasComponents,
   hasNext,
   hasRepeater,
+  type ComponentDef,
   type Link,
   type Page
 } from '@defra/forms-model'
@@ -17,6 +18,7 @@ import {
   EXTERNAL_STATE_PAYLOAD
 } from '~/src/server/constants.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import { ComposableComponentCollection } from '~/src/server/plugins/engine/components/ComposableComponentCollection.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import { type BackLink } from '~/src/server/plugins/engine/components/types.js'
 import {
@@ -63,11 +65,16 @@ export class QuestionPageController extends PageController {
   constructor(model: FormModel, pageDef: Page) {
     super(model, pageDef)
 
-    // Components collection
-    this.collection = new ComponentCollection(
-      hasComponents(pageDef) ? pageDef.components : [],
-      { model, page: this }
+    const components = hasComponents(pageDef) ? pageDef.components : []
+    const hasComposable = components.some(
+      (c: ComponentDef) => c.before ?? c.after
     )
+
+    const CollectionClass = hasComposable
+      ? ComposableComponentCollection
+      : ComponentCollection
+
+    this.collection = new CollectionClass(components, { model, page: this })
 
     this.collection.formSchema = this.collection.formSchema.keys({
       crumb: crumbSchema,
