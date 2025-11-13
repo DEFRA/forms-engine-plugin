@@ -218,8 +218,8 @@ describe('DeclarationField', () => {
         const value1 = field.getContextValueFromState(state1)
         const value2 = field.getContextValueFromState(state2)
 
-        expect(value1).toBe(true)
-        expect(value2).toBe(false)
+        expect(value1).toBe('true')
+        expect(value2).toBe('')
       })
 
       it('returns state from payload', () => {

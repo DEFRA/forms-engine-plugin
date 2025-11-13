@@ -89,8 +89,8 @@ export class DeclarationField extends FormComponent {
     return { [name]: value }
   }
 
-  getContextValueFromFormValue(value: FormValue | FormPayload): boolean {
-    return value === 'true'
+  getContextValueFromFormValue(value: FormValue | FormPayload): string {
+    return value === 'true' || value === true ? 'true' : ''
   }
 
   getFormValue(value?: FormStateValue | FormState) {
@@ -110,7 +110,8 @@ export class DeclarationField extends FormComponent {
       content,
       declarationConfirmationLabel = defaultDeclarationConfirmationLabel
     } = this
-    const isChecked = payload[this.name] === true
+    const isChecked =
+      this.getContextValueFromFormValue(payload[this.name]) === 'true'
     return {
       ...super.getViewModel(payload, errors),
       hint: hint ? { text: hint } : undefined,
