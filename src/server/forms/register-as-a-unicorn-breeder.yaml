@@ -168,6 +168,7 @@ pages:
         schema: {}
         type: EastingNorthingField
         title: Easting and northing
+        shortDescription: Location
         hint:
           This is an Easting and Northing component
       - name: seTThb
@@ -175,6 +176,7 @@ pages:
         schema: {}
         type: LatLongField
         title: Latitude and longitude
+        shortDescription: Position
         hint:
           This is an Latitude and Longitude component
       - name: bhjloS
