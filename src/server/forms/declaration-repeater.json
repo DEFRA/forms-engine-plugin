@@ -1,0 +1,88 @@
+{
+  "name": "JN Component retest",
+  "engine": "V2",
+  "schema": 2,
+  "startPage": "/summary",
+  "pages": [
+    {
+      "title": "",
+      "path": "/what-is-your-name",
+      "components": [
+        {
+          "type": "TextField",
+          "title": "What is your name?",
+          "name": "OzsABV",
+          "shortDescription": "name",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "0e92b9ac-b426-4ed4-8b50-3a5ec350432d"
+        }
+      ],
+      "next": [],
+      "id": "b2c0f2ba-9ec6-4a26-ad23-a291920b847d"
+    },
+    {
+      "title": "declaration heading",
+      "path": "/declaration-heading",
+      "components": [
+        {
+          "id": "6dbeace0-11ae-46a4-96a3-3480e90237ae",
+          "type": "Markdown",
+          "content": "fdsdsg",
+          "options": {},
+          "schema": {}
+        },
+        {
+          "type": "DeclarationField",
+          "title": "I am a UK Citizen",
+          "name": "yZCGOZ",
+          "shortDescription": "citizen",
+          "content": "* leave one empty line space after the lead-in line\r\n* use an asterisk or a dash followed by a space to add an item\r\n* start each item with a lowercase letter, do not end with a full stop\r\n* leave one empty line space after the last item",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "a7cfec30-69cc-4826-8ba7-a562f2f0a814"
+        },
+        {
+          "type": "TextField",
+          "title": "How old are you?",
+          "name": "hLZXAV",
+          "shortDescription": "age",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "bfa5fa56-feec-4673-afab-e283e6a84bf9"
+        }
+      ],
+      "next": [],
+      "id": "6bf1974d-20fb-4272-9289-6ae700b2d88c",
+      "controller": "RepeatPageController",
+      "repeat": {
+        "options": {
+          "name": "efigPo",
+          "title": "declarationRepeater"
+        },
+        "schema": {
+          "min": 2,
+          "max": 4
+        }
+      }
+    },
+    {
+      "id": "449a45f6-4541-4a46-91bd-8b8931b07b50",
+      "title": "",
+      "path": "/summary",
+      "controller": "SummaryPageController",
+      "next": []
+    }
+  ],
+  "conditions": [],
+  "sections": [],
+  "lists": []
+}

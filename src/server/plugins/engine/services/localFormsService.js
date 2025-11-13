@@ -51,5 +51,12 @@ export const formsService = async () => {
     slug: 'components'
   })
 
+  await loader.addForm('src/server/forms/declaration-repeater.json', {
+    ...metadata,
+    id: '55555d3b-13f9e-804ce3e-4830-5c45fb32',
+    title: 'Declaration repeater',
+    slug: 'declaration-repeater'
+  })
+
   return loader.toFormsService()
 }

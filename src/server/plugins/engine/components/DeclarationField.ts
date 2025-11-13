@@ -110,6 +110,7 @@ export class DeclarationField extends FormComponent {
       content,
       declarationConfirmationLabel = defaultDeclarationConfirmationLabel
     } = this
+    const isChecked = payload[this.name] === true
     return {
       ...super.getViewModel(payload, errors),
       hint: hint ? { text: hint } : undefined,
@@ -119,11 +120,11 @@ export class DeclarationField extends FormComponent {
         }
       },
       content,
-      values: payload[this.name],
       items: [
         {
           text: declarationConfirmationLabel,
-          value: 'true'
+          value: 'true',
+          checked: isChecked
         }
       ]
     }
