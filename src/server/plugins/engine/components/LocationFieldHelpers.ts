@@ -30,11 +30,8 @@ export function getLocationFieldViewModel(
   payload: FormPayload,
   errors?: FormSubmissionError[]
 ) {
-  const { collection, name } = component
+  const { collection } = component
   const { fieldset: existingFieldset, label } = viewModel
-
-  // Check for component errors only
-  const hasError = errors?.some((error) => error.name === name)
 
   // Use the component collection to generate the subitems
   const items: DateInputItem[] = collection
@@ -44,10 +41,6 @@ export function getLocationFieldViewModel(
 
       if (label) {
         label.toString = () => label.text // Use string labels
-      }
-
-      if (hasError || errorMessage) {
-        classes = `${classes ?? ''} govuk-input--error`.trim()
       }
 
       // Allow any `toString()`-able value so non-numeric
@@ -64,7 +57,8 @@ export function getLocationFieldViewModel(
         value,
         classes,
         prefix,
-        suffix
+        suffix,
+        errorMessage
       }
     })
 

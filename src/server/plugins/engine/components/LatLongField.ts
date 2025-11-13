@@ -1,5 +1,6 @@
 import { ComponentType, type LatLongFieldComponent } from '@defra/forms-model'
 import { type LanguageMessages, type ObjectSchema } from 'joi'
+import lowerFirst from 'lodash/lowerFirst.js'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import {
@@ -60,16 +61,16 @@ export class LatLongField extends FormComponent {
 
     const latitudeMessages: LanguageMessages = convertToLanguageMessages({
       ...customValidationMessages,
-      'number.base': `Enter a valid latitude for ${this.title} like 51.519450`,
-      'number.min': `Latitude for ${this.title} must be between ${latitudeMin} and ${latitudeMax}`,
-      'number.max': `Latitude for ${this.title} must be between ${latitudeMin} and ${latitudeMax}`
+      'number.base': `Enter a valid latitude for ${lowerFirst(this.label)} like 51.519450`,
+      'number.min': `Latitude for ${lowerFirst(this.label)} must be between ${latitudeMin} and ${latitudeMax}`,
+      'number.max': `Latitude for ${lowerFirst(this.label)} must be between ${latitudeMin} and ${latitudeMax}`
     })
 
     const longitudeMessages: LanguageMessages = convertToLanguageMessages({
       ...customValidationMessages,
-      'number.base': `Enter a valid longitude for ${this.title} like -0.127758`,
-      'number.min': `Longitude for ${this.title} must be between ${longitudeMin} and ${longitudeMax}`,
-      'number.max': `Longitude for ${this.title} must be between ${longitudeMin} and ${longitudeMax}`
+      'number.base': `Enter a valid longitude for ${lowerFirst(this.label)} like -0.127758`,
+      'number.min': `Longitude for ${lowerFirst(this.label)} must be between ${longitudeMin} and ${longitudeMax}`,
+      'number.max': `Longitude for ${lowerFirst(this.label)} must be between ${longitudeMin} and ${longitudeMax}`
     })
 
     this.collection = new ComponentCollection(

@@ -335,7 +335,7 @@ describe('EastingNorthingField', () => {
         expect(instructionText).toContain('meters')
       })
 
-      it('sets error classes when component has errors', () => {
+      it('handles errors when component has validation errors', () => {
         const payload = getFormData({
           easting: '',
           northing: ''
@@ -352,15 +352,21 @@ describe('EastingNorthingField', () => {
 
         const viewModel = field.getViewModel(payload, errors)
 
+        // Check that error is passed to the viewModel
+        expect(viewModel.errors).toEqual(errors)
+
+        // Items should be present with their basic structure
         expect(viewModel.items?.[0]).toEqual(
           expect.objectContaining({
-            classes: expect.stringContaining('govuk-input--error')
+            id: 'myComponent__easting',
+            name: 'myComponent__easting'
           })
         )
 
         expect(viewModel.items?.[1]).toEqual(
           expect.objectContaining({
-            classes: expect.stringContaining('govuk-input--error')
+            id: 'myComponent__northing',
+            name: 'myComponent__northing'
           })
         )
       })
