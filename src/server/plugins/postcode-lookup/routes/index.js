@@ -74,7 +74,10 @@ export function dispatch(request, h, initial) {
    */
   const data = {
     initial,
-    details: { postcodeQuery: '', buildingNameQuery: '' }
+    details: {
+      postcodeQuery: initial.inputSearchParams.postcode,
+      buildingNameQuery: initial.inputSearchParams.buildingName ?? ''
+    }
   }
 
   request.yar.set(JOURNEY_BASE_URL, data)
@@ -89,13 +92,14 @@ export function dispatch(request, h, initial) {
  * @param {PostcodeLookupConfiguration} options - ordnance survey api key
  */
 export function getRoutes(options) {
-  return [getRoute(), postRoute(options)]
+  return [getRoute(options), postRoute(options)]
 }
 
 /**
+ * @param {PostcodeLookupConfiguration} options
  * @returns {ServerRoute<PostcodeLookupGetRequestRefs>}
  */
-function getRoute() {
+function getRoute(options) {
   return {
     method: 'GET',
     path: JOURNEY_BASE_URL,
@@ -103,6 +107,11 @@ function getRoute() {
       const { query } = request
       const { step } = query
       const session = getSessionState(request)
+
+      if (session.details.postcodeQuery) {
+        // @ts-expect-error testioptudfiogfhfdkghfdkljghdfkljghnfd
+        return detailsPostHandler(request, h, options)
+      }
 
       const model =
         step === steps.manual
@@ -171,7 +180,12 @@ async function detailsPostHandler(request, h, options) {
   const { payload } = request
   const session = getSessionState(request)
   const { ordnanceSurveyApiKey: apiKey } = options
-  const { value: details, error } = detailsPayloadSchema.validate(payload)
+
+  const { value: details, error } = detailsPayloadSchema.validate(
+    session.details.postcodeQuery
+      ? { ...session.details, step: 'details' }
+      : payload
+  )
 
   let model
 

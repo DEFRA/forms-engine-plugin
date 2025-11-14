@@ -297,7 +297,11 @@ export class UkAddressField extends FormComponent {
       componentHint: component.hint,
       componentTitle: component.title || controller.title,
       step: args.actionArgs.step,
-      sourceUrl: args.sourceUrl
+      sourceUrl: args.sourceUrl,
+      inputSearchParams: {
+        postcode: request.payload.postcodeQueryField as string,
+        buildingName: request.payload.buildingNameQueryField as string
+      }
     })
   }
 }
