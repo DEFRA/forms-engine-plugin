@@ -246,7 +246,6 @@ describe('DeclarationField', () => {
             label: { text: def.title },
             name: 'myComponent',
             attributes: {},
-            values: [],
             content: 'Lorem ipsum dolar sit amet',
             id: 'myComponent',
             fieldset: {
@@ -257,7 +256,8 @@ describe('DeclarationField', () => {
             items: [
               {
                 value: 'true',
-                text: 'I understand and agree'
+                text: 'I understand and agree',
+                checked: true
               }
             ]
           })
@@ -276,10 +276,16 @@ describe('DeclarationField', () => {
 
         expect(viewModel).toEqual(
           expect.objectContaining({
-            values: ['true'],
             hint: {
               text: 'Please read and confirm the following'
-            }
+            },
+            items: [
+              {
+                value: 'true',
+                text: 'I understand and agree',
+                checked: true
+              }
+            ]
           })
         )
       })
@@ -301,14 +307,39 @@ describe('DeclarationField', () => {
         collection = new ComponentCollection([def], { model })
         field = collection.fields[0]
 
-        const viewModel = field.getViewModel(getFormData(['unchecked', 'true']))
+        const viewModel = field.getViewModel(getFormData(['true']))
 
         expect(viewModel).toEqual(
           expect.objectContaining({
             items: [
               {
                 value: 'true',
-                text: 'I consent to the processing of my personal data'
+                text: 'I consent to the processing of my personal data',
+                checked: true
+              }
+            ]
+          })
+        )
+      })
+
+      it('sets checkbox as unchecked', () => {
+        def = {
+          ...def,
+          hint: 'Please read and confirm the following'
+        } satisfies DeclarationFieldComponent
+
+        collection = new ComponentCollection([def], { model })
+        field = collection.fields[0]
+
+        const viewModel = field.getViewModel(getFormData(undefined))
+
+        expect(viewModel).toEqual(
+          expect.objectContaining({
+            items: [
+              {
+                value: 'true',
+                text: 'I understand and agree',
+                checked: false
               }
             ]
           })
