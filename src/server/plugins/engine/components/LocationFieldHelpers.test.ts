@@ -3,7 +3,9 @@ import { ComponentType, type LatLongFieldComponent } from '@defra/forms-model'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { type LatLongField } from '~/src/server/plugins/engine/components/LatLongField.js'
 import {
+  extractEnterFieldNames,
   formatErrorList,
+  joinWithAnd,
   mergeClasses
 } from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
@@ -15,6 +17,50 @@ describe('LocationFieldHelpers', () => {
   beforeEach(() => {
     model = new FormModel(definition, {
       basePath: 'test'
+    })
+  })
+
+  describe('extractEnterFieldNames', () => {
+    it('should return empty array for empty input', () => {
+      expect(extractEnterFieldNames([])).toEqual([])
+    })
+
+    it('should return null for non-Enter messages', () => {
+      expect(extractEnterFieldNames(['Select option'])).toBeNull()
+    })
+
+    it('should extract field name from single Enter message', () => {
+      expect(extractEnterFieldNames(['Enter Easting'])).toEqual(['Easting'])
+    })
+
+    it('should extract field names from multiple Enter messages', () => {
+      expect(
+        extractEnterFieldNames(['Enter Easting', 'Enter Northing'])
+      ).toEqual(['Easting', 'Northing'])
+    })
+
+    it('should return null if any message does not match pattern', () => {
+      expect(
+        extractEnterFieldNames(['Enter Easting', 'Select option'])
+      ).toBeNull()
+    })
+  })
+
+  describe('joinWithAnd', () => {
+    it('should join two items with "and"', () => {
+      expect(joinWithAnd(['item1', 'item2'])).toBe('item1 and item2')
+    })
+
+    it('should join three items with commas and "and"', () => {
+      expect(joinWithAnd(['item1', 'item2', 'item3'])).toBe(
+        'item1, item2 and item3'
+      )
+    })
+
+    it('should join four items with commas and "and"', () => {
+      expect(joinWithAnd(['item1', 'item2', 'item3', 'item4'])).toBe(
+        'item1, item2, item3 and item4'
+      )
     })
   })
 
@@ -36,6 +82,24 @@ describe('LocationFieldHelpers', () => {
     it('should format multiple messages with commas and "and"', () => {
       expect(formatErrorList(['Error 1', 'Error 2', 'Error 3'])).toBe(
         'Error 1, Error 2 and Error 3'
+      )
+    })
+
+    it('should extract and format Enter messages', () => {
+      expect(formatErrorList(['Enter Easting', 'Enter Northing'])).toBe(
+        'Enter Easting and Northing'
+      )
+    })
+
+    it('should extract and format three Enter messages', () => {
+      expect(
+        formatErrorList(['Enter Field1', 'Enter Field2', 'Enter Field3'])
+      ).toBe('Enter Field1, Field2 and Field3')
+    })
+
+    it('should fallback to regular join for non-Enter messages', () => {
+      expect(formatErrorList(['Select option1', 'Select option2'])).toBe(
+        'Select option1 and Select option2'
       )
     })
   })
@@ -243,13 +307,13 @@ describe('LocationFieldHelpers', () => {
       const errors = [
         {
           name: 'myComponent__latitude',
-          text: 'Enter latitude',
+          text: 'Enter Latitude',
           path: ['myComponent__latitude'],
           href: '#myComponent__latitude'
         },
         {
           name: 'myComponent__longitude',
-          text: 'Enter longitude',
+          text: 'Enter Longitude',
           path: ['myComponent__longitude'],
           href: '#myComponent__longitude'
         }
@@ -261,7 +325,7 @@ describe('LocationFieldHelpers', () => {
       expect(viewModel.items[1].errorMessage).toBeUndefined()
 
       expect(viewModel.errorMessage).toEqual({
-        text: 'Enter latitude and Enter longitude'
+        text: 'Enter Latitude and Longitude'
       })
       expect(viewModel.showFieldsetError).toBe(true)
 

@@ -19,6 +19,31 @@ export type LocationField =
   | InstanceType<typeof EastingNorthingField>
   | InstanceType<typeof LatLongField>
 
+export function extractEnterFieldNames(messages: string[]): string[] | null {
+  const enterPattern = /^Enter (.+)$/
+  const fieldNames: string[] = []
+
+  for (const msg of messages) {
+    const match = enterPattern.exec(msg)
+    if (!match) {
+      return null
+    }
+    fieldNames.push(match[1])
+  }
+
+  return fieldNames
+}
+
+export function joinWithAnd(items: string[]): string {
+  if (items.length === 2) {
+    return `${items[0]} and ${items[1]}`
+  }
+
+  const leading = items.slice(0, -1).join(', ')
+  const last = items[items.length - 1]
+  return `${leading} and ${last}`
+}
+
 export function formatErrorList(messages: string[]): string {
   if (!messages.length) {
     return ''
@@ -28,10 +53,13 @@ export function formatErrorList(messages: string[]): string {
     return messages[0]
   }
 
-  const leading = messages.slice(0, -1).join(', ')
-  const last = messages[messages.length - 1]
+  const fieldNames = extractEnterFieldNames(messages)
 
-  return `${leading} and ${last}`
+  if (fieldNames) {
+    return `Enter ${joinWithAnd(fieldNames)}`
+  }
+
+  return joinWithAnd(messages)
 }
 
 export function mergeClasses(...classNames: (string | undefined)[]) {

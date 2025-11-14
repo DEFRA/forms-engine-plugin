@@ -747,7 +747,7 @@ describe('LatLongField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /Enter a valid latitude for .* like 51.519450/
+                    /Enter a valid Latitude for .* like 51.519450/
                   )
                 })
               ]
@@ -766,7 +766,7 @@ describe('LatLongField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /Enter a valid longitude for .* like -0.127758/
+                    /Enter a valid Longitude for .* like -0.127758/
                   )
                 })
               ]

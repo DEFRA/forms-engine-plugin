@@ -7,10 +7,7 @@ import {
   FormComponent,
   isFormState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
-import {
-  createLocationFieldValidator,
-  getLocationFieldViewModel
-} from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
+import { getLocationFieldViewModel } from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
 import { type LatLongState } from '~/src/server/plugins/engine/components/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
@@ -50,10 +47,11 @@ export class LatLongField extends FormComponent {
     const longitudeMin = schema?.longitude?.min ?? -13.687
     const longitudeMax = schema?.longitude?.max ?? 1.767
 
+    const latitudeRequired = 'Enter Latitude'
+    const longitudeRequired = 'Enter Longitude'
+
     const customValidationMessages: LanguageMessages =
       convertToLanguageMessages({
-        'any.required': messageTemplate.required,
-        'number.base': messageTemplate.required,
         'number.precision':
           '{{#label}} must have no more than 7 decimal places',
         'number.unsafe': '{{#label}} must be a valid number'
@@ -61,14 +59,16 @@ export class LatLongField extends FormComponent {
 
     const latitudeMessages: LanguageMessages = convertToLanguageMessages({
       ...customValidationMessages,
-      'number.base': `Enter a valid latitude for ${lowerFirst(this.label)} like 51.519450`,
+      'any.required': latitudeRequired,
+      'number.base': `Enter a valid Latitude for ${lowerFirst(this.label)} like 51.519450`,
       'number.min': `Latitude for ${lowerFirst(this.label)} must be between ${latitudeMin} and ${latitudeMax}`,
       'number.max': `Latitude for ${lowerFirst(this.label)} must be between ${latitudeMin} and ${latitudeMax}`
     })
 
     const longitudeMessages: LanguageMessages = convertToLanguageMessages({
       ...customValidationMessages,
-      'number.base': `Enter a valid longitude for ${lowerFirst(this.label)} like -0.127758`,
+      'any.required': longitudeRequired,
+      'number.base': `Enter a valid Longitude for ${lowerFirst(this.label)} like -0.127758`,
       'number.min': `Longitude for ${lowerFirst(this.label)} must be between ${longitudeMin} and ${longitudeMax}`,
       'number.max': `Longitude for ${lowerFirst(this.label)} must be between ${longitudeMin} and ${longitudeMax}`
     })
@@ -112,7 +112,6 @@ export class LatLongField extends FormComponent {
       ],
       { ...props, parent: this },
       {
-        custom: getValidatorLatLong(this),
         peers: [`${name}__latitude`, `${name}__longitude`]
       }
     )
@@ -165,7 +164,18 @@ export class LatLongField extends FormComponent {
   getViewErrors(
     errors?: FormSubmissionError[]
   ): FormSubmissionError[] | undefined {
-    return this.getErrors(errors)
+    const allErrors = this.getErrors(errors)
+
+    if (!allErrors?.length) {
+      return allErrors
+    }
+
+    const uniqueErrors = allErrors.filter(
+      (error, index, self) =>
+        index === self.findIndex((err) => err.href === error.href)
+    )
+
+    return uniqueErrors
   }
 
   isState(value?: FormStateValue | FormState) {
@@ -225,8 +235,4 @@ export class LatLongField extends FormComponent {
       NumberField.isNumber(value.longitude)
     )
   }
-}
-
-export function getValidatorLatLong(component: LatLongField) {
-  return createLocationFieldValidator(component)
 }
