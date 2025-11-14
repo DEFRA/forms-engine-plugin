@@ -197,7 +197,7 @@ describe('DeclarationField', () => {
         const payload2 = field.getFormDataFromState(state2)
 
         expect(payload1).toEqual(getFormData('true'))
-        expect(payload2).toEqual(getFormData())
+        expect(payload2).toEqual(getFormData('unchecked'))
       })
 
       it('returns value from state', () => {
@@ -208,7 +208,7 @@ describe('DeclarationField', () => {
         const value2 = field.getFormValueFromState(state2)
 
         expect(value1).toBe('true')
-        expect(value2).toBeUndefined()
+        expect(value2).toBe('unchecked')
       })
 
       it('returns context for conditions and form submission', () => {
