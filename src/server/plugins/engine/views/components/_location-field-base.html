@@ -69,16 +69,19 @@
         </div>
       {% endfor %}
     </div>
+  {% endset %}
 
+  {% set detailsHtml %}
     {% if component.model.instructionText %}
       {{ govukDetails({
         summaryText: "How to find location details",
-        html: component.model.instructionText | safe
+        html: component.model.instructionText | safe,
+        classes: "govuk-!-margin-top-3"
       }) }}
     {% endif %}
   {% endset %}
 
-  {% set hasErrors = component.model.errorMessage or component.model.errors %}
+  {% set hasErrors = showFieldsetError and component.model.errorMessage %}
 
   <div class="govuk-form-group {{ "govuk-form-group--error" if hasErrors }}">
     {{ govukFieldset({
@@ -90,5 +93,6 @@
       describedBy: fieldsetDescribedBy if fieldsetDescribedBy else undefined,
       html: fieldsetHtml
     }) }}
+    {{ detailsHtml | safe }}
   </div>
 {% endmacro %}

@@ -56,8 +56,8 @@ export class EastingNorthingField extends FormComponent {
 
     const customValidationMessages: LanguageMessages =
       convertToLanguageMessages({
-        'any.required': messageTemplate.objectMissing,
-        'number.base': messageTemplate.objectMissing,
+        'any.required': messageTemplate.required,
+        'number.base': messageTemplate.required,
         'number.min': `{{#label}} for ${lowerFirst(this.label)} must be between {{#limit}} and ${eastingMax}`,
         'number.max': `{{#label}} for ${lowerFirst(this.label)} must be between ${eastingMin} and {{#limit}}`,
         'number.precision': `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 6 digits`,
@@ -67,8 +67,8 @@ export class EastingNorthingField extends FormComponent {
 
     const northingValidationMessages: LanguageMessages =
       convertToLanguageMessages({
-        'any.required': messageTemplate.objectMissing,
-        'number.base': messageTemplate.objectMissing,
+        'any.required': messageTemplate.required,
+        'number.base': messageTemplate.required,
         'number.min': `{{#label}} for ${lowerFirst(this.label)} must be between {{#limit}} and ${northingMax}`,
         'number.max': `{{#label}} for ${lowerFirst(this.label)} must be between ${northingMin} and {{#limit}}`,
         'number.precision': `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 7 digits`,

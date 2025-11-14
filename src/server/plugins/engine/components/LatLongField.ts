@@ -52,8 +52,8 @@ export class LatLongField extends FormComponent {
 
     const customValidationMessages: LanguageMessages =
       convertToLanguageMessages({
-        'any.required': messageTemplate.objectMissing,
-        'number.base': messageTemplate.objectMissing,
+        'any.required': messageTemplate.required,
+        'number.base': messageTemplate.required,
         'number.precision':
           '{{#label}} must have no more than 7 decimal places',
         'number.unsafe': '{{#label}} must be a valid number'
