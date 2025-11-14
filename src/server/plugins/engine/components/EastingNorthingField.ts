@@ -54,8 +54,8 @@ export class EastingNorthingField extends FormComponent {
     const northingMin = schema?.northing?.min ?? DEFAULT_NORTHING_MIN
     const northingMax = schema?.northing?.max ?? DEFAULT_NORTHING_MAX
 
-    const eastingRequired = 'Enter Easting'
-    const northingRequired = 'Enter Northing'
+    const eastingRequired = 'Enter easting'
+    const northingRequired = 'Enter northing'
 
     const eastingDigitsMessage = `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 6 digits`
     const northingDigitsMessage = `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 7 digits`

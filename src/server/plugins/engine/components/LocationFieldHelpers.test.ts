@@ -32,18 +32,18 @@ describe('LocationFieldHelpers', () => {
     })
 
     it('should extract field name from single Enter message', () => {
-      expect(extractEnterFieldNames(['Enter Easting'])).toEqual(['Easting'])
+      expect(extractEnterFieldNames(['Enter easting'])).toEqual(['easting'])
     })
 
     it('should extract field names from multiple Enter messages', () => {
       expect(
-        extractEnterFieldNames(['Enter Easting', 'Enter Northing'])
-      ).toEqual(['Easting', 'Northing'])
+        extractEnterFieldNames(['Enter easting', 'Enter northing'])
+      ).toEqual(['easting', 'northing'])
     })
 
     it('should return null if any message does not match pattern', () => {
       expect(
-        extractEnterFieldNames(['Enter Easting', 'Select option'])
+        extractEnterFieldNames(['Enter easting', 'Select option'])
       ).toBeNull()
     })
   })
@@ -88,8 +88,8 @@ describe('LocationFieldHelpers', () => {
     })
 
     it('should extract and format Enter messages', () => {
-      expect(formatErrorList(['Enter Easting', 'Enter Northing'])).toBe(
-        'Enter Easting and Northing'
+      expect(formatErrorList(['Enter easting', 'Enter northing'])).toBe(
+        'Enter easting and northing'
       )
     })
 
@@ -396,13 +396,13 @@ describe('LocationFieldHelpers', () => {
       const errors = [
         {
           name: 'myComponent__latitude',
-          text: 'Enter Latitude',
+          text: 'Enter latitude',
           path: ['myComponent__latitude'],
           href: '#myComponent__latitude'
         },
         {
           name: 'myComponent__longitude',
-          text: 'Enter Longitude',
+          text: 'Enter longitude',
           path: ['myComponent__longitude'],
           href: '#myComponent__longitude'
         }
@@ -414,7 +414,7 @@ describe('LocationFieldHelpers', () => {
       expect(viewModel.items[1].errorMessage).toBeUndefined()
 
       expect(viewModel.errorMessage).toEqual({
-        text: 'Enter Latitude and Longitude'
+        text: 'Enter latitude and longitude'
       })
       expect(viewModel.showFieldsetError).toBe(true)
 

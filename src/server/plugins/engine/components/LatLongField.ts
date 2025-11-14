@@ -50,8 +50,8 @@ export class LatLongField extends FormComponent {
     const longitudeMin = schema?.longitude?.min ?? -13.687
     const longitudeMax = schema?.longitude?.max ?? 1.767
 
-    const latitudeRequired = 'Enter Latitude'
-    const longitudeRequired = 'Enter Longitude'
+    const latitudeRequired = 'Enter latitude'
+    const longitudeRequired = 'Enter longitude'
 
     const customValidationMessages: LanguageMessages =
       convertToLanguageMessages({
