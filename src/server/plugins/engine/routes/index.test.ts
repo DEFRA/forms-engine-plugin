@@ -251,8 +251,9 @@ describe('redirectOrMakeHandler', () => {
       expect(mockMakeHandler).not.toHaveBeenCalled()
     })
 
-    it('should set returnUrl when redirecting and next page is not an exit page', async () => {
+    it('should set returnUrl when redirecting from summary page and next page is not an exit page', async () => {
       const testPage = Object.assign({}, mockPage, {
+        path: '/summary',
         getRelevantPath: jest.fn().mockReturnValue('/other-path'),
         getHref: jest
           .fn()
@@ -279,8 +280,9 @@ describe('redirectOrMakeHandler', () => {
       )
     })
 
-    it('should not set returnUrl when redirecting and next page is an exit page', async () => {
+    it('should not set returnUrl when redirecting from summary and next page is an exit page', async () => {
       const testPage = Object.assign({}, mockPage, {
+        path: '/summary',
         getHref: jest.fn().mockReturnValue('/test-href'),
         getRelevantPath: jest.fn().mockReturnValue('/other-path')
       }) as unknown as PageControllerClass
@@ -288,6 +290,27 @@ describe('redirectOrMakeHandler', () => {
       ;(findPage as jest.Mock).mockReturnValue(
         Object.create(TerminalPageController.prototype)
       )
+      await redirectOrMakeHandler(
+        mockRequest,
+        mockH,
+        undefined,
+        mockMakeHandler
+      )
+
+      expect(proceed).toHaveBeenCalledWith(mockRequest, mockH, '/test-href', {})
+    })
+
+    it('should not set returnUrl when redirecting from a page that is not summary', async () => {
+      const testPage = Object.assign({}, mockPage, {
+        path: '/not-summary',
+        getHref: jest.fn().mockReturnValue('/test-href'),
+        getRelevantPath: jest.fn().mockReturnValue('/other-path')
+      }) as unknown as PageControllerClass
+      ;(getPage as jest.Mock).mockReturnValue(testPage)
+      ;(findPage as jest.Mock).mockReturnValue(
+        Object.create(QuestionPageController.prototype)
+      )
+
       await redirectOrMakeHandler(
         mockRequest,
         mockH,
@@ -306,8 +329,9 @@ describe('redirectOrMakeHandler', () => {
         mockRequest.app = { model: mockModelV1 }
       })
 
-      it('should set returnUrl when redirecting and next pages exist', async () => {
+      it('should set returnUrl when redirecting from summary and next pages exist', async () => {
         const testPage = Object.assign({}, mockPage, {
+          path: '/summary',
           getRelevantPath: jest.fn().mockReturnValue('/other-path'),
           getHref: jest
             .fn()
@@ -334,11 +358,36 @@ describe('redirectOrMakeHandler', () => {
 
       it('should not set returnUrl when redirecting and no next pages exist', async () => {
         const testPage = Object.assign({}, mockPage, {
+          path: '/summary',
           getHref: jest.fn().mockReturnValue('/test-href'),
           getRelevantPath: jest.fn().mockReturnValue('/other-path')
         }) as unknown as PageControllerClass
         ;(getPage as jest.Mock).mockReturnValue(testPage)
         ;(findPage as jest.Mock).mockReturnValue({ next: [] })
+
+        await redirectOrMakeHandler(
+          mockRequest,
+          mockH,
+          undefined,
+          mockMakeHandler
+        )
+
+        expect(proceed).toHaveBeenCalledWith(
+          mockRequest,
+          mockH,
+          '/test-href',
+          {}
+        )
+      })
+
+      it('should not set returnUrl when not redirecting from summary', async () => {
+        const testPage = Object.assign({}, mockPage, {
+          path: '/not-summary',
+          getHref: jest.fn().mockReturnValue('/test-href'),
+          getRelevantPath: jest.fn().mockReturnValue('/other-path')
+        }) as unknown as PageControllerClass
+        ;(getPage as jest.Mock).mockReturnValue(testPage)
+        ;(findPage as jest.Mock).mockReturnValue({ next: ['next-page'] })
 
         await redirectOrMakeHandler(
           mockRequest,

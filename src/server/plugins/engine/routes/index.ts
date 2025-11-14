@@ -107,9 +107,10 @@ export async function redirectOrMakeHandler(
 
   // Set the return URL unless an exit page
   if (
-    (model.schemaVersion === SchemaVersion.V1 && redirectTo?.next.length) ||
-    (model.schemaVersion === SchemaVersion.V2 &&
-      !(redirectTo instanceof TerminalPageController))
+    page.path === summaryPath &&
+    ((model.schemaVersion === SchemaVersion.V1 && redirectTo?.next.length) ||
+      (model.schemaVersion === SchemaVersion.V2 &&
+        !(redirectTo instanceof TerminalPageController)))
   ) {
     overrideQueryParams.returnUrl = page.getHref(summaryPath)
   }
