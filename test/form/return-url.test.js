@@ -63,38 +63,56 @@ describe('Return URL tests', () => {
       )
     })
 
-    // TODO see how to set the context or make POST work
-
     it('should go to first invalid page and include returnUrl query string on mid-flow page load without full state', async () => {
-      // SET CONTEXT with age but without pizza answer
+      // set context with age but without pizza answer
       const payload = {
         isOverEighteen: true
       }
-      const response1 = await server.inject({
+      await server.inject({
         url: `${basePath}/age`,
         method: 'POST',
         headers,
         payload: { ...payload, crumb: csrfToken }
       })
 
-      expect(response1.headers.location).toBe(`${basePath}/pizza`)
-
-      const response2 = await server.inject({
+      // trying to load favourite pizza page without pizza answer in context
+      const response = await server.inject({
         method: 'GET',
         url: `${basePath}/favourite-pizza`,
         headers
       })
 
-      expect(response2.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-      expect(response2.headers.location).toBe(
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe(
         `${basePath}/pizza${returnUrlQueryString}`
       )
     })
 
     it('should go to first invalid AND relevant page and include returnUrl query string on mid-flow page load without full state', async () => {
-      // SET CONTEXT with age, with pizza anser as NO
+      // set context with age, with pizza answer as no
+      const agePayload = {
+        isOverEighteen: true
+      }
+      await server.inject({
+        url: `${basePath}/age`,
+        method: 'POST',
+        headers,
+        payload: { ...agePayload, crumb: csrfToken }
+      })
+      const pizzaPayload = {
+        likesPizza: false
+      }
+      await server.inject({
+        url: `${basePath}/pizza`,
+        method: 'POST',
+        headers,
+        payload: { ...pizzaPayload, crumb: csrfToken }
+      })
+
       const response = await server.inject({
-        url: `${basePath}/favourite-pizza`
+        method: 'GET',
+        url: `${basePath}/favourite-pizza`,
+        headers
       })
 
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
