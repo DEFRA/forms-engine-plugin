@@ -10,7 +10,10 @@ import {
   FormComponent,
   isFormState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { getLocationFieldViewModel } from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
+import {
+  deduplicateErrorsByHref,
+  getLocationFieldViewModel
+} from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
 import { type EastingNorthingState } from '~/src/server/plugins/engine/components/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
@@ -54,15 +57,18 @@ export class EastingNorthingField extends FormComponent {
     const eastingRequired = 'Enter Easting'
     const northingRequired = 'Enter Northing'
 
+    const eastingDigitsMessage = `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 6 digits`
+    const northingDigitsMessage = `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 7 digits`
+
     const customValidationMessages: LanguageMessages =
       convertToLanguageMessages({
         'any.required': eastingRequired,
         'number.base': eastingRequired,
         'number.min': `{{#label}} for ${lowerFirst(this.label)} must be between {{#limit}} and ${eastingMax}`,
         'number.max': `{{#label}} for ${lowerFirst(this.label)} must be between ${eastingMin} and {{#limit}}`,
-        'number.precision': `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 6 digits`,
-        'number.integer': `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 6 digits`,
-        'number.unsafe': `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 6 digits`
+        'number.precision': eastingDigitsMessage,
+        'number.integer': eastingDigitsMessage,
+        'number.unsafe': eastingDigitsMessage
       })
 
     const northingValidationMessages: LanguageMessages =
@@ -71,9 +77,9 @@ export class EastingNorthingField extends FormComponent {
         'number.base': northingRequired,
         'number.min': `{{#label}} for ${lowerFirst(this.label)} must be between {{#limit}} and ${northingMax}`,
         'number.max': `{{#label}} for ${lowerFirst(this.label)} must be between ${northingMin} and {{#limit}}`,
-        'number.precision': `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 7 digits`,
-        'number.integer': `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 7 digits`,
-        'number.unsafe': `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 7 digits`
+        'number.precision': northingDigitsMessage,
+        'number.integer': northingDigitsMessage,
+        'number.unsafe': northingDigitsMessage
       })
 
     this.collection = new ComponentCollection(
@@ -170,17 +176,7 @@ export class EastingNorthingField extends FormComponent {
     errors?: FormSubmissionError[]
   ): FormSubmissionError[] | undefined {
     const allErrors = this.getErrors(errors)
-
-    if (!allErrors?.length) {
-      return allErrors
-    }
-
-    const uniqueErrors = allErrors.filter(
-      (error, index, self) =>
-        index === self.findIndex((err) => err.href === error.href)
-    )
-
-    return uniqueErrors
+    return deduplicateErrorsByHref(allErrors)
   }
 
   isState(value?: FormStateValue | FormState) {

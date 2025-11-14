@@ -3,12 +3,14 @@ import { ComponentType, type LatLongFieldComponent } from '@defra/forms-model'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { type LatLongField } from '~/src/server/plugins/engine/components/LatLongField.js'
 import {
+  deduplicateErrorsByHref,
   extractEnterFieldNames,
   formatErrorList,
   joinWithAnd,
   mergeClasses
 } from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
 
 describe('LocationFieldHelpers', () => {
@@ -101,6 +103,93 @@ describe('LocationFieldHelpers', () => {
       expect(formatErrorList(['Select option1', 'Select option2'])).toBe(
         'Select option1 and Select option2'
       )
+    })
+  })
+
+  describe('deduplicateErrorsByHref', () => {
+    it('should return undefined for undefined input', () => {
+      expect(deduplicateErrorsByHref(undefined)).toBeUndefined()
+    })
+
+    it('should return undefined for empty array', () => {
+      expect(deduplicateErrorsByHref([])).toBeUndefined()
+    })
+
+    it('should return single error unchanged', () => {
+      const error: FormSubmissionError = {
+        name: 'field1',
+        path: ['field1'],
+        href: '#field1',
+        text: 'Error message'
+      }
+      expect(deduplicateErrorsByHref([error])).toEqual([error])
+    })
+
+    it('should deduplicate errors with same href', () => {
+      const error1: FormSubmissionError = {
+        name: 'field1',
+        path: ['field1'],
+        href: '#field1',
+        text: 'Error 1'
+      }
+      const error2: FormSubmissionError = {
+        name: 'field1',
+        path: ['field1'],
+        href: '#field1',
+        text: 'Error 2'
+      }
+      const result = deduplicateErrorsByHref([error1, error2])
+      expect(result).toHaveLength(1)
+      expect(result?.[0]).toBe(error1) // Should keep first occurrence
+    })
+
+    it('should keep errors with different hrefs', () => {
+      const error1: FormSubmissionError = {
+        name: 'field1',
+        path: ['field1'],
+        href: '#field1',
+        text: 'Error 1'
+      }
+      const error2: FormSubmissionError = {
+        name: 'field2',
+        path: ['field2'],
+        href: '#field2',
+        text: 'Error 2'
+      }
+      const result = deduplicateErrorsByHref([error1, error2])
+      expect(result).toHaveLength(2)
+      expect(result).toEqual([error1, error2])
+    })
+
+    it('should deduplicate multiple errors with same href', () => {
+      const error1: FormSubmissionError = {
+        name: 'field1',
+        path: ['field1'],
+        href: '#field1',
+        text: 'Error 1'
+      }
+      const error2: FormSubmissionError = {
+        name: 'field1',
+        path: ['field1'],
+        href: '#field1',
+        text: 'Error 2'
+      }
+      const error3: FormSubmissionError = {
+        name: 'field2',
+        path: ['field2'],
+        href: '#field2',
+        text: 'Error 3'
+      }
+      const error4: FormSubmissionError = {
+        name: 'field1',
+        path: ['field1'],
+        href: '#field1',
+        text: 'Error 4'
+      }
+      const result = deduplicateErrorsByHref([error1, error2, error3, error4])
+      expect(result).toHaveLength(2)
+      expect(result?.[0]).toBe(error1) // First occurrence of #field1
+      expect(result?.[1]).toBe(error3) // #field2
     })
   })
 

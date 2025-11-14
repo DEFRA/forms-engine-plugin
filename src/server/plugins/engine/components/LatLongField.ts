@@ -7,7 +7,10 @@ import {
   FormComponent,
   isFormState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { getLocationFieldViewModel } from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
+import {
+  deduplicateErrorsByHref,
+  getLocationFieldViewModel
+} from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
 import { type LatLongState } from '~/src/server/plugins/engine/components/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
@@ -57,20 +60,23 @@ export class LatLongField extends FormComponent {
         'number.unsafe': '{{#label}} must be a valid number'
       })
 
+    const latitudeRangeMessage = `Latitude for ${lowerFirst(this.label)} must be between ${latitudeMin} and ${latitudeMax}`
+    const longitudeRangeMessage = `Longitude for ${lowerFirst(this.label)} must be between ${longitudeMin} and ${longitudeMax}`
+
     const latitudeMessages: LanguageMessages = convertToLanguageMessages({
       ...customValidationMessages,
       'any.required': latitudeRequired,
       'number.base': `Enter a valid Latitude for ${lowerFirst(this.label)} like 51.519450`,
-      'number.min': `Latitude for ${lowerFirst(this.label)} must be between ${latitudeMin} and ${latitudeMax}`,
-      'number.max': `Latitude for ${lowerFirst(this.label)} must be between ${latitudeMin} and ${latitudeMax}`
+      'number.min': latitudeRangeMessage,
+      'number.max': latitudeRangeMessage
     })
 
     const longitudeMessages: LanguageMessages = convertToLanguageMessages({
       ...customValidationMessages,
       'any.required': longitudeRequired,
       'number.base': `Enter a valid Longitude for ${lowerFirst(this.label)} like -0.127758`,
-      'number.min': `Longitude for ${lowerFirst(this.label)} must be between ${longitudeMin} and ${longitudeMax}`,
-      'number.max': `Longitude for ${lowerFirst(this.label)} must be between ${longitudeMin} and ${longitudeMax}`
+      'number.min': longitudeRangeMessage,
+      'number.max': longitudeRangeMessage
     })
 
     this.collection = new ComponentCollection(
@@ -165,17 +171,7 @@ export class LatLongField extends FormComponent {
     errors?: FormSubmissionError[]
   ): FormSubmissionError[] | undefined {
     const allErrors = this.getErrors(errors)
-
-    if (!allErrors?.length) {
-      return allErrors
-    }
-
-    const uniqueErrors = allErrors.filter(
-      (error, index, self) =>
-        index === self.findIndex((err) => err.href === error.href)
-    )
-
-    return uniqueErrors
+    return deduplicateErrorsByHref(allErrors)
   }
 
   isState(value?: FormStateValue | FormState) {

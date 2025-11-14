@@ -75,6 +75,19 @@ export function mergeClasses(...classNames: (string | undefined)[]) {
   return Array.from(new Set(tokens)).join(' ')
 }
 
+export function deduplicateErrorsByHref(
+  errors?: FormSubmissionError[]
+): FormSubmissionError[] | undefined {
+  if (!errors?.length) {
+    return undefined
+  }
+
+  return errors.filter(
+    (error, index, self) =>
+      index === self.findIndex((err) => err.href === error.href)
+  )
+}
+
 export function getLocationFieldViewModel(
   component: LocationField,
   viewModel: ViewModel & {
