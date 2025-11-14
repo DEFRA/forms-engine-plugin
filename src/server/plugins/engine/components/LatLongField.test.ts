@@ -194,7 +194,7 @@ describe('LatLongField', () => {
         const answer1 = getAnswer(field, state1)
         const answer2 = getAnswer(field, state2)
 
-        expect(answer1).toBe('Lat: 51.51945<br>Long: -0.127758<br>')
+        expect(answer1).toBe('Latitude: 51.51945<br>Longitude: -0.127758<br>')
         expect(answer2).toBe('')
       })
 
@@ -245,7 +245,7 @@ describe('LatLongField', () => {
         const value1 = field.getContextValueFromState(state1)
         const value2 = field.getContextValueFromState(state2)
 
-        expect(value1).toBe('Lat: 51.51945\nLong: -0.127758')
+        expect(value1).toBe('Latitude: 51.51945\nLongitude: -0.127758')
         expect(value2).toBeNull()
       })
 

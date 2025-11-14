@@ -152,8 +152,8 @@ export class LatLongField extends FormComponent {
       return null
     }
 
-    // Output format: Lat: <<entry>>\nLong: <<entry>>
-    return `Lat: ${value.latitude}\nLong: ${value.longitude}`
+    // Output format: Latitude: <<entry>>\nLongitude: <<entry>>
+    return `Latitude: ${value.latitude}\nLongitude: ${value.longitude}`
   }
 
   getContextValueFromState(state: FormSubmissionState) {
