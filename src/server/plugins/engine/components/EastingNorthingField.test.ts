@@ -205,7 +205,7 @@ describe('EastingNorthingField', () => {
         const answer1 = getAnswer(field, state1)
         const answer2 = getAnswer(field, state2)
 
-        expect(answer1).toBe('Northing: 1234567<br>Easting: 12345<br>')
+        expect(answer1).toBe('Easting: 12345<br>Northing: 1234567<br>')
         expect(answer2).toBe('')
       })
 
@@ -256,7 +256,7 @@ describe('EastingNorthingField', () => {
         const value1 = field.getContextValueFromState(state1)
         const value2 = field.getContextValueFromState(state2)
 
-        expect(value1).toBe('Northing: 1234567\nEasting: 12345')
+        expect(value1).toBe('Easting: 12345\nNorthing: 1234567')
         expect(value2).toBeNull()
       })
 

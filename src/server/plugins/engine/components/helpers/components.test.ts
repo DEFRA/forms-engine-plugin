@@ -48,7 +48,7 @@ describe('Location field formatting', () => {
       }
 
       const answer = getAnswer(field, state, { format: 'email' })
-      expect(answer).toBe('Northing: 654321\nEasting: 123456\n')
+      expect(answer).toBe('Easting: 123456\nNorthing: 654321\n')
     })
 
     it('formats for data output', () => {
@@ -58,7 +58,7 @@ describe('Location field formatting', () => {
       }
 
       const answer = getAnswer(field, state, { format: 'data' })
-      expect(answer).toBe('Northing: 654321\nEasting: 123456')
+      expect(answer).toBe('Easting: 123456\nNorthing: 654321')
     })
 
     it('formats for summary display', () => {
@@ -69,8 +69,8 @@ describe('Location field formatting', () => {
 
       const answer = getAnswer(field, state, { format: 'summary' })
       // Should render as HTML from markdown
-      expect(answer).toContain('Northing: 654321')
       expect(answer).toContain('Easting: 123456')
+      expect(answer).toContain('Northing: 654321')
     })
 
     it('returns empty string when no values', () => {
@@ -231,7 +231,7 @@ describe('Location field formatting', () => {
       }
 
       const answer = getAnswerMarkdown(field, state, { format: 'email' })
-      expect(answer).toBe('Northing: 654321\nEasting: 123456\n')
+      expect(answer).toBe('Easting: 123456\nNorthing: 654321\n')
     })
 
     it('formats LatLongField correctly', () => {
