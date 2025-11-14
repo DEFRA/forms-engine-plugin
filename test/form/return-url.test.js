@@ -67,6 +67,17 @@ describe('Return URL tests', () => {
 
     it('should go to first invalid page and include returnUrl query string on mid-flow page load without full state', async () => {
       // SET CONTEXT with age but without pizza answer
+      const payload = {
+        action: true,
+        isOverEighteen: true
+      }
+      await server.inject({
+        url: `${basePath}/age`,
+        method: 'POST',
+        headers,
+        payload: { ...payload, crumb: csrfToken }
+      })
+
       const response = await server.inject({
         url: `${basePath}/favourite-pizza`
       })
