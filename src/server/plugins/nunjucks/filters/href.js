@@ -1,4 +1,4 @@
-import { getPageHref } from '~/src/server/plugins/engine/helpers.js'
+import { getPageHref } from '~/src/server/plugins/engine/index.js'
 
 /**
  * Nunjucks filter to get the answer for a component
