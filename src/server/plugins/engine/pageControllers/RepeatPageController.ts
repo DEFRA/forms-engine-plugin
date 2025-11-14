@@ -422,7 +422,7 @@ export class RepeatPageController extends QuestionPageController {
             text: `${title} ${index + 1}`
           },
           value: {
-            text: itemDisplayText || 'Not supplied'
+            text: itemDisplayText || 'Not provided'
           },
           actions: {
             items
