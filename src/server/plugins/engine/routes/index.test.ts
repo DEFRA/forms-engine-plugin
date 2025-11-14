@@ -8,7 +8,7 @@ import {
   getPage,
   proceed
 } from '~/src/server/plugins/engine/helpers.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { TerminalPageController } from '~/src/server/plugins/engine/pageControllers/TerminalPageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/index.js'
@@ -18,8 +18,20 @@ import {
   type OnRequestCallback
 } from '~/src/server/plugins/engine/types.js'
 import { type FormResponseToolkit } from '~/src/server/routes/types.js'
+import definition from '~/test/form/definitions/basic.js'
 
 jest.mock('~/src/server/plugins/engine/helpers')
+
+const page = definition.pages[0]
+const model: FormModel = new FormModel(definition, {
+  basePath: 'test'
+})
+const terminalController: TerminalPageController = new TerminalPageController(
+  model,
+  page
+)
+const questionPageController: QuestionPageController =
+  new QuestionPageController(model, page)
 
 describe('redirectOrMakeHandler', () => {
   const mockServer = {} as unknown as Parameters<
@@ -261,9 +273,7 @@ describe('redirectOrMakeHandler', () => {
           .mockReturnValueOnce('/relevant-path-href') // Second call: for relevantPath (redirect)
       }) as unknown as PageControllerClass
       ;(getPage as jest.Mock).mockReturnValue(testPage)
-      ;(findPage as jest.Mock).mockReturnValue(
-        Object.create(QuestionPageController.prototype)
-      )
+      ;(findPage as jest.Mock).mockReturnValue(questionPageController)
 
       await redirectOrMakeHandler(
         mockRequest,
@@ -287,9 +297,7 @@ describe('redirectOrMakeHandler', () => {
         getRelevantPath: jest.fn().mockReturnValue('/other-path')
       }) as unknown as PageControllerClass
       ;(getPage as jest.Mock).mockReturnValue(testPage)
-      ;(findPage as jest.Mock).mockReturnValue(
-        Object.create(TerminalPageController.prototype)
-      )
+      ;(findPage as jest.Mock).mockReturnValue(terminalController)
       await redirectOrMakeHandler(
         mockRequest,
         mockH,
@@ -307,9 +315,7 @@ describe('redirectOrMakeHandler', () => {
         getRelevantPath: jest.fn().mockReturnValue('/other-path')
       }) as unknown as PageControllerClass
       ;(getPage as jest.Mock).mockReturnValue(testPage)
-      ;(findPage as jest.Mock).mockReturnValue(
-        Object.create(QuestionPageController.prototype)
-      )
+      ;(findPage as jest.Mock).mockReturnValue(questionPageController)
 
       await redirectOrMakeHandler(
         mockRequest,
