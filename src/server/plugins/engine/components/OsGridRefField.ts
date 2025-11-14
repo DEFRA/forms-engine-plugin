@@ -26,8 +26,7 @@ export class OsGridRefField extends LocationFieldBase {
     return [
       {
         type: 'pattern',
-        template:
-          'Enter a valid OS grid reference for [short description] like TQ123456'
+        template: 'Enter a valid OS grid reference for {{#title}} like TQ123456'
       }
     ]
   }
