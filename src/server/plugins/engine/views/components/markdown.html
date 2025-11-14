@@ -1,5 +1,5 @@
 {% macro Markdown(component) %}
   <div class="app-prose-scope">
-    {{ component.model.content | markdown(component.model.numOfComponents > 1) | safe }}
+    {{ component.model.content | markdown(component.model.headerStartLevel) | safe }}
   </div>
 {% endmacro %}
