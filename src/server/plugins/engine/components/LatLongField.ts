@@ -194,31 +194,29 @@ export class LatLongField extends FormComponent {
         { type: 'required', template: messageTemplate.required },
         {
           type: 'latitudeFormat',
-          template:
-            'Enter a valid latitude for [short description] like 51.519450'
+          template: 'Enter a valid latitude for {{#title}} like 51.519450'
         },
         {
           type: 'longitudeFormat',
-          template:
-            'Enter a valid longitude for [short description] like -0.127758'
+          template: 'Enter a valid longitude for {{#title}} like -0.127758'
         }
       ],
       advancedSettingsErrors: [
         {
           type: 'latitudeMin',
-          template: 'Latitude for [short description] must be between 49 and 60'
+          template: 'Latitude for {{#title}} must be between 49 and 60'
         },
         {
           type: 'latitudeMax',
-          template: 'Latitude for [short description] must be between 49 and 60'
+          template: 'Latitude for {{#title}} must be between 49 and 60'
         },
         {
           type: 'longitudeMin',
-          template: 'Longitude for [short description] must be between -9 and 2'
+          template: 'Longitude for {{#title}} must be between -9 and 2'
         },
         {
           type: 'longitudeMax',
-          template: 'Longitude for [short description] must be between -9 and 2'
+          template: 'Longitude for {{#title}} must be between -9 and 2'
         }
       ]
     }

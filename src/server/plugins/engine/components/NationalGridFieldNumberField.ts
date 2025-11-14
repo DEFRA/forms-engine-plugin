@@ -24,7 +24,7 @@ export class NationalGridFieldNumberField extends LocationFieldBase {
       {
         type: 'pattern',
         template:
-          'Enter a valid National Grid field number for [short description] like NG 1234 5678'
+          'Enter a valid National Grid field number for {{#title}} like NG 1234 5678'
       }
     ]
   }

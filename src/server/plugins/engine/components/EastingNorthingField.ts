@@ -199,31 +199,29 @@ export class EastingNorthingField extends FormComponent {
         { type: 'required', template: messageTemplate.required },
         {
           type: 'eastingFormat',
-          template:
-            'Easting for [short description] must be between 1 and 6 digits'
+          template: 'Easting for {{#title}} must be between 1 and 6 digits'
         },
         {
           type: 'northingFormat',
-          template:
-            'Northing for [short description] must be between 1 and 7 digits'
+          template: 'Northing for {{#title}} must be between 1 and 7 digits'
         }
       ],
       advancedSettingsErrors: [
         {
           type: 'eastingMin',
-          template: `Easting for [short description] must be between ${DEFAULT_EASTING_MIN} and ${DEFAULT_EASTING_MAX}`
+          template: `Easting for {{#title}} must be between ${DEFAULT_EASTING_MIN} and ${DEFAULT_EASTING_MAX}`
         },
         {
           type: 'eastingMax',
-          template: `Easting for [short description] must be between ${DEFAULT_EASTING_MIN} and ${DEFAULT_EASTING_MAX}`
+          template: `Easting for {{#title}} must be between ${DEFAULT_EASTING_MIN} and ${DEFAULT_EASTING_MAX}`
         },
         {
           type: 'northingMin',
-          template: `Northing for [short description] must be between ${DEFAULT_NORTHING_MIN} and ${DEFAULT_NORTHING_MAX}`
+          template: `Northing for {{#title}} must be between ${DEFAULT_NORTHING_MIN} and ${DEFAULT_NORTHING_MAX}`
         },
         {
           type: 'northingMax',
-          template: `Northing for [short description] must be between ${DEFAULT_NORTHING_MIN} and ${DEFAULT_NORTHING_MAX}`
+          template: `Northing for {{#title}} must be between ${DEFAULT_NORTHING_MIN} and ${DEFAULT_NORTHING_MAX}`
         }
       ]
     }
