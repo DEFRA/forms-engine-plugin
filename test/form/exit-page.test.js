@@ -10,6 +10,7 @@ import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookie, getCookieHeader } from '~/test/utils/get-cookie.js'
 
 const basePath = `${FORM_PREFIX}/demo-cph-number`
+const returnUrlQueryString = `?returnUrl=%2Fdemo-cph-number%2Fsummary`
 
 jest.mock('~/src/server/utils/notify.ts')
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
@@ -199,7 +200,9 @@ describe('Exit pages', () => {
 
         // Redirect back to relevant page (with return URL)
         expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-        expect(response.headers.location).toBe(`${basePath}${paths.next}`)
+        expect(response.headers.location).toBe(
+          `${basePath}${paths.next}${returnUrlQueryString}`
+        )
       })
     }
   )
