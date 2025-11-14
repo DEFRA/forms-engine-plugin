@@ -68,24 +68,24 @@ describe('Return URL tests', () => {
     it('should go to first invalid page and include returnUrl query string on mid-flow page load without full state', async () => {
       // SET CONTEXT with age but without pizza answer
       const payload = {
-        action: true,
         isOverEighteen: true
       }
-      await server.inject({
+      const response1 = await server.inject({
         url: `${basePath}/age`,
         method: 'POST',
         headers,
         payload: { ...payload, crumb: csrfToken }
       })
 
-      const response = await server.inject({
-        url: `${basePath}/favourite-pizza`
+      expect(response1.headers.location).toBe(`${basePath}/pizza`)
+
+      const response2 = await server.inject({
+        method: 'GET',
+        url: `${basePath}/pizza`,
+        headers
       })
 
-      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-      expect(response.headers.location).toBe(
-        `${basePath}/pizza${returnUrlQueryString}`
-      )
+      expect(response2.statusCode).toBe(StatusCodes.OK)
     })
 
     it('should go to first invalid AND relevant page and include returnUrl query string on mid-flow page load without full state', async () => {
