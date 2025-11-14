@@ -7,7 +7,7 @@ import {
   extractEnterFieldNames,
   formatErrorList,
   joinWithAnd,
-  mergeClasses
+  mergeCssClasses
 } from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
@@ -193,37 +193,39 @@ describe('LocationFieldHelpers', () => {
     })
   })
 
-  describe('mergeClasses', () => {
+  describe('mergeCssClasses', () => {
     it('should return undefined for no arguments', () => {
-      expect(mergeClasses()).toBeUndefined()
+      expect(mergeCssClasses()).toBeUndefined()
     })
 
     it('should return undefined for all undefined arguments', () => {
-      expect(mergeClasses(undefined, undefined)).toBeUndefined()
+      expect(mergeCssClasses(undefined, undefined)).toBeUndefined()
     })
 
     it('should return undefined for empty strings', () => {
-      expect(mergeClasses('', '   ', '')).toBeUndefined()
+      expect(mergeCssClasses('', '   ', '')).toBeUndefined()
     })
 
     it('should return single class', () => {
-      expect(mergeClasses('class1')).toBe('class1')
+      expect(mergeCssClasses('class1')).toBe('class1')
     })
 
     it('should merge multiple classes', () => {
-      expect(mergeClasses('class1', 'class2')).toBe('class1 class2')
+      expect(mergeCssClasses('class1', 'class2')).toBe('class1 class2')
     })
 
     it('should deduplicate classes', () => {
-      expect(mergeClasses('class1', 'class2 class1')).toBe('class1 class2')
+      expect(mergeCssClasses('class1', 'class2 class1')).toBe('class1 class2')
     })
 
     it('should handle undefined mixed with classes', () => {
-      expect(mergeClasses('class1', undefined, 'class2')).toBe('class1 class2')
+      expect(mergeCssClasses('class1', undefined, 'class2')).toBe(
+        'class1 class2'
+      )
     })
 
     it('should handle multiple spaces in class strings', () => {
-      expect(mergeClasses('class1  class2', '  class3')).toBe(
+      expect(mergeCssClasses('class1  class2', '  class3')).toBe(
         'class1 class2 class3'
       )
     })

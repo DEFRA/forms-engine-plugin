@@ -62,7 +62,7 @@ export function formatErrorList(messages: string[]): string {
   return joinWithAnd(messages)
 }
 
-export function mergeClasses(...classNames: (string | undefined)[]) {
+export function mergeCssClasses(...classNames: (string | undefined)[]) {
   const tokens = classNames
     .flatMap((name) => name?.split(/\s+/) ?? [])
     .map((token) => token.trim())
@@ -131,7 +131,7 @@ export function getLocationFieldViewModel(
         name: model.name,
         type,
         value,
-        classes: mergeClasses(
+        classes: mergeCssClasses(
           classes,
           hasFieldErrors ? 'govuk-input--error' : undefined
         ),
