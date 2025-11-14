@@ -81,11 +81,14 @@ describe('Return URL tests', () => {
 
       const response2 = await server.inject({
         method: 'GET',
-        url: `${basePath}/pizza`,
+        url: `${basePath}/favourite-pizza`,
         headers
       })
 
-      expect(response2.statusCode).toBe(StatusCodes.OK)
+      expect(response2.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response2.headers.location).toBe(
+        `${basePath}/pizza${returnUrlQueryString}`
+      )
     })
 
     it('should go to first invalid AND relevant page and include returnUrl query string on mid-flow page load without full state', async () => {
