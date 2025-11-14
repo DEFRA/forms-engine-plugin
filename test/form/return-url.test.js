@@ -52,9 +52,9 @@ describe('Return URL tests', () => {
   })
 
   describe('Return URL testing', () => {
-    it('should go to first invalid page and include returnUrl query string on mid-flow page load with empty state', async () => {
+    it('should go to first invalid page and include returnUrl when loading summary page with empty state', async () => {
       const response = await server.inject({
-        url: `${basePath}/pizza`
+        url: `${basePath}/summary`
       })
 
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
@@ -63,7 +63,7 @@ describe('Return URL tests', () => {
       )
     })
 
-    it('should go to first invalid page and include returnUrl query string on mid-flow page load without full state', async () => {
+    it('should go to first invalid page and include returnUrl when loading summary page without full state', async () => {
       // set context with age but without pizza answer
       const payload = {
         isOverEighteen: true
@@ -78,7 +78,7 @@ describe('Return URL tests', () => {
       // trying to load favourite pizza page without pizza answer in context
       const response = await server.inject({
         method: 'GET',
-        url: `${basePath}/favourite-pizza`,
+        url: `${basePath}/summary`,
         headers
       })
 
@@ -88,7 +88,7 @@ describe('Return URL tests', () => {
       )
     })
 
-    it('should go to first invalid AND relevant page and include returnUrl query string on mid-flow page load without full state', async () => {
+    it('should go to first invalid AND relevant page and include returnUrl when loading summary page without full state', async () => {
       // set context with age, with pizza answer as no
       const agePayload = {
         isOverEighteen: true
@@ -111,7 +111,7 @@ describe('Return URL tests', () => {
 
       const response = await server.inject({
         method: 'GET',
-        url: `${basePath}/favourite-pizza`,
+        url: `${basePath}/summary`,
         headers
       })
 
@@ -121,70 +121,61 @@ describe('Return URL tests', () => {
       )
     })
 
-    it('should go to page that changes flow and include returnUrl query string on next unanswered page', async () => {
-      // SET CONTEXT with age as yes, pizza answer as no, favourite food as something
+    it('should redirect to exit page (without returnUrl) when loading summary page with age not over 18', async () => {
+      const payload = {
+        isOverEighteen: false
+      }
+      await server.inject({
+        url: `${basePath}/age`,
+        method: 'POST',
+        headers,
+        payload: { ...payload, crumb: csrfToken }
+      })
+
       const response = await server.inject({
-        url: `${basePath}/pizza${returnUrlQueryString}`
+        method: 'GET',
+        url: `${basePath}/summary`,
+        headers
       })
 
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
       expect(response.headers.location).toBe(
-        `${basePath}/favourite-pizza${returnUrlQueryString}`
+        `${basePath}/unavailable-service-page`
       )
     })
 
     it('should redirect to summary after POST with full state', async () => {
-      const payload = {
-        isOverEighteen: 'Some text',
-        likesPizza: false,
+      const agePayload = {
+        isOverEighteen: true
+      }
+      await server.inject({
+        url: `${basePath}/age`,
+        method: 'POST',
+        headers,
+        payload: { ...agePayload, crumb: csrfToken }
+      })
+      const pizzaPayload = {
+        likesPizza: false
+      }
+      await server.inject({
+        url: `${basePath}/pizza`,
+        method: 'POST',
+        headers,
+        payload: { ...pizzaPayload, crumb: csrfToken }
+      })
+      const foodPayload = {
         favouriteFood: 'Lasagna'
       }
       const response = await server.inject({
         url: `${basePath}/favourite-food`,
         method: 'POST',
         headers,
-        payload: { ...payload, crumb: csrfToken }
+        payload: { ...foodPayload, crumb: csrfToken }
       })
 
       expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
       expect(response.headers.location).toBe(`${basePath}/summary`)
     })
-
-    it('should redirect to exit page (without returnUrl) after POST with age not over 18', async () => {
-      const payload = {
-        // action: 'continue',
-        isOverEighteen: false
-      }
-      const response = await server.inject({
-        url: `${basePath}/age${returnUrlQueryString}`,
-        method: 'POST',
-        headers,
-        payload: { ...payload, crumb: csrfToken }
-      })
-
-      expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
-      expect(response.headers.location).toBe(
-        `${basePath}/unavailable-service-page`
-      )
-    })
-
-    // it('should not redirect to summary after POST with full state', async () => {
-    //   const payload = {
-    //     isOverEighteen: 'Some text',
-    //     likesPizza: false
-    //   }
-    //   const response = await server.inject({
-    //     url: `${basePath}/favourite-food${returnUrlQueryString}`,
-    //     method: 'POST',
-    //     headers,
-    //     payload: { ...payload, crumb: csrfToken }
-    //   })
-
-    //   console.log(response.headers.location)
-
-    //   expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
-    //   expect(response.headers.location).not.toBe(`${basePath}/summary`)
-    // })
   })
 })
 
