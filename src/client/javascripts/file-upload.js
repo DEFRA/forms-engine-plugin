@@ -392,7 +392,7 @@ function initUpload() {
   const continueButton =
     /** @type {HTMLButtonElement} */ (
       Array.from(document.querySelectorAll('button.govuk-button')).find(
-        (button) => button.textContent?.trim() === 'Continue'
+        (button) => button.textContent.trim() === 'Continue'
       )
     ) ?? null
 

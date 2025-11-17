@@ -24,7 +24,7 @@ export function escapeMarkdown(answer: string) {
   ]
 
   for (const character of punctuation) {
-    answer = answer.toString().replaceAll(character, `\\${character}`)
+    answer = answer.replaceAll(character, `\\${character}`)
   }
 
   return answer
