@@ -157,7 +157,6 @@ export class EastingNorthingField extends FormComponent {
       return null
     }
 
-    // Output format: Easting: <<entry>>\nNorthing: <<entry>>
     return `Easting: ${value.easting}\nNorthing: ${value.northing}`
   }
 
