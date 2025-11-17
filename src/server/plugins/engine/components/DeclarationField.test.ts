@@ -239,7 +239,7 @@ describe('DeclarationField', () => {
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = field.getViewModel(getFormData([]))
+        const viewModel = field.getViewModel(getFormData(undefined))
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -257,7 +257,33 @@ describe('DeclarationField', () => {
               {
                 value: 'true',
                 text: 'I understand and agree',
-                checked: true
+                checked: false
+              }
+            ]
+          })
+        )
+      })
+
+      it('sets Nunjucks component to false when not checked', () => {
+        def = {
+          ...def,
+          hint: 'Please read and confirm the following'
+        } satisfies DeclarationFieldComponent
+
+        collection = new ComponentCollection([def], { model })
+        field = collection.fields[0]
+        const viewModel = field.getViewModel(getFormData('unchecked'))
+
+        expect(viewModel).toEqual(
+          expect.objectContaining({
+            hint: {
+              text: 'Please read and confirm the following'
+            },
+            items: [
+              {
+                value: 'true',
+                text: 'I understand and agree',
+                checked: false
               }
             ]
           })
@@ -272,7 +298,7 @@ describe('DeclarationField', () => {
 
         collection = new ComponentCollection([def], { model })
         field = collection.fields[0]
-        const viewModel = field.getViewModel(getFormData(['true']))
+        const viewModel = field.getViewModel(getFormData('true'))
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -307,7 +333,7 @@ describe('DeclarationField', () => {
         collection = new ComponentCollection([def], { model })
         field = collection.fields[0]
 
-        const viewModel = field.getViewModel(getFormData(['true']))
+        const viewModel = field.getViewModel(getFormData('true'))
 
         expect(viewModel).toEqual(
           expect.objectContaining({
