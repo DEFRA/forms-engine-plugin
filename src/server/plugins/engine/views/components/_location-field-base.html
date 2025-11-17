@@ -2,20 +2,41 @@
 {% from "govuk/components/fieldset/macro.njk" import govukFieldset %}
 {% from "govuk/components/details/macro.njk" import govukDetails %}
 {% from "govuk/components/hint/macro.njk" import govukHint %}
+{% from "govuk/components/error-message/macro.njk" import govukErrorMessage %}
 
-{% macro LocationFieldBase(component, inputType, inputMode) %}
+{% macro LocationFieldBase(component, inputMode) %}
+  {% set showFieldsetError = component.model.showFieldsetError | default(false) %}
+  {% set hintId = component.model.name + "-hint" %}
+  {% set errorId = component.model.name + "-error" %}
+  {% set fieldsetDescribedBy = "" %}
+  {% if component.model.hint %}
+    {% set fieldsetDescribedBy = hintId %}
+  {% endif %}
+  {% if showFieldsetError and component.model.errorMessage %}
+    {% set fieldsetDescribedBy = fieldsetDescribedBy + " " + errorId if fieldsetDescribedBy else errorId %}
+  {% endif %}
+
   {% set fieldsetHtml %}
     {% if component.model.hint %}
       {{ govukHint({
-        id: component.model.name + "-hint",
+        id: hintId,
         text: component.model.hint.text
+      }) }}
+    {% endif %}
+
+    {% if showFieldsetError and component.model.errorMessage %}
+      {{ govukErrorMessage({
+        id: errorId,
+        text: component.model.errorMessage.text,
+        html: component.model.errorMessage.html,
+        visuallyHiddenText: component.model.errorMessage.visuallyHiddenText
       }) }}
     {% endif %}
 
     <div class="govuk-grid-row">
       {% for item in component.model.items %}
         <div class="govuk-grid-column-one-third">
-          {{ govukInput({
+          {% set inputParams = {
             id: item.id,
             name: item.name,
             label: {
@@ -23,39 +44,42 @@
             },
             classes: item.classes,
             value: item.value,
-            type: inputType,
-            inputmode: inputMode,
+            type: "text",
+            inputmode: inputMode | default("text"),
             prefix: item.prefix,
-            suffix: item.suffix,
-            errorMessage: item.errorMessage
-          }) }}
+            suffix: item.suffix
+          } %}
+          {% if item.errorMessage %}
+            {% set inputParams = inputParams | merge({ errorMessage: item.errorMessage }) %}
+          {% endif %}
+          {{ govukInput(inputParams) }}
         </div>
       {% endfor %}
     </div>
+  {% endset %}
 
+  {% set detailsHtml %}
     {% if component.model.instructionText %}
       {{ govukDetails({
         summaryText: "How to find location details",
-        html: component.model.instructionText | safe
+        html: component.model.instructionText | safe,
+        classes: "govuk-!-margin-top-3"
       }) }}
     {% endif %}
   {% endset %}
 
-  {% set hasErrors = false %}
-  {% for item in component.model.items %}
-    {% if item.errorMessage %}
-      {% set hasErrors = true %}
-    {% endif %}
-  {% endfor %}
+  {% set hasErrors = showFieldsetError and component.model.errorMessage %}
 
-  <div class="govuk-form-group {{ "govuk-form-group--error" if (hasErrors or component.model.errors) }}">
+  <div class="govuk-form-group {{ "govuk-form-group--error" if hasErrors }}">
     {{ govukFieldset({
       legend: {
         text: component.model.fieldset.legend.text,
         classes: component.model.fieldset.legend.classes,
         isPageHeading: false
       },
+      describedBy: fieldsetDescribedBy if fieldsetDescribedBy else undefined,
       html: fieldsetHtml
     }) }}
+    {{ detailsHtml | safe }}
   </div>
 {% endmacro %}

@@ -7,6 +7,7 @@ import {
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
 
 describe('LatLongField', () => {
@@ -193,7 +194,7 @@ describe('LatLongField', () => {
         const answer1 = getAnswer(field, state1)
         const answer2 = getAnswer(field, state2)
 
-        expect(answer1).toBe('Lat: 51.51945<br>Long: -0.127758<br>')
+        expect(answer1).toBe('Latitude: 51.51945<br>Longitude: -0.127758<br>')
         expect(answer2).toBe('')
       })
 
@@ -244,7 +245,7 @@ describe('LatLongField', () => {
         const value1 = field.getContextValueFromState(state1)
         const value2 = field.getContextValueFromState(state2)
 
-        expect(value1).toBe('Lat: 51.51945\nLong: -0.127758')
+        expect(value1).toBe('Latitude: 51.51945\nLongitude: -0.127758')
         expect(value2).toBeNull()
       })
 
@@ -358,6 +359,31 @@ describe('LatLongField', () => {
             name: 'myComponent__longitude'
           })
         )
+      })
+
+      it('getViewErrors returns all errors for error summary', () => {
+        const errors: FormSubmissionError[] = [
+          {
+            name: 'myComponent__latitude',
+            text: 'Enter valid latitude',
+            path: ['myComponent__latitude'],
+            href: '#myComponent__latitude'
+          },
+          {
+            name: 'myComponent__longitude',
+            text: 'Enter valid longitude',
+            path: ['myComponent__longitude'],
+            href: '#myComponent__longitude'
+          }
+        ]
+
+        const viewErrors = field.getViewErrors(errors)
+
+        expect(viewErrors).toHaveLength(2)
+        expect(viewErrors).toEqual([
+          expect.objectContaining({ text: 'Enter valid latitude' }),
+          expect.objectContaining({ text: 'Enter valid longitude' })
+        ])
       })
     })
 

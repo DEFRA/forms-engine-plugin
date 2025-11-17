@@ -10,6 +10,7 @@ import {
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
 
 describe('EastingNorthingField', () => {
@@ -204,7 +205,7 @@ describe('EastingNorthingField', () => {
         const answer1 = getAnswer(field, state1)
         const answer2 = getAnswer(field, state2)
 
-        expect(answer1).toBe('Northing: 1234567<br>Easting: 12345<br>')
+        expect(answer1).toBe('Easting: 12345<br>Northing: 1234567<br>')
         expect(answer2).toBe('')
       })
 
@@ -255,7 +256,7 @@ describe('EastingNorthingField', () => {
         const value1 = field.getContextValueFromState(state1)
         const value2 = field.getContextValueFromState(state2)
 
-        expect(value1).toBe('Northing: 1234567\nEasting: 12345')
+        expect(value1).toBe('Easting: 12345\nNorthing: 1234567')
         expect(value2).toBeNull()
       })
 
@@ -369,6 +370,32 @@ describe('EastingNorthingField', () => {
             name: 'myComponent__northing'
           })
         )
+      })
+
+      it('getViewErrors returns all errors for error summary', () => {
+        const errors: FormSubmissionError[] = [
+          {
+            name: 'myComponent__easting',
+            text: 'Enter easting',
+            path: ['myComponent__easting'],
+            href: '#myComponent__easting'
+          },
+          {
+            name: 'myComponent__northing',
+            text: 'Enter northing',
+            path: ['myComponent__northing'],
+            href: '#myComponent__northing'
+          }
+        ]
+
+        const viewErrors = field.getViewErrors(errors)
+
+        // Should return all errors, not just the first one
+        expect(viewErrors).toHaveLength(2)
+        expect(viewErrors).toEqual([
+          expect.objectContaining({ text: 'Enter easting' }),
+          expect.objectContaining({ text: 'Enter northing' })
+        ])
       })
     })
 
