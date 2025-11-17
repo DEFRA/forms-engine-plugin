@@ -89,19 +89,52 @@ describe('LocationFieldHelpers', () => {
 
     it('should extract and format Enter messages', () => {
       expect(formatErrorList(['Enter easting', 'Enter northing'])).toBe(
-        'Enter easting and northing'
+        'Enter easting and enter northing'
       )
     })
 
     it('should extract and format three Enter messages', () => {
       expect(
         formatErrorList(['Enter Field1', 'Enter Field2', 'Enter Field3'])
-      ).toBe('Enter Field1, Field2 and Field3')
+      ).toBe('Enter Field1, enter Field2 and enter Field3')
     })
 
     it('should fallback to regular join for non-Enter messages', () => {
       expect(formatErrorList(['Select option1', 'Select option2'])).toBe(
         'Select option1 and Select option2'
+      )
+    })
+
+    it('should not affect min/max/precision error messages', () => {
+      expect(
+        formatErrorList([
+          'Latitude for location must be between 49.85 and 60.859',
+          'Longitude for location must be between -13.687 and 1.767'
+        ])
+      ).toBe(
+        'Latitude for location must be between 49.85 and 60.859 and Longitude for location must be between -13.687 and 1.767'
+      )
+    })
+
+    it('should not affect mixed Enter and validation error messages', () => {
+      expect(
+        formatErrorList([
+          'Enter latitude',
+          'Longitude for location must be between -13.687 and 1.767'
+        ])
+      ).toBe(
+        'Enter latitude and Longitude for location must be between -13.687 and 1.767'
+      )
+    })
+
+    it('should handle precision error messages without modification', () => {
+      expect(
+        formatErrorList([
+          'Latitude must have no more than 7 decimal places',
+          'Longitude must have no more than 7 decimal places'
+        ])
+      ).toBe(
+        'Latitude must have no more than 7 decimal places and Longitude must have no more than 7 decimal places'
       )
     })
   })
@@ -416,7 +449,7 @@ describe('LocationFieldHelpers', () => {
       expect(viewModel.items[1].errorMessage).toBeUndefined()
 
       expect(viewModel.errorMessage).toEqual({
-        text: 'Enter latitude and longitude'
+        text: 'Enter latitude and enter longitude'
       })
       expect(viewModel.showFieldsetError).toBe(true)
 

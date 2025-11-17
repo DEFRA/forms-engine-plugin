@@ -56,7 +56,16 @@ export function formatErrorList(messages: string[]): string {
   const fieldNames = extractEnterFieldNames(messages)
 
   if (fieldNames) {
-    return `Enter ${joinWithAnd(fieldNames)}`
+    if (fieldNames.length === 2) {
+      return `Enter ${fieldNames[0]} and enter ${fieldNames[1]}`
+    }
+
+    const leading = fieldNames
+      .slice(0, -1)
+      .map((name, index) => (index === 0 ? `Enter ${name}` : `enter ${name}`))
+      .join(', ')
+    const last = `enter ${fieldNames[fieldNames.length - 1]}`
+    return `${leading} and ${last}`
   }
 
   return joinWithAnd(messages)
