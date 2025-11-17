@@ -4,7 +4,7 @@
 {% from "govuk/components/hint/macro.njk" import govukHint %}
 {% from "govuk/components/error-message/macro.njk" import govukErrorMessage %}
 
-{% macro LocationFieldBase(component, inputType, inputMode) %}
+{% macro LocationFieldBase(component, inputMode) %}
   {% set showFieldsetError = component.model.showFieldsetError | default(false) %}
   {% set hintId = component.model.name + "-hint" %}
   {% set errorId = component.model.name + "-error" %}
@@ -44,8 +44,8 @@
             },
             classes: item.classes,
             value: item.value,
-            type: inputType,
-            inputmode: inputMode,
+            type: "text",
+            inputmode: inputMode | default("text"),
             prefix: item.prefix,
             suffix: item.suffix
           } %}
