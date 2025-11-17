@@ -19,19 +19,20 @@ export type LocationField =
   | InstanceType<typeof EastingNorthingField>
   | InstanceType<typeof LatLongField>
 
-export function extractEnterFieldNames(messages: string[]): string[] | null {
-  const enterPattern = /^Enter (.+)$/
-  const fieldNames: string[] = []
-
-  for (const msg of messages) {
-    const match = enterPattern.exec(msg)
-    if (!match) {
-      return null
-    }
-    fieldNames.push(match[1])
+/**
+ * Lowercases the start of a message for concatenation.
+ * Handles patterns like:
+ * - "Enter latitude" -> "enter latitude"
+ * - "Enter a valid latitude..." -> "enter a valid latitude..."
+ * - "latitude must be..." -> "latitude must be..."
+ */
+function lowercaseMessageStart(message: string): string {
+  if (message.startsWith('Enter ')) {
+    return 'enter' + message.slice(5)
   }
 
-  return fieldNames
+  // Lowercase first character for any other message
+  return message.charAt(0).toLowerCase() + message.slice(1)
 }
 
 export function joinWithAnd(items: string[]): string {
@@ -53,22 +54,11 @@ export function formatErrorList(messages: string[]): string {
     return messages[0]
   }
 
-  const fieldNames = extractEnterFieldNames(messages)
+  const formattedMessages = messages.map((msg, index) =>
+    index === 0 ? msg : lowercaseMessageStart(msg)
+  )
 
-  if (fieldNames) {
-    if (fieldNames.length === 2) {
-      return `Enter ${fieldNames[0]} and enter ${fieldNames[1]}`
-    }
-
-    const leading = fieldNames
-      .slice(0, -1)
-      .map((name, index) => (index === 0 ? `Enter ${name}` : `enter ${name}`))
-      .join(', ')
-    const last = `enter ${fieldNames[fieldNames.length - 1]}`
-    return `${leading} and ${last}`
-  }
-
-  return joinWithAnd(messages)
+  return joinWithAnd(formattedMessages)
 }
 
 export function mergeCssClasses(...classNames: (string | undefined)[]) {

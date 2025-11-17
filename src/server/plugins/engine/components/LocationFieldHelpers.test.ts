@@ -4,7 +4,6 @@ import { ComponentCollection } from '~/src/server/plugins/engine/components/Comp
 import { type LatLongField } from '~/src/server/plugins/engine/components/LatLongField.js'
 import {
   deduplicateErrorsByHref,
-  extractEnterFieldNames,
   formatErrorList,
   joinWithAnd,
   mergeCssClasses
@@ -19,32 +18,6 @@ describe('LocationFieldHelpers', () => {
   beforeEach(() => {
     model = new FormModel(definition, {
       basePath: 'test'
-    })
-  })
-
-  describe('extractEnterFieldNames', () => {
-    it('should return empty array for empty input', () => {
-      expect(extractEnterFieldNames([])).toEqual([])
-    })
-
-    it('should return null for non-Enter messages', () => {
-      expect(extractEnterFieldNames(['Select option'])).toBeNull()
-    })
-
-    it('should extract field name from single Enter message', () => {
-      expect(extractEnterFieldNames(['Enter easting'])).toEqual(['easting'])
-    })
-
-    it('should extract field names from multiple Enter messages', () => {
-      expect(
-        extractEnterFieldNames(['Enter easting', 'Enter northing'])
-      ).toEqual(['easting', 'northing'])
-    })
-
-    it('should return null if any message does not match pattern', () => {
-      expect(
-        extractEnterFieldNames(['Enter easting', 'Select option'])
-      ).toBeNull()
     })
   })
 
@@ -75,67 +48,88 @@ describe('LocationFieldHelpers', () => {
       expect(formatErrorList(['Error message'])).toBe('Error message')
     })
 
-    it('should format two messages with "and"', () => {
-      expect(formatErrorList(['First error', 'Second error'])).toBe(
-        'First error and Second error'
-      )
+    describe('Enter field name patterns', () => {
+      it('should lowercase field names in subsequent "Enter latitude/longitude" messages', () => {
+        expect(formatErrorList(['Enter latitude', 'Enter longitude'])).toBe(
+          'Enter latitude and enter longitude'
+        )
+      })
+
+      it('should lowercase field names in subsequent "Enter easting/northing" messages', () => {
+        expect(formatErrorList(['Enter easting', 'Enter northing'])).toBe(
+          'Enter easting and enter northing'
+        )
+      })
+
+      it('should lowercase field names in three or more "Enter" messages', () => {
+        expect(
+          formatErrorList([
+            'Enter latitude',
+            'Enter longitude',
+            'Enter easting'
+          ])
+        ).toBe('Enter latitude, enter longitude and enter easting')
+      })
+
+      it('should handle "Enter a valid" pattern', () => {
+        expect(
+          formatErrorList([
+            'Enter a valid latitude for location like 51.519450',
+            'Enter a valid longitude for location like -0.127758'
+          ])
+        ).toBe(
+          'Enter a valid latitude for location like 51.519450 and enter a valid longitude for location like -0.127758'
+        )
+      })
     })
 
-    it('should format multiple messages with commas and "and"', () => {
-      expect(formatErrorList(['Error 1', 'Error 2', 'Error 3'])).toBe(
-        'Error 1, Error 2 and Error 3'
-      )
+    describe('Field name at start patterns', () => {
+      it('should lowercase first character in subsequent messages', () => {
+        expect(
+          formatErrorList([
+            'Latitude for location must be between 49.85 and 60.859',
+            'Longitude for location must be between -13.687 and 1.767'
+          ])
+        ).toBe(
+          'Latitude for location must be between 49.85 and 60.859 and longitude for location must be between -13.687 and 1.767'
+        )
+      })
+
+      it('should handle precision error messages', () => {
+        expect(
+          formatErrorList([
+            'Latitude must have no more than 7 decimal places',
+            'Longitude must have no more than 7 decimal places'
+          ])
+        ).toBe(
+          'Latitude must have no more than 7 decimal places and longitude must have no more than 7 decimal places'
+        )
+      })
     })
 
-    it('should extract and format Enter messages', () => {
-      expect(formatErrorList(['Enter easting', 'Enter northing'])).toBe(
-        'Enter easting and enter northing'
-      )
-    })
+    describe('Mixed patterns', () => {
+      it('should handle mixed Enter and validation error messages', () => {
+        expect(
+          formatErrorList([
+            'Enter latitude',
+            'Longitude for location must be between -13.687 and 1.767'
+          ])
+        ).toBe(
+          'Enter latitude and longitude for location must be between -13.687 and 1.767'
+        )
+      })
 
-    it('should extract and format three Enter messages', () => {
-      expect(
-        formatErrorList(['Enter Field1', 'Enter Field2', 'Enter Field3'])
-      ).toBe('Enter Field1, enter Field2 and enter Field3')
-    })
-
-    it('should fallback to regular join for non-Enter messages', () => {
-      expect(formatErrorList(['Select option1', 'Select option2'])).toBe(
-        'Select option1 and Select option2'
-      )
-    })
-
-    it('should not affect min/max/precision error messages', () => {
-      expect(
-        formatErrorList([
-          'Latitude for location must be between 49.85 and 60.859',
-          'Longitude for location must be between -13.687 and 1.767'
-        ])
-      ).toBe(
-        'Latitude for location must be between 49.85 and 60.859 and Longitude for location must be between -13.687 and 1.767'
-      )
-    })
-
-    it('should not affect mixed Enter and validation error messages', () => {
-      expect(
-        formatErrorList([
-          'Enter latitude',
-          'Longitude for location must be between -13.687 and 1.767'
-        ])
-      ).toBe(
-        'Enter latitude and Longitude for location must be between -13.687 and 1.767'
-      )
-    })
-
-    it('should handle precision error messages without modification', () => {
-      expect(
-        formatErrorList([
-          'Latitude must have no more than 7 decimal places',
-          'Longitude must have no more than 7 decimal places'
-        ])
-      ).toBe(
-        'Latitude must have no more than 7 decimal places and Longitude must have no more than 7 decimal places'
-      )
+      it('should handle three mixed messages', () => {
+        expect(
+          formatErrorList([
+            'Latitude must have no more than 7 decimal places',
+            'Enter longitude',
+            'Easting for location must be between 0 and 700000'
+          ])
+        ).toBe(
+          'Latitude must have no more than 7 decimal places, enter longitude and easting for location must be between 0 and 700000'
+        )
+      })
     })
   })
 

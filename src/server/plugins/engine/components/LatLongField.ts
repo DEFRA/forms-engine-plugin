@@ -66,7 +66,7 @@ export class LatLongField extends FormComponent {
     const latitudeMessages: LanguageMessages = convertToLanguageMessages({
       ...customValidationMessages,
       'any.required': latitudeRequired,
-      'number.base': `Enter a valid Latitude for ${lowerFirst(this.label)} like 51.519450`,
+      'number.base': `Enter a valid latitude for ${lowerFirst(this.label)} like 51.519450`,
       'number.min': latitudeRangeMessage,
       'number.max': latitudeRangeMessage
     })
@@ -74,7 +74,7 @@ export class LatLongField extends FormComponent {
     const longitudeMessages: LanguageMessages = convertToLanguageMessages({
       ...customValidationMessages,
       'any.required': longitudeRequired,
-      'number.base': `Enter a valid Longitude for ${lowerFirst(this.label)} like -0.127758`,
+      'number.base': `Enter a valid longitude for ${lowerFirst(this.label)} like -0.127758`,
       'number.min': longitudeRangeMessage,
       'number.max': longitudeRangeMessage
     })
