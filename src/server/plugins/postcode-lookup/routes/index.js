@@ -24,7 +24,7 @@ const viewName = 'postcode-lookup-details'
  */
 function getSessionState(request) {
   /**
-   * @type {PostcodeLookupSessionData | undefined}
+   * @type {PostcodeLookupSessionData | null | undefined}
    */
   const state = request.yar.get(JOURNEY_BASE_URL)
 

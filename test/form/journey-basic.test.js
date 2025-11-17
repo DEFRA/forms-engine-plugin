@@ -297,7 +297,7 @@ describe('Form journey', () => {
       for (const { fields = [] } of journey) {
         for (const detail of fields) {
           const index = $titles.findIndex(
-            ({ textContent }) => textContent?.trim() === detail.title
+            ({ textContent }) => textContent.trim() === detail.title
           )
 
           // Check for field title and value
@@ -311,7 +311,7 @@ describe('Form journey', () => {
       for (const { fields = [], paths } of journey) {
         for (const detail of fields) {
           const index = $titles.findIndex(
-            ({ textContent }) => textContent?.trim() === detail.title
+            ({ textContent }) => textContent.trim() === detail.title
           )
 
           /** @satisfies {HTMLAnchorElement} */
