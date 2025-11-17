@@ -7,7 +7,6 @@ import hapi, {
   type ServerRoute
 } from '@hapi/hapi'
 import inert from '@hapi/inert'
-import Scooter from '@hapi/scooter'
 import Wreck from '@hapi/wreck'
 import blipp from 'blipp'
 import { ProxyAgent } from 'proxy-agent'
@@ -91,7 +90,6 @@ export async function createServer(routeConfig?: RouteConfig) {
   await server.register(pluginSession)
   await server.register(pluginPulse)
   await server.register(inert)
-  await server.register(Scooter)
   await server.register(pluginCrumb)
   await server.register(pluginEngine)
 
