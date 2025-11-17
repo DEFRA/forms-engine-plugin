@@ -68,12 +68,12 @@ export class DeclarationField extends FormComponent {
 
   getFormValueFromState(state: FormSubmissionState) {
     const { name } = this
-    return state[name] === true ? 'true' : undefined
+    return state[name] === true ? 'true' : 'unchecked'
   }
 
   getFormDataFromState(state: FormSubmissionState): FormPayload {
     const { name } = this
-    return { [name]: state[name] === true ? 'true' : undefined }
+    return { [name]: state[name] === true ? 'true' : 'unchecked' }
   }
 
   getStateFromValidForm(payload: FormPayload): FormState {
@@ -98,7 +98,7 @@ export class DeclarationField extends FormComponent {
   }
 
   getDisplayStringFromFormValue(value: FormValue | FormPayload): string {
-    return value ? this.declarationConfirmationLabel : ''
+    return value === 'true' ? this.declarationConfirmationLabel : 'Not provided'
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
@@ -110,6 +110,7 @@ export class DeclarationField extends FormComponent {
       content,
       declarationConfirmationLabel = defaultDeclarationConfirmationLabel
     } = this
+    const isChecked = !!payload[this.name]
     return {
       ...super.getViewModel(payload, errors),
       hint: hint ? { text: hint } : undefined,
@@ -119,11 +120,11 @@ export class DeclarationField extends FormComponent {
         }
       },
       content,
-      values: payload[this.name],
       items: [
         {
           text: declarationConfirmationLabel,
-          value: 'true'
+          value: 'true',
+          checked: isChecked
         }
       ]
     }

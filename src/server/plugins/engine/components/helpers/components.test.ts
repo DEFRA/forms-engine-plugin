@@ -1,5 +1,6 @@
 import {
   ComponentType,
+  type DeclarationFieldComponent,
   type EastingNorthingFieldComponent,
   type LatLongFieldComponent,
   type NationalGridFieldNumberFieldComponent,
@@ -11,6 +12,7 @@ import {
   getAnswerMarkdown
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import {
+  DeclarationField,
   EastingNorthingField,
   LatLongField,
   NationalGridFieldNumberField,
@@ -213,6 +215,89 @@ describe('Location field formatting', () => {
 
       const answer = getAnswer(field, state, { format: 'summary' })
       expect(answer).toBe('NG12345678')
+    })
+  })
+
+  describe('DeclarationField', () => {
+    let field: DeclarationField
+
+    beforeEach(() => {
+      const def: DeclarationFieldComponent = {
+        type: ComponentType.DeclarationField,
+        name: 'declField',
+        title: 'Declaration title',
+        content: '# markup heading',
+        options: {}
+      }
+      field = new DeclarationField(def, { model })
+    })
+
+    it('formats correctly when agreed', () => {
+      const state = {
+        declField: true
+      }
+
+      const answer = getAnswer(field, state, { format: 'email' })
+      expect(answer).toBe('I understand and agree\n')
+    })
+
+    it('formats correctly when not agreed', () => {
+      const state = {
+        declField: false
+      }
+
+      const answer = getAnswer(field, state, { format: 'email' })
+      expect(answer).toBe('Not provided\n')
+    })
+
+    it('formats for data output when agreed', () => {
+      const state = {
+        declField: true
+      }
+
+      const answer = getAnswer(field, state, { format: 'data' })
+      expect(answer).toBe('true')
+    })
+
+    it('formats for data output when not agreed', () => {
+      const state = {
+        declField: false
+      }
+
+      const answer = getAnswer(field, state, { format: 'data' })
+      expect(answer).toBe('false')
+    })
+
+    it('formats for data output when no value', () => {
+      const state = {}
+
+      const answer = getAnswer(field, state, { format: 'data' })
+      expect(answer).toBe('false')
+    })
+
+    it('formats for summary display when agreed', () => {
+      const state = {
+        declField: true
+      }
+
+      const answer = getAnswer(field, state, { format: 'summary' })
+      expect(answer).toBe('I understand and agree')
+    })
+
+    it('formats for summary display when not agreed', () => {
+      const state = {
+        declField: false
+      }
+
+      const answer = getAnswer(field, state, { format: 'summary' })
+      expect(answer).toBe('Not provided')
+    })
+
+    it('formats for summary display when no value', () => {
+      const state = {}
+
+      const answer = getAnswer(field, state, { format: 'summary' })
+      expect(answer).toBe('Not provided')
     })
   })
 
