@@ -32,7 +32,7 @@ If your bug is with the plugin, ensure you are running the plugin in a supported
 - A short and clear description of the issue. Explain the current behaviour along with the expected behaviour.
 - A step-by-step guide that details how we can reproduce your issue
 - A text copy (not a screenshot) of any error messages and stack traces
-- The version of your runtime (e.g. Node 22.11.0)
+- The version of your runtime (e.g. Node 24.0.0 or Node 22.11.0)
 - If the issue is with a form, a copy of the form definition (JSON) file
 
 **What we will provide:**
