@@ -26,7 +26,5 @@
  */
 
 /**
- * @import { config } from '~/src/config/index.js'
  * @import { FormContext } from '~/src/server/plugins/engine/types.js'
- * @import { PluginOptions } from '~/src/server/plugins/engine/plugin.js'
  */
