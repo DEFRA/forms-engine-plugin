@@ -1,4 +1,8 @@
+import { formStatusSchema } from '../components/FileUploadField.js'
+import { FormStatus } from '../types/index.js'
+
 import { config } from '~/src/config/index.js'
+import { generateAutoComponentsForm } from '~/src/server/plugins/engine/services/autoComponentsFormUtil.js'
 import { FileFormService } from '~/src/server/utils/file-form-service.js'
 
 // Create shared form metadata
@@ -10,6 +14,9 @@ const author = {
   updatedAt: now,
   updatedBy: user
 }
+
+export const AUTO_COMPONENTS_FORM_ID = '1s23e4567-e89b-12d3-a456-426614174000'
+export const AUTO_COMPONENTS_SLUG = 'auto-components'
 const metadata = {
   organisation: 'Defra',
   teamName: 'Team name',
@@ -20,6 +27,41 @@ const metadata = {
   live: author
 }
 
+class DevToolFormService extends FileFormService {
+  toFormsService() {
+    const defaultService = super.toFormsService()
+    return {
+      /**
+       * Get the form metadata by slug
+       * @param {string} slug
+       * @returns {Promise<import('@defra/forms-model').FormMetadata>}
+       */
+      getFormMetadata: async (slug) => {
+        if (slug === AUTO_COMPONENTS_SLUG) {
+          return {
+            id: AUTO_COMPONENTS_FORM_ID,
+            title: 'All components (automatically generated)',
+            slug: AUTO_COMPONENTS_SLUG,
+            ...metadata
+          }
+        }
+        return defaultService.getFormMetadata(slug)
+      },
+
+      /**
+       * Get the form definition by id
+       * @param {string} id
+       */
+      getFormDefinition: async (id) => {
+        if (id === AUTO_COMPONENTS_FORM_ID) {
+          return generateAutoComponentsForm()
+        }
+        return defaultService.getFormDefinition(id, FormStatus.Live)
+      }
+    }
+  }
+}
+
 /**
  * Return an function rather than the service directly. This is to prevent consumer applications
  * blowing up as they won't have these files on disk. We can defer the execution until when it's
@@ -27,7 +69,7 @@ const metadata = {
  */
 export const formsService = async () => {
   // Instantiate the file loader form service
-  const loader = new FileFormService()
+  const loader = new DevToolFormService()
 
   // Add a Yaml form
   await loader.addForm('src/server/forms/register-as-a-unicorn-breeder.yaml', {
