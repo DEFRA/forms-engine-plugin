@@ -254,12 +254,7 @@ describe('redirectOrMakeHandler', () => {
         mockMakeHandler
       )
 
-      expect(proceed).toHaveBeenCalledWith(
-        mockRequest,
-        mockH,
-        '/test-href',
-        expect.any(Object)
-      )
+      expect(proceed).toHaveBeenCalledWith(mockRequest, mockH, '/test-href', {})
       expect(mockMakeHandler).not.toHaveBeenCalled()
     })
 
