@@ -68,12 +68,12 @@ export class DeclarationField extends FormComponent {
 
   getFormValueFromState(state: FormSubmissionState) {
     const { name } = this
-    return state[name] === true ? 'true' : 'unchecked'
+    return state[name] === true ? 'true' : 'false'
   }
 
   getFormDataFromState(state: FormSubmissionState): FormPayload {
     const { name } = this
-    return { [name]: state[name] === true ? 'true' : 'unchecked' }
+    return { [name]: state[name] === true ? 'true' : 'false' }
   }
 
   getStateFromValidForm(payload: FormPayload): FormState {
