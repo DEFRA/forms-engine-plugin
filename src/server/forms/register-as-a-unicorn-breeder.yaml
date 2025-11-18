@@ -240,7 +240,8 @@ pages:
         title: Declaration
         type: DeclarationField
         content: 'Fill in this field'
-        options: {}
+        options:
+          required: false
     next:
       - path: '/summary'
 conditions:
