@@ -108,6 +108,22 @@ export async function redirectOrMakeHandler(
   return proceed(request, h, page.getHref(relevantPath))
 }
 
+async function prefillStateFromQueryParameters(request: AnyFormRequest, model: FormModel): Promise<void> {
+  const q = Object.keys(request.query).length ? request.query : {}
+  const params = Object.entries(q).reduce((acc, [key, value]) => {
+    if (value === undefined) return acc
+
+    const normalized = Array.isArray(value) ? value.join(',') : String(value)
+    ;(acc as Record<string, string>)[`_ext_${key}`] = normalized
+
+    return acc
+  }, {})
+
+  const page = model.pages[0] // Any page will do so just take the first one
+  const formData = await page.getState(request)
+  await page.mergeState(request, formData, params)
+}
+
 async function importExternalComponentState(
   request: AnyFormRequest,
   page: PageControllerClass,
@@ -248,6 +264,9 @@ export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
         services,
         controllers
       )
+
+      // Copy any URL params into the form state
+      await prefillStateFromQueryParameters(request, model)
 
       // Create new item and add it to the item cache
       item = { model, updatedAt: state.updatedAt }

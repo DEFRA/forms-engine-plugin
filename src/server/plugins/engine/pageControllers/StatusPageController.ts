@@ -47,7 +47,9 @@ export class StatusPageController extends QuestionPageController {
 
       return h.view(viewName, {
         ...viewModel,
-        submissionGuidance
+        submissionGuidance,
+        feedbackFormSlug: 'csat',
+        feedbackSourceSlug: slug // TODO - allow override from JSON if defined
       })
     }
   }
