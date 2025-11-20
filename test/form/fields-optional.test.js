@@ -148,6 +148,13 @@ describe('Form fields (optional)', () => {
           payload: {
             empty: {}
           }
+        },
+        {
+          name: 'declaration',
+          title: 'Declaration',
+          payload: {
+            empty: { declaration: 'unchecked' }
+          }
         }
       ]
     }
@@ -210,6 +217,13 @@ describe('Form fields (optional)', () => {
         })
 
         expect($heading).toBeInTheDocument()
+      })
+
+      it('should render the field label with (optional)', () => {
+        for (const field of fields) {
+          const $label = container.getByText(`${field.title} (optional)`)
+          expect($label).toBeInTheDocument()
+        }
       })
 
       it('should redirect to the next page on submit', async () => {

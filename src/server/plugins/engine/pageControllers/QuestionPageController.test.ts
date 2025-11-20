@@ -582,7 +582,8 @@ describe('QuestionPageController', () => {
         checkboxesMultiple: [],
         checkboxesSingleNumber: [],
         checkboxesMultipleNumber: [],
-        fileUpload: null
+        fileUpload: null,
+        declaration: false
       })
 
       Object.assign(state, {
@@ -609,7 +610,8 @@ describe('QuestionPageController', () => {
         checkboxesSingle: ['Shetland'],
         checkboxesMultiple: ['Arabian', 'Shire', 'Race'],
         checkboxesSingleNumber: [1],
-        checkboxesMultipleNumber: [0, 1]
+        checkboxesMultipleNumber: [0, 1],
+        declaration: true
       })
 
       request = buildFormContextRequest({
@@ -657,7 +659,8 @@ describe('QuestionPageController', () => {
         checkboxesMultiple: ['Arabian', 'Shire', 'Race'],
         checkboxesSingleNumber: [1],
         checkboxesMultipleNumber: [0, 1],
-        fileUpload: null
+        fileUpload: null,
+        declaration: true
       })
 
       Object.assign(state, {
@@ -729,7 +732,8 @@ describe('QuestionPageController', () => {
         checkboxesMultiple: ['Arabian', 'Shire', 'Race'],
         checkboxesSingleNumber: [1],
         checkboxesMultipleNumber: [0, 1],
-        fileUpload: ['fd5db541-179c-4107-a4d0-149d09672ffc']
+        fileUpload: ['fd5db541-179c-4107-a4d0-149d09672ffc'],
+        declaration: true
       })
     })
   })
