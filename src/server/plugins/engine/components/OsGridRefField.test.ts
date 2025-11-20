@@ -135,7 +135,7 @@ describe('OsGridRefField', () => {
 
         expect(result.errors).toEqual([
           expect.objectContaining({
-            text: 'Enter example OS grid reference'
+            text: 'Enter Example OS grid reference'
           })
         ])
       })
@@ -308,7 +308,7 @@ describe('OsGridRefField', () => {
               value: getFormData('TQ12345'),
               errors: expect.arrayContaining([
                 expect.objectContaining({
-                  text: 'Enter a valid OS grid reference for grid reference like TQ123456'
+                  text: 'Enter a valid OS grid reference for Grid reference like TQ123456'
                 })
               ])
             }
@@ -319,7 +319,7 @@ describe('OsGridRefField', () => {
               value: getFormData('AA1234567'),
               errors: expect.arrayContaining([
                 expect.objectContaining({
-                  text: 'Enter a valid OS grid reference for grid reference like TQ123456'
+                  text: 'Enter a valid OS grid reference for Grid reference like TQ123456'
                 })
               ])
             }
@@ -330,7 +330,7 @@ describe('OsGridRefField', () => {
               value: getFormData('TQABCDEF'),
               errors: expect.arrayContaining([
                 expect.objectContaining({
-                  text: 'Enter a valid OS grid reference for grid reference like TQ123456'
+                  text: 'Enter a valid OS grid reference for Grid reference like TQ123456'
                 })
               ])
             }
