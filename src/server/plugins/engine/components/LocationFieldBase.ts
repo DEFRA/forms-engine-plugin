@@ -6,7 +6,6 @@ import {
   isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers/index.js'
-import { markdown } from '~/src/server/plugins/engine/components/markdownParser.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
@@ -28,6 +27,7 @@ interface LocationFieldOptions {
 interface ValidationConfig {
   pattern: RegExp
   patternErrorMessage: string
+  requiredMessage?: string
 }
 
 /**
@@ -58,6 +58,14 @@ export abstract class LocationFieldBase extends FormComponent {
     addClassOptionIfNone(locationOptions, 'govuk-input--width-10')
 
     const config = this.getValidationConfig()
+    const requiredMessage =
+      config.requiredMessage ?? (messageTemplate.required as string)
+
+    const messages: LanguageMessages = {
+      'any.required': requiredMessage,
+      'string.empty': requiredMessage,
+      'string.pattern.base': config.patternErrorMessage
+    }
 
     let formSchema = joi
       .string()
@@ -65,9 +73,7 @@ export abstract class LocationFieldBase extends FormComponent {
       .label(this.label)
       .required()
       .pattern(config.pattern)
-      .messages({
-        'string.pattern.base': config.patternErrorMessage
-      })
+      .messages(messages)
 
     if (locationOptions.required === false) {
       formSchema = formSchema.allow('')
@@ -115,7 +121,7 @@ export abstract class LocationFieldBase extends FormComponent {
     if (this.instructionText) {
       return {
         ...viewModel,
-        instructionText: markdown.parse(this.instructionText, { async: false })
+        instructionText: this.instructionText
       }
     }
 
@@ -123,9 +129,15 @@ export abstract class LocationFieldBase extends FormComponent {
   }
 
   getAllPossibleErrors(): ErrorMessageTemplateList {
+    const config = this.getValidationConfig()
+
     return {
       baseErrors: [
-        { type: 'required', template: messageTemplate.required },
+        {
+          type: 'required',
+          template:
+            config.requiredMessage ?? (messageTemplate.required as string)
+        },
         ...this.getErrorTemplates()
       ],
       advancedSettingsErrors: []

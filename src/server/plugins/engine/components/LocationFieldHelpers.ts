@@ -3,7 +3,6 @@ import { type Context, type CustomValidator } from 'joi'
 import { type EastingNorthingField } from '~/src/server/plugins/engine/components/EastingNorthingField.js'
 import { isFormValue } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type LatLongField } from '~/src/server/plugins/engine/components/LatLongField.js'
-import { markdown } from '~/src/server/plugins/engine/components/markdownParser.js'
 import {
   type DateInputItem,
   type Label,
@@ -174,9 +173,7 @@ export function getLocationFieldViewModel(
   if (component.options.instructionText) {
     return {
       ...result,
-      instructionText: markdown.parse(component.options.instructionText, {
-        async: false
-      })
+      instructionText: component.options.instructionText
     }
   }
 

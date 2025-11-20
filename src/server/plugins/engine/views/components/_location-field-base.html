@@ -62,7 +62,7 @@
     {% if component.model.instructionText %}
       {{ govukDetails({
         summaryText: "How to find location details",
-        html: component.model.instructionText | safe,
+        html: component.model.instructionText | markdown | safe,
         classes: "govuk-!-margin-top-3"
       }) }}
     {% endif %}
