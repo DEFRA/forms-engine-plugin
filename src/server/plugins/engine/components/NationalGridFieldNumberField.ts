@@ -1,5 +1,4 @@
 import { type NationalGridFieldNumberFieldComponent } from '@defra/forms-model'
-import lowerFirst from 'lodash/lowerFirst.js'
 
 import { LocationFieldBase } from '~/src/server/plugins/engine/components/LocationFieldBase.js'
 
@@ -15,7 +14,8 @@ export class NationalGridFieldNumberField extends LocationFieldBase {
 
     return {
       pattern,
-      patternErrorMessage: `Enter a valid National Grid field number for ${lowerFirst(this.label)} like NG 1234 5678`
+      patternErrorMessage: `Enter a valid National Grid field number for {{#title}} like NG 1234 5678`,
+      requiredMessage: 'Enter {{#title}}'
     }
   }
 

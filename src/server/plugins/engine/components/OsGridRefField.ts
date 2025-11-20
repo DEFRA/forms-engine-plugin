@@ -1,5 +1,4 @@
 import { type OsGridRefFieldComponent } from '@defra/forms-model'
-import lowerFirst from 'lodash/lowerFirst.js'
 
 import { LocationFieldBase } from '~/src/server/plugins/engine/components/LocationFieldBase.js'
 
@@ -18,7 +17,8 @@ export class OsGridRefField extends LocationFieldBase {
 
     return {
       pattern,
-      patternErrorMessage: `Enter a valid OS grid reference for ${lowerFirst(this.label)} like TQ123456`
+      patternErrorMessage: `Enter a valid OS grid reference for {{#title}} like TQ123456`,
+      requiredMessage: 'Enter {{#title}}'
     }
   }
 
