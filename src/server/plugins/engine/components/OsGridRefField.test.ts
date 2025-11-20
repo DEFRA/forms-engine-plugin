@@ -26,7 +26,7 @@ describe('OsGridRefField', () => {
 
     beforeEach(() => {
       def = {
-        title: 'OS grid reference',
+        title: 'Example OS grid reference',
         name: 'myComponent',
         type: ComponentType.OsGridRefField,
         options: {}
@@ -135,7 +135,7 @@ describe('OsGridRefField', () => {
 
         expect(result.errors).toEqual([
           expect.objectContaining({
-            text: 'Enter OS grid reference'
+            text: 'Enter Example OS grid reference'
           })
         ])
       })
