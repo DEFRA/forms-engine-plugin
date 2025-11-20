@@ -42,6 +42,8 @@
         <input type="hidden" name="crumb" value="{{ crumb }}">
 
         {% block customPageContent %}{% endblock %}
+        
+        {{ componentList(components) }}
 
         {{ componentList(components) }}
 
