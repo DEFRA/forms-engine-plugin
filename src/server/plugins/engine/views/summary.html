@@ -41,9 +41,9 @@
       <form method="post" novalidate>
         <input type="hidden" name="crumb" value="{{ crumb }}">
 
-        {{ componentList(components) }}
-
         {% block customPageContent %}{% endblock %}
+        
+        {{ componentList(components) }}
 
         {% if declaration %}
           <h2 class="govuk-heading-m" id="declaration">Declaration</h2>
