@@ -23,7 +23,6 @@ import {
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import {
-  type AnyFormRequest,
   type FormContext,
   type FormContextRequest,
   type FormSubmissionError
@@ -318,32 +317,6 @@ export function getError(detail: ValidationErrorItem): FormSubmissionError {
     text,
     context
   }
-}
-
-/**
- * A small helper to safely generate a crumb token.
- * Checks that the crumb plugin is available, that crumb
- * is not disabled on the current route, and that cookies/state are present.
- */
-export function safeGenerateCrumb(
-  request: AnyFormRequest | null
-): string | undefined {
-  // no request or no .state
-  if (!request?.state) {
-    return undefined
-  }
-
-  // crumb plugin or its generate method doesn't exist
-  if (!request.server.plugins.crumb.generate) {
-    return undefined
-  }
-
-  // crumb is explicitly disabled for this route
-  if (request.route.settings.plugins?.crumb === false) {
-    return undefined
-  }
-
-  return request.server.plugins.crumb.generate(request)
 }
 
 /**

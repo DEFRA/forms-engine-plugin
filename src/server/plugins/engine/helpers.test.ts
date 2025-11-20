@@ -13,7 +13,6 @@ import {
   getExponentialBackoffDelay,
   getPageHref,
   proceed,
-  safeGenerateCrumb,
   type GlobalScope
 } from '~/src/server/plugins/engine/helpers.js'
 import { handleLegacyRedirect } from '~/src/server/plugins/engine/helpers.js'
@@ -30,7 +29,6 @@ import {
 import {
   FormAction,
   FormStatus,
-  type FormRequest,
   type FormResponseToolkit
 } from '~/src/server/routes/types.js'
 import definition from '~/test/form/definitions/basic.js'
@@ -443,78 +441,6 @@ describe('Helpers', () => {
           }
         }
       ])
-    })
-  })
-
-  describe('safeGenerateCrumb', () => {
-    it('should return undefined when request.state is missing (malformed request)', () => {
-      const malformedRequest = {
-        server: {
-          plugins: {
-            crumb: {
-              generate: jest.fn()
-            }
-          }
-        },
-        plugins: {},
-        route: { settings: { plugins: {} } },
-        path: '/test',
-        url: { search: '' }
-        // state intentionally omitted
-      } as unknown as FormRequest
-
-      const crumbToken = safeGenerateCrumb(malformedRequest)
-      expect(crumbToken).toBeUndefined()
-      expect(
-        malformedRequest.server.plugins.crumb.generate
-      ).not.toHaveBeenCalled()
-    })
-
-    it('should return undefined if crumb is disabled in route settings', () => {
-      const requestWithDisabledCrumb = {
-        server: {
-          plugins: {
-            crumb: {
-              generate: jest.fn().mockReturnValue('test-token')
-            }
-          }
-        },
-        plugins: {},
-        route: { settings: { plugins: { crumb: false } } },
-        path: '/test',
-        url: { search: '' },
-        state: {}
-      } as unknown as FormRequest
-
-      const crumbToken = safeGenerateCrumb(requestWithDisabledCrumb)
-      expect(crumbToken).toBeUndefined()
-      expect(
-        requestWithDisabledCrumb.server.plugins.crumb.generate
-      ).not.toHaveBeenCalled()
-    })
-
-    it('should generate crumb when state exists and crumb plugin is available', () => {
-      const mockCrumb = 'generated-crumb-value'
-      const validRequest = {
-        server: {
-          plugins: {
-            crumb: {
-              generate: jest.fn().mockReturnValue(mockCrumb)
-            }
-          }
-        },
-        plugins: {},
-        route: { settings: { plugins: {} } },
-        path: '/test',
-        url: { search: '' },
-        state: {}
-      } as unknown as FormRequest
-
-      const crumbToken = safeGenerateCrumb(validRequest)
-      expect(crumbToken).toBe(mockCrumb)
-      expect(validRequest.server.plugins.crumb.generate).toHaveBeenCalledWith(
-        validRequest
-      )
     })
   })
 
