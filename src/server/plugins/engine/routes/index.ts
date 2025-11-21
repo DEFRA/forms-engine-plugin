@@ -1,3 +1,4 @@
+import { SchemaVersion } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
   type ResponseObject,
@@ -25,6 +26,7 @@ import {
   proceed
 } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { TerminalPageController } from '~/src/server/plugins/engine/pageControllers/TerminalPageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import { generateUniqueReference } from '~/src/server/plugins/engine/referenceNumbers.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
@@ -38,6 +40,7 @@ import {
   type PluginOptions
 } from '~/src/server/plugins/engine/types.js'
 import {
+  type FormQuery,
   type FormRequest,
   type FormResponseToolkit
 } from '~/src/server/routes/types.js'
@@ -100,12 +103,19 @@ export async function redirectOrMakeHandler(
   // Redirect back to last relevant page
   const redirectTo = findPage(model, relevantPath)
 
+  const overrideQueryParams: FormQuery = {}
+
   // Set the return URL unless an exit page
-  if (redirectTo?.next.length) {
-    request.query.returnUrl = page.getHref(summaryPath)
+  if (
+    page.path === summaryPath &&
+    ((model.schemaVersion === SchemaVersion.V1 && redirectTo?.next.length) ||
+      (model.schemaVersion === SchemaVersion.V2 &&
+        !(redirectTo instanceof TerminalPageController)))
+  ) {
+    overrideQueryParams.returnUrl = page.getHref(summaryPath)
   }
 
-  return proceed(request, h, page.getHref(relevantPath))
+  return proceed(request, h, page.getHref(relevantPath), overrideQueryParams)
 }
 
 async function importExternalComponentState(

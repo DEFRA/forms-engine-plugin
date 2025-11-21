@@ -165,7 +165,7 @@ describe('Helpers', () => {
       }
     )
 
-    it.each([
+    const returnUrlTests = [
       {
         href: '/test/full-name',
 
@@ -176,21 +176,6 @@ describe('Helpers', () => {
 
         redirect: {
           statusCode: StatusCodes.MOVED_TEMPORARILY
-        } satisfies Partial<ResponseObject>
-      },
-      {
-        href: '/test/full-name',
-
-        request: {
-          method: 'post',
-          payload: {
-            action: FormAction.Validate
-          },
-          query: { returnUrl: 'https://www.gov.uk/help/privacy-notice' }
-        } satisfies Partial<FormContextRequest>,
-
-        redirect: {
-          statusCode: StatusCodes.SEE_OTHER
         } satisfies Partial<ResponseObject>
       },
       {
@@ -212,13 +197,36 @@ describe('Helpers', () => {
           statusCode: StatusCodes.MOVED_TEMPORARILY
         } satisfies Partial<ResponseObject>
       }
-    ])(
-      "should not redirect to the 'returnUrl' query param provided (other paths)",
+    ]
+
+    it.each(returnUrlTests)(
+      'should redirect to the path provided and add the returnUrl query param provided in the request',
       ({ href, ...options }) => {
         request = { ...request, ...options.request }
 
         proceed(request, h, href)
-        expect(h.redirect).not.toHaveBeenCalledWith(request.query.returnUrl)
+        expect(h.redirect).toHaveBeenCalledWith(expect.stringContaining(href))
+        expect(h.redirect).toHaveBeenCalledWith(
+          expect.stringContaining(
+            `returnUrl=${encodeURIComponent(request.query.returnUrl ?? '')}`
+          )
+        )
+      }
+    )
+
+    it.each(returnUrlTests)(
+      'should redirect to the path provided and add the returnUrl provided as an argument',
+      ({ href, ...options }) => {
+        const newReturnUrl = '/another-url'
+        request = { ...request, ...options.request }
+
+        proceed(request, h, href, { returnUrl: newReturnUrl })
+        expect(h.redirect).toHaveBeenCalledWith(expect.stringContaining(href))
+        expect(h.redirect).toHaveBeenCalledWith(
+          expect.stringContaining(
+            `returnUrl=${encodeURIComponent(newReturnUrl)}`
+          )
+        )
       }
     )
   })
