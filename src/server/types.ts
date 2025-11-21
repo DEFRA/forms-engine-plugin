@@ -23,6 +23,7 @@ import { type CacheService } from '~/src/server/services/cacheService.js'
 
 export interface FormsService {
   getFormMetadata: (slug: string) => Promise<FormMetadata>
+  getFormMetadataById: (id: string) => Promise<FormMetadata>
   getFormDefinition: (
     id: string,
     state: FormStatus

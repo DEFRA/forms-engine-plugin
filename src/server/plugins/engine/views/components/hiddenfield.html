@@ -1,0 +1,3 @@
+{% macro HiddenField(component) %}
+  <input type="hidden" id="{{ component.model.name }}" name="{{ component.model.name }}" value="{{ component.model.value }}" />
+{% endmacro %}

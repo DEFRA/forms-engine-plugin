@@ -74,6 +74,7 @@ export class FormModel {
   lists: FormDefinition['lists']
   sections: FormDefinition['sections'] = []
   name: string
+  formId: string
   values: FormDefinition
   basePath: string
   versionNumber?: number
@@ -100,6 +101,7 @@ export class FormModel {
       basePath: string
       versionNumber?: number
       ordnanceSurveyApiKey?: string
+      formId?: string
     },
     services: Services = defaultServices,
     controllers?: Record<string, typeof PageController>
@@ -152,6 +154,7 @@ export class FormModel {
     this.lists = def.lists
     this.sections = def.sections
     this.name = def.name ?? ''
+    this.formId = options.formId ?? ''
     this.values = result.value
     this.basePath = options.basePath
     this.versionNumber = options.versionNumber
