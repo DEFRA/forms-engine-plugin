@@ -105,21 +105,27 @@ export class DeclarationField extends FormComponent {
     const defaultDeclarationConfirmationLabel =
       'I confirm that I understand and accept this declaration'
     const {
-      title,
       hint,
       content,
       declarationConfirmationLabel = defaultDeclarationConfirmationLabel
     } = this
+
+    const viewModel = super.getViewModel(payload, errors)
+    let { fieldset, label } = viewModel
+
+    fieldset ??= {
+      legend: {
+        text: label.text,
+        classes: 'govuk-fieldset__legend--m'
+      }
+    }
+
     const isChecked =
       payload[this.name] === 'true' || payload[this.name] === true
     return {
-      ...super.getViewModel(payload, errors),
+      ...viewModel,
       hint: hint ? { text: hint } : undefined,
-      fieldset: {
-        legend: {
-          text: title
-        }
-      },
+      fieldset,
       content,
       items: [
         {

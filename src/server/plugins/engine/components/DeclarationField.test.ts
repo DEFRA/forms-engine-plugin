@@ -250,7 +250,8 @@ describe('DeclarationField', () => {
             id: 'myComponent',
             fieldset: {
               legend: {
-                text: 'Example Declaration Component'
+                text: 'Example Declaration Component',
+                classes: 'govuk-fieldset__legend--m'
               }
             },
             items: [
