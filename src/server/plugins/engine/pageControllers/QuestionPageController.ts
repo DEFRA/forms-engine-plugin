@@ -268,19 +268,9 @@ export class QuestionPageController extends PageController {
     // Form payload from state
     const payload = collection.getFormDataFromState(state)
 
-    // External state items all start with a specific prefix
-    const externalState = Object.keys(state)
-      .filter(key => key.startsWith('_ext_'))
-      .reduce((obj: Record<string, FormStateValue | undefined>, key) => {
-        obj[key] = state[key]
-        return obj
-      }, {})
-
-    console.log('externalState', externalState)
     return {
       ...params,
-      ...payload,
-      ...externalState
+      ...payload
     }
   }
 
@@ -319,8 +309,6 @@ export class QuestionPageController extends PageController {
     }
 
     const cacheService = getCacheService(request.server)
-
-    console.log('got state', await cacheService.getState(request))
 
     return cacheService.getState(request)
   }

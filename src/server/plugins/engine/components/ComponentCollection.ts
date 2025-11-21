@@ -248,7 +248,6 @@ export class ComponentCollection {
       return { type, isFormComponent, model }
     })
 
-    console.log('component collection view model', result)
     return result
   }
 

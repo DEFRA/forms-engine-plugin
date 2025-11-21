@@ -299,6 +299,7 @@ export type SummaryListAction = ComponentText & {
 export interface PageViewModelBase extends Partial<ViewContext> {
   page: PageController
   name?: string
+  formId?: string
   pageTitle: string
   sectionTitle?: string
   showTitle: boolean
