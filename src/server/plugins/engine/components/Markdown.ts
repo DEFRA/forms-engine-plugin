@@ -1,10 +1,11 @@
-import { type MarkdownComponent } from '@defra/forms-model'
+import { hasFormComponents, type MarkdownComponent } from '@defra/forms-model'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 
 export class Markdown extends ComponentBase {
   declare options: MarkdownComponent['options']
   content: MarkdownComponent['content']
+  headerStartLevel: number
 
   constructor(
     def: MarkdownComponent,
@@ -16,6 +17,10 @@ export class Markdown extends ComponentBase {
 
     this.content = content
     this.options = options
+    const numOfQuestionsOnPage = hasFormComponents(props.page?.pageDef)
+      ? props.page.pageDef.components.length
+      : 0
+    this.headerStartLevel = numOfQuestionsOnPage < 2 ? 1 : 2
   }
 
   getViewModel() {
@@ -23,7 +28,8 @@ export class Markdown extends ComponentBase {
 
     return {
       ...viewModel,
-      content
+      content,
+      headerStartLevel: this.headerStartLevel
     }
   }
 }
