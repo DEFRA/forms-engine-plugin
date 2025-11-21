@@ -1,5 +1,6 @@
 import {
   hasComponentsEvenIfNoNext,
+  type ComponentDef,
   type FormMetadata,
   type Page,
   type SubmitPayload
@@ -8,6 +9,7 @@ import Boom from '@hapi/boom'
 import { type RouteOptions } from '@hapi/hapi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import { ComposableComponentCollection } from '~/src/server/plugins/engine/components/ComposableComponentCollection.js'
 import { FileUploadField } from '~/src/server/plugins/engine/components/FileUploadField.js'
 import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import {
@@ -49,11 +51,18 @@ export class SummaryPageController extends QuestionPageController {
     super(model, pageDef)
     this.viewName = 'summary'
 
-    // Components collection
-    this.collection = new ComponentCollection(
-      hasComponentsEvenIfNoNext(pageDef) ? pageDef.components : [],
-      { model, page: this }
+    const components = hasComponentsEvenIfNoNext(pageDef)
+      ? pageDef.components
+      : []
+    const hasComposable = components.some(
+      (c: ComponentDef) => c.before ?? c.after
     )
+
+    const CollectionClass = hasComposable
+      ? ComposableComponentCollection
+      : ComponentCollection
+
+    this.collection = new CollectionClass(components, { model, page: this })
   }
 
   getSummaryViewModel(
