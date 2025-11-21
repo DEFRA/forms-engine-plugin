@@ -1,17 +1,7 @@
 import { type OsGridRefFieldComponent } from '@defra/forms-model'
-import joi, { type JoiExpression, type ReferenceOptions } from 'joi'
-import lowerFirst from 'lodash/lowerFirst.js'
 
 import { LocationFieldBase } from '~/src/server/plugins/engine/components/LocationFieldBase.js'
-
-const lowerFirstExpressionOptions = {
-  functions: {
-    lowerFirst
-  }
-} as ReferenceOptions
-
-const createLowerFirstExpression = (template: string): JoiExpression =>
-  joi.expression(template, lowerFirstExpressionOptions) as JoiExpression
+import { createLowerFirstExpression } from '~/src/server/plugins/engine/components/helpers/index.js'
 
 export class OsGridRefField extends LocationFieldBase {
   declare options: OsGridRefFieldComponent['options']

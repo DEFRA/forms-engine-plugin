@@ -6,6 +6,10 @@ import { LatLongField } from '~/src/server/plugins/engine/components/LatLongFiel
 import { NationalGridFieldNumberField } from '~/src/server/plugins/engine/components/NationalGridFieldNumberField.js'
 import { OsGridRefField } from '~/src/server/plugins/engine/components/OsGridRefField.js'
 import { createComponent } from '~/src/server/plugins/engine/components/helpers/components.js'
+import {
+  createLowerFirstExpression,
+  lowerFirstExpressionOptions
+} from '~/src/server/plugins/engine/components/helpers/index.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import definition from '~/test/form/definitions/basic.js'
 
@@ -121,5 +125,41 @@ describe('ComponentBase tests', () => {
     expect(component.model).toBe(formModel)
     expect(component.name).toBe('contextField')
     expect(component.title).toBe('Context Field')
+  })
+})
+
+describe('lowerFirst expression helpers', () => {
+  test('lowerFirstExpressionOptions should have lowerFirst function', () => {
+    expect(lowerFirstExpressionOptions).toHaveProperty('functions')
+    expect(lowerFirstExpressionOptions.functions).toHaveProperty('lowerFirst')
+    expect(typeof lowerFirstExpressionOptions.functions?.lowerFirst).toBe(
+      'function'
+    )
+  })
+
+  test('createLowerFirstExpression should create a Joi expression', () => {
+    const template = 'Enter {{lowerFirst(#title)}}'
+    const expression = createLowerFirstExpression(template)
+
+    expect(expression).toBeDefined()
+    expect(typeof expression).toBe('object')
+    expect(expression).toHaveProperty('_template')
+  })
+
+  test('createLowerFirstExpression should render template with lowerFirst', () => {
+    const template = 'Enter {{lowerFirst(#title)}}'
+    const expression = createLowerFirstExpression(template)
+
+    // Check the rendered template is stored
+    expect(expression).toHaveProperty('rendered', template)
+  })
+
+  test('createLowerFirstExpression should support multiple interpolations', () => {
+    const template =
+      'Easting for {{lowerFirst(#title)}} must be between {{#min}} and {{#max}}'
+    const expression = createLowerFirstExpression(template)
+
+    expect(expression).toBeDefined()
+    expect(expression).toHaveProperty('rendered', template)
   })
 })

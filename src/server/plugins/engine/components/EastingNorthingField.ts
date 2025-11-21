@@ -2,12 +2,7 @@ import {
   ComponentType,
   type EastingNorthingFieldComponent
 } from '@defra/forms-model'
-import joi, {
-  type JoiExpression,
-  type LanguageMessages,
-  type ObjectSchema,
-  type ReferenceOptions
-} from 'joi'
+import { type LanguageMessages, type ObjectSchema } from 'joi'
 import lowerFirst from 'lodash/lowerFirst.js'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
@@ -20,6 +15,7 @@ import {
   getLocationFieldViewModel
 } from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
+import { createLowerFirstExpression } from '~/src/server/plugins/engine/components/helpers/index.js'
 import { type EastingNorthingState } from '~/src/server/plugins/engine/components/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
@@ -37,15 +33,6 @@ const DEFAULT_EASTING_MIN = 0
 const DEFAULT_EASTING_MAX = 700000
 const DEFAULT_NORTHING_MIN = 0
 const DEFAULT_NORTHING_MAX = 1300000
-
-const lowerFirstExpressionOptions = {
-  functions: {
-    lowerFirst
-  }
-} as ReferenceOptions
-
-const createLowerFirstExpression = (template: string): JoiExpression =>
-  joi.expression(template, lowerFirstExpressionOptions) as JoiExpression
 
 export class EastingNorthingField extends FormComponent {
   declare options: EastingNorthingFieldComponent['options']

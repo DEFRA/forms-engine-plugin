@@ -1,10 +1,5 @@
 import { ComponentType, type LatLongFieldComponent } from '@defra/forms-model'
-import joi, {
-  type JoiExpression,
-  type LanguageMessages,
-  type ObjectSchema,
-  type ReferenceOptions
-} from 'joi'
+import { type LanguageMessages, type ObjectSchema } from 'joi'
 import lowerFirst from 'lodash/lowerFirst.js'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
@@ -17,6 +12,7 @@ import {
   getLocationFieldViewModel
 } from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
+import { createLowerFirstExpression } from '~/src/server/plugins/engine/components/helpers/index.js'
 import { type LatLongState } from '~/src/server/plugins/engine/components/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
@@ -32,15 +28,6 @@ import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 // Precision constants
 // UK latitude/longitude requires high precision for accurate location (within ~11mm)
 const DECIMAL_PRECISION = 7 // 7 decimal places
-
-const lowerFirstExpressionOptions = {
-  functions: {
-    lowerFirst
-  }
-} as ReferenceOptions
-
-const createLowerFirstExpression = (template: string): JoiExpression =>
-  joi.expression(template, lowerFirstExpressionOptions) as JoiExpression
 
 export class LatLongField extends FormComponent {
   declare options: LatLongFieldComponent['options']
