@@ -1,6 +1,17 @@
 import { type OsGridRefFieldComponent } from '@defra/forms-model'
+import joi, { type JoiExpression, type ReferenceOptions } from 'joi'
+import lowerFirst from 'lodash/lowerFirst.js'
 
 import { LocationFieldBase } from '~/src/server/plugins/engine/components/LocationFieldBase.js'
+
+const lowerFirstExpressionOptions = {
+  functions: {
+    lowerFirst
+  }
+} as ReferenceOptions
+
+const createLowerFirstExpression = (template: string): JoiExpression =>
+  joi.expression(template, lowerFirstExpressionOptions) as JoiExpression
 
 export class OsGridRefField extends LocationFieldBase {
   declare options: OsGridRefFieldComponent['options']
@@ -15,10 +26,15 @@ export class OsGridRefField extends LocationFieldBase {
     const pattern =
       /^((([sS]|[nN])[a-hA-Hj-zJ-Z])|(([tT]|[oO])[abfglmqrvwABFGLMQRVW])|([hH][l-zL-Z])|([jJ][lmqrvwLMQRVW]))\s?(([0-9]{3})\s?([0-9]{3})|([0-9]{4})\s?([0-9]{4})|([0-9]{5})\s?([0-9]{5}))$/
 
+    const patternTemplate =
+      'Enter a valid OS grid reference for {{lowerFirst(#title)}} like TQ123456'
+
     return {
       pattern,
-      patternErrorMessage: `Enter a valid OS grid reference for {{#title}} like TQ123456`,
-      requiredMessage: 'Enter {{#title}}'
+      patternErrorMessage: createLowerFirstExpression(patternTemplate),
+      requiredMessage: createLowerFirstExpression(
+        'Enter {{lowerFirst(#title)}}'
+      )
     }
   }
 
@@ -26,7 +42,9 @@ export class OsGridRefField extends LocationFieldBase {
     return [
       {
         type: 'pattern',
-        template: 'Enter a valid OS grid reference for {{#title}} like TQ123456'
+        template: createLowerFirstExpression(
+          'Enter a valid OS grid reference for {{lowerFirst(#title)}} like TQ123456'
+        )
       }
     ]
   }

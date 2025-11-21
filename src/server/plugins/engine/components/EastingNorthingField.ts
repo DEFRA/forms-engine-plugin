@@ -2,7 +2,12 @@ import {
   ComponentType,
   type EastingNorthingFieldComponent
 } from '@defra/forms-model'
-import { type LanguageMessages, type ObjectSchema } from 'joi'
+import joi, {
+  type JoiExpression,
+  type LanguageMessages,
+  type ObjectSchema,
+  type ReferenceOptions
+} from 'joi'
 import lowerFirst from 'lodash/lowerFirst.js'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
@@ -32,6 +37,15 @@ const DEFAULT_EASTING_MIN = 0
 const DEFAULT_EASTING_MAX = 700000
 const DEFAULT_NORTHING_MIN = 0
 const DEFAULT_NORTHING_MAX = 1300000
+
+const lowerFirstExpressionOptions = {
+  functions: {
+    lowerFirst
+  }
+} as ReferenceOptions
+
+const createLowerFirstExpression = (template: string): JoiExpression =>
+  joi.expression(template, lowerFirstExpressionOptions) as JoiExpression
 
 export class EastingNorthingField extends FormComponent {
   declare options: EastingNorthingFieldComponent['options']
@@ -198,29 +212,41 @@ export class EastingNorthingField extends FormComponent {
         { type: 'required', template: messageTemplate.required },
         {
           type: 'eastingFormat',
-          template: 'Easting for {{#title}} must be between 1 and 6 digits'
+          template: createLowerFirstExpression(
+            'Easting for {{lowerFirst(#title)}} must be between 1 and 6 digits'
+          )
         },
         {
           type: 'northingFormat',
-          template: 'Northing for {{#title}} must be between 1 and 7 digits'
+          template: createLowerFirstExpression(
+            'Northing for {{lowerFirst(#title)}} must be between 1 and 7 digits'
+          )
         }
       ],
       advancedSettingsErrors: [
         {
           type: 'eastingMin',
-          template: `Easting for {{#title}} must be between ${DEFAULT_EASTING_MIN} and ${DEFAULT_EASTING_MAX}`
+          template: createLowerFirstExpression(
+            `Easting for {{lowerFirst(#title)}} must be between ${DEFAULT_EASTING_MIN} and ${DEFAULT_EASTING_MAX}`
+          )
         },
         {
           type: 'eastingMax',
-          template: `Easting for {{#title}} must be between ${DEFAULT_EASTING_MIN} and ${DEFAULT_EASTING_MAX}`
+          template: createLowerFirstExpression(
+            `Easting for {{lowerFirst(#title)}} must be between ${DEFAULT_EASTING_MIN} and ${DEFAULT_EASTING_MAX}`
+          )
         },
         {
           type: 'northingMin',
-          template: `Northing for {{#title}} must be between ${DEFAULT_NORTHING_MIN} and ${DEFAULT_NORTHING_MAX}`
+          template: createLowerFirstExpression(
+            `Northing for {{lowerFirst(#title)}} must be between ${DEFAULT_NORTHING_MIN} and ${DEFAULT_NORTHING_MAX}`
+          )
         },
         {
           type: 'northingMax',
-          template: `Northing for {{#title}} must be between ${DEFAULT_NORTHING_MIN} and ${DEFAULT_NORTHING_MAX}`
+          template: createLowerFirstExpression(
+            `Northing for {{lowerFirst(#title)}} must be between ${DEFAULT_NORTHING_MIN} and ${DEFAULT_NORTHING_MAX}`
+          )
         }
       ]
     }

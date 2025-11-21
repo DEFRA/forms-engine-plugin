@@ -1,5 +1,10 @@
 import { ComponentType, type LatLongFieldComponent } from '@defra/forms-model'
-import { type LanguageMessages, type ObjectSchema } from 'joi'
+import joi, {
+  type JoiExpression,
+  type LanguageMessages,
+  type ObjectSchema,
+  type ReferenceOptions
+} from 'joi'
 import lowerFirst from 'lodash/lowerFirst.js'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
@@ -27,6 +32,15 @@ import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 // Precision constants
 // UK latitude/longitude requires high precision for accurate location (within ~11mm)
 const DECIMAL_PRECISION = 7 // 7 decimal places
+
+const lowerFirstExpressionOptions = {
+  functions: {
+    lowerFirst
+  }
+} as ReferenceOptions
+
+const createLowerFirstExpression = (template: string): JoiExpression =>
+  joi.expression(template, lowerFirstExpressionOptions) as JoiExpression
 
 export class LatLongField extends FormComponent {
   declare options: LatLongFieldComponent['options']
@@ -194,29 +208,41 @@ export class LatLongField extends FormComponent {
         { type: 'required', template: messageTemplate.required },
         {
           type: 'latitudeFormat',
-          template: 'Enter a valid latitude for {{#title}} like 51.519450'
+          template: createLowerFirstExpression(
+            'Enter a valid latitude for {{lowerFirst(#title)}} like 51.519450'
+          )
         },
         {
           type: 'longitudeFormat',
-          template: 'Enter a valid longitude for {{#title}} like -0.127758'
+          template: createLowerFirstExpression(
+            'Enter a valid longitude for {{lowerFirst(#title)}} like -0.127758'
+          )
         }
       ],
       advancedSettingsErrors: [
         {
           type: 'latitudeMin',
-          template: 'Latitude for {{#title}} must be between 49 and 60'
+          template: createLowerFirstExpression(
+            'Latitude for {{lowerFirst(#title)}} must be between 49 and 60'
+          )
         },
         {
           type: 'latitudeMax',
-          template: 'Latitude for {{#title}} must be between 49 and 60'
+          template: createLowerFirstExpression(
+            'Latitude for {{lowerFirst(#title)}} must be between 49 and 60'
+          )
         },
         {
           type: 'longitudeMin',
-          template: 'Longitude for {{#title}} must be between -9 and 2'
+          template: createLowerFirstExpression(
+            'Longitude for {{lowerFirst(#title)}} must be between -9 and 2'
+          )
         },
         {
           type: 'longitudeMax',
-          template: 'Longitude for {{#title}} must be between -9 and 2'
+          template: createLowerFirstExpression(
+            'Longitude for {{lowerFirst(#title)}} must be between -9 and 2'
+          )
         }
       ]
     }
