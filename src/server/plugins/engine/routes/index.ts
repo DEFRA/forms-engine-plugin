@@ -139,7 +139,12 @@ async function prefillStateFromQueryParameters(
   const hiddenFieldNames = new Set(
     getHiddenFields(model.def).map((field) => field.name)
   )
-  const query = Object.keys(request.query).length ? request.query : {}
+  const query = Object.keys(request.query).length ? request.query : undefined
+
+  if (!query) {
+    return
+  }
+
   const params = {} as Record<string, FormStateValue | undefined>
 
   for (const [key, value = ''] of Object.entries(query)) {
@@ -233,6 +238,9 @@ export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
   async function handler(request: AnyFormRequest, h: ResponseToolkit) {
     if (server.app.model) {
       request.app.model = server.app.model
+
+      // Copy any URL params into the form state
+      await prefillStateFromQueryParameters(request, request.app.model)
 
       return h.continue
     }
