@@ -131,9 +131,9 @@ describe('ComponentBase tests', () => {
 describe('lowerFirst expression helpers', () => {
   test('lowerFirstExpressionOptions should have lowerFirst function', () => {
     expect(lowerFirstExpressionOptions).toHaveProperty('functions')
-    expect(lowerFirstExpressionOptions.functions).toHaveProperty('lowerFirst')
-    expect(typeof lowerFirstExpressionOptions.functions?.lowerFirst).toBe(
-      'function'
+    expect(lowerFirstExpressionOptions).toHaveProperty(
+      'functions.lowerFirst',
+      expect.any(Function)
     )
   })
 
