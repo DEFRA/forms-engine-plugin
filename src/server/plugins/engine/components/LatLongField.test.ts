@@ -404,7 +404,36 @@ describe('LatLongField', () => {
         const staticResult = LatLongField.getAllPossibleErrors()
         const instanceResult = field.getAllPossibleErrors()
 
-        expect(instanceResult).toEqual(staticResult)
+        // Compare structure and content
+        expect(instanceResult.baseErrors).toHaveLength(
+          staticResult.baseErrors.length
+        )
+        expect(instanceResult.advancedSettingsErrors).toHaveLength(
+          staticResult.advancedSettingsErrors.length
+        )
+
+        // Compare error types
+        expect(instanceResult.baseErrors.map((e) => e.type)).toEqual(
+          staticResult.baseErrors.map((e) => e.type)
+        )
+        expect(
+          instanceResult.advancedSettingsErrors.map((e) => e.type)
+        ).toEqual(staticResult.advancedSettingsErrors.map((e) => e.type))
+
+        // Compare rendered templates
+        expect(
+          instanceResult.baseErrors.map((e) =>
+            typeof e.template === 'object' && 'rendered' in e.template
+              ? e.template.rendered
+              : e.template
+          )
+        ).toEqual(
+          staticResult.baseErrors.map((e) =>
+            typeof e.template === 'object' && 'rendered' in e.template
+              ? e.template.rendered
+              : e.template
+          )
+        )
       })
     })
   })

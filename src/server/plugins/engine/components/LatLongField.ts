@@ -12,6 +12,7 @@ import {
   getLocationFieldViewModel
 } from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
+import { createLowerFirstExpression } from '~/src/server/plugins/engine/components/helpers/index.js'
 import { type LatLongState } from '~/src/server/plugins/engine/components/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
@@ -194,29 +195,41 @@ export class LatLongField extends FormComponent {
         { type: 'required', template: messageTemplate.required },
         {
           type: 'latitudeFormat',
-          template: 'Enter a valid latitude for {{#title}} like 51.519450'
+          template: createLowerFirstExpression(
+            'Enter a valid latitude for {{lowerFirst(#title)}} like 51.519450'
+          )
         },
         {
           type: 'longitudeFormat',
-          template: 'Enter a valid longitude for {{#title}} like -0.127758'
+          template: createLowerFirstExpression(
+            'Enter a valid longitude for {{lowerFirst(#title)}} like -0.127758'
+          )
         }
       ],
       advancedSettingsErrors: [
         {
           type: 'latitudeMin',
-          template: 'Latitude for {{#title}} must be between 49 and 60'
+          template: createLowerFirstExpression(
+            'Latitude for {{lowerFirst(#title)}} must be between 49 and 60'
+          )
         },
         {
           type: 'latitudeMax',
-          template: 'Latitude for {{#title}} must be between 49 and 60'
+          template: createLowerFirstExpression(
+            'Latitude for {{lowerFirst(#title)}} must be between 49 and 60'
+          )
         },
         {
           type: 'longitudeMin',
-          template: 'Longitude for {{#title}} must be between -9 and 2'
+          template: createLowerFirstExpression(
+            'Longitude for {{lowerFirst(#title)}} must be between -9 and 2'
+          )
         },
         {
           type: 'longitudeMax',
-          template: 'Longitude for {{#title}} must be between -9 and 2'
+          template: createLowerFirstExpression(
+            'Longitude for {{lowerFirst(#title)}} must be between -9 and 2'
+          )
         }
       ]
     }

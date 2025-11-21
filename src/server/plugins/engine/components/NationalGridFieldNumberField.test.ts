@@ -129,7 +129,7 @@ describe('NationalGridFieldNumberField', () => {
 
         expect(result.errors).toEqual([
           expect.objectContaining({
-            text: 'Enter Example National Grid field number'
+            text: 'Enter example National Grid field number'
           })
         ])
       })
@@ -293,7 +293,7 @@ describe('NationalGridFieldNumberField', () => {
               value: getFormData('NG1234567'),
               errors: expect.arrayContaining([
                 expect.objectContaining({
-                  text: 'Enter a valid National Grid field number for Grid field like NG 1234 5678'
+                  text: 'Enter a valid National Grid field number for grid field like NG 1234 5678'
                 })
               ])
             }
@@ -304,7 +304,7 @@ describe('NationalGridFieldNumberField', () => {
               value: getFormData('N123456789'),
               errors: expect.arrayContaining([
                 expect.objectContaining({
-                  text: 'Enter a valid National Grid field number for Grid field like NG 1234 5678'
+                  text: 'Enter a valid National Grid field number for grid field like NG 1234 5678'
                 })
               ])
             }
@@ -315,7 +315,7 @@ describe('NationalGridFieldNumberField', () => {
               value: getFormData('NGABCDEFGH'),
               errors: expect.arrayContaining([
                 expect.objectContaining({
-                  text: 'Enter a valid National Grid field number for Grid field like NG 1234 5678'
+                  text: 'Enter a valid National Grid field number for grid field like NG 1234 5678'
                 })
               ])
             }

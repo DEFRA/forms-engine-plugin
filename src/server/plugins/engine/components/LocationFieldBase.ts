@@ -1,5 +1,9 @@
 import { type FormComponentsDef } from '@defra/forms-model'
-import joi, { type LanguageMessages, type StringSchema } from 'joi'
+import joi, {
+  type JoiExpression,
+  type LanguageMessages,
+  type StringSchema
+} from 'joi'
 
 import {
   FormComponent,
@@ -15,6 +19,7 @@ import {
   type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
+import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 
 interface LocationFieldOptions {
   instructionText?: string
@@ -26,8 +31,8 @@ interface LocationFieldOptions {
 
 interface ValidationConfig {
   pattern: RegExp
-  patternErrorMessage: string
-  requiredMessage?: string
+  patternErrorMessage: JoiExpression
+  requiredMessage?: JoiExpression
 }
 
 /**
@@ -42,7 +47,7 @@ export abstract class LocationFieldBase extends FormComponent {
   protected abstract getValidationConfig(): ValidationConfig
   protected abstract getErrorTemplates(): {
     type: string
-    template: string
+    template: JoiExpression
   }[]
 
   constructor(
@@ -61,11 +66,11 @@ export abstract class LocationFieldBase extends FormComponent {
     const requiredMessage =
       config.requiredMessage ?? (messageTemplate.required as string)
 
-    const messages: LanguageMessages = {
+    const messages = convertToLanguageMessages({
       'any.required': requiredMessage,
       'string.empty': requiredMessage,
       'string.pattern.base': config.patternErrorMessage
-    }
+    })
 
     let formSchema = joi
       .string()
