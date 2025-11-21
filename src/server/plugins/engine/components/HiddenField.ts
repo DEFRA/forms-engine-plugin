@@ -4,10 +4,7 @@ import {
 } from '@defra/forms-model'
 import joi, { type StringSchema } from 'joi'
 
-import {
-  FormComponent,
-  isFormValue
-} from '~/src/server/plugins/engine/components/FormComponent.js'
+import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
@@ -42,10 +39,6 @@ export class HiddenField extends FormComponent {
     return this.getFormValue(state[name])
   }
 
-  getFormValue(value?: FormStateValue | FormState) {
-    return this.isValue(value) ? value : undefined
-  }
-
   isValue(value?: FormStateValue | FormState): value is string {
     return TextField.isText(value)
   }
@@ -54,7 +47,7 @@ export class HiddenField extends FormComponent {
    * For error preview page that shows all possible errors on a component
    */
   getAllPossibleErrors(): ErrorMessageTemplateList {
-    return TextField.getAllPossibleErrors()
+    return HiddenField.getAllPossibleErrors()
   }
 
   /**
@@ -65,9 +58,5 @@ export class HiddenField extends FormComponent {
       baseErrors: [{ type: 'required', template: messageTemplate.required }],
       advancedSettingsErrors: []
     }
-  }
-
-  static isText(value?: FormStateValue | FormState): value is string {
-    return isFormValue(value) && typeof value === 'string'
   }
 }

@@ -2,6 +2,7 @@ import { ComponentType, type ComponentDef } from '@defra/forms-model'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { EastingNorthingField } from '~/src/server/plugins/engine/components/EastingNorthingField.js'
+import { HiddenField } from '~/src/server/plugins/engine/components/HiddenField.js'
 import { LatLongField } from '~/src/server/plugins/engine/components/LatLongField.js'
 import { NationalGridFieldNumberField } from '~/src/server/plugins/engine/components/NationalGridFieldNumberField.js'
 import { OsGridRefField } from '~/src/server/plugins/engine/components/OsGridRefField.js'
@@ -91,6 +92,22 @@ describe('helpers tests', () => {
     expect(component).toBeInstanceOf(NationalGridFieldNumberField)
     expect(component.name).toBe('testField')
     expect(component.title).toBe('Test National Grid')
+  })
+
+  test('should create HiddenField component', () => {
+    const component = createComponent(
+      {
+        type: ComponentType.HiddenField,
+        name: 'hiddenField',
+        title: 'Hidden field',
+        options: {}
+      },
+      { model: formModel }
+    )
+
+    expect(component).toBeInstanceOf(HiddenField)
+    expect(component.name).toBe('hiddenField')
+    expect(component.title).toBe('Hidden field')
   })
 })
 

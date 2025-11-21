@@ -136,12 +136,14 @@ async function prefillStateFromQueryParameters(
   request: AnyFormRequest,
   model: FormModel
 ): Promise<void> {
-  const hiddenFieldNames = getHiddenFields(model.def).map((field) => field.name)
+  const hiddenFieldNames = new Set(
+    getHiddenFields(model.def).map((field) => field.name)
+  )
   const query = Object.keys(request.query).length ? request.query : {}
   const params = {} as Record<string, FormStateValue | undefined>
 
   for (const [key, value = ''] of Object.entries(query)) {
-    if (hiddenFieldNames.includes(key)) {
+    if (hiddenFieldNames.has(key)) {
       const lookupFunc = paramLookupFunctions[key]
       const resValue = lookupFunc
         ? await lookupFunc(value, model.services)
