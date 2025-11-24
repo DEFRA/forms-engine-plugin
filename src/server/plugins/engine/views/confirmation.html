@@ -14,9 +14,11 @@
       <div class="app-prose-scope">
         {{ submissionGuidance | markdown | safe }}
       </div>
-      <p class="govuk-body">
-        <a href="/form/{{ feedbackFormSlug }}?formId={{ formId }}" class="govuk-link govuk-link--no-visited-state">What do you think of this service?</a> (takes 30 seconds)
-      </p>
+      {% if feedbackLink %}
+        <p class="govuk-body">
+          <a href="{{ feedbackLink }}" class="govuk-link govuk-link--no-visited-state">What do you think of this service?</a> (takes 30 seconds)
+        </p>
+      {% endif %}
     </div>
   </div>
 {% endblock %}

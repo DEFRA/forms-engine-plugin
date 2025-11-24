@@ -122,11 +122,14 @@ export class PageController {
   get feedbackLink() {
     const { def } = this
 
-    // setting the feedbackLink to undefined here for feedback forms prevents the feedback link from being shown
+    // Use the feedbackLink if defined, otherwise use default CSAT link
     const feedbackLink = def.feedback?.emailAddress
       ? `mailto:${def.feedback.emailAddress}`
       : def.feedback?.url
 
+    if (!feedbackLink) {
+      return `/form/csat?formId=${this.model.formId}`
+    }
     return encodeUrl(feedbackLink)
   }
 

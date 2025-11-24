@@ -167,6 +167,7 @@ export async function prefillStateFromQueryParameters(
     }
   }
 
+  // console.log('Adding to state', params)
   const page = model.pages[0] // Any page will do so just take the first one
   const formData = await page.getState(request)
   await page.mergeState(request, formData, params)
