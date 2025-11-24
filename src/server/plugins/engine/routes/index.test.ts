@@ -19,12 +19,14 @@ import {
   type OnRequestCallback
 } from '~/src/server/plugins/engine/types.js'
 import { type FormResponseToolkit } from '~/src/server/routes/types.js'
+import { type FormsService, type Services } from '~/src/server/types.js'
 
 jest.mock('~/src/server/plugins/engine/helpers')
 
 function buildMockModel(
   pagesOverride = [] as Page[],
-  pagesControllerOverride = [] as PageControllerClass[]
+  pagesControllerOverride = [] as PageControllerClass[],
+  servicesOverride = {} as Services
 ) {
   return {
     def: {
@@ -37,7 +39,8 @@ function buildMockModel(
       isForceAccess: false,
       data: {}
     }),
-    pages: pagesControllerOverride
+    pages: pagesControllerOverride,
+    services: servicesOverride
   } as unknown as FormModel
 }
 
@@ -399,6 +402,54 @@ describe('redirectOrMakeHandler', () => {
         {
           param2: 'val2',
           param4: 'val4'
+        }
+      )
+    })
+
+    it('should call lookup function for formId', async () => {
+      const mockRequest3 = {
+        ...mockRequest,
+        query: {
+          formId: 'c644804b-2f23-4c96-a2fc-ad4975974723'
+        }
+      } as unknown as AnyFormRequest
+
+      const mockModel = buildMockModel(
+        [
+          {
+            components: [
+              {
+                type: ComponentType.HiddenField,
+                name: 'formId'
+              }
+            ],
+            next: []
+          } as unknown as Page
+        ],
+        [
+          {
+            getState: mockGetState.mockResolvedValue({}),
+            mergeState: mockMergeState
+          } as unknown as PageControllerClass
+        ],
+        {
+          formsService: {
+            getFormMetadata: jest.fn(),
+            getFormMetadataById: jest
+              .fn()
+              .mockResolvedValue({ title: 'My looked-up form name' }),
+            getFormDefinition: jest.fn()
+          } as unknown as FormsService
+        } as Services
+      )
+
+      await prefillStateFromQueryParameters(mockRequest3, mockModel)
+      expect(mockMergeState).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.anything(),
+        {
+          formId: 'c644804b-2f23-4c96-a2fc-ad4975974723',
+          formName: 'My looked-up form name'
         }
       )
     })

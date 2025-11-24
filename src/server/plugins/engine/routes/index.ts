@@ -117,12 +117,18 @@ export async function redirectOrMakeHandler(
 const paramLookupFunctions = {
   formId: async (val: string, services: Services) => {
     const meta = await services.formsService.getFormMetadataById(val)
-    return meta.title
+    return {
+      key: 'formName',
+      value: meta.title
+    }
   }
 } as Partial<
   Record<
     string,
-    (val: string, services: Services) => Promise<string | undefined>
+    (
+      val: string,
+      services: Services
+    ) => Promise<{ key: string; value: string | undefined }>
   >
 >
 
@@ -150,10 +156,14 @@ export async function prefillStateFromQueryParameters(
   for (const [key, value = ''] of Object.entries(query)) {
     if (hiddenFieldNames.has(key)) {
       const lookupFunc = paramLookupFunctions[key]
-      const resValue = lookupFunc
-        ? await lookupFunc(value, model.services)
-        : value
-      params[key] = resValue
+      if (lookupFunc) {
+        const res = await lookupFunc(value, model.services)
+        // Store original value and result
+        params[key] = value
+        params[res.key] = res.value
+      } else {
+        params[key] = value
+      }
     }
   }
 
