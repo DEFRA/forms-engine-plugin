@@ -6,9 +6,17 @@
 
   {{ componentList(components) }}
 
+  {% if isStartPage %}
+    {% set buttonText = "Start now" %}
+  {% elif submitButtonText %}
+    {% set buttonText = submitButtonText %}
+  {% else %}
+    {% set buttonText = "Continue" %}
+  {% endif %}
+
   <div class="govuk-button-group">
     {{ govukButton({
-      text: "Start now" if isStartPage else "Continue",
+      text: buttonText,
       isStartButton: isStartPage,
       preventDoubleClick: true
     }) }}
