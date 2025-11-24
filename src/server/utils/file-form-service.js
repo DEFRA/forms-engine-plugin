@@ -156,9 +156,10 @@ export class FileFormService {
       /**
        * Get the form defintion by id
        * @param {string} id
+       * @param {FormStatus} _state
        * @returns {Promise<FormDefinition>}
        */
-      getFormDefinition: (id) => {
+      getFormDefinition: (id, _state) => {
         return Promise.resolve(this.getFormDefinition(id))
       }
     }
@@ -166,5 +167,5 @@ export class FileFormService {
 }
 
 /**
- * @import { FormMetadata, FormDefinition } from '@defra/forms-model'
+ * @import { FormMetadata, FormDefinition, FormStatus } from '@defra/forms-model'
  */

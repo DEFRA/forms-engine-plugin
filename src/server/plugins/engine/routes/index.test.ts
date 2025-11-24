@@ -1,3 +1,4 @@
+import { ComponentType, type Page } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type ResponseObject, type ResponseToolkit } from '@hapi/hapi'
 
@@ -9,7 +10,10 @@ import {
 } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
-import { redirectOrMakeHandler } from '~/src/server/plugins/engine/routes/index.js'
+import {
+  prefillStateFromQueryParameters,
+  redirectOrMakeHandler
+} from '~/src/server/plugins/engine/routes/index.js'
 import {
   type AnyFormRequest,
   type OnRequestCallback
@@ -17,6 +21,25 @@ import {
 import { type FormResponseToolkit } from '~/src/server/routes/types.js'
 
 jest.mock('~/src/server/plugins/engine/helpers')
+
+function buildMockModel(
+  pagesOverride = [] as Page[],
+  pagesControllerOverride = [] as PageControllerClass[]
+) {
+  return {
+    def: {
+      metadata: {
+        submission: { code: 'TEST-CODE' }
+      } as { submission: { code: string } },
+      pages: pagesOverride
+    },
+    getFormContext: jest.fn().mockReturnValue({
+      isForceAccess: false,
+      data: {}
+    }),
+    pages: pagesControllerOverride
+  } as unknown as FormModel
+}
 
 describe('redirectOrMakeHandler', () => {
   const mockServer = {} as unknown as Parameters<
@@ -38,17 +61,7 @@ describe('redirectOrMakeHandler', () => {
 
   let mockPage: PageControllerClass
 
-  const mockModel: FormModel = {
-    def: {
-      metadata: {
-        submission: { code: 'TEST-CODE' }
-      } as { submission: { code: string } }
-    },
-    getFormContext: jest.fn().mockReturnValue({
-      isForceAccess: false,
-      data: {}
-    })
-  } as unknown as FormModel
+  const mockModel = buildMockModel()
 
   const mockMakeHandler = jest
     .fn()
@@ -312,6 +325,82 @@ describe('redirectOrMakeHandler', () => {
       // returnUrl should not be set if next pages don't exist
       expect(mockRequest.query.returnUrl).toBe(returnUrlBefore)
       expect(proceed).toHaveBeenCalledWith(mockRequest, mockH, '/test-href')
+    })
+  })
+
+  describe('prefillStateFromQueryParameters', () => {
+    const mockGetState = jest.fn()
+    const mockMergeState = jest.fn()
+    const mockRequestPrefill: AnyFormRequest = {
+      server: mockServer,
+      app: {},
+      yar: { flash: () => [] },
+      params: { path: 'test-path' },
+      query: {}
+    } as unknown as AnyFormRequest
+
+    it('should not add any state if no params', async () => {
+      const mockModelPrefill = buildMockModel(
+        [],
+        [
+          {
+            getState: mockGetState,
+            mergeState: mockMergeState
+          } as unknown as PageControllerClass
+        ]
+      )
+
+      await prefillStateFromQueryParameters(
+        mockRequestPrefill,
+        mockModelPrefill
+      )
+      expect(mockMergeState).not.toHaveBeenCalled()
+    })
+
+    it('should only add state where param names match hidden field names', async () => {
+      const mockRequest2 = {
+        ...mockRequest,
+        query: {
+          param1: 'val1',
+          param2: 'val2',
+          param3: 'val3',
+          param4: 'val4'
+        }
+      } as unknown as AnyFormRequest
+
+      const mockModel = buildMockModel(
+        [
+          {
+            components: [
+              {
+                type: ComponentType.HiddenField,
+                name: 'param2'
+              },
+              {
+                type: ComponentType.HiddenField,
+                name: 'param4'
+              }
+            ],
+            next: []
+          } as unknown as Page
+        ],
+        [
+          {
+            getState: mockGetState.mockResolvedValue({}),
+            mergeState: mockMergeState
+          } as unknown as PageControllerClass
+        ]
+      )
+
+      await prefillStateFromQueryParameters(mockRequest2, mockModel)
+      expect(mockMergeState).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.anything(),
+        {
+          param2: 'val2',
+          param4: 'val4'
+        }
+      )
     })
   })
 })

@@ -1,5 +1,6 @@
 import { join } from 'node:path'
 
+import { FormStatus } from '~/src/server/routes/types.js'
 import { FileFormService } from '~/src/server/utils/file-form-service.js'
 
 describe('File-form-service', () => {
@@ -78,6 +79,36 @@ describe('File-form-service', () => {
       expect(() => service.getFormDefinition('id-missing')).toThrow(
         "Form definition 'id-missing' not found"
       )
+    })
+  })
+
+  describe('toFormsService', () => {
+    it('should create interface', async () => {
+      const interfaceImpl = service.toFormsService()
+      const res1 = await interfaceImpl.getFormMetadata('form-test')
+      expect(res1.id).toBe('95e92559-968d-44ae-8666-2b1ad3dffd31')
+      expect(res1.title).toBe('Form test')
+
+      const res2 = await interfaceImpl.getFormMetadataById(
+        '95e92559-968d-44ae-8666-2b1ad3dffd31'
+      )
+      expect(res2.id).toBe('95e92559-968d-44ae-8666-2b1ad3dffd31')
+      expect(res2.title).toBe('Form test')
+
+      const res3 = await interfaceImpl.getFormDefinition(
+        '95e92559-968d-44ae-8666-2b1ad3dffd31',
+        FormStatus.Draft
+      )
+      expect(res3?.name).toBe('All components')
+      expect(res3?.startPage).toBe('/all-components')
+    })
+  })
+
+  describe('readForm', () => {
+    it('should throw if invalid extension', async () => {
+      await expect(
+        service.readForm('/some-folder/some-file.bad')
+      ).rejects.toThrow("Invalid file extension '.bad'")
     })
   })
 })

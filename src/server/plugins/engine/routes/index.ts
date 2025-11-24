@@ -132,7 +132,7 @@ const paramLookupFunctions = {
  * @param request
  * @param model
  */
-async function prefillStateFromQueryParameters(
+export async function prefillStateFromQueryParameters(
   request: AnyFormRequest,
   model: FormModel
 ): Promise<void> {
