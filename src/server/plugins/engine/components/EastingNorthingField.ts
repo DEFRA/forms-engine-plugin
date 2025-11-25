@@ -15,6 +15,7 @@ import {
   getLocationFieldViewModel
 } from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
+import { createLowerFirstExpression } from '~/src/server/plugins/engine/components/helpers/index.js'
 import { type EastingNorthingState } from '~/src/server/plugins/engine/components/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
@@ -198,29 +199,41 @@ export class EastingNorthingField extends FormComponent {
         { type: 'required', template: messageTemplate.required },
         {
           type: 'eastingFormat',
-          template: 'Easting for {{#title}} must be between 1 and 6 digits'
+          template: createLowerFirstExpression(
+            'Easting for {{lowerFirst(#title)}} must be between 1 and 6 digits'
+          )
         },
         {
           type: 'northingFormat',
-          template: 'Northing for {{#title}} must be between 1 and 7 digits'
+          template: createLowerFirstExpression(
+            'Northing for {{lowerFirst(#title)}} must be between 1 and 7 digits'
+          )
         }
       ],
       advancedSettingsErrors: [
         {
           type: 'eastingMin',
-          template: `Easting for {{#title}} must be between ${DEFAULT_EASTING_MIN} and ${DEFAULT_EASTING_MAX}`
+          template: createLowerFirstExpression(
+            `Easting for {{lowerFirst(#title)}} must be between ${DEFAULT_EASTING_MIN} and ${DEFAULT_EASTING_MAX}`
+          )
         },
         {
           type: 'eastingMax',
-          template: `Easting for {{#title}} must be between ${DEFAULT_EASTING_MIN} and ${DEFAULT_EASTING_MAX}`
+          template: createLowerFirstExpression(
+            `Easting for {{lowerFirst(#title)}} must be between ${DEFAULT_EASTING_MIN} and ${DEFAULT_EASTING_MAX}`
+          )
         },
         {
           type: 'northingMin',
-          template: `Northing for {{#title}} must be between ${DEFAULT_NORTHING_MIN} and ${DEFAULT_NORTHING_MAX}`
+          template: createLowerFirstExpression(
+            `Northing for {{lowerFirst(#title)}} must be between ${DEFAULT_NORTHING_MIN} and ${DEFAULT_NORTHING_MAX}`
+          )
         },
         {
           type: 'northingMax',
-          template: `Northing for {{#title}} must be between ${DEFAULT_NORTHING_MIN} and ${DEFAULT_NORTHING_MAX}`
+          template: createLowerFirstExpression(
+            `Northing for {{lowerFirst(#title)}} must be between ${DEFAULT_NORTHING_MIN} and ${DEFAULT_NORTHING_MAX}`
+          )
         }
       ]
     }

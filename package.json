@@ -1,6 +1,6 @@
 {
   "name": "@defra/forms-engine-plugin",
-  "version": "4.0.19",
+  "version": "4.0.25",
   "description": "Defra forms engine",
   "type": "module",
   "files": [
@@ -70,7 +70,7 @@
   },
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
-    "@defra/forms-model": "^3.0.582",
+    "@defra/forms-model": "^3.0.584",
     "@defra/hapi-tracing": "^1.29.0",
     "@elastic/ecs-pino-format": "^1.5.0",
     "@hapi/boom": "^10.0.1",
@@ -91,7 +91,7 @@
     "blankie": "^5.0.0",
     "blipp": "^4.0.2",
     "btoa": "^1.2.1",
-    "chokidar": "^3.6.0",
+    "chokidar": "3.6.0",
     "convict": "^6.2.4",
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
