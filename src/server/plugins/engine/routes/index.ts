@@ -167,7 +167,6 @@ export async function prefillStateFromQueryParameters(
     }
   }
 
-  // console.log('Adding to state', params)
   const page = model.pages[0] // Any page will do so just take the first one
   const formData = await page.getState(request)
   await page.mergeState(request, formData, params)
@@ -317,13 +316,13 @@ export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
         controllers
       )
 
-      // Copy any URL params into the form state
-      await prefillStateFromQueryParameters(request, model)
-
       // Create new item and add it to the item cache
       item = { model, updatedAt: state.updatedAt }
       server.app.models.set(key, item)
     }
+
+    // Copy any URL params into the form state
+    await prefillStateFromQueryParameters(request, item.model)
 
     // Assign the model to the request data
     // for use in the downstream handler
