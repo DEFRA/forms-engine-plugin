@@ -5,7 +5,7 @@
 {% macro DeclarationField(component) %}
   {% set content %}
     <div class="app-prose-scope">
-      {{ component.model.content | markdown | safe }}
+      {{ component.model.content | markdown(component.model.headerStartLevel)  | safe }}
     </div>
   {% endset %}
   {% set checkboxes = component.model | merge({ formGroup: { beforeInputs: { html: content } } }) %}

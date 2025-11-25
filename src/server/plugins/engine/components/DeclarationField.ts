@@ -1,4 +1,10 @@
-import { type DeclarationFieldComponent, type Item } from '@defra/forms-model'
+import {
+  ComponentType,
+  hasFormComponents,
+  isFormType,
+  type DeclarationFieldComponent,
+  type Item
+} from '@defra/forms-model'
 import joi, {
   type ArraySchema,
   type BooleanSchema,
@@ -30,6 +36,7 @@ export class DeclarationField extends FormComponent {
   declare formSchema: ArraySchema<StringSchema[]>
   declare stateSchema: BooleanSchema
   declare content: string
+  headerStartLevel: number
 
   constructor(
     def: DeclarationFieldComponent,
@@ -64,6 +71,16 @@ export class DeclarationField extends FormComponent {
     this.content = content
     this.declarationConfirmationLabel =
       options.declarationConfirmationLabel ?? this.DEFAULT_DECLARATION_LABEL
+    const formComponents = hasFormComponents(props.page?.pageDef)
+      ? props.page.pageDef.components
+      : []
+    const numOfQuestionsOnPage = formComponents.filter((q) =>
+      isFormType(q.type)
+    ).length
+    const hasGuidance = formComponents.some(
+      (comp, idx) => comp.type === ComponentType.Markdown && idx === 0
+    )
+    this.headerStartLevel = numOfQuestionsOnPage < 2 && !hasGuidance ? 2 : 3
   }
 
   getFormValueFromState(state: FormSubmissionState) {
@@ -133,7 +150,8 @@ export class DeclarationField extends FormComponent {
           value: 'true',
           checked: isChecked
         }
-      ]
+      ],
+      headerStartLevel: this.headerStartLevel
     }
   }
 
