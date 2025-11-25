@@ -24,7 +24,8 @@ describe('PageController', () => {
     const page2 = pages[1]
 
     model = new FormModel(definition, {
-      basePath: testBasePath
+      basePath: testBasePath,
+      formId: 'form-id'
     })
 
     controller1 = new PageController(model, page1)
@@ -61,8 +62,11 @@ describe('PageController', () => {
       })
     })
 
-    it('returns feedback link (from form definition)', () => {
-      expect(controller1).toHaveProperty('feedbackLink', undefined)
+    it('returns feedback link default', () => {
+      expect(controller1).toHaveProperty(
+        'feedbackLink',
+        '/form/csat?formId=form-id'
+      )
 
       const emailAddress = 'test@feedback.cat'
 
