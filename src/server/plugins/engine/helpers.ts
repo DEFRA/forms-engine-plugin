@@ -118,10 +118,11 @@ engine.registerFilter('answer', function (name: string) {
 export function proceed(
   request: Pick<FormContextRequest, 'method' | 'payload' | 'query'>,
   h: FormResponseToolkit,
-  nextUrl: string
+  nextUrl: string,
+  queryOverrides: FormQuery = {}
 ) {
   const { method, payload, query } = request
-  const { returnUrl } = query
+  const redirectQuery = { ...query, ...queryOverrides }
 
   const isReturnAllowed =
     payload && 'action' in payload
@@ -131,9 +132,9 @@ export function proceed(
 
   // Redirect to return location (optional)
   const response =
-    isReturnAllowed && isPathRelative(returnUrl)
-      ? h.redirect(returnUrl)
-      : h.redirect(redirectPath(nextUrl))
+    isReturnAllowed && isPathRelative(redirectQuery.returnUrl)
+      ? h.redirect(redirectQuery.returnUrl)
+      : h.redirect(redirectPath(nextUrl, redirectQuery))
 
   // Redirect POST to GET to avoid resubmission
   return method === 'post'
