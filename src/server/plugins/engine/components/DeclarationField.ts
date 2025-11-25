@@ -85,12 +85,12 @@ export class DeclarationField extends FormComponent {
 
   getFormValueFromState(state: FormSubmissionState) {
     const { name } = this
-    return state[name] === true ? 'true' : undefined
+    return state[name] === true ? 'true' : 'false'
   }
 
   getFormDataFromState(state: FormSubmissionState): FormPayload {
     const { name } = this
-    return { [name]: state[name] === true ? 'true' : undefined }
+    return { [name]: state[name] === true ? 'true' : 'false' }
   }
 
   getStateFromValidForm(payload: FormPayload): FormState {
@@ -115,32 +115,40 @@ export class DeclarationField extends FormComponent {
   }
 
   getDisplayStringFromFormValue(value: FormValue | FormPayload): string {
-    return value ? this.declarationConfirmationLabel : ''
+    return value === 'true' ? this.declarationConfirmationLabel : 'Not provided'
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
     const defaultDeclarationConfirmationLabel =
       'I confirm that I understand and accept this declaration'
     const {
-      title,
       hint,
       content,
       declarationConfirmationLabel = defaultDeclarationConfirmationLabel
     } = this
+
+    const viewModel = super.getViewModel(payload, errors)
+    let { fieldset, label } = viewModel
+
+    fieldset ??= {
+      legend: {
+        text: label.text,
+        classes: 'govuk-fieldset__legend--m'
+      }
+    }
+
+    const isChecked =
+      payload[this.name] === 'true' || payload[this.name] === true
     return {
-      ...super.getViewModel(payload, errors),
+      ...viewModel,
       hint: hint ? { text: hint } : undefined,
-      fieldset: {
-        legend: {
-          text: title
-        }
-      },
+      fieldset,
       content,
-      values: payload[this.name],
       items: [
         {
           text: declarationConfirmationLabel,
-          value: 'true'
+          value: 'true',
+          checked: isChecked
         }
       ],
       headerStartLevel: this.headerStartLevel

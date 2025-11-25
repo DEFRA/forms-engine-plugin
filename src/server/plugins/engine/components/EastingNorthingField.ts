@@ -11,10 +11,11 @@ import {
   isFormState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import {
-  createLocationFieldValidator,
+  deduplicateErrorsByHref,
   getLocationFieldViewModel
 } from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
+import { createLowerFirstExpression } from '~/src/server/plugins/engine/components/helpers/index.js'
 import { type EastingNorthingState } from '~/src/server/plugins/engine/components/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
@@ -54,26 +55,32 @@ export class EastingNorthingField extends FormComponent {
     const northingMin = schema?.northing?.min ?? DEFAULT_NORTHING_MIN
     const northingMax = schema?.northing?.max ?? DEFAULT_NORTHING_MAX
 
+    const eastingRequired = 'Enter easting'
+    const northingRequired = 'Enter northing'
+
+    const eastingDigitsMessage = `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 6 digits`
+    const northingDigitsMessage = `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 7 digits`
+
     const customValidationMessages: LanguageMessages =
       convertToLanguageMessages({
-        'any.required': messageTemplate.objectMissing,
-        'number.base': messageTemplate.objectMissing,
+        'any.required': eastingRequired,
+        'number.base': eastingRequired,
         'number.min': `{{#label}} for ${lowerFirst(this.label)} must be between {{#limit}} and ${eastingMax}`,
         'number.max': `{{#label}} for ${lowerFirst(this.label)} must be between ${eastingMin} and {{#limit}}`,
-        'number.precision': `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 6 digits`,
-        'number.integer': `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 6 digits`,
-        'number.unsafe': `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 6 digits`
+        'number.precision': eastingDigitsMessage,
+        'number.integer': eastingDigitsMessage,
+        'number.unsafe': eastingDigitsMessage
       })
 
     const northingValidationMessages: LanguageMessages =
       convertToLanguageMessages({
-        'any.required': messageTemplate.objectMissing,
-        'number.base': messageTemplate.objectMissing,
+        'any.required': northingRequired,
+        'number.base': northingRequired,
         'number.min': `{{#label}} for ${lowerFirst(this.label)} must be between {{#limit}} and ${northingMax}`,
         'number.max': `{{#label}} for ${lowerFirst(this.label)} must be between ${northingMin} and {{#limit}}`,
-        'number.precision': `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 7 digits`,
-        'number.integer': `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 7 digits`,
-        'number.unsafe': `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 7 digits`
+        'number.precision': northingDigitsMessage,
+        'number.integer': northingDigitsMessage,
+        'number.unsafe': northingDigitsMessage
       })
 
     this.collection = new ComponentCollection(
@@ -113,7 +120,6 @@ export class EastingNorthingField extends FormComponent {
       ],
       { ...props, parent: this },
       {
-        custom: getValidatorEastingNorthing(this),
         peers: [`${name}__easting`, `${name}__northing`]
       }
     )
@@ -135,8 +141,8 @@ export class EastingNorthingField extends FormComponent {
       return ''
     }
 
-    // CYA page format: <<northingvalue, eastingvalue>>
-    return `${value.northing}, ${value.easting}`
+    // CYA page format: <<eastingvalue, northingvalue>>
+    return `${value.easting}, ${value.northing}`
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
@@ -152,8 +158,7 @@ export class EastingNorthingField extends FormComponent {
       return null
     }
 
-    // Output format: Northing: <<entry>>\nEasting: <<entry>>
-    return `Northing: ${value.northing}\nEasting: ${value.easting}`
+    return `Easting: ${value.easting}\nNorthing: ${value.northing}`
   }
 
   getContextValueFromState(state: FormSubmissionState) {
@@ -165,6 +170,13 @@ export class EastingNorthingField extends FormComponent {
   getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
     const viewModel = super.getViewModel(payload, errors)
     return getLocationFieldViewModel(this, viewModel, payload, errors)
+  }
+
+  getViewErrors(
+    errors?: FormSubmissionError[]
+  ): FormSubmissionError[] | undefined {
+    const allErrors = this.getErrors(errors)
+    return deduplicateErrorsByHref(allErrors)
   }
 
   isState(value?: FormStateValue | FormState) {
@@ -187,31 +199,41 @@ export class EastingNorthingField extends FormComponent {
         { type: 'required', template: messageTemplate.required },
         {
           type: 'eastingFormat',
-          template:
-            'Easting for [short description] must be between 1 and 6 digits'
+          template: createLowerFirstExpression(
+            'Easting for {{lowerFirst(#title)}} must be between 1 and 6 digits'
+          )
         },
         {
           type: 'northingFormat',
-          template:
-            'Northing for [short description] must be between 1 and 7 digits'
+          template: createLowerFirstExpression(
+            'Northing for {{lowerFirst(#title)}} must be between 1 and 7 digits'
+          )
         }
       ],
       advancedSettingsErrors: [
         {
           type: 'eastingMin',
-          template: `Easting for [short description] must be between ${DEFAULT_EASTING_MIN} and ${DEFAULT_EASTING_MAX}`
+          template: createLowerFirstExpression(
+            `Easting for {{lowerFirst(#title)}} must be between ${DEFAULT_EASTING_MIN} and ${DEFAULT_EASTING_MAX}`
+          )
         },
         {
           type: 'eastingMax',
-          template: `Easting for [short description] must be between ${DEFAULT_EASTING_MIN} and ${DEFAULT_EASTING_MAX}`
+          template: createLowerFirstExpression(
+            `Easting for {{lowerFirst(#title)}} must be between ${DEFAULT_EASTING_MIN} and ${DEFAULT_EASTING_MAX}`
+          )
         },
         {
           type: 'northingMin',
-          template: `Northing for [short description] must be between ${DEFAULT_NORTHING_MIN} and ${DEFAULT_NORTHING_MAX}`
+          template: createLowerFirstExpression(
+            `Northing for {{lowerFirst(#title)}} must be between ${DEFAULT_NORTHING_MIN} and ${DEFAULT_NORTHING_MAX}`
+          )
         },
         {
           type: 'northingMax',
-          template: `Northing for [short description] must be between ${DEFAULT_NORTHING_MIN} and ${DEFAULT_NORTHING_MAX}`
+          template: createLowerFirstExpression(
+            `Northing for {{lowerFirst(#title)}} must be between ${DEFAULT_NORTHING_MIN} and ${DEFAULT_NORTHING_MAX}`
+          )
         }
       ]
     }
@@ -226,8 +248,4 @@ export class EastingNorthingField extends FormComponent {
       NumberField.isNumber(value.northing)
     )
   }
-}
-
-export function getValidatorEastingNorthing(component: EastingNorthingField) {
-  return createLocationFieldValidator(component)
 }

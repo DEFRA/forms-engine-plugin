@@ -130,6 +130,23 @@ export default /** @satisfies {FormDefinition} */ ({
           title: 'Title',
           content: 'Content',
           options: {}
+        },
+        {
+          type: ComponentType.Markdown,
+          name: 'Markdown',
+          title: 'Title',
+          content:
+            '### This is a H3 in markdown\n\n[An internal link](http://localhost:3009/fictional-page)\n\n[An external link](https://defra.gov.uk/fictional-page)',
+          options: {}
+        },
+        {
+          type: ComponentType.DeclarationField,
+          name: 'declaration',
+          title: 'Declaration',
+          content:
+            'By submitting this form, I agree to:\n\n- Provide accurate and complete information\n- Comply with all applicable regulations\n- Accept responsibility for any false statements',
+          hint: 'Please read and confirm the following terms',
+          options: { required: false }
         }
       ],
       next: [

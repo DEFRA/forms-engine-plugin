@@ -123,8 +123,6 @@ describe('Submission journey test', () => {
       personalisation: {
         subject: 'Form submission: All components',
         body: expect.stringContaining(outdent`
-          ---
-
           ## Text field
 
           Text field
@@ -228,6 +226,12 @@ describe('Submission journey test', () => {
 
           ---
 
+          ## Declaration
+
+          I understand and agree
+
+          ---
+
           ## Upload your methodology statement
 
           Uploaded 1 file:
@@ -323,6 +327,11 @@ describe('Submission journey test', () => {
           value: '0,1'
         },
         {
+          name: 'declaration',
+          title: 'Declaration',
+          value: 'true'
+        },
+        {
           name: 'fileUpload',
           title: 'Upload your methodology statement',
           value: '5a76a1a3-bc8a-4bc0-859a-116d775c7f15'
@@ -365,7 +374,8 @@ describe('Submission journey test', () => {
       checkboxesSingle: 'Shetland',
       checkboxesMultiple: ['Arabian', 'Shire', 'Race'],
       checkboxesSingleNumber: 1,
-      checkboxesMultipleNumber: [0, 1]
+      checkboxesMultipleNumber: [0, 1],
+      declaration: 'true'
     }
 
     // POST the form data to set the state

@@ -1,7 +1,7 @@
 import { type NationalGridFieldNumberFieldComponent } from '@defra/forms-model'
-import lowerFirst from 'lodash/lowerFirst.js'
 
 import { LocationFieldBase } from '~/src/server/plugins/engine/components/LocationFieldBase.js'
+import { createLowerFirstExpression } from '~/src/server/plugins/engine/components/helpers/index.js'
 
 export class NationalGridFieldNumberField extends LocationFieldBase {
   declare options: NationalGridFieldNumberFieldComponent['options']
@@ -13,9 +13,15 @@ export class NationalGridFieldNumberField extends LocationFieldBase {
     const pattern =
       /^((([sS]|[nN])[a-hA-Hj-zJ-Z])|(([tT]|[oO])[abfglmqrvwABFGLMQRVW])|([hH][l-zL-Z])|([jJ][lmqrvwLMQRVW]))\s?([0-9]{4})\s?([0-9]{4})$/
 
+    const patternTemplate =
+      'Enter a valid National Grid field number for {{lowerFirst(#title)}} like NG 1234 5678'
+
     return {
       pattern,
-      patternErrorMessage: `Enter a valid National Grid field number for ${lowerFirst(this.label)} like NG 1234 5678`
+      patternErrorMessage: createLowerFirstExpression(patternTemplate),
+      requiredMessage: createLowerFirstExpression(
+        'Enter {{lowerFirst(#title)}}'
+      )
     }
   }
 
@@ -23,8 +29,9 @@ export class NationalGridFieldNumberField extends LocationFieldBase {
     return [
       {
         type: 'pattern',
-        template:
-          'Enter a valid National Grid field number for [short description] like NG 1234 5678'
+        template: createLowerFirstExpression(
+          'Enter a valid National Grid field number for {{lowerFirst(#title)}} like NG 1234 5678'
+        )
       }
     ]
   }

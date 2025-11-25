@@ -85,7 +85,7 @@ export class CacheService {
     const messages = request.yar.flash(key.id)
 
     if (Array.isArray(messages) && messages.length) {
-      return messages.at(0) as { errors: FormSubmissionError[] }
+      return messages.at(0)
     }
   }
 

@@ -10,6 +10,7 @@ import {
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
 
 describe('EastingNorthingField', () => {
@@ -204,7 +205,7 @@ describe('EastingNorthingField', () => {
         const answer1 = getAnswer(field, state1)
         const answer2 = getAnswer(field, state2)
 
-        expect(answer1).toBe('Northing: 1234567<br>Easting: 12345<br>')
+        expect(answer1).toBe('Easting: 12345<br>Northing: 1234567<br>')
         expect(answer2).toBe('')
       })
 
@@ -255,7 +256,7 @@ describe('EastingNorthingField', () => {
         const value1 = field.getContextValueFromState(state1)
         const value2 = field.getContextValueFromState(state2)
 
-        expect(value1).toBe('Northing: 1234567\nEasting: 12345')
+        expect(value1).toBe('Easting: 12345\nNorthing: 1234567')
         expect(value2).toBeNull()
       })
 
@@ -370,6 +371,32 @@ describe('EastingNorthingField', () => {
           })
         )
       })
+
+      it('getViewErrors returns all errors for error summary', () => {
+        const errors: FormSubmissionError[] = [
+          {
+            name: 'myComponent__easting',
+            text: 'Enter easting',
+            path: ['myComponent__easting'],
+            href: '#myComponent__easting'
+          },
+          {
+            name: 'myComponent__northing',
+            text: 'Enter northing',
+            path: ['myComponent__northing'],
+            href: '#myComponent__northing'
+          }
+        ]
+
+        const viewErrors = field.getViewErrors(errors)
+
+        // Should return all errors, not just the first one
+        expect(viewErrors).toHaveLength(2)
+        expect(viewErrors).toEqual([
+          expect.objectContaining({ text: 'Enter easting' }),
+          expect.objectContaining({ text: 'Enter northing' })
+        ])
+      })
     })
 
     describe('AllPossibleErrors', () => {
@@ -389,7 +416,36 @@ describe('EastingNorthingField', () => {
         const staticResult = EastingNorthingField.getAllPossibleErrors()
         const instanceResult = field.getAllPossibleErrors()
 
-        expect(instanceResult).toEqual(staticResult)
+        // Compare structure and content
+        expect(instanceResult.baseErrors).toHaveLength(
+          staticResult.baseErrors.length
+        )
+        expect(instanceResult.advancedSettingsErrors).toHaveLength(
+          staticResult.advancedSettingsErrors.length
+        )
+
+        // Compare error types
+        expect(instanceResult.baseErrors.map((e) => e.type)).toEqual(
+          staticResult.baseErrors.map((e) => e.type)
+        )
+        expect(
+          instanceResult.advancedSettingsErrors.map((e) => e.type)
+        ).toEqual(staticResult.advancedSettingsErrors.map((e) => e.type))
+
+        // Compare rendered templates
+        expect(
+          instanceResult.baseErrors.map((e) =>
+            typeof e.template === 'object' && 'rendered' in e.template
+              ? e.template.rendered
+              : e.template
+          )
+        ).toEqual(
+          staticResult.baseErrors.map((e) =>
+            typeof e.template === 'object' && 'rendered' in e.template
+              ? e.template.rendered
+              : e.template
+          )
+        )
       })
     })
   })

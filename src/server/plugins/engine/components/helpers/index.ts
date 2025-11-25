@@ -1,4 +1,6 @@
 import { type ComponentDef } from '@defra/forms-model'
+import joi, { type JoiExpression, type ReferenceOptions } from 'joi'
+import lowerFirst from 'lodash/lowerFirst.js'
 
 /**
  * Prevent Markdown formatting
@@ -24,7 +26,7 @@ export function escapeMarkdown(answer: string) {
   ]
 
   for (const character of punctuation) {
-    answer = answer.toString().replaceAll(character, `\\${character}`)
+    answer = answer.replaceAll(character, `\\${character}`)
   }
 
   return answer
@@ -36,3 +38,19 @@ export const addClassOptionIfNone = (
 ) => {
   options.classes ??= className
 }
+
+/**
+ * Configuration for Joi expressions that use lowerFirst function
+ */
+export const lowerFirstExpressionOptions = {
+  functions: {
+    lowerFirst
+  }
+} as ReferenceOptions
+
+/**
+ * Creates a Joi expression with lowerFirst function support
+ * Used for error messages in location field components
+ */
+export const createLowerFirstExpression = (template: string): JoiExpression =>
+  joi.expression(template, lowerFirstExpressionOptions) as JoiExpression
