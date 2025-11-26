@@ -116,7 +116,7 @@ export async function redirectOrMakeHandler(
  */
 const paramLookupFunctions = {
   formId: async (val: string, services: Services) => {
-    let formTitle = 'Submit a form to Defra'
+    let formTitle
     if (val) {
       const meta = await services.formsService.getFormMetadataById(val)
       formTitle = meta.title
