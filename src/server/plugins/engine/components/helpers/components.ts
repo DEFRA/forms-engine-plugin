@@ -34,6 +34,7 @@ export type Field = InstanceType<
   | typeof Components.TextField
   | typeof Components.UkAddressField
   | typeof Components.FileUploadField
+  | typeof Components.HiddenField
 >
 
 // Guidance component instances only
@@ -185,6 +186,10 @@ export function createComponent(
 
     case ComponentType.LatLongField:
       component = new Components.LatLongField(def, options)
+      break
+
+    case ComponentType.HiddenField:
+      component = new Components.HiddenField(def, options)
       break
   }
 

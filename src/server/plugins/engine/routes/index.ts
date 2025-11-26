@@ -1,3 +1,4 @@
+import { getHiddenFields } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
   type ResponseObject,
@@ -33,6 +34,7 @@ import {
   type ExternalStateAppendage,
   type FormContext,
   type FormPayload,
+  type FormStateValue,
   type FormSubmissionState,
   type OnRequestCallback,
   type PluginOptions
@@ -41,6 +43,7 @@ import {
   type FormRequest,
   type FormResponseToolkit
 } from '~/src/server/routes/types.js'
+import { type Services } from '~/src/server/types.js'
 
 export async function redirectOrMakeHandler(
   request: AnyFormRequest,
@@ -106,6 +109,71 @@ export async function redirectOrMakeHandler(
   }
 
   return proceed(request, h, page.getHref(relevantPath))
+}
+
+/**
+ * A series of functions that can transform a pre-fill input parameter e.g lookup a form title based on form id
+ */
+const paramLookupFunctions = {
+  formId: async (val: string, services: Services) => {
+    const meta = await services.formsService.getFormMetadataById(val)
+    return {
+      key: 'formName',
+      value: meta.title
+    }
+  }
+} as Partial<
+  Record<
+    string,
+    (
+      val: string,
+      services: Services
+    ) => Promise<{ key: string; value: string | undefined }>
+  >
+>
+
+/**
+ * Any hidden parameters defined in the FormDefinition may be pre-filled by URL parameter values.
+ * Other parameters are ignored for security reasons.
+ * @param request
+ * @param model
+ */
+export async function prefillStateFromQueryParameters(
+  request: AnyFormRequest,
+  model: FormModel
+): Promise<void> {
+  const hiddenFieldNames = new Set(
+    getHiddenFields(model.def).map((field) => field.name)
+  )
+  const query = Object.keys(request.query).length ? request.query : undefined
+
+  if (!query) {
+    return
+  }
+
+  const params = {} as Record<string, FormStateValue | undefined>
+
+  for (const [key, value = ''] of Object.entries(query)) {
+    if (hiddenFieldNames.has(key)) {
+      const lookupFunc = paramLookupFunctions[key]
+      if (lookupFunc) {
+        const res = await lookupFunc(value, model.services)
+        // Store original value and result
+        params[key] = value
+        params[res.key] = res.value
+      } else {
+        params[key] = value
+      }
+    }
+  }
+
+  if (!Object.keys(params).length) {
+    return
+  }
+
+  const page = model.pages[0] // Any page will do so just take the first one
+  const formData = await page.getState(request)
+  await page.mergeState(request, formData, params)
 }
 
 async function importExternalComponentState(
@@ -185,6 +253,9 @@ export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
     if (server.app.model) {
       request.app.model = server.app.model
 
+      // Copy any URL params into the form state
+      await prefillStateFromQueryParameters(request, request.app.model)
+
       return h.continue
     }
 
@@ -244,7 +315,7 @@ export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
       // Construct the form model
       const model = new FormModel(
         definition,
-        { basePath, versionNumber, ordnanceSurveyApiKey },
+        { basePath, versionNumber, ordnanceSurveyApiKey, formId: id },
         services,
         controllers
       )
@@ -253,6 +324,9 @@ export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
       item = { model, updatedAt: state.updatedAt }
       server.app.models.set(key, item)
     }
+
+    // Copy any URL params into the form state
+    await prefillStateFromQueryParameters(request, item.model)
 
     // Assign the model to the request data
     // for use in the downstream handler

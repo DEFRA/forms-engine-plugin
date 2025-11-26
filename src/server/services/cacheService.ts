@@ -55,7 +55,7 @@ export class CacheService {
 
   async getConfirmationState(
     request: AnyFormRequest
-  ): Promise<{ confirmed?: true }> {
+  ): Promise<{ confirmed?: true; formId?: string }> {
     const key = this.Key(request, ADDITIONAL_IDENTIFIER.Confirmation)
     const value = await this.cache.get(key)
 
@@ -64,7 +64,7 @@ export class CacheService {
 
   async setConfirmationState(
     request: AnyFormRequest,
-    confirmationState: { confirmed?: true }
+    confirmationState: { confirmed?: true; formId?: string }
   ) {
     const key = this.Key(request, ADDITIONAL_IDENTIFIER.Confirmation)
     const ttl = config.get('confirmationSessionTimeout')

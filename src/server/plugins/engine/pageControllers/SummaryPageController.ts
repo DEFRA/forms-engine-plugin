@@ -152,7 +152,10 @@ export class SummaryPageController extends QuestionPageController {
       )
     }
 
-    await cacheService.setConfirmationState(request, { confirmed: true })
+    await cacheService.setConfirmationState(request, {
+      confirmed: true,
+      formId: context.state.formId as string | undefined
+    })
 
     // Clear all form data
     await cacheService.clearState(request)

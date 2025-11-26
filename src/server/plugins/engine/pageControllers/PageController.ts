@@ -8,9 +8,9 @@ import {
 import Boom from '@hapi/boom'
 import { type Lifecycle, type RouteOptions, type Server } from '@hapi/hapi'
 
+import { config } from '~/src/config/index.js'
 import { type ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import {
-  encodeUrl,
   getSaveAndExitHelpers,
   getStartPath,
   normalisePath
@@ -119,19 +119,12 @@ export class PageController {
   }
 
   get feedbackLink() {
-    const { def } = this
-
-    // setting the feedbackLink to undefined here for feedback forms prevents the feedback link from being shown
-    const feedbackLink = def.feedback?.emailAddress
-      ? `mailto:${def.feedback.emailAddress}`
-      : def.feedback?.url
-
-    return encodeUrl(feedbackLink)
+    return `/form/csat?formId=${this.model.formId}`
   }
 
   get phaseTag() {
     const { def } = this
-    return def.phaseBanner?.phase
+    return def.phaseBanner?.phase ?? config.get('phaseTag')
   }
 
   getHref(path: string): string {
