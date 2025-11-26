@@ -26,7 +26,13 @@ export class HiddenField extends FormComponent {
   ) {
     super(def, props)
 
-    const formSchema = joi.string().trim().label(this.label).required()
+    const { options } = def
+
+    let formSchema = joi.string().trim().label(this.label).required()
+
+    if (options.required === false) {
+      formSchema = formSchema.allow('')
+    }
 
     this.formSchema = formSchema.default('')
     this.stateSchema = formSchema.default(null).allow(null)
