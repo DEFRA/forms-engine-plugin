@@ -8,7 +8,6 @@ import {
 import Boom from '@hapi/boom'
 import { type Lifecycle, type RouteOptions, type Server } from '@hapi/hapi'
 
-import { config } from '~/src/config/index.js'
 import { type ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import {
   getSaveAndExitHelpers,
@@ -124,7 +123,7 @@ export class PageController {
 
   get phaseTag() {
     const { def } = this
-    return def.phaseBanner?.phase ?? config.get('phaseTag')
+    return def.phaseBanner?.phase
   }
 
   getHref(path: string): string {
