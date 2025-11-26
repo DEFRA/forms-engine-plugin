@@ -116,10 +116,14 @@ export async function redirectOrMakeHandler(
  */
 const paramLookupFunctions = {
   formId: async (val: string, services: Services) => {
-    const meta = await services.formsService.getFormMetadataById(val)
+    let formTitle = 'Submit a form to Defra'
+    if (val) {
+      const meta = await services.formsService.getFormMetadataById(val)
+      formTitle = meta.title
+    }
     return {
       key: 'formName',
-      value: meta.title
+      value: formTitle
     }
   }
 } as Partial<
