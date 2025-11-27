@@ -3,6 +3,7 @@
 {% from "govuk/components/hint/macro.njk" import govukHint %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
 
 {% macro UkAddressField(component) %}
   {% set fieldset = component.model.fieldset %}
@@ -52,7 +53,31 @@
             classes: "govuk-!-margin-top-2"
           }) }}
         {% else %}
+
+
+        {{ govukInput({
+          id: "postcodeQueryField",
+          name: "postcodeQueryField",
+          label: {
+            text: 'Postcode'
+          },
+          hint: {
+            text: 'For example, AA3 1AB'
+          }
+        }) }}
+
+        {{ govukInput({
+          id: "buildingNameQueryField",
+          name: "buildingNameQueryField",
+          label: {
+            text: 'Building name or number (optional)'
+          },
+          hint: {
+            text: 'For example, 15 or Prospect Cottage'
+          }
+        }) }}
           <div class="govuk-button-group govuk-!-margin-bottom-0">
+
             {{ govukButton({
               text: "Find an address",
               attributes: {

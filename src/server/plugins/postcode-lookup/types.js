@@ -18,7 +18,11 @@
  *   componentName: string
  *   componentTitle: string,
  *   componentHint?: string
- *   step?: string
+ *   step?: string,
+ *   inputSearchParams: {
+ *     postcode: string,
+ *     buildingName?: string
+ *   }
  * }} PostcodeLookupDispatchData
  */
 
