@@ -9,25 +9,30 @@ import {
 import { type AnyFormRequest } from '~/src/server/plugins/engine/types.js'
 import { type FormsService, type Services } from '~/src/server/types.js'
 
-function buildMockModel(
-  pagesOverride = [] as Page[],
-  pagesControllerOverride = [] as PageControllerClass[],
+const formId = '9d8bbbc9-29f1-499b-9f76-b2648bcfdf20'
+
+function buildMockPage(
+  pagesOverride = {},
+  stateOverride = {},
   servicesOverride = {} as Services
 ) {
   return {
-    def: {
-      metadata: {
-        submission: { code: 'TEST-CODE' }
-      } as { submission: { code: string } },
-      pages: pagesOverride
-    },
-    getFormContext: jest.fn().mockReturnValue({
-      isForceAccess: false,
-      data: {}
-    }),
-    pages: pagesControllerOverride,
-    services: servicesOverride
-  } as unknown as FormModel
+    model: {
+      formId,
+      def: {
+        metadata: {
+          submission: { code: 'TEST-CODE' }
+        } as { submission: { code: string } },
+        pages: pagesOverride
+      },
+      getFormContext: jest.fn().mockReturnValue({
+        isForceAccess: false,
+        data: {}
+      }),
+      services: servicesOverride
+    } as unknown as FormModel,
+    ...stateOverride
+  } as unknown as PageControllerClass
 }
 
 describe('State helpers', () => {
@@ -42,20 +47,15 @@ describe('State helpers', () => {
     } as unknown as AnyFormRequest
 
     it('should not add any state if no params', async () => {
-      const mockModelPrefill = buildMockModel(
-        [],
-        [
-          {
-            getState: mockGetState,
-            mergeState: mockMergeState
-          } as unknown as PageControllerClass
-        ]
-      )
+      const mockPagePrefill = buildMockPage([], {
+        getState: mockGetState,
+        mergeState: mockMergeState
+      })
 
       expect(
         await prefillStateFromQueryParameters(
           mockRequestPrefill,
-          mockModelPrefill
+          mockPagePrefill
         )
       ).toBeFalse()
       expect(mockMergeState).not.toHaveBeenCalled()
@@ -67,7 +67,7 @@ describe('State helpers', () => {
         query: {}
       } as unknown as AnyFormRequest
 
-      const mockModel = buildMockModel(
+      const mockPagePrefill = buildMockPage(
         [
           {
             components: [
@@ -83,16 +83,14 @@ describe('State helpers', () => {
             next: []
           } as unknown as Page
         ],
-        [
-          {
-            getState: mockGetState.mockResolvedValue({}),
-            mergeState: mockMergeState
-          } as unknown as PageControllerClass
-        ]
+        {
+          getState: mockGetState,
+          mergeState: mockMergeState
+        }
       )
 
       expect(
-        await prefillStateFromQueryParameters(mockRequest2, mockModel)
+        await prefillStateFromQueryParameters(mockRequest2, mockPagePrefill)
       ).toBeFalse()
       expect(mockMergeState).not.toHaveBeenCalled()
     })
@@ -108,7 +106,7 @@ describe('State helpers', () => {
         }
       } as unknown as AnyFormRequest
 
-      const mockModel = buildMockModel(
+      const mockPagePrefill = buildMockPage(
         [
           {
             components: [
@@ -124,22 +122,20 @@ describe('State helpers', () => {
             next: []
           } as unknown as Page
         ],
-        [
-          {
-            getState: mockGetState.mockResolvedValue({}),
-            mergeState: mockMergeState
-          } as unknown as PageControllerClass
-        ]
+        {
+          getState: mockGetState.mockResolvedValue({}),
+          mergeState: mockMergeState
+        }
       )
 
       expect(
-        await prefillStateFromQueryParameters(mockRequest2, mockModel)
+        await prefillStateFromQueryParameters(mockRequest2, mockPagePrefill)
       ).toBe(true)
       expect(mockMergeState).toHaveBeenCalledWith(
         expect.anything(),
         expect.anything(),
         {
-          __copiedToState: 'true',
+          '__copiedToState9d8bbbc9-29f1-499b-9f76-b2648bcfdf20': 'true',
           param2: 'val2',
           param4: 'val4'
         }
@@ -157,7 +153,7 @@ describe('State helpers', () => {
         }
       } as unknown as AnyFormRequest
 
-      const mockModel = buildMockModel(
+      const mockPagePrefill = buildMockPage(
         [
           {
             components: [
@@ -173,18 +169,16 @@ describe('State helpers', () => {
             next: []
           } as unknown as Page
         ],
-        [
-          {
-            getState: mockGetState.mockResolvedValue({
-              __copiedToState: 'true'
-            }),
-            mergeState: mockMergeState
-          } as unknown as PageControllerClass
-        ]
+        {
+          getState: mockGetState.mockResolvedValue({
+            '__copiedToState9d8bbbc9-29f1-499b-9f76-b2648bcfdf20': 'true'
+          }),
+          mergeState: mockMergeState
+        }
       )
 
       expect(
-        await prefillStateFromQueryParameters(mockRequest2, mockModel)
+        await prefillStateFromQueryParameters(mockRequest2, mockPagePrefill)
       ).toBe(false)
       expect(mockMergeState).not.toHaveBeenCalled()
     })
@@ -197,7 +191,7 @@ describe('State helpers', () => {
         }
       } as unknown as AnyFormRequest
 
-      const mockModel = buildMockModel(
+      const mockPagePrefill = buildMockPage(
         [
           {
             components: [
@@ -209,12 +203,10 @@ describe('State helpers', () => {
             next: []
           } as unknown as Page
         ],
-        [
-          {
-            getState: mockGetState.mockResolvedValue({}),
-            mergeState: mockMergeState
-          } as unknown as PageControllerClass
-        ],
+        {
+          getState: mockGetState.mockResolvedValue({}),
+          mergeState: mockMergeState
+        },
         {
           formsService: {
             getFormMetadata: jest.fn(),
@@ -226,12 +218,12 @@ describe('State helpers', () => {
         } as Services
       )
 
-      await prefillStateFromQueryParameters(mockRequest3, mockModel)
+      await prefillStateFromQueryParameters(mockRequest3, mockPagePrefill)
       expect(mockMergeState).toHaveBeenCalledWith(
         expect.anything(),
         expect.anything(),
         {
-          __copiedToState: 'true',
+          '__copiedToState9d8bbbc9-29f1-499b-9f76-b2648bcfdf20': 'true',
           formId: 'c644804b-2f23-4c96-a2fc-ad4975974723',
           formName: 'My looked-up form name'
         }

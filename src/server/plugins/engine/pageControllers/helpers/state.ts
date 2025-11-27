@@ -1,6 +1,6 @@
 import { getHiddenFields } from '@defra/forms-model'
 
-import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import {
   type AnyFormRequest,
   type FormStateValue
@@ -51,8 +51,9 @@ export function stripParam(query: FormQuery, paramToRemove: string) {
  */
 export async function prefillStateFromQueryParameters(
   request: AnyFormRequest,
-  model: FormModel
+  page: PageControllerClass
 ): Promise<boolean> {
+  const { model } = page
   const hiddenFieldNames = new Set(
     getHiddenFields(model.def).map((field) => field.name)
   )
@@ -68,15 +69,14 @@ export async function prefillStateFromQueryParameters(
     return false
   }
 
-  const page = model.pages[0] // Any page will do so just take the first one
   const formData = await page.getState(request)
-  if (formData.__copiedToState) {
+  if (formData[`__copiedToState${model.formId}`]) {
     return false
   }
 
   // Flag to denote the 'copy to state' has happened, so don't need to do it again
   const params = {
-    __copiedToState: 'true'
+    [`__copiedToState${model.formId}`]: 'true'
   } as Record<string, FormStateValue | undefined>
 
   for (const [key, value = ''] of Object.entries(query)) {

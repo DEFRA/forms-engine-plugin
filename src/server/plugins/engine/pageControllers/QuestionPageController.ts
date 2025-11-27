@@ -405,7 +405,7 @@ export class QuestionPageController extends PageController {
       const { evaluationState } = context
 
       // Copy any URL params into the form state (if not already done so)
-      if (await prefillStateFromQueryParameters(request, model)) {
+      if (await prefillStateFromQueryParameters(request, this)) {
         // Forward to same page without query string
         return h.redirect(`${request.url.origin}${request.url.pathname}`)
       }
