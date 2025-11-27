@@ -446,7 +446,7 @@ export class QuestionPageController extends PageController {
 
     // Warn the user if the form has no notification email set only on start page and summary page
     if ([startPath, summaryPath].includes(path) && !isForceAccess) {
-      const notificationEmail = await getFormMetadata(params.slug)
+      const { notificationEmail } = await getFormMetadata(params.slug)
       return !notificationEmail
     }
 
