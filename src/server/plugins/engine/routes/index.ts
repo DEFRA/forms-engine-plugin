@@ -244,7 +244,7 @@ export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
       // Construct the form model
       const model = new FormModel(
         definition,
-        { basePath, versionNumber, ordnanceSurveyApiKey },
+        { basePath, versionNumber, ordnanceSurveyApiKey, formId: id },
         services,
         controllers
       )

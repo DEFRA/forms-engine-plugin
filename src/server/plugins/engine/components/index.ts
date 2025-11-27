@@ -28,3 +28,4 @@ export { EastingNorthingField } from '~/src/server/plugins/engine/components/Eas
 export { OsGridRefField } from '~/src/server/plugins/engine/components/OsGridRefField.js'
 export { NationalGridFieldNumberField } from '~/src/server/plugins/engine/components/NationalGridFieldNumberField.js'
 export { LatLongField } from '~/src/server/plugins/engine/components/LatLongField.js'
+export { HiddenField } from '~/src/server/plugins/engine/components/HiddenField.js'

@@ -10,7 +10,6 @@ import { type Lifecycle, type RouteOptions, type Server } from '@hapi/hapi'
 
 import { type ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import {
-  encodeUrl,
   getSaveAndExitHelpers,
   getStartPath,
   normalisePath
@@ -119,14 +118,7 @@ export class PageController {
   }
 
   get feedbackLink() {
-    const { def } = this
-
-    // setting the feedbackLink to undefined here for feedback forms prevents the feedback link from being shown
-    const feedbackLink = def.feedback?.emailAddress
-      ? `mailto:${def.feedback.emailAddress}`
-      : def.feedback?.url
-
-    return encodeUrl(feedbackLink)
+    return `/form/feedback?formId=${this.model.formId}`
   }
 
   get phaseTag() {
