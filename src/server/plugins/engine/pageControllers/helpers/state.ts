@@ -54,6 +54,7 @@ export async function prefillStateFromQueryParameters(
   page: PageControllerClass
 ): Promise<boolean> {
   const { model } = page
+
   const hiddenFieldNames = new Set(
     getHiddenFields(model.def).map((field) => field.name)
   )
@@ -69,15 +70,7 @@ export async function prefillStateFromQueryParameters(
     return false
   }
 
-  const formData = await page.getState(request)
-  if (formData[`__copiedToState${model.formId}`]) {
-    return false
-  }
-
-  // Flag to denote the 'copy to state' has happened, so don't need to do it again
-  const params = {
-    [`__copiedToState${model.formId}`]: 'true'
-  } as Record<string, FormStateValue | undefined>
+  const params = {} as Record<string, FormStateValue | undefined>
 
   for (const [key, value = ''] of Object.entries(query)) {
     if (hiddenFieldNames.has(key)) {
@@ -93,6 +86,7 @@ export async function prefillStateFromQueryParameters(
     }
   }
 
+  const formData = await page.getState(request)
   await page.mergeState(request, formData, params)
 
   return true

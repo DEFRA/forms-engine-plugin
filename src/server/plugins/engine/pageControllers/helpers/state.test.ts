@@ -9,8 +9,6 @@ import {
 import { type AnyFormRequest } from '~/src/server/plugins/engine/types.js'
 import { type FormsService, type Services } from '~/src/server/types.js'
 
-const formId = '9d8bbbc9-29f1-499b-9f76-b2648bcfdf20'
-
 function buildMockPage(
   pagesOverride = {},
   stateOverride = {},
@@ -18,7 +16,6 @@ function buildMockPage(
 ) {
   return {
     model: {
-      formId,
       def: {
         metadata: {
           submission: { code: 'TEST-CODE' }
@@ -135,52 +132,10 @@ describe('State helpers', () => {
         expect.anything(),
         expect.anything(),
         {
-          '__copiedToState9d8bbbc9-29f1-499b-9f76-b2648bcfdf20': 'true',
           param2: 'val2',
           param4: 'val4'
         }
       )
-    })
-
-    it('should ignore if already previously called', async () => {
-      const mockRequest2 = {
-        ...mockRequestPrefill,
-        query: {
-          param1: 'val1',
-          param2: 'val2',
-          param3: 'val3',
-          param4: 'val4'
-        }
-      } as unknown as AnyFormRequest
-
-      const mockPagePrefill = buildMockPage(
-        [
-          {
-            components: [
-              {
-                type: ComponentType.HiddenField,
-                name: 'param2'
-              },
-              {
-                type: ComponentType.HiddenField,
-                name: 'param4'
-              }
-            ],
-            next: []
-          } as unknown as Page
-        ],
-        {
-          getState: mockGetState.mockResolvedValue({
-            '__copiedToState9d8bbbc9-29f1-499b-9f76-b2648bcfdf20': 'true'
-          }),
-          mergeState: mockMergeState
-        }
-      )
-
-      expect(
-        await prefillStateFromQueryParameters(mockRequest2, mockPagePrefill)
-      ).toBe(false)
-      expect(mockMergeState).not.toHaveBeenCalled()
     })
 
     it('should call lookup function for formId', async () => {
@@ -223,7 +178,6 @@ describe('State helpers', () => {
         expect.anything(),
         expect.anything(),
         {
-          '__copiedToState9d8bbbc9-29f1-499b-9f76-b2648bcfdf20': 'true',
           formId: 'c644804b-2f23-4c96-a2fc-ad4975974723',
           formName: 'My looked-up form name'
         }
