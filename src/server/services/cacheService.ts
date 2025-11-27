@@ -6,6 +6,7 @@ import { type createServer } from '~/src/server/index.js'
 import {
   type AnyFormRequest,
   type AnyRequest,
+  type FormConfirmationState,
   type FormPayload,
   type FormState,
   type FormSubmissionError,
@@ -55,7 +56,7 @@ export class CacheService {
 
   async getConfirmationState(
     request: AnyFormRequest
-  ): Promise<{ confirmed?: true; formId?: string }> {
+  ): Promise<FormConfirmationState> {
     const key = this.Key(request, ADDITIONAL_IDENTIFIER.Confirmation)
     const value = await this.cache.get(key)
 
@@ -64,7 +65,7 @@ export class CacheService {
 
   async setConfirmationState(
     request: AnyFormRequest,
-    confirmationState: { confirmed?: true; formId?: string }
+    confirmationState: FormConfirmationState
   ) {
     const key = this.Key(request, ADDITIONAL_IDENTIFIER.Confirmation)
     const ttl = config.get('confirmationSessionTimeout')

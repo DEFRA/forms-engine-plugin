@@ -15,7 +15,7 @@ The feature uses the HiddenField component to prevent against rogue state inject
 The parameter values get copied on first load of the form, and are simple key/value parameters e.g.:
 
 ```
-?paramname1=paramval1,paramname2=paramname2
+?paramname1=paramval1,paramname2=paramval2
 ```
 
 There is no limit set on the number of parameters. The keys and values get copied as-is (no case changes get applied).

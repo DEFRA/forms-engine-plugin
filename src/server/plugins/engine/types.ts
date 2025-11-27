@@ -97,6 +97,11 @@ export interface FormSubmissionError
   text: string // e.g: 'Date field must be a real date'
 }
 
+export interface FormConfirmationState {
+  confirmed?: true
+  formId?: string
+}
+
 export interface FormPayloadParams {
   action?: FormAction
   confirm?: true

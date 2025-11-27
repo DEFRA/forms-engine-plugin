@@ -118,7 +118,7 @@ export class PageController {
   }
 
   get feedbackLink() {
-    return `/form/csat?formId=${this.model.formId}`
+    return `/form/feedback?formId=${this.model.formId}`
   }
 
   get phaseTag() {

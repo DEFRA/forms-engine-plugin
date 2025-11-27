@@ -65,7 +65,7 @@ describe('PageController', () => {
     it('returns feedback link default', () => {
       expect(controller1).toHaveProperty(
         'feedbackLink',
-        '/form/csat?formId=form-id'
+        '/form/feedback?formId=form-id'
       )
     })
 
