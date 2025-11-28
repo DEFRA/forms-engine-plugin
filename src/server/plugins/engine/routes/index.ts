@@ -4,19 +4,14 @@ import {
   type ResponseToolkit,
   type Server
 } from '@hapi/hapi'
-import { isEqual } from 'date-fns'
 
-import {
-  EXTERNAL_STATE_APPENDAGE,
-  EXTERNAL_STATE_PAYLOAD,
-  PREVIEW_PATH_PREFIX
-} from '~/src/server/constants.js'
+import { EXTERNAL_STATE_APPENDAGE, EXTERNAL_STATE_PAYLOAD } from '~/src/server/constants.js'
 import {
   FormComponent,
   isFormState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { resolveFormModel } from '~/src/server/plugins/engine/form-context.js'
 import {
-  checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
   findPage,
   getCacheService,
@@ -24,7 +19,6 @@ import {
   getStartPath,
   proceed
 } from '~/src/server/plugins/engine/helpers.js'
-import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import { generateUniqueReference } from '~/src/server/plugins/engine/referenceNumbers.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
@@ -179,8 +173,6 @@ export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
     ordnanceSurveyApiKey
   } = options
 
-  const { formsService } = services
-
   async function handler(request: AnyFormRequest, h: ResponseToolkit) {
     if (server.app.model) {
       request.app.model = server.app.model
@@ -192,71 +184,15 @@ export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
     const { slug } = params
     const { isPreview, state: formState } = checkFormStatus(params)
 
-    // Get the form metadata using the `slug` param
-    const metadata = await formsService.getFormMetadata(slug)
+    const model = await resolveFormModel(server, slug, formState, {
+      services,
+      controllers,
+      ordnanceSurveyApiKey,
+      routePrefix: prefix,
+      isPreview
+    })
 
-    const { id, [formState]: state } = metadata
-
-    // Check the metadata supports the requested state
-    if (!state) {
-      throw Boom.notFound(`No '${formState}' state for form metadata ${id}`)
-    }
-
-    // Cache the models based on id, state and whether
-    // it's a preview or not. There could be up to 3 models
-    // cached for a single form:
-    // "{id}_live_false" (live/live)
-    // "{id}_live_true" (live/preview)
-    // "{id}_draft_true" (draft/preview)
-    const key = `${id}_${formState}_${isPreview}`
-    let item = server.app.models.get(key)
-
-    if (!item || !isEqual(item.updatedAt, state.updatedAt)) {
-      server.logger.info(`Getting form definition ${id} (${slug}) ${formState}`)
-
-      // Get the form definition using the `id` from the metadata
-      const definition = await formsService.getFormDefinition(id, formState)
-
-      if (!definition) {
-        throw Boom.notFound(
-          `No definition found for form metadata ${id} (${slug}) ${formState}`
-        )
-      }
-
-      const emailAddress = metadata.notificationEmail ?? definition.outputEmail
-
-      checkEmailAddressForLiveFormSubmission(emailAddress, isPreview)
-
-      // Build the form model
-      server.logger.info(
-        `Building model for form definition ${id} (${slug}) ${formState}`
-      )
-
-      // Set up the basePath for the model
-      const basePath = (
-        isPreview
-          ? `${prefix}${PREVIEW_PATH_PREFIX}/${formState}/${slug}`
-          : `${prefix}/${slug}`
-      ).substring(1)
-
-      const versionNumber = metadata.versions?.[0]?.versionNumber
-
-      // Construct the form model
-      const model = new FormModel(
-        definition,
-        { basePath, versionNumber, ordnanceSurveyApiKey, formId: id },
-        services,
-        controllers
-      )
-
-      // Create new item and add it to the item cache
-      item = { model, updatedAt: state.updatedAt }
-      server.app.models.set(key, item)
-    }
-
-    // Assign the model to the request data
-    // for use in the downstream handler
-    request.app.model = item.model
+    request.app.model = model
 
     return h.continue
   }
