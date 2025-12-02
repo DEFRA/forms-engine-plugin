@@ -105,7 +105,10 @@ export async function getFormContext(
     },
     path: `/${formModel.basePath}/summary`,
     query: {},
-    url: new URL(`/${formModel.basePath}/summary`, 'http://form-context.local'),
+    url: new URL(
+      `/${formModel.basePath}/summary`,
+      'https://form-context.local'
+    ),
     server,
     yar
   }
