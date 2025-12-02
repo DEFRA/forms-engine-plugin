@@ -20,6 +20,7 @@ declare module '@hapi/yar' {
   interface YarFlashes {
     [EXTERNAL_STATE_APPENDAGE]: object
     [EXTERNAL_STATE_PAYLOAD]: object
+    [FILE_UPLOAD_STATE_ERROR]: string
     [key: string]: { errors: FormSubmissionError[] }
   }
 }

@@ -11,6 +11,7 @@ import {
   encodeUrl,
   safeGenerateCrumb
 } from '~/src/server/plugins/engine/helpers.js'
+import { FILE_UPLOAD_STATE_ERROR } from '../../constants.js'
 
 const logger = createLogger()
 
@@ -54,8 +55,14 @@ export async function context(request) {
     crumb: safeGenerateCrumb(request),
     currentPath: `${request.path}${request.url.search}`,
     previewMode: isPreviewMode ? formState : undefined,
-    slug: isResponseOK ? params?.slug : undefined
+    slug: isResponseOK ? params?.slug : undefined,
+    error: request.yar.flash(FILE_UPLOAD_STATE_ERROR) // TODO merge into 'errors' and link back to form component properly
   }
+
+  // TODO get rid of this hack
+  request.yar.commit(/** @type {import('@hapi/hapi').ResponseToolkit} */ ({
+    state: () => {}
+  }))
 
   return ctx
 }
