@@ -1,12 +1,15 @@
 import { ComponentType, type ComponentDef } from '@defra/forms-model'
 
 import { config } from '~/src/config/index.js'
+import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { type ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
 import { escapeMarkdown } from '~/src/server/plugins/engine/components/helpers/index.js'
 import * as Components from '~/src/server/plugins/engine/components/index.js'
 import { markdown } from '~/src/server/plugins/engine/components/markdownParser.js'
 import { type FormState } from '~/src/server/plugins/engine/types.js'
+
+const logger = createLogger()
 
 // All component instances
 export type Component = InstanceType<
@@ -191,10 +194,11 @@ export function createComponent(
     case ComponentType.HiddenField:
       component = new Components.HiddenField(def, options)
       break
-  }
 
-  if (typeof component === 'undefined') {
-    throw new Error(`Component type ${def.type} does not exist`)
+    default:
+      // @ts-expect-error - may be a type that isn't in ComponentType
+      logger.error(`Component type ${def.type} does not exist`)
+      component = new Components.TextField(def, options)
   }
 
   return component

@@ -6,6 +6,7 @@ import { HiddenField } from '~/src/server/plugins/engine/components/HiddenField.
 import { LatLongField } from '~/src/server/plugins/engine/components/LatLongField.js'
 import { NationalGridFieldNumberField } from '~/src/server/plugins/engine/components/NationalGridFieldNumberField.js'
 import { OsGridRefField } from '~/src/server/plugins/engine/components/OsGridRefField.js'
+import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
 import { createComponent } from '~/src/server/plugins/engine/components/helpers/components.js'
 import {
   createLowerFirstExpression,
@@ -19,17 +20,22 @@ const formModel = new FormModel(definition, {
 })
 
 describe('helpers tests', () => {
-  test('should throw if invalid type', () => {
-    expect(() =>
-      createComponent(
-        {
-          type: 'invalid-type'
-        } as unknown as ComponentDef,
-        {
-          model: formModel
-        }
-      )
-    ).toThrow('Component type invalid-type does not exist')
+  test('should default if invalid type', () => {
+    const component = createComponent(
+      {
+        type: 'invalid-type',
+        name: 'InvalidField',
+        shortDescription: 'Short desc',
+        title: 'My invalid field',
+        options: {}
+      } as unknown as ComponentDef,
+      {
+        model: formModel
+      }
+    )
+    expect(component).toBeInstanceOf(TextField)
+    expect(component.name).toBe('InvalidField')
+    expect(component.title).toBe('My invalid field')
   })
 
   test('should create EastingNorthingField component', () => {
