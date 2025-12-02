@@ -117,11 +117,11 @@ export async function getFormContext(
     summaryRequest as unknown as AnyRequest
   )
 
-  const formState: FormSubmissionState = {
+  const formState = {
     ...cachedState,
     $$__referenceNumber:
       options.referenceNumber ?? cachedState.$$__referenceNumber ?? 'TODO'
-  }
+  } as unknown as FormSubmissionState
 
   return formModel.getFormContext(
     summaryRequest,
