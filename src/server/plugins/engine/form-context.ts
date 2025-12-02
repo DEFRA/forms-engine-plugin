@@ -4,24 +4,19 @@ import { isEqual } from 'date-fns'
 
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
-  getAnswer,
-  type Field
-} from '~/src/server/plugins/engine/components/helpers/components.js'
-import {
   checkEmailAddressForLiveFormSubmission,
-  evaluateTemplate,
-  getCacheService,
-  getPageHref
+  getCacheService
 } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
-import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import { TerminalPageController } from '~/src/server/plugins/engine/pageControllers/index.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import {
+  type AnyRequest,
   type FormContext,
   type FormContextRequest,
-  type FormSubmissionError
+  type FormSubmissionError,
+  type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import { FormStatus } from '~/src/server/routes/types.js'
 import { type Services } from '~/src/server/types.js'
@@ -78,12 +73,7 @@ export async function getFormModel(
     {
       basePath:
         options.basePath ??
-        buildBasePath(
-          options.routePrefix ?? '',
-          slug,
-          formState,
-          isPreview
-        ),
+        buildBasePath(options.routePrefix ?? '', slug, formState, isPreview),
       versionNumber,
       ordnanceSurveyApiKey: options.ordnanceSurveyApiKey,
       formId: options.formId ?? metadata.id
@@ -99,12 +89,7 @@ export async function getFormContext(
   state: JourneyState = FormStatus.Live,
   options: FormContextOptions = {}
 ): Promise<FormContext> {
-  const formModel = await resolveFormModel(
-    server,
-    journey,
-    state,
-    options
-  )
+  const formModel = await resolveFormModel(server, journey, state, options)
 
   const cacheService = getCacheService(server)
 
@@ -120,22 +105,19 @@ export async function getFormContext(
     },
     path: `/${formModel.basePath}/summary`,
     query: {},
-    url: new URL(
-      `/${formModel.basePath}/summary`,
-      'http://form-context.local'
-    ),
+    url: new URL(`/${formModel.basePath}/summary`, 'http://form-context.local'),
     server,
     yar
   }
 
-  const cachedState = await cacheService.getState(summaryRequest)
+  const cachedState = await cacheService.getState(
+    summaryRequest as unknown as AnyRequest
+  )
 
-  const formState = {
+  const formState: FormSubmissionState = {
     ...cachedState,
     $$__referenceNumber:
-      options.referenceNumber ??
-      cachedState.$$__referenceNumber ??
-      'TODO'
+      options.referenceNumber ?? cachedState.$$__referenceNumber ?? 'TODO'
   }
 
   return formModel.getFormContext(
@@ -160,7 +142,9 @@ export async function resolveFormModel(
   const stateMetadata = metadata[formState]
 
   if (!stateMetadata) {
-    throw Boom.notFound(`No '${formState}' state for form metadata ${metadata.id}`)
+    throw Boom.notFound(
+      `No '${formState}' state for form metadata ${metadata.id}`
+    )
   }
 
   // The models cache is created lazily per server instance
@@ -251,119 +235,6 @@ export function getFirstJourneyPage(
   }
 
   return lastPageReached
-}
-
-export function mapFormContextToAnswers(
-  context?: Pick<FormContext, 'relevantPages' | 'state'>,
-  { returnPath = '/summary' }: { returnPath?: string } = {}
-) {
-  if (!context) {
-    return []
-  }
-
-  const { relevantPages = [], state = {} } = context
-
-  return relevantPages.flatMap((page) => {
-    const fields = page.collection.fields
-
-    return fields
-      .map((field) => {
-        const value = field.getFormValueFromState(state)
-        if (!hasRenderableValue(value)) {
-          return undefined
-        }
-
-        return {
-          slug: resolveFieldSlug(page),
-          changeHref: resolveChangeHref(page, returnPath),
-          question: safeEvaluateTemplate(field.title, context),
-          questionKey: field.name,
-          answer: {
-            type: mapAnswerType(field),
-            value,
-            displayText: getAnswer(field, state)
-          }
-        }
-      })
-      .filter(Boolean)
-  })
-}
-
-function hasRenderableValue(value: unknown): boolean {
-  if (value === undefined || value === null) {
-    return false
-  }
-
-  if (typeof value === 'string') {
-    return value.trim().length > 0
-  }
-
-  if (Array.isArray(value)) {
-    return value.some((entry) => hasRenderableValue(entry))
-  }
-
-  if (typeof value === 'object') {
-    return Object.values(value).some((entry) => hasRenderableValue(entry))
-  }
-
-  return true
-}
-
-function mapAnswerType(field: Field) {
-  const map = {
-    UkAddressField: 'address',
-    DatePartsField: 'date',
-    MonthYearField: 'date',
-    NumberField: 'number',
-    CheckboxesField: 'checkbox',
-    FileUploadField: 'file'
-  }
-
-  return map[field.type] ?? 'text'
-}
-
-function safeEvaluateTemplate(template: string, context: FormContext) {
-  try {
-    return evaluateTemplate(template, context)
-  } catch {
-    return template
-  }
-}
-
-function resolveFieldSlug(page?: PageControllerClass) {
-  if (!page) {
-    return undefined
-  }
-
-  try {
-    if (typeof page.getHref === 'function') {
-      const targetPath = page.path || '/'
-      return getPageHref(page, targetPath)
-    }
-  } catch {
-    // ignore and fall back to raw path
-  }
-
-  return page.path
-}
-
-function resolveChangeHref(page: PageControllerClass | undefined, summaryPath: string) {
-  const slug = resolveFieldSlug(page)
-
-  if (!page || !slug) {
-    return slug
-  }
-
-  if (typeof page.getHref !== 'function' || typeof summaryPath !== 'string') {
-    return slug
-  }
-
-  try {
-    const target = getPageHref(page, summaryPath)
-    return getPageHref(page, page.path || '/', { returnUrl: target })
-  } catch {
-    return slug
-  }
 }
 
 function resolveState(state: JourneyState): FormStatus {

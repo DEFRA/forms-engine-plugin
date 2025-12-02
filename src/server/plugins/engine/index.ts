@@ -18,7 +18,6 @@ export {
   getFirstJourneyPage,
   getFormContext,
   getFormModel,
-  mapFormContextToAnswers,
   resolveFormModel
 } from '~/src/server/plugins/engine/form-context.js'
 
