@@ -41,13 +41,20 @@ export class StatusPageController extends QuestionPageController {
 
       const slug = request.params.slug
       const { formsService } = this.model.services
-      const { getFormMetadata } = formsService
+      const { getFormMetadata, getFormMetadataById } = formsService
 
       const { submissionGuidance } = await getFormMetadata(slug)
 
+      // Re-read form name if overriding display (for example, in a feedback form)
+      const storedFormId = confirmationState.formId
+      const formName = storedFormId
+        ? (await getFormMetadataById(storedFormId)).title
+        : undefined
+
       return h.view(viewName, {
         ...viewModel,
-        submissionGuidance
+        submissionGuidance,
+        formName
       })
     }
   }

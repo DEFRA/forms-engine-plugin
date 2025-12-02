@@ -28,6 +28,7 @@ import {
 } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
+import { prefillStateFromQueryParameters } from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
 import {
   type AnyFormRequest,
   type FormContext,
@@ -402,6 +403,12 @@ export class QuestionPageController extends PageController {
     ) => {
       const { collection, model, viewName } = this
       const { evaluationState } = context
+
+      // Copy any URL params into the form state (if not already done so)
+      if (await prefillStateFromQueryParameters(request, this)) {
+        // Forward to same page without query string
+        return h.redirect(`${request.url.origin}${request.url.pathname}`)
+      }
 
       const viewModel = this.getViewModel(request, context)
       viewModel.errors = collection.getViewErrors(viewModel.errors)

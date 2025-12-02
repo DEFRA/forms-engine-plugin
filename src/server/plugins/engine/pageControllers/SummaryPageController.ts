@@ -25,6 +25,7 @@ import {
 } from '~/src/server/plugins/engine/models/types.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
+  type FormConfirmationState,
   type FormContext,
   type FormContextRequest,
   type FormSubmissionState
@@ -152,7 +153,10 @@ export class SummaryPageController extends QuestionPageController {
       )
     }
 
-    await cacheService.setConfirmationState(request, { confirmed: true })
+    await cacheService.setConfirmationState(request, {
+      confirmed: true,
+      formId: context.state.formId
+    } as FormConfirmationState)
 
     // Clear all form data
     await cacheService.clearState(request)

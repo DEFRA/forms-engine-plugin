@@ -98,6 +98,23 @@ export class FileFormService {
   }
 
   /**
+   * Get the form metadata by form id
+   * @param {string} id - the form id
+   * @returns {FormMetadata}
+   */
+  getFormMetadataById(id) {
+    const metadata = Array.from(this.#metadata.values()).find(
+      (form) => form.id === id
+    )
+
+    if (!metadata) {
+      throw new Error(`Form metadata id '${id}' not found`)
+    }
+
+    return metadata
+  }
+
+  /**
    * Get the form defintion by id
    * @param {string} id - the form id
    * @returns {FormDefinition}
@@ -128,6 +145,15 @@ export class FileFormService {
       },
 
       /**
+       * Get the form metadata by form id
+       * @param {string} id
+       * @returns {Promise<FormMetadata>}
+       */
+      getFormMetadataById: (id) => {
+        return Promise.resolve(this.getFormMetadataById(id))
+      },
+
+      /**
        * Get the form defintion by id
        * @param {string} id
        * @returns {Promise<FormDefinition>}
@@ -140,5 +166,5 @@ export class FileFormService {
 }
 
 /**
- * @import { FormMetadata, FormDefinition } from '@defra/forms-model'
+ * @import { FormMetadata, FormDefinition, FormStatus } from '@defra/forms-model'
  */
