@@ -5,7 +5,10 @@ import {
   type Server
 } from '@hapi/hapi'
 
-import { EXTERNAL_STATE_APPENDAGE, EXTERNAL_STATE_PAYLOAD } from '~/src/server/constants.js'
+import {
+  EXTERNAL_STATE_APPENDAGE,
+  EXTERNAL_STATE_PAYLOAD
+} from '~/src/server/constants.js'
 import {
   FormComponent,
   isFormState
