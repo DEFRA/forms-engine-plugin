@@ -4,7 +4,8 @@ import {
   getFirstJourneyPage,
   getFormContext,
   getFormModel,
-  resolveFormModel
+  resolveFormModel,
+  type FormModelOptions
 } from '~/src/server/plugins/engine/form-context.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
@@ -82,8 +83,9 @@ describe('getFormContext helper', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     formModel = { getFormContext: jest.fn().mockResolvedValue(returnedContext) }
-    FormModel.mockImplementation((_definition, modelOptions) =>
-      Object.assign(formModel, { basePath: modelOptions.basePath })
+    FormModel.mockImplementation(
+      (_definition: unknown, modelOptions: FormModelOptions) =>
+        Object.assign(formModel, { basePath: modelOptions.basePath })
     )
     mockFormsService.getFormMetadata.mockResolvedValue(metadata)
     mockFormsService.getFormDefinition.mockResolvedValue(definition)
