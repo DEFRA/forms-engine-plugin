@@ -22,7 +22,9 @@ describe('Dummy API', () => {
 
   beforeAll(async () => {
     MockDate.set('2025-01-01T00:00:00Z')
-    server = await createServer()
+    server = await createServer({
+      enforceCsrf: false
+    })
     await server.initialize()
   })
 

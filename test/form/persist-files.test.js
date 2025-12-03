@@ -75,7 +75,8 @@ describe('Submission journey test', () => {
   beforeAll(async () => {
     server = await createServer({
       formFileName: 'file-upload-basic.js',
-      formFilePath: join(import.meta.dirname, 'definitions')
+      formFilePath: join(import.meta.dirname, 'definitions'),
+      enforceCsrf: false
     })
 
     await server.initialize()

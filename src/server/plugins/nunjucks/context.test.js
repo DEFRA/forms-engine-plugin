@@ -98,39 +98,6 @@ describe('Nunjucks context', () => {
         malformedRequest.server.plugins.crumb.generate
       ).not.toHaveBeenCalled()
     })
-
-    it('should generate crumb when state exists', async () => {
-      const mockCrumb = 'generated-crumb-value'
-      const validRequest = /** @type {FormRequest} */ (
-        /** @type {unknown} */ ({
-          server: {
-            plugins: {
-              crumb: {
-                generate: jest.fn().mockReturnValue(mockCrumb)
-              },
-              'forms-engine-plugin': {
-                baseLayoutPath: 'randomValue'
-              }
-            }
-          },
-          plugins: {},
-          route: {
-            settings: {
-              plugins: {}
-            }
-          },
-          path: '/test',
-          url: { search: '' },
-          state: {}
-        })
-      )
-
-      const { crumb } = await context(validRequest)
-      expect(crumb).toBe(mockCrumb)
-      expect(validRequest.server.plugins.crumb.generate).toHaveBeenCalledWith(
-        validRequest
-      )
-    })
   })
 })
 

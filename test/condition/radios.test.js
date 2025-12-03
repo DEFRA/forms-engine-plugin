@@ -21,7 +21,8 @@ describe('Radio based conditions', () => {
   beforeAll(async () => {
     server = await createServer({
       formFileName: 'radios.json',
-      formFilePath: resolve(import.meta.dirname, '../form/definitions')
+      formFilePath: resolve(import.meta.dirname, '../form/definitions'),
+      enforceCsrf: false
     })
 
     await server.initialize()

@@ -21,7 +21,8 @@ describe('TextField based conditions', () => {
   beforeAll(async () => {
     server = await createServer({
       formFileName: 'text.json',
-      formFilePath: resolve(import.meta.dirname, '../form/definitions')
+      formFilePath: resolve(import.meta.dirname, '../form/definitions'),
+      enforceCsrf: false
     })
 
     await server.initialize()

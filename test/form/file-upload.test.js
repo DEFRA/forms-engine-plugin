@@ -174,7 +174,8 @@ describe('File upload POST tests', () => {
   beforeAll(async () => {
     server = await createServer({
       formFileName: 'file-upload.js',
-      formFilePath: resolve(import.meta.dirname, '../form/definitions')
+      formFilePath: resolve(import.meta.dirname, '../form/definitions'),
+      enforceCsrf: false
     })
 
     await server.initialize()

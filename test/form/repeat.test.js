@@ -90,7 +90,8 @@ describe('Repeat GET tests', () => {
   beforeAll(async () => {
     server = await createServer({
       formFileName: 'repeat.js',
-      formFilePath: resolve(import.meta.dirname, '../form/definitions')
+      formFilePath: resolve(import.meta.dirname, '../form/definitions'),
+      enforceCsrf: false
     })
 
     const model = server.app.model
@@ -363,7 +364,8 @@ describe('Repeat POST tests', () => {
     server = await createServer({
       formFileName: 'repeat.js',
       formFilePath: resolve(import.meta.dirname, '../form/definitions'),
-      saveAndExit: (request, h, _context) => h.redirect('/my-save-and-exit')
+      saveAndExit: (request, h, _context) => h.redirect('/my-save-and-exit'),
+      enforceCsrf: false
     })
 
     const model = server.app.model

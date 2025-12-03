@@ -8,8 +8,7 @@ import { config } from '~/src/config/index.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import {
   checkFormStatus,
-  encodeUrl,
-  safeGenerateCrumb
+  encodeUrl
 } from '~/src/server/plugins/engine/helpers.js'
 
 const logger = createLogger()
@@ -51,7 +50,6 @@ export async function context(request) {
     // take consumers props first so we can override it
     ...consumerViewContext,
     baseLayoutPath: pluginStorage.baseLayoutPath,
-    crumb: safeGenerateCrumb(request),
     currentPath: `${request.path}${request.url.search}`,
     previewMode: isPreviewMode ? formState : undefined,
     slug: isResponseOK ? params?.slug : undefined
