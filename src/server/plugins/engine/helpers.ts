@@ -38,7 +38,7 @@ import {
   type FormResponseToolkit
 } from '~/src/server/routes/types.js'
 
-export const logger = createLogger()
+const logger = createLogger()
 
 export const engine = new Liquid({
   outputEscape: 'escape',

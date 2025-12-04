@@ -1,3 +1,9 @@
+import {
+  ComponentType,
+  ControllerType,
+  type FormDefinition,
+  type PageQuestion
+} from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type ResponseObject, type ResponseToolkit } from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
@@ -14,6 +20,7 @@ import {
   getPageHref,
   proceed,
   safeGenerateCrumb,
+  setPageTitles,
   type GlobalScope
 } from '~/src/server/plugins/engine/helpers.js'
 import { handleLegacyRedirect } from '~/src/server/plugins/engine/helpers.js'
@@ -44,6 +51,21 @@ interface NunjucksContext {
 
 type EvaluateFilter = (this: NunjucksContext, template: unknown) => unknown
 type HrefFilter = (this: NunjucksContext, path: string) => string | undefined
+
+const mockLoggerError = jest.fn()
+const mockLoggerInfo = jest.fn()
+const mockLoggerWarn = jest.fn()
+
+jest.mock('~/src/server/common/helpers/logging/logger.ts', () => ({
+  createLogger: jest.fn().mockReturnValue({
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    error: () => mockLoggerError(),
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    warn: () => mockLoggerWarn(),
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    info: () => mockLoggerInfo()
+  })
+}))
 
 describe('Helpers', () => {
   let page: PageControllerClass
@@ -842,6 +864,78 @@ describe('Helpers', () => {
       )
 
       expect(response).toBe(mockRedirectResponse)
+    })
+  })
+
+  describe('setPageTitles', () => {
+    const definition: FormDefinition = {
+      name: 'Test Form',
+      startPage: '/page1',
+      pages: [
+        {
+          path: '/page1',
+          title: '',
+          next: [],
+          components: [
+            {
+              type: ComponentType.TextField,
+              name: 'textfield1',
+              title: 'What is your name?',
+              options: {},
+              schema: {}
+            },
+            {
+              type: ComponentType.TextField,
+              name: 'textfield2',
+              title: 'What is your favourite food?',
+              options: {},
+              schema: {}
+            }
+          ]
+        } satisfies PageQuestion
+      ],
+      lists: [],
+      sections: [],
+      conditions: []
+    }
+
+    beforeEach(() => {
+      jest.clearAllMocks()
+    })
+    it('should set title if missing', () => {
+      const def = structuredClone(definition)
+      setPageTitles(def)
+      expect(def.pages[0].title).toBe('What is your name?')
+      expect(mockLoggerInfo).not.toHaveBeenCalled()
+    })
+
+    it('should keep title if supplied', () => {
+      const def = structuredClone(definition)
+      def.pages[0].title = 'Page 1 title'
+      setPageTitles(def)
+      expect(def.pages[0].title).toBe('Page 1 title')
+      expect(mockLoggerInfo).not.toHaveBeenCalled()
+    })
+
+    it('should log if missing title and no components and not Summary page', () => {
+      const def = structuredClone(definition)
+      if ('components' in def.pages[0]) {
+        def.pages[0].components = []
+      }
+      setPageTitles(def)
+      expect(def.pages[0].title).toBe('')
+      expect(mockLoggerInfo).toHaveBeenCalled()
+    })
+
+    it('should not log missing title if Summary page', () => {
+      const def = structuredClone(definition)
+      def.pages[0].controller = ControllerType.Summary
+      if ('components' in def.pages[0]) {
+        def.pages[0].components = []
+      }
+      setPageTitles(def)
+      expect(def.pages[0].title).toBe('')
+      expect(mockLoggerInfo).not.toHaveBeenCalled()
     })
   })
 })
