@@ -7,8 +7,6 @@ import {
 
 import { setPageTitles } from '~/src/server/plugins/engine/helpers.js'
 
-const mockInfo = jest.fn()
-
 const mockLogger = {
   info: jest.fn(),
   warn: jest.fn(),
@@ -94,6 +92,6 @@ describe('setPageTitles', () => {
     }
     setPageTitles(def)
     expect(def.pages[0].title).toBe('')
-    expect(mockInfo).not.toHaveBeenCalled()
+    expect(mockLogger.info).not.toHaveBeenCalled()
   })
 })
