@@ -4,6 +4,7 @@ import {
   getErrorMessage,
   hasComponents,
   isFormType,
+  isSummaryPage,
   type ComponentDef,
   type FormDefinition,
   type Page
@@ -37,7 +38,7 @@ import {
   type FormResponseToolkit
 } from '~/src/server/routes/types.js'
 
-const logger = createLogger()
+export const logger = createLogger()
 
 export const engine = new Liquid({
   outputEscape: 'escape',
@@ -414,7 +415,7 @@ export function setPageTitles(def: FormDefinition) {
         page.title = firstFormComponent?.title ?? ''
       }
 
-      if (!page.title) {
+      if (!page.title && !isSummaryPage(page)) {
         const formNameMsg = def.name ? ` in form '${def.name}'` : ''
 
         logger.info(

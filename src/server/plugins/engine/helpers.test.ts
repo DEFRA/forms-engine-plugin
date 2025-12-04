@@ -51,6 +51,7 @@ describe('Helpers', () => {
   let h: FormResponseToolkit
 
   beforeEach(() => {
+    jest.clearAllMocks()
     const model = new FormModel(definition, {
       basePath: 'test'
     })
