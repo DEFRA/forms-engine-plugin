@@ -351,6 +351,19 @@ describe('resolveFormModel helper', () => {
 
     expect(FormModel).not.toHaveBeenCalled()
   })
+
+  test('throws when no form definition is available for the requested state', async () => {
+    mockFormsService.getFormDefinition.mockResolvedValue(undefined)
+
+    await expect(
+      resolveFormModel(server, slug, FormStatus.Live)
+    ).rejects.toThrow(
+      `No definition found for form metadata ${metadata.id} (${slug}) ${FormStatus.Live}`
+    )
+
+    expect(FormModel).not.toHaveBeenCalled()
+    expect(mockCheckEmailAddressForLiveFormSubmission).not.toHaveBeenCalled()
+  })
 })
 
 describe('getFirstJourneyPage helper', () => {
