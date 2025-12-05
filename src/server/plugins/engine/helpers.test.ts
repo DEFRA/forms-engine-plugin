@@ -1,6 +1,5 @@
 import {
   ComponentType,
-  ControllerType,
   type FormDefinition,
   type PageQuestion
 } from '@defra/forms-model'
@@ -51,21 +50,6 @@ interface NunjucksContext {
 
 type EvaluateFilter = (this: NunjucksContext, template: unknown) => unknown
 type HrefFilter = (this: NunjucksContext, path: string) => string | undefined
-
-const mockLoggerError = jest.fn()
-const mockLoggerInfo = jest.fn()
-const mockLoggerWarn = jest.fn()
-
-jest.mock('~/src/server/common/helpers/logging/logger.ts', () => ({
-  createLogger: jest.fn().mockReturnValue({
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    error: () => mockLoggerError(),
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    warn: () => mockLoggerWarn(),
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    info: () => mockLoggerInfo()
-  })
-}))
 
 describe('Helpers', () => {
   let page: PageControllerClass
@@ -906,7 +890,6 @@ describe('Helpers', () => {
       const def = structuredClone(definition)
       setPageTitles(def)
       expect(def.pages[0].title).toBe('What is your name?')
-      expect(mockLoggerInfo).not.toHaveBeenCalled()
     })
 
     it('should keep title if supplied', () => {
@@ -914,28 +897,6 @@ describe('Helpers', () => {
       def.pages[0].title = 'Page 1 title'
       setPageTitles(def)
       expect(def.pages[0].title).toBe('Page 1 title')
-      expect(mockLoggerInfo).not.toHaveBeenCalled()
-    })
-
-    it('should log if missing title and no components and not Summary page', () => {
-      const def = structuredClone(definition)
-      if ('components' in def.pages[0]) {
-        def.pages[0].components = []
-      }
-      setPageTitles(def)
-      expect(def.pages[0].title).toBe('')
-      expect(mockLoggerInfo).toHaveBeenCalled()
-    })
-
-    it('should not log missing title if Summary page', () => {
-      const def = structuredClone(definition)
-      def.pages[0].controller = ControllerType.Summary
-      if ('components' in def.pages[0]) {
-        def.pages[0].components = []
-      }
-      setPageTitles(def)
-      expect(def.pages[0].title).toBe('')
-      expect(mockLoggerInfo).not.toHaveBeenCalled()
     })
   })
 })

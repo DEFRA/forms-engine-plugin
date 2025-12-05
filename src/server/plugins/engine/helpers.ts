@@ -4,7 +4,6 @@ import {
   getErrorMessage,
   hasComponents,
   isFormType,
-  isSummaryPage,
   type ComponentDef,
   type FormDefinition,
   type Page
@@ -413,14 +412,6 @@ export function setPageTitles(def: FormDefinition) {
         )
 
         page.title = firstFormComponent?.title ?? ''
-      }
-
-      if (!page.title && !isSummaryPage(page)) {
-        const formNameMsg = def.name ? ` in form '${def.name}'` : ''
-
-        logger.info(
-          `[pageTitleMissing] Page '${page.path}' has no title${formNameMsg}`
-        )
       }
     }
   })
