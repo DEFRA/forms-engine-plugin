@@ -67,7 +67,7 @@ describe('getFormContext helper', () => {
       realm: { modifiers: { route: { prefix: '' } } }
     } as unknown as Request['server']
   } satisfies Pick<Request, 'yar' | 'server'>
-  const journey = 'tb-origin'
+  const slug = 'tb-origin'
   const cachedState = { answered: true }
   const returnedContext = { errors: [] }
   const metadata = {
@@ -94,9 +94,9 @@ describe('getFormContext helper', () => {
   })
 
   test('builds a form context using cached state and configured services', async () => {
-    const context = await getFormContext(request, journey)
+    const context = await getFormContext(request, slug)
 
-    expect(mockFormsService.getFormMetadata).toHaveBeenCalledWith(journey)
+    expect(mockFormsService.getFormMetadata).toHaveBeenCalledWith(slug)
     expect(mockFormsService.getFormDefinition).toHaveBeenCalledWith(
       metadata.id,
       'live'
@@ -105,7 +105,7 @@ describe('getFormContext helper', () => {
     expect(FormModel).toHaveBeenCalledWith(
       definition,
       {
-        basePath: journey,
+        basePath: slug,
         versionNumber: metadata.versions[0].versionNumber,
         ordnanceSurveyApiKey: undefined,
         formId: metadata.id
@@ -123,9 +123,9 @@ describe('getFormContext helper', () => {
       expect.objectContaining({
         yar: request.yar,
         method: 'get',
-        params: { path: 'summary', slug: journey },
+        params: { path: 'summary', slug },
         query: {},
-        path: `/${journey}/summary`,
+        path: `/${slug}/summary`,
         server: request.server
       })
     )
@@ -142,8 +142,8 @@ describe('getFormContext helper', () => {
     expect(context).toBe(returnedContext)
   })
 
-  test('passes through the requested journey state when resolving the form model', async () => {
-    await getFormContext(request, journey, FormStatus.Draft)
+  test('passes through the requested form state when resolving the form model', async () => {
+    await getFormContext(request, slug, FormStatus.Draft)
 
     expect(mockFormsService.getFormDefinition).toHaveBeenCalledWith(
       metadata.id,
@@ -151,19 +151,17 @@ describe('getFormContext helper', () => {
     )
   })
 
-  test('passes preview state into the summary request and honours provided reference numbers', async () => {
+  test('passes preview state into the summary request and uses cached reference numbers', async () => {
     const errors = [
       { href: '#field', name: 'field', path: ['field'], text: 'is required' }
     ]
-    const referenceNumber = 'REF-12345'
 
     mockCacheService.getState.mockResolvedValue({
       ...cachedState,
       $$__referenceNumber: 'CACHED-REF'
     })
 
-    const context = await getFormContext(request, journey, 'preview', {
-      referenceNumber,
+    const context = await getFormContext(request, slug, 'preview', {
       errors
     })
 
@@ -171,7 +169,7 @@ describe('getFormContext helper', () => {
 
     expect(summaryRequest.params).toEqual({
       path: 'summary',
-      slug: journey,
+      slug,
       state: 'live'
     })
     expect(summaryRequest.path).toBe('/preview/live/tb-origin/summary')
@@ -181,7 +179,7 @@ describe('getFormContext helper', () => {
 
     expect(formModel.getFormContext).toHaveBeenCalledWith(
       summaryRequest,
-      expect.objectContaining({ $$__referenceNumber: referenceNumber }),
+      expect.objectContaining({ $$__referenceNumber: 'CACHED-REF' }),
       errors
     )
     expect(context).toBe(returnedContext)
@@ -341,7 +339,7 @@ describe('resolveFormModel helper', () => {
     )
   })
 
-  test('throws when requested journey state does not exist on metadata', async () => {
+  test('throws when requested form state does not exist on metadata', async () => {
     mockFormsService.getFormMetadata.mockResolvedValue({
       id: 'metadata-123',
       live: { updatedAt: new Date('2024-10-15T10:00:00Z') }

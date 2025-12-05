@@ -36,7 +36,6 @@ export interface FormModelOptions {
 
 export interface FormContextOptions extends FormModelOptions {
   errors?: FormSubmissionError[]
-  referenceNumber?: string
 }
 
 type SummaryRequest = FormContextRequest & {
@@ -85,11 +84,11 @@ export async function getFormModel(
 
 export async function getFormContext(
   { server, yar }: Pick<Request, 'server' | 'yar'>,
-  journey: string,
+  slug: string,
   state: JourneyState = FormStatus.Live,
   options: FormContextOptions = {}
 ): Promise<FormContext> {
-  const formModel = await resolveFormModel(server, journey, state, options)
+  const formModel = await resolveFormModel(server, slug, state, options)
 
   const cacheService = getCacheService(server)
 
@@ -98,7 +97,7 @@ export async function getFormContext(
     method: 'get',
     params: {
       path: 'summary',
-      slug: journey,
+      slug,
       ...(isPreviewState(state, options) && {
         state: resolveState(state)
       })
@@ -119,8 +118,7 @@ export async function getFormContext(
 
   const formState = {
     ...cachedState,
-    $$__referenceNumber:
-      options.referenceNumber ?? cachedState.$$__referenceNumber ?? 'TODO'
+    $$__referenceNumber: cachedState.$$__referenceNumber ?? 'TODO'
   } as unknown as FormSubmissionState
 
   return formModel.getFormContext(
