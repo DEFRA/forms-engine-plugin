@@ -10,6 +10,18 @@
         {% include "partials/preview-banner.html" %}
       {% endif %}
 
+      {% if error | length %}
+        {{ govukErrorSummary({
+          titleText: "There is a problem",
+          errorList: [
+            {
+              text: error,
+              href: "#"
+            }
+          ]
+        }) }}
+      {% endif %}
+
       {% if errors %}
         {{ govukErrorSummary({
           titleText: "There is a problem",
