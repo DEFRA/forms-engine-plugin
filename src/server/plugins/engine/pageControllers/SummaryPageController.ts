@@ -6,11 +6,11 @@ import {
 } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type RouteOptions } from '@hapi/hapi'
-import { cache } from 'joi'
-import { FILE_UPLOAD_STATE_ERROR } from '~/src/server/constants.js'
 
+import { FILE_UPLOAD_STATE_ERROR } from '~/src/server/constants.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FileUploadField } from '~/src/server/plugins/engine/components/FileUploadField.js'
+import { type FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import {
   checkEmailAddressForLiveFormSubmission,
@@ -26,6 +26,7 @@ import {
   type DetailItem
 } from '~/src/server/plugins/engine/models/types.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
+import { InvalidComponentStateError } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import {
   type FormConfirmationState,
   type FormContext,
@@ -39,8 +40,6 @@ import {
   type FormRequestPayloadRefs,
   type FormResponseToolkit
 } from '~/src/server/routes/types.js'
-import { InvalidComponentStateError } from './errors.js'
-import { FormComponent } from '../components/FormComponent.js'
 
 export class SummaryPageController extends QuestionPageController {
   declare pageDef: Page
@@ -159,10 +158,13 @@ export class SummaryPageController extends QuestionPageController {
         )
       } catch (error) {
         if (error instanceof InvalidComponentStateError) {
-          // Failed to persist files. We can't recover from this, the only real way we can recover the submissions is 
+          // Failed to persist files. We can't recover from this, the only real way we can recover the submissions is
           // by resetting the problematic components and letting the user re-try.
           // Scenarios: file missing from S3, invalid retrieval key (timing problem), etc.
-          request.yar.flash(FILE_UPLOAD_STATE_ERROR, 'There was a problem with your uploaded files. Re-upload them before submitting the form again.')
+          request.yar.flash(
+            FILE_UPLOAD_STATE_ERROR,
+            'There was a problem with your uploaded files. Re-upload them before submitting the form again.'
+          )
           await cacheService.resetComponentStates(request, error.getStateKeys())
           return this.proceed(request, h, error.components[0].page?.path)
         }
@@ -203,7 +205,7 @@ export async function submitForm(
   emailAddress: string,
   formMetadata: FormMetadata
 ) {
-  await extendFileRetention(request, model, context.state, emailAddress)
+  await extendFileRetention(model, context.state, emailAddress)
 
   const formStatus = checkFormStatus(request.params)
   const logTags = ['submit', 'submissionApi']
@@ -241,16 +243,14 @@ export async function submitForm(
 }
 
 async function extendFileRetention(
-  request: FormRequestPayload,
   model: FormModel,
   state: FormSubmissionState,
   updatedRetrievalKey: string
 ) {
   const { formSubmissionService } = model.services
-  const cacheService = getCacheService(request.server)
   const { persistFiles } = formSubmissionService
   const files: { fileId: string; initiatedRetrievalKey: string }[] = []
-  
+
   const formFileUploadComponents: FormComponent[] = []
 
   // For each file upload component with files in
@@ -280,12 +280,19 @@ async function extendFileRetention(
   if (!files.length) {
     return
   }
-  
+
   try {
     await persistFiles(files, updatedRetrievalKey)
   } catch (error) {
-    // TODO only throw if the error is related to file upload problem and not a general error like networking
-    throw new InvalidComponentStateError(formFileUploadComponents)
+    if (
+      Boom.isBoom(error) &&
+      (error.output.statusCode === 403 || // Forbidden - retrieval key invalid
+        error.output.statusCode === 410) // Gone - file expired (took to long to submit, etc)
+    ) {
+      throw new InvalidComponentStateError(formFileUploadComponents)
+    }
+
+    throw error
   }
 }
 
