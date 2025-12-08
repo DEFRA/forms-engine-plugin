@@ -118,7 +118,7 @@ export async function getFormContext(
 
   const formState = {
     ...cachedState,
-    $$__referenceNumber: cachedState.$$__referenceNumber ?? 'TODO'
+    $$__referenceNumber: cachedState.$$__referenceNumber
   } as unknown as FormSubmissionState
 
   return formModel.getFormContext(

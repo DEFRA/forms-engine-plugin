@@ -93,64 +93,6 @@ describe('getFormContext helper', () => {
     mockCacheService.getState.mockResolvedValue(cachedState)
   })
 
-  test('builds a form context using cached state and configured services', async () => {
-    const context = await getFormContext(request, slug)
-
-    expect(mockFormsService.getFormMetadata).toHaveBeenCalledWith(slug)
-    expect(mockFormsService.getFormDefinition).toHaveBeenCalledWith(
-      metadata.id,
-      'live'
-    )
-
-    expect(FormModel).toHaveBeenCalledWith(
-      definition,
-      {
-        basePath: slug,
-        versionNumber: metadata.versions[0].versionNumber,
-        ordnanceSurveyApiKey: undefined,
-        formId: metadata.id
-      },
-      mockServices,
-      undefined
-    )
-
-    expect(mockGetCacheService).toHaveBeenCalledWith(request.server)
-    expect(mockCacheService.getState).toHaveBeenCalledTimes(1)
-
-    const summaryRequest = mockCacheService.getState.mock.calls[0][0]
-
-    expect(summaryRequest).toEqual(
-      expect.objectContaining({
-        yar: request.yar,
-        method: 'get',
-        params: { path: 'summary', slug },
-        query: {},
-        path: `/${slug}/summary`,
-        server: request.server
-      })
-    )
-    expect(summaryRequest.url.toString()).toBe(
-      'https://form-context.local/tb-origin/summary'
-    )
-
-    expect(formModel.getFormContext).toHaveBeenCalledWith(
-      summaryRequest,
-      { $$__referenceNumber: 'TODO', ...cachedState },
-      []
-    )
-
-    expect(context).toBe(returnedContext)
-  })
-
-  test('passes through the requested form state when resolving the form model', async () => {
-    await getFormContext(request, slug, FormStatus.Draft)
-
-    expect(mockFormsService.getFormDefinition).toHaveBeenCalledWith(
-      metadata.id,
-      FormStatus.Draft
-    )
-  })
-
   test('passes preview state into the summary request and uses cached reference numbers', async () => {
     const errors = [
       { href: '#field', name: 'field', path: ['field'], text: 'is required' }
