@@ -7,10 +7,8 @@ import {
 import Boom from '@hapi/boom'
 import { type RouteOptions } from '@hapi/hapi'
 
-import { FILE_UPLOAD_STATE_ERROR } from '~/src/server/constants.js'
+import { COMPONENT_STATE_ERROR } from '~/src/server/constants.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { FileUploadField } from '~/src/server/plugins/engine/components/FileUploadField.js'
-import { type FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import {
   checkEmailAddressForLiveFormSubmission,
@@ -30,8 +28,7 @@ import { InvalidComponentStateError } from '~/src/server/plugins/engine/pageCont
 import {
   type FormConfirmationState,
   type FormContext,
-  type FormContextRequest,
-  type FormSubmissionState
+  type FormContextRequest
 } from '~/src/server/plugins/engine/types.js'
 import {
   FormAction,
@@ -158,14 +155,10 @@ export class SummaryPageController extends QuestionPageController {
         )
       } catch (error) {
         if (error instanceof InvalidComponentStateError) {
-          // Failed to persist files. We can't recover from this, the only real way we can recover the submissions is
-          // by resetting the problematic components and letting the user re-try.
-          // Scenarios: file missing from S3, invalid retrieval key (timing problem), etc.
-          request.yar.flash(
-            FILE_UPLOAD_STATE_ERROR,
-            'There was a problem with your uploaded files. Re-upload them before submitting the form again.'
-          )
+          request.yar.flash(COMPONENT_STATE_ERROR, error.userMessage)
+
           await cacheService.resetComponentStates(request, error.getStateKeys())
+
           return this.proceed(request, h, error.components[0].page?.path)
         }
 
@@ -205,7 +198,7 @@ export async function submitForm(
   emailAddress: string,
   formMetadata: FormMetadata
 ) {
-  await extendFileRetention(model, context.state, emailAddress)
+  await finaliseComponents(model, request, context)
 
   const formStatus = checkFormStatus(request.params)
   const logTags = ['submit', 'submissionApi']
@@ -217,6 +210,8 @@ export async function submitForm(
     summaryViewModel.context,
     summaryViewModel.details
   )
+
+
 
   // Submit data
   request.logger.info(logTags, 'Submitting data')
@@ -242,57 +237,25 @@ export async function submitForm(
   )
 }
 
-async function extendFileRetention(
-  model: FormModel,
-  state: FormSubmissionState,
-  updatedRetrievalKey: string
-) {
-  const { formSubmissionService } = model.services
-  const { persistFiles } = formSubmissionService
-  const files: { fileId: string; initiatedRetrievalKey: string }[] = []
+/**
+ * Finalises any components that need post-processing before form submission. Candidates usually involve
+ * those that have external state.
+ * Examples include:
+ * - file uploads which are 'persisted' before submission
+ * - payments which are 'captured' before submission
+ * @param model 
+ * @param request 
+ * @param context 
+ */
+async function finaliseComponents(model: FormModel, request: FormRequestPayload, context: FormContext) {
+  const relevantPages = context.relevantPages.flatMap((page) => page.collection.fields)
 
-  const formFileUploadComponents: FormComponent[] = []
-
-  // For each file upload component with files in
-  // state, add the files to the batch getting persisted
-  model.pages.forEach((page) => {
-    const pageFileUploadComponents = page.collection.fields.filter(
-      (component) => component instanceof FileUploadField
-    )
-
-    pageFileUploadComponents.forEach((component) => {
-      formFileUploadComponents.push(component)
-
-      const values = component.getFormValueFromState(state)
-      if (!values?.length) {
-        return
-      }
-
-      files.push(
-        ...values.map(({ status }) => ({
-          fileId: status.form.file.fileId,
-          initiatedRetrievalKey: status.metadata.retrievalKey
-        }))
-      )
-    })
-  })
-
-  if (!files.length) {
-    return
-  }
-
-  try {
-    await persistFiles(files, updatedRetrievalKey)
-  } catch (error) {
-    if (
-      Boom.isBoom(error) &&
-      (error.output.statusCode === 403 || // Forbidden - retrieval key invalid
-        error.output.statusCode === 410) // Gone - file expired (took to long to submit, etc)
-    ) {
-      throw new InvalidComponentStateError(formFileUploadComponents)
-    }
-
-    throw error
+  for (const component of relevantPages) {
+    /* 
+      Each component will throw InvalidComponent if its state is invalid, which is handled
+      by handleFormSubmit
+    */
+   await component.onSubmit(request, context) 
   }
 }
 

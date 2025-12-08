@@ -1,6 +1,7 @@
 import {
   type ComponentDef,
   type Event,
+  type FormMetadata,
   type FormVersionMetadata,
   type Item,
   type List,
@@ -185,6 +186,7 @@ export interface FormContext {
   componentDefMap: Map<string, ComponentDef>
   pageMap: Map<string, PageControllerClass>
   componentMap: Map<string, Component>
+  metadata: FormMetadata
   referenceNumber: string
   submittedVersionNumber?: number
 }
