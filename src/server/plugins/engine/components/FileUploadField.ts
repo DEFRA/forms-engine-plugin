@@ -1,4 +1,4 @@
-import { type FileUploadFieldComponent } from '@defra/forms-model'
+import { FormMetadata, type FileUploadFieldComponent } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import joi, { type ArraySchema } from 'joi'
 
@@ -287,8 +287,8 @@ export class FileUploadField extends FormComponent {
     return FileUploadField.getAllPossibleErrors()
   }
 
-  async onSubmit(request: FormRequestPayload, context: FormContext) {
-    if(!context.metadata.notificationEmail) {
+  async onSubmit(request: FormRequestPayload, metadata: FormMetadata, context: FormContext) {
+    if(!metadata.notificationEmail) {
       throw new Error('No notification email set in form context metadata')
     }
     
@@ -309,7 +309,7 @@ export class FileUploadField extends FormComponent {
     }
 
     try {
-      await formSubmissionService.persistFiles(files, context.metadata.notificationEmail)
+      await formSubmissionService.persistFiles(files, metadata.notificationEmail)
     } catch (error) {
       if (
         Boom.isBoom(error) &&

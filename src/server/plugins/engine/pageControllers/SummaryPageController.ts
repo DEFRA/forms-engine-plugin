@@ -247,7 +247,7 @@ export async function submitForm(
  * @param request 
  * @param context 
  */
-async function finaliseComponents(model: FormModel, request: FormRequestPayload, context: FormContext) {
+async function finaliseComponents(request: FormRequestPayload, metadata: FormMetadata, context: FormContext) {
   const relevantPages = context.relevantPages.flatMap((page) => page.collection.fields)
 
   for (const component of relevantPages) {
@@ -255,7 +255,7 @@ async function finaliseComponents(model: FormModel, request: FormRequestPayload,
       Each component will throw InvalidComponent if its state is invalid, which is handled
       by handleFormSubmit
     */
-   await component.onSubmit(request, context) 
+   await component.onSubmit(request, metadata, context)
   }
 }
 

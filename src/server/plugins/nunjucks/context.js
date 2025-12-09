@@ -57,11 +57,13 @@ export async function context(request) {
     currentPath: `${request.path}${request.url.search}`,
     previewMode: isPreviewMode ? formState : undefined,
     slug: isResponseOK ? params?.slug : undefined,
-    error: request.yar.flash(COMPONENT_STATE_ERROR) // TODO merge into 'errors' and link back to form component properly
+    // @ts-expect-error TODO fix and merge into 'errors' to link back to the form component
+    error: request.yar.flash(COMPONENT_STATE_ERROR)
   }
 
-  // TODO get rid of this hack
+  // @ts-expect-error temporary code while developing -- TODO remove
   await request.yar.commit(/** @type {import('@hapi/hapi').ResponseToolkit} */ ({
+    // @ts-ignore
     state: () => {}
   }))
 
