@@ -10,22 +10,21 @@
         {% include "partials/preview-banner.html" %}
       {% endif %}
 
-      {% if error | length %}
-        {{ govukErrorSummary({
-          titleText: "There is a problem",
-          errorList: [
-            {
-              text: error,
-              href: "#"
-            }
-          ]
-        }) }}
-      {% endif %}
+      {% set allErrors = [] %}
 
       {% if errors %}
+        {% set allErrors = allErrors.concat(errors) %}
+      {% endif %}
+
+      {% if flashedErrors %}
+        {% set allErrors = allErrors.concat(flashedErrors) %}
+      {% endif %}
+
+
+      {% if allErrors | length  %}
         {{ govukErrorSummary({
           titleText: "There is a problem",
-          errorList: checkErrorTemplates(errors)
+          errorList: checkErrorTemplates(allErrors)
         }) }}
       {% endif %}
 

@@ -13,6 +13,7 @@ import { getAnswer } from '~/src/server/plugins/engine/components/helpers/compon
 import {
   checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
+  createError,
   getCacheService
 } from '~/src/server/plugins/engine/helpers.js'
 import {
@@ -156,7 +157,9 @@ export class SummaryPageController extends QuestionPageController {
         )
       } catch (error) {
         if (error instanceof InvalidComponentStateError) {
-          request.yar.flash(COMPONENT_STATE_ERROR, error.userMessage)
+          const govukError = createError(error.components[0].name, error.userMessage)
+
+          request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
 
           await cacheService.resetComponentStates(request, error.getStateKeys())
 

@@ -48,6 +48,9 @@ export async function context(request) {
     consumerViewContext = await pluginStorage.viewContext(request)
   }
 
+  const flashedError = request.yar.flash(COMPONENT_STATE_ERROR)
+  const flashedErrors = !Array.isArray(flashedError) ? [flashedError] : undefined
+
   /** @type {ViewContext} */
   const ctx = {
     // take consumers props first so we can override it
@@ -58,7 +61,7 @@ export async function context(request) {
     previewMode: isPreviewMode ? formState : undefined,
     slug: isResponseOK ? params?.slug : undefined,
     // @ts-expect-error TODO fix and merge into 'errors' to link back to the form component
-    error: request.yar.flash(COMPONENT_STATE_ERROR)
+    flashedErrors
   }
 
   // @ts-expect-error temporary code while developing -- TODO remove
