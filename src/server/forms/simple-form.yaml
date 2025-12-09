@@ -1,0 +1,64 @@
+---
+name: Page events
+engine: V2
+schema: 2
+startPage: '/summary'
+pages:
+  - title: Your name
+    path: '/your-name'
+    components:
+      - type: TextField
+        title: What is your first name?
+        name: applicantFirstName
+        shortDescription: Your first name
+        hint: ''
+        options:
+          required: true
+        schema: {}
+        id: 1fb8e182-c709-4792-8f83-e01d8b1fee1a
+      - type: TextField
+        title: What is your last name?
+        name: applicantLastName
+        shortDescription: Your last name
+        hint: ''
+        options:
+          required: true
+        schema: {}
+        id: b68df7f1-d4f4-4c17-83c8-402f584906c9
+    next: []
+    id: 622a35ec-3795-418a-81f3-a45746959045
+  - title: Upload a copy of your passport
+    controller: FileUploadPageController
+    path: '/upload-passport'
+    components:
+      - type: FileUploadField
+        title: Please upload a copy of your passport
+        name: passportUpload
+        shortDescription: Upload passport
+        hint: ''
+        options:
+          required: true
+        schema: {}
+        id: 987c1234-56d7-89e0-1234-56789abcdef0
+    id: 23456789-0abc-def1-2345-67890abcdef1
+  - title: ''
+    path: '/date-of-birth'
+    components:
+      - type: DatePartsField
+        title: When is {{ applicantFirstName }} {{ applicantLastName }}'s birthday?
+        name: dateOfBirth
+        shortDescription: Your birthday
+        hint: ''
+        options:
+          required: true
+        schema: {}
+        id: '00738799-3489-4ab2-a57b-542eecb31bfa'
+    next: []
+    id: da0fbdb4-a2de-4650-be16-9ba552af135f
+  - id: 449a45f6-4541-4a46-91bd-8b8931b07b50
+    title: ''
+    path: '/summary'
+    controller: SummaryPageController
+conditions: []
+sections: []
+lists: []

@@ -288,7 +288,9 @@ export class FileUploadField extends FormComponent {
   }
 
   async onSubmit(request: FormRequestPayload, metadata: FormMetadata, context: FormContext) {
-    if(!metadata.notificationEmail) {
+    const notificationEmail = metadata.notificationEmail ?? 'defraforms@defra.gov.uk'
+
+    if(!notificationEmail) {
       throw new Error('No notification email set in form context metadata')
     }
     
@@ -309,7 +311,7 @@ export class FileUploadField extends FormComponent {
     }
 
     try {
-      await formSubmissionService.persistFiles(files, metadata.notificationEmail)
+      await formSubmissionService.persistFiles(files, notificationEmail)
     } catch (error) {
       if (
         Boom.isBoom(error) &&

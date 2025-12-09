@@ -147,6 +147,7 @@ export class SummaryPageController extends QuestionPageController {
       try {
         await submitForm(
           context,
+          formMetadata,
           request,
           viewModel,
           model,
@@ -192,13 +193,14 @@ export class SummaryPageController extends QuestionPageController {
 
 export async function submitForm(
   context: FormContext,
+  metadata: FormMetadata,
   request: FormRequestPayload,
   summaryViewModel: SummaryViewModel,
   model: FormModel,
   emailAddress: string,
   formMetadata: FormMetadata
 ) {
-  await finaliseComponents(model, request, context)
+  await finaliseComponents(request, metadata, context)
 
   const formStatus = checkFormStatus(request.params)
   const logTags = ['submit', 'submissionApi']
