@@ -2,20 +2,20 @@ import { FileUploadField } from "~/src/server/plugins/engine/components/FileUplo
 import { type FormComponent } from "~/src/server/plugins/engine/components/FormComponent.js";
 
 export class InvalidComponentStateError extends Error {
-    public readonly components: FormComponent[];
+    public readonly component: FormComponent;
     public readonly userMessage: string;
 
-    constructor(components: FormComponent[], userMessage: string) {
-        const message = `Invalid component state for: ${components.map(c => c.name).join(', ')}`
+    constructor(component: FormComponent, userMessage: string) {
+        const message = `Invalid component state for: ${component.name}`
         super(message)
         this.name = 'InvalidComponentStateError'
-        this.components = components
+        this.component = component
         this.userMessage = userMessage
     }
 
     getStateKeys() {
-        const extraStateKeys = this.components.some(c => c instanceof FileUploadField) ? ['upload'] : []
+        const extraStateKeys = this.component instanceof FileUploadField ? ['upload'] : []
 
-        return this.components.map(c => c.name).concat(extraStateKeys)
+        return [this.component.name].concat(extraStateKeys)
     }
 }

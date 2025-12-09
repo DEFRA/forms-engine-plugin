@@ -321,7 +321,7 @@ export class FileUploadField extends FormComponent {
         // Failed to persist files. We can't recover from this, the only real way we can recover the submissions is
         // by resetting the problematic components and letting the user re-try.
         // Scenarios: file missing from S3, invalid retrieval key (timing problem), etc.
-        throw new InvalidComponentStateError([this], 'There was a problem with your uploaded files. Re-upload them before submitting the form again.')
+        throw new InvalidComponentStateError(this, 'There was a problem with your uploaded files. Re-upload them before submitting the form again.')
       }
   
       throw error

@@ -157,13 +157,13 @@ export class SummaryPageController extends QuestionPageController {
         )
       } catch (error) {
         if (error instanceof InvalidComponentStateError) {
-          const govukError = createError(error.components[0].name, error.userMessage)
+          const govukError = createError(error.component.name, error.userMessage)
 
           request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
 
           await cacheService.resetComponentStates(request, error.getStateKeys())
 
-          return this.proceed(request, h, error.components[0].page?.path)
+          return this.proceed(request, h, error.component.page?.path)
         }
 
         throw error
