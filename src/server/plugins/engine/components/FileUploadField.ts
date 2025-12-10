@@ -289,10 +289,6 @@ export class FileUploadField extends FormComponent {
 
   async onSubmit(request: FormRequestPayload, metadata: FormMetadata, context: FormContext) {
     const notificationEmail = metadata.notificationEmail ?? 'defraforms@defra.gov.uk'
-
-    if(!notificationEmail) {
-      throw new Error('No notification email set in form context metadata')
-    }
     
     if(!request.app.model?.services.formSubmissionService) {
       throw new Error('No form submission service available in app model')
