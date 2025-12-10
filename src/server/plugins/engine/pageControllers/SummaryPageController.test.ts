@@ -1,4 +1,9 @@
+import { ComponentType } from '@defra/forms-model'
+import Boom from '@hapi/boom'
+
+import { FileUploadField } from '~/src/server/plugins/engine/components/FileUploadField.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { InvalidComponentStateError } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import { SummaryPageController } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 import { buildFormRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
@@ -9,6 +14,7 @@ import {
 } from '~/src/server/routes/types.js'
 import { type CacheService } from '~/src/server/services/cacheService.js'
 import definition from '~/test/form/definitions/basic.js'
+import fileUploadDefinition from '~/test/form/definitions/file-upload-basic.js'
 
 describe('SummaryPageController', () => {
   let model: FormModel
@@ -83,4 +89,7 @@ describe('SummaryPageController', () => {
       expect(saveAndExitMock).toHaveBeenCalledWith(request, h, context)
     })
   })
+
+  // Note: InvalidComponentStateError handling is comprehensively tested
+  // in the integration test: test/form/component-state-errors.test.js
 })

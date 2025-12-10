@@ -1,10 +1,12 @@
 import {
   ComponentType,
-  type FileUploadFieldComponent
+  type FileUploadFieldComponent,
+  type FormMetadata
 } from '@defra/forms-model'
+import Boom from '@hapi/boom'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { tempItemSchema } from '~/src/server/plugins/engine/components/FileUploadField.js'
+import { FileUploadField, tempItemSchema } from '~/src/server/plugins/engine/components/FileUploadField.js'
 import {
   getAnswer,
   type Field
@@ -14,12 +16,15 @@ import {
   createPage,
   type PageControllerClass
 } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
+import { InvalidComponentStateError } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   FileStatus,
   UploadStatus,
+  type FormContext,
   type UploadState
 } from '~/src/server/plugins/engine/types.js'
+import { type FormRequestPayload } from '~/src/server/routes/types.js'
 import definition from '~/test/form/definitions/file-upload-basic.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
@@ -826,6 +831,200 @@ describe('FileUploadField', () => {
           expect(result).toEqual(output)
         }
       )
+    })
+  })
+
+  describe('onSubmit', () => {
+    let fileUploadField: FileUploadField
+    let mockRequest: FormRequestPayload
+    let mockMetadata: FormMetadata
+    let mockContext: FormContext
+    let mockPersistFiles: jest.Mock
+
+    beforeEach(() => {
+      // Create a FileUploadField instance
+      const componentDef: FileUploadFieldComponent = {
+        name: 'fileUpload',
+        title: 'Upload something',
+        type: ComponentType.FileUploadField,
+        options: {},
+        schema: {}
+      }
+
+      const page = model.pages.find((p) => p.path === '/file-upload-component')
+      fileUploadField = new FileUploadField(componentDef, {
+        model,
+        page: page!
+      })
+
+      // Mock persistFiles
+      mockPersistFiles = jest.fn().mockResolvedValue(undefined)
+
+      // Mock request
+      mockRequest = {
+        app: {
+          model: {
+            services: {
+              formSubmissionService: {
+                persistFiles: mockPersistFiles
+              }
+            }
+          }
+        }
+      } as unknown as FormRequestPayload
+
+      // Mock metadata
+      mockMetadata = {
+        notificationEmail: 'test@example.com'
+      } as FormMetadata
+
+      // Mock context with state
+      mockContext = {
+        state: {
+          fileUpload: validState
+        }
+      } as unknown as FormContext
+    })
+
+    afterEach(() => {
+      jest.clearAllMocks()
+    })
+
+    it('should successfully persist files', async () => {
+      await fileUploadField.onSubmit(mockRequest, mockMetadata, mockContext)
+
+      expect(mockPersistFiles).toHaveBeenCalledTimes(1)
+      expect(mockPersistFiles).toHaveBeenCalledWith(
+        [
+          {
+            fileId: 'fcb4f0f8-6862-4836-86dc-f56ff900b0ff',
+            initiatedRetrievalKey: 'enrique.chase@defra.gov.uk'
+          },
+          {
+            fileId: 'e1d6cf98-35a7-4f97-8a28-cdd2b115d8fa',
+            initiatedRetrievalKey: 'enrique.chase@defra.gov.uk'
+          },
+          {
+            fileId: '71fb359c-dee7-4c2e-8701-239eb892765a',
+            initiatedRetrievalKey: 'enrique.chase@defra.gov.uk'
+          }
+        ],
+        'test@example.com'
+      )
+    })
+
+    it('should use default email when notificationEmail is not set', async () => {
+      mockMetadata.notificationEmail = undefined
+
+      await fileUploadField.onSubmit(mockRequest, mockMetadata, mockContext)
+
+      expect(mockPersistFiles).toHaveBeenCalledWith(
+        expect.any(Array),
+        'defraforms@defra.gov.uk'
+      )
+    })
+
+    it('should not call persistFiles when no files in state', async () => {
+      mockContext.state = {}
+
+      await fileUploadField.onSubmit(mockRequest, mockMetadata, mockContext)
+
+      expect(mockPersistFiles).not.toHaveBeenCalled()
+    })
+
+    it('should not call persistFiles when empty array in state', async () => {
+      mockContext.state = { fileUpload: [] }
+
+      await fileUploadField.onSubmit(mockRequest, mockMetadata, mockContext)
+
+      expect(mockPersistFiles).not.toHaveBeenCalled()
+    })
+
+    it('should pass empty string when notificationEmail is empty string', async () => {
+      mockMetadata.notificationEmail = ''
+
+      await fileUploadField.onSubmit(mockRequest, mockMetadata, mockContext)
+
+      expect(mockPersistFiles).toHaveBeenCalledWith(
+        expect.any(Array),
+        ''
+      )
+    })
+
+    it('should throw Error when formSubmissionService is not available', async () => {
+      mockRequest.app.model!.services = {} as any
+
+      await expect(
+        fileUploadField.onSubmit(mockRequest, mockMetadata, mockContext)
+      ).rejects.toThrow('No form submission service available in app model')
+    })
+
+    it('should throw InvalidComponentStateError when persistFiles throws 403 Forbidden', async () => {
+      const forbiddenError = Boom.forbidden('Invalid retrieval key')
+      mockPersistFiles.mockRejectedValue(forbiddenError)
+
+      await expect(
+        fileUploadField.onSubmit(mockRequest, mockMetadata, mockContext)
+      ).rejects.toThrow(InvalidComponentStateError)
+
+      try {
+        await fileUploadField.onSubmit(mockRequest, mockMetadata, mockContext)
+      } catch (error) {
+        expect(error).toBeInstanceOf(InvalidComponentStateError)
+        expect((error as InvalidComponentStateError).component).toBe(
+          fileUploadField
+        )
+        expect((error as InvalidComponentStateError).userMessage).toBe(
+          'There was a problem with your uploaded files. Re-upload them before submitting the form again.'
+        )
+      }
+    })
+
+    it('should throw InvalidComponentStateError when persistFiles throws 410 Gone', async () => {
+      const goneError = Boom.resourceGone('File has expired')
+      mockPersistFiles.mockRejectedValue(goneError)
+
+      await expect(
+        fileUploadField.onSubmit(mockRequest, mockMetadata, mockContext)
+      ).rejects.toThrow(InvalidComponentStateError)
+
+      try {
+        await fileUploadField.onSubmit(mockRequest, mockMetadata, mockContext)
+      } catch (error) {
+        expect(error).toBeInstanceOf(InvalidComponentStateError)
+        expect((error as InvalidComponentStateError).component).toBe(
+          fileUploadField
+        )
+        expect((error as InvalidComponentStateError).userMessage).toBe(
+          'There was a problem with your uploaded files. Re-upload them before submitting the form again.'
+        )
+      }
+    })
+
+    it('should re-throw other Boom errors without wrapping', async () => {
+      const serverError = Boom.internal('Internal server error')
+      mockPersistFiles.mockRejectedValue(serverError)
+
+      await expect(
+        fileUploadField.onSubmit(mockRequest, mockMetadata, mockContext)
+      ).rejects.toThrow(serverError)
+
+      await expect(
+        fileUploadField.onSubmit(mockRequest, mockMetadata, mockContext)
+      ).rejects.not.toThrow(InvalidComponentStateError)
+    })
+
+    it('should re-throw non-Boom errors without wrapping', async () => {
+      const genericError = new Error('Something went wrong')
+      mockPersistFiles.mockRejectedValue(genericError)
+
+      await expect(
+        fileUploadField.onSubmit(mockRequest, mockMetadata, mockContext)
+      ).rejects.toThrow(genericError)
+
+      await expect(
+        fileUploadField.onSubmit(mockRequest, mockMetadata, mockContext)
+      ).rejects.not.toThrow(InvalidComponentStateError)
     })
   })
 })
