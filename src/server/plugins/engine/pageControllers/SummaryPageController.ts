@@ -260,7 +260,7 @@ async function finaliseComponents(
   )
 
   for (const component of relevantPages) {
-    /* 
+    /*
       Each component will throw InvalidComponent if its state is invalid, which is handled
       by handleFormSubmit
     */
