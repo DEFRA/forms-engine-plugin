@@ -41,6 +41,23 @@ export const metadata = {
 }
 
 /**
+ * @satisfies {FormMetadata}
+ */
+export const metadataWithNotificationEmail = {
+  id: '661e4ca5039739ef2902b214',
+  slug: 'test-form',
+  title: 'Test form',
+  organisation: 'Defra',
+  teamName: 'Defra Forms',
+  teamEmail: 'defraforms@defra.gov.uk',
+  createdAt: now,
+  createdBy: author,
+  updatedAt: now,
+  updatedBy: author,
+  notificationEmail: 'enrique.chase@defra.gov.uk'
+}
+
+/**
  * @satisfies {FormDefinition}
  */
 export const definition = {
