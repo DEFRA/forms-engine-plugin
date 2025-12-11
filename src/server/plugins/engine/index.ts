@@ -19,7 +19,7 @@ export {
   getFormContext,
   getFormModel,
   resolveFormModel
-} from '~/src/server/plugins/engine/form-context.js'
+} from '~/src/server/plugins/engine/beta/form-context.js'
 
 const globals = {
   checkComponentTemplates,

@@ -6,7 +6,7 @@ import {
   getFormModel,
   resolveFormModel,
   type FormModelOptions
-} from '~/src/server/plugins/engine/form-context.js'
+} from '~/src/server/plugins/engine/beta/form-context.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import { type FormContext } from '~/src/server/plugins/engine/types.js'
@@ -17,7 +17,7 @@ const mockGetCacheService = jest.fn()
 const mockCacheService = { getState: jest.fn() }
 const mockCheckEmailAddressForLiveFormSubmission = jest.fn()
 
-jest.mock('./models/index.ts', () => ({
+jest.mock('../models/index.ts', () => ({
   __esModule: true,
   FormModel: jest.fn()
 }))
@@ -32,7 +32,7 @@ jest.mock('~/src/server/plugins/engine/services/index.js', () => ({
   outputService: {}
 }))
 
-jest.mock('./pageControllers/index.ts', () => {
+jest.mock('../pageControllers/index.ts', () => {
   class MockTerminalPageController {
     path = ''
   }
@@ -43,7 +43,7 @@ jest.mock('./pageControllers/index.ts', () => {
   }
 })
 
-jest.mock('./helpers.ts', () => ({
+jest.mock('../helpers.ts', () => ({
   __esModule: true,
   getCacheService: (...args: unknown[]) => mockGetCacheService(...args),
   checkEmailAddressForLiveFormSubmission: (...args: unknown[]) =>
@@ -54,9 +54,9 @@ const mockServices = jest.requireMock(
   '~/src/server/plugins/engine/services/index.js'
 )
 const mockFormsService = mockServices.formsService
-const { FormModel } = jest.requireMock('./models/index.ts')
+const { FormModel } = jest.requireMock('../models/index.ts')
 const { TerminalPageController: MockTerminalPageController } = jest.requireMock(
-  './pageControllers/index.ts'
+  '../pageControllers/index.ts'
 )
 
 describe('getFormContext helper', () => {
@@ -355,5 +355,5 @@ describe('getFirstJourneyPage helper', () => {
 })
 
 /**
- * @import { FormContext } from './types.js'
+ * @import { FormContext } from '../types.js'
  */
