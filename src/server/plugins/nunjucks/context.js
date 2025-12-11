@@ -4,10 +4,9 @@ import { basename, join } from 'node:path'
 import Boom from '@hapi/boom'
 import { StatusCodes } from 'http-status-codes'
 
-import { COMPONENT_STATE_ERROR } from '~/src/server/constants.js'
-
 import { config } from '~/src/config/index.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+import { COMPONENT_STATE_ERROR } from '~/src/server/constants.js'
 import {
   checkFormStatus,
   encodeUrl,
@@ -49,7 +48,9 @@ export async function context(request) {
   }
 
   const flashedError = request.yar.flash(COMPONENT_STATE_ERROR)
-  const flashedErrors = !Array.isArray(flashedError) ? [flashedError] : undefined
+  const flashedErrors = !Array.isArray(flashedError)
+    ? [flashedError]
+    : undefined
 
   /** @type {ViewContext} */
   const ctx = {
@@ -64,11 +65,15 @@ export async function context(request) {
     flashedErrors
   }
 
-  // @ts-expect-error temporary code while developing -- TODO remove
-  await request.yar.commit(/** @type {import('@hapi/hapi').ResponseToolkit} */ ({
-    // @ts-ignore
-    state: () => {}
-  }))
+  // TODO remove this temporary hack
+  await request.yar.commit(
+    /** @type {import('@hapi/hapi').ResponseToolkit} */ (
+      /** @type {unknown} */ ({
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        state: () => {}
+      })
+    )
+  )
 
   return ctx
 }

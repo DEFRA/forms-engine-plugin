@@ -6,18 +6,22 @@ import {
 import Boom from '@hapi/boom'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { FileUploadField, tempItemSchema } from '~/src/server/plugins/engine/components/FileUploadField.js'
+import {
+  FileUploadField,
+  tempItemSchema
+} from '~/src/server/plugins/engine/components/FileUploadField.js'
 import {
   getAnswer,
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { InvalidComponentStateError } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import {
   createPage,
   type PageControllerClass
 } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
-import { InvalidComponentStateError } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
+import { type Services } from '~/src/server/plugins/engine/types/index.js'
 import {
   FileStatus,
   UploadStatus,
@@ -854,7 +858,7 @@ describe('FileUploadField', () => {
       const page = model.pages.find((p) => p.path === '/file-upload-component')
       fileUploadField = new FileUploadField(componentDef, {
         model,
-        page: page!
+        page
       })
 
       // Mock persistFiles
@@ -945,14 +949,15 @@ describe('FileUploadField', () => {
 
       await fileUploadField.onSubmit(mockRequest, mockMetadata, mockContext)
 
-      expect(mockPersistFiles).toHaveBeenCalledWith(
-        expect.any(Array),
-        ''
-      )
+      expect(mockPersistFiles).toHaveBeenCalledWith(expect.any(Array), '')
     })
 
     it('should throw Error when formSubmissionService is not available', async () => {
-      mockRequest.app.model!.services = {} as any
+      if (!mockRequest.app.model) {
+        throw new Error('Invalid test setup')
+      }
+
+      mockRequest.app.model.services = {} as unknown as Services
 
       await expect(
         fileUploadField.onSubmit(mockRequest, mockMetadata, mockContext)
@@ -967,17 +972,17 @@ describe('FileUploadField', () => {
         fileUploadField.onSubmit(mockRequest, mockMetadata, mockContext)
       ).rejects.toThrow(InvalidComponentStateError)
 
-      try {
-        await fileUploadField.onSubmit(mockRequest, mockMetadata, mockContext)
-      } catch (error) {
-        expect(error).toBeInstanceOf(InvalidComponentStateError)
-        expect((error as InvalidComponentStateError).component).toBe(
-          fileUploadField
-        )
-        expect((error as InvalidComponentStateError).userMessage).toBe(
-          'There was a problem with your uploaded files. Re-upload them before submitting the form again.'
-        )
-      }
+      const error = await fileUploadField
+        .onSubmit(mockRequest, mockMetadata, mockContext)
+        .catch((e: unknown) => e)
+
+      expect(error).toBeInstanceOf(InvalidComponentStateError)
+      expect((error as InvalidComponentStateError).component).toBe(
+        fileUploadField
+      )
+      expect((error as InvalidComponentStateError).userMessage).toBe(
+        'There was a problem with your uploaded files. Re-upload them before submitting the form again.'
+      )
     })
 
     it('should throw InvalidComponentStateError when persistFiles throws 410 Gone', async () => {
@@ -988,17 +993,17 @@ describe('FileUploadField', () => {
         fileUploadField.onSubmit(mockRequest, mockMetadata, mockContext)
       ).rejects.toThrow(InvalidComponentStateError)
 
-      try {
-        await fileUploadField.onSubmit(mockRequest, mockMetadata, mockContext)
-      } catch (error) {
-        expect(error).toBeInstanceOf(InvalidComponentStateError)
-        expect((error as InvalidComponentStateError).component).toBe(
-          fileUploadField
-        )
-        expect((error as InvalidComponentStateError).userMessage).toBe(
-          'There was a problem with your uploaded files. Re-upload them before submitting the form again.'
-        )
-      }
+      const error = await fileUploadField
+        .onSubmit(mockRequest, mockMetadata, mockContext)
+        .catch((e: unknown) => e)
+
+      expect(error).toBeInstanceOf(InvalidComponentStateError)
+      expect((error as InvalidComponentStateError).component).toBe(
+        fileUploadField
+      )
+      expect((error as InvalidComponentStateError).userMessage).toBe(
+        'There was a problem with your uploaded files. Re-upload them before submitting the form again.'
+      )
     })
 
     it('should re-throw other Boom errors without wrapping', async () => {

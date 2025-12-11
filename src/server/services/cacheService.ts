@@ -99,11 +99,15 @@ export class CacheService {
     request.yar.flash(key.id, message)
   }
 
-  async resetComponentStates(request: AnyFormRequest, componentNames: string[]) {
+  async resetComponentStates(
+    request: AnyFormRequest,
+    componentNames: string[]
+  ) {
     const state = await this.getState(request)
 
-    for(const componentId of componentNames) {
-      if (state[componentId]) {
+    for (const componentId of componentNames) {
+      if (componentId in state) {
+        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         delete state[componentId]
       }
     }

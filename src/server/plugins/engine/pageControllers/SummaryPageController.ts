@@ -157,7 +157,10 @@ export class SummaryPageController extends QuestionPageController {
         )
       } catch (error) {
         if (error instanceof InvalidComponentStateError) {
-          const govukError = createError(error.component.name, error.userMessage)
+          const govukError = createError(
+            error.component.name,
+            error.userMessage
+          )
 
           request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
 
@@ -216,8 +219,6 @@ export async function submitForm(
     summaryViewModel.details
   )
 
-
-
   // Submit data
   request.logger.info(logTags, 'Submitting data')
   const submitResponse = await submitData(
@@ -248,19 +249,22 @@ export async function submitForm(
  * Examples include:
  * - file uploads which are 'persisted' before submission
  * - payments which are 'captured' before submission
- * @param model 
- * @param request 
- * @param context 
  */
-async function finaliseComponents(request: FormRequestPayload, metadata: FormMetadata, context: FormContext) {
-  const relevantPages = context.relevantPages.flatMap((page) => page.collection.fields)
+async function finaliseComponents(
+  request: FormRequestPayload,
+  metadata: FormMetadata,
+  context: FormContext
+) {
+  const relevantPages = context.relevantPages.flatMap(
+    (page) => page.collection.fields
+  )
 
   for (const component of relevantPages) {
     /* 
       Each component will throw InvalidComponent if its state is invalid, which is handled
       by handleFormSubmit
     */
-   await component.onSubmit(request, metadata, context)
+    await component.onSubmit(request, metadata, context)
   }
 }
 

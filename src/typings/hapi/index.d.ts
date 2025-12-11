@@ -5,7 +5,7 @@ import { type ServerYar, type Yar } from '@hapi/yar'
 import { type Logger } from 'pino'
 
 import {
-  COMPONENT_STATE_ERROR,
+  type COMPONENT_STATE_ERROR,
   type EXTERNAL_STATE_APPENDAGE,
   type EXTERNAL_STATE_PAYLOAD
 } from '~/src/server/constants.js'

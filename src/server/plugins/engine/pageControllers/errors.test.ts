@@ -26,7 +26,7 @@ describe('InvalidComponentStateError', () => {
           options: {},
           schema: {}
         },
-        { model, page: page! }
+        { model, page }
       )
 
       const error = new InvalidComponentStateError(
@@ -48,7 +48,7 @@ describe('InvalidComponentStateError', () => {
           options: {},
           schema: {}
         },
-        { model, page: page! }
+        { model, page: page }
       )
 
       const error = new InvalidComponentStateError(

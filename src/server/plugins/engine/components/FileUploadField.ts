@@ -1,4 +1,7 @@
-import { FormMetadata, type FileUploadFieldComponent } from '@defra/forms-model'
+import {
+  type FileUploadFieldComponent,
+  type FormMetadata
+} from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import joi, { type ArraySchema } from 'joi'
 
@@ -29,7 +32,10 @@ import {
   type UploadStatusResponse
 } from '~/src/server/plugins/engine/types.js'
 import { render } from '~/src/server/plugins/nunjucks/index.js'
-import { type FormQuery, type FormRequestPayload } from '~/src/server/routes/types.js'
+import {
+  type FormQuery,
+  type FormRequestPayload
+} from '~/src/server/routes/types.js'
 
 export const uploadIdSchema = joi.string().uuid().required()
 
@@ -287,14 +293,19 @@ export class FileUploadField extends FormComponent {
     return FileUploadField.getAllPossibleErrors()
   }
 
-  async onSubmit(request: FormRequestPayload, metadata: FormMetadata, context: FormContext) {
-    const notificationEmail = metadata.notificationEmail ?? 'defraforms@defra.gov.uk'
-    
-    if(!request.app.model?.services.formSubmissionService) {
+  async onSubmit(
+    request: FormRequestPayload,
+    metadata: FormMetadata,
+    context: FormContext
+  ) {
+    const notificationEmail =
+      metadata.notificationEmail ?? 'defraforms@defra.gov.uk'
+
+    if (!request.app.model?.services.formSubmissionService) {
       throw new Error('No form submission service available in app model')
     }
-    
-    const { formSubmissionService } = request.app.model?.services
+
+    const { formSubmissionService } = request.app.model.services
     const values = this.getFormValueFromState(context.state) ?? []
 
     const files = values.map((value) => ({
@@ -317,9 +328,12 @@ export class FileUploadField extends FormComponent {
         // Failed to persist files. We can't recover from this, the only real way we can recover the submissions is
         // by resetting the problematic components and letting the user re-try.
         // Scenarios: file missing from S3, invalid retrieval key (timing problem), etc.
-        throw new InvalidComponentStateError(this, 'There was a problem with your uploaded files. Re-upload them before submitting the form again.')
+        throw new InvalidComponentStateError(
+          this,
+          'There was a problem with your uploaded files. Re-upload them before submitting the form again.'
+        )
       }
-  
+
       throw error
     }
   }
