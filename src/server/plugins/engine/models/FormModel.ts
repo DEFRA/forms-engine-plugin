@@ -326,7 +326,7 @@ export class FormModel {
    */
   getFormContext(
     request: FormContextRequest,
-    state: FormState,
+    state: FormSubmissionState,
     errors?: FormSubmissionError[]
   ): FormContext {
     const { query } = request
@@ -625,7 +625,7 @@ function validateFormState(
   return context
 }
 
-function getReferenceNumber(state: FormState): string {
+function getReferenceNumber(state: FormSubmissionState): string {
   if (
     !state.$$__referenceNumber ||
     typeof state.$$__referenceNumber !== 'string'
