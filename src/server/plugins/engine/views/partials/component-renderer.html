@@ -1,0 +1,83 @@
+{% from "components/textfield.html" import TextField %}
+{% from "components/emailaddressfield.html" import EmailAddressField %}
+{% from "components/numberfield.html" import NumberField %}
+{% from "components/multilinetextfield.html" import MultilineTextField %}
+{% from "components/telephonenumberfield.html" import TelephoneNumberField %}
+{% from "components/monthyearfield.html" import MonthYearField %}
+{% from "components/datepartsfield.html" import DatePartsField %}
+{% from "components/ukaddressfield.html" import UkAddressField %}
+{% from "components/fileuploadfield.html" import FileUploadField %}
+{% from "components/autocompletefield.html" import AutocompleteField %}
+{% from "components/checkboxesfield.html" import CheckboxesField %}
+{% from "components/radiosfield.html" import RadiosField %}
+{% from "components/selectfield.html" import SelectField %}
+{% from "components/yesnofield.html" import YesNoField %}
+{% from "components/details.html" import Details %}
+{% from "components/html.html" import Html %}
+{% from "components/markdown.html" import Markdown %}
+{% from "components/insettext.html" import InsetText %}
+{% from "components/list.html" import List %}
+
+{#
+  Dynamic component renderer that selects the appropriate component macro
+  based on the component type. This enables composable component architecture.
+#}
+{% macro renderComponent(componentData) %}
+  {% if componentData.type == "TextField" %}
+    {{ TextField(componentData.model) }}
+  {% elif componentData.type == "EmailAddressField" %}
+    {{ EmailAddressField(componentData.model) }}
+  {% elif componentData.type == "NumberField" %}
+    {{ NumberField(componentData.model) }}
+  {% elif componentData.type == "MultilineTextField" %}
+    {{ MultilineTextField(componentData.model) }}
+  {% elif componentData.type == "TelephoneNumberField" %}
+    {{ TelephoneNumberField(componentData.model) }}
+  {% elif componentData.type == "MonthYearField" %}
+    {{ MonthYearField(componentData.model) }}
+  {% elif componentData.type == "DatePartsField" %}
+    {{ DatePartsField(componentData.model) }}
+  {% elif componentData.type == "UkAddressField" %}
+    {{ UkAddressField(componentData.model) }}
+  {% elif componentData.type == "FileUploadField" %}
+    {{ FileUploadField(componentData.model) }}
+  {% elif componentData.type == "AutocompleteField" %}
+    {{ AutocompleteField(componentData.model) }}
+  {% elif componentData.type == "CheckboxesField" %}
+    {{ CheckboxesField(componentData.model) }}
+  {% elif componentData.type == "RadiosField" %}
+    {{ RadiosField(componentData.model) }}
+  {% elif componentData.type == "SelectField" %}
+    {{ SelectField(componentData.model) }}
+  {% elif componentData.type == "YesNoField" %}
+    {{ YesNoField(componentData.model) }}
+  {% elif componentData.type == "Details" %}
+    {{ Details(componentData.model) }}
+  {% elif componentData.type == "Html" %}
+    {{ Html(componentData.model) }}
+  {% elif componentData.type == "Markdown" %}
+    {{ Markdown(componentData.model) }}
+  {% elif componentData.type == "InsetText" %}
+    {{ InsetText(componentData.model) }}
+  {% elif componentData.type == "List" %}
+    {{ List(componentData.model) }}
+  {% else %}
+    {# Fallback for unknown component types #}
+    <div class="govuk-warning-text">
+      <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+      <strong class="govuk-warning-text__text">
+        <span class="govuk-warning-text__assistive">Warning</span>
+        Unknown component type: {{ componentData.type }}
+      </strong>
+    </div>
+  {% endif %}
+{% endmacro %}
+
+{#
+  Render multiple components sequentially
+#}
+{% macro renderComponents(components) %}
+  {% for component in components %}
+    {{ renderComponent(component) }}
+  {% endfor %}
+{% endmacro %}
