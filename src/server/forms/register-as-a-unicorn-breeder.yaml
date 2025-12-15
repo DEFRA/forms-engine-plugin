@@ -306,5 +306,4 @@ lists:
         value: Aquatic
       - text: Rainbow
         value: Rainbow
-outputEmail: defraforms@defra.gov.uk
 startPage: '/whats-your-name'

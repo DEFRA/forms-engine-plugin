@@ -223,7 +223,7 @@ export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
         )
       }
 
-      const emailAddress = metadata.notificationEmail ?? definition.outputEmail
+      const emailAddress = metadata.notificationEmail
 
       checkEmailAddressForLiveFormSubmission(emailAddress, isPreview)
 

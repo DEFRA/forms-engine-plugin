@@ -58,7 +58,11 @@ describe('Page: /summary', () => {
   })
 
   it('should render the page with email notification warning', async () => {
-    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+    // Test scenario: missing notificationEmail should show warning
+    jest.mocked(getFormMetadata).mockResolvedValue({
+      ...fixtures.form.metadata,
+      notificationEmail: undefined
+    })
 
     const { container } = await renderResponse(server, {
       url: `${basePath}/summary`,

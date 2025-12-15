@@ -137,7 +137,7 @@ describe('Component State Error Tests - File Upload', () => {
           initiatedRetrievalKey: readyFile.status.metadata.retrievalKey
         }
       ],
-      'defraforms@defra.gov.uk'
+      'enrique.chase@defra.gov.uk'
     )
 
     // Verify submit was NOT called
@@ -213,7 +213,7 @@ describe('Component State Error Tests - File Upload', () => {
           initiatedRetrievalKey: readyFile.status.metadata.retrievalKey
         }
       ],
-      'defraforms@defra.gov.uk'
+      'enrique.chase@defra.gov.uk'
     )
 
     // Verify submit was NOT called

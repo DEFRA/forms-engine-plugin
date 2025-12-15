@@ -137,12 +137,11 @@ export class SummaryPageController extends QuestionPageController {
     const formMetadata = await getFormMetadata(params.slug)
     const { notificationEmail } = formMetadata
     const { isPreview } = checkFormStatus(request.params)
-    const emailAddress = notificationEmail ?? this.model.def.outputEmail
 
-    checkEmailAddressForLiveFormSubmission(emailAddress, isPreview)
+    checkEmailAddressForLiveFormSubmission(notificationEmail, isPreview)
 
     // Send submission email
-    if (emailAddress) {
+    if (notificationEmail) {
       const viewModel = this.getSummaryViewModel(request, context)
 
       try {
@@ -152,7 +151,7 @@ export class SummaryPageController extends QuestionPageController {
           request,
           viewModel,
           model,
-          emailAddress,
+          notificationEmail,
           formMetadata
         )
       } catch (error) {

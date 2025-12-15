@@ -15,6 +15,7 @@ import {
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import { getProxyUrlForLocalDevelopment } from '~/src/server/plugins/engine/pageControllers/helpers/index.js'
+import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import {
   getUploadStatus,
   initiateUpload
@@ -433,10 +434,15 @@ export class FileUploadPageController extends QuestionPageController {
     const max = Math.min(schema.max ?? MAX_UPLOADS, MAX_UPLOADS)
 
     if (files.length < max) {
-      const outputEmail =
-        this.model.def.outputEmail ?? 'defraforms@defra.gov.uk'
+      const formMetadata = await getFormMetadata(request.params.slug)
+      const notificationEmail =
+        formMetadata.notificationEmail ?? 'defraforms@defra.gov.uk'
 
-      const newUpload = await initiateUpload(href, outputEmail, options.accept)
+      const newUpload = await initiateUpload(
+        href,
+        notificationEmail,
+        options.accept
+      )
 
       if (newUpload === undefined) {
         throw Boom.badRequest('Unexpected empty response from initiateUpload')

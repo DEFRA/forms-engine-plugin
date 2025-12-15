@@ -37,7 +37,8 @@ export const metadata = {
   createdAt: now,
   createdBy: author,
   updatedAt: now,
-  updatedBy: author
+  updatedBy: author,
+  notificationEmail: 'enrique.chase@defra.gov.uk'
 }
 
 /**
@@ -94,8 +95,7 @@ export const definition = {
     }
   ],
   conditions: [],
-  lists: [],
-  outputEmail: 'enrique.chase@defra.gov.uk'
+  lists: []
 }
 
 export const componentId = '1491981d-99cd-485e-ab4a-f88275edeadc'
@@ -138,8 +138,7 @@ export const definitionWithComponentId = {
     }
   ],
   conditions: [],
-  lists: [],
-  outputEmail: 'enrique.chase@defra.gov.uk'
+  lists: []
 }
 
 /**
