@@ -55,9 +55,9 @@ export class PageController {
     this.events = pageDef.events
 
     // Resolve section
-    this.section = model.sections.find(
-      (section) => section.name === pageDef.section
-    )
+    if (pageDef.section) {
+      this.section = model.getSection(pageDef.section)
+    }
 
     // Resolve condition
     if (pageDef.condition) {

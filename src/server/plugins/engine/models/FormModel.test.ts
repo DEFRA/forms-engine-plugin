@@ -716,4 +716,74 @@ describe('FormModel - Joined Conditions', () => {
       expect(Object.keys(model.conditions)).toHaveLength(3)
     })
   })
+
+  describe('getSection', () => {
+    it('should look up section by name for V1 schema', () => {
+      const v1Definition = {
+        ...definition,
+        sections: [
+          { name: 'personal', title: 'Personal details' },
+          { name: 'contact', title: 'Contact details' }
+        ]
+      }
+
+      const model = new FormModel(v1Definition, { basePath: 'test' })
+
+      expect(model.getSection('personal')).toEqual(
+        expect.objectContaining({
+          name: 'personal',
+          title: 'Personal details'
+        })
+      )
+      expect(model.getSection('contact')).toEqual(
+        expect.objectContaining({
+          name: 'contact',
+          title: 'Contact details'
+        })
+      )
+      expect(model.getSection('nonexistent')).toBeUndefined()
+    })
+
+    it('should look up section by ID for V2 schema', () => {
+      const v2Definition = {
+        ...definitionV2,
+        sections: [
+          {
+            id: 'a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d',
+            name: 'personal',
+            title: 'Personal details'
+          },
+          {
+            id: 'b2c3d4e5-6f7a-8b9c-0d1e-2f3a4b5c6d7e',
+            name: 'contact',
+            title: 'Contact details'
+          }
+        ]
+      }
+
+      formDefinitionV2Schema.validate = jest
+        .fn()
+        .mockReturnValue({ value: v2Definition })
+
+      const model = new FormModel(v2Definition, { basePath: 'test' })
+
+      expect(model.getSection('a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d')).toEqual(
+        expect.objectContaining({
+          id: 'a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d',
+          name: 'personal',
+          title: 'Personal details'
+        })
+      )
+      expect(model.getSection('b2c3d4e5-6f7a-8b9c-0d1e-2f3a4b5c6d7e')).toEqual(
+        expect.objectContaining({
+          id: 'b2c3d4e5-6f7a-8b9c-0d1e-2f3a4b5c6d7e',
+          name: 'contact',
+          title: 'Contact details'
+        })
+      )
+      // V2 should not find by name
+      expect(model.getSection('personal')).toBeUndefined()
+      expect(model.getSection('nonexistent')).toBeUndefined()
+    })
+  })
 })
