@@ -174,9 +174,10 @@ export async function resolveFormModel(
       )
     }
 
-    const emailAddress = metadata.notificationEmail
-
-    checkEmailAddressForLiveFormSubmission(emailAddress, isPreview)
+    checkEmailAddressForLiveFormSubmission(
+      metadata.notificationEmail,
+      isPreview
+    )
 
     const routePrefix =
       options.routePrefix ?? server.realm.modifiers.route.prefix
