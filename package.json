@@ -1,6 +1,6 @@
 {
   "name": "@defra/forms-engine-plugin",
-  "version": "4.0.26",
+  "version": "4.0.29",
   "description": "Defra forms engine",
   "type": "module",
   "files": [
@@ -66,7 +66,7 @@
   },
   "engines": {
     "node": ">=22.11.0 <25.0.0",
-    "npm": "^10.9.0"
+    "npm": ">=10.9.0 <11.6.4"
   },
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {

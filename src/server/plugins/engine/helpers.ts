@@ -421,14 +421,6 @@ export function setPageTitles(def: FormDefinition) {
 
         page.title = firstFormComponent?.title ?? ''
       }
-
-      if (!page.title) {
-        const formNameMsg = def.name ? ` in form '${def.name}'` : ''
-
-        logger.info(
-          `[pageTitleMissing] Page '${page.path}' has no title${formNameMsg}`
-        )
-      }
     }
   })
 }
