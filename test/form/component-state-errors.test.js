@@ -410,6 +410,9 @@ describe('Component State Error Tests - File Upload', () => {
     expect(submitRes.statusCode).toBe(StatusCodes.SEE_OTHER)
     expect(submitRes.headers.location).toBe(`${basePath}/file-upload-component`)
 
+    // Get updated session cookie after the flash was committed
+    const updatedHeaders = getCookieHeader(submitRes, 'session')
+
     // Now GET the file upload page and verify the error message is displayed
     jest.mocked(uploadService.initiateUpload).mockResolvedValueOnce({
       uploadId: '123-546-791',
@@ -419,7 +422,7 @@ describe('Component State Error Tests - File Upload', () => {
 
     const pageRes = await server.inject({
       url: `${basePath}/file-upload-component`,
-      headers
+      headers: updatedHeaders
     })
 
     expect(pageRes.statusCode).toBe(StatusCodes.OK)

@@ -47,10 +47,12 @@ export async function context(request) {
     consumerViewContext = await pluginStorage.viewContext(request)
   }
 
-  const flashedError = request.yar.flash(COMPONENT_STATE_ERROR)
-  const flashedErrors = !Array.isArray(flashedError)
-    ? [flashedError]
-    : undefined
+  const flashResult = /** @type {unknown} */ (
+    request.yar.flash(COMPONENT_STATE_ERROR)
+  )
+  const flashedErrors = /** @type {object[]} */ (
+    Array.isArray(flashResult) ? flashResult : [flashResult].filter(Boolean)
+  )
 
   /** @type {ViewContext} */
   const ctx = {
@@ -62,18 +64,8 @@ export async function context(request) {
     previewMode: isPreviewMode ? formState : undefined,
     slug: isResponseOK ? params?.slug : undefined,
     // @ts-expect-error TODO fix and merge into 'errors' to link back to the form component
-    flashedErrors
+    flashedErrors: flashedErrors.length ? flashedErrors : undefined
   }
-
-  // TODO remove this temporary hack
-  await request.yar.commit(
-    /** @type {import('@hapi/hapi').ResponseToolkit} */ (
-      /** @type {unknown} */ ({
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        state: () => {}
-      })
-    )
-  )
 
   return ctx
 }

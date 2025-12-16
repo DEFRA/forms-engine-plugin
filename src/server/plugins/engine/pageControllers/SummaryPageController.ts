@@ -5,7 +5,7 @@ import {
   type SubmitPayload
 } from '@defra/forms-model'
 import Boom from '@hapi/boom'
-import { type RouteOptions } from '@hapi/hapi'
+import { type ResponseToolkit, type RouteOptions } from '@hapi/hapi'
 
 import { COMPONENT_STATE_ERROR } from '~/src/server/constants.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
@@ -162,6 +162,7 @@ export class SummaryPageController extends QuestionPageController {
           )
 
           request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
+          await request.yar.commit(h as ResponseToolkit)
 
           await cacheService.resetComponentStates(request, error.getStateKeys())
 
