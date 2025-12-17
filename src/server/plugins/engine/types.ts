@@ -325,7 +325,8 @@ export interface ItemDeletePageViewModel extends PageViewModelBase {
 export interface FormPageViewModel extends PageViewModelBase {
   components: ComponentViewModel[]
   context: FormContext
-  errors?: FormSubmissionError[]
+  errors?: FormSubmissionError[] // errors relating to form state
+  flashedErrors?: FormSubmissionError[] // errors relating to session or external state
   hasMissingNotificationEmail?: boolean
   allowSaveAndExit: boolean
 }

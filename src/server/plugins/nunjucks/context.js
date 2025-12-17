@@ -6,7 +6,6 @@ import { StatusCodes } from 'http-status-codes'
 
 import { config } from '~/src/config/index.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
-import { COMPONENT_STATE_ERROR } from '~/src/server/constants.js'
 import {
   checkFormStatus,
   encodeUrl,
@@ -47,11 +46,6 @@ export async function context(request) {
     consumerViewContext = await pluginStorage.viewContext(request)
   }
 
-  const flashedError = request.yar.flash(COMPONENT_STATE_ERROR)
-  const flashedErrors = !Array.isArray(flashedError)
-    ? [flashedError]
-    : undefined
-
   /** @type {ViewContext} */
   const ctx = {
     // take consumers props first so we can override it
@@ -60,20 +54,8 @@ export async function context(request) {
     crumb: safeGenerateCrumb(request),
     currentPath: `${request.path}${request.url.search}`,
     previewMode: isPreviewMode ? formState : undefined,
-    slug: isResponseOK ? params?.slug : undefined,
-    // @ts-expect-error TODO fix and merge into 'errors' to link back to the form component
-    flashedErrors
+    slug: isResponseOK ? params?.slug : undefined
   }
-
-  // TODO remove this temporary hack
-  await request.yar.commit(
-    /** @type {import('@hapi/hapi').ResponseToolkit} */ (
-      /** @type {unknown} */ ({
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        state: () => {}
-      })
-    )
-  )
 
   return ctx
 }

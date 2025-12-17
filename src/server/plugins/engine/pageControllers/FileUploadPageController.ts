@@ -15,7 +15,6 @@ import {
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import { getProxyUrlForLocalDevelopment } from '~/src/server/plugins/engine/pageControllers/helpers/index.js'
-import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import {
   getUploadStatus,
   initiateUpload
@@ -372,6 +371,7 @@ export class FileUploadPageController extends QuestionPageController {
       // Flash the error message.
       const { fileUpload } = this
       const cacheService = getCacheService(request.server)
+
       const name = fileUpload.name
       const text = file.errorMessage ?? 'Unknown error'
       const errors: FormSubmissionError[] = [
@@ -424,6 +424,7 @@ export class FileUploadPageController extends QuestionPageController {
   ) {
     const { fileUpload, href, path } = this
     const { options, schema } = fileUpload
+    const { getFormMetadata } = this.model.services.formsService
 
     const files = this.getFilesFromState(state)
 
