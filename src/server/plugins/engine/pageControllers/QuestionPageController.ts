@@ -415,11 +415,9 @@ export class QuestionPageController extends PageController {
       viewModel.errors = collection.getViewErrors(viewModel.errors)
 
       const flashedError = request.yar.flash(COMPONENT_STATE_ERROR)
-      const flashedErrors = !Array.isArray(flashedError)
-        ? [flashedError]
-        : undefined
+      const flashedErrors = !Array.isArray(flashedError) ? [flashedError] : []
 
-      viewModel.flashedErrors = flashedErrors
+      viewModel.errors = (viewModel.errors ?? []).concat(flashedErrors)
 
       /**
        * Content components can be hidden based on a condition. If the condition evaluates to true, it is safe to be kept, otherwise discard it
