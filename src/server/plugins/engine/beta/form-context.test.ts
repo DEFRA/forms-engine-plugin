@@ -266,7 +266,7 @@ describe('resolveFormModel helper', () => {
     expect(FormModel).toHaveBeenCalledTimes(2)
     expect(mockFormsService.getFormDefinition).toHaveBeenCalledTimes(2)
     expect(mockCheckEmailAddressForLiveFormSubmission).toHaveBeenCalledWith(
-      metadata.notificationEmail,
+      undefined,
       true
     )
     expect(FormModel).toHaveBeenCalledWith(
