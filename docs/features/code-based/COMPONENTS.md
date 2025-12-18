@@ -67,30 +67,30 @@ Components throw the exception in their `onSubmit()` method when they detect inv
 
 ```
 1. User clicks "Submit" on summary page
-   ↓
+  ↓
 2. SummaryPageController.handleFormSubmit()
-   ↓
+  ↓
 3. finaliseComponents() - validates external state for each component
-   ↓
+  ↓
 4. component.onSubmit() called for each component
-   ↓
+  ↓
 5. Component validates external state
-   ↓
+  ↓
 6a. [Success Path]                    6b. [Invalid State Path]
-    External state valid                  External state invalid
-    ↓                                     ↓
-    Continue submission                   throw InvalidComponentStateError
-                                          ↓
-                                     7. SummaryPageController catches error
-                                          ↓
-                                     8. Flash error message to user
-                                          ↓
-                                     9. CacheService.resetComponentStates()
+  External state valid                  External state invalid
+  ↓                                     ↓
+  Continue submission                   throw InvalidComponentStateError
+                                        ↓
+                                      7. SummaryPageController catches error
+                                        ↓
+                                      8. Flash error message to user
+                                        ↓
+                                      9. CacheService.resetComponentStates()
                                         - Clears component data from session
-                                          ↓
-                                     10. Redirect to component's page
-                                          ↓
-                                     11. User sees error and can re-enter data
+                                        ↓
+                                      10. Redirect to component's page
+                                        ↓
+                                      11. User sees error and can re-enter data
 ```
 
 #### Catching the exception (controller level)
