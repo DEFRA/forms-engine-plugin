@@ -113,7 +113,7 @@ describe('Save and Exit functionality', () => {
       expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
     })
 
-    it('should prevent invalid form state being persisted', async () => {
+    it('should allow invalid form state for current page', async () => {
       const payload = {
         licenceLength: '',
         action: 'save-and-exit',
@@ -127,7 +127,7 @@ describe('Save and Exit functionality', () => {
         payload
       })
 
-      expect(response.statusCode).not.toBe(StatusCodes.MOVED_TEMPORARILY) // we shouldn't be redirected to the next question
+      expect(response.statusCode).not.toBe(StatusCodes.SEE_OTHER)
     })
 
     it('should return 404 for non-existent page', async () => {
