@@ -561,7 +561,7 @@ function validateFormPayload(
   if (
     !request.payload ||
     (action &&
-      ![FormAction.Validate, FormAction.SaveAndExit].includes(action) &&
+      action !== FormAction.Validate &&
       !action.startsWith(FormAction.External))
   ) {
     return context
