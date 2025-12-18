@@ -298,8 +298,13 @@ export class FileUploadField extends FormComponent {
     metadata: FormMetadata,
     context: FormContext
   ) {
-    const notificationEmail =
-      metadata.notificationEmail ?? 'defraforms@defra.gov.uk'
+    const notificationEmail = metadata.notificationEmail
+
+    if (!notificationEmail) {
+      // this should not happen because notificationEmail is checked further up
+      // the chain in SummaryPageController before submitForm is called.
+      throw new Error('Unexpected missing notificationEmail in metadata')
+    }
 
     if (!request.app.model?.services.formSubmissionService) {
       throw new Error('No form submission service available in app model')
