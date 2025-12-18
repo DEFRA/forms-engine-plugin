@@ -3,16 +3,16 @@
 exports[`SummaryViewModel Check answers (0 items) should use correct summary labels 1`] = `
 [
   {
-    "label": "How would you like to receive your pizza?",
-    "name": "orderType",
-    "title": "How you would like to receive your pizza",
-    "value": "Collection",
-  },
-  {
     "label": "Pizza",
     "name": "pizza",
     "title": "Pizzas",
     "value": "",
+  },
+  {
+    "label": "How would you like to receive your pizza?",
+    "name": "orderType",
+    "title": "How you would like to receive your pizza",
+    "value": "Collection",
   },
 ]
 `;
@@ -20,16 +20,16 @@ exports[`SummaryViewModel Check answers (0 items) should use correct summary lab
 exports[`SummaryViewModel Check answers (1 item) should use correct summary labels 1`] = `
 [
   {
-    "label": "How would you like to receive your pizza?",
-    "name": "orderType",
-    "title": "How you would like to receive your pizza",
-    "value": "Delivery",
-  },
-  {
     "label": "Pizza",
     "name": "pizza",
     "title": "Pizza added",
     "value": "You added 1 Pizza",
+  },
+  {
+    "label": "How would you like to receive your pizza?",
+    "name": "orderType",
+    "title": "How you would like to receive your pizza",
+    "value": "Delivery",
   },
 ]
 `;
@@ -37,16 +37,16 @@ exports[`SummaryViewModel Check answers (1 item) should use correct summary labe
 exports[`SummaryViewModel Check answers (2 items) should use correct summary labels 1`] = `
 [
   {
-    "label": "How would you like to receive your pizza?",
-    "name": "orderType",
-    "title": "How you would like to receive your pizza",
-    "value": "Delivery",
-  },
-  {
     "label": "Pizza",
     "name": "pizza",
     "title": "Pizzas added",
     "value": "You added 2 Pizzas",
+  },
+  {
+    "label": "How would you like to receive your pizza?",
+    "name": "orderType",
+    "title": "How you would like to receive your pizza",
+    "value": "Delivery",
   },
 ]
 `;

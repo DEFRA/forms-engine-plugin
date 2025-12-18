@@ -125,7 +125,7 @@ export class SummaryViewModel {
 
     const details: Detail[] = []
 
-    ;[undefined, ...sections].forEach((section) => {
+    ;[...sections, undefined].forEach((section) => {
       const items: DetailItem[] = []
 
       const sectionPages = relevantPages.filter(

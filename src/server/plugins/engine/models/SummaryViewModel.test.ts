@@ -140,13 +140,13 @@ describe('SummaryViewModel', () => {
       it('should add title for each section', () => {
         const [checkAnswers1, checkAnswers2] = summaryViewModel.checkAnswers
 
-        // 1st summary list has no title
-        expect(checkAnswers1).toHaveProperty('title', undefined)
-
-        // 2nd summary list has section title
-        expect(checkAnswers2).toHaveProperty('title', {
+        // 1st summary list has section title
+        expect(checkAnswers1).toHaveProperty('title', {
           text: 'Food'
         })
+
+        // 2nd summary list has no title (unsectioned questions at bottom)
+        expect(checkAnswers2).toHaveProperty('title', undefined)
       })
 
       it('should add summary list for each section', () => {
@@ -157,29 +157,8 @@ describe('SummaryViewModel', () => {
         const { summaryList: summaryList1 } = checkAnswers1
         const { summaryList: summaryList2 } = checkAnswers2
 
+        // 1st summary list contains sectioned questions (Food section)
         expect(summaryList1).toHaveProperty('rows', [
-          {
-            key: {
-              text: keys[2]
-            },
-            value: {
-              classes: 'app-prose-scope',
-              html: values[0]
-            },
-            actions: {
-              items: [
-                {
-                  classes: 'govuk-link--no-visited-state',
-                  href: `${basePath}/delivery-or-collection?returnUrl=${encodeURIComponent(`${basePath}/summary`)}`,
-                  text: 'Change',
-                  visuallyHiddenText: keys[0]
-                }
-              ]
-            }
-          }
-        ])
-
-        expect(summaryList2).toHaveProperty('rows', [
           {
             key: {
               text: keys[1]
@@ -200,6 +179,29 @@ describe('SummaryViewModel', () => {
             }
           }
         ])
+
+        // 2nd summary list contains unsectioned questions (at bottom)
+        expect(summaryList2).toHaveProperty('rows', [
+          {
+            key: {
+              text: keys[2]
+            },
+            value: {
+              classes: 'app-prose-scope',
+              html: values[0]
+            },
+            actions: {
+              items: [
+                {
+                  classes: 'govuk-link--no-visited-state',
+                  href: `${basePath}/delivery-or-collection?returnUrl=${encodeURIComponent(`${basePath}/summary`)}`,
+                  text: 'Change',
+                  visuallyHiddenText: keys[0]
+                }
+              ]
+            }
+          }
+        ])
       })
 
       it('should add summary list for each section (preview URL direct access)', () => {
@@ -214,22 +216,8 @@ describe('SummaryViewModel', () => {
         const { summaryList: summaryList1 } = checkAnswers1
         const { summaryList: summaryList2 } = checkAnswers2
 
+        // 1st summary list contains sectioned questions (Food section)
         expect(summaryList1).toHaveProperty('rows', [
-          {
-            key: {
-              text: keys[2]
-            },
-            value: {
-              classes: 'app-prose-scope',
-              html: values[0]
-            },
-            actions: {
-              items: []
-            }
-          }
-        ])
-
-        expect(summaryList2).toHaveProperty('rows', [
           {
             key: {
               text: keys[1]
@@ -237,6 +225,22 @@ describe('SummaryViewModel', () => {
             value: {
               classes: 'app-prose-scope',
               html: values[1]
+            },
+            actions: {
+              items: []
+            }
+          }
+        ])
+
+        // 2nd summary list contains unsectioned questions (at bottom)
+        expect(summaryList2).toHaveProperty('rows', [
+          {
+            key: {
+              text: keys[2]
+            },
+            value: {
+              classes: 'app-prose-scope',
+              html: values[0]
             },
             actions: {
               items: []
@@ -254,32 +258,34 @@ describe('SummaryViewModel', () => {
 
         const [details1, details2] = summaryViewModel.details
 
+        // 1st details contains sectioned questions (Food section)
         expect(details1.items[0]).toMatchObject({
-          name: names[0],
-          value: answers[0],
-          title: keys[2],
-          label: keys[0]
-        })
-
-        expect(details2.items[0]).toMatchObject({
           name: names[1],
           value: answers[1],
           title: keys[1],
           label: keys[4]
         })
 
+        // 2nd details contains unsectioned questions (at bottom)
+        expect(details2.items[0]).toMatchObject({
+          name: names[0],
+          value: answers[0],
+          title: keys[2],
+          label: keys[0]
+        })
+
         const snapshot = [
-          {
-            name: names[0],
-            value: answers[0],
-            title: keys[2],
-            label: keys[0]
-          },
           {
             name: names[1],
             value: answers[1],
             title: keys[1],
             label: keys[4]
+          },
+          {
+            name: names[0],
+            value: answers[0],
+            title: keys[2],
+            label: keys[0]
           }
         ]
 
@@ -316,18 +322,20 @@ describe('SummaryViewModel', () => {
 
     const [details1, details2] = summaryViewModel.details
 
+    // 1st details contains sectioned questions (Food section)
     expect(details1.items[0]).toMatchObject({
-      name: 'orderType',
-      value: 'Collection',
-      title: 'How you would like to receive your pizza (optional)',
-      label: 'How would you like to receive your pizza?'
-    })
-
-    expect(details2.items[0]).toMatchObject({
       name: 'pizza',
       value: '',
       title: 'Pizzas',
       label: 'Pizza'
+    })
+
+    // 2nd details contains unsectioned questions (at bottom)
+    expect(details2.items[0]).toMatchObject({
+      name: 'orderType',
+      value: 'Collection',
+      title: 'How you would like to receive your pizza (optional)',
+      label: 'How would you like to receive your pizza?'
     })
   })
 })
