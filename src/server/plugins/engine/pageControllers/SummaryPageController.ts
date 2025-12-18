@@ -254,11 +254,11 @@ async function finaliseComponents(
   metadata: FormMetadata,
   context: FormContext
 ) {
-  const relevantPages = context.relevantPages.flatMap(
+  const relevantFields = context.relevantPages.flatMap(
     (page) => page.collection.fields
   )
 
-  for (const component of relevantPages) {
+  for (const component of relevantFields) {
     /*
       Each component will throw InvalidComponent if its state is invalid, which is handled
       by handleFormSubmit

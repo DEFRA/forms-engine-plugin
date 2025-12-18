@@ -105,10 +105,10 @@ export class CacheService {
   ) {
     const state = await this.getState(request)
 
-    for (const componentId of componentNames) {
-      if (componentId in state) {
+    for (const componentName of componentNames) {
+      if (componentName in state) {
         // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-        delete state[componentId]
+        delete state[componentName]
       }
     }
 
