@@ -51,5 +51,12 @@ export const formsService = async () => {
     slug: 'components'
   })
 
+  await loader.addForm('src/server/forms/simple-form.yaml', {
+    ...metadata,
+    id: 'a1b2c3d4-e5f6-7890-abcd-ef0123456789',
+    title: 'Simple Form',
+    slug: 'simple-form'
+  })
+
   return loader.toFormsService()
 }

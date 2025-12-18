@@ -36,6 +36,12 @@ describe('TextField based conditions', () => {
   })
 
   test('TextField is rendered', async () => {
+    // Test scenario: missing notificationEmail should show warning
+    jest.mocked(getFormMetadata).mockResolvedValue({
+      ...fixtures.form.metadata,
+      notificationEmail: undefined
+    })
+
     const { container } = await renderResponse(server, {
       url: `${basePath}/first-page`
     })

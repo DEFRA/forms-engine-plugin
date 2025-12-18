@@ -15,6 +15,7 @@ import {
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import { serverWithSaveAndExit } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
 import * as pageHelpers from '~/src/server/plugins/engine/pageControllers/helpers/index.js'
+import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import * as uploadService from '~/src/server/plugins/engine/services/uploadService.js'
 import {
   FileStatus,
@@ -33,7 +34,10 @@ import {
   type FormResponseToolkit
 } from '~/src/server/routes/types.js'
 import { type CacheService } from '~/src/server/services/index.js'
+import * as fixtures from '~/test/fixtures/index.js'
 import definition from '~/test/form/definitions/file-upload-basic.js'
+
+jest.mock('~/src/server/plugins/engine/services/formsService.js')
 
 type TestableFileUploadPageController = FileUploadPageController & {
   initiateAndStoreNewUpload(
@@ -65,8 +69,13 @@ describe('FileUploadPageController', () => {
       basePath: 'test'
     })
 
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+
     controller = new FileUploadPageController(model, pages[0])
     request = {
+      params: {
+        slug: 'test-form'
+      },
       logger: {
         info: jest.fn(),
         error: jest.fn(),

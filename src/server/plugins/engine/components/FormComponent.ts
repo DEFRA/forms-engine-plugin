@@ -1,7 +1,15 @@
-import { type FormComponentsDef, type Item } from '@defra/forms-model'
+import {
+  type FormComponentsDef,
+  type FormMetadata,
+  type Item
+} from '@defra/forms-model'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
+import {
+  type FormContext,
+  type FormRequestPayload
+} from '~/src/server/plugins/engine/types/index.js'
 import {
   type ErrorMessageTemplateList,
   type FileState,
@@ -219,6 +227,14 @@ export class FormComponent extends ComponentBase {
       baseErrors: [],
       advancedSettingsErrors: []
     }
+  }
+
+  onSubmit(
+    _request: FormRequestPayload,
+    _metadata: FormMetadata,
+    _context: FormContext
+  ): Promise<void> {
+    return Promise.resolve()
   }
 }
 

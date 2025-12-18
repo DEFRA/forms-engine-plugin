@@ -209,11 +209,12 @@ describe('getFormModel helper', () => {
 
 describe('resolveFormModel helper', () => {
   const slug = 'tb-origin'
-  const definition = { pages: [], outputEmail: 'fallback@example.com' }
+  const definition = { pages: [] }
   const metadata = {
     id: 'metadata-123',
     live: { updatedAt: new Date('2024-10-15T10:00:00Z') },
-    versions: [{ versionNumber: 9 }]
+    versions: [{ versionNumber: 9 }],
+    notificationEmail: 'enrique.chase@defra.gov.uk'
   }
   let server: Request['server']
   let formModelInstance: { id: string }
@@ -265,7 +266,7 @@ describe('resolveFormModel helper', () => {
     expect(FormModel).toHaveBeenCalledTimes(2)
     expect(mockFormsService.getFormDefinition).toHaveBeenCalledTimes(2)
     expect(mockCheckEmailAddressForLiveFormSubmission).toHaveBeenCalledWith(
-      definition.outputEmail,
+      undefined,
       true
     )
     expect(FormModel).toHaveBeenCalledWith(

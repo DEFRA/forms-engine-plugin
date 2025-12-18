@@ -92,8 +92,7 @@ export default /** @satisfies {FormDefinition} */ ({
         ]
       }
     }
-  ],
-  outputEmail: 'enrique.chase@defra.gov.uk'
+  ]
 })
 
 export const V2 = /** @satisfies {FormDefinition} */ ({
@@ -174,8 +173,7 @@ export const V2 = /** @satisfies {FormDefinition} */ ({
         }
       ]
     }
-  ],
-  outputEmail: 'enrique.chase@defra.gov.uk'
+  ]
 })
 
 /**

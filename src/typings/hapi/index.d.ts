@@ -5,6 +5,7 @@ import { type ServerYar, type Yar } from '@hapi/yar'
 import { type Logger } from 'pino'
 
 import {
+  type COMPONENT_STATE_ERROR,
   type EXTERNAL_STATE_APPENDAGE,
   type EXTERNAL_STATE_PAYLOAD
 } from '~/src/server/constants.js'
@@ -20,6 +21,7 @@ declare module '@hapi/yar' {
   interface YarFlashes {
     [EXTERNAL_STATE_APPENDAGE]: object
     [EXTERNAL_STATE_PAYLOAD]: object
+    [COMPONENT_STATE_ERROR]: string
     [key: string]: { errors: FormSubmissionError[] }
   }
 }

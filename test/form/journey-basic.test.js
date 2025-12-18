@@ -265,7 +265,19 @@ describe('Form journey', () => {
         )
     })
 
-    it('should render the page heading with email notification warning', () => {
+    it('should render the page heading with email notification warning', async () => {
+      // Override the mock to remove notificationEmail so the warning appears
+      jest.mocked(getFormMetadata).mockResolvedValueOnce({
+        ...fixtures.form.metadata,
+        notificationEmail: undefined
+      })
+
+      // Re-render the page without notificationEmail
+      const { container } = await renderResponse(server, {
+        url: `${basePath}/summary`,
+        headers
+      })
+
       const $heading = container.getByRole('heading', {
         name: 'Summary',
         level: 1

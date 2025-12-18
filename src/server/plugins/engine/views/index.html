@@ -10,7 +10,7 @@
         {% include "partials/preview-banner.html" %}
       {% endif %}
 
-      {% if errors %}
+      {% if errors | length  %}
         {{ govukErrorSummary({
           titleText: "There is a problem",
           errorList: checkErrorTemplates(errors)

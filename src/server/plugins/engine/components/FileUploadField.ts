@@ -1,10 +1,15 @@
-import { type FileUploadFieldComponent } from '@defra/forms-model'
+import {
+  type FileUploadFieldComponent,
+  type FormMetadata
+} from '@defra/forms-model'
+import Boom from '@hapi/boom'
 import joi, { type ArraySchema } from 'joi'
 
 import {
   FormComponent,
   isUploadState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { InvalidComponentStateError } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   FileStatus,
@@ -13,6 +18,7 @@ import {
   type FileState,
   type FileUpload,
   type FileUploadMetadata,
+  type FormContext,
   type FormPayload,
   type FormState,
   type FormStateValue,
@@ -26,7 +32,10 @@ import {
   type UploadStatusResponse
 } from '~/src/server/plugins/engine/types.js'
 import { render } from '~/src/server/plugins/nunjucks/index.js'
-import { type FormQuery } from '~/src/server/routes/types.js'
+import {
+  type FormQuery,
+  type FormRequestPayload
+} from '~/src/server/routes/types.js'
 
 export const uploadIdSchema = joi.string().uuid().required()
 
@@ -282,6 +291,56 @@ export class FileUploadField extends FormComponent {
    */
   getAllPossibleErrors(): ErrorMessageTemplateList {
     return FileUploadField.getAllPossibleErrors()
+  }
+
+  async onSubmit(
+    request: FormRequestPayload,
+    metadata: FormMetadata,
+    context: FormContext
+  ) {
+    const notificationEmail = metadata.notificationEmail
+
+    if (!notificationEmail) {
+      // this should not happen because notificationEmail is checked further up
+      // the chain in SummaryPageController before submitForm is called.
+      throw new Error('Unexpected missing notificationEmail in metadata')
+    }
+
+    if (!request.app.model?.services.formSubmissionService) {
+      throw new Error('No form submission service available in app model')
+    }
+
+    const { formSubmissionService } = request.app.model.services
+    const values = this.getFormValueFromState(context.state) ?? []
+
+    const files = values.map((value) => ({
+      fileId: value.status.form.file.fileId,
+      initiatedRetrievalKey: value.status.metadata.retrievalKey
+    }))
+
+    if (!files.length) {
+      return
+    }
+
+    try {
+      await formSubmissionService.persistFiles(files, notificationEmail)
+    } catch (error) {
+      if (
+        Boom.isBoom(error) &&
+        (error.output.statusCode === 403 || // Forbidden - retrieval key invalid
+          error.output.statusCode === 410) // Gone - file expired (took to long to submit, etc)
+      ) {
+        // Failed to persist files. We can't recover from this, the only real way we can recover the submissions is
+        // by resetting the problematic components and letting the user re-try.
+        // Scenarios: file missing from S3, invalid retrieval key (timing problem), etc.
+        throw new InvalidComponentStateError(
+          this,
+          'There was a problem with your uploaded files. Re-upload them before submitting the form again.'
+        )
+      }
+
+      throw error
+    }
   }
 
   /**
