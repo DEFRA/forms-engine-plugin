@@ -33,9 +33,12 @@
           <h2 class="govuk-heading-m">
             {{ section.title.text }}
           </h2>
+          {{ govukSummaryList(section.summaryList) }}
+        {% else %}
+          <div class="{% if not loop.first %}govuk-!-margin-top-9 govuk-!-padding-top-4{% endif %}">
+            {{ govukSummaryList(section.summaryList) }}
+          </div>
         {% endif %}
-
-        {{ govukSummaryList(section.summaryList) }}
       {% endfor %}
 
       <form method="post" novalidate>
