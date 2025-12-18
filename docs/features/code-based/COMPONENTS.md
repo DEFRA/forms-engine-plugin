@@ -16,7 +16,7 @@ Components are the building blocks of forms in the engine. Components usually ex
 
 - ComponentBase: general components that display content on the page, such as Markdown or HTML components.
 
-- FormComponents: these components are specialised components that take user input. They represent individual form fields and controls (text inputs, file uploads, radios, checkboxes, etc.) and handle their own validation, state management, and rendering.
+- FormComponents: these components are specialised components that take user input. They represent individual form fields and controls (text inputs, file uploads, radios, checkboxes, etc.) and handle their own validation, state (data) and rendering.
 
 > [!NOTE]
 > Custom components are currently not supported when registering the plugin. Whilst you can develop custom pages as a plugin consumer, custom components must be built into the core engine.
