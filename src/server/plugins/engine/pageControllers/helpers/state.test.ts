@@ -281,7 +281,11 @@ describe('State helpers', () => {
       } as unknown as FormContext
       copyNotYetValidatedState(mockRequest, mockContext)
       expect(mockContext.state).toEqual({
-        abc: '123'
+        abc: '123',
+        __stateNotYetValidated: {
+          def: '456',
+          __currentPagePath: '/form-page1'
+        }
       })
       expect(mockContext.payload).toEqual({
         def: '456'

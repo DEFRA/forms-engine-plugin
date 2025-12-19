@@ -10,6 +10,7 @@ import {
   type FormContext,
   type FormContextRequest,
   type FormStateValue,
+  type FormSubmissionState,
   type FormValue
 } from '~/src/server/plugins/engine/types.js'
 import { type FormQuery } from '~/src/server/routes/types.js'
@@ -119,11 +120,23 @@ export function copyNotYetValidatedState(
   const originalPath = potentiallyInvalidState[CURRENT_PAGE_PATH]
 
   if (originalPath && originalPath === request.url.pathname) {
-    potentiallyInvalidState[CURRENT_PAGE_PATH] = undefined
     context.payload = {
       ...context.payload,
-      ...potentiallyInvalidState
+      ...potentiallyInvalidState,
+      [CURRENT_PAGE_PATH]: undefined
     }
-    context.state[STATE_NOT_YET_VALIDATED] = undefined
   }
+}
+
+/**
+ * Remove any temporary 'not yet validated' state now that it's been validated
+ * @param state - the form state
+ */
+export function clearNotYetValidatedState(
+  state: FormSubmissionState
+): FormSubmissionState {
+  if (state[STATE_NOT_YET_VALIDATED]) {
+    state[STATE_NOT_YET_VALIDATED] = undefined
+  }
+  return state
 }
