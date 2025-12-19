@@ -8,10 +8,11 @@ import { type PageControllerClass } from '~/src/server/plugins/engine/pageContro
 import {
   type AnyFormRequest,
   type FormContext,
+  type FormContextRequest,
   type FormStateValue,
   type FormValue
 } from '~/src/server/plugins/engine/types.js'
-import { type FormQuery, type FormRequest } from '~/src/server/routes/types.js'
+import { type FormQuery } from '~/src/server/routes/types.js'
 import { type Services } from '~/src/server/types.js'
 
 /**
@@ -104,8 +105,8 @@ export async function prefillStateFromQueryParameters(
  * @param request - the form request
  * @param context - the form context
  */
-export function copyPotentiallyInvalidFromState(
-  request: FormRequest,
+export function copyPotentiallyInvalidState(
+  request: FormContextRequest,
   context: FormContext
 ) {
   const potentiallyInvalidState = context.state[STATE_POTENTIALLY_INVALID] as

@@ -3,15 +3,15 @@ import { ComponentType, type Page } from '@defra/forms-model'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import {
-  copyPotentiallyInvalidFromState,
+  copyPotentiallyInvalidState,
   prefillStateFromQueryParameters,
   stripParam
 } from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
 import {
   type AnyFormRequest,
-  type FormContext
+  type FormContext,
+  type FormContextRequest
 } from '~/src/server/plugins/engine/types.js'
-import { type FormRequest } from '~/src/server/routes/types.js'
 import { type FormsService, type Services } from '~/src/server/types.js'
 
 function buildMockPage(
@@ -224,14 +224,14 @@ describe('State helpers', () => {
     })
   })
 
-  describe('copyPotentiallyInvalidFromState', () => {
+  describe('copyPotentiallyInvalidState', () => {
     it('should ignore if no invalid state', () => {
-      const mockRequest = {} as FormRequest
+      const mockRequest = {} as FormContextRequest
       const mockContext = {
         state: { abc: '123' },
         payload: {}
       } as unknown as FormContext
-      copyPotentiallyInvalidFromState(mockRequest, mockContext)
+      copyPotentiallyInvalidState(mockRequest, mockContext)
       expect(mockContext.state).toEqual({ abc: '123' })
       expect(mockContext.payload).toEqual({})
     })
@@ -241,7 +241,7 @@ describe('State helpers', () => {
         url: {
           pathname: '/form-page1'
         }
-      } as unknown as FormRequest
+      } as unknown as FormContextRequest
       const mockContext = {
         state: {
           abc: '123',
@@ -252,7 +252,7 @@ describe('State helpers', () => {
         },
         payload: {}
       } as unknown as FormContext
-      copyPotentiallyInvalidFromState(mockRequest, mockContext)
+      copyPotentiallyInvalidState(mockRequest, mockContext)
       expect(mockContext.state).toEqual({
         abc: '123',
         __currentPageStatePotentiallyInvalid: {
@@ -268,7 +268,7 @@ describe('State helpers', () => {
         url: {
           pathname: '/form-page1'
         }
-      } as unknown as FormRequest
+      } as unknown as FormContextRequest
       const mockContext = {
         state: {
           abc: '123',
@@ -279,7 +279,7 @@ describe('State helpers', () => {
         },
         payload: {}
       } as unknown as FormContext
-      copyPotentiallyInvalidFromState(mockRequest, mockContext)
+      copyPotentiallyInvalidState(mockRequest, mockContext)
       expect(mockContext.state).toEqual({
         abc: '123'
       })
