@@ -48,6 +48,7 @@ import {
   createPage,
   type PageControllerClass
 } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
+import { copyNotYetValidatedState } from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import {
@@ -400,6 +401,9 @@ export class FormModel {
 
     // Add paths for navigation
     this.assignPaths(context)
+
+    // Handle restoration of payload from say a 'save-and-exit' request
+    copyNotYetValidatedState(request, context)
 
     return context
   }
