@@ -1,11 +1,17 @@
 import { getHiddenFields } from '@defra/forms-model'
 
+import {
+  CURRENT_PAGE_PATH,
+  STATE_POTENTIALLY_INVALID
+} from '~/src/server/plugins/engine/index.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import {
   type AnyFormRequest,
-  type FormStateValue
+  type FormContext,
+  type FormStateValue,
+  type FormValue
 } from '~/src/server/plugins/engine/types.js'
-import { type FormQuery } from '~/src/server/routes/types.js'
+import { type FormQuery, type FormRequest } from '~/src/server/routes/types.js'
 import { type Services } from '~/src/server/types.js'
 
 /**
@@ -90,4 +96,33 @@ export async function prefillStateFromQueryParameters(
   await page.mergeState(request, formData, params)
 
   return true
+}
+
+/**
+ * Copies any potentially invalid state into the payload, and removes those values from state
+ * NOTE - this method has a side-effect on 'context.state' and 'context.payload'
+ * @param request - the form request
+ * @param context - the form context
+ */
+export function copyPotentiallyInvalidFromState(
+  request: FormRequest,
+  context: FormContext
+) {
+  const potentiallyInvalidState = context.state[STATE_POTENTIALLY_INVALID] as
+    | Record<string, FormValue>
+    | undefined
+  if (!potentiallyInvalidState) {
+    return
+  }
+
+  const originalPath = potentiallyInvalidState[CURRENT_PAGE_PATH]
+
+  if (originalPath && originalPath === request.url.pathname) {
+    potentiallyInvalidState[CURRENT_PAGE_PATH] = undefined
+    context.payload = {
+      ...context.payload,
+      ...potentiallyInvalidState
+    }
+    context.state[STATE_POTENTIALLY_INVALID] = undefined
+  }
 }
