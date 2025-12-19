@@ -3,7 +3,7 @@ import { ComponentType, type Page } from '@defra/forms-model'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import {
-  copyPotentiallyInvalidState,
+  copyNotYetValidatedState,
   prefillStateFromQueryParameters,
   stripParam
 } from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
@@ -224,14 +224,14 @@ describe('State helpers', () => {
     })
   })
 
-  describe('copyPotentiallyInvalidState', () => {
+  describe('copyNotYetValidatedState', () => {
     it('should ignore if no invalid state', () => {
       const mockRequest = {} as FormContextRequest
       const mockContext = {
         state: { abc: '123' },
         payload: {}
       } as unknown as FormContext
-      copyPotentiallyInvalidState(mockRequest, mockContext)
+      copyNotYetValidatedState(mockRequest, mockContext)
       expect(mockContext.state).toEqual({ abc: '123' })
       expect(mockContext.payload).toEqual({})
     })
@@ -245,17 +245,17 @@ describe('State helpers', () => {
       const mockContext = {
         state: {
           abc: '123',
-          __currentPageStatePotentiallyInvalid: {
+          __stateNotYetValidated: {
             def: '456',
             __currentPagePath: '/root'
           }
         },
         payload: {}
       } as unknown as FormContext
-      copyPotentiallyInvalidState(mockRequest, mockContext)
+      copyNotYetValidatedState(mockRequest, mockContext)
       expect(mockContext.state).toEqual({
         abc: '123',
-        __currentPageStatePotentiallyInvalid: {
+        __stateNotYetValidated: {
           def: '456',
           __currentPagePath: '/root'
         }
@@ -272,14 +272,14 @@ describe('State helpers', () => {
       const mockContext = {
         state: {
           abc: '123',
-          __currentPageStatePotentiallyInvalid: {
+          __stateNotYetValidated: {
             def: '456',
             __currentPagePath: '/form-page1'
           }
         },
         payload: {}
       } as unknown as FormContext
-      copyPotentiallyInvalidState(mockRequest, mockContext)
+      copyNotYetValidatedState(mockRequest, mockContext)
       expect(mockContext.state).toEqual({
         abc: '123'
       })

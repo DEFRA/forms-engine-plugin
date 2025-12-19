@@ -2,7 +2,7 @@ import { getHiddenFields } from '@defra/forms-model'
 
 import {
   CURRENT_PAGE_PATH,
-  STATE_POTENTIALLY_INVALID
+  STATE_NOT_YET_VALIDATED
 } from '~/src/server/plugins/engine/index.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import {
@@ -105,11 +105,11 @@ export async function prefillStateFromQueryParameters(
  * @param request - the form request
  * @param context - the form context
  */
-export function copyPotentiallyInvalidState(
+export function copyNotYetValidatedState(
   request: FormContextRequest,
   context: FormContext
 ) {
-  const potentiallyInvalidState = context.state[STATE_POTENTIALLY_INVALID] as
+  const potentiallyInvalidState = context.state[STATE_NOT_YET_VALIDATED] as
     | Record<string, FormValue>
     | undefined
   if (!potentiallyInvalidState) {
@@ -124,6 +124,6 @@ export function copyPotentiallyInvalidState(
       ...context.payload,
       ...potentiallyInvalidState
     }
-    context.state[STATE_POTENTIALLY_INVALID] = undefined
+    context.state[STATE_NOT_YET_VALIDATED] = undefined
   }
 }

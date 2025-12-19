@@ -31,7 +31,7 @@ const globals = {
 export const VIEW_PATH = 'src/server/plugins/engine/views'
 export const PLUGIN_PATH = 'node_modules/@defra/forms-engine-plugin'
 
-export const STATE_POTENTIALLY_INVALID = '__currentPageStatePotentiallyInvalid'
+export const STATE_NOT_YET_VALIDATED = '__stateNotYetValidated'
 export const CURRENT_PAGE_PATH = '__currentPagePath'
 
 export const prepareNunjucksEnvironment = function (

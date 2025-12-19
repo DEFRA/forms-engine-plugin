@@ -48,7 +48,7 @@ import {
   createPage,
   type PageControllerClass
 } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
-import { copyPotentiallyInvalidState } from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
+import { copyNotYetValidatedState } from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import {
@@ -403,7 +403,7 @@ export class FormModel {
     this.assignPaths(context)
 
     // Handle restoration of payload from say a 'save-and-exit' request
-    copyPotentiallyInvalidState(request, context)
+    copyNotYetValidatedState(request, context)
 
     return context
   }
