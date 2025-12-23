@@ -52,7 +52,7 @@ Currently supported event types:
 
 ### Supported actions
 
-- `http`: Makes a HTTP(S) call to a web service. This service must be routable on DXT (e.g. by configuring CDP's squid proxy), must accept DXT's standardised payload, return HTTP 200 and a valid JSON document.
+- `http`: Makes a HTTP(S) call to a web service. This service must be routable on DXT (e.g. by configuring CDP's squid proxy), must accept DXT's standardised payload, return HTTP 200 and a valid JSON document. **A timeout of 5 seconds is set on each HTTP event.**
   - Options:
     - `method`: The HTTP method, e.g. `POST` or `GET`. Note that forms-engine-plugin posts the form state as a payload, so `POST` is the correct method if you need to parse the form data.
     - `url`: A fully formed HTTP(S) URL, e.g. `https://my-api.defra.gov.uk` or `https://my-api.prod.cdp-int.defra.cloud`
