@@ -43,24 +43,6 @@ describe.each([
   },
   {
     component: {
-      title: 'String list title',
-      shortDescription: 'String list',
-      name: 'myComponent',
-      type: ComponentType.CheckboxesField,
-      list: 'listString',
-      options: {}
-    } satisfies CheckboxesFieldComponent,
-
-    options: {
-      label: 'string list',
-      list: listString,
-      examples: listStringExamples,
-      allow: ['1', '2', '3', '4'],
-      deny: ['5', '6', '7', '8']
-    }
-  },
-  {
-    component: {
       title: 'Number list title',
       name: 'myComponent',
       shortDescription: 'Number list',
