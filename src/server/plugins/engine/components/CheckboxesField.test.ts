@@ -407,5 +407,43 @@ describe.each([
         expect(errors.advancedSettingsErrors).toBeEmpty()
       })
     })
+
+    describe('getDisplayStringFromFormValue', () => {
+      it('returns empty string when value is undefined', () => {
+        const checkboxField = field as CheckboxesField
+        const result = checkboxField.getDisplayStringFromFormValue(undefined)
+        expect(result).toBe('')
+      })
+
+      it('returns empty string when value is empty array', () => {
+        const checkboxField = field as CheckboxesField
+        const result = checkboxField.getDisplayStringFromFormValue([])
+        expect(result).toBe('')
+      })
+
+      it.each([...options.examples])(
+        'returns text for single selected value',
+        (item) => {
+          const checkboxField = field as CheckboxesField
+          const result = checkboxField.getDisplayStringFromFormValue([
+            item.value
+          ])
+          expect(result).toBe(item.text)
+        }
+      )
+
+      it('returns comma-separated text for multiple selected values', () => {
+        const checkboxField = field as CheckboxesField
+        const item1 = options.examples[0]
+        const item2 = options.examples[2]
+
+        const result = checkboxField.getDisplayStringFromFormValue([
+          item1.value,
+          item2.value
+        ])
+
+        expect(result).toBe(`${item1.text}, ${item2.text}`)
+      })
+    })
   })
 })
