@@ -226,141 +226,141 @@ export function initMaps({
       }
     )
   }
+}
 
-  /**
-   * Gets initial map config for a location field
-   * @param {HTMLDivElement} locationField - the location field element
-   */
-  function getInitMapConfig(locationField) {
-    const locationType = locationField.dataset.locationtype
+/**
+ * Gets initial map config for a location field
+ * @param {HTMLDivElement} locationField - the location field element
+ */
+function getInitMapConfig(locationField) {
+  const locationType = locationField.dataset.locationtype
 
-    switch (locationType) {
-      case 'latlongfield':
-        return getInitLatLongMapConfig(locationField)
-      default:
-        throw new Error('Not implemented')
-    }
+  switch (locationType) {
+    case 'latlongfield':
+      return getInitLatLongMapConfig(locationField)
+    default:
+      throw new Error('Not implemented')
+  }
+}
+
+/**
+ * Validates lat and long is numeric and within UK bounds
+ * @param {string} strLat - the latitude string
+ * @param {string} strLong - the longitude string
+ * @returns {{ valid: false } | { valid: true, value: { lat: number, long: number } }}
+ */
+function validateLatLong(strLat, strLong) {
+  const lat = strLat.trim() && Number(strLat.trim())
+  const long = strLong.trim() && Number(strLong.trim())
+
+  if (!lat || !long) {
+    return { valid: false }
   }
 
-  /**
-   * Validates lat and long is numeric and within UK bounds
-   * @param {string} strLat - the latitude string
-   * @param {string} strLong - the longitude string
-   * @returns {{ valid: false } | { valid: true, value: { lat: number, long: number } }}
-   */
-  function validateLatLong(strLat, strLong) {
-    const lat = strLat.trim() && Number(strLat.trim())
-    const long = strLong.trim() && Number(strLong.trim())
+  const latMin = 49.85
+  const latMax = 60.859
+  const longMin = -13.687
+  const longMax = 1.767
 
-    if (!lat || !long) {
-      return { valid: false }
-    }
+  const latInBounds = lat >= latMin && lat <= latMax
+  const longInBounds = long >= longMin && long <= longMax
 
-    const latMin = 49.85
-    const latMax = 60.859
-    const longMin = -13.687
-    const longMax = 1.767
-
-    const latInBounds = lat >= latMin && lat <= latMax
-    const longInBounds = long >= longMin && long <= longMax
-
-    if (!latInBounds || !longInBounds) {
-      return { valid: false }
-    }
-
-    return { valid: true, value: { lat, long } }
+  if (!latInBounds || !longInBounds) {
+    return { valid: false }
   }
 
-  /**
-   * Gets initial map config for a latlong location field
-   * @param {HTMLDivElement} locationField - the latlong location field element
-   */
-  function getLatLongInputs(locationField) {
-    const inputs = locationField.querySelectorAll('input.govuk-input')
+  return { valid: true, value: { lat, long } }
+}
 
-    if (inputs.length !== 2) {
-      throw new Error('Expected 2 inputs for lat and long')
-    }
+/**
+ * Gets initial map config for a latlong location field
+ * @param {HTMLDivElement} locationField - the latlong location field element
+ */
+function getLatLongInputs(locationField) {
+  const inputs = locationField.querySelectorAll('input.govuk-input')
 
-    const latInput = /** @type {HTMLInputElement} */ (inputs[0])
-    const longInput = /** @type {HTMLInputElement} */ (inputs[1])
-
-    return { latInput, longInput }
+  if (inputs.length !== 2) {
+    throw new Error('Expected 2 inputs for lat and long')
   }
 
+  const latInput = /** @type {HTMLInputElement} */ (inputs[0])
+  const longInput = /** @type {HTMLInputElement} */ (inputs[1])
+
+  return { latInput, longInput }
+}
+
+/**
+ * Gets initial map config for a latlong location field
+ * @param {HTMLDivElement} locationField - the latlong location field element
+ */
+function getInitLatLongMapConfig(locationField) {
+  const { latInput, longInput } = getLatLongInputs(locationField)
+  const result = validateLatLong(latInput.value, longInput.value)
+
+  if (!result.valid) {
+    return
+  }
+
+  return {
+    zoom: '16',
+    center: [result.value.long, result.value.lat],
+    markers: [
+      {
+        id: 'location',
+        coords: [result.value.long, result.value.lat]
+      }
+    ]
+  }
+}
+
+/**
+ * Bind a latlong field to the map
+ * @param {HTMLDivElement} locationField - the latlong location field
+ * @param {DefraMap} map - the map component instance (of DefraMap)
+ * @param {MapLibreMap} mapProvider - the map provider instance (of MapLibreMap)
+ */
+function bindLatLongField(locationField, map, mapProvider) {
+  const { latInput, longInput } = getLatLongInputs(locationField)
+
+  map.on(
+    'interact:markerchange',
+    /**
+     * Callback function which fires when the map marker changes
+     * @param {object} e - the event
+     * @param {[number, number]} e.coords - the map marker coordinates
+     */
+    function (e) {
+      latInput.value = e.coords[1].toFixed(7)
+      longInput.value = e.coords[0].toFixed(7)
+    }
+  )
+
   /**
-   * Gets initial map config for a latlong location field
-   * @param {HTMLDivElement} locationField - the latlong location field element
+   * Lat & long input change event listener
+   * Update the map view location when the inputs are changed
    */
-  function getInitLatLongMapConfig(locationField) {
-    const { latInput, longInput } = getLatLongInputs(locationField)
+  function onUpdateInputs() {
     const result = validateLatLong(latInput.value, longInput.value)
 
     if (!result.valid) {
       return
     }
 
-    return {
-      zoom: '16',
-      center: [result.value.long, result.value.lat],
-      markers: [
-        {
-          id: 'location',
-          coords: [result.value.long, result.value.lat]
-        }
-      ]
-    }
+    const center = [result.value.long, result.value.lat]
+
+    // TODO: Move the location marker to the new point
+    map.addMarker('location', center)
+
+    // Pan & zoom the map to the new valid location
+    mapProvider.flyTo({
+      center,
+      zoom: 14,
+      essential: true
+    })
   }
 
-  /**
-   * Bind a latlong field to the map
-   * @param {HTMLDivElement} locationField - the latlong location field
-   * @param {DefraMap} map - the map component instance (of DefraMap)
-   * @param {MapLibreMap} mapProvider - the map provider instance (of MapLibreMap)
-   */
-  function bindLatLongField(locationField, map, mapProvider) {
-    const { latInput, longInput } = getLatLongInputs(locationField)
-
-    map.on(
-      'interact:markerchange',
-      /**
-       * Callback function which fires when the map marker changes
-       * @param {object} e - the event
-       * @param {[number, number]} e.coords - the map marker coordinates
-       */
-      function (e) {
-        latInput.value = e.coords[1].toFixed(7)
-        longInput.value = e.coords[0].toFixed(7)
-      }
-    )
-
-    /**
-     * Lat & long input change event listener
-     * Update the map view location when the inputs are changed
-     */
-    function onUpdateInputs() {
-      const result = validateLatLong(latInput.value, longInput.value)
-
-      if (!result.valid) {
-        return
-      }
-
-      const center = [result.value.long, result.value.lat]
-
-      // TODO: Move the location marker to the new point
-      map.addMarker('location', center)
-
-      // Pan & zoom the map to the new valid location
-      mapProvider.flyTo({
-        center,
-        zoom: 14,
-        essential: true
-      })
-    }
-
-    latInput.addEventListener('change', onUpdateInputs, false)
-    longInput.addEventListener('change', onUpdateInputs, false)
-  }
+  latInput.addEventListener('change', onUpdateInputs, false)
+  longInput.addEventListener('change', onUpdateInputs, false)
 }
 
 /**
