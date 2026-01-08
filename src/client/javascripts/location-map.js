@@ -344,7 +344,7 @@ function bindLatLongField(locationField, map, mapProvider) {
     const result = validateLatLong(latInput.value, longInput.value)
 
     if (!result.valid) {
-      return
+      return undefined
     }
 
     const center = [result.value.long, result.value.lat]
