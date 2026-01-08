@@ -21,7 +21,8 @@ import {
   type Engine,
   type FormDefinition,
   type List,
-  type Page
+  type Page,
+  type Section
 } from '@defra/forms-model'
 import { add, format } from 'date-fns'
 import { Parser, type Value } from 'expr-eval-fork'
@@ -321,6 +322,12 @@ export class FormModel {
       : this.lists.find((list) => list.id === nameOrId)
   }
 
+  getSection(nameOrId: string): Section | undefined {
+    return this.schemaVersion === SchemaVersion.V1
+      ? this.sections.find((section) => section.name === nameOrId)
+      : this.sections.find((section) => section.id === nameOrId)
+  }
+
   /**
    * Form context for the current page
    */
@@ -561,7 +568,7 @@ function validateFormPayload(
   if (
     !request.payload ||
     (action &&
-      ![FormAction.Validate, FormAction.SaveAndExit].includes(action) &&
+      action !== FormAction.Validate &&
       !action.startsWith(FormAction.External))
   ) {
     return context

@@ -141,7 +141,7 @@ export const V2 = /** @satisfies {FormDefinition} */ ({
         }
       ],
       condition: '6c9e2f4a-1d7b-5e8c-3f6a-9e2d5b7c4f1a',
-      section: 'marriage',
+      section: 'a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d',
       next: []
     },
     {
@@ -153,8 +153,10 @@ export const V2 = /** @satisfies {FormDefinition} */ ({
   lists: [],
   sections: [
     {
+      id: 'a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d',
       name: 'marriage',
-      title: 'Your marriage'
+      title: 'Your marriage',
+      hideTitle: false
     }
   ],
   conditions: [

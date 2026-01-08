@@ -1007,11 +1007,13 @@ describe('QuestionPageController V2', () => {
 
     it('returns the page section', () => {
       expect(controller1).toHaveProperty('section', undefined)
-      expect(controller2).toHaveProperty('section', {
-        name: 'marriage',
-        title: 'Your marriage',
-        hideTitle: false
-      })
+      expect(controller2.section).toEqual(
+        expect.objectContaining({
+          name: 'marriage',
+          title: 'Your marriage',
+          hideTitle: false
+        })
+      )
     })
   })
 
