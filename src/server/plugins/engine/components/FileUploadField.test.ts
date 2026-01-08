@@ -917,15 +917,20 @@ describe('FileUploadField', () => {
       )
     })
 
-    it('should use default email when notificationEmail is not set', async () => {
+    it('should fail when notificationEmail is not set', async () => {
       mockMetadata.notificationEmail = undefined
 
-      await fileUploadField.onSubmit(mockRequest, mockMetadata, mockContext)
+      await expect(
+        fileUploadField.onSubmit(mockRequest, mockMetadata, mockContext)
+      ).rejects.toThrow('Unexpected missing notificationEmail in metadata')
+    })
 
-      expect(mockPersistFiles).toHaveBeenCalledWith(
-        expect.any(Array),
-        'defraforms@defra.gov.uk'
-      )
+    it('should fail when notificationEmail is empty string', async () => {
+      mockMetadata.notificationEmail = ''
+
+      await expect(
+        fileUploadField.onSubmit(mockRequest, mockMetadata, mockContext)
+      ).rejects.toThrow('Unexpected missing notificationEmail in metadata')
     })
 
     it('should not call persistFiles when no files in state', async () => {
@@ -942,14 +947,6 @@ describe('FileUploadField', () => {
       await fileUploadField.onSubmit(mockRequest, mockMetadata, mockContext)
 
       expect(mockPersistFiles).not.toHaveBeenCalled()
-    })
-
-    it('should pass empty string when notificationEmail is empty string', async () => {
-      mockMetadata.notificationEmail = ''
-
-      await fileUploadField.onSubmit(mockRequest, mockMetadata, mockContext)
-
-      expect(mockPersistFiles).toHaveBeenCalledWith(expect.any(Array), '')
     })
 
     it('should throw Error when formSubmissionService is not available', async () => {
