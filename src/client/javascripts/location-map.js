@@ -191,7 +191,7 @@ export function initMaps({
             bindLatLongField(location, defraMap, e.map)
             break
           default:
-          // throw new Error('Not implemented')
+            throw new Error('Not implemented')
         }
 
         // Get saved data from sessionStorage
@@ -238,7 +238,7 @@ export function initMaps({
       case 'latlongfield':
         return getInitLatLongMapConfig(locationField)
       default:
-      // throw new Error('Not implemented')
+        throw new Error('Not implemented')
     }
   }
 
