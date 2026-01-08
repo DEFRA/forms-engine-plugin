@@ -330,8 +330,9 @@ function bindLatLongField(locationField, map, mapProvider) {
      * @param {[number, number]} e.coords - the map marker coordinates
      */
     function (e) {
-      latInput.value = e.coords[1].toFixed(7)
-      longInput.value = e.coords[0].toFixed(7)
+      const maxPrecision = 7
+      latInput.value = e.coords[1].toFixed(maxPrecision)
+      longInput.value = e.coords[0].toFixed(maxPrecision)
     }
   )
 
