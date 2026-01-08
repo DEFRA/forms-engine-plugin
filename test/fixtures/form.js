@@ -37,7 +37,25 @@ export const metadata = {
   createdAt: now,
   createdBy: author,
   updatedAt: now,
-  updatedBy: author
+  updatedBy: author,
+  notificationEmail: 'enrique.chase@defra.gov.uk'
+}
+
+/**
+ * @satisfies {FormMetadata}
+ */
+export const metadataWithNotificationEmail = {
+  id: '661e4ca5039739ef2902b214',
+  slug: 'test-form',
+  title: 'Test form',
+  organisation: 'Defra',
+  teamName: 'Defra Forms',
+  teamEmail: 'defraforms@defra.gov.uk',
+  createdAt: now,
+  createdBy: author,
+  updatedAt: now,
+  updatedBy: author,
+  notificationEmail: 'enrique.chase@defra.gov.uk'
 }
 
 /**
@@ -77,8 +95,7 @@ export const definition = {
     }
   ],
   conditions: [],
-  lists: [],
-  outputEmail: 'enrique.chase@defra.gov.uk'
+  lists: []
 }
 
 export const componentId = '1491981d-99cd-485e-ab4a-f88275edeadc'
@@ -121,8 +138,7 @@ export const definitionWithComponentId = {
     }
   ],
   conditions: [],
-  lists: [],
-  outputEmail: 'enrique.chase@defra.gov.uk'
+  lists: []
 }
 
 /**

@@ -83,4 +83,7 @@ describe('SummaryPageController', () => {
       expect(saveAndExitMock).toHaveBeenCalledWith(request, h, context)
     })
   })
+
+  // Note: InvalidComponentStateError handling is comprehensively tested
+  // in the integration test: test/form/component-state-errors.test.js
 })

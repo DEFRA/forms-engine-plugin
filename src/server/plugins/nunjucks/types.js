@@ -17,6 +17,7 @@
  * @property {string} [currentPath] - Current path
  * @property {string} [previewMode] - Preview mode
  * @property {string} [slug] - Form slug
+ * @property {string} [error] - Error message for temporary error messages (not related to form state)
  * @property {FormContext} [context] - the current form context
  */
 

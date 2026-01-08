@@ -3090,8 +3090,7 @@ export default /** @satisfies {FormDefinition} */ ({
         ]
       }
     }
-  ],
-  outputEmail: 'cph_online_form@rpa.gov.uk'
+  ]
 })
 
 /**

@@ -321,6 +321,14 @@ export function getError(detail: ValidationErrorItem): FormSubmissionError {
   }
 }
 
+export function createError(componentName: string, message: string) {
+  return {
+    href: `#${componentName}`,
+    name: componentName,
+    text: message
+  }
+}
+
 /**
  * A small helper to safely generate a crumb token.
  * Checks that the crumb plugin is available, that crumb

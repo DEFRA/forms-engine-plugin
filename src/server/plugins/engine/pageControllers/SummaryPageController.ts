@@ -7,12 +7,13 @@ import {
 import Boom from '@hapi/boom'
 import { type RouteOptions } from '@hapi/hapi'
 
+import { COMPONENT_STATE_ERROR } from '~/src/server/constants.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { FileUploadField } from '~/src/server/plugins/engine/components/FileUploadField.js'
 import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import {
   checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
+  createError,
   getCacheService
 } from '~/src/server/plugins/engine/helpers.js'
 import {
@@ -24,11 +25,11 @@ import {
   type DetailItem
 } from '~/src/server/plugins/engine/models/types.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
+import { InvalidComponentStateError } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import {
   type FormConfirmationState,
   type FormContext,
-  type FormContextRequest,
-  type FormSubmissionState
+  type FormContextRequest
 } from '~/src/server/plugins/engine/types.js'
 import {
   FormAction,
@@ -136,21 +137,39 @@ export class SummaryPageController extends QuestionPageController {
     const formMetadata = await getFormMetadata(params.slug)
     const { notificationEmail } = formMetadata
     const { isPreview } = checkFormStatus(request.params)
-    const emailAddress = notificationEmail ?? this.model.def.outputEmail
 
-    checkEmailAddressForLiveFormSubmission(emailAddress, isPreview)
+    checkEmailAddressForLiveFormSubmission(notificationEmail, isPreview)
 
     // Send submission email
-    if (emailAddress) {
+    if (notificationEmail) {
       const viewModel = this.getSummaryViewModel(request, context)
-      await submitForm(
-        context,
-        request,
-        viewModel,
-        model,
-        emailAddress,
-        formMetadata
-      )
+
+      try {
+        await submitForm(
+          context,
+          formMetadata,
+          request,
+          viewModel,
+          model,
+          notificationEmail,
+          formMetadata
+        )
+      } catch (error) {
+        if (error instanceof InvalidComponentStateError) {
+          const govukError = createError(
+            error.component.name,
+            error.userMessage
+          )
+
+          request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
+
+          await cacheService.resetComponentStates(request, error.getStateKeys())
+
+          return this.proceed(request, h, error.component.page?.path)
+        }
+
+        throw error
+      }
     }
 
     await cacheService.setConfirmationState(request, {
@@ -179,13 +198,14 @@ export class SummaryPageController extends QuestionPageController {
 
 export async function submitForm(
   context: FormContext,
+  metadata: FormMetadata,
   request: FormRequestPayload,
   summaryViewModel: SummaryViewModel,
   model: FormModel,
   emailAddress: string,
   formMetadata: FormMetadata
 ) {
-  await extendFileRetention(model, context.state, emailAddress)
+  await finaliseComponents(request, metadata, context)
 
   const formStatus = checkFormStatus(request.params)
   const logTags = ['submit', 'submissionApi']
@@ -222,39 +242,28 @@ export async function submitForm(
   )
 }
 
-async function extendFileRetention(
-  model: FormModel,
-  state: FormSubmissionState,
-  updatedRetrievalKey: string
+/**
+ * Finalises any components that need post-processing before form submission. Candidates usually involve
+ * those that have external state.
+ * Examples include:
+ * - file uploads which are 'persisted' before submission
+ * - payments which are 'captured' before submission
+ */
+async function finaliseComponents(
+  request: FormRequestPayload,
+  metadata: FormMetadata,
+  context: FormContext
 ) {
-  const { formSubmissionService } = model.services
-  const { persistFiles } = formSubmissionService
-  const files: { fileId: string; initiatedRetrievalKey: string }[] = []
+  const relevantFields = context.relevantPages.flatMap(
+    (page) => page.collection.fields
+  )
 
-  // For each file upload component with files in
-  // state, add the files to the batch getting persisted
-  model.pages.forEach((page) => {
-    const fileUploadComponents = page.collection.fields.filter(
-      (component) => component instanceof FileUploadField
-    )
-
-    fileUploadComponents.forEach((component) => {
-      const values = component.getFormValueFromState(state)
-      if (!values?.length) {
-        return
-      }
-
-      files.push(
-        ...values.map(({ status }) => ({
-          fileId: status.form.file.fileId,
-          initiatedRetrievalKey: status.metadata.retrievalKey
-        }))
-      )
-    })
-  })
-
-  if (files.length) {
-    return persistFiles(files, updatedRetrievalKey)
+  for (const component of relevantFields) {
+    /*
+      Each component will throw InvalidComponent if its state is invalid, which is handled
+      by handleFormSubmit
+    */
+    await component.onSubmit(request, metadata, context)
   }
 }
 

@@ -13,6 +13,7 @@ import { type RouteOptions } from '@hapi/hapi'
 import { type ValidationErrorItem } from 'joi'
 
 import {
+  COMPONENT_STATE_ERROR,
   EXTERNAL_STATE_APPENDAGE,
   EXTERNAL_STATE_PAYLOAD
 } from '~/src/server/constants.js'
@@ -412,6 +413,11 @@ export class QuestionPageController extends PageController {
 
       const viewModel = this.getViewModel(request, context)
       viewModel.errors = collection.getViewErrors(viewModel.errors)
+
+      const flashedError = request.yar.flash(COMPONENT_STATE_ERROR)
+      const flashedErrors = !Array.isArray(flashedError) ? [flashedError] : []
+
+      viewModel.errors = (viewModel.errors ?? []).concat(flashedErrors)
 
       /**
        * Content components can be hidden based on a condition. If the condition evaluates to true, it is safe to be kept, otherwise discard it
