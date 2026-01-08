@@ -105,6 +105,8 @@ export function initMaps({
 
     locationInputs.after(mapContainer)
 
+    const logoAltText = 'Ordnance survey logo'
+
     /** @type {DefraMap} */
     const defraMap = new defra.DefraMap(mapId, {
       ...initConfig,
@@ -126,7 +128,7 @@ export function initMaps({
               url: data.VTS_OUTDOOR_URL,
               thumbnail: `${assetPath}/defra-map/assets/images/outdoor-map-thumb.jpg`,
               logo: `${assetPath}/defra-map/assets/images/os-logo.svg`,
-              logoAltText: 'Ordnance survey logo',
+              logoAltText,
               attribution: `Contains OS data ${String.fromCharCode(169)} Crown copyright and database rights ${new Date().getFullYear()}`,
               backgroundColor: '#f5f5f0'
             },
@@ -138,7 +140,7 @@ export function initMaps({
               appColorScheme: 'dark',
               thumbnail: `${assetPath}/defra-map/assets/images/dark-map-thumb.jpg`,
               logo: `${assetPath}/defra-map/assets/images/os-logo-white.svg`,
-              logoAltText: 'Ordnance survey logo',
+              logoAltText,
               attribution: 'Test'
             },
             {
@@ -147,7 +149,7 @@ export function initMaps({
               url: data.VTS_BLACK_AND_WHITE_URL,
               thumbnail: `${assetPath}/defra-map/assets/images/black-and-white-map-thumb.jpg`,
               logo: `${assetPath}/defra-map/assets/images/os-logo-black.svg`,
-              logoAltText: 'Ordnance survey logo',
+              logoAltText,
               attribution: 'Test'
             }
           ]
