@@ -5,6 +5,12 @@ const defra = window.defra
 const DEFAULT_LAT = 53.825564
 const DEFAULT_LONG = -2.421975
 
+/** @type {DefraMapInitConfig} */
+const defaultConfig = {
+  zoom: '6',
+  center: [DEFAULT_LONG, DEFAULT_LAT]
+}
+
 const COMPANY_SYMBOL_CODE = 169
 
 const defaultData = {
@@ -18,7 +24,7 @@ const defaultData = {
 
 /**
  * Initialise location maps
- * @param {MapsClientConfig} config - the map configuration
+ * @param {Partial<MapsEnvironmentConfig>} config - the map configuration
  */
 export function initMaps(config = {}) {
   const {
@@ -87,7 +93,7 @@ function makeTileRequestTransformer(apiPath) {
 
 /**
  * Processes a location field to add map capability
- * @param {MapsClientParams} config - the location field element
+ * @param {MapsEnvironmentConfig} config - the location field element
  * @param {Element} location - the location field element
  * @param {*} index - the 0-based index
  */
@@ -108,26 +114,74 @@ function processLocation(config, location, index) {
     return
   }
 
-  const { assetPath, apiPath, data = defaultData } = config
   const mapContainer = document.createElement('div')
   const mapId = `map_${index}`
 
   mapContainer.setAttribute('id', mapId)
   mapContainer.setAttribute('class', 'map-container')
 
-  const defaultConfig = {
-    zoom: '6',
-    center: [DEFAULT_LONG, DEFAULT_LAT]
-  }
-
   const initConfig = getInitMapConfig(location) ?? defaultConfig
 
   locationInputs.after(mapContainer)
 
+  const map = createMap(mapId, initConfig, config)
+
+  map.on(
+    'map:ready',
+    /**
+     * Callback function which fires when the map is ready
+     * @param {object} e - the event
+     * @param {MapLibreMap} e.map - the map provider instance
+     */
+    function onMapReady(e) {
+      switch (locationType) {
+        case 'latlongfield':
+          bindLatLongField(location, map, e.map)
+          break
+        default:
+          throw new Error('Not implemented')
+      }
+
+      // Add info panel
+      map.addPanel('info', {
+        showLabel: true,
+        label: 'How to use the map',
+        mobile: {
+          slot: 'bottom',
+          initiallyOpen: true,
+          dismissable: true,
+          modal: false
+        },
+        tablet: {
+          slot: 'bottom',
+          initiallyOpen: true,
+          dismissable: true,
+          modal: false
+        },
+        desktop: {
+          slot: 'bottom',
+          initiallyOpen: true,
+          dismissable: true,
+          modal: false
+        },
+        html: 'If using a map click on a point to update the location.<br><br>If using a keyboard, navigate to the point, centering the crosshair at the location and press enter.'
+      })
+    }
+  )
+}
+
+/**
+ * Create a Defra map instance
+ * @param {string} mapId - the map id
+ * @param {DefraMapInitConfig} initConfig - the map initial configuration
+ * @param {MapsEnvironmentConfig} mapsConfig - the map environment params
+ */
+function createMap(mapId, initConfig, mapsConfig) {
+  const { assetPath, apiPath, data = defaultData } = mapsConfig
   const logoAltText = 'Ordnance survey logo'
 
   /** @type {DefraMap} */
-  const defraMap = new defra.DefraMap(mapId, {
+  const map = new defra.DefraMap(mapId, {
     ...initConfig,
     mapProvider: defra.maplibreProvider(),
     reverseGeocodeProvider: defra.openNamesProvider({
@@ -191,53 +245,7 @@ function processLocation(config, location, index) {
     ]
   })
 
-  defraMap.on(
-    'map:ready',
-    /**
-     * Callback function which fires when the map is ready
-     * @param {object} e - the event
-     * @param {MapLibreMap} e.map - the map provider instance
-     */
-    function onMapReady(e) {
-      switch (locationType) {
-        case 'latlongfield':
-          bindLatLongField(location, defraMap, e.map)
-          break
-        default:
-          throw new Error('Not implemented')
-      }
-
-      // Get saved data from sessionStorage
-      const mapInfoPanelSeen = sessionStorage.getItem('mapInfoPanelSeen')
-
-      if (!mapInfoPanelSeen) {
-        // Add info panel
-        defraMap.addPanel('info', {
-          showLabel: true,
-          label: 'How to use the map',
-          mobile: {
-            slot: 'bottom',
-            initiallyOpen: true,
-            dismissable: true,
-            modal: false
-          },
-          tablet: {
-            slot: 'bottom',
-            initiallyOpen: true,
-            dismissable: true,
-            modal: false
-          },
-          desktop: {
-            slot: 'bottom',
-            initiallyOpen: true,
-            dismissable: true,
-            modal: false
-          },
-          html: 'If using a map click on a point to update the location.<br><br>If using a keyboard, navigate to the point, centering the crosshair at the location and press enter.'
-        })
-      }
-    }
-  )
+  return map
 }
 
 /**
@@ -304,6 +312,7 @@ function getLatLongInputs(locationField) {
 /**
  * Gets initial map config for a latlong location field
  * @param {HTMLDivElement} locationField - the latlong location field element
+ * @returns {DefraMapInitConfig | undefined}
  */
 function getInitLatLongMapConfig(locationField) {
   const { latInput, longInput } = getLatLongInputs(locationField)
@@ -356,6 +365,7 @@ function bindLatLongField(locationField, map, mapProvider) {
     const result = validateLatLong(latInput.value, longInput.value)
 
     if (result.valid) {
+      /** @type {MapCenter} */
       const center = [result.value.long, result.value.lat]
 
       // Move the 'location' marker to the new point
@@ -387,6 +397,17 @@ function bindLatLongField(locationField, map, mapProvider) {
  */
 
 /**
+ * @typedef {[number, number]} MapCenter - Map center point as [long, lat]
+ */
+
+/**
+ * @typedef {object} DefraMapInitConfig - additional config that can be provided to DefraMap
+ * @property {string} zoom - the zoom level of the map
+ * @property {MapCenter} center - the center point of the map
+ * @property {{ id: string, coords: MapCenter}[]} [markers] - the markers to add to the map
+ */
+
+/**
  * @typedef {object} TileData
  * @property {string} VTS_OUTDOOR_URL - the outdoor tile URL
  * @property {string} VTS_DARK_URL - the dark tile URL
@@ -394,14 +415,7 @@ function bindLatLongField(locationField, map, mapProvider) {
  */
 
 /**
- * @typedef {object} MapsClientConfig
- * @property {string} [assetPath] - the root asset path
- * @property {string} [apiPath] - the root API path
- * @property {TileData} [data] - the tile data config
- */
-
-/**
- * @typedef {object} MapsClientParams
+ * @typedef {object} MapsEnvironmentConfig
  * @property {string} assetPath - the root asset path
  * @property {string} apiPath - the root API path
  * @property {TileData} data - the tile data config
