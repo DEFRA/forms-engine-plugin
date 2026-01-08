@@ -310,7 +310,7 @@ function getInitLatLongMapConfig(locationField) {
   const result = validateLatLong(latInput.value, longInput.value)
 
   if (!result.valid) {
-    return
+    return undefined
   }
 
   return {
@@ -355,21 +355,19 @@ function bindLatLongField(locationField, map, mapProvider) {
   function onUpdateInputs() {
     const result = validateLatLong(latInput.value, longInput.value)
 
-    if (!result.valid) {
-      return undefined
+    if (result.valid) {
+      const center = [result.value.long, result.value.lat]
+
+      // Move the 'location' marker to the new point
+      map.addMarker('location', center)
+
+      // Pan & zoom the map to the new valid location
+      mapProvider.flyTo({
+        center,
+        zoom: 14,
+        essential: true
+      })
     }
-
-    const center = [result.value.long, result.value.lat]
-
-    // Move the 'location' marker to the new point
-    map.addMarker('location', center)
-
-    // Pan & zoom the map to the new valid location
-    mapProvider.flyTo({
-      center,
-      zoom: 14,
-      essential: true
-    })
   }
 
   latInput.addEventListener('change', onUpdateInputs, false)
