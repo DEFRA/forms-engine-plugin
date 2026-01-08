@@ -5,6 +5,8 @@ const defra = window.defra
 const DEFAULT_LAT = 53.825564
 const DEFAULT_LONG = -2.421975
 
+const COMPANY_SYMBOL_CODE = 169
+
 const defaultData = {
   VTS_OUTDOOR_URL:
     'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/main/OS_VTS_3857_Outdoor.json',
@@ -133,7 +135,7 @@ export function initMaps({
               thumbnail: `${assetPath}/defra-map/assets/images/outdoor-map-thumb.jpg`,
               logo: `${assetPath}/defra-map/assets/images/os-logo.svg`,
               logoAltText,
-              attribution: `Contains OS data ${String.fromCharCode(169)} Crown copyright and database rights ${new Date().getFullYear()}`,
+              attribution: `Contains OS data ${String.fromCharCode(COMPANY_SYMBOL_CODE)} Crown copyright and database rights ${new Date().getFullYear()}`,
               backgroundColor: '#f5f5f0'
             },
             {
