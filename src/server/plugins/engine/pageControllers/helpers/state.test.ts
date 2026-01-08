@@ -3,10 +3,15 @@ import { ComponentType, type Page } from '@defra/forms-model'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import {
+  copyNotYetValidatedState,
   prefillStateFromQueryParameters,
   stripParam
 } from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
-import { type AnyFormRequest } from '~/src/server/plugins/engine/types.js'
+import {
+  type AnyFormRequest,
+  type FormContext,
+  type FormContextRequest
+} from '~/src/server/plugins/engine/types.js'
 import { type FormsService, type Services } from '~/src/server/types.js'
 
 function buildMockPage(
@@ -216,6 +221,75 @@ describe('State helpers', () => {
     it('should handle no params', () => {
       const params = {}
       expect(stripParam(params, 'anyParam')).toBeUndefined()
+    })
+  })
+
+  describe('copyNotYetValidatedState', () => {
+    it('should ignore if no invalid state', () => {
+      const mockRequest = {} as FormContextRequest
+      const mockContext = {
+        state: { abc: '123' },
+        payload: {}
+      } as unknown as FormContext
+      copyNotYetValidatedState(mockRequest, mockContext)
+      expect(mockContext.state).toEqual({ abc: '123' })
+      expect(mockContext.payload).toEqual({})
+    })
+
+    it('should ignore if wrong path', () => {
+      const mockRequest = {
+        url: {
+          pathname: '/form-page1'
+        }
+      } as unknown as FormContextRequest
+      const mockContext = {
+        state: {
+          abc: '123',
+          __stateNotYetValidated: {
+            def: '456',
+            __currentPagePath: '/root'
+          }
+        },
+        payload: {}
+      } as unknown as FormContext
+      copyNotYetValidatedState(mockRequest, mockContext)
+      expect(mockContext.state).toEqual({
+        abc: '123',
+        __stateNotYetValidated: {
+          def: '456',
+          __currentPagePath: '/root'
+        }
+      })
+      expect(mockContext.payload).toEqual({})
+    })
+
+    it('should apply if correct path', () => {
+      const mockRequest = {
+        url: {
+          pathname: '/form-page1'
+        }
+      } as unknown as FormContextRequest
+      const mockContext = {
+        state: {
+          abc: '123',
+          __stateNotYetValidated: {
+            def: '456',
+            __currentPagePath: '/form-page1'
+          }
+        },
+        payload: {}
+      } as unknown as FormContext
+      copyNotYetValidatedState(mockRequest, mockContext)
+      expect(mockContext.state).toEqual({
+        abc: '123',
+        __stateNotYetValidated: {
+          def: '456',
+          __currentPagePath: '/form-page1'
+        }
+      })
+      expect(mockContext.payload).toEqual({
+        def: '456'
+      })
     })
   })
 })
