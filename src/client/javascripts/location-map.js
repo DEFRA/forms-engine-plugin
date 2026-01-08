@@ -1,6 +1,10 @@
 // @ts-expect-error - Defra namespace currently comes from UMD support files
 const defra = window.defra
 
+// Center of UK
+const DEFAULT_LAT = 53.825564
+const DEFAULT_LONG = -2.421975
+
 const defaultData = {
   VTS_OUTDOOR_URL:
     'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/main/OS_VTS_3857_Outdoor.json',
@@ -98,7 +102,7 @@ export function initMaps({
 
     const defaultConfig = {
       zoom: '6',
-      center: [-2.421975, 53.825564]
+      center: [DEFAULT_LONG, DEFAULT_LAT]
     }
 
     const initConfig = getInitMapConfig(location) ?? defaultConfig
