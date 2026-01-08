@@ -1,7 +1,7 @@
 import { getHiddenFields } from '@defra/forms-model'
 
 import {
-  CURRENT_PAGE_PATH,
+  CURRENT_PAGE_PATH_KEY,
   STATE_NOT_YET_VALIDATED
 } from '~/src/server/plugins/engine/index.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
@@ -117,13 +117,13 @@ export function copyNotYetValidatedState(
     return
   }
 
-  const originalPath = potentiallyInvalidState[CURRENT_PAGE_PATH]
+  const originalPath = potentiallyInvalidState[CURRENT_PAGE_PATH_KEY]
 
   if (originalPath && originalPath === request.url.pathname) {
     context.payload = {
       ...context.payload,
       ...potentiallyInvalidState,
-      [CURRENT_PAGE_PATH]: undefined
+      [CURRENT_PAGE_PATH_KEY]: undefined
     }
   }
 }
