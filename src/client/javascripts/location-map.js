@@ -20,31 +20,13 @@ const defaultData = {
  * Initialise location maps
  * @param {MapsClientConfig} config - the map configuration
  */
-export function initMaps({
-  assetPath = '/assets',
-  apiPath = '/form/api',
-  data = defaultData
-} = {}) {
+export function initMaps(config = {}) {
+  const {
+    assetPath = '/assets',
+    apiPath = '/form/api',
+    data = defaultData
+  } = config
   const locations = document.querySelectorAll('.app-location-field')
-
-  /**
-   * Proxy OS API requests via our server
-   * @param {string} url - the request URL
-   * @param {string} resourceType - the resource type
-   */
-  const transformTileRequest = (url, resourceType) => {
-    // Only proxy OS API requests that don't already have a key
-    if (resourceType !== 'Style' && url.startsWith('https://api.os.uk')) {
-      const urlObj = new URL(url)
-      if (!urlObj.searchParams.has('key')) {
-        return {
-          url: `${apiPath}/map-proxy?url=${encodeURIComponent(url)}`,
-          headers: {}
-        }
-      }
-    }
-    return { url, headers: {} }
-  }
 
   // TODO: Fix this in `defra-map`
   // If there are location components on the page fix up the main form submit
@@ -72,160 +54,190 @@ export function initMaps({
     )
   }
 
-  locations.forEach(processLocation)
+  locations.forEach((location, index) => {
+    processLocation({ assetPath, apiPath, data }, location, index)
+  })
+}
 
+/**
+ * OS API request proxy factory
+ * @param {string} apiPath - the root API path
+ */
+function makeTileRequestTransformer(apiPath) {
   /**
-   * Processes a location field to add map capability
-   * @param {Element} location - the location field element
-   * @param {*} index - the 0-based index
+   * Proxy OS API requests via our server
+   * @param {string} url - the request URL
+   * @param {string} resourceType - the resource type
    */
-  function processLocation(location, index) {
-    if (!(location instanceof HTMLDivElement)) {
-      return
-    }
-
-    const locationInputs = location.querySelector('.app-location-field-inputs')
-    if (!(locationInputs instanceof HTMLDivElement)) {
-      return
-    }
-    const locationType = location.dataset.locationtype
-
-    // Check for support
-    const supportedLocations = ['latlongfield']
-    if (!locationType || !supportedLocations.includes(locationType)) {
-      return
-    }
-
-    const mapContainer = document.createElement('div')
-    const mapId = `map_${index}`
-
-    mapContainer.setAttribute('id', mapId)
-    mapContainer.setAttribute('class', 'map-container')
-
-    const defaultConfig = {
-      zoom: '6',
-      center: [DEFAULT_LONG, DEFAULT_LAT]
-    }
-
-    const initConfig = getInitMapConfig(location) ?? defaultConfig
-
-    locationInputs.after(mapContainer)
-
-    const logoAltText = 'Ordnance survey logo'
-
-    /** @type {DefraMap} */
-    const defraMap = new defra.DefraMap(mapId, {
-      ...initConfig,
-      mapProvider: defra.maplibreProvider(),
-      reverseGeocodeProvider: defra.openNamesProvider({
-        url: `${apiPath}/reverse-geocode-proxy?easting={easting}&northing={northing}`
-      }),
-      behaviour: 'inline',
-      minZoom: 6,
-      maxZoom: 18,
-      containerHeight: '400px',
-      transformRequest: transformTileRequest,
-      plugins: [
-        defra.mapStylesPlugin({
-          mapStyles: [
-            {
-              id: 'outdoor',
-              label: 'Outdoor',
-              url: data.VTS_OUTDOOR_URL,
-              thumbnail: `${assetPath}/defra-map/assets/images/outdoor-map-thumb.jpg`,
-              logo: `${assetPath}/defra-map/assets/images/os-logo.svg`,
-              logoAltText,
-              attribution: `Contains OS data ${String.fromCharCode(COMPANY_SYMBOL_CODE)} Crown copyright and database rights ${new Date().getFullYear()}`,
-              backgroundColor: '#f5f5f0'
-            },
-            {
-              id: 'dark',
-              label: 'Dark',
-              url: data.VTS_DARK_URL,
-              mapColorScheme: 'dark',
-              appColorScheme: 'dark',
-              thumbnail: `${assetPath}/defra-map/assets/images/dark-map-thumb.jpg`,
-              logo: `${assetPath}/defra-map/assets/images/os-logo-white.svg`,
-              logoAltText,
-              attribution: 'Test'
-            },
-            {
-              id: 'black-and-white',
-              label: 'Black/White',
-              url: data.VTS_BLACK_AND_WHITE_URL,
-              thumbnail: `${assetPath}/defra-map/assets/images/black-and-white-map-thumb.jpg`,
-              logo: `${assetPath}/defra-map/assets/images/os-logo-black.svg`,
-              logoAltText,
-              attribution: 'Test'
-            }
-          ]
-        }),
-        defra.interactPlugin({
-          dataLayers: [],
-          markerColor: { outdoor: '#ff0000', dark: '#00ff00' },
-          interactionMode: 'marker', // 'auto', 'select', 'marker' // defaults to 'marker'
-          multiSelect: false
-        }),
-        defra.searchPlugin({
-          osNamesURL: `${apiPath}/geocode-proxy?query={query}`,
-          width: '300px',
-          showMarker: false
-        }),
-        defra.zoomControlsPlugin(),
-        defra.scaleBarPlugin({
-          units: 'metric'
-        })
-      ]
-    })
-
-    defraMap.on(
-      'map:ready',
-      /**
-       * Callback function which fires when the map is ready
-       * @param {object} e - the event
-       * @param {MapLibreMap} e.map - the map provider instance
-       */
-      function onMapReady(e) {
-        switch (locationType) {
-          case 'latlongfield':
-            bindLatLongField(location, defraMap, e.map)
-            break
-          default:
-            throw new Error('Not implemented')
-        }
-
-        // Get saved data from sessionStorage
-        const mapInfoPanelSeen = sessionStorage.getItem('mapInfoPanelSeen')
-
-        if (!mapInfoPanelSeen) {
-          // Add info panel
-          defraMap.addPanel('info', {
-            showLabel: true,
-            label: 'How to use the map',
-            mobile: {
-              slot: 'bottom',
-              initiallyOpen: true,
-              dismissable: true,
-              modal: false
-            },
-            tablet: {
-              slot: 'bottom',
-              initiallyOpen: true,
-              dismissable: true,
-              modal: false
-            },
-            desktop: {
-              slot: 'bottom',
-              initiallyOpen: true,
-              dismissable: true,
-              modal: false
-            },
-            html: 'If using a map click on a point to update the location.<br><br>If using a keyboard, navigate to the point, centering the crosshair at the location and press enter.'
-          })
+  return function transformTileRequest(url, resourceType) {
+    // Only proxy OS API requests that don't already have a key
+    if (resourceType !== 'Style' && url.startsWith('https://api.os.uk')) {
+      const urlObj = new URL(url)
+      if (!urlObj.searchParams.has('key')) {
+        return {
+          url: `${apiPath}/map-proxy?url=${encodeURIComponent(url)}`,
+          headers: {}
         }
       }
-    )
+    }
+
+    return { url, headers: {} }
   }
+}
+
+/**
+ * Processes a location field to add map capability
+ * @param {MapsClientParams} config - the location field element
+ * @param {Element} location - the location field element
+ * @param {*} index - the 0-based index
+ */
+function processLocation(config, location, index) {
+  if (!(location instanceof HTMLDivElement)) {
+    return
+  }
+
+  const locationInputs = location.querySelector('.app-location-field-inputs')
+  if (!(locationInputs instanceof HTMLDivElement)) {
+    return
+  }
+  const locationType = location.dataset.locationtype
+
+  // Check for support
+  const supportedLocations = ['latlongfield']
+  if (!locationType || !supportedLocations.includes(locationType)) {
+    return
+  }
+
+  const { assetPath, apiPath, data = defaultData } = config
+  const mapContainer = document.createElement('div')
+  const mapId = `map_${index}`
+
+  mapContainer.setAttribute('id', mapId)
+  mapContainer.setAttribute('class', 'map-container')
+
+  const defaultConfig = {
+    zoom: '6',
+    center: [DEFAULT_LONG, DEFAULT_LAT]
+  }
+
+  const initConfig = getInitMapConfig(location) ?? defaultConfig
+
+  locationInputs.after(mapContainer)
+
+  const logoAltText = 'Ordnance survey logo'
+
+  /** @type {DefraMap} */
+  const defraMap = new defra.DefraMap(mapId, {
+    ...initConfig,
+    mapProvider: defra.maplibreProvider(),
+    reverseGeocodeProvider: defra.openNamesProvider({
+      url: `${apiPath}/reverse-geocode-proxy?easting={easting}&northing={northing}`
+    }),
+    behaviour: 'inline',
+    minZoom: 6,
+    maxZoom: 18,
+    containerHeight: '400px',
+    transformRequest: makeTileRequestTransformer(apiPath),
+    plugins: [
+      defra.mapStylesPlugin({
+        mapStyles: [
+          {
+            id: 'outdoor',
+            label: 'Outdoor',
+            url: data.VTS_OUTDOOR_URL,
+            thumbnail: `${assetPath}/defra-map/assets/images/outdoor-map-thumb.jpg`,
+            logo: `${assetPath}/defra-map/assets/images/os-logo.svg`,
+            logoAltText,
+            attribution: `Contains OS data ${String.fromCharCode(COMPANY_SYMBOL_CODE)} Crown copyright and database rights ${new Date().getFullYear()}`,
+            backgroundColor: '#f5f5f0'
+          },
+          {
+            id: 'dark',
+            label: 'Dark',
+            url: data.VTS_DARK_URL,
+            mapColorScheme: 'dark',
+            appColorScheme: 'dark',
+            thumbnail: `${assetPath}/defra-map/assets/images/dark-map-thumb.jpg`,
+            logo: `${assetPath}/defra-map/assets/images/os-logo-white.svg`,
+            logoAltText,
+            attribution: 'Test'
+          },
+          {
+            id: 'black-and-white',
+            label: 'Black/White',
+            url: data.VTS_BLACK_AND_WHITE_URL,
+            thumbnail: `${assetPath}/defra-map/assets/images/black-and-white-map-thumb.jpg`,
+            logo: `${assetPath}/defra-map/assets/images/os-logo-black.svg`,
+            logoAltText,
+            attribution: 'Test'
+          }
+        ]
+      }),
+      defra.interactPlugin({
+        dataLayers: [],
+        markerColor: { outdoor: '#ff0000', dark: '#00ff00' },
+        interactionMode: 'marker',
+        multiSelect: false
+      }),
+      defra.searchPlugin({
+        osNamesURL: `${apiPath}/geocode-proxy?query={query}`,
+        width: '300px',
+        showMarker: false
+      }),
+      defra.zoomControlsPlugin(),
+      defra.scaleBarPlugin({
+        units: 'metric'
+      })
+    ]
+  })
+
+  defraMap.on(
+    'map:ready',
+    /**
+     * Callback function which fires when the map is ready
+     * @param {object} e - the event
+     * @param {MapLibreMap} e.map - the map provider instance
+     */
+    function onMapReady(e) {
+      switch (locationType) {
+        case 'latlongfield':
+          bindLatLongField(location, defraMap, e.map)
+          break
+        default:
+          throw new Error('Not implemented')
+      }
+
+      // Get saved data from sessionStorage
+      const mapInfoPanelSeen = sessionStorage.getItem('mapInfoPanelSeen')
+
+      if (!mapInfoPanelSeen) {
+        // Add info panel
+        defraMap.addPanel('info', {
+          showLabel: true,
+          label: 'How to use the map',
+          mobile: {
+            slot: 'bottom',
+            initiallyOpen: true,
+            dismissable: true,
+            modal: false
+          },
+          tablet: {
+            slot: 'bottom',
+            initiallyOpen: true,
+            dismissable: true,
+            modal: false
+          },
+          desktop: {
+            slot: 'bottom',
+            initiallyOpen: true,
+            dismissable: true,
+            modal: false
+          },
+          html: 'If using a map click on a point to update the location.<br><br>If using a keyboard, navigate to the point, centering the crosshair at the location and press enter.'
+        })
+      }
+    }
+  )
 }
 
 /**
@@ -349,7 +361,7 @@ function bindLatLongField(locationField, map, mapProvider) {
 
     const center = [result.value.long, result.value.lat]
 
-    // TODO: Move the location marker to the new point
+    // Move the 'location' marker to the new point
     map.addMarker('location', center)
 
     // Pan & zoom the map to the new valid location
@@ -388,4 +400,11 @@ function bindLatLongField(locationField, map, mapProvider) {
  * @property {string} [assetPath] - the root asset path
  * @property {string} [apiPath] - the root API path
  * @property {TileData} [data] - the tile data config
+ */
+
+/**
+ * @typedef {object} MapsClientParams
+ * @property {string} assetPath - the root asset path
+ * @property {string} apiPath - the root API path
+ * @property {TileData} data - the tile data config
  */
