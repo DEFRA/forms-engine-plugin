@@ -116,13 +116,16 @@ describe('Location Maps Client JS', () => {
     const inputs = document.body.querySelectorAll('input.govuk-input')
     expect(inputs).toHaveLength(2)
 
-    const [latInput, longInput] = inputs
+    const latInput = /** @type {HTMLInputElement} */ (inputs[0])
+    const longInput = /** @type {HTMLInputElement} */ (inputs[1])
 
-    ;/** @type {HTMLInputElement} */ (latInput).value = '53.825564'
+    latInput.value = '53.825564'
     latInput.dispatchEvent(new window.Event('change'))
-    ;/** @type {HTMLInputElement} */ (longInput).value = '-2.421975'
+
+    longInput.value = '-2.421975'
     longInput.dispatchEvent(new window.Event('change'))
 
+    // Expect it to update once, only when both fields are valid
     expect(addMarkerMock).toHaveBeenCalledTimes(1)
     expect(flyToMock).toHaveBeenCalledTimes(1)
   })
