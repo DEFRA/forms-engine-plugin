@@ -1,5 +1,3 @@
-import { resolve } from 'node:path'
-
 import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
@@ -16,8 +14,7 @@ export function getRoutes(options) {
   return [
     mapProxyRoute(options),
     geocodeProxyRoute(options),
-    reverseGeocodeProxyRoute(options),
-    ...tileRoutes()
+    reverseGeocodeProxyRoute(options)
   ]
 }
 
@@ -133,22 +130,6 @@ function reverseGeocodeProxyRoute(options) {
       }
     }
   }
-}
-
-function tileRoutes() {
-  return [
-    {
-      method: 'GET',
-      path: '/api/maps/vts/{path}',
-      options: {
-        handler: {
-          directory: {
-            path: resolve(import.meta.dirname, './vts')
-          }
-        }
-      }
-    }
-  ]
 }
 
 /**
