@@ -2,6 +2,7 @@
 @use "pkg:accessible-autocomplete";
 @use "prose";
 @use "summary-list";
+@use "location-fields";
 
 // Use default GDS Transport font for autocomplete
 .autocomplete__hint,
