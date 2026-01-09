@@ -1,6 +1,3 @@
-// @ts-expect-error - Defra namespace currently comes from UMD support files
-const defra = window.defra
-
 // Center of UK
 const DEFAULT_LAT = 53.825564
 const DEFAULT_LONG = -2.421975
@@ -20,6 +17,27 @@ const defaultData = {
     'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/main/OS_VTS_3857_Dark.json',
   VTS_BLACK_AND_WHITE_URL:
     'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/main/OS_VTS_3857_Black_and_White.json'
+}
+
+/**
+ * Make a form submit handler that only allows submissions from allowed buttons
+ * @param {HTMLButtonElement[]} buttons - the form buttons to allow submissions
+ */
+export function formSubmitFactory(buttons) {
+  /**
+   * The submit handler
+   * @param {SubmitEvent} e
+   */
+  const onFormSubmit = function (e) {
+    if (
+      !(e.submitter instanceof HTMLButtonElement) ||
+      !buttons.includes(e.submitter)
+    ) {
+      e.preventDefault()
+    }
+  }
+
+  return onFormSubmit
 }
 
 /**
@@ -45,19 +63,7 @@ export function initMaps(config = {}) {
     }
 
     const buttons = Array.from(form.querySelectorAll('button'))
-
-    form.addEventListener(
-      'submit',
-      function (e) {
-        if (
-          e.submitter instanceof HTMLButtonElement &&
-          !buttons.includes(e.submitter)
-        ) {
-          e.preventDefault()
-        }
-      },
-      false
-    )
+    form.addEventListener('submit', formSubmitFactory(buttons), false)
   }
 
   locations.forEach((location, index) => {
@@ -179,6 +185,9 @@ function processLocation(config, location, index) {
 function createMap(mapId, initConfig, mapsConfig) {
   const { assetPath, apiPath, data = defaultData } = mapsConfig
   const logoAltText = 'Ordnance survey logo'
+
+  // @ts-expect-error - Defra namespace currently comes from UMD support files
+  const defra = window.defra
 
   /** @type {DefraMap} */
   const map = new defra.DefraMap(mapId, {
@@ -350,7 +359,7 @@ function bindLatLongField(locationField, map, mapProvider) {
      * @param {object} e - the event
      * @param {[number, number]} e.coords - the map marker coordinates
      */
-    function (e) {
+    function onInteractMarkerChange(e) {
       const maxPrecision = 7
       latInput.value = e.coords[1].toFixed(maxPrecision)
       longInput.value = e.coords[0].toFixed(maxPrecision)
