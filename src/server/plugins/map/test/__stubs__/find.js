@@ -1,3 +1,4 @@
+/** @type {OsNamesFindResponse} */
 export const result = {
   header: {
     uri: 'https://api.os.uk/search/names/v1/find?query=NW1%206XE&fq=local_type%3Apostcode%20local_type%3Ahamlet%20local_type%3Avillage%20local_type%3Atown%20local_type%3Acity%20local_type%3Aother_settlement&maxresults=8',
@@ -264,3 +265,7 @@ export const result = {
     }
   ]
 }
+
+/**
+ * @import { OsNamesFindResponse } from '~/src/server/plugins/map/types.js'
+ */

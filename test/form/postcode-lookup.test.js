@@ -19,7 +19,6 @@ jest.mock('~/src/server/plugins/engine/services/formsService.js')
 jest.mock('~/src/server/plugins/postcode-lookup/service.js')
 
 /**
- *
  * @param {Server} server
  */
 async function initialiseJourney(server) {

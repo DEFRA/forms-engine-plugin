@@ -73,11 +73,12 @@
  * @property {number} maxresults - The maximum number of results requested.
  * @property {number} offset - The offset used in the search results.
  * @property {number} totalresults - The total number of results that matched the query.
+ * @property {string} filter - The original filter string passed to the API.
  */
 
 /**
  * @typedef {object} OsNamesFindGazetteerEntry
- * @property {number} ID - Unique identifier for the place/feature.
+ * @property {string} ID - Unique identifier for the place/feature.
  * @property {string} NAMES_URI - A URI (identifier) for this named feature.
  * @property {string} NAME1 - Primary name of the feature.
  * @property {string} TYPE - General type classification of the feature.
@@ -86,10 +87,13 @@
  * @property {number} GEOMETRY_Y - Northing coordinate (British National Grid).
  * @property {number} MOST_DETAIL_VIEW_RES - Most detailed resolution available.
  * @property {number} LEAST_DETAIL_VIEW_RES - Least detailed resolution available.
- * @property {number} MBR_XMIN - Minimum bounding box X (easting).
- * @property {number} MBR_YMIN - Minimum bounding box Y (northing).
- * @property {number} MBR_XMAX - Maximum bounding box X (easting).
- * @property {number} MBR_YMAX - Maximum bounding box Y (northing).
+ * @property {number} [MBR_XMIN] - Minimum bounding box X (easting).
+ * @property {number} [MBR_YMIN] - Minimum bounding box Y (northing).
+ * @property {number} [MBR_XMAX] - Maximum bounding box X (easting).
+ * @property {number} [MBR_YMAX] - Maximum bounding box Y (northing).
+ * @property {string} [DISTRICT_BOROUGH] - (Optional) District borough.
+ * @property {string} [DISTRICT_BOROUGH_URI] - (Optional) URI for the district borough.
+ * @property {string} [DISTRICT_BOROUGH_TYPE] - (Optional) Type of the district borough.
  * @property {string} [POSTCODE_DISTRICT] - (Optional) Postcode district.
  * @property {string} [POSTCODE_DISTRICT_URI] - (Optional) URI for the postcode district.
  * @property {string} [POPULATED_PLACE] - (Optional) Name of associated populated place.

@@ -77,11 +77,6 @@ function geocodeProxyRoute(options) {
       const { query } = request
       const data = await find(query.query, options.ordnanceSurveyApiKey)
 
-      // Remove the URI field from the header
-      if (data.header.uri) {
-        data.header.uri = '/forms/api/geocode-proxy'
-      }
-
       return data
     },
     options: {
@@ -111,11 +106,6 @@ function reverseGeocodeProxyRoute(options) {
         query.northing,
         options.ordnanceSurveyApiKey
       )
-
-      // Remove the URI field from the header
-      if (data.header.uri) {
-        data.header.uri = '/forms/api/reverse-geocode-proxy'
-      }
 
       return data
     },
