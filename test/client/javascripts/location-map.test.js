@@ -147,7 +147,7 @@ describe('Location Maps Client JS', () => {
     test('initMaps only applies when there are supported location components on the page', () => {
       const locations = document.querySelectorAll('.app-location-field')
 
-      // Remove any locations for the test
+      // Reset the location type of each component
       locations.forEach((location) => {
         location.setAttribute('data-locationtype', 'unknowntype')
       })
