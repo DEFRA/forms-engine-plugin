@@ -392,6 +392,16 @@ describe('DeclarationField', () => {
         expect(field.getFormValue({})).toBeUndefined()
       })
     })
+
+    describe('isDeclarationChecked', () => {
+      test('should return correct value', () => {
+        expect(DeclarationField.isDeclarationChecked(undefined)).toBe(false)
+        expect(DeclarationField.isDeclarationChecked(['true'])).toBe(true)
+        expect(DeclarationField.isDeclarationChecked([])).toBe(false)
+        expect(DeclarationField.isDeclarationChecked('true')).toBe(true)
+        expect(DeclarationField.isDeclarationChecked(true)).toBe(true)
+      })
+    })
   })
 
   describe('Validation', () => {
