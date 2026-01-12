@@ -1,6 +1,7 @@
 import {
   formSubmitFactory,
-  initMaps
+  initMaps,
+  makeTileRequestTransformer
 } from '~/src/client/javascripts/location-map.js'
 
 describe('Location Maps Client JS', () => {
@@ -178,5 +179,60 @@ describe('Location Maps Client JS', () => {
     onFormSubmit(e)
 
     expect(preventDefault).toHaveBeenCalledTimes(1)
+  })
+
+  describe('Tile request transformer', () => {
+    const apiPath = '/api'
+
+    test('tile request transformer factory returns a transformer function', () => {
+      const transformer = makeTileRequestTransformer(apiPath)
+
+      expect(typeof transformer).toBe('function')
+      expect(transformer).toHaveLength(2)
+    })
+
+    test('tile request transformer works on api.os.uk requests without an apikey', () => {
+      const url = 'https://api.os.uk/test.js'
+      const transformer = makeTileRequestTransformer(apiPath)
+      const result = transformer(url, 'Script')
+
+      expect(result).toEqual({
+        url: `${apiPath}/map-proxy?url=${encodeURIComponent(url)}`,
+        headers: {}
+      })
+    })
+
+    test('tile request transformer does not apply to api.os.uk requests that already have an api key', () => {
+      const url = 'https://api.os.uk/test.js?key=abcde'
+      const transformer = makeTileRequestTransformer(apiPath)
+      const result = transformer(url, 'Script')
+
+      expect(result).toEqual({
+        url,
+        headers: {}
+      })
+    })
+
+    test('tile request transformer does not apply to "Style" api.os.uk requests', () => {
+      const url = 'https://api.os.uk/test.js'
+      const transformer = makeTileRequestTransformer(apiPath)
+      const result = transformer(url, 'Style')
+
+      expect(result).toEqual({
+        url,
+        headers: {}
+      })
+    })
+
+    test('tile request transformer does not apply to other domain requests', () => {
+      const url = 'https://esri.os.uk/test.js'
+      const transformer = makeTileRequestTransformer(apiPath)
+      const result = transformer(url, 'Script')
+
+      expect(result).toEqual({
+        url,
+        headers: {}
+      })
+    })
   })
 })

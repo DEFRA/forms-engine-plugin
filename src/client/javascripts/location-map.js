@@ -75,7 +75,7 @@ export function initMaps(config = {}) {
  * OS API request proxy factory
  * @param {string} apiPath - the root API path
  */
-function makeTileRequestTransformer(apiPath) {
+export function makeTileRequestTransformer(apiPath) {
   /**
    * Proxy OS API requests via our server
    * @param {string} url - the request URL
