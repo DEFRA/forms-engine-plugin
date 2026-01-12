@@ -83,6 +83,31 @@ describe('Map API routes', () => {
     expect(response.result).toBe('{}')
   })
 
+  it('should get map proxy results and not set content type if not present proxied response', async () => {
+    const res = /** @type {IncomingMessage} */ ({
+      headers: {}
+    })
+
+    jest.mocked(request).mockResolvedValueOnce({
+      res,
+      payload: Buffer.from(JSON.stringify({}))
+    })
+
+    const urlToProxy = 'http://example.com'
+    const response = await server.inject({
+      url: `${basePath}/map-proxy?url=${encodeURIComponent(urlToProxy)}`,
+      method: 'GET'
+    })
+
+    expect(request).toHaveBeenCalledWith(
+      'get',
+      'http://example.com/?key=dummy&srs=3857'
+    )
+    expect(response.statusCode).toBe(StatusCodes.OK)
+    expect(response.headers['content-type']).toBe('application/octet-stream')
+    expect(response.result).toBe('{}')
+  })
+
   it('should get geocode results', async () => {
     jest.mocked(find).mockResolvedValueOnce(findResult)
 
