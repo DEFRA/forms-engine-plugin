@@ -143,6 +143,18 @@ describe('Location Maps Client JS', () => {
       expect(() => initMaps()).not.toThrow()
       expect(onMock).not.toHaveBeenCalled()
     })
+
+    test('initMaps only applies when there are supported location components on the page', () => {
+      const locations = document.querySelectorAll('.app-location-field')
+
+      // Remove any locations for the test
+      locations.forEach((location) => {
+        location.setAttribute('data-locationtype', 'unknowntype')
+      })
+
+      expect(() => initMaps()).not.toThrow()
+      expect(onMock).not.toHaveBeenCalled()
+    })
   })
 
   describe('Form submit event propagation', () => {
