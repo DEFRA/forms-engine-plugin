@@ -211,7 +211,7 @@ function createMap(mapId, initConfig, mapsConfig) {
             thumbnail: `${assetPath}/defra-map/assets/images/outdoor-map-thumb.jpg`,
             logo: `${assetPath}/defra-map/assets/images/os-logo.svg`,
             logoAltText,
-            attribution: `Contains OS data ${String.fromCharCode(COMPANY_SYMBOL_CODE)} Crown copyright and database rights ${new Date().getFullYear()}`,
+            attribution: `Contains OS data ${String.fromCodePoint(COMPANY_SYMBOL_CODE)} Crown copyright and database rights ${new Date().getFullYear()}`,
             backgroundColor: '#f5f5f0'
           },
           {
