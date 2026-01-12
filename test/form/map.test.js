@@ -5,9 +5,12 @@ import { createServer } from '~/src/server/index.js'
 import { find, nearest } from '~/src/server/plugins/map/service.js'
 import { result as findResult } from '~/src/server/plugins/map/test/__stubs__/find.js'
 import { result as nearestResult } from '~/src/server/plugins/map/test/__stubs__/nearest.js'
+import { request } from '~/src/server/services/httpService.js'
+
 const basePath = `${FORM_PREFIX}/api`
 
 jest.mock('~/src/server/plugins/map/service.js')
+jest.mock('~/src/server/services/httpService.ts')
 
 describe('Map API routes', () => {
   /** @type {Server} */
@@ -20,6 +23,64 @@ describe('Map API routes', () => {
     })
 
     await server.initialize()
+  })
+
+  it('should get map proxy results', async () => {
+    const res = /** @type {IncomingMessage} */ ({
+      headers: {
+        'content-type': 'application/json'
+      }
+    })
+
+    jest.mocked(request).mockResolvedValueOnce({
+      res,
+      payload: Buffer.from(JSON.stringify({}))
+    })
+
+    const urlToProxy = 'http://example.com?srs=3857'
+    const response = await server.inject({
+      url: `${basePath}/map-proxy?url=${encodeURIComponent(urlToProxy)}`,
+      method: 'GET'
+    })
+
+    expect(request).toHaveBeenCalledWith(
+      'get',
+      'http://example.com/?srs=3857&key=dummy'
+    )
+    expect(response.statusCode).toBe(StatusCodes.OK)
+    expect(response.headers['content-type']).toBe(
+      'application/json; charset=utf-8'
+    )
+    expect(response.result).toBe('{}')
+  })
+
+  it('should get map proxy results and set SRS if not present in the original request', async () => {
+    const res = /** @type {IncomingMessage} */ ({
+      headers: {
+        'content-type': 'application/json'
+      }
+    })
+
+    jest.mocked(request).mockResolvedValueOnce({
+      res,
+      payload: Buffer.from(JSON.stringify({}))
+    })
+
+    const urlToProxy = 'http://example.com'
+    const response = await server.inject({
+      url: `${basePath}/map-proxy?url=${encodeURIComponent(urlToProxy)}`,
+      method: 'GET'
+    })
+
+    expect(request).toHaveBeenCalledWith(
+      'get',
+      'http://example.com/?key=dummy&srs=3857'
+    )
+    expect(response.statusCode).toBe(StatusCodes.OK)
+    expect(response.headers['content-type']).toBe(
+      'application/json; charset=utf-8'
+    )
+    expect(response.result).toBe('{}')
   })
 
   it('should get geocode results', async () => {
@@ -48,5 +109,6 @@ describe('Map API routes', () => {
 })
 
 /**
+ * @import { IncomingMessage } from 'node:http'
  * @import { Server } from '@hapi/hapi'
  */

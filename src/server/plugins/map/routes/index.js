@@ -1,10 +1,7 @@
-import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
-import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { find, nearest } from '~/src/server/plugins/map/service.js'
-
-const logger = createLogger()
+import { request as httpRequest } from '~/src/server/services/httpService.js'
 
 /**
  * Gets the map support routes
@@ -28,30 +25,24 @@ function mapProxyRoute(options) {
     path: '/api/map-proxy',
     handler: async (request, h) => {
       const { query } = request
+      const targetUrl = new URL(decodeURIComponent(query.url))
 
-      try {
-        const targetUrl = new URL(decodeURIComponent(query.url))
-
-        // Add API key server-side
-        targetUrl.searchParams.set('key', options.ordnanceSurveyApiKey)
-        if (!targetUrl.searchParams.has('srs')) {
-          targetUrl.searchParams.set('srs', '3857')
-        }
-
-        const response = await fetch(targetUrl.toString())
-        const buffer = await response.arrayBuffer()
-        const contentType = response.headers.get('content-type')
-
-        return h
-          .response(Buffer.from(buffer))
-          .type(contentType ?? 'text/json')
-          .code(response.status)
-      } catch (err) {
-        logger.error(err, 'Proxy error')
-        return h
-          .response('Proxy failed')
-          .code(StatusCodes.INTERNAL_SERVER_ERROR)
+      // Add API key server-side and set SRS
+      targetUrl.searchParams.set('key', options.ordnanceSurveyApiKey)
+      if (!targetUrl.searchParams.has('srs')) {
+        targetUrl.searchParams.set('srs', '3857')
       }
+
+      const proxyResponse = await httpRequest('get', targetUrl.toString())
+      const buffer = proxyResponse.payload
+      const contentType = proxyResponse.res.headers['content-type']
+      const response = h.response(buffer)
+
+      if (contentType) {
+        response.type(contentType)
+      }
+
+      return response
     },
     options: {
       validate: {
