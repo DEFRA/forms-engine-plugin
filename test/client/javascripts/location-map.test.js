@@ -87,98 +87,114 @@ describe('Location Maps Client JS', () => {
     document.body.innerHTML = ''
   })
 
-  test('initMaps initializes without errors when DOM elements are present', () => {
-    expect(() => initMaps()).not.toThrow()
-    expect(onMock).toHaveBeenLastCalledWith('map:ready', expect.any(Function))
+  describe('Map initialisation', () => {
+    test('initMaps initializes without errors when DOM elements are present', () => {
+      expect(() => initMaps()).not.toThrow()
+      expect(onMock).toHaveBeenLastCalledWith('map:ready', expect.any(Function))
 
-    const onMapReady = onMock.mock.calls[0][1]
-    expect(typeof onMapReady).toBe('function')
+      const onMapReady = onMock.mock.calls[0][1]
+      expect(typeof onMapReady).toBe('function')
 
-    // Manually invoke onMapReady callback
-    const flyToMock = jest.fn()
-    onMapReady({
-      map: {
-        flyTo: flyToMock
-      }
+      // Manually invoke onMapReady callback
+      const flyToMock = jest.fn()
+      onMapReady({
+        map: {
+          flyTo: flyToMock
+        }
+      })
+
+      expect(addPanelMock).toHaveBeenCalledWith('info', expect.any(Object))
+
+      expect(onMock).toHaveBeenLastCalledWith(
+        'interact:markerchange',
+        expect.any(Function)
+      )
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      const onInteractMarkerChange = onMock.mock.calls[1][1]
+      expect(typeof onInteractMarkerChange).toBe('function')
+      onInteractMarkerChange({ coords: [0, 0] })
+
+      const inputs = document.body.querySelectorAll('input.govuk-input')
+      expect(inputs).toHaveLength(2)
+
+      const latInput = /** @type {HTMLInputElement} */ (inputs[0])
+      const longInput = /** @type {HTMLInputElement} */ (inputs[1])
+
+      latInput.value = '53.825564'
+      latInput.dispatchEvent(new window.Event('change'))
+
+      longInput.value = '-2.421975'
+      longInput.dispatchEvent(new window.Event('change'))
+
+      // Expect it to update once, only when both fields are valid
+      expect(addMarkerMock).toHaveBeenCalledTimes(1)
+      expect(flyToMock).toHaveBeenCalledTimes(1)
     })
 
-    expect(addPanelMock).toHaveBeenCalledWith('info', expect.any(Object))
+    test('initMaps only applies when there are location components on the page', () => {
+      const locations = document.querySelectorAll('.app-location-field')
 
-    expect(onMock).toHaveBeenLastCalledWith(
-      'interact:markerchange',
-      expect.any(Function)
-    )
+      // Remove any locations for the test
+      locations.forEach((location) => {
+        location.remove()
+      })
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const onInteractMarkerChange = onMock.mock.calls[1][1]
-    expect(typeof onInteractMarkerChange).toBe('function')
-    onInteractMarkerChange({ coords: [0, 0] })
-
-    const inputs = document.body.querySelectorAll('input.govuk-input')
-    expect(inputs).toHaveLength(2)
-
-    const latInput = /** @type {HTMLInputElement} */ (inputs[0])
-    const longInput = /** @type {HTMLInputElement} */ (inputs[1])
-
-    latInput.value = '53.825564'
-    latInput.dispatchEvent(new window.Event('change'))
-
-    longInput.value = '-2.421975'
-    longInput.dispatchEvent(new window.Event('change'))
-
-    // Expect it to update once, only when both fields are valid
-    expect(addMarkerMock).toHaveBeenCalledTimes(1)
-    expect(flyToMock).toHaveBeenCalledTimes(1)
+      expect(() => initMaps()).not.toThrow()
+      expect(onMock).not.toHaveBeenCalled()
+    })
   })
 
-  test('form does submit when submitter is the main form button', () => {
-    const preventDefault = jest.fn()
+  describe('Form submit event propagation', () => {
+    test('form does submit when submitter is the main form button', () => {
+      const preventDefault = jest.fn()
 
-    initMaps()
+      initMaps()
 
-    const form = document.body.querySelector('form')
-    if (!form) {
-      throw new TypeError('Unexpected empty form')
-    }
+      const form = document.body.querySelector('form')
+      if (!form) {
+        throw new TypeError('Unexpected empty form')
+      }
 
-    const buttons = Array.from(form.querySelectorAll('button'))
-    const onFormSubmit = formSubmitFactory(buttons)
+      const buttons = Array.from(form.querySelectorAll('button'))
+      const onFormSubmit = formSubmitFactory(buttons)
 
-    const e = /** @type {SubmitEvent} */ (
-      /** @type {unknown} */ ({
-        submitter: buttons.at(0),
-        preventDefault
-      })
-    )
+      const e = /** @type {SubmitEvent} */ (
+        /** @type {unknown} */ ({
+          submitter: buttons.at(0),
+          preventDefault
+        })
+      )
 
-    onFormSubmit(e)
+      onFormSubmit(e)
 
-    expect(preventDefault).toHaveBeenCalledTimes(0)
-  })
+      expect(preventDefault).toHaveBeenCalledTimes(0)
+    })
 
-  test('form does not submit unless it is the main form button', () => {
-    const preventDefault = jest.fn()
+    test('form does not submit unless it is the main form button', () => {
+      const preventDefault = jest.fn()
 
-    initMaps()
+      initMaps()
 
-    const form = document.body.querySelector('form')
-    if (!form) {
-      throw new TypeError('Unexpected empty form')
-    }
+      const form = document.body.querySelector('form')
+      if (!form) {
+        throw new TypeError('Unexpected empty form')
+      }
 
-    const buttons = Array.from(form.querySelectorAll('button'))
-    const onFormSubmit = formSubmitFactory(buttons)
+      const buttons = Array.from(form.querySelectorAll('button'))
+      const onFormSubmit = formSubmitFactory(buttons)
 
-    const e = /** @type {SubmitEvent} */ (
-      /** @type {unknown} */ ({
-        submitter: null,
-        preventDefault
-      })
-    )
+      const e = /** @type {SubmitEvent} */ (
+        /** @type {unknown} */ ({
+          submitter: null,
+          preventDefault
+        })
+      )
 
-    onFormSubmit(e)
+      onFormSubmit(e)
 
-    expect(preventDefault).toHaveBeenCalledTimes(1)
+      expect(preventDefault).toHaveBeenCalledTimes(1)
+    })
   })
 
   describe('Tile request transformer', () => {
