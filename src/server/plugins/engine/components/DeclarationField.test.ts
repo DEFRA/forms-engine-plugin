@@ -293,6 +293,58 @@ describe('DeclarationField', () => {
         )
       })
 
+      it('sets Nunjucks component to true when checked from save-anbd-exit', () => {
+        def = {
+          ...def,
+          hint: 'Please read and confirm the following'
+        } satisfies DeclarationFieldComponent
+
+        collection = new ComponentCollection([def], { model })
+        field = collection.fields[0]
+        const viewModel = field.getViewModel(getFormData(['true', 'unchecked']))
+
+        expect(viewModel).toEqual(
+          expect.objectContaining({
+            hint: {
+              text: 'Please read and confirm the following'
+            },
+            items: [
+              {
+                value: 'true',
+                text: 'I understand and agree',
+                checked: true
+              }
+            ]
+          })
+        )
+      })
+
+      it('sets Nunjucks component to false when unchecked from save-anbd-exit', () => {
+        def = {
+          ...def,
+          hint: 'Please read and confirm the following'
+        } satisfies DeclarationFieldComponent
+
+        collection = new ComponentCollection([def], { model })
+        field = collection.fields[0]
+        const viewModel = field.getViewModel(getFormData(['unchecked']))
+
+        expect(viewModel).toEqual(
+          expect.objectContaining({
+            hint: {
+              text: 'Please read and confirm the following'
+            },
+            items: [
+              {
+                value: 'true',
+                text: 'I understand and agree',
+                checked: false
+              }
+            ]
+          })
+        )
+      })
+
       it('sets Nunjucks component value when posted', () => {
         def = {
           ...def,
