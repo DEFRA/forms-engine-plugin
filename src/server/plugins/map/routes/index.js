@@ -16,6 +16,9 @@ export function getRoutes(options) {
 }
 
 /**
+ * Proxies ordnance survey requests from the front end to api.os.com
+ * Used for VTS map tiles, sprites and fonts by forwarding on the request
+ * and adding the apikey and optionally an SRS (spatial reference system)
  * @param {MapConfiguration} options - the map options
  * @returns {ServerRoute<MapProxyGetRequestRefs>}
  */
@@ -57,6 +60,8 @@ function mapProxyRoute(options) {
 }
 
 /**
+ * Proxies ordnance survey geocode requests from the front end to api.os.com
+ * Used for the gazzeteer address lookup to find name from query strings like postcode and place names
  * @param {MapConfiguration} options - the map options
  * @returns {ServerRoute<MapGeocodeGetRequestRefs>}
  */
@@ -83,6 +88,9 @@ function geocodeProxyRoute(options) {
 }
 
 /**
+ * Proxies ordnance survey reverse geocode requests from the front end to api.os.com
+ * Used to find name from easting and northing points.
+ * N.B this endpoint is currently not used by the front end but will be soon in "maps V2"
  * @param {MapConfiguration} options - the map options
  * @returns {ServerRoute<MapReverseGeocodeGetRequestRefs>}
  */
