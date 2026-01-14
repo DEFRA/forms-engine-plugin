@@ -115,7 +115,7 @@ function processLocation(config, location, index) {
   const locationType = location.dataset.locationtype
 
   // Check for support
-  const supportedLocations = ['latlongfield']
+  const supportedLocations = ['latlongfield', 'eastingnorthingfield']
   if (!locationType || !supportedLocations.includes(locationType)) {
     return
   }
