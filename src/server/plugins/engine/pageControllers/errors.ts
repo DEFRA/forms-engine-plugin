@@ -1,4 +1,3 @@
-import { FileUploadField } from '~/src/server/plugins/engine/components/FileUploadField.js'
 import { type FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 
 /**
@@ -23,11 +22,7 @@ export class InvalidComponentStateError extends Error {
 
   getStateKeys() {
     const extraStateKeys =
-      this.component instanceof FileUploadField
-        ? this.component.page?.path
-          ? [`upload['${this.component.page.path}']`]
-          : ['upload']
-        : []
+      this.component.page?.getStateKeys(this.component) ?? []
 
     return [this.component.name].concat(extraStateKeys)
   }
