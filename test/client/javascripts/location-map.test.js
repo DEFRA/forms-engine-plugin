@@ -64,7 +64,7 @@ describe('Location Maps Client JS', () => {
                   <div class="govuk-form-group">
                     <label class="govuk-label" for="cbkDgE__latitude">Latitude</label>
                     <div class="govuk-input__wrapper">
-                      <input class="govuk-input govuk-input--width-10" id="cbkDgE__latitude" name="cbkDgE__latitude" type="text" value="53.2392016" inputmode="text">
+                      <input class="govuk-input govuk-input--width-10" id="cbkDgE__latitude" name="cbkDgE__latitude" type="text" inputmode="text">
                       <div class="govuk-input__suffix" aria-hidden="true">°</div>
                     </div>
                   </div>
@@ -75,7 +75,7 @@ describe('Location Maps Client JS', () => {
                       Longitude
                     </label>
                     <div class="govuk-input__wrapper">
-                      <input class="govuk-input govuk-input--width-10" id="cbkDgE__longitude" name="cbkDgE__longitude" type="text" value="-2.5734104" inputmode="text">
+                      <input class="govuk-input govuk-input--width-10" id="cbkDgE__longitude" name="cbkDgE__longitude" type="text" inputmode="text">
                       <div class="govuk-input__suffix" aria-hidden="true">°</div>
                     </div>
                   </div>
@@ -116,11 +116,6 @@ describe('Location Maps Client JS', () => {
           expect.any(Function)
         )
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        const onInteractMarkerChange = onMock.mock.calls[1][1]
-        expect(typeof onInteractMarkerChange).toBe('function')
-        onInteractMarkerChange({ coords: [0, 0] })
-
         const inputs = document.body.querySelectorAll('input.govuk-input')
         expect(inputs).toHaveLength(2)
 
@@ -133,9 +128,131 @@ describe('Location Maps Client JS', () => {
         longInput.value = '-2.421975'
         longInput.dispatchEvent(new window.Event('change'))
 
+        // Expect it to update twice as when both fields are valid
+        expect(addMarkerMock).toHaveBeenCalledTimes(1)
+        expect(flyToMock).toHaveBeenCalledTimes(1)
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        const onInteractMarkerChange = onMock.mock.calls[1][1]
+        expect(typeof onInteractMarkerChange).toBe('function')
+        onInteractMarkerChange({ coords: [-2.1478238, 54.155676] })
+      })
+
+      test('initMaps only applies when there are location components on the page', () => {
+        const locations = document.querySelectorAll('.app-location-field')
+
+        // Remove any locations for the test
+        locations.forEach((location) => {
+          location.remove()
+        })
+
+        expect(() => initMaps()).not.toThrow()
+        expect(onMock).not.toHaveBeenCalled()
+      })
+
+      test('initMaps only applies when there are supported location components on the page', () => {
+        const locations = document.querySelectorAll('.app-location-field')
+
+        // Reset the location type of each component
+        locations.forEach((location) => {
+          location.setAttribute('data-locationtype', 'unknowntype')
+        })
+
+        expect(() => initMaps()).not.toThrow()
+        expect(onMock).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('Easting northing component', () => {
+    beforeEach(() => {
+      document.body.innerHTML = `
+        <form method="post" novalidate="">
+          <div class="govuk-form-group app-location-field " data-locationtype="eastingnorthingfield">
+            <fieldset class="govuk-fieldset" aria-describedby="cbkDgE-hint">
+              <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                What is your easting and northing
+              </legend>
+              <div id="cbkDgE-hint" class="govuk-hint">
+                For example. Easting: 248741, Northing: 63688
+              </div>
+              <div class="govuk-grid-row app-location-field-inputs">
+                <div class="govuk-grid-column-one-third">
+                  <div class="govuk-form-group">
+                    <label class="govuk-label" for="cbkDgE__easting">Easting</label>
+                    <div class="govuk-input__wrapper">
+                      <input class="govuk-input govuk-input--width-10" id="cbkDgE__easting" name="cbkDgE__easting" type="text" inputmode="text">
+                    </div>
+                  </div>
+                </div>
+                <div class="govuk-grid-column-one-third">
+                  <div class="govuk-form-group">
+                    <label class="govuk-label" for="cbkDgE__northing">
+                      Northing
+                    </label>
+                    <div class="govuk-input__wrapper">
+                      <input class="govuk-input govuk-input--width-10" id="cbkDgE__northing" name="cbkDgE__northing" type="text" inputmode="text">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+          <div class="govuk-button-group">
+            <button type="submit" data-prevent-double-click="true" class="govuk-button" data-module="govuk-button" data-govuk-button-init="">Continue</button>
+          </div>
+        </form>
+      `
+    })
+
+    describe('Map initialisation', () => {
+      test('initMaps easting northing initializes without errors when DOM elements are present', () => {
+        expect(() => initMaps()).not.toThrow()
+        expect(onMock).toHaveBeenLastCalledWith(
+          'map:ready',
+          expect.any(Function)
+        )
+
+        const onMapReady = onMock.mock.calls[0][1]
+        expect(typeof onMapReady).toBe('function')
+
+        // Manually invoke onMapReady callback
+        const flyToMock = jest.fn()
+        onMapReady({
+          map: {
+            flyTo: flyToMock
+          }
+        })
+
+        expect(addPanelMock).toHaveBeenCalledWith('info', expect.any(Object))
+
+        expect(onMock).toHaveBeenLastCalledWith(
+          'interact:markerchange',
+          expect.any(Function)
+        )
+
+        const inputs = document.body.querySelectorAll('input.govuk-input')
+        expect(inputs).toHaveLength(2)
+
+        const eastingInput = /** @type {HTMLInputElement} */ (inputs[0])
+        const northingInput = /** @type {HTMLInputElement} */ (inputs[1])
+
+        eastingInput.value = '380779'
+        eastingInput.dispatchEvent(new window.Event('change'))
+
+        northingInput.value = '462222'
+        northingInput.dispatchEvent(new window.Event('change'))
+
         // Expect it to update once, only when both fields are valid
         expect(addMarkerMock).toHaveBeenCalledTimes(1)
         expect(flyToMock).toHaveBeenCalledTimes(1)
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        const onInteractMarkerChange = onMock.mock.calls[1][1]
+        expect(typeof onInteractMarkerChange).toBe('function')
+        onInteractMarkerChange({
+          coords: [-2.147823, 54.155676]
+        })
       })
 
       test('initMaps only applies when there are location components on the page', () => {
