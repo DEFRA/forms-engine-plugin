@@ -1,3 +1,33 @@
+// @ts-expect-error - no types
+import OsGridRef, { LatLon } from 'geodesy/osgridref.js'
+
+/**
+ * Converts lat long to easting and northing
+ * @param {object} param
+ * @param {number} param.lat
+ * @param {number} param.long
+ * @returns {{ easting: number, northing: number }}
+ */
+function latLongToEastingNorthing({ lat, long }) {
+  const point = new LatLon(lat, long)
+
+  return point.toOsGrid()
+}
+
+/**
+ * Converts easting and northing to lat long
+ * @param {object} param
+ * @param {number} param.easting
+ * @param {number} param.northing
+ * @returns {{ lat: number, long: number }}
+ */
+function eastingNorthingToLatLong({ easting, northing }) {
+  const point = new OsGridRef(easting, northing)
+  const latLong = point.toLatLon()
+
+  return { lat: latLong.latitude, long: latLong.longitude }
+}
+
 // Center of UK
 const DEFAULT_LAT = 53.825564
 const DEFAULT_LONG = -2.421975
@@ -144,6 +174,9 @@ function processLocation(config, location, index) {
         case 'latlongfield':
           bindLatLongField(location, map, e.map)
           break
+        case 'eastingnorthingfield':
+          bindEastingNorthingField(location, map, e.map)
+          break
         default:
           throw new Error('Not implemented')
       }
@@ -267,6 +300,8 @@ function getInitMapConfig(locationField) {
   switch (locationType) {
     case 'latlongfield':
       return getInitLatLongMapConfig(locationField)
+    case 'eastingnorthingfield':
+      return getInitEastingNorthingMapConfig(locationField)
     default:
       throw new Error('Not implemented')
   }
@@ -302,6 +337,35 @@ function validateLatLong(strLat, strLong) {
 }
 
 /**
+ * Validates easting and northing is numeric and within UK bounds
+ * @param {string} strEasting - the easting string
+ * @param {string} strNorthing - the northing string
+ * @returns {{ valid: false } | { valid: true, value: { easting: number, northing: number } }}
+ */
+function validateEastingNorthing(strEasting, strNorthing) {
+  const easting = strEasting.trim() && Number(strEasting.trim())
+  const northing = strNorthing.trim() && Number(strNorthing.trim())
+
+  if (!easting || !northing) {
+    return { valid: false }
+  }
+
+  const eastingMin = 0
+  const eastingMax = 700000
+  const northingMin = 0
+  const northingMax = 1300000
+
+  const latInBounds = easting >= eastingMin && easting <= eastingMax
+  const longInBounds = northing >= northingMin && northing <= northingMax
+
+  if (!latInBounds || !longInBounds) {
+    return { valid: false }
+  }
+
+  return { valid: true, value: { easting, northing } }
+}
+
+/**
  * Gets initial map config for a latlong location field
  * @param {HTMLDivElement} locationField - the latlong location field element
  */
@@ -319,6 +383,23 @@ function getLatLongInputs(locationField) {
 }
 
 /**
+ * Gets initial map config for a easting/northing location field
+ * @param {HTMLDivElement} locationField - the eastingnorthing location field element
+ */
+function getEastingNorthingInputs(locationField) {
+  const inputs = locationField.querySelectorAll('input.govuk-input')
+
+  if (inputs.length !== 2) {
+    throw new Error('Expected 2 inputs for easting and northing')
+  }
+
+  const eastingInput = /** @type {HTMLInputElement} */ (inputs[0])
+  const northingInput = /** @type {HTMLInputElement} */ (inputs[1])
+
+  return { eastingInput, northingInput }
+}
+
+/**
  * Gets initial map config for a latlong location field
  * @param {HTMLDivElement} locationField - the latlong location field element
  * @returns {DefraMapInitConfig | undefined}
@@ -331,13 +412,50 @@ function getInitLatLongMapConfig(locationField) {
     return undefined
   }
 
+  /** @type {MapCenter} */
+  const center = [result.value.long, result.value.lat]
+
   return {
     zoom: '16',
-    center: [result.value.long, result.value.lat],
+    center,
     markers: [
       {
         id: 'location',
-        coords: [result.value.long, result.value.lat]
+        coords: center
+      }
+    ]
+  }
+}
+
+/**
+ * Gets initial map config for a easting/northing location field
+ * @param {HTMLDivElement} locationField - the eastingnorthing location field element
+ * @returns {DefraMapInitConfig | undefined}
+ */
+function getInitEastingNorthingMapConfig(locationField) {
+  const { eastingInput, northingInput } =
+    getEastingNorthingInputs(locationField)
+  const result = validateEastingNorthing(
+    eastingInput.value,
+    northingInput.value
+  )
+
+  if (!result.valid) {
+    return undefined
+  }
+
+  const latlong = eastingNorthingToLatLong(result.value)
+
+  /** @type {MapCenter} */
+  const center = [latlong.long, latlong.lat]
+
+  return {
+    zoom: '16',
+    center,
+    markers: [
+      {
+        id: 'location',
+        coords: center
       }
     ]
   }
@@ -391,6 +509,67 @@ function bindLatLongField(locationField, map, mapProvider) {
 
   latInput.addEventListener('change', onUpdateInputs, false)
   longInput.addEventListener('change', onUpdateInputs, false)
+}
+
+/**
+ * Bind an eastingnorthing field to the map
+ * @param {HTMLDivElement} locationField - the eastingnorthing location field
+ * @param {DefraMap} map - the map component instance (of DefraMap)
+ * @param {MapLibreMap} mapProvider - the map provider instance (of MapLibreMap)
+ */
+function bindEastingNorthingField(locationField, map, mapProvider) {
+  const { eastingInput, northingInput } =
+    getEastingNorthingInputs(locationField)
+
+  map.on(
+    'interact:markerchange',
+    /**
+     * Callback function which fires when the map marker changes
+     * @param {object} e - the event
+     * @param {[number, number]} e.coords - the map marker coordinates
+     */
+    function onInteractMarkerChange(e) {
+      const maxPrecision = 0
+      const point = latLongToEastingNorthing({
+        lat: e.coords[1],
+        long: e.coords[0]
+      })
+
+      eastingInput.value = point.easting.toFixed(maxPrecision)
+      northingInput.value = point.northing.toFixed(maxPrecision)
+    }
+  )
+
+  /**
+   * Easting & northing input change event listener
+   * Update the map view location when the inputs are changed
+   */
+  function onUpdateInputs() {
+    const result = validateEastingNorthing(
+      eastingInput.value,
+      northingInput.value
+    )
+
+    if (result.valid) {
+      const latlong = eastingNorthingToLatLong(result.value)
+
+      /** @type {MapCenter} */
+      const center = [latlong.long, latlong.lat]
+
+      // Move the 'location' marker to the new point
+      map.addMarker('location', center)
+
+      // Pan & zoom the map to the new valid location
+      mapProvider.flyTo({
+        center,
+        zoom: 14,
+        essential: true
+      })
+    }
+  }
+
+  eastingInput.addEventListener('change', onUpdateInputs, false)
+  northingInput.addEventListener('change', onUpdateInputs, false)
 }
 
 /**
