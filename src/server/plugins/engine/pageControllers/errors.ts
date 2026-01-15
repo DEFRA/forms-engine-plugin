@@ -23,7 +23,11 @@ export class InvalidComponentStateError extends Error {
 
   getStateKeys() {
     const extraStateKeys =
-      this.component instanceof FileUploadField ? ['upload'] : []
+      this.component instanceof FileUploadField
+        ? this.component.page?.path
+          ? [`upload['${this.component.page.path}']`]
+          : ['upload']
+        : []
 
     return [this.component.name].concat(extraStateKeys)
   }
