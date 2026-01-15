@@ -128,7 +128,7 @@ describe('Location Maps Client JS', () => {
         longInput.value = '-2.421975'
         longInput.dispatchEvent(new window.Event('change'))
 
-        // Expect it to update twice as when both fields are valid
+        // Expect it to update once, only when both fields are valid
         expect(addMarkerMock).toHaveBeenCalledTimes(1)
         expect(flyToMock).toHaveBeenCalledTimes(1)
 
@@ -136,6 +136,52 @@ describe('Location Maps Client JS', () => {
         const onInteractMarkerChange = onMock.mock.calls[1][1]
         expect(typeof onInteractMarkerChange).toBe('function')
         onInteractMarkerChange({ coords: [-2.1478238, 54.155676] })
+      })
+
+      test('initMaps with initial values', () => {
+        const inputs = document.body.querySelectorAll('input.govuk-input')
+        expect(inputs).toHaveLength(2)
+
+        const latInput = /** @type {HTMLInputElement} */ (inputs[0])
+        const longInput = /** @type {HTMLInputElement} */ (inputs[1])
+
+        // Set some initial values prior to initMaps
+        latInput.value = '53.743697'
+        longInput.value = '-1.522781'
+
+        expect(() => initMaps()).not.toThrow()
+        expect(onMock).toHaveBeenLastCalledWith(
+          'map:ready',
+          expect.any(Function)
+        )
+
+        const onMapReady = onMock.mock.calls[0][1]
+        expect(typeof onMapReady).toBe('function')
+
+        // Manually invoke onMapReady callback
+        const flyToMock = jest.fn()
+        onMapReady({
+          map: {
+            flyTo: flyToMock
+          }
+        })
+
+        expect(addPanelMock).toHaveBeenCalledWith('info', expect.any(Object))
+
+        expect(onMock).toHaveBeenLastCalledWith(
+          'interact:markerchange',
+          expect.any(Function)
+        )
+
+        latInput.value = '53.825564'
+        latInput.dispatchEvent(new window.Event('change'))
+
+        longInput.value = '-2.421975'
+        longInput.dispatchEvent(new window.Event('change'))
+
+        // Expect it to update twice as both fields are already valid
+        expect(addMarkerMock).toHaveBeenCalledTimes(2)
+        expect(flyToMock).toHaveBeenCalledTimes(2)
       })
 
       test('initMaps only applies when there are location components on the page', () => {
@@ -253,6 +299,52 @@ describe('Location Maps Client JS', () => {
         onInteractMarkerChange({
           coords: [-2.147823, 54.155676]
         })
+      })
+
+      test('initMaps with initial values', () => {
+        const inputs = document.body.querySelectorAll('input.govuk-input')
+        expect(inputs).toHaveLength(2)
+
+        const eastingInput = /** @type {HTMLInputElement} */ (inputs[0])
+        const northingInput = /** @type {HTMLInputElement} */ (inputs[1])
+
+        // Set some initial values prior to initMaps
+        eastingInput.value = '431571'
+        northingInput.value = '427585'
+
+        expect(() => initMaps()).not.toThrow()
+        expect(onMock).toHaveBeenLastCalledWith(
+          'map:ready',
+          expect.any(Function)
+        )
+
+        const onMapReady = onMock.mock.calls[0][1]
+        expect(typeof onMapReady).toBe('function')
+
+        // Manually invoke onMapReady callback
+        const flyToMock = jest.fn()
+        onMapReady({
+          map: {
+            flyTo: flyToMock
+          }
+        })
+
+        expect(addPanelMock).toHaveBeenCalledWith('info', expect.any(Object))
+
+        expect(onMock).toHaveBeenLastCalledWith(
+          'interact:markerchange',
+          expect.any(Function)
+        )
+
+        eastingInput.value = '380779'
+        eastingInput.dispatchEvent(new window.Event('change'))
+
+        northingInput.value = '462222'
+        northingInput.dispatchEvent(new window.Event('change'))
+
+        // Expect it to update twice as both fields are already valid
+        expect(addMarkerMock).toHaveBeenCalledTimes(2)
+        expect(flyToMock).toHaveBeenCalledTimes(2)
       })
 
       test('initMaps only applies when there are location components on the page', () => {
