@@ -40,11 +40,23 @@ export const addClassOptionIfNone = (
 }
 
 /**
+ * Applies lowerFirst but preserves capitalisation of proper nouns
+ * like "National Grid", "Ordnance Survey" and "OS".
+ */
+export function lowerFirstPreserveProperNouns(text: string): string {
+  const result = lowerFirst(text)
+  return result
+    .replace(/\bnational [Gg]rid\b/g, 'National Grid')
+    .replace(/\bordnance [Ss]urvey\b/g, 'Ordnance Survey')
+    .replace(/\b[oO][sS]\b/g, 'OS')
+}
+
+/**
  * Configuration for Joi expressions that use lowerFirst function
  */
 export const lowerFirstExpressionOptions = {
   functions: {
-    lowerFirst
+    lowerFirst: lowerFirstPreserveProperNouns
   }
 } as ReferenceOptions
 
