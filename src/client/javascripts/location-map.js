@@ -64,6 +64,7 @@ const defaultConfig = {
 }
 
 const COMPANY_SYMBOL_CODE = 169
+const LOCATION_FIELD_SELECTOR = 'input.govuk-input'
 
 const defaultData = {
   VTS_OUTDOOR_URL:
@@ -426,7 +427,7 @@ function validateOsGridRef(osGridRef) {
  * @param {HTMLDivElement} locationField - the latlong location field element
  */
 function getLatLongInputs(locationField) {
-  const inputs = locationField.querySelectorAll('input.govuk-input')
+  const inputs = locationField.querySelectorAll(LOCATION_FIELD_SELECTOR)
 
   if (inputs.length !== 2) {
     throw new Error('Expected 2 inputs for lat and long')
@@ -443,7 +444,7 @@ function getLatLongInputs(locationField) {
  * @param {HTMLDivElement} locationField - the eastingnorthing location field element
  */
 function getEastingNorthingInputs(locationField) {
-  const inputs = locationField.querySelectorAll('input.govuk-input')
+  const inputs = locationField.querySelectorAll(LOCATION_FIELD_SELECTOR)
 
   if (inputs.length !== 2) {
     throw new Error('Expected 2 inputs for easting and northing')
@@ -460,7 +461,7 @@ function getEastingNorthingInputs(locationField) {
  * @param {HTMLDivElement} locationField - the osgridref location field element
  */
 function getOsGridRefInput(locationField) {
-  const input = locationField.querySelector('input.govuk-input')
+  const input = locationField.querySelector(LOCATION_FIELD_SELECTOR)
 
   if (input === null) {
     throw new Error('Expected 1 input for osgridref')
