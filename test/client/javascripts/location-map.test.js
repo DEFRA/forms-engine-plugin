@@ -373,6 +373,145 @@ describe('Location Maps Client JS', () => {
     })
   })
 
+  describe('OS grid reference component', () => {
+    beforeEach(() => {
+      document.body.innerHTML = `
+        <form method="post" novalidate="">
+          <div class="govuk-form-group app-location-field " data-locationtype="osgridreffield">
+            <div class="app-location-field-inputs">
+              <div class="govuk-form-group">
+                <h1 class="govuk-label-wrapper">
+                  <label class="govuk-label govuk-label--l" for="VtopAx">
+                    OS grid reference
+                  </label>
+                </h1>
+                <div id="VtopAx-hint" class="govuk-hint">
+                  An OS grid reference number is made up of 2 letters followed by either 6, 8 or 10 numbers, for example, TQ123456
+                </div>
+                <input class="govuk-input" id="VtopAx" name="VtopAx" type="text" aria-describedby="VtopAx-hint">
+              </div>
+            </div>
+          </div>
+          <div class="govuk-button-group">
+            <button type="submit" data-prevent-double-click="true" class="govuk-button" data-module="govuk-button" data-govuk-button-init="">Continue</button>
+          </div>
+        </form>
+      `
+    })
+
+    describe('Map initialisation', () => {
+      test('initMaps os grid reference initializes without errors when DOM elements are present', () => {
+        expect(() => initMaps()).not.toThrow()
+        expect(onMock).toHaveBeenLastCalledWith(
+          'map:ready',
+          expect.any(Function)
+        )
+
+        const onMapReady = onMock.mock.calls[0][1]
+        expect(typeof onMapReady).toBe('function')
+
+        // Manually invoke onMapReady callback
+        const flyToMock = jest.fn()
+        onMapReady({
+          map: {
+            flyTo: flyToMock
+          }
+        })
+
+        expect(addPanelMock).toHaveBeenCalledWith('info', expect.any(Object))
+
+        expect(onMock).toHaveBeenLastCalledWith(
+          'interact:markerchange',
+          expect.any(Function)
+        )
+
+        const input = document.body.querySelector('input.govuk-input')
+        expect(input).toBeDefined()
+
+        const osGridRefInput = /** @type {HTMLInputElement} */ (input)
+
+        osGridRefInput.value = 'SJ 61831 71507'
+        osGridRefInput.dispatchEvent(new window.Event('change'))
+
+        // Expect it to update once
+        expect(addMarkerMock).toHaveBeenCalledTimes(1)
+        expect(flyToMock).toHaveBeenCalledTimes(1)
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        const onInteractMarkerChange = onMock.mock.calls[1][1]
+        expect(typeof onInteractMarkerChange).toBe('function')
+        onInteractMarkerChange({
+          coords: [-2.147823, 54.155676]
+        })
+      })
+
+      test('initMaps with initial values', () => {
+        const input = document.body.querySelector('input.govuk-input')
+        expect(input).toBeDefined()
+
+        const osGridRefInput = /** @type {HTMLInputElement} */ (input)
+
+        // Set some initial values prior to initMaps
+        osGridRefInput.value = 'SJ 61831 7150'
+
+        expect(() => initMaps()).not.toThrow()
+        expect(onMock).toHaveBeenLastCalledWith(
+          'map:ready',
+          expect.any(Function)
+        )
+
+        const onMapReady = onMock.mock.calls[0][1]
+        expect(typeof onMapReady).toBe('function')
+
+        // Manually invoke onMapReady callback
+        const flyToMock = jest.fn()
+        onMapReady({
+          map: {
+            flyTo: flyToMock
+          }
+        })
+
+        expect(addPanelMock).toHaveBeenCalledWith('info', expect.any(Object))
+
+        expect(onMock).toHaveBeenLastCalledWith(
+          'interact:markerchange',
+          expect.any(Function)
+        )
+
+        osGridRefInput.value = 'SJ 61836 71440'
+        osGridRefInput.dispatchEvent(new window.Event('change'))
+
+        // Expect it to update once as the field is valid
+        expect(addMarkerMock).toHaveBeenCalledTimes(1)
+        expect(flyToMock).toHaveBeenCalledTimes(1)
+      })
+
+      test('initMaps only applies when there are location components on the page', () => {
+        const locations = document.querySelectorAll('.app-location-field')
+
+        // Remove any locations for the test
+        locations.forEach((location) => {
+          location.remove()
+        })
+
+        expect(() => initMaps()).not.toThrow()
+        expect(onMock).not.toHaveBeenCalled()
+      })
+
+      test('initMaps only applies when there are supported location components on the page', () => {
+        const locations = document.querySelectorAll('.app-location-field')
+
+        // Reset the location type of each component
+        locations.forEach((location) => {
+          location.setAttribute('data-locationtype', 'unknowntype')
+        })
+
+        expect(() => initMaps()).not.toThrow()
+        expect(onMock).not.toHaveBeenCalled()
+      })
+    })
+  })
+
   describe('Form submit event propagation', () => {
     beforeEach(() => {
       document.body.innerHTML = `
