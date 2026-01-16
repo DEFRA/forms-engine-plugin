@@ -28,6 +28,31 @@ function eastingNorthingToLatLong({ easting, northing }) {
   return { lat: latLong.latitude, long: latLong.longitude }
 }
 
+/**
+ * Converts lat long to an ordnance survey grid reference
+ * @param {object} param
+ * @param {number} param.lat
+ * @param {number} param.long
+ * @returns {string}
+ */
+function latLongToOsGridRef({ lat, long }) {
+  const point = new LatLon(lat, long)
+
+  return point.toOsGrid().toString()
+}
+
+/**
+ * Converts an ordnance survey grid reference to lat long
+ * @param {string} osGridRef
+ * @returns {{ lat: number, long: number }}
+ */
+function osGridRefToLatLong(osGridRef) {
+  const point = OsGridRef.parse(osGridRef)
+  const latLong = point.toLatLon()
+
+  return { lat: latLong.latitude, long: latLong.longitude }
+}
+
 // Center of UK
 const DEFAULT_LAT = 53.825564
 const DEFAULT_LONG = -2.421975
@@ -145,7 +170,11 @@ function processLocation(config, location, index) {
   const locationType = location.dataset.locationtype
 
   // Check for support
-  const supportedLocations = ['latlongfield', 'eastingnorthingfield']
+  const supportedLocations = [
+    'latlongfield',
+    'eastingnorthingfield',
+    'osgridreffield'
+  ]
   if (!locationType || !supportedLocations.includes(locationType)) {
     return
   }
@@ -176,6 +205,9 @@ function processLocation(config, location, index) {
           break
         case 'eastingnorthingfield':
           bindEastingNorthingField(location, map, e.map)
+          break
+        case 'osgridreffield':
+          bindOsGridRefField(location, map, e.map)
           break
         default:
           throw new Error('Not implemented')
@@ -302,6 +334,8 @@ function getInitMapConfig(locationField) {
       return getInitLatLongMapConfig(locationField)
     case 'eastingnorthingfield':
       return getInitEastingNorthingMapConfig(locationField)
+    case 'osgridreffield':
+      return getInitOsGridRefMapConfig(locationField)
     default:
       throw new Error('Not implemented')
   }
@@ -366,7 +400,29 @@ function validateEastingNorthing(strEasting, strNorthing) {
 }
 
 /**
- * Gets initial map config for a latlong location field
+ * Validates OS grid reference is correct
+ * @param {string} osGridRef - the OsGridRef
+ * @returns {{ valid: false } | { valid: true, value: string }}
+ */
+function validateOsGridRef(osGridRef) {
+  if (!osGridRef) {
+    return { valid: false }
+  }
+
+  const pattern =
+    /^((([sS]|[nN])[a-hA-Hj-zJ-Z])|(([tT]|[oO])[abfglmqrvwABFGLMQRVW])|([hH][l-zL-Z])|([jJ][lmqrvwLMQRVW]))\s?(([0-9]{3})\s?([0-9]{3})|([0-9]{4})\s?([0-9]{4})|([0-9]{5})\s?([0-9]{5}))$/
+
+  const match = pattern.exec(osGridRef)
+
+  if (match === null) {
+    return { valid: false }
+  }
+
+  return { valid: true, value: match[0] }
+}
+
+/**
+ * Gets the inputs for a latlong location field
  * @param {HTMLDivElement} locationField - the latlong location field element
  */
 function getLatLongInputs(locationField) {
@@ -383,7 +439,7 @@ function getLatLongInputs(locationField) {
 }
 
 /**
- * Gets initial map config for a easting/northing location field
+ * Gets the inputs for a easting/northing location field
  * @param {HTMLDivElement} locationField - the eastingnorthing location field element
  */
 function getEastingNorthingInputs(locationField) {
@@ -397,6 +453,20 @@ function getEastingNorthingInputs(locationField) {
   const northingInput = /** @type {HTMLInputElement} */ (inputs[1])
 
   return { eastingInput, northingInput }
+}
+
+/**
+ * Gets the input for a OS grid reference location field
+ * @param {HTMLDivElement} locationField - the osgridref location field element
+ */
+function getOsGridRefInput(locationField) {
+  const input = locationField.querySelector('input.govuk-input')
+
+  if (input === null) {
+    throw new Error('Expected 1 input for osgridref')
+  }
+
+  return /** @type {HTMLInputElement} */ (input)
 }
 
 /**
@@ -445,6 +515,36 @@ function getInitEastingNorthingMapConfig(locationField) {
   }
 
   const latlong = eastingNorthingToLatLong(result.value)
+
+  /** @type {MapCenter} */
+  const center = [latlong.long, latlong.lat]
+
+  return {
+    zoom: '16',
+    center,
+    markers: [
+      {
+        id: 'location',
+        coords: center
+      }
+    ]
+  }
+}
+
+/**
+ * Gets initial map config for an OS grid reference location field
+ * @param {HTMLDivElement} locationField - the osgridref location field element
+ * @returns {DefraMapInitConfig | undefined}
+ */
+function getInitOsGridRefMapConfig(locationField) {
+  const osGridRefInput = getOsGridRefInput(locationField)
+  const result = validateOsGridRef(osGridRefInput.value)
+
+  if (!result.valid) {
+    return undefined
+  }
+
+  const latlong = osGridRefToLatLong(result.value)
 
   /** @type {MapCenter} */
   const center = [latlong.long, latlong.lat]
@@ -570,6 +670,60 @@ function bindEastingNorthingField(locationField, map, mapProvider) {
 
   eastingInput.addEventListener('change', onUpdateInputs, false)
   northingInput.addEventListener('change', onUpdateInputs, false)
+}
+
+/**
+ * Bind an OS grid reference field to the map
+ * @param {HTMLDivElement} locationField - the osgridref location field
+ * @param {DefraMap} map - the map component instance (of DefraMap)
+ * @param {MapLibreMap} mapProvider - the map provider instance (of MapLibreMap)
+ */
+function bindOsGridRefField(locationField, map, mapProvider) {
+  const osGridRefInput = getOsGridRefInput(locationField)
+
+  map.on(
+    'interact:markerchange',
+    /**
+     * Callback function which fires when the map marker changes
+     * @param {object} e - the event
+     * @param {[number, number]} e.coords - the map marker coordinates
+     */
+    function onInteractMarkerChange(e) {
+      const point = latLongToOsGridRef({
+        lat: e.coords[1],
+        long: e.coords[0]
+      })
+
+      osGridRefInput.value = point
+    }
+  )
+
+  /**
+   * OS grid reference input change event listener
+   * Update the map view location when the input is changed
+   */
+  function onUpdateInput() {
+    const result = validateOsGridRef(osGridRefInput.value)
+
+    if (result.valid) {
+      const latlong = osGridRefToLatLong(result.value)
+
+      /** @type {MapCenter} */
+      const center = [latlong.long, latlong.lat]
+
+      // Move the 'location' marker to the new point
+      map.addMarker('location', center)
+
+      // Pan & zoom the map to the new valid location
+      mapProvider.flyTo({
+        center,
+        zoom: 14,
+        essential: true
+      })
+    }
+  }
+
+  osGridRefInput.addEventListener('change', onUpdateInput, false)
 }
 
 /**
