@@ -65,6 +65,9 @@ const defaultConfig = {
 
 const COMPANY_SYMBOL_CODE = 169
 const LOCATION_FIELD_SELECTOR = 'input.govuk-input'
+const EVENTS = {
+  interactMarkerChange: 'interact:markerchange'
+}
 
 const defaultData = {
   VTS_OUTDOOR_URL:
@@ -572,7 +575,7 @@ function bindLatLongField(locationField, map, mapProvider) {
   const { latInput, longInput } = getLatLongInputs(locationField)
 
   map.on(
-    'interact:markerchange',
+    EVENTS.interactMarkerChange,
     /**
      * Callback function which fires when the map marker changes
      * @param {object} e - the event
@@ -623,7 +626,7 @@ function bindEastingNorthingField(locationField, map, mapProvider) {
     getEastingNorthingInputs(locationField)
 
   map.on(
-    'interact:markerchange',
+    EVENTS.interactMarkerChange,
     /**
      * Callback function which fires when the map marker changes
      * @param {object} e - the event
@@ -683,7 +686,7 @@ function bindOsGridRefField(locationField, map, mapProvider) {
   const osGridRefInput = getOsGridRefInput(locationField)
 
   map.on(
-    'interact:markerchange',
+    EVENTS.interactMarkerChange,
     /**
      * Callback function which fires when the map marker changes
      * @param {object} e - the event
