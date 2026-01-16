@@ -99,6 +99,22 @@ export class CacheService {
     request.yar.flash(key.id, message)
   }
 
+  async resetComponentStates(
+    request: AnyFormRequest,
+    componentNames: string[]
+  ) {
+    const state = await this.getState(request)
+
+    for (const componentName of componentNames) {
+      if (componentName in state) {
+        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+        delete state[componentName]
+      }
+    }
+
+    return this.setState(request, state)
+  }
+
   /**
    * The key used to store user session data against.
    * If there are multiple forms on the same runner instance, for example `form-a` and `form-a-feedback` this will prevent CacheService from clearing data from `form-a` if a user gave feedback before they finished `form-a`

@@ -87,7 +87,11 @@ describe('Nunjucks context', () => {
             }
           },
           path: '/test',
-          url: { search: '' }
+          url: { search: '' },
+          yar: {
+            flash: jest.fn().mockReturnValue([]),
+            commit: jest.fn()
+          }
           // state intentionally omitted to test real malformed requests
         })
       )
@@ -121,7 +125,11 @@ describe('Nunjucks context', () => {
           },
           path: '/test',
           url: { search: '' },
-          state: {}
+          state: {},
+          yar: {
+            flash: jest.fn().mockReturnValue([]),
+            commit: jest.fn()
+          }
         })
       )
 

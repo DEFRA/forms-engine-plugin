@@ -1,9 +1,17 @@
 import { getHiddenFields } from '@defra/forms-model'
 
+import {
+  CURRENT_PAGE_PATH_KEY,
+  STATE_NOT_YET_VALIDATED
+} from '~/src/server/plugins/engine/index.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import {
   type AnyFormRequest,
-  type FormStateValue
+  type FormContext,
+  type FormContextRequest,
+  type FormStateValue,
+  type FormSubmissionState,
+  type FormValue
 } from '~/src/server/plugins/engine/types.js'
 import { type FormQuery } from '~/src/server/routes/types.js'
 import { type Services } from '~/src/server/types.js'
@@ -90,4 +98,45 @@ export async function prefillStateFromQueryParameters(
   await page.mergeState(request, formData, params)
 
   return true
+}
+
+/**
+ * Copies any potentially invalid state into the payload, and removes those values from state
+ * NOTE - this method has a side-effect on 'context.state' and 'context.payload'
+ * @param request - the form request
+ * @param context - the form context
+ */
+export function copyNotYetValidatedState(
+  request: FormContextRequest,
+  context: FormContext
+) {
+  const potentiallyInvalidState = context.state[STATE_NOT_YET_VALIDATED] as
+    | Record<string, FormValue>
+    | undefined
+  if (!potentiallyInvalidState) {
+    return
+  }
+
+  const originalPath = potentiallyInvalidState[CURRENT_PAGE_PATH_KEY]
+
+  if (originalPath && originalPath === request.url.pathname) {
+    context.payload = {
+      ...context.payload,
+      ...potentiallyInvalidState,
+      [CURRENT_PAGE_PATH_KEY]: undefined
+    }
+  }
+}
+
+/**
+ * Remove any temporary 'not yet validated' state now that it's been validated
+ * @param state - the form state
+ */
+export function clearNotYetValidatedState(
+  state: FormSubmissionState
+): FormSubmissionState {
+  if (state[STATE_NOT_YET_VALIDATED]) {
+    state[STATE_NOT_YET_VALIDATED] = undefined
+  }
+  return state
 }

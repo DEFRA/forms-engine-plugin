@@ -88,8 +88,7 @@ export default /** @satisfies {FormDefinition} */ ({
         })
       ]
     })
-  ],
-  outputEmail: 'enrique.chase@defra.gov.uk'
+  ]
 })
 
 /**
