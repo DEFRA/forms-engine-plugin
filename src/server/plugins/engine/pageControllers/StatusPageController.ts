@@ -12,10 +12,12 @@ import {
 export class StatusPageController extends QuestionPageController {
   declare pageDef: PageStatus
   allowSaveAndExit = false
+  showReferenceNumber = false
 
   constructor(model: FormModel, pageDef: PageStatus) {
     super(model, pageDef)
     this.viewName = 'confirmation'
+    this.showReferenceNumber = model.def.options?.showReferenceNumber ?? false
   }
 
   getRelevantPath() {
@@ -54,7 +56,9 @@ export class StatusPageController extends QuestionPageController {
       return h.view(viewName, {
         ...viewModel,
         submissionGuidance,
-        formName
+        formName,
+        showReferenceNumber: this.showReferenceNumber,
+        referenceNumber: context.referenceNumber
       })
     }
   }
