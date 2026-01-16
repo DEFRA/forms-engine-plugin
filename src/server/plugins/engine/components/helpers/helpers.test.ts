@@ -9,7 +9,8 @@ import { OsGridRefField } from '~/src/server/plugins/engine/components/OsGridRef
 import { createComponent } from '~/src/server/plugins/engine/components/helpers/components.js'
 import {
   createLowerFirstExpression,
-  lowerFirstExpressionOptions
+  lowerFirstExpressionOptions,
+  lowerFirstPreserveProperNouns
 } from '~/src/server/plugins/engine/components/helpers/index.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import definition from '~/test/form/definitions/basic.js'
@@ -142,6 +143,42 @@ describe('ComponentBase tests', () => {
     expect(component.model).toBe(formModel)
     expect(component.name).toBe('contextField')
     expect(component.title).toBe('Context Field')
+  })
+})
+
+describe('lowerFirstPreserveProperNouns', () => {
+  test('should preserve "National Grid" capitalisation', () => {
+    expect(lowerFirstPreserveProperNouns('National Grid field number')).toBe(
+      'National Grid field number'
+    )
+  })
+
+  test('should preserve "Ordnance Survey" capitalisation', () => {
+    expect(
+      lowerFirstPreserveProperNouns('Ordnance Survey (OS) grid reference')
+    ).toBe('Ordnance Survey (OS) grid reference')
+  })
+
+  test('should preserve "OS" capitalisation', () => {
+    expect(lowerFirstPreserveProperNouns('OS grid reference')).toBe(
+      'OS grid reference'
+    )
+  })
+
+  test('should lowercase first character for regular text', () => {
+    expect(lowerFirstPreserveProperNouns('Enter your name')).toBe(
+      'enter your name'
+    )
+  })
+
+  test('should handle text without special terms', () => {
+    expect(lowerFirstPreserveProperNouns('Latitude and longitude')).toBe(
+      'latitude and longitude'
+    )
+  })
+
+  test('should handle empty string', () => {
+    expect(lowerFirstPreserveProperNouns('')).toBe('')
   })
 })
 
