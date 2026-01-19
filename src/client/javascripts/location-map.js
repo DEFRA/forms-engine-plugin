@@ -292,7 +292,7 @@ function createMap(mapId, initConfig, mapsConfig) {
             thumbnail: `${assetPath}/defra-map/assets/images/dark-map-thumb.jpg`,
             logo: `${assetPath}/defra-map/assets/images/os-logo-white.svg`,
             logoAltText,
-            attribution: 'Test'
+            attribution: `Contains OS data ${String.fromCodePoint(COMPANY_SYMBOL_CODE)} Crown copyright and database rights ${new Date().getFullYear()}`
           },
           {
             id: 'black-and-white',
@@ -301,7 +301,7 @@ function createMap(mapId, initConfig, mapsConfig) {
             thumbnail: `${assetPath}/defra-map/assets/images/black-and-white-map-thumb.jpg`,
             logo: `${assetPath}/defra-map/assets/images/os-logo-black.svg`,
             logoAltText,
-            attribution: 'Test'
+            attribution: `Contains OS data ${String.fromCodePoint(COMPANY_SYMBOL_CODE)} Crown copyright and database rights ${new Date().getFullYear()}`
           }
         ]
       }),
