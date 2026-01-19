@@ -8,15 +8,15 @@ import {
 
 /**
  * To prevent confusion to users reading the reference number, ambiguous letters and numbers are removed.
- * @param str - input string
+ * @param strCodes - array of binary input values
  */
-function convertToDecAlpha(str: string) {
+export function convertToDecAlpha(strCodes: number[]) {
   const validChars = 'ABCDEFHJKLMNPRSTUVWXYZ23456789'
   const strLen = validChars.length
   const outArray = [] as string[]
 
-  Array.from(str).forEach((_ch, idx) => {
-    const pos = (str.charCodeAt(idx) / 256) * strLen
+  strCodes.forEach((code) => {
+    const pos = (code / 256) * strLen
     outArray.push(validChars.charAt(pos))
   })
 
@@ -43,9 +43,9 @@ export function generateUniqueReference(prefix?: string) {
 
   do {
     const segments = Array.from({ length: segmentCount }, () =>
-      convertToDecAlpha(randomBytes(segmentLength).toString('binary')).slice(
+      convertToDecAlpha([...randomBytes(segmentLength)]).slice(
         0,
-        segmentLength
+        segmentLength * 2
       )
     )
 
