@@ -483,6 +483,23 @@ function getOsGridRefInput(locationField) {
 }
 
 /**
+ * Get the initial map config for a center point
+ * @param {MapCenter} center - the point
+ */
+function getInitMapCenterConfig(center) {
+  return {
+    zoom: '16',
+    center,
+    markers: [
+      {
+        id: 'location',
+        coords: center
+      }
+    ]
+  }
+}
+
+/**
  * Gets initial map config for a latlong location field
  * @param {HTMLDivElement} locationField - the latlong location field element
  * @returns {DefraMapInitConfig | undefined}
@@ -498,16 +515,7 @@ function getInitLatLongMapConfig(locationField) {
   /** @type {MapCenter} */
   const center = [result.value.long, result.value.lat]
 
-  return {
-    zoom: '16',
-    center,
-    markers: [
-      {
-        id: 'location',
-        coords: center
-      }
-    ]
-  }
+  return getInitMapCenterConfig(center)
 }
 
 /**
@@ -532,16 +540,7 @@ function getInitEastingNorthingMapConfig(locationField) {
   /** @type {MapCenter} */
   const center = [latlong.long, latlong.lat]
 
-  return {
-    zoom: '16',
-    center,
-    markers: [
-      {
-        id: 'location',
-        coords: center
-      }
-    ]
-  }
+  return getInitMapCenterConfig(center)
 }
 
 /**
@@ -562,16 +561,7 @@ function getInitOsGridRefMapConfig(locationField) {
   /** @type {MapCenter} */
   const center = [latlong.long, latlong.lat]
 
-  return {
-    zoom: '16',
-    center,
-    markers: [
-      {
-        id: 'location',
-        coords: center
-      }
-    ]
-  }
+  return getInitMapCenterConfig(center)
 }
 
 /**
