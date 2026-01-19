@@ -70,12 +70,9 @@ const EVENTS = {
 }
 
 const defaultData = {
-  VTS_OUTDOOR_URL:
-    'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/main/OS_VTS_3857_Outdoor.json',
-  VTS_DARK_URL:
-    'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/main/OS_VTS_3857_Dark.json',
-  VTS_BLACK_AND_WHITE_URL:
-    'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/main/OS_VTS_3857_Black_and_White.json'
+  VTS_OUTDOOR_URL: '/api/maps/vts/OS_VTS_3857_Outdoor.json',
+  VTS_DARK_URL: '/api/maps/vts/OS_VTS_3857_Dark.json',
+  VTS_BLACK_AND_WHITE_URL: '/api/maps/vts/OS_VTS_3857_Black_and_White.json'
 }
 
 /**
@@ -149,6 +146,18 @@ export function makeTileRequestTransformer(apiPath) {
           url: `${apiPath}/map-proxy?url=${encodeURIComponent(url)}`,
           headers: {}
         }
+      }
+    }
+
+    const spritesPath =
+      'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/main'
+
+    // Proxy sprite requests
+    if (url.startsWith(spritesPath)) {
+      const path = url.substring(spritesPath.length)
+      return {
+        url: `${apiPath}/maps/vts${path}`,
+        headers: {}
       }
     }
 

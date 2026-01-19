@@ -128,7 +128,7 @@ function tileRoutes() {
   return [
     {
       method: 'GET',
-      path: '/api/maps/vts/{path}',
+      path: '/api/maps/vts/{path*}',
       options: {
         handler: {
           directory: {
