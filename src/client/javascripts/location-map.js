@@ -608,15 +608,7 @@ function bindLatLongField(locationField, map, mapProvider) {
       /** @type {MapCenter} */
       const center = [result.value.long, result.value.lat]
 
-      // Move the 'location' marker to the new point
-      map.addMarker('location', center)
-
-      // Pan & zoom the map to the new valid location
-      mapProvider.flyTo({
-        center,
-        zoom: 14,
-        essential: true
-      })
+      centerMap(map, mapProvider, center)
     }
   }
 
@@ -669,15 +661,7 @@ function bindEastingNorthingField(locationField, map, mapProvider) {
       /** @type {MapCenter} */
       const center = [latlong.long, latlong.lat]
 
-      // Move the 'location' marker to the new point
-      map.addMarker('location', center)
-
-      // Pan & zoom the map to the new valid location
-      mapProvider.flyTo({
-        center,
-        zoom: 14,
-        essential: true
-      })
+      centerMap(map, mapProvider, center)
     }
   }
 
@@ -724,19 +708,29 @@ function bindOsGridRefField(locationField, map, mapProvider) {
       /** @type {MapCenter} */
       const center = [latlong.long, latlong.lat]
 
-      // Move the 'location' marker to the new point
-      map.addMarker('location', center)
-
-      // Pan & zoom the map to the new valid location
-      mapProvider.flyTo({
-        center,
-        zoom: 14,
-        essential: true
-      })
+      centerMap(map, mapProvider, center)
     }
   }
 
   osGridRefInput.addEventListener('change', onUpdateInput, false)
+}
+
+/**
+ * Updates the marker position and moves the map view port the new location
+ * @param {DefraMap} map - the map component instance (of DefraMap)
+ * @param {MapLibreMap} mapProvider - the map provider instance (of MapLibreMap)
+ * @param {MapCenter} center - the point
+ */
+function centerMap(map, mapProvider, center) {
+  // Move the 'location' marker to the new point
+  map.addMarker('location', center)
+
+  // Pan & zoom the map to the new valid location
+  mapProvider.flyTo({
+    center,
+    zoom: 14,
+    essential: true
+  })
 }
 
 /**
