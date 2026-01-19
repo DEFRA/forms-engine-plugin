@@ -4,9 +4,10 @@ import { wait } from '@hapi/hoek'
 import { type ValidationErrorItem } from 'joi'
 
 import {
-  tempItemSchema,
-  type FileUploadField
+  FileUploadField,
+  tempItemSchema
 } from '~/src/server/plugins/engine/components/FileUploadField.js'
+import { type FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import {
   getCacheService,
   getError,
@@ -95,6 +96,23 @@ export class FileUploadPageController extends QuestionPageController {
     // Assign the file upload component to the controller
     this.fileUpload = fileUpload
     this.viewName = 'file-upload'
+  }
+
+  /**
+   * Get supplementary state keys for clearing file upload state.
+   * Returns the nested upload path for FileUploadField components only.
+   * @param component - The component to get supplementary state keys for
+   * @returns Array containing the nested upload path, e.g., ["upload['/page-path']"]
+   * or ['upload'] if no page path is available. Returns empty array for non-FileUploadField components.
+   */
+  getStateKeys(component: FormComponent): string[] {
+    // Only return upload keys for FileUploadField components
+    if (!(component instanceof FileUploadField)) {
+      return []
+    }
+
+    const pagePath = component.page?.path
+    return pagePath ? [`upload['${pagePath}']`] : ['upload']
   }
 
   getFormDataFromState(

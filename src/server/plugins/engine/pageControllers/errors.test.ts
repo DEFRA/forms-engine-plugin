@@ -16,7 +16,7 @@ describe('InvalidComponentStateError', () => {
   })
 
   describe('getStateKeys', () => {
-    it('should return component name and upload for FileUploadField', () => {
+    it('should return component name and nested upload path for FileUploadField', () => {
       const page = model.pages.find((p) => p.path === '/file-upload-component')
       const component = new FileUploadField(
         {
@@ -35,7 +35,10 @@ describe('InvalidComponentStateError', () => {
       )
       const stateKeys = error.getStateKeys()
 
-      expect(stateKeys).toEqual(['fileUpload', 'upload'])
+      expect(stateKeys).toEqual([
+        'fileUpload',
+        "upload['/file-upload-component']"
+      ])
     })
 
     it('should return only component name for non-FileUploadField components', () => {

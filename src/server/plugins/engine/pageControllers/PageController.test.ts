@@ -236,4 +236,11 @@ describe('PageController', () => {
       )
     })
   })
+
+  describe('getStateKeys', () => {
+    it('should return empty array by default', () => {
+      const stateKeys = controller1.getStateKeys()
+      expect(stateKeys).toEqual([])
+    })
+  })
 })
