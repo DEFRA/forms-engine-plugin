@@ -1,3 +1,5 @@
+import { resolve } from 'node:path'
+
 import Joi from 'joi'
 
 import { find, nearest } from '~/src/server/plugins/map/service.js'
@@ -11,7 +13,8 @@ export function getRoutes(options) {
   return [
     mapProxyRoute(options),
     geocodeProxyRoute(options),
-    reverseGeocodeProxyRoute(options)
+    reverseGeocodeProxyRoute(options),
+    ...tileRoutes()
   ]
 }
 
@@ -119,6 +122,22 @@ function reverseGeocodeProxyRoute(options) {
       }
     }
   }
+}
+
+function tileRoutes() {
+  return [
+    {
+      method: 'GET',
+      path: '/api/maps/vts/{path}',
+      options: {
+        handler: {
+          directory: {
+            path: resolve(import.meta.dirname, './vts')
+          }
+        }
+      }
+    }
+  ]
 }
 
 /**
