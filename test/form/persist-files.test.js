@@ -128,7 +128,9 @@ describe('Submission journey test', () => {
       .mockResolvedValueOnce(readyFile.status)
       .mockResolvedValueOnce(readyFile2.status)
 
-    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+    jest
+      .mocked(getFormMetadata)
+      .mockResolvedValue(fixtures.form.metadataWithNotificationEmail)
 
     jest.mocked(uploadService.initiateUpload).mockResolvedValueOnce({
       uploadId: '123-546-790',

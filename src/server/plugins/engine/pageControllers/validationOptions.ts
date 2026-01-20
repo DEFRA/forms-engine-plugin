@@ -8,11 +8,12 @@ import joi, {
   type ReferenceOptions,
   type ValidationOptions
 } from 'joi'
-import lowerFirst from 'lodash/lowerFirst.js'
+
+import { lowerFirstPreserveProperNouns } from '~/src/server/plugins/engine/components/helpers/index.js'
 
 const opts = {
   functions: {
-    lowerFirst
+    lowerFirst: lowerFirstPreserveProperNouns
   }
 } as ReferenceOptions
 

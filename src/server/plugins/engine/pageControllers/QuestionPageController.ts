@@ -13,6 +13,7 @@ import { type RouteOptions } from '@hapi/hapi'
 import { type ValidationErrorItem } from 'joi'
 
 import {
+  COMPONENT_STATE_ERROR,
   EXTERNAL_STATE_APPENDAGE,
   EXTERNAL_STATE_PAYLOAD
 } from '~/src/server/constants.js'
@@ -28,7 +29,10 @@ import {
 } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
-import { prefillStateFromQueryParameters } from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
+import {
+  clearNotYetValidatedState,
+  prefillStateFromQueryParameters
+} from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
 import {
   type AnyFormRequest,
   type FormContext,
@@ -324,7 +328,8 @@ export class QuestionPageController extends PageController {
 
     const cacheService = getCacheService(request.server)
 
-    return cacheService.setState(request, state)
+    // Clear any 'not yet validated' state before saving to cache
+    return cacheService.setState(request, clearNotYetValidatedState(state))
   }
 
   async mergeState(
@@ -412,6 +417,11 @@ export class QuestionPageController extends PageController {
 
       const viewModel = this.getViewModel(request, context)
       viewModel.errors = collection.getViewErrors(viewModel.errors)
+
+      const flashedError = request.yar.flash(COMPONENT_STATE_ERROR)
+      const flashedErrors = !Array.isArray(flashedError) ? [flashedError] : []
+
+      viewModel.errors = (viewModel.errors ?? []).concat(flashedErrors)
 
       /**
        * Content components can be hidden based on a condition. If the condition evaluates to true, it is safe to be kept, otherwise discard it

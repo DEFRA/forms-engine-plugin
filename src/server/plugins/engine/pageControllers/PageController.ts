@@ -9,6 +9,7 @@ import Boom from '@hapi/boom'
 import { type Lifecycle, type RouteOptions, type Server } from '@hapi/hapi'
 
 import { type ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import { type FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import {
   getSaveAndExitHelpers,
   getStartPath,
@@ -173,6 +174,22 @@ export class PageController {
     h: FormResponseToolkit
   ) => ReturnType<Lifecycle.Method<FormRequestPayloadRefs>> {
     throw Boom.badRequest('Unsupported POST route handler for this page')
+  }
+
+  /**
+   * Get supplementary state keys for clearing component state.
+   *
+   * This method returns page controller-level state keys only. The core component's
+   * state key (the component's name) is managed separately by the framework and should
+   * NOT be included in the returned array.
+   *
+   * Returns an empty array by default. Override in subclasses to provide
+   * page-specific supplementary state keys (e.g., upload state, cached data).
+   * @param _component - The component to get supplementary state keys for (optional)
+   * @returns Array of supplementary state keys to clear (excluding the component name itself)
+   */
+  getStateKeys(_component?: FormComponent): string[] {
+    return []
   }
 
   shouldShowSaveAndExit(server: Server): boolean {

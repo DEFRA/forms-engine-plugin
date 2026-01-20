@@ -1,5 +1,6 @@
 import { type Server } from '@hapi/hapi'
 import * as Hoek from '@hapi/hoek'
+import unset from 'lodash/unset.js'
 
 import { config } from '~/src/config/index.js'
 import { type createServer } from '~/src/server/index.js'
@@ -97,6 +98,42 @@ export class CacheService {
     const key = this.Key(request)
 
     request.yar.flash(key.id, message)
+  }
+
+  /**
+   * Resets (removes) component states from the form state by their keys.
+   * Supports both flat keys and nested paths.
+   * @param request - The Hapi request object
+   * @param componentNames - Array of state keys to remove. Uses lodash's unset syntax. Can be:
+   * - Flat keys: `'componentName'` for top-level state
+   * - Nested paths: `"upload['/my-page']"` or `'upload./my-page'` for nested state
+   * @example
+   * ```typescript
+   * // Remove a flat component state
+   * await cacheService.resetComponentStates(request, ['emailAddress'])
+   *
+   * // Remove nested upload state for a specific page
+   * await cacheService.resetComponentStates(request, ["upload['/file-upload-page']"])
+   *
+   * // Remove multiple states at once
+   * await cacheService.resetComponentStates(request, [
+   *   'componentName',
+   *   "upload['/my-page']"
+   * ])
+   * ```
+   * @returns The updated state after removal
+   */
+  async resetComponentStates(
+    request: AnyFormRequest,
+    componentNames: string[]
+  ) {
+    const state = await this.getState(request)
+
+    for (const componentName of componentNames) {
+      unset(state, componentName)
+    }
+
+    return this.setState(request, state)
   }
 
   /**

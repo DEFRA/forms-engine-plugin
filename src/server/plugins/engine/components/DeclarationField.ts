@@ -137,8 +137,12 @@ export class DeclarationField extends FormComponent {
       }
     }
 
+    const payloadValue = payload[this.name]
     const isChecked =
-      payload[this.name] === 'true' || payload[this.name] === true
+      payloadValue === 'true' ||
+      payloadValue === true ||
+      (Array.isArray(payloadValue) && payloadValue.some((x) => x === 'true'))
+
     return {
       ...viewModel,
       hint: hint ? { text: hint } : undefined,

@@ -4,9 +4,10 @@ import { wait } from '@hapi/hoek'
 import { type ValidationErrorItem } from 'joi'
 
 import {
-  tempItemSchema,
-  type FileUploadField
+  FileUploadField,
+  tempItemSchema
 } from '~/src/server/plugins/engine/components/FileUploadField.js'
+import { type FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import {
   getCacheService,
   getError,
@@ -95,6 +96,23 @@ export class FileUploadPageController extends QuestionPageController {
     // Assign the file upload component to the controller
     this.fileUpload = fileUpload
     this.viewName = 'file-upload'
+  }
+
+  /**
+   * Get supplementary state keys for clearing file upload state.
+   * Returns the nested upload path for FileUploadField components only.
+   * @param component - The component to get supplementary state keys for
+   * @returns Array containing the nested upload path, e.g., ["upload['/page-path']"]
+   * or ['upload'] if no page path is available. Returns empty array for non-FileUploadField components.
+   */
+  getStateKeys(component: FormComponent): string[] {
+    // Only return upload keys for FileUploadField components
+    if (!(component instanceof FileUploadField)) {
+      return []
+    }
+
+    const pagePath = component.page?.path
+    return pagePath ? [`upload['${pagePath}']`] : ['upload']
   }
 
   getFormDataFromState(
@@ -371,6 +389,7 @@ export class FileUploadPageController extends QuestionPageController {
       // Flash the error message.
       const { fileUpload } = this
       const cacheService = getCacheService(request.server)
+
       const name = fileUpload.name
       const text = file.errorMessage ?? 'Unknown error'
       const errors: FormSubmissionError[] = [
@@ -423,6 +442,7 @@ export class FileUploadPageController extends QuestionPageController {
   ) {
     const { fileUpload, href, path } = this
     const { options, schema } = fileUpload
+    const { getFormMetadata } = this.model.services.formsService
 
     const files = this.getFilesFromState(state)
 
@@ -433,10 +453,15 @@ export class FileUploadPageController extends QuestionPageController {
     const max = Math.min(schema.max ?? MAX_UPLOADS, MAX_UPLOADS)
 
     if (files.length < max) {
-      const outputEmail =
-        this.model.def.outputEmail ?? 'defraforms@defra.gov.uk'
+      const formMetadata = await getFormMetadata(request.params.slug)
+      const notificationEmail =
+        formMetadata.notificationEmail ?? 'defraforms@defra.gov.uk'
 
-      const newUpload = await initiateUpload(href, outputEmail, options.accept)
+      const newUpload = await initiateUpload(
+        href,
+        notificationEmail,
+        options.accept
+      )
 
       if (newUpload === undefined) {
         throw Boom.badRequest('Unexpected empty response from initiateUpload')
