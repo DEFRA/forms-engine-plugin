@@ -659,5 +659,17 @@ describe('Location Maps Client JS', () => {
         headers: {}
       })
     })
+
+    test('tile request transformer works on raw.githubusercontent.com style and sprite requests', () => {
+      const url =
+        'https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/main/OS_VTS_3857/resources/sprites/sprite@2x.json'
+      const transformer = makeTileRequestTransformer(apiPath)
+      const result = transformer(url, 'SpriteJSON')
+
+      expect(result).toEqual({
+        url: `${apiPath}/maps/vts/OS_VTS_3857/resources/sprites/sprite@2x.json`,
+        headers: {}
+      })
+    })
   })
 })
