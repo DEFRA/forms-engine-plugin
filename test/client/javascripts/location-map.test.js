@@ -452,7 +452,7 @@ describe('Location Maps Client JS', () => {
         const osGridRefInput = /** @type {HTMLInputElement} */ (input)
 
         // Set some initial values prior to initMaps
-        osGridRefInput.value = 'SJ 61831 7150'
+        osGridRefInput.value = 'SJ 61831 71500'
 
         expect(() => initMaps()).not.toThrow()
         expect(onMock).toHaveBeenLastCalledWith(
