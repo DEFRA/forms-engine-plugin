@@ -1,0 +1,60 @@
+{% from "govuk/components/fieldset/macro.njk" import govukFieldset %}
+{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% macro PaymentField(component) %}
+  {% set model = component.model %}
+  {% set paymentState = model.paymentState %}
+  {% set amount = model.amount %}
+  {% set description = model.description %}
+
+  {% set paymentContent %}
+    <p class="govuk-body">{{ description }}</p>
+
+    {{ govukWarningText({
+      text: "You may see a pending transaction in your bank account but you will only be charged when you submit the form.",
+      iconFallbackText: "Warning"
+    }) }}
+
+    <p class="govuk-body">You can submit the form after you have added your payment details.</p>
+
+    <p class="govuk-body govuk-!-margin-bottom-1">Total amount:</p>
+    <p class="govuk-heading-l govuk-!-margin-bottom-4">£{{ amount }}</p>
+
+    {% if paymentState and paymentState.preAuth and paymentState.preAuth.status == 'success' %}
+      {# Payment pre-authorised - show confirmation #}
+      <p class="govuk-body">
+        <strong class="govuk-tag govuk-tag--green">Payment ready</strong>
+      </p>
+      <p class="govuk-body">
+        Reference: {{ paymentState.reference }}
+      </p>
+      {{ govukButton({
+        text: "Use different payment details",
+        attributes: {
+          name: "action",
+          value: "external-" + model.name
+        },
+        classes: "govuk-button--secondary"
+      }) }}
+    {% else %}
+      {# No payment yet - show button to initiate #}
+      {{ govukButton({
+        text: "Add payment details",
+        attributes: {
+          name: "action",
+          value: "external-" + model.name
+        }
+      }) }}
+    {% endif %}
+  {% endset %}
+
+  {{ govukFieldset({
+    legend: {
+      text: model.label.text if model.label and model.label.text else "Payment details required",
+      classes: "govuk-fieldset__legend--m",
+      isPageHeading: false
+    },
+    html: paymentContent
+  }) }}
+{% endmacro %}
