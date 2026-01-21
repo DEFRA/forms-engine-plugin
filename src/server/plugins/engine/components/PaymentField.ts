@@ -8,8 +8,8 @@ import { StatusCodes } from 'http-status-codes'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
-import { PaymentService } from '~/src/server/plugins/engine/services/paymentService.js'
 import {
+  type AnyFormRequest,
   type FormContext,
   type FormRequestPayload,
   type FormResponseToolkit
@@ -20,6 +20,7 @@ import {
   type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
+import { PaymentService } from '~/src/server/plugins/payment/service.js'
 
 export class PaymentField extends FormComponent {
   declare options: PaymentFieldComponent['options']
@@ -113,28 +114,37 @@ export class PaymentField extends FormComponent {
   static async dispatcher(
     request: FormRequestPayload,
     h: FormResponseToolkit,
-    _args: PaymentDispatcherArgs
+    args: PaymentDispatcherArgs
   ): Promise<unknown> {
     const paymentService = new PaymentService()
 
     // 1. Generate UUID token and store in session
     const uuid = randomUUID()
 
+    const { options } = args.component
+    const { model } = args.controller
+
+    const state = await args.controller.getState(request)
+
     const data = {
       uuid,
-      reference: 'form-ref',
-      description: 'payment desc',
-      amount: 1
+      reference: state.$$__referenceNumber,
+      description: options.description,
+      amount: options.amount
     } as PaymentState
 
     request.yar.set(`${request.url.pathname}-payment`, data)
 
+    const formId = model.formId
+    const slug = `/${model.basePath}`
+
     // 2. Call paymentService.createPayment()
     const payment = await paymentService.createPayment(
-      1,
-      'payment desc',
+      data.amount,
+      data.description,
       uuid,
-      { formId: 'form-id', slug: 'slug' }
+      data.reference,
+      { formId, slug }
     )
 
     // 3. Redirect to GOV.UK Pay paymentUrl
@@ -164,9 +174,11 @@ export class PaymentField extends FormComponent {
 export interface PaymentDispatcherArgs {
   controller: {
     model: {
+      formId: string
+      basePath: string
       name: string
     }
-    title: string
+    getState: (request: AnyFormRequest) => Promise<FormSubmissionState>
   }
   component: PaymentField
   sourceUrl: string
