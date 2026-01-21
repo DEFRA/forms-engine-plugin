@@ -284,21 +284,23 @@ export class UkAddressField extends FormComponent {
     )
   }
 
-  static dispatcher(
+  static async dispatcher(
     request: FormRequestPayload,
     h: FormResponseToolkit,
     args: PostcodeLookupExternalArgs
   ) {
     const { controller, component } = args
 
-    return dispatch(request, h, {
-      formName: controller.model.name,
-      componentName: component.name,
-      componentHint: component.hint,
-      componentTitle: component.title || controller.title,
-      step: args.actionArgs.step,
-      sourceUrl: args.sourceUrl
-    })
+    return Promise.resolve(
+      dispatch(request, h, {
+        formName: controller.model.name,
+        componentName: component.name,
+        componentHint: component.hint,
+        componentTitle: component.title || controller.title,
+        step: args.actionArgs.step,
+        sourceUrl: args.sourceUrl
+      })
+    )
   }
 }
 

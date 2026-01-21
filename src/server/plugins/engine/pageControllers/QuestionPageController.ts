@@ -517,7 +517,7 @@ export class QuestionPageController extends PageController {
       const action = request.payload.action
 
       if (action?.startsWith(FormAction.External)) {
-        return this.dispatchExternal(request, h, context)
+        return await this.dispatchExternal(request, h, context)
       }
 
       /**
@@ -551,7 +551,7 @@ export class QuestionPageController extends PageController {
     }
   }
 
-  private dispatchExternal(
+  private async dispatchExternal(
     request: FormRequestPayload,
     h: FormResponseToolkit,
     context: FormContext
@@ -602,7 +602,7 @@ export class QuestionPageController extends PageController {
     // Clear any previous state appendage
     request.yar.clear(EXTERNAL_STATE_APPENDAGE)
 
-    return selectedComponent.dispatcher(request, h, {
+    return await selectedComponent.dispatcher(request, h, {
       component,
       controller: this,
       sourceUrl: request.url.toString(),

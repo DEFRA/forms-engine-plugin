@@ -1,13 +1,14 @@
+import { randomUUID } from 'node:crypto'
+
 import {
   type FormMetadata,
   type PaymentFieldComponent
 } from '@defra/forms-model'
+import { StatusCodes } from 'http-status-codes'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
-import {
-  type PaymentService,
-  type PaymentState
-} from '~/src/server/plugins/engine/components/PaymentField.types.js'
+import { type PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
+import { PaymentService } from '~/src/server/plugins/engine/services/paymentService.js'
 import {
   type FormContext,
   type FormRequestPayload,
@@ -109,16 +110,35 @@ export class PaymentField extends FormComponent {
    * Dispatcher for external redirect to GOV.UK Pay
    * STUB - Jez to implement
    */
-  static dispatcher(
-    _request: FormRequestPayload,
-    _h: FormResponseToolkit,
+  static async dispatcher(
+    request: FormRequestPayload,
+    h: FormResponseToolkit,
     _args: PaymentDispatcherArgs
   ): Promise<unknown> {
-    // TODO: Implement
+    const paymentService = new PaymentService()
+
     // 1. Generate UUID token and store in session
+    const uuid = randomUUID()
+
+    const data = {
+      uuid,
+      reference: 'form-ref',
+      description: 'payment desc',
+      amount: 1
+    } as PaymentState
+
+    request.yar.set(`${request.url.pathname}-payment`, data)
+
     // 2. Call paymentService.createPayment()
+    const payment = await paymentService.createPayment(
+      1,
+      'payment desc',
+      uuid,
+      { formId: 'form-id', slug: 'slug' }
+    )
+
     // 3. Redirect to GOV.UK Pay paymentUrl
-    return Promise.reject(new Error('PaymentField.dispatcher not implemented'))
+    return h.redirect(payment.paymentUrl).code(StatusCodes.SEE_OTHER)
   }
 
   /**
