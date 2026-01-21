@@ -35,6 +35,7 @@ export type Field = InstanceType<
   | typeof Components.UkAddressField
   | typeof Components.FileUploadField
   | typeof Components.HiddenField
+  | typeof Components.PaymentField
 >
 
 // Guidance component instances only
@@ -190,6 +191,10 @@ export function createComponent(
 
     case ComponentType.HiddenField:
       component = new Components.HiddenField(def, options)
+      break
+
+    case ComponentType.PaymentField:
+      component = new Components.PaymentField(def, options)
       break
   }
 
