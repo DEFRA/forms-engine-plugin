@@ -15,11 +15,13 @@
   {% endif %}
 
   <div class="govuk-button-group">
-    {{ govukButton({
-      text: buttonText,
-      isStartButton: isStartPage,
-      preventDoubleClick: true
-    }) }}
+    {% if showSubmitButton !== false %}
+      {{ govukButton({
+        text: buttonText,
+        isStartButton: isStartPage,
+        preventDoubleClick: true
+      }) }}
+    {% endif %}
 
     {% if allowSaveAndExit %}
       {{ govukButton({

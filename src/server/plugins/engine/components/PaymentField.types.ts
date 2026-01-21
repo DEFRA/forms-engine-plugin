@@ -39,3 +39,18 @@ export interface PaymentStatus {
   }
   createdDate: string
 }
+
+/**
+ * Service interface for GOV.UK Pay integration
+ */
+export interface PaymentService {
+  createPayment(
+    amount: number,
+    description: string,
+    metadata: { formId: string; slug: string }
+  ): Promise<{ paymentId: string; paymentUrl: string }>
+
+  getPaymentStatus(paymentId: string): Promise<PaymentStatus>
+
+  capturePayment(paymentId: string): Promise<boolean>
+}

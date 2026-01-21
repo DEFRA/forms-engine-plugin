@@ -1,6 +1,6 @@
 {
   "name": "@defra/forms-engine-plugin",
-  "version": "4.0.38",
+  "version": "4.0.39",
   "description": "Defra forms engine",
   "type": "module",
   "files": [
@@ -108,6 +108,7 @@
     "lodash": "^4.17.21",
     "marked": "^15.0.12",
     "nunjucks": "^3.2.4",
+    "obscenity": "^0.4.5",
     "outdent": "^0.8.0",
     "pino": "^9.14.0",
     "pino-pretty": "^13.1.2",

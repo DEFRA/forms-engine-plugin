@@ -61,9 +61,12 @@ export class PaymentField extends FormComponent {
       ? (payload[this.name] as unknown as PaymentState)
       : undefined
 
+    const amount = this.options.amount ?? 0
+    const formattedAmount = amount.toFixed(2)
+
     return {
       ...viewModel,
-      amount: this.options.amount,
+      amount: formattedAmount,
       description: this.options.description,
       paymentState
     }
