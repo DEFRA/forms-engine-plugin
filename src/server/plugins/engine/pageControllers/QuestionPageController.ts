@@ -182,6 +182,19 @@ export class QuestionPageController extends PageController {
       }
     }
 
+    // Check if any PaymentField component needs payment to be added
+    // If so, hide the submit button until payment is ready
+    const hasIncompletePayment = components.some(({ model }) => {
+      // Check if this is a PaymentField by looking for paymentState in model
+      if ('paymentState' in model && 'amount' in model) {
+        const paymentState = model.paymentState as
+          | { preAuth?: { status?: string } }
+          | undefined
+        return !paymentState?.preAuth?.status
+      }
+      return false
+    })
+
     return {
       ...viewModel,
       backLink: this.getBackLink(request, context),
@@ -189,7 +202,8 @@ export class QuestionPageController extends PageController {
       showTitle,
       components,
       errors,
-      allowSaveAndExit: this.shouldShowSaveAndExit(request.server)
+      allowSaveAndExit: this.shouldShowSaveAndExit(request.server),
+      showSubmitButton: !hasIncompletePayment
     }
   }
 

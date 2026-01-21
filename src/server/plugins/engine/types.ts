@@ -328,6 +328,7 @@ export interface FormPageViewModel extends PageViewModelBase {
   errors?: FormSubmissionError[]
   hasMissingNotificationEmail?: boolean
   allowSaveAndExit: boolean
+  showSubmitButton?: boolean
 }
 
 export interface RepeaterSummaryPageViewModel extends PageViewModelBase {

@@ -23,7 +23,11 @@ const ordnanceSurveyApiKey = config.get('ordnanceSurveyApiKey')
  * Main entrypoint to the application.
  */
 async function startServer() {
-  const server = await createServer({ ordnanceSurveyApiKey })
+  const server = await createServer({
+    ordnanceSurveyApiKey,
+    // Enable save and exit for devserver
+    saveAndExit: (_request, h) => h.redirect('/')
+  })
   await server.start()
 
   process.send?.('online')
