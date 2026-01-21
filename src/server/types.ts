@@ -6,6 +6,7 @@ import {
 } from '@defra/forms-model'
 import { type Server } from '@hapi/hapi'
 
+import { type PaymentService } from '~/src/server/plugins/engine/components/PaymentField.types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type DetailItem } from '~/src/server/plugins/engine/models/types.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
@@ -42,6 +43,7 @@ export interface Services {
   formsService: FormsService
   formSubmissionService: FormSubmissionService
   outputService: OutputService
+  paymentService?: PaymentService
 }
 
 export interface RouteConfig {
