@@ -142,8 +142,10 @@ export class PaymentField extends FormComponent {
     const slug = `/${model.basePath}`
 
     // 2. Call paymentService.createPayment()
+    // GOV.UK Pay expects amount in pence, so multiply pounds by 100
+    const amountInPence = Math.round(data.amount * 100)
     const payment = await paymentService.createPayment(
-      data.amount,
+      amountInPence,
       data.description,
       uuid,
       data.reference,
