@@ -1,32 +1,38 @@
 import { config } from '~/src/config/index.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
-import { postJson } from '~/src/server/services/httpService.js'
+import { get, post, postJson } from '~/src/server/services/httpService.js'
 
 const PAYMENT_BASE_URL = 'https://publicapi.payments.service.gov.uk'
 const PAYMENT_ENDPOINT = '/v1/payments'
 
 const logger = createLogger()
 
+/**
+ * @returns {{ Authorization: string }}
+ */
+function getAuthHeaders() {
+  const apiKey = config.get('paymentProviderApiKeyTest')
+  return {
+    Authorization: `Bearer ${apiKey}`
+  }
+}
+
 export class PaymentService {
   /**
-   * Creates a payment request, calls the payment provider, and receives a redirect url and payment id
-   * from the payment provider.
-   * The call uses 'delayed capture' (aka pre-authorisation) to reserve the user's money in preparation for
-   * later taking the money with a capturePayment() call.
-   * @param {number} amount - amount of the payment
-   * @param {string} description - a description of the payment which will appear on the payment provider's pages
-   * @param {string} uuid - unique id to verify the request matches the response
-   * @param {string} reference - form reference
+   * Creates a payment with delayed capture (pre-authorisation)
+   * @param {number} amount - in pence
+   * @param {string} description
+   * @param {string} returnUrl
+   * @param {string} reference
    * @param {{ formId: string, slug: string }} metadata
-   * @returns {Promise<{ paymentId: string, paymentUrl: string }>}
    */
-  async createPayment(amount, description, uuid, reference, metadata) {
+  async createPayment(amount, description, returnUrl, reference, metadata) {
     const response = await this.postToPayProvider({
       amount,
       description,
       reference,
       metadata,
-      return_url: `http://localhost:3009/register-as-a-unicorn-breeder/summary?uuid=${uuid}`,
+      return_url: returnUrl,
       delayed_capture: true
     })
 
@@ -37,40 +43,88 @@ export class PaymentService {
   }
 
   /**
-   * Get the status of a payment
-   * @param {string} _paymentId - payment id (returned from createPayment() call)
-   * @returns {Promise<PaymentStatus>}
+   * @param {string} paymentId
+   * @returns {Promise<GetPaymentResponse>}
    */
-  getPaymentStatus(_paymentId) {
-    return Promise.resolve(/** @type {PaymentStatus} */ ({}))
+  async getPaymentStatus(paymentId) {
+    const getByType = /** @type {typeof get<GetPaymentResponse>} */ (get)
+
+    try {
+      const response = await getByType(
+        `${PAYMENT_BASE_URL}${PAYMENT_ENDPOINT}/${paymentId}`,
+        {
+          headers: getAuthHeaders(),
+          json: true
+        }
+      )
+
+      if (response.error) {
+        const errorMessage =
+          response.error instanceof Error
+            ? response.error.message
+            : JSON.stringify(response.error)
+        throw new Error(`Failed to get payment status: ${errorMessage}`)
+      }
+
+      return response.payload
+    } catch (err) {
+      const error = /** @type {Error} */ (err)
+      logger.error(
+        error,
+        `[payment] Error getting payment status for paymentId=${paymentId}: ${error.message}`
+      )
+      throw err
+    }
   }
 
   /**
-   * Takes the money reserved by previous pre-authorisation
-   * @param {string} _paymentId - payment id (returned from createPayment() call)
+   * Captures a payment that is in 'capturable' status
+   * @param {string} paymentId
+   * @returns {Promise<boolean>}
    */
-  capturePayment(_paymentId) {
-    return Promise.resolve(true)
+  async capturePayment(paymentId) {
+    try {
+      const response = await post(
+        `${PAYMENT_BASE_URL}${PAYMENT_ENDPOINT}/${paymentId}/capture`,
+        {
+          headers: getAuthHeaders()
+        }
+      )
+
+      const statusCode = response.res.statusCode
+
+      if (statusCode === 200 || statusCode === 204) {
+        logger.info(`[payment] Successfully captured payment ${paymentId}`)
+        return true
+      }
+
+      logger.error(
+        `[payment] Capture failed for paymentId=${paymentId}: HTTP ${statusCode}`
+      )
+      return false
+    } catch (err) {
+      const error = /** @type {Error} */ (err)
+      logger.error(
+        error,
+        `[payment] Error capturing payment for paymentId=${paymentId}: ${error.message}`
+      )
+      throw err
+    }
   }
 
   /**
-   * Send data to the Pay provider
-   * @param {CreatePaymentRequest} payload - data to send
+   * @param {CreatePaymentRequest} payload
    */
   async postToPayProvider(payload) {
     const postJsonByType =
       /** @type {typeof postJson<CreatePaymentResponse>} */ (postJson)
-
-    const apiKeyTest = config.get('paymentProviderApiKeyTest')
 
     try {
       const response = await postJsonByType(
         `${PAYMENT_BASE_URL}${PAYMENT_ENDPOINT}`,
         {
           payload,
-          headers: {
-            Authorization: `Bearer ${apiKeyTest}`
-          }
+          headers: getAuthHeaders()
         }
       )
 
@@ -83,7 +137,7 @@ export class PaymentService {
       const error = /** @type {Error} */ (err)
       logger.error(
         error,
-        `[payment] Error creating payment for form-id=${payload.metadata.formId} slug=${payload.metadata.slug} reference=${payload.reference}: ${error.message}`
+        `[payment] Error creating payment for reference=${payload.reference}: ${error.message}`
       )
       throw err
     }
@@ -91,6 +145,5 @@ export class PaymentService {
 }
 
 /**
- * @import { PaymentStatus } from '~/src/server/plugins/engine/components/PaymentField.types.js'
- * @import { CreatePaymentRequest, CreatePaymentResponse } from '~/src/server/plugins/payment/types.js'
+ * @import { CreatePaymentRequest, CreatePaymentResponse, GetPaymentResponse } from '~/src/server/plugins/payment/types.js'
  */

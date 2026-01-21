@@ -15,6 +15,7 @@ import {
 import { type JoiExpression, type ValidationErrorItem } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { type PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
 import { type UkAddressState } from '~/src/server/plugins/engine/components/UkAddressField.js'
 import { type Component } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { type FileUploadField } from '~/src/server/plugins/engine/components/index.js'
@@ -120,6 +121,7 @@ export type FormValue =
   | Item['value'][]
   | UploadState
   | RepeatListState
+  | PaymentState
   | undefined
 
 export type FormState = Partial<Record<string, FormStateValue>>

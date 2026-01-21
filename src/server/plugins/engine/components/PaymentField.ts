@@ -5,9 +5,11 @@ import {
   type PaymentFieldComponent
 } from '@defra/forms-model'
 import { StatusCodes } from 'http-status-codes'
+import joi, { type ObjectSchema } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
+import { getPluginOptions } from '~/src/server/plugins/engine/helpers.js'
 import {
   type AnyFormRequest,
   type FormContext,
@@ -17,6 +19,8 @@ import {
 import {
   type ErrorMessageTemplateList,
   type FormPayload,
+  type FormState,
+  type FormStateValue,
   type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
@@ -24,6 +28,8 @@ import { PaymentService } from '~/src/server/plugins/payment/service.js'
 
 export class PaymentField extends FormComponent {
   declare options: PaymentFieldComponent['options']
+  declare formSchema: ObjectSchema
+  declare stateSchema: ObjectSchema
 
   constructor(
     def: PaymentFieldComponent,
@@ -32,6 +38,30 @@ export class PaymentField extends FormComponent {
     super(def, props)
 
     this.options = def.options
+
+    // Payment state is validated as an object with the required fields
+    const paymentStateSchema = joi
+      .object({
+        paymentId: joi.string().required(),
+        reference: joi.string().required(),
+        amount: joi.number().required(),
+        description: joi.string().required(),
+        uuid: joi.string().uuid().required(),
+        preAuth: joi
+          .object({
+            status: joi
+              .string()
+              .valid('success', 'failed', 'started')
+              .required(),
+            createdAt: joi.string().isoDate().required()
+          })
+          .required()
+      })
+      .unknown(true)
+      .label(this.label)
+
+    this.formSchema = paymentStateSchema
+    this.stateSchema = paymentStateSchema.default(null).allow(null)
   }
 
   /**
@@ -40,7 +70,7 @@ export class PaymentField extends FormComponent {
   getPaymentStateFromState(
     state: FormSubmissionState
   ): PaymentState | undefined {
-    const value = state[this.name] as unknown
+    const value = state[this.name]
     return this.isPaymentState(value) ? value : undefined
   }
 
@@ -89,6 +119,13 @@ export class PaymentField extends FormComponent {
   }
 
   /**
+   * Override base isState to validate PaymentState
+   */
+  isState(value?: FormStateValue | FormState): value is FormState {
+    return this.isPaymentState(value)
+  }
+
+  /**
    * For error preview page that shows all possible errors on a component
    */
   getAllPossibleErrors(): ErrorMessageTemplateList {
@@ -112,7 +149,6 @@ export class PaymentField extends FormComponent {
 
   /**
    * Dispatcher for external redirect to GOV.UK Pay
-   * STUB - Jez to implement
    */
   static async dispatcher(
     request: FormRequestPayload,
@@ -121,38 +157,52 @@ export class PaymentField extends FormComponent {
   ): Promise<unknown> {
     const paymentService = new PaymentService()
 
-    // 1. Generate UUID token and store in session
+    // 1. Generate UUID token
     const uuid = randomUUID()
 
-    const { options } = args.component
+    const { options, name: componentName } = args.component
     const { model } = args.controller
 
     const state = await args.controller.getState(request)
-
-    const data = {
-      uuid,
-      reference: state.$$__referenceNumber,
-      description: options.description,
-      amount: options.amount
-    } as PaymentState
-
-    request.yar.set(`${request.url.pathname}-payment`, data)
+    const reference = state.$$__referenceNumber as string
+    const amount = options.amount ?? 0
+    const description = options.description ?? ''
 
     const formId = model.formId
     const slug = `/${model.basePath}`
 
-    // 2. Call paymentService.createPayment()
+    // 2. Build the return URL for GOV.UK Pay
+    const { baseUrl } = getPluginOptions(request.server)
+    const returnUrl = `${baseUrl}/payment-callback?uuid=${uuid}`
+
+    // Build the summary URL to redirect to after payment
+    const summaryUrl = `${baseUrl}/${model.basePath}/summary`
+
+    // 3. Call paymentService.createPayment()
     // GOV.UK Pay expects amount in pence, so multiply pounds by 100
-    const amountInPence = Math.round(data.amount * 100)
+    const amountInPence = Math.round(amount * 100)
     const payment = await paymentService.createPayment(
       amountInPence,
-      data.description,
-      uuid,
-      data.reference,
+      description,
+      returnUrl,
+      reference,
       { formId, slug }
     )
 
-    // 3. Redirect to GOV.UK Pay paymentUrl
+    // 4. Store session data for the return route to use
+    const sessionData: PaymentSessionData = {
+      uuid,
+      reference,
+      amount,
+      description,
+      paymentId: payment.paymentId,
+      componentName,
+      sourceUrl: summaryUrl
+    }
+
+    request.yar.set(`payment-${uuid}`, sessionData)
+
+    // 5. Redirect to GOV.UK Pay paymentUrl
     return h.redirect(payment.paymentUrl).code(StatusCodes.SEE_OTHER)
   }
 
@@ -188,4 +238,17 @@ export interface PaymentDispatcherArgs {
   component: PaymentField
   sourceUrl: string
   paymentService: PaymentService
+}
+
+/**
+ * Session data stored when dispatching to GOV.UK Pay
+ */
+export interface PaymentSessionData {
+  uuid: string
+  reference: string
+  amount: number
+  description: string
+  paymentId: string
+  componentName: string
+  sourceUrl: string
 }

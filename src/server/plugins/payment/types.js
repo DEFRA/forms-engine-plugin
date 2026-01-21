@@ -1,46 +1,37 @@
 /**
- * Gov Uk Pay API result status
- * @typedef {object} PaymentStateResult
- * @property {string} status - status of payment
- * @property {boolean} finished - true if payment is finished
+ * @typedef {object} PaymentState
+ * @property {'created' | 'started' | 'submitted' | 'capturable' | 'success' | 'failed' | 'cancelled' | 'error'} status - Current status of the payment
+ * @property {boolean} finished - Whether the payment process has completed
+ * @property {string} [message] - Human-readable message about the payment state
+ * @property {string} [code] - Error or status code for the payment state
  */
 
 /**
  * @typedef {object} PaymentLink
- * @property {string} href - url
- * @property {string} method - get/post
+ * @property {string} href - URL of the linked resource
+ * @property {string} method - HTTP method to use for the link
  */
 
 /**
- * @typedef {object} PaymentLinks
- * @property {PaymentLink} self - current url
- * @property {PaymentLink} next_url - next url
- */
-
-/**
- * @typedef {object} CreatePaymentMetadata
- * @property {string} formId - id of the form
- * @property {string} slug - slug of the form
- */
-
-/**
- * Gov Uk Pay create payment request
  * @typedef {object} CreatePaymentRequest
- * @property {number} amount - payment amount
- * @property {string} reference - form reference number
- * @property {string} description - payment description
- * @property {string} return_url - unique payment id
- * @property {CreatePaymentMetadata} metadata - custom metadata
- * @property {boolean} delayed_capture - denotes pre-auth only
+ * @property {number} amount - Payment amount in pence
+ * @property {string} reference - Unique reference for the payment
+ * @property {string} description - Human-readable description of the payment
+ * @property {string} return_url - URL to redirect the user to after payment
+ * @property {boolean} [delayed_capture] - Whether to delay capturing the payment
+ * @property {{ formId: string, slug: string }} [metadata] - Additional metadata for the payment
  */
 
 /**
- * Gov Uk Pay create payment response
  * @typedef {object} CreatePaymentResponse
- * @property {Date} created_date - date of creation
- * @property {PaymentStateResult} state - result state
- * @property {PaymentLinks} _links - payment links
- * @property {string} reference - form reference number
- * @property {number} amount - payment amount
- * @property {string} payment_id - unique payment id
+ * @property {string} payment_id - Unique identifier for the created payment
+ * @property {PaymentState} state - Current state of the payment
+ * @property {{ next_url: PaymentLink }} _links - HATEOAS links for the payment
+ */
+
+/**
+ * @typedef {object} GetPaymentResponse
+ * @property {string} payment_id - Unique identifier for the payment
+ * @property {PaymentState} state - Current state of the payment
+ * @property {{ self: PaymentLink, next_url?: PaymentLink }} _links - HATEOAS links for the payment
  */

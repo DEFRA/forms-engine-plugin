@@ -9,6 +9,7 @@ import { type RouteOptions } from '@hapi/hapi'
 
 import { COMPONENT_STATE_ERROR } from '~/src/server/constants.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import { PaymentField } from '~/src/server/plugins/engine/components/PaymentField.js'
 import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import {
   checkEmailAddressForLiveFormSubmission,
@@ -65,7 +66,7 @@ export class SummaryPageController extends QuestionPageController {
     const viewModel = new SummaryViewModel(request, this, context)
 
     const { query } = request
-    const { payload, errors } = context
+    const { payload, errors, state } = context
     const components = this.collection.getViewModel(payload, errors, query)
 
     // We already figure these out in the base page controller. Take them and apply them to our page-specific model.
@@ -77,7 +78,74 @@ export class SummaryPageController extends QuestionPageController {
     viewModel.allowSaveAndExit = this.shouldShowSaveAndExit(request.server)
     viewModel.errors = errors
 
+    // Find PaymentField and extract payment state for the summary banner
+    const paymentField = context.relevantPages
+      .flatMap((page) => page.collection.fields)
+      .find((field): field is PaymentField => field instanceof PaymentField)
+
+    if (paymentField) {
+      const paymentState = paymentField.getPaymentStateFromState(state)
+      if (paymentState) {
+        viewModel.paymentState = paymentState
+        viewModel.paymentDetails = this.buildPaymentDetails(
+          paymentField,
+          paymentState
+        )
+      }
+    }
+
     return viewModel
+  }
+
+  private buildPaymentDetails(
+    paymentField: PaymentField,
+    paymentState: NonNullable<
+      ReturnType<PaymentField['getPaymentStateFromState']>
+    >
+  ) {
+    const formatDate = (isoString: string) => {
+      const date = new Date(isoString)
+      return (
+        date.toLocaleDateString('en-GB', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        }) +
+        ' – ' +
+        date.toLocaleTimeString('en-GB', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        })
+      )
+    }
+
+    const rows = [
+      {
+        key: { text: 'Payment for' },
+        value: { text: paymentState.description }
+      },
+      {
+        key: { text: 'Total amount' },
+        value: { text: `£${paymentState.amount}` }
+      },
+      {
+        key: { text: 'Reference' },
+        value: { text: paymentState.reference }
+      }
+    ]
+
+    if (paymentState.preAuth?.createdAt) {
+      rows.push({
+        key: { text: 'Date details were entered' },
+        value: { text: formatDate(paymentState.preAuth.createdAt) }
+      })
+    }
+
+    return {
+      title: { text: 'Payment details' },
+      summaryList: { rows }
+    }
   }
 
   /**
