@@ -253,7 +253,7 @@ export class PaymentField extends FormComponent {
       throw new InvalidComponentStateError(
         this,
         'Your payment authorisation has expired. Please add your payment details again.',
-        { shouldResetState: true }
+        { shouldResetState: true, isPaymentExpired: true }
       )
     }
 

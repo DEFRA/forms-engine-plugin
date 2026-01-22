@@ -334,6 +334,7 @@ export interface FormPageViewModel extends PageViewModelBase {
   hasMissingNotificationEmail?: boolean
   allowSaveAndExit: boolean
   showSubmitButton?: boolean
+  showPaymentExpiredNotification?: boolean
 }
 
 export interface RepeaterSummaryPageViewModel extends PageViewModelBase {

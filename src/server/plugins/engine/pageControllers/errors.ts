@@ -24,6 +24,13 @@ export interface InvalidComponentStateErrorOptions {
    * @default true
    */
   shouldResetState?: boolean
+
+  /**
+   * Whether this error is due to payment expiry.
+   * When true, an "Important" notification banner will be shown on the payment page.
+   * @default false
+   */
+  isPaymentExpired?: boolean
 }
 
 /**
@@ -38,6 +45,7 @@ export class InvalidComponentStateError extends Error {
   public readonly component: FormComponent
   public readonly userMessage: string
   public readonly shouldResetState: boolean
+  public readonly isPaymentExpired: boolean
 
   constructor(
     component: FormComponent,
@@ -50,6 +58,7 @@ export class InvalidComponentStateError extends Error {
     this.component = component
     this.userMessage = userMessage
     this.shouldResetState = options.shouldResetState ?? true
+    this.isPaymentExpired = options.isPaymentExpired ?? false
   }
 
   getStateKeys() {
