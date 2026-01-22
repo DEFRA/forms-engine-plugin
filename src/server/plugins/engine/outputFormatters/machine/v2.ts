@@ -1,7 +1,10 @@
 import { type SubmitResponsePayload } from '@defra/forms-model'
 
 import { config } from '~/src/config/index.js'
-import { FileUploadField } from '~/src/server/plugins/engine/components/index.js'
+import {
+  FileUploadField,
+  PaymentField
+} from '~/src/server/plugins/engine/components/index.js'
 import { type checkFormStatus } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
@@ -12,7 +15,9 @@ import {
 import {
   type FileUploadFieldDetailitem,
   type FormAdapterFile,
+  type FormAdapterPayment,
   type FormContext,
+  type PaymentFieldDetailItem,
   type RichFormValue
 } from '~/src/server/plugins/engine/types.js'
 
@@ -71,6 +76,14 @@ export function format(
  *          userDownloadLink: 'https://forms-designer/file-download/123-456-789'
  *        }
  *      ]
+ *    },
+ *    payments: {
+ *      paymentComponentName: {
+ *        paymentId: 'abc123',
+ *        reference: 'REF-123',
+ *        amount: 10.00,
+ *        description: 'Application fee'
+ *      }
  *    }
  * }
  */
@@ -82,7 +95,16 @@ export function categoriseData(items: DetailItem[]) {
       string,
       { fileId: string; fileName: string; userDownloadLink: string }[]
     >
-  } = { main: {}, repeaters: {}, files: {} }
+    payments: Record<
+      string,
+      {
+        paymentId: string
+        reference: string
+        amount: number
+        description: string
+      }
+    >
+  } = { main: {}, repeaters: {}, files: {}, payments: {} }
 
   items.forEach((item) => {
     const { name, state } = item
@@ -91,6 +113,11 @@ export function categoriseData(items: DetailItem[]) {
       output.repeaters[name] = extractRepeaters(item)
     } else if (isFileUploadFieldItem(item)) {
       output.files[name] = extractFileUploads(item)
+    } else if (isPaymentFieldItem(item)) {
+      const payment = extractPayment(item)
+      if (payment) {
+        output.payments[name] = payment
+      }
     } else {
       output.main[name] = item.field.getFormValueFromState(state)
     }
@@ -147,4 +174,32 @@ function isFileUploadFieldItem(
   item: DetailItemField
 ): item is FileUploadFieldDetailitem {
   return item.field instanceof FileUploadField
+}
+
+function isPaymentFieldItem(
+  item: DetailItemField
+): item is PaymentFieldDetailItem {
+  return item.field instanceof PaymentField
+}
+
+/**
+ * Returns the "payments" section of the response body
+ * @param item - the payment item in the form
+ * @returns the payment data
+ */
+function extractPayment(
+  item: PaymentFieldDetailItem
+): FormAdapterPayment | undefined {
+  const paymentState = item.field.getPaymentStateFromState(item.state)
+
+  if (!paymentState) {
+    return undefined
+  }
+
+  return {
+    paymentId: paymentState.paymentId,
+    reference: paymentState.reference,
+    amount: paymentState.amount,
+    description: paymentState.description
+  }
 }

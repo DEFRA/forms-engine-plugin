@@ -23,10 +23,14 @@ import {
 } from '~/src/server/plugins/engine/models/index.js'
 import {
   type Detail,
-  type DetailItem
+  type DetailItem,
+  type DetailItemField
 } from '~/src/server/plugins/engine/models/types.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
-import { InvalidComponentStateError } from '~/src/server/plugins/engine/pageControllers/errors.js'
+import {
+  InvalidComponentStateError,
+  PostPaymentSubmissionError
+} from '~/src/server/plugins/engine/pageControllers/errors.js'
 import {
   type FormConfirmationState,
   type FormContext,
@@ -231,9 +235,32 @@ export class SummaryPageController extends QuestionPageController {
 
           request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
 
-          await cacheService.resetComponentStates(request, error.getStateKeys())
+          if (error.shouldResetState) {
+            // Reset state and redirect to component page (e.g., payment expired)
+            await cacheService.resetComponentStates(
+              request,
+              error.getStateKeys()
+            )
+            return this.proceed(request, h, error.component.page?.path)
+          }
 
-          return this.proceed(request, h, error.component.page?.path)
+          // Stay on CYA page with error (e.g., capture failed, user can retry)
+          return this.proceed(request, h)
+        }
+
+        if (error instanceof PostPaymentSubmissionError) {
+          const helpLink = error.helpLink
+            ? ` or you can <a href="${error.helpLink}" target="_blank" rel="noopener noreferrer" class="govuk-link">contact us (opens in new tab)</a> and quote your reference number to arrange a refund`
+            : ''
+
+          const govukError = createError(
+            'submission',
+            `There was a problem and your form was not submitted. Try submitting the form again${helpLink}.`
+          )
+
+          request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
+
+          return this.proceed(request, h)
         }
 
         throw error
@@ -275,6 +302,9 @@ export async function submitForm(
 ) {
   await finaliseComponents(request, metadata, context)
 
+  // Check if payment was captured (for Flow 9 error handling)
+  const paymentWasCaptured = hasPaymentBeenCaptured(context)
+
   const formStatus = checkFormStatus(request.params)
   const logTags = ['submit', 'submissionApi']
 
@@ -286,28 +316,55 @@ export async function submitForm(
     summaryViewModel.details
   )
 
-  // Submit data
-  request.logger.info(logTags, 'Submitting data')
-  const submitResponse = await submitData(
-    model,
-    items,
-    emailAddress,
-    request.yar.id
-  )
+  try {
+    // Submit data
+    request.logger.info(logTags, 'Submitting data')
+    const submitResponse = await submitData(
+      model,
+      items,
+      emailAddress,
+      request.yar.id
+    )
 
-  if (submitResponse === undefined) {
-    throw Boom.badRequest('Unexpected empty response from submit api')
+    if (submitResponse === undefined) {
+      throw Boom.badRequest('Unexpected empty response from submit api')
+    }
+
+    await model.services.outputService.submit(
+      context,
+      request,
+      model,
+      emailAddress,
+      items,
+      submitResponse,
+      formMetadata
+    )
+  } catch (err) {
+    if (paymentWasCaptured) {
+      throw new PostPaymentSubmissionError(
+        context.referenceNumber,
+        formMetadata.contact?.online?.url
+      )
+    }
+    throw err
   }
+}
 
-  return model.services.outputService.submit(
-    context,
-    request,
-    model,
-    emailAddress,
-    items,
-    submitResponse,
-    formMetadata
-  )
+/**
+ * Checks if any payment component has been captured
+ */
+function hasPaymentBeenCaptured(context: FormContext): boolean {
+  for (const page of context.relevantPages) {
+    for (const field of page.collection.fields) {
+      if (field instanceof PaymentField) {
+        const paymentState = field.getPaymentStateFromState(context.state)
+        if (paymentState?.capture?.status === 'success') {
+          return true
+        }
+      }
+    }
+  }
+  return false
 }
 
 /**
@@ -379,11 +436,43 @@ function submitData(
 }
 
 export function getFormSubmissionData(context: FormContext, details: Detail[]) {
-  return context.relevantPages
+  const items = context.relevantPages
     .map(({ href }) =>
       details.flatMap(({ items }) =>
         items.filter(({ page }) => page.href === href)
       )
     )
     .flat()
+
+  // Add payment field items (excluded from details for UI but needed for submission)
+  const paymentItems = getPaymentFieldItems(context)
+
+  return [...items, ...paymentItems]
+}
+
+/**
+ * Gets DetailItems for PaymentField components
+ * PaymentField is excluded from summaryDetails for UI but needs to be in submission data
+ */
+function getPaymentFieldItems(context: FormContext): DetailItemField[] {
+  const items: DetailItemField[] = []
+
+  for (const page of context.relevantPages) {
+    for (const field of page.collection.fields) {
+      if (field instanceof PaymentField) {
+        items.push({
+          name: field.name,
+          page,
+          title: field.title,
+          label: field.label,
+          field,
+          state: context.state,
+          href: page.href,
+          value: field.getDisplayStringFromState(context.state)
+        })
+      }
+    }
+  }
+
+  return items
 }

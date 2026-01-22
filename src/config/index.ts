@@ -268,6 +268,14 @@ export const config = convict({
     nullable: true,
     default: undefined,
     env: 'PAYMENT_PROVIDER_API_KEY_TEST'
+  } as SchemaObj<string | undefined>,
+
+  paymentProviderApiKeyLive: {
+    doc: 'A live API key for integrating with a payment provider',
+    format: String,
+    nullable: true,
+    default: undefined,
+    env: 'PAYMENT_PROVIDER_API_KEY_LIVE'
   } as SchemaObj<string | undefined>
 })
 

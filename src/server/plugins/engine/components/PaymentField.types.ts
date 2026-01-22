@@ -7,6 +7,7 @@ export interface PaymentState {
   amount: number
   description: string
   uuid: string
+  isLive: boolean
   capture?: {
     status: 'success' | 'failed'
     createdAt: string

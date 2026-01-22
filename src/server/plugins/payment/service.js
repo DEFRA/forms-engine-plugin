@@ -8,16 +8,41 @@ const PAYMENT_ENDPOINT = '/v1/payments'
 const logger = createLogger()
 
 /**
+ * @param {string} apiKey
  * @returns {{ Authorization: string }}
  */
-function getAuthHeaders() {
-  const apiKey = config.get('paymentProviderApiKeyTest')
+function getAuthHeaders(apiKey) {
   return {
     Authorization: `Bearer ${apiKey}`
   }
 }
 
+/**
+ * Gets the fallback API key from global config
+ * @param {boolean} isLive
+ * @returns {string}
+ */
+function getFallbackApiKey(isLive) {
+  return /** @type {string} */ (
+    isLive
+      ? config.get('paymentProviderApiKeyLive')
+      : config.get('paymentProviderApiKeyTest')
+  )
+}
+
 export class PaymentService {
+  /** @type {string} */
+  #apiKey
+
+  /**
+   * @param {object} options
+   * @param {string} [options.apiKey] - API key to use (if not provided, falls back to global config)
+   * @param {boolean} [options.isLive] - whether to use live API key (only used if apiKey not provided)
+   */
+  constructor({ apiKey, isLive = false } = {}) {
+    this.#apiKey = apiKey ?? getFallbackApiKey(isLive)
+  }
+
   /**
    * Creates a payment with delayed capture (pre-authorisation)
    * @param {number} amount - in pence
@@ -53,7 +78,7 @@ export class PaymentService {
       const response = await getByType(
         `${PAYMENT_BASE_URL}${PAYMENT_ENDPOINT}/${paymentId}`,
         {
-          headers: getAuthHeaders(),
+          headers: getAuthHeaders(this.#apiKey),
           json: true
         }
       )
@@ -87,7 +112,7 @@ export class PaymentService {
       const response = await post(
         `${PAYMENT_BASE_URL}${PAYMENT_ENDPOINT}/${paymentId}/capture`,
         {
-          headers: getAuthHeaders()
+          headers: getAuthHeaders(this.#apiKey)
         }
       )
 
@@ -124,7 +149,7 @@ export class PaymentService {
         `${PAYMENT_BASE_URL}${PAYMENT_ENDPOINT}`,
         {
           payload,
-          headers: getAuthHeaders()
+          headers: getAuthHeaders(this.#apiKey)
         }
       )
 

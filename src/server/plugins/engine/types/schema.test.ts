@@ -56,7 +56,8 @@ describe('Schema validation', () => {
             'http://localhost:3005/file-download/489ecc1b-a145-4618-ba5a-b4a0d5ee2dbd'
         }
       ]
-    }
+    },
+    payments: {}
   }
 
   describe('formAdapterSubmissionMessageMetaSchema', () => {

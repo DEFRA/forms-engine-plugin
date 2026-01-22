@@ -21,6 +21,7 @@ import { ComponentCollection } from '~/src/server/plugins/engine/components/Comp
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import { type BackLink } from '~/src/server/plugins/engine/components/types.js'
 import {
+  checkFormStatus,
   getCacheService,
   getErrors,
   getSaveAndExitHelpers,
@@ -47,6 +48,7 @@ import {
 import { getComponentsByType } from '~/src/server/plugins/engine/validationHelpers.js'
 import {
   FormAction,
+  FormStatus,
   type FormRequest,
   type FormRequestPayload,
   type FormRequestPayloadRefs,
@@ -616,11 +618,16 @@ export class QuestionPageController extends PageController {
     // Clear any previous state appendage
     request.yar.clear(EXTERNAL_STATE_APPENDAGE)
 
+    // Determine if this is a live form (not preview/draft)
+    const { state } = checkFormStatus(request.params)
+    const isLive = state === FormStatus.Live
+
     return await selectedComponent.dispatcher(request, h, {
       component,
       controller: this,
       sourceUrl: request.url.toString(),
-      actionArgs: args
+      actionArgs: args,
+      isLive
     })
   }
 

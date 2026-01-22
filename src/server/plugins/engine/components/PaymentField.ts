@@ -10,6 +10,7 @@ import joi, { type ObjectSchema } from 'joi'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
 import { getPluginOptions } from '~/src/server/plugins/engine/helpers.js'
+import { InvalidComponentStateError } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import {
   type AnyFormRequest,
   type FormContext,
@@ -47,6 +48,7 @@ export class PaymentField extends FormComponent {
         amount: joi.number().required(),
         description: joi.string().required(),
         uuid: joi.string().uuid().required(),
+        isLive: joi.boolean().required(),
         preAuth: joi
           .object({
             status: joi
@@ -155,7 +157,8 @@ export class PaymentField extends FormComponent {
     h: FormResponseToolkit,
     args: PaymentDispatcherArgs
   ): Promise<unknown> {
-    const paymentService = new PaymentService()
+    const { isLive } = args
+    const paymentService = new PaymentService({ isLive })
 
     // 1. Generate UUID token
     const uuid = randomUUID()
@@ -173,10 +176,11 @@ export class PaymentField extends FormComponent {
 
     // 2. Build the return URL for GOV.UK Pay
     const { baseUrl } = getPluginOptions(request.server)
-    const returnUrl = `${baseUrl}/payment-callback?uuid=${uuid}`
+    const payCallbackUrl = `${baseUrl}/payment-callback?uuid=${uuid}`
 
-    // Build the summary URL to redirect to after payment
+    // Build URLs for redirect after payment
     const summaryUrl = `${baseUrl}/${model.basePath}/summary`
+    const paymentPageUrl = args.sourceUrl
 
     // 3. Call paymentService.createPayment()
     // GOV.UK Pay expects amount in pence, so multiply pounds by 100
@@ -184,7 +188,7 @@ export class PaymentField extends FormComponent {
     const payment = await paymentService.createPayment(
       amountInPence,
       description,
-      returnUrl,
+      payCallbackUrl,
       reference,
       { formId, slug }
     )
@@ -197,7 +201,9 @@ export class PaymentField extends FormComponent {
       description,
       paymentId: payment.paymentId,
       componentName,
-      sourceUrl: summaryUrl
+      returnUrl: summaryUrl,
+      failureUrl: paymentPageUrl,
+      isLive
     }
 
     request.yar.set(`payment-${uuid}`, sessionData)
@@ -208,21 +214,86 @@ export class PaymentField extends FormComponent {
 
   /**
    * Called on form submission to capture the payment
-   * STUB - Jez to implement
+   * @see https://docs.payments.service.gov.uk/delayed_capture/#delay-taking-a-payment
    */
-  onSubmit(
-    _request: FormRequestPayload,
+  async onSubmit(
+    request: FormRequestPayload,
     _metadata: FormMetadata,
-    _context: FormContext
+    context: FormContext
   ): Promise<void> {
-    // TODO: Implement
-    // 1. Get payment state from context
-    // 2. If already captured, skip
-    // 3. Call paymentService.getPaymentStatus() to validate pre-auth
-    // 4. Call paymentService.capturePayment()
-    // 5. Update payment state with capture status
-    // 6. If capture fails, throw InvalidComponentStateError
-    return Promise.resolve()
+    const paymentState = this.getPaymentStateFromState(context.state)
+
+    if (!paymentState) {
+      // No payment state - redirect to payment page to complete payment
+      throw new InvalidComponentStateError(
+        this,
+        'Complete the payment to continue',
+        { shouldResetState: true }
+      )
+    }
+
+    // Skip if already captured
+    if (paymentState.capture?.status === 'success') {
+      return
+    }
+
+    const { paymentId, isLive } = paymentState
+    const paymentService = new PaymentService({ isLive })
+
+    // Verify payment is still in capturable state
+    const status = await paymentService.getPaymentStatus(paymentId)
+
+    // If already captured (success state), mark as captured and continue
+    if (status.state.status === 'success') {
+      await this.markPaymentCaptured(request, paymentState)
+      return
+    }
+
+    if (status.state.status !== 'capturable') {
+      throw new InvalidComponentStateError(
+        this,
+        'Your payment authorisation has expired. Please add your payment details again.',
+        { shouldResetState: true }
+      )
+    }
+
+    // Capture the payment
+    const captured = await paymentService.capturePayment(paymentId)
+
+    if (!captured) {
+      throw new InvalidComponentStateError(
+        this,
+        'There was a problem and your form was not submitted. Try submitting the form again.',
+        { shouldResetState: false }
+      )
+    }
+
+    await this.markPaymentCaptured(request, paymentState)
+  }
+
+  /**
+   * Updates payment state to mark capture as successful
+   * This ensures we don't try to re-capture on submission retry
+   */
+  private async markPaymentCaptured(
+    request: FormRequestPayload,
+    paymentState: PaymentState
+  ): Promise<void> {
+    const updatedState: PaymentState = {
+      ...paymentState,
+      capture: {
+        status: 'success',
+        createdAt: new Date().toISOString()
+      }
+    }
+
+    // Update the state in the page controller
+    if (this.page) {
+      const currentState = await this.page.getState(request)
+      await this.page.mergeState(request, currentState, {
+        [this.name]: updatedState
+      })
+    }
   }
 }
 
@@ -237,7 +308,7 @@ export interface PaymentDispatcherArgs {
   }
   component: PaymentField
   sourceUrl: string
-  paymentService: PaymentService
+  isLive: boolean
 }
 
 /**
@@ -250,5 +321,7 @@ export interface PaymentSessionData {
   description: string
   paymentId: string
   componentName: string
-  sourceUrl: string
+  returnUrl: string
+  failureUrl: string
+  isLive: boolean
 }

@@ -22,6 +22,7 @@ function flashComponentState(request, session, paymentId) {
     amount: session.amount,
     description: session.description,
     uuid: session.uuid,
+    isLive: session.isLive,
     preAuth: {
       status: 'success',
       createdAt: new Date().toISOString()
@@ -56,7 +57,6 @@ function getReturnRoute() {
     path: PAYMENT_RETURN_PATH,
     async handler(request, h) {
       const { uuid } = /** @type {{ uuid: string }} */ (request.query)
-      const paymentService = new PaymentService()
 
       // 1. Get session data using the UUID as the key
       const sessionKey = `${PAYMENT_SESSION_PREFIX}${uuid}`
@@ -69,12 +69,13 @@ function getReturnRoute() {
       }
 
       // 2. Get payment status from GOV.UK Pay
-      const { paymentId } = session
+      const { paymentId, isLive } = session
 
       if (!paymentId) {
         throw Boom.badRequest('No paymentId in session')
       }
 
+      const paymentService = new PaymentService({ isLive })
       const paymentStatus = await paymentService.getPaymentStatus(paymentId)
 
       // 3. Handle different payment states based on GOV.UK Pay status lifecycle
@@ -83,34 +84,33 @@ function getReturnRoute() {
 
       switch (status) {
         case 'capturable':
-          // Pre-auth successful - flash the state and redirect back
+          // Pre-auth successful - flash the state and redirect to summary
           flashComponentState(request, session, paymentId)
           request.yar.clear(sessionKey)
-          return h.redirect(session.sourceUrl).code(StatusCodes.SEE_OTHER)
+          return h.redirect(session.returnUrl).code(StatusCodes.SEE_OTHER)
 
         case 'success':
           // Payment already captured (shouldn't happen with delayed_capture: true)
           flashComponentState(request, session, paymentId)
           request.yar.clear(sessionKey)
-          return h.redirect(session.sourceUrl).code(StatusCodes.SEE_OTHER)
+          return h.redirect(session.returnUrl).code(StatusCodes.SEE_OTHER)
 
         case 'cancelled':
-          // User cancelled payment (P0030)
+          // User cancelled payment (P0030) - redirect to payment page to retry
           request.yar.clear(sessionKey)
-          // TODO: Flash an error message with paymentStatus.state.message
-          return h.redirect(session.sourceUrl).code(StatusCodes.SEE_OTHER)
+          return h.redirect(session.failureUrl).code(StatusCodes.SEE_OTHER)
 
         case 'failed':
-          // Payment failed - could be P0010 (rejected), P0020 (expired), P0040 (service cancelled), P0050 (provider error)
+          // Payment failed (P0010 rejected, P0020 expired, P0040 service cancelled, P0050 provider error)
+          // Redirect to payment page to retry
           request.yar.clear(sessionKey)
-          // TODO: Flash an error message with paymentStatus.state.message and paymentStatus.state.code
-          return h.redirect(session.sourceUrl).code(StatusCodes.SEE_OTHER)
+          return h.redirect(session.failureUrl).code(StatusCodes.SEE_OTHER)
 
         case 'error':
           // Technical error on GOV.UK Pay side - no funds taken
+          // Redirect to payment page to retry
           request.yar.clear(sessionKey)
-          // TODO: Flash an error message
-          return h.redirect(session.sourceUrl).code(StatusCodes.SEE_OTHER)
+          return h.redirect(session.failureUrl).code(StatusCodes.SEE_OTHER)
 
         case 'created':
         case 'started':
@@ -156,7 +156,9 @@ function getReturnRoute() {
  * @property {string} description - payment description
  * @property {string} paymentId - GOV.UK Pay payment ID
  * @property {string} componentName - name of the PaymentField component
- * @property {string} sourceUrl - URL to redirect back to after payment
+ * @property {string} returnUrl - URL to redirect to after successful payment
+ * @property {string} failureUrl - URL to redirect to after failed/cancelled payment
+ * @property {boolean} isLive - whether the payment is using live API key
  */
 
 /**
