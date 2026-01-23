@@ -138,7 +138,9 @@ export class PaymentService {
       )
 
       if (response.payload?.state.status !== 'created') {
-        throw new Error('Failed to create payment')
+        throw new Error(
+          `Failed to create payment for reference=${payload.reference}`
+        )
       }
 
       return response.payload
