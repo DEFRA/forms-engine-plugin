@@ -1,3 +1,5 @@
+import { StatusCodes } from 'http-status-codes'
+
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { get, post, postJson } from '~/src/server/services/httpService.js'
 
@@ -102,7 +104,10 @@ export class PaymentService {
 
       const statusCode = response.res.statusCode
 
-      if (statusCode === 200 || statusCode === 204) {
+      if (
+        statusCode === StatusCodes.OK ||
+        statusCode === StatusCodes.NO_CONTENT
+      ) {
         logger.info(`[payment] Successfully captured payment ${paymentId}`)
         return true
       }
