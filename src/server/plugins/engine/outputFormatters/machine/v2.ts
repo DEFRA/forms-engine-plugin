@@ -82,7 +82,8 @@ export function format(
  *        paymentId: 'abc123',
  *        reference: 'REF-123',
  *        amount: 10.00,
- *        description: 'Application fee'
+ *        description: 'Application fee',
+ *        createdAt: '2025-01-23T10:30:00.000Z'
  *      }
  *    }
  * }
@@ -102,6 +103,7 @@ export function categoriseData(items: DetailItem[]) {
         reference: string
         amount: number
         description: string
+        createdAt: string
       }
     >
   } = { main: {}, repeaters: {}, files: {}, payments: {} }
@@ -200,6 +202,7 @@ function extractPayment(
     paymentId: paymentState.paymentId,
     reference: paymentState.reference,
     amount: paymentState.amount,
-    description: paymentState.description
+    description: paymentState.description,
+    createdAt: paymentState.preAuth?.createdAt ?? ''
   }
 }
