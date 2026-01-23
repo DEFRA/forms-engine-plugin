@@ -49,6 +49,61 @@ export function getRoutes() {
 }
 
 /**
+ * Validates session data and retrieves payment status
+ * @param {Request} request - the request
+ * @param {string} uuid - the payment UUID
+ * @returns {Promise<{ session: PaymentSessionData, sessionKey: string, paymentStatus: GetPaymentResponse }>}
+ */
+async function getPaymentContext(request, uuid) {
+  const sessionKey = `${PAYMENT_SESSION_PREFIX}${uuid}`
+  const session = /** @type {PaymentSessionData | null} */ (
+    request.yar.get(sessionKey)
+  )
+
+  if (!session) {
+    throw Boom.badRequest(`No payment session found for uuid=${uuid}`)
+  }
+
+  const { paymentId, isLivePayment, formId } = session
+
+  if (!paymentId) {
+    throw Boom.badRequest('No paymentId in session')
+  }
+
+  const apiKey = getPaymentApiKey(isLivePayment, formId)
+  const paymentService = new PaymentService(apiKey)
+  const paymentStatus = await paymentService.getPaymentStatus(paymentId)
+
+  return { session, sessionKey, paymentStatus }
+}
+
+/**
+ * Handles successful payment states (capturable/success)
+ * @param {Request} request - the request
+ * @param {ResponseToolkit} h - the response toolkit
+ * @param {PaymentSessionData} session - the session data
+ * @param {string} sessionKey - the session key
+ * @param {string} paymentId - the payment id
+ */
+function handlePaymentSuccess(request, h, session, sessionKey, paymentId) {
+  flashComponentState(request, session, paymentId)
+  request.yar.clear(sessionKey)
+  return h.redirect(session.returnUrl).code(StatusCodes.SEE_OTHER)
+}
+
+/**
+ * Handles failed/cancelled/error payment states
+ * @param {Request} request - the request
+ * @param {ResponseToolkit} h - the response toolkit
+ * @param {PaymentSessionData} session - the session data
+ * @param {string} sessionKey - the session key
+ */
+function handlePaymentFailure(request, h, session, sessionKey) {
+  request.yar.clear(sessionKey)
+  return h.redirect(session.failureUrl).code(StatusCodes.SEE_OTHER)
+}
+
+/**
  * Route handler for payment return URL
  * This is called when GOV.UK Pay redirects the user back after payment
  * @returns {ServerRoute}
@@ -59,83 +114,50 @@ function getReturnRoute() {
     path: PAYMENT_RETURN_PATH,
     async handler(request, h) {
       const { uuid } = /** @type {{ uuid: string }} */ (request.query)
-
-      // 1. Get session data using the UUID as the key
-      const sessionKey = `${PAYMENT_SESSION_PREFIX}${uuid}`
-      const session = /** @type {PaymentSessionData | null} */ (
-        request.yar.get(sessionKey)
+      const { session, sessionKey, paymentStatus } = await getPaymentContext(
+        request,
+        uuid
       )
 
-      if (!session) {
-        throw Boom.badRequest(`No payment session found for uuid=${uuid}`)
-      }
-
-      // 2. Get payment status from GOV.UK Pay
-      const { paymentId, isLivePayment, formId } = session
-
-      if (!paymentId) {
-        throw Boom.badRequest('No paymentId in session')
-      }
-
-      const apiKey = getPaymentApiKey(isLivePayment, formId)
-      const paymentService = new PaymentService(apiKey)
-      const paymentStatus = await paymentService.getPaymentStatus(paymentId)
-
-      // 3. Handle different payment states based on GOV.UK Pay status lifecycle
+      // Handle different payment states based on GOV.UK Pay status lifecycle
       // @see https://docs.payments.service.gov.uk/api_reference/#payment-status-lifecycle
       const { status } = paymentStatus.state
 
       switch (status) {
+        // Pre-auth successful or already captured
         case 'capturable':
-          // Pre-auth successful - flash the state and redirect to summary
-          flashComponentState(request, session, paymentId)
-          request.yar.clear(sessionKey)
-          return h.redirect(session.returnUrl).code(StatusCodes.SEE_OTHER)
-
         case 'success':
-          // Payment already captured (shouldn't happen with delayed_capture: true)
-          flashComponentState(request, session, paymentId)
-          request.yar.clear(sessionKey)
-          return h.redirect(session.returnUrl).code(StatusCodes.SEE_OTHER)
+          return handlePaymentSuccess(
+            request,
+            h,
+            session,
+            sessionKey,
+            session.paymentId
+          )
 
+        // Payment failed, cancelled, or errored - redirect to retry
         case 'cancelled':
-          // User cancelled payment (P0030) - redirect to payment page to retry
-          request.yar.clear(sessionKey)
-          return h.redirect(session.failureUrl).code(StatusCodes.SEE_OTHER)
-
         case 'failed':
-          // Payment failed (P0010 rejected, P0020 expired, P0040 service cancelled, P0050 provider error)
-          // Redirect to payment page to retry
-          request.yar.clear(sessionKey)
-          return h.redirect(session.failureUrl).code(StatusCodes.SEE_OTHER)
-
         case 'error':
-          // Technical error on GOV.UK Pay side - no funds taken
-          // Redirect to payment page to retry
-          request.yar.clear(sessionKey)
-          return h.redirect(session.failureUrl).code(StatusCodes.SEE_OTHER)
+          return handlePaymentFailure(request, h, session, sessionKey)
 
+        // User came back too early - redirect back to GOV.UK Pay
         case 'created':
         case 'started':
         case 'submitted': {
-          // User came back too early or payment still processing
-          // Redirect back to GOV.UK Pay to continue
           const nextUrl = paymentStatus._links.next_url?.href
 
-          if (nextUrl) {
-            return h.redirect(nextUrl).code(StatusCodes.SEE_OTHER)
+          if (!nextUrl) {
+            throw Boom.badRequest(
+              `Payment in state '${status}' but no next_url available`
+            )
           }
 
-          throw Boom.badRequest(
-            `Payment in state '${status}' but no next_url available`
-          )
+          return h.redirect(nextUrl).code(StatusCodes.SEE_OTHER)
         }
 
-        default: {
-          // this should never be reached but Sonar will complain
-          const unknownStatus = /** @type {string} */ (status)
-          throw Boom.internal(`Unknown payment status: ${unknownStatus}`)
-        }
+        default:
+          throw Boom.internal(`Unknown payment status: ${String(status)}`)
       }
     },
     options: {
@@ -166,7 +188,8 @@ function getReturnRoute() {
  */
 
 /**
- * @import { Request, ServerRoute } from '@hapi/hapi'
+ * @import { Request, ResponseToolkit, ServerRoute } from '@hapi/hapi'
  * @import { PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
+ * @import { GetPaymentResponse } from '~/src/server/plugins/payment/types.js'
  * @import { ExternalStateAppendage, FormState } from '~/src/server/plugins/engine/types.js'
  */

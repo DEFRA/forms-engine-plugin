@@ -466,6 +466,7 @@ export interface FormAdapterPayment {
   reference: string
   amount: number
   description: string
+  createdAt: string
 }
 
 export interface FormAdapterSubmissionMessageResult {
