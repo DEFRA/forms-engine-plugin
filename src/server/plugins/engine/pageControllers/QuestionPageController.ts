@@ -619,7 +619,7 @@ export class QuestionPageController extends PageController {
     request.yar.clear(EXTERNAL_STATE_APPENDAGE)
 
     // Determine if this is a live form (not preview/draft)
-    const { state } = checkFormStatus(request.params)
+    const { state, isPreview } = checkFormStatus(request.params)
     const isLive = state === FormStatus.Live
 
     return await selectedComponent.dispatcher(request, h, {
@@ -627,7 +627,8 @@ export class QuestionPageController extends PageController {
       controller: this,
       sourceUrl: request.url.toString(),
       actionArgs: args,
-      isLive
+      isLive,
+      isPreview
     })
   }
 

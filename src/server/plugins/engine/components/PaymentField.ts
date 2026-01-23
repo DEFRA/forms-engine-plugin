@@ -25,6 +25,7 @@ import {
   type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
+import { getPaymentApiKey } from '~/src/server/plugins/payment/helper.js'
 import { PaymentService } from '~/src/server/plugins/payment/service.js'
 
 export class PaymentField extends FormComponent {
@@ -48,7 +49,8 @@ export class PaymentField extends FormComponent {
         amount: joi.number().required(),
         description: joi.string().required(),
         uuid: joi.string().uuid().required(),
-        isLive: joi.boolean().required(),
+        formId: joi.string().required(),
+        isLivePayment: joi.boolean().required(),
         preAuth: joi
           .object({
             status: joi
@@ -157,8 +159,11 @@ export class PaymentField extends FormComponent {
     h: FormResponseToolkit,
     args: PaymentDispatcherArgs
   ): Promise<unknown> {
-    const { isLive } = args
-    const paymentService = new PaymentService({ isLive })
+    const isLivePayment = args.isLive && !args.isPreview
+    const formId = args.controller.model.formId
+    const apiKeyValue = getPaymentApiKey(isLivePayment, formId)
+
+    const paymentService = new PaymentService(apiKeyValue)
 
     // 1. Generate UUID token
     const uuid = randomUUID()
@@ -171,7 +176,6 @@ export class PaymentField extends FormComponent {
     const amount = options.amount ?? 0
     const description = options.description ?? ''
 
-    const formId = model.formId
     const slug = `/${model.basePath}`
 
     // 2. Build the return URL for GOV.UK Pay
@@ -196,6 +200,7 @@ export class PaymentField extends FormComponent {
     // 4. Store session data for the return route to use
     const sessionData: PaymentSessionData = {
       uuid,
+      formId,
       reference,
       amount,
       description,
@@ -203,7 +208,7 @@ export class PaymentField extends FormComponent {
       componentName,
       returnUrl: summaryUrl,
       failureUrl: paymentPageUrl,
-      isLive
+      isLivePayment
     }
 
     request.yar.set(`payment-${uuid}`, sessionData)
@@ -237,8 +242,9 @@ export class PaymentField extends FormComponent {
       return
     }
 
-    const { paymentId, isLive } = paymentState
-    const paymentService = new PaymentService({ isLive })
+    const { paymentId, isLivePayment, formId } = paymentState
+    const apiKey = getPaymentApiKey(isLivePayment, formId)
+    const paymentService = new PaymentService(apiKey)
 
     // Verify payment is still in capturable state
     const status = await paymentService.getPaymentStatus(paymentId)
@@ -309,6 +315,7 @@ export interface PaymentDispatcherArgs {
   component: PaymentField
   sourceUrl: string
   isLive: boolean
+  isPreview: boolean
 }
 
 /**
@@ -316,6 +323,7 @@ export interface PaymentDispatcherArgs {
  */
 export interface PaymentSessionData {
   uuid: string
+  formId: string
   reference: string
   amount: number
   description: string
@@ -323,5 +331,5 @@ export interface PaymentSessionData {
   componentName: string
   returnUrl: string
   failureUrl: string
-  isLive: boolean
+  isLivePayment: boolean
 }

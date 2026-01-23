@@ -3,6 +3,7 @@ import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
 import { EXTERNAL_STATE_APPENDAGE } from '~/src/server/constants.js'
+import { getPaymentApiKey } from '~/src/server/plugins/payment/helper.js'
 import { PaymentService } from '~/src/server/plugins/payment/service.js'
 
 export const PAYMENT_RETURN_PATH = '/payment-callback'
@@ -22,7 +23,8 @@ function flashComponentState(request, session, paymentId) {
     amount: session.amount,
     description: session.description,
     uuid: session.uuid,
-    isLive: session.isLive,
+    formId: session.formId,
+    isLivePayment: session.isLivePayment,
     preAuth: {
       status: 'success',
       createdAt: new Date().toISOString()
@@ -69,13 +71,14 @@ function getReturnRoute() {
       }
 
       // 2. Get payment status from GOV.UK Pay
-      const { paymentId, isLive } = session
+      const { paymentId, isLivePayment, formId } = session
 
       if (!paymentId) {
         throw Boom.badRequest('No paymentId in session')
       }
 
-      const paymentService = new PaymentService({ isLive })
+      const apiKey = getPaymentApiKey(isLivePayment, formId)
+      const paymentService = new PaymentService(apiKey)
       const paymentStatus = await paymentService.getPaymentStatus(paymentId)
 
       // 3. Handle different payment states based on GOV.UK Pay status lifecycle
@@ -151,6 +154,7 @@ function getReturnRoute() {
  * Payment session data stored when dispatching to GOV.UK Pay
  * @typedef {object} PaymentSessionData
  * @property {string} uuid - unique identifier for this payment attempt
+ * @property {string} formId - id of the form
  * @property {string} reference - form reference number
  * @property {number} amount - amount in pounds
  * @property {string} description - payment description
@@ -158,7 +162,7 @@ function getReturnRoute() {
  * @property {string} componentName - name of the PaymentField component
  * @property {string} returnUrl - URL to redirect to after successful payment
  * @property {string} failureUrl - URL to redirect to after failed/cancelled payment
- * @property {boolean} isLive - whether the payment is using live API key
+ * @property {boolean} isLivePayment - whether the payment is using live API key
  */
 
 /**

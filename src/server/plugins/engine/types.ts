@@ -399,6 +399,7 @@ export interface ExternalArgs {
   sourceUrl: string
   actionArgs: Record<string, string>
   isLive: boolean
+  isPreview: boolean
 }
 
 export interface PostcodeLookupExternalArgs extends ExternalArgs {

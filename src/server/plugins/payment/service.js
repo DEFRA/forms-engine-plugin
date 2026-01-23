@@ -1,4 +1,3 @@
-import { config } from '~/src/config/index.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { get, post, postJson } from '~/src/server/services/httpService.js'
 
@@ -17,30 +16,15 @@ function getAuthHeaders(apiKey) {
   }
 }
 
-/**
- * Gets the fallback API key from global config
- * @param {boolean} isLive
- * @returns {string}
- */
-function getFallbackApiKey(isLive) {
-  return /** @type {string} */ (
-    isLive
-      ? config.get('paymentProviderApiKeyLive')
-      : config.get('paymentProviderApiKeyTest')
-  )
-}
-
 export class PaymentService {
   /** @type {string} */
   #apiKey
 
   /**
-   * @param {object} options
-   * @param {string} [options.apiKey] - API key to use (if not provided, falls back to global config)
-   * @param {boolean} [options.isLive] - whether to use live API key (only used if apiKey not provided)
+   * @param {string} apiKey - API key to use (global config for test value, per-form config for live value)
    */
-  constructor({ apiKey, isLive = false } = {}) {
-    this.#apiKey = apiKey ?? getFallbackApiKey(isLive)
+  constructor(apiKey) {
+    this.#apiKey = apiKey
   }
 
   /**
