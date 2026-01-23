@@ -15,7 +15,8 @@ import { type ValidationErrorItem } from 'joi'
 import {
   COMPONENT_STATE_ERROR,
   EXTERNAL_STATE_APPENDAGE,
-  EXTERNAL_STATE_PAYLOAD
+  EXTERNAL_STATE_PAYLOAD,
+  PAYMENT_EXPIRED_NOTIFICATION
 } from '~/src/server/constants.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
@@ -438,6 +439,12 @@ export class QuestionPageController extends PageController {
       const flashedErrors = !Array.isArray(flashedError) ? [flashedError] : []
 
       viewModel.errors = (viewModel.errors ?? []).concat(flashedErrors)
+
+      const paymentExpiredFlash = request.yar.flash(
+        PAYMENT_EXPIRED_NOTIFICATION
+      )
+      viewModel.showPaymentExpiredNotification =
+        !Array.isArray(paymentExpiredFlash)
 
       /**
        * Content components can be hidden based on a condition. If the condition evaluates to true, it is safe to be kept, otherwise discard it

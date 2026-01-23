@@ -7,7 +7,10 @@ import {
 import Boom from '@hapi/boom'
 import { type RouteOptions } from '@hapi/hapi'
 
-import { COMPONENT_STATE_ERROR } from '~/src/server/constants.js'
+import {
+  COMPONENT_STATE_ERROR,
+  PAYMENT_EXPIRED_NOTIFICATION
+} from '~/src/server/constants.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { PaymentField } from '~/src/server/plugins/engine/components/PaymentField.js'
 import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
@@ -228,6 +231,18 @@ export class SummaryPageController extends QuestionPageController {
         )
       } catch (error) {
         if (error instanceof InvalidComponentStateError) {
+          if (error.shouldResetState) {
+            await cacheService.resetComponentStates(
+              request,
+              error.getStateKeys()
+            )
+
+            if (error.isPaymentExpired) {
+              request.yar.flash(PAYMENT_EXPIRED_NOTIFICATION, true, true)
+              return this.proceed(request, h, error.component.page?.path)
+            }
+          }
+
           const govukError = createError(
             error.component.name,
             error.userMessage
@@ -236,15 +251,9 @@ export class SummaryPageController extends QuestionPageController {
           request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
 
           if (error.shouldResetState) {
-            // Reset state and redirect to component page (e.g., payment expired)
-            await cacheService.resetComponentStates(
-              request,
-              error.getStateKeys()
-            )
             return this.proceed(request, h, error.component.page?.path)
           }
 
-          // Stay on CYA page with error (e.g., capture failed, user can retry)
           return this.proceed(request, h)
         }
 
