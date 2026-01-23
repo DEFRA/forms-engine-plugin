@@ -230,49 +230,7 @@ export class SummaryPageController extends QuestionPageController {
           formMetadata
         )
       } catch (error) {
-        if (error instanceof InvalidComponentStateError) {
-          if (error.shouldResetState) {
-            await cacheService.resetComponentStates(
-              request,
-              error.getStateKeys()
-            )
-
-            if (error.isPaymentExpired) {
-              request.yar.flash(PAYMENT_EXPIRED_NOTIFICATION, true, true)
-              return this.proceed(request, h, error.component.page?.path)
-            }
-          }
-
-          const govukError = createError(
-            error.component.name,
-            error.userMessage
-          )
-
-          request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
-
-          if (error.shouldResetState) {
-            return this.proceed(request, h, error.component.page?.path)
-          }
-
-          return this.proceed(request, h)
-        }
-
-        if (error instanceof PostPaymentSubmissionError) {
-          const helpLink = error.helpLink
-            ? ` or you can <a href="${error.helpLink}" target="_blank" rel="noopener noreferrer" class="govuk-link">contact us (opens in new tab)</a> and quote your reference number to arrange a refund`
-            : ''
-
-          const govukError = createError(
-            'submission',
-            `There was a problem and your form was not submitted. Try submitting the form again${helpLink}.`
-          )
-
-          request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
-
-          return this.proceed(request, h)
-        }
-
-        throw error
+        return this.handleSubmissionError(error, request, h)
       }
     }
 
@@ -285,6 +243,76 @@ export class SummaryPageController extends QuestionPageController {
     await cacheService.clearState(request)
 
     return this.proceed(request, h, this.getStatusPath())
+  }
+
+  /**
+   * Handles errors during form submission
+   */
+  private async handleSubmissionError(
+    error: unknown,
+    request: FormRequestPayload,
+    h: FormResponseToolkit
+  ) {
+    if (error instanceof InvalidComponentStateError) {
+      return this.handleInvalidComponentStateError(error, request, h)
+    }
+
+    if (error instanceof PostPaymentSubmissionError) {
+      return this.handlePostPaymentSubmissionError(error, request, h)
+    }
+
+    throw error
+  }
+
+  /**
+   * Handles InvalidComponentStateError during submission
+   */
+  private async handleInvalidComponentStateError(
+    error: InvalidComponentStateError,
+    request: FormRequestPayload,
+    h: FormResponseToolkit
+  ) {
+    const cacheService = getCacheService(request.server)
+
+    if (error.shouldResetState) {
+      await cacheService.resetComponentStates(request, error.getStateKeys())
+
+      if (error.isPaymentExpired) {
+        request.yar.flash(PAYMENT_EXPIRED_NOTIFICATION, true, true)
+        return this.proceed(request, h, error.component.page?.path)
+      }
+    }
+
+    const govukError = createError(error.component.name, error.userMessage)
+    request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
+
+    const redirectPath = error.shouldResetState
+      ? error.component.page?.path
+      : undefined
+
+    return this.proceed(request, h, redirectPath)
+  }
+
+  /**
+   * Handles PostPaymentSubmissionError during submission
+   */
+  private handlePostPaymentSubmissionError(
+    error: PostPaymentSubmissionError,
+    request: FormRequestPayload,
+    h: FormResponseToolkit
+  ) {
+    const helpLink = error.helpLink
+      ? ` or you can <a href="${error.helpLink}" target="_blank" rel="noopener noreferrer" class="govuk-link">contact us (opens in new tab)</a> and quote your reference number to arrange a refund`
+      : ''
+
+    const govukError = createError(
+      'submission',
+      `There was a problem and your form was not submitted. Try submitting the form again${helpLink}.`
+    )
+
+    request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
+
+    return this.proceed(request, h)
   }
 
   get postRouteOptions(): RouteOptions<FormRequestPayloadRefs> {
