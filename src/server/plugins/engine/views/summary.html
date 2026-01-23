@@ -75,7 +75,7 @@
           {% set isDeclaration = declaration or components | length %}
 
           {{ govukButton({
-            text: "Accept and send" if isDeclaration else "Send",
+            text: "Accept and submit" if isDeclaration else "Submit",
             name: "action",
             value: "send",
             preventDoubleClick: true
