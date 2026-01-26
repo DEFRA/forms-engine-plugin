@@ -3,8 +3,7 @@ import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
 import { EXTERNAL_STATE_APPENDAGE } from '~/src/server/constants.js'
-import { getPaymentApiKey } from '~/src/server/plugins/payment/helper.js'
-import { PaymentService } from '~/src/server/plugins/payment/service.js'
+import { createPaymentService } from '~/src/server/plugins/payment/helper.js'
 
 export const PAYMENT_RETURN_PATH = '/payment-callback'
 export const PAYMENT_SESSION_PREFIX = 'payment-'
@@ -70,8 +69,7 @@ async function getPaymentContext(request, uuid) {
     throw Boom.badRequest('No paymentId in session')
   }
 
-  const apiKey = getPaymentApiKey(isLivePayment, formId)
-  const paymentService = new PaymentService(apiKey)
+  const paymentService = createPaymentService(isLivePayment, formId)
   const paymentStatus = await paymentService.getPaymentStatus(paymentId)
 
   return { session, sessionKey, paymentStatus }
@@ -119,12 +117,12 @@ function getReturnRoute() {
         uuid
       )
 
-      // Handle different payment states based on GOV.UK Pay status lifecycle
-      // @see https://docs.payments.service.gov.uk/api_reference/#payment-status-lifecycle
+      /**
+       * @see https://docs.payments.service.gov.uk/api_reference/#payment-status-lifecycle
+       */
       const { status } = paymentStatus.state
 
       switch (status) {
-        // Pre-auth successful or already captured
         case 'capturable':
         case 'success':
           return handlePaymentSuccess(
@@ -135,13 +133,11 @@ function getReturnRoute() {
             session.paymentId
           )
 
-        // Payment failed, cancelled, or errored - redirect to retry
         case 'cancelled':
         case 'failed':
         case 'error':
           return handlePaymentFailure(request, h, session, sessionKey)
 
-        // User came back too early - redirect back to GOV.UK Pay
         case 'created':
         case 'started':
         case 'submitted': {
@@ -156,8 +152,10 @@ function getReturnRoute() {
           return h.redirect(nextUrl).code(StatusCodes.SEE_OTHER)
         }
 
-        default:
-          throw Boom.internal(`Unknown payment status: ${String(status)}`)
+        default: {
+          const unknownStatus = /** @type {string} */ (status)
+          throw Boom.internal(`Unknown payment status: ${unknownStatus}`)
+        }
       }
     },
     options: {

@@ -15,6 +15,10 @@ import {
   type DetailItemField
 } from '~/src/server/plugins/engine/models/types.js'
 import { type FormContext } from '~/src/server/plugins/engine/types.js'
+import {
+  formatPaymentAmount,
+  formatPaymentDate
+} from '~/src/server/plugins/payment/helper.js'
 
 const designerUrl = config.get('designerUrl')
 
@@ -53,7 +57,6 @@ export function format(
   lines.push(`${formName} form received at ${escapeMarkdown(formattedNow)}.\n`)
   lines.push('---\n')
 
-  // Separate payment items from regular items
   const regularItems = items.filter((item) => !isPaymentItem(item))
   const paymentItems = items.filter((item) => isPaymentItem(item))
 
@@ -104,7 +107,6 @@ function appendPaymentSection(paymentItems: DetailItem[], lines: string[]) {
     return
   }
 
-  // Get the first payment item (forms only have one payment)
   const paymentItem = paymentItems[0] as DetailItemField
   const paymentField = paymentItem.field as PaymentField
   const paymentState = paymentField.getPaymentStateFromState(paymentItem.state)
@@ -113,17 +115,18 @@ function appendPaymentSection(paymentItems: DetailItem[], lines: string[]) {
     return
   }
 
+  const formattedAmount = formatPaymentAmount(paymentState.amount)
   const dateOfPayment = paymentState.preAuth?.createdAt
-    ? `${dateFormat(new Date(paymentState.preAuth.createdAt), 'h:mmaaa')} on ${dateFormat(new Date(paymentState.preAuth.createdAt), 'd MMMM yyyy')}`
+    ? formatPaymentDate(paymentState.preAuth.createdAt)
     : ''
 
   lines.push('---\n')
-  lines.push(`# Your payment of £${paymentState.amount} was successful\n`)
+  lines.push(`# Your payment of ${formattedAmount} was successful\n`)
   lines.push('## Payment for\n')
   lines.push(`${escapeMarkdown(paymentState.description)}\n`)
   lines.push('---\n')
   lines.push('## Total amount\n')
-  lines.push(`£${paymentState.amount}\n`)
+  lines.push(`${formattedAmount}\n`)
   lines.push('---\n')
   lines.push('## Date of payment\n')
   lines.push(`${escapeMarkdown(dateOfPayment)}\n`)

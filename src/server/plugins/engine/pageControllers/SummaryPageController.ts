@@ -40,6 +40,11 @@ import {
   type FormContextRequest
 } from '~/src/server/plugins/engine/types.js'
 import {
+  DEFAULT_PAYMENT_HELP_URL,
+  formatPaymentAmount,
+  formatPaymentDate
+} from '~/src/server/plugins/payment/helper.js'
+import {
   FormAction,
   type FormRequest,
   type FormRequestPayload,
@@ -76,8 +81,6 @@ export class SummaryPageController extends QuestionPageController {
     const { payload, errors, state } = context
     const components = this.collection.getViewModel(payload, errors, query)
 
-    // We already figure these out in the base page controller. Take them and apply them to our page-specific model.
-    // This is a stop-gap until we can add proper inheritance in place.
     viewModel.backLink = this.getBackLink(request, context)
     viewModel.feedbackLink = this.feedbackLink
     viewModel.phaseTag = this.phaseTag
@@ -85,7 +88,6 @@ export class SummaryPageController extends QuestionPageController {
     viewModel.allowSaveAndExit = this.shouldShowSaveAndExit(request.server)
     viewModel.errors = errors
 
-    // Find PaymentField and extract payment state for the summary banner
     const paymentField = context.relevantPages
       .flatMap((page) => page.collection.fields)
       .find((field): field is PaymentField => field instanceof PaymentField)
@@ -110,23 +112,6 @@ export class SummaryPageController extends QuestionPageController {
       ReturnType<PaymentField['getPaymentStateFromState']>
     >
   ) {
-    const formatDate = (isoString: string) => {
-      const date = new Date(isoString)
-      return (
-        date.toLocaleDateString('en-GB', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric'
-        }) +
-        ' – ' +
-        date.toLocaleTimeString('en-GB', {
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit'
-        })
-      )
-    }
-
     const rows = [
       {
         key: { text: 'Payment for' },
@@ -134,7 +119,7 @@ export class SummaryPageController extends QuestionPageController {
       },
       {
         key: { text: 'Total amount' },
-        value: { text: `£${paymentState.amount}` }
+        value: { text: formatPaymentAmount(paymentState.amount) }
       },
       {
         key: { text: 'Reference' },
@@ -144,8 +129,8 @@ export class SummaryPageController extends QuestionPageController {
 
     if (paymentState.preAuth?.createdAt) {
       rows.push({
-        key: { text: 'Date details were entered' },
-        value: { text: formatDate(paymentState.preAuth.createdAt) }
+        key: { text: 'Date of payment' },
+        value: { text: formatPaymentDate(paymentState.preAuth.createdAt) }
       })
     }
 
@@ -185,7 +170,6 @@ export class SummaryPageController extends QuestionPageController {
       context: FormContext,
       h: FormResponseToolkit
     ) => {
-      // Check if this is a save-and-exit action
       const { action } = request.payload
       if (action === FormAction.SaveAndExit) {
         return this.handleSaveAndExit(request, context, h)
@@ -208,14 +192,12 @@ export class SummaryPageController extends QuestionPageController {
     const { formsService } = this.model.services
     const { getFormMetadata } = formsService
 
-    // Get the form metadata using the `slug` param
     const formMetadata = await getFormMetadata(params.slug)
     const { notificationEmail } = formMetadata
     const { isPreview } = checkFormStatus(request.params)
 
     checkEmailAddressForLiveFormSubmission(notificationEmail, isPreview)
 
-    // Send submission email
     if (notificationEmail) {
       const viewModel = this.getSummaryViewModel(request, context)
 
@@ -239,7 +221,6 @@ export class SummaryPageController extends QuestionPageController {
       formId: context.state.formId
     } as FormConfirmationState)
 
-    // Clear all form data
     await cacheService.clearState(request)
 
     return this.proceed(request, h, this.getStatusPath())
@@ -301,13 +282,12 @@ export class SummaryPageController extends QuestionPageController {
     request: FormRequestPayload,
     h: FormResponseToolkit
   ) {
-    const helpLink = error.helpLink
-      ? ` or you can <a href="${error.helpLink}" target="_blank" rel="noopener noreferrer" class="govuk-link">contact us (opens in new tab)</a> and quote your reference number to arrange a refund`
-      : ''
+    const helpUrl = error.helpLink ?? DEFAULT_PAYMENT_HELP_URL
+    const helpLinkHtml = ` or you can <a href="${helpUrl}" target="_blank" rel="noopener noreferrer" class="govuk-link">contact us (opens in new tab)</a> and quote your reference number to arrange a refund`
 
     const govukError = createError(
       'submission',
-      `There was a problem and your form was not submitted. Try submitting the form again${helpLink}.`
+      `There was a problem and your form was not submitted. Try submitting the form again${helpLinkHtml}.`
     )
 
     request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
@@ -339,7 +319,6 @@ export async function submitForm(
 ) {
   await finaliseComponents(request, metadata, context)
 
-  // Check if payment was captured (for Flow 9 error handling)
   const paymentWasCaptured = hasPaymentBeenCaptured(context)
 
   const formStatus = checkFormStatus(request.params)
@@ -347,14 +326,12 @@ export async function submitForm(
 
   request.logger.info(logTags, 'Preparing email', formStatus)
 
-  // Get detail items
   const items = getFormSubmissionData(
     summaryViewModel.context,
     summaryViewModel.details
   )
 
   try {
-    // Submit data
     request.logger.info(logTags, 'Submitting data')
     const submitResponse = await submitData(
       model,
@@ -442,7 +419,6 @@ function submitData(
     sessionId,
     retrievalKey,
 
-    // Main form answers
     main: items
       .filter((item) => 'field' in item)
       .map((item) => ({
@@ -451,14 +427,12 @@ function submitData(
         value: getAnswer(item.field, item.state, { format: 'data' })
       })),
 
-    // Repeater form answers
     repeaters: items
       .filter((item) => 'subItems' in item)
       .map((item) => ({
         name: item.name,
         title: item.label,
 
-        // Repeater item values
         value: item.subItems.map((detailItems) =>
           detailItems.map((subItem) => ({
             name: subItem.name,
@@ -481,7 +455,6 @@ export function getFormSubmissionData(context: FormContext, details: Detail[]) {
     )
     .flat()
 
-  // Add payment field items (excluded from details for UI but needed for submission)
   const paymentItems = getPaymentFieldItems(context)
 
   return [...items, ...paymentItems]

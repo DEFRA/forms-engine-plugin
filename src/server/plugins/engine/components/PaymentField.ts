@@ -25,8 +25,7 @@ import {
   type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
-import { getPaymentApiKey } from '~/src/server/plugins/payment/helper.js'
-import { PaymentService } from '~/src/server/plugins/payment/service.js'
+import { createPaymentService } from '~/src/server/plugins/payment/helper.js'
 
 export class PaymentField extends FormComponent {
   declare options: PaymentFieldComponent['options']
@@ -41,7 +40,6 @@ export class PaymentField extends FormComponent {
 
     this.options = def.options
 
-    // Payment state is validated as an object with the required fields
     const paymentStateSchema = joi
       .object({
         paymentId: joi.string().required(),
@@ -161,11 +159,8 @@ export class PaymentField extends FormComponent {
   ): Promise<unknown> {
     const isLivePayment = args.isLive && !args.isPreview
     const formId = args.controller.model.formId
-    const apiKeyValue = getPaymentApiKey(isLivePayment, formId)
+    const paymentService = createPaymentService(isLivePayment, formId)
 
-    const paymentService = new PaymentService(apiKeyValue)
-
-    // 1. Generate UUID token
     const uuid = randomUUID()
 
     const { options, name: componentName } = args.component
@@ -178,16 +173,11 @@ export class PaymentField extends FormComponent {
 
     const slug = `/${model.basePath}`
 
-    // 2. Build the return URL for GOV.UK Pay
     const { baseUrl } = getPluginOptions(request.server)
     const payCallbackUrl = `${baseUrl}/payment-callback?uuid=${uuid}`
-
-    // Build URLs for redirect after payment
     const summaryUrl = `${baseUrl}/${model.basePath}/summary`
     const paymentPageUrl = args.sourceUrl
 
-    // 3. Call paymentService.createPayment()
-    // GOV.UK Pay expects amount in pence, so multiply pounds by 100
     const amountInPence = Math.round(amount * 100)
     const payment = await paymentService.createPayment(
       amountInPence,
@@ -197,7 +187,6 @@ export class PaymentField extends FormComponent {
       { formId, slug }
     )
 
-    // 4. Store session data for the return route to use
     const sessionData: PaymentSessionData = {
       uuid,
       formId,
@@ -213,7 +202,6 @@ export class PaymentField extends FormComponent {
 
     request.yar.set(`payment-${uuid}`, sessionData)
 
-    // 5. Redirect to GOV.UK Pay paymentUrl
     return h.redirect(payment.paymentUrl).code(StatusCodes.SEE_OTHER)
   }
 
@@ -229,7 +217,6 @@ export class PaymentField extends FormComponent {
     const paymentState = this.getPaymentStateFromState(context.state)
 
     if (!paymentState) {
-      // No payment state - redirect to payment page to complete payment
       throw new InvalidComponentStateError(
         this,
         'Complete the payment to continue',
@@ -237,19 +224,18 @@ export class PaymentField extends FormComponent {
       )
     }
 
-    // Skip if already captured
     if (paymentState.capture?.status === 'success') {
       return
     }
 
     const { paymentId, isLivePayment, formId } = paymentState
-    const apiKey = getPaymentApiKey(isLivePayment, formId)
-    const paymentService = new PaymentService(apiKey)
+    const paymentService = createPaymentService(isLivePayment, formId)
 
-    // Verify payment is still in capturable state
+    /**
+     * @see https://docs.payments.service.gov.uk/api_reference/#payment-status-lifecycle
+     */
     const status = await paymentService.getPaymentStatus(paymentId)
 
-    // If already captured (success state), mark as captured and continue
     if (status.state.status === 'success') {
       await this.markPaymentCaptured(request, paymentState)
       return
@@ -263,7 +249,6 @@ export class PaymentField extends FormComponent {
       )
     }
 
-    // Capture the payment
     const captured = await paymentService.capturePayment(paymentId)
 
     if (!captured) {
@@ -293,7 +278,6 @@ export class PaymentField extends FormComponent {
       }
     }
 
-    // Update the state in the page controller
     if (this.page) {
       const currentState = await this.page.getState(request)
       await this.page.mergeState(request, currentState, {
