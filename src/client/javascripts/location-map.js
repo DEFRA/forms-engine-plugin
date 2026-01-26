@@ -108,7 +108,7 @@ export function initMaps(config = {}) {
   } = config
   const locations = document.querySelectorAll('.app-location-field')
 
-  // TODO: Fix this in `defra-map`
+  // TODO: Fix this in `interactive-map`
   // If there are location components on the page fix up the main form submit
   // handler so it doesn't fire when using the integrated map search feature
   if (locations.length) {
@@ -268,7 +268,7 @@ function createMap(mapId, initConfig, mapsConfig) {
   const defra = window.defra
 
   /** @type {DefraMap} */
-  const map = new defra.DefraMap(mapId, {
+  const map = new defra.InteractiveMap(mapId, {
     ...initConfig,
     mapProvider: defra.maplibreProvider(),
     reverseGeocodeProvider: defra.openNamesProvider({
@@ -278,6 +278,7 @@ function createMap(mapId, initConfig, mapsConfig) {
     minZoom: 6,
     maxZoom: 18,
     containerHeight: '400px',
+    enableZoomControls: true,
     transformRequest: makeTileRequestTransformer(apiPath),
     plugins: [
       defra.mapStylesPlugin({
@@ -286,8 +287,8 @@ function createMap(mapId, initConfig, mapsConfig) {
             id: 'outdoor',
             label: 'Outdoor',
             url: data.VTS_OUTDOOR_URL,
-            thumbnail: `${assetPath}/defra-map/assets/images/outdoor-map-thumb.jpg`,
-            logo: `${assetPath}/defra-map/assets/images/os-logo.svg`,
+            thumbnail: `${assetPath}/interactive-map/assets/images/outdoor-map-thumb.jpg`,
+            logo: `${assetPath}/interactive-map/assets/images/os-logo.svg`,
             logoAltText,
             attribution: `Contains OS data ${String.fromCodePoint(COMPANY_SYMBOL_CODE)} Crown copyright and database rights ${new Date().getFullYear()}`,
             backgroundColor: '#f5f5f0'
@@ -298,8 +299,8 @@ function createMap(mapId, initConfig, mapsConfig) {
             url: data.VTS_DARK_URL,
             mapColorScheme: 'dark',
             appColorScheme: 'dark',
-            thumbnail: `${assetPath}/defra-map/assets/images/dark-map-thumb.jpg`,
-            logo: `${assetPath}/defra-map/assets/images/os-logo-white.svg`,
+            thumbnail: `${assetPath}/interactive-map/assets/images/dark-map-thumb.jpg`,
+            logo: `${assetPath}/interactive-map/assets/images/os-logo-white.svg`,
             logoAltText,
             attribution: `Contains OS data ${String.fromCodePoint(COMPANY_SYMBOL_CODE)} Crown copyright and database rights ${new Date().getFullYear()}`
           },
@@ -307,8 +308,8 @@ function createMap(mapId, initConfig, mapsConfig) {
             id: 'black-and-white',
             label: 'Black/White',
             url: data.VTS_BLACK_AND_WHITE_URL,
-            thumbnail: `${assetPath}/defra-map/assets/images/black-and-white-map-thumb.jpg`,
-            logo: `${assetPath}/defra-map/assets/images/os-logo-black.svg`,
+            thumbnail: `${assetPath}/interactive-map/assets/images/black-and-white-map-thumb.jpg`,
+            logo: `${assetPath}/interactive-map/assets/images/os-logo-black.svg`,
             logoAltText,
             attribution: `Contains OS data ${String.fromCodePoint(COMPANY_SYMBOL_CODE)} Crown copyright and database rights ${new Date().getFullYear()}`
           }
@@ -325,7 +326,6 @@ function createMap(mapId, initConfig, mapsConfig) {
         width: '300px',
         showMarker: false
       }),
-      defra.zoomControlsPlugin(),
       defra.scaleBarPlugin({
         units: 'metric'
       })
