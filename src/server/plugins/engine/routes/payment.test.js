@@ -45,7 +45,10 @@ describe('Payment routes', () => {
       { status: 'success', finalUrl: 'http://host.com/return-url' },
       { status: 'cancelled', finalUrl: 'http://host.com/failure-url' },
       { status: 'failed', finalUrl: 'http://host.com/failure-url' },
-      { status: 'error', finalUrl: 'http://host.com/failure-url' }
+      { status: 'error', finalUrl: 'http://host.com/failure-url' },
+      { status: 'created', finalUrl: '/next-url' },
+      { status: 'started', finalUrl: '/next-url' },
+      { status: 'submitted', finalUrl: '/next-url' }
     ])('should handle payment status of $row.status', async (row) => {
       const paymentStatus = {
         paymentId: 'new-payment-id',
@@ -75,6 +78,71 @@ describe('Payment routes', () => {
 
       expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
       expect(response.headers.location).toBe(row.finalUrl)
+    })
+
+    it('should throw if nextUrl is missing', async () => {
+      const paymentStatus = {
+        paymentId: 'new-payment-id',
+        // TODO - resolve name mismatch
+        payment_id: 'new-payment-id',
+        _links: {
+          next_url: {},
+          self: {
+            href: '/self',
+            method: 'get'
+          }
+        },
+        state: /** @type {PaymentState} */ ({
+          status: 'created',
+          finished: true
+        })
+      }
+      jest.mocked(getPaymentContext).mockResolvedValueOnce({
+        session: paymentSessionData,
+        sessionKey,
+        // @ts-expect-error - missing elements deliberately for test
+        paymentStatus
+      })
+      const { response } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)
+      // @ts-expect-error - error object
+      expect(response.result?.message).toBe(
+        "Payment in state 'created' but no next_url available"
+      )
+    })
+
+    it('should throw if invalid status', async () => {
+      const paymentStatus = {
+        paymentId: 'new-payment-id',
+        // TODO - resolve name mismatch
+        payment_id: 'new-payment-id',
+        _links: {
+          next_url: {
+            href: '/next-url',
+            method: 'get'
+          },
+          self: {
+            href: '/self',
+            method: 'get'
+          }
+        },
+        state: {
+          status: 'invalid',
+          finished: true
+        }
+      }
+      jest.mocked(getPaymentContext).mockResolvedValueOnce({
+        session: paymentSessionData,
+        sessionKey,
+        // @ts-expect-error - invalid status deliberately for test
+        paymentStatus
+      })
+      const { response } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
+      // @ts-expect-error - error object
+      expect(response.result?.message).toBe('Unknown payment status: invalid')
     })
   })
 })
