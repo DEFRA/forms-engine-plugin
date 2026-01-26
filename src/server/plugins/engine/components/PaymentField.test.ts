@@ -1,14 +1,29 @@
-import { ComponentType, type PaymentFieldComponent } from '@defra/forms-model'
+import {
+  ComponentType,
+  type FormMetadata,
+  type PaymentFieldComponent
+} from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import { PaymentField } from '~/src/server/plugins/engine/components/PaymentField.js'
 import {
   getAnswer,
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import { type FormValue } from '~/src/server/plugins/engine/types.js'
+import {
+  type FormContext,
+  type FormValue
+} from '~/src/server/plugins/engine/types.js'
+import {
+  type FormRequestPayload,
+  type FormResponseToolkit
+} from '~/src/server/routes/types.js'
+import { get, post, postJson } from '~/src/server/services/httpService.js'
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
+
+jest.mock('~/src/server/services/httpService.ts')
 
 describe('PaymentField', () => {
   let model: FormModel
@@ -215,6 +230,236 @@ describe('PaymentField', () => {
         const errors = field.getAllPossibleErrors()
         expect(errors.baseErrors).not.toBeEmpty()
         expect(errors.advancedSettingsErrors).toBeEmpty()
+      })
+    })
+  })
+
+  describe('dispatcher and onSubmit', () => {
+    const def = {
+      title: 'Example payment field',
+      name: 'myComponent',
+      type: ComponentType.PaymentField,
+      options: {
+        amount: 100,
+        description: 'Test payment description'
+      }
+    } satisfies PaymentFieldComponent
+
+    const collection = new ComponentCollection([def], { model })
+    const paymentField = collection.fields[0] as PaymentField
+
+    describe('dispatcher', () => {
+      it('should create payment and redirect to gov pay', async () => {
+        const mockYarSet = jest.fn()
+        const mockRequest = {
+          server: {
+            plugins: {
+              // eslint-disable-next-line no-useless-computed-key
+              ['forms-engine-plugin']: {
+                baseUrl: 'base-url'
+              }
+            }
+          },
+          yar: {
+            set: mockYarSet
+          }
+        } as unknown as FormRequestPayload
+        const mockH = {
+          redirect: jest
+            .fn()
+            .mockReturnValueOnce({ code: jest.fn().mockReturnValueOnce('ok') })
+        } as unknown as FormResponseToolkit
+        const args = {
+          controller: {
+            model: {
+              formId: 'form-id',
+              basePath: 'base-path',
+              name: 'PaymentModel'
+            },
+            getState: jest
+              .fn()
+              .mockResolvedValueOnce({ $$__referenceNumber: 'pay-ref-123' })
+          },
+          component: paymentField,
+          sourceUrl: 'http://localhost:3009/test-payment',
+          isLive: false,
+          isPreview: true
+        }
+        // @ts-expect-error - partial mock
+        jest.mocked(postJson).mockResolvedValueOnce({
+          payload: {
+            state: {
+              status: 'created'
+            },
+            payment_id: 'new-payment-id',
+            _links: {
+              next_url: {
+                href: '/next-url'
+              }
+            }
+          }
+        })
+
+        const res = await PaymentField.dispatcher(mockRequest, mockH, args)
+        expect(res).toBe('ok')
+        expect(mockYarSet).toHaveBeenCalledWith(expect.any(String), {
+          amount: 100,
+          componentName: 'myComponent',
+          description: 'Test payment description',
+          failureUrl: 'http://localhost:3009/test-payment',
+          formId: 'form-id',
+          isLivePayment: false,
+          paymentId: 'new-payment-id',
+          reference: 'pay-ref-123',
+          returnUrl: 'base-url/base-path/summary',
+          uuid: expect.any(String)
+        })
+      })
+    })
+
+    describe('onSubmit', () => {
+      it('should throw if missing state', async () => {
+        const mockRequest = {} as unknown as FormRequestPayload
+
+        await expect(() =>
+          paymentField.onSubmit(
+            mockRequest,
+            {} as FormMetadata,
+            { state: {} } as FormContext
+          )
+        ).rejects.toThrow('Invalid component state for: myComponent')
+      })
+
+      it('should ignore if payment already captured', async () => {
+        const mockRequest = {} as unknown as FormRequestPayload
+
+        await paymentField.onSubmit(
+          mockRequest,
+          {} as FormMetadata,
+          {
+            state: {
+              myComponent: {
+                capture: {
+                  status: 'success'
+                },
+                paymentId: 'payment-id',
+                amount: 123,
+                description: 'Payment desc'
+              }
+            }
+          } as unknown as FormContext
+        )
+        expect(get).not.toHaveBeenCalled()
+        expect(post).not.toHaveBeenCalled()
+      })
+
+      // TODO - understand the difference between this test and the previous
+      it('should mark payment already captured', async () => {
+        const mockRequest = {} as unknown as FormRequestPayload
+        // @ts-expect-error - partial mock
+        jest
+          .mocked(get)
+          .mockResolvedValueOnce({ payload: { state: { status: 'success' } } })
+        await paymentField.onSubmit(
+          mockRequest,
+          {} as FormMetadata,
+          {
+            state: {
+              myComponent: {
+                paymentId: 'payment-id',
+                amount: 123,
+                description: 'Payment desc',
+                isLivePayment: false,
+                formId: 'form-id'
+              }
+            }
+          } as unknown as FormContext
+        )
+        expect(get).toHaveBeenCalled()
+        expect(post).not.toHaveBeenCalled()
+      })
+
+      it('should throw if bad status', async () => {
+        const mockRequest = {} as unknown as FormRequestPayload
+        // @ts-expect-error - partial mock
+        jest
+          .mocked(get)
+          .mockResolvedValueOnce({ payload: { state: { status: 'bad' } } })
+        await expect(() =>
+          paymentField.onSubmit(
+            mockRequest,
+            {} as FormMetadata,
+            {
+              state: {
+                myComponent: {
+                  paymentId: 'payment-id',
+                  amount: 123,
+                  description: 'Payment desc',
+                  isLivePayment: false,
+                  formId: 'form-id'
+                }
+              }
+            } as unknown as FormContext
+          )
+        ).rejects.toThrow()
+      })
+
+      it('should throw if error during capture', async () => {
+        const mockRequest = {} as unknown as FormRequestPayload
+        // @ts-expect-error - partial mock
+        jest
+          .mocked(get)
+          .mockResolvedValueOnce({
+            payload: { state: { status: 'capturable' } }
+          })
+        // @ts-expect-error - partial mock
+        jest.mocked(post).mockResolvedValueOnce({ res: { statusCode: 400 } })
+        await expect(() =>
+          paymentField.onSubmit(
+            mockRequest,
+            {} as FormMetadata,
+            {
+              state: {
+                myComponent: {
+                  paymentId: 'payment-id',
+                  amount: 123,
+                  description: 'Payment desc',
+                  isLivePayment: false,
+                  formId: 'form-id'
+                }
+              }
+            } as unknown as FormContext
+          )
+        ).rejects.toThrow()
+      })
+
+      it('should capture payment if no errors', async () => {
+        const mockRequest = {} as unknown as FormRequestPayload
+        // @ts-expect-error - partial mock
+        jest
+          .mocked(get)
+          .mockResolvedValueOnce({
+            payload: { state: { status: 'capturable' } }
+          })
+        // @ts-expect-error - partial mock
+        jest.mocked(post).mockResolvedValueOnce({ res: { statusCode: 200 } })
+        await paymentField.onSubmit(
+          mockRequest,
+          {} as FormMetadata,
+          {
+            state: {
+              myComponent: {
+                paymentId: 'payment-id',
+                amount: 123,
+                description: 'Payment desc',
+                isLivePayment: false,
+                formId: 'form-id'
+              }
+            }
+          } as unknown as FormContext
+        )
+        expect(get).toHaveBeenCalled()
+        expect(post).toHaveBeenCalled()
       })
     })
   })
