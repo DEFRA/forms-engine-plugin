@@ -1,4 +1,8 @@
 import { config } from '~/src/config/index.js'
+import { PaymentService } from '~/src/server/plugins/payment/service.js'
+
+export const DEFAULT_PAYMENT_HELP_URL =
+  'https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs'
 
 /**
  * Determine which payment API key value to use.
@@ -19,4 +23,44 @@ export function getPaymentApiKey(isLivePayment, formId) {
     )
   }
   return apiKeyValue
+}
+
+/**
+ * Creates a PaymentService instance with the appropriate API key
+ * @param {boolean} isLivePayment - true if this is a live payment
+ * @param {string} formId - id of the form
+ * @returns {PaymentService}
+ */
+export function createPaymentService(isLivePayment, formId) {
+  const apiKey = getPaymentApiKey(isLivePayment, formId)
+  return new PaymentService(apiKey)
+}
+
+/**
+ * Formats a payment date for display
+ * @param {string} isoString - ISO date string
+ * @returns {string} Formatted date string (e.g., "26 January 2026 – 17:01:29")
+ */
+export function formatPaymentDate(isoString) {
+  const date = new Date(isoString)
+  const dateStr = date.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  })
+  const timeStr = date.toLocaleTimeString('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  })
+  return `${dateStr} – ${timeStr}`
+}
+
+/**
+ * Formats a payment amount with two decimal places
+ * @param {number} amount - amount in pounds
+ * @returns {string} Formatted amount (e.g., "£10.00")
+ */
+export function formatPaymentAmount(amount) {
+  return `£${amount.toFixed(2)}`
 }

@@ -1,4 +1,5 @@
 ---
+schema: 2
 name: Payment Test Form
 declaration: "<p class=\"govuk-body\">All the answers you have provided are true to the best of your knowledge.</p>"
 pages:
