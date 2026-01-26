@@ -21,7 +21,7 @@ describe('Location Maps Client JS', () => {
     addMarkerMock = jest.fn()
     addPanelMock = jest.fn()
 
-    class MockDefraMap {
+    class MockInteractiveMap {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       on = onMock
       // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -32,7 +32,7 @@ describe('Location Maps Client JS', () => {
 
     // @ts-expect-error - loaded via UMD
     window.defra = {
-      DefraMap: MockDefraMap,
+      InteractiveMap: MockInteractiveMap,
       maplibreProvider: noop,
       openNamesProvider: noop,
       mapStylesPlugin: noop,

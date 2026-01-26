@@ -57,7 +57,7 @@ function osGridRefToLatLong(osGridRef) {
 const DEFAULT_LAT = 53.825564
 const DEFAULT_LONG = -2.421975
 
-/** @type {DefraMapInitConfig} */
+/** @type {InteractiveMapInitConfig} */
 const defaultConfig = {
   zoom: '6',
   center: [DEFAULT_LONG, DEFAULT_LAT]
@@ -257,7 +257,7 @@ function processLocation(config, location, index) {
 /**
  * Create a Defra map instance
  * @param {string} mapId - the map id
- * @param {DefraMapInitConfig} initConfig - the map initial configuration
+ * @param {InteractiveMapInitConfig} initConfig - the map initial configuration
  * @param {MapsEnvironmentConfig} mapsConfig - the map environment params
  */
 function createMap(mapId, initConfig, mapsConfig) {
@@ -267,7 +267,7 @@ function createMap(mapId, initConfig, mapsConfig) {
   // @ts-expect-error - Defra namespace currently comes from UMD support files
   const defra = window.defra
 
-  /** @type {DefraMap} */
+  /** @type {InteractiveMap} */
   const map = new defra.InteractiveMap(mapId, {
     ...initConfig,
     mapProvider: defra.maplibreProvider(),
@@ -502,7 +502,7 @@ function getInitMapCenterConfig(center) {
 /**
  * Gets initial map config for a latlong location field
  * @param {HTMLDivElement} locationField - the latlong location field element
- * @returns {DefraMapInitConfig | undefined}
+ * @returns {InteractiveMapInitConfig | undefined}
  */
 function getInitLatLongMapConfig(locationField) {
   const { latInput, longInput } = getLatLongInputs(locationField)
@@ -521,7 +521,7 @@ function getInitLatLongMapConfig(locationField) {
 /**
  * Gets initial map config for a easting/northing location field
  * @param {HTMLDivElement} locationField - the eastingnorthing location field element
- * @returns {DefraMapInitConfig | undefined}
+ * @returns {InteractiveMapInitConfig | undefined}
  */
 function getInitEastingNorthingMapConfig(locationField) {
   const { eastingInput, northingInput } =
@@ -546,7 +546,7 @@ function getInitEastingNorthingMapConfig(locationField) {
 /**
  * Gets initial map config for an OS grid reference location field
  * @param {HTMLDivElement} locationField - the osgridref location field element
- * @returns {DefraMapInitConfig | undefined}
+ * @returns {InteractiveMapInitConfig | undefined}
  */
 function getInitOsGridRefMapConfig(locationField) {
   const osGridRefInput = getOsGridRefInput(locationField)
@@ -567,7 +567,7 @@ function getInitOsGridRefMapConfig(locationField) {
 /**
  * Bind a latlong field to the map
  * @param {HTMLDivElement} locationField - the latlong location field
- * @param {DefraMap} map - the map component instance (of DefraMap)
+ * @param {InteractiveMap} map - the map component instance (of InteractiveMap)
  * @param {MapLibreMap} mapProvider - the map provider instance (of MapLibreMap)
  */
 function bindLatLongField(locationField, map, mapProvider) {
@@ -609,7 +609,7 @@ function bindLatLongField(locationField, map, mapProvider) {
 /**
  * Bind an eastingnorthing field to the map
  * @param {HTMLDivElement} locationField - the eastingnorthing location field
- * @param {DefraMap} map - the map component instance (of DefraMap)
+ * @param {InteractiveMap} map - the map component instance (of InteractiveMap)
  * @param {MapLibreMap} mapProvider - the map provider instance (of MapLibreMap)
  */
 function bindEastingNorthingField(locationField, map, mapProvider) {
@@ -662,7 +662,7 @@ function bindEastingNorthingField(locationField, map, mapProvider) {
 /**
  * Bind an OS grid reference field to the map
  * @param {HTMLDivElement} locationField - the osgridref location field
- * @param {DefraMap} map - the map component instance (of DefraMap)
+ * @param {InteractiveMap} map - the map component instance (of InteractiveMap)
  * @param {MapLibreMap} mapProvider - the map provider instance (of MapLibreMap)
  */
 function bindOsGridRefField(locationField, map, mapProvider) {
@@ -707,7 +707,7 @@ function bindOsGridRefField(locationField, map, mapProvider) {
 
 /**
  * Updates the marker position and moves the map view port the new location
- * @param {DefraMap} map - the map component instance (of DefraMap)
+ * @param {InteractiveMap} map - the map component instance (of InteractiveMap)
  * @param {MapLibreMap} mapProvider - the map provider instance (of MapLibreMap)
  * @param {MapCenter} center - the point
  */
@@ -724,7 +724,7 @@ function centerMap(map, mapProvider, center) {
 }
 
 /**
- * @typedef {object} DefraMap - an instance of a DefraMap
+ * @typedef {object} InteractiveMap - an instance of a InteractiveMap
  * @property {Function} on - register callback listeners to map events
  * @property {Function} addPanel - adds a new panel to the map
  * @property {Function} addMarker - adds/updates a marker
@@ -740,7 +740,7 @@ function centerMap(map, mapProvider, center) {
  */
 
 /**
- * @typedef {object} DefraMapInitConfig - additional config that can be provided to DefraMap
+ * @typedef {object} InteractiveMapInitConfig - additional config that can be provided to InteractiveMap
  * @property {string} zoom - the zoom level of the map
  * @property {MapCenter} center - the center point of the map
  * @property {{ id: string, coords: MapCenter}[]} [markers] - the markers to add to the map
