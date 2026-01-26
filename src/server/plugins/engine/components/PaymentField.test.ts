@@ -356,9 +356,9 @@ describe('PaymentField', () => {
       // TODO - understand the difference between this test and the previous
       it('should mark payment already captured', async () => {
         const mockRequest = {} as unknown as FormRequestPayload
-        // @ts-expect-error - partial mock
         jest
           .mocked(get)
+          // @ts-expect-error - partial mock
           .mockResolvedValueOnce({ payload: { state: { status: 'success' } } })
         await paymentField.onSubmit(
           mockRequest,
@@ -381,9 +381,9 @@ describe('PaymentField', () => {
 
       it('should throw if bad status', async () => {
         const mockRequest = {} as unknown as FormRequestPayload
-        // @ts-expect-error - partial mock
         jest
           .mocked(get)
+          // @ts-expect-error - partial mock
           .mockResolvedValueOnce({ payload: { state: { status: 'bad' } } })
         await expect(() =>
           paymentField.onSubmit(
@@ -406,9 +406,9 @@ describe('PaymentField', () => {
 
       it('should throw if error during capture', async () => {
         const mockRequest = {} as unknown as FormRequestPayload
-        // @ts-expect-error - partial mock
         jest
           .mocked(get)
+          // @ts-expect-error - partial mock
           .mockResolvedValueOnce({
             payload: { state: { status: 'capturable' } }
           })
@@ -435,9 +435,9 @@ describe('PaymentField', () => {
 
       it('should capture payment if no errors', async () => {
         const mockRequest = {} as unknown as FormRequestPayload
-        // @ts-expect-error - partial mock
         jest
           .mocked(get)
+          // @ts-expect-error - partial mock
           .mockResolvedValueOnce({
             payload: { state: { status: 'capturable' } }
           })
