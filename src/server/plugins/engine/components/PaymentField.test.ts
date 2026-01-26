@@ -11,6 +11,7 @@ import {
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { InvalidComponentStateError } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import {
   type FormContext,
   type FormValue
@@ -321,16 +322,24 @@ describe('PaymentField', () => {
       it('should throw if missing state', async () => {
         const mockRequest = {} as unknown as FormRequestPayload
 
-        await expect(() =>
-          paymentField.onSubmit(
+        const error = await paymentField
+          .onSubmit(
             mockRequest,
             {} as FormMetadata,
             { state: {} } as FormContext
           )
-        ).rejects.toThrow('Invalid component state for: myComponent')
+          .catch((e: unknown) => e)
+
+        expect(error).toBeInstanceOf(InvalidComponentStateError)
+        expect((error as InvalidComponentStateError).component).toBe(
+          paymentField
+        )
+        expect((error as InvalidComponentStateError).userMessage).toBe(
+          'Complete the payment to continue'
+        )
       })
 
-      it('should ignore if payment already captured', async () => {
+      it('should ignore if our state says payment already captured', async () => {
         const mockRequest = {} as unknown as FormRequestPayload
 
         await paymentField.onSubmit(
@@ -353,8 +362,7 @@ describe('PaymentField', () => {
         expect(post).not.toHaveBeenCalled()
       })
 
-      // TODO - understand the difference between this test and the previous
-      it('should mark payment already captured', async () => {
+      it('should mark payment already captured according to gov pay', async () => {
         const mockRequest = {} as unknown as FormRequestPayload
         jest
           .mocked(get)
@@ -385,8 +393,8 @@ describe('PaymentField', () => {
           .mocked(get)
           // @ts-expect-error - partial mock
           .mockResolvedValueOnce({ payload: { state: { status: 'bad' } } })
-        await expect(() =>
-          paymentField.onSubmit(
+        const error = await paymentField
+          .onSubmit(
             mockRequest,
             {} as FormMetadata,
             {
@@ -401,7 +409,15 @@ describe('PaymentField', () => {
               }
             } as unknown as FormContext
           )
-        ).rejects.toThrow()
+          .catch((e: unknown) => e)
+
+        expect(error).toBeInstanceOf(InvalidComponentStateError)
+        expect((error as InvalidComponentStateError).component).toBe(
+          paymentField
+        )
+        expect((error as InvalidComponentStateError).userMessage).toBe(
+          'Your payment authorisation has expired. Please add your payment details again.'
+        )
       })
 
       it('should throw if error during capture', async () => {
@@ -414,8 +430,8 @@ describe('PaymentField', () => {
           })
         // @ts-expect-error - partial mock
         jest.mocked(post).mockResolvedValueOnce({ res: { statusCode: 400 } })
-        await expect(() =>
-          paymentField.onSubmit(
+        const error = await paymentField
+          .onSubmit(
             mockRequest,
             {} as FormMetadata,
             {
@@ -430,7 +446,15 @@ describe('PaymentField', () => {
               }
             } as unknown as FormContext
           )
-        ).rejects.toThrow()
+          .catch((e: unknown) => e)
+
+        expect(error).toBeInstanceOf(InvalidComponentStateError)
+        expect((error as InvalidComponentStateError).component).toBe(
+          paymentField
+        )
+        expect((error as InvalidComponentStateError).userMessage).toBe(
+          'There was a problem and your form was not submitted. Try submitting the form again.'
+        )
       })
 
       it('should capture payment if no errors', async () => {

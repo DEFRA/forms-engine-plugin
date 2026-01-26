@@ -3,8 +3,7 @@ import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
 import { EXTERNAL_STATE_APPENDAGE } from '~/src/server/constants.js'
-import { getPaymentApiKey } from '~/src/server/plugins/payment/helper.js'
-import { PaymentService } from '~/src/server/plugins/payment/service.js'
+import { getPaymentContext } from '~/src/server/plugins/engine/routes/payment-helper.js'
 
 export const PAYMENT_RETURN_PATH = '/payment-callback'
 export const PAYMENT_SESSION_PREFIX = 'payment-'
@@ -46,35 +45,6 @@ function flashComponentState(request, session, paymentId) {
  */
 export function getRoutes() {
   return [getReturnRoute()]
-}
-
-/**
- * Validates session data and retrieves payment status
- * @param {Request} request - the request
- * @param {string} uuid - the payment UUID
- * @returns {Promise<{ session: PaymentSessionData, sessionKey: string, paymentStatus: GetPaymentResponse }>}
- */
-async function getPaymentContext(request, uuid) {
-  const sessionKey = `${PAYMENT_SESSION_PREFIX}${uuid}`
-  const session = /** @type {PaymentSessionData | null} */ (
-    request.yar.get(sessionKey)
-  )
-
-  if (!session) {
-    throw Boom.badRequest(`No payment session found for uuid=${uuid}`)
-  }
-
-  const { paymentId, isLivePayment, formId } = session
-
-  if (!paymentId) {
-    throw Boom.badRequest('No paymentId in session')
-  }
-
-  const apiKey = getPaymentApiKey(isLivePayment, formId)
-  const paymentService = new PaymentService(apiKey)
-  const paymentStatus = await paymentService.getPaymentStatus(paymentId)
-
-  return { session, sessionKey, paymentStatus }
 }
 
 /**
@@ -173,23 +143,8 @@ function getReturnRoute() {
 }
 
 /**
- * Payment session data stored when dispatching to GOV.UK Pay
- * @typedef {object} PaymentSessionData
- * @property {string} uuid - unique identifier for this payment attempt
- * @property {string} formId - id of the form
- * @property {string} reference - form reference number
- * @property {number} amount - amount in pounds
- * @property {string} description - payment description
- * @property {string} paymentId - GOV.UK Pay payment ID
- * @property {string} componentName - name of the PaymentField component
- * @property {string} returnUrl - URL to redirect to after successful payment
- * @property {string} failureUrl - URL to redirect to after failed/cancelled payment
- * @property {boolean} isLivePayment - whether the payment is using live API key
- */
-
-/**
  * @import { Request, ResponseToolkit, ServerRoute } from '@hapi/hapi'
+ * @import { PaymentSessionData } from '~/src/server/plugins/payment/types.js'
  * @import { PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
- * @import { GetPaymentResponse } from '~/src/server/plugins/payment/types.js'
  * @import { ExternalStateAppendage, FormState } from '~/src/server/plugins/engine/types.js'
  */

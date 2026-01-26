@@ -35,3 +35,18 @@
  * @property {PaymentState} state - Current state of the payment
  * @property {{ self: PaymentLink, next_url?: PaymentLink }} _links - HATEOAS links for the payment
  */
+
+/**
+ * Payment session data stored when dispatching to GOV.UK Pay
+ * @typedef {object} PaymentSessionData
+ * @property {string} uuid - unique identifier for this payment attempt
+ * @property {string} formId - id of the form
+ * @property {string} reference - form reference number
+ * @property {number} amount - amount in pounds
+ * @property {string} description - payment description
+ * @property {string} paymentId - GOV.UK Pay payment ID
+ * @property {string} componentName - name of the PaymentField component
+ * @property {string} returnUrl - URL to redirect to after successful payment
+ * @property {string} failureUrl - URL to redirect to after failed/cancelled payment
+ * @property {boolean} isLivePayment - whether the payment is using live API key
+ */
