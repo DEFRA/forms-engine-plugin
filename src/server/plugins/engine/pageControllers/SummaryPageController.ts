@@ -13,7 +13,6 @@ import {
 } from '~/src/server/constants.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { PaymentField } from '~/src/server/plugins/engine/components/PaymentField.js'
-import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import {
   checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
@@ -34,6 +33,10 @@ import {
   InvalidComponentStateError,
   PostPaymentSubmissionError
 } from '~/src/server/plugins/engine/pageControllers/errors.js'
+import {
+  buildMainRecords,
+  buildRepeaterRecords
+} from '~/src/server/plugins/engine/pageControllers/helpers/submission.js'
 import {
   type FormConfirmationState,
   type FormContext,
@@ -406,6 +409,9 @@ async function finaliseComponents(
   }
 }
 
+/**
+ * Builds and submits the payload to forms-submission-api.
+ */
 function submitData(
   model: FormModel,
   items: DetailItem[],
@@ -418,29 +424,8 @@ function submitData(
   const payload: SubmitPayload = {
     sessionId,
     retrievalKey,
-
-    main: items
-      .filter((item) => 'field' in item)
-      .map((item) => ({
-        name: item.name,
-        title: item.label,
-        value: getAnswer(item.field, item.state, { format: 'data' })
-      })),
-
-    repeaters: items
-      .filter((item) => 'subItems' in item)
-      .map((item) => ({
-        name: item.name,
-        title: item.label,
-
-        value: item.subItems.map((detailItems) =>
-          detailItems.map((subItem) => ({
-            name: subItem.name,
-            title: subItem.label,
-            value: getAnswer(subItem.field, subItem.state, { format: 'data' })
-          }))
-        )
-      }))
+    main: buildMainRecords(items),
+    repeaters: buildRepeaterRecords(items)
   }
 
   return submit(payload)
