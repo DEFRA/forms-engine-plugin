@@ -188,9 +188,9 @@ describe('v1 human formatter', () => {
     )
 
     // TODO - sort type issue
-    // @ts-expect-error - statePayment doesnt quite match up to type
     const contextPayment = modelPayment.getFormContext(
       requestPayment,
+      // @ts-expect-error - statePayment doesnt quite match up to type
       statePayment
     )
     const summaryViewModelPayment = controllerPayment.getSummaryViewModel(
