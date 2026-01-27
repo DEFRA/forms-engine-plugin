@@ -9,135 +9,257 @@ import {
 } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { FormStatus } from '~/src/server/routes/types.js'
+import definitionPayment from '~/test/form/definitions/payment.js'
 import definition from '~/test/form/definitions/repeat-mixed.js'
 
-const itemId1 = 'abc-123'
-const itemId2 = 'xyz-987'
+describe('v1 human formatter', () => {
+  const itemId1 = 'abc-123'
+  const itemId2 = 'xyz-987'
 
-const submitResponse = {
-  message: 'Submit completed',
-  result: {
-    files: {
-      main: '00000000-0000-0000-0000-000000000000',
-      repeaters: {
-        pizza: '11111111-1111-1111-1111-111111111111'
+  const submitResponse = {
+    message: 'Submit completed',
+    result: {
+      files: {
+        main: '00000000-0000-0000-0000-000000000000',
+        repeaters: {
+          pizza: '11111111-1111-1111-1111-111111111111'
+        }
       }
     }
   }
-}
 
-const model = new FormModel(definition, {
-  basePath: 'test'
-})
-
-const state = {
-  $$__referenceNumber: 'foobar',
-  orderType: 'delivery',
-  pizza: [
-    {
-      toppings: 'Ham',
-      quantity: 2,
-      itemId: itemId1
-    },
-    {
-      toppings: 'Pepperoni',
-      quantity: 1,
-      itemId: itemId2
-    }
-  ]
-}
-
-const pageDef = definition.pages[2]
-const pageUrl = new URL('http://example.com/repeat/pizza-order/summary')
-
-const controller = new SummaryPageController(model, pageDef)
-
-const request = buildFormContextRequest({
-  method: 'get',
-  url: pageUrl,
-  path: pageUrl.pathname,
-  params: {
-    path: 'pizza-order',
-    slug: 'repeat'
-  },
-  query: {},
-  app: { model }
-})
-
-const context = model.getFormContext(request, state)
-const summaryViewModel = controller.getSummaryViewModel(request, context)
-
-const items = getFormSubmissionData(
-  summaryViewModel.context,
-  summaryViewModel.details
-)
-
-describe('getPersonalisation', () => {
-  it.each([
-    {
-      state: FormStatus.Live,
-      isPreview: false
-    },
-    {
-      state: FormStatus.Draft,
-      isPreview: true
-    }
-  ])('should personalise $state email', (formStatus) => {
-    const body = format(context, items, model, submitResponse, formStatus)
-
-    const dateNow = new Date()
-    const dateExpiry = addDays(dateNow, 90)
-
-    // Check for link expiry message
-    expect(body).toContain(
-      `^ For security reasons, the links in this email expire at ${dateFormat(dateExpiry, 'h:mmaaa')} on ${dateFormat(dateExpiry, 'eeee d MMMM yyyy')}`
-    )
-
-    expect(body).toContain(
-      outdent`
-            ${definition.name} form received at ${dateFormat(dateNow, 'h:mmaaa')} on ${dateFormat(dateNow, 'd MMMM yyyy')}.
-
-            ---
-
-            ## How would you like to receive your pizza?
-
-            Delivery
-
-            ---
-
-            ## Pizza
-
-            [Download Pizza \\(CSV\\)](https://forms-designer/file-download/11111111-1111-1111-1111-111111111111)
-
-            ---
-
-            [Download main form \\(CSV\\)](https://forms-designer/file-download/00000000-0000-0000-0000-000000000000)
-          `
-    )
+  const model = new FormModel(definition, {
+    basePath: 'test'
   })
 
-  it('should add test warnings to preview email only', () => {
-    const formStatus = {
-      state: FormStatus.Draft,
-      isPreview: true
+  const state = {
+    $$__referenceNumber: 'foobar',
+    orderType: 'delivery',
+    pizza: [
+      {
+        toppings: 'Ham',
+        quantity: 2,
+        itemId: itemId1
+      },
+      {
+        toppings: 'Pepperoni',
+        quantity: 1,
+        itemId: itemId2
+      }
+    ]
+  }
+
+  const pageDef = definition.pages[2]
+  const pageUrl = new URL('http://example.com/repeat/pizza-order/summary')
+
+  const controller = new SummaryPageController(model, pageDef)
+
+  const request = buildFormContextRequest({
+    method: 'get',
+    url: pageUrl,
+    path: pageUrl.pathname,
+    params: {
+      path: 'pizza-order',
+      slug: 'repeat'
+    },
+    query: {},
+    app: { model }
+  })
+
+  const context = model.getFormContext(request, state)
+  const summaryViewModel = controller.getSummaryViewModel(request, context)
+
+  const items = getFormSubmissionData(
+    summaryViewModel.context,
+    summaryViewModel.details
+  )
+
+  describe('getPersonalisation', () => {
+    it.each([
+      {
+        state: FormStatus.Live,
+        isPreview: false
+      },
+      {
+        state: FormStatus.Draft,
+        isPreview: true
+      }
+    ])('should personalise $state email', (formStatus) => {
+      const body = format(context, items, model, submitResponse, formStatus)
+
+      const dateNow = new Date()
+      const dateExpiry = addDays(dateNow, 90)
+
+      // Check for link expiry message
+      expect(body).toContain(
+        `^ For security reasons, the links in this email expire at ${dateFormat(dateExpiry, 'h:mmaaa')} on ${dateFormat(dateExpiry, 'eeee d MMMM yyyy')}`
+      )
+
+      expect(body).toContain(
+        outdent`
+              ${definition.name} form received at ${dateFormat(dateNow, 'h:mmaaa')} on ${dateFormat(dateNow, 'd MMMM yyyy')}.
+
+              ---
+
+              ## How would you like to receive your pizza?
+
+              Delivery
+
+              ---
+
+              ## Pizza
+
+              [Download Pizza \\(CSV\\)](https://forms-designer/file-download/11111111-1111-1111-1111-111111111111)
+
+              ---
+
+              [Download main form \\(CSV\\)](https://forms-designer/file-download/00000000-0000-0000-0000-000000000000)
+            `
+      )
+    })
+
+    it('should add test warnings to preview email only', () => {
+      const formStatus = {
+        state: FormStatus.Draft,
+        isPreview: true
+      }
+
+      const body1 = format(context, items, model, submitResponse, {
+        state: FormStatus.Live,
+        isPreview: false
+      })
+
+      const body2 = format(context, items, model, submitResponse, {
+        state: FormStatus.Draft,
+        isPreview: true
+      })
+
+      expect(body1).not.toContain(
+        `This is a test of the ${definition.name} ${formStatus.state} form`
+      )
+
+      expect(body2).toContain(
+        `This is a test of the ${definition.name} ${formStatus.state} form`
+      )
+    })
+  })
+
+  describe('Payment', () => {
+    const modelPayment = new FormModel(definitionPayment, {
+      basePath: 'test'
+    })
+
+    const statePayment = {
+      $$__referenceNumber: 'foobar',
+      licenceLength: 365,
+      fullName: 'John Smith',
+      paymentField: {
+        paymentId: 'payment-id',
+        reference: 'payment-ref',
+        amount: 250,
+        description: 'Payment desc',
+        uuid: 'uuid',
+        formId: 'form-id',
+        isLivePayment: false,
+        preAuth: {
+          status: 'success',
+          createdAt: '2026-01-02T11:00:04+0000'
+        }
+      }
     }
 
-    const body1 = format(context, items, model, submitResponse, {
-      state: FormStatus.Live,
-      isPreview: false
+    const requestPayment = buildFormContextRequest({
+      method: 'get',
+      url: pageUrl,
+      path: pageUrl.pathname,
+      params: {
+        path: 'summary',
+        slug: 'payment'
+      },
+      query: {},
+      app: { model: modelPayment }
     })
 
-    const body2 = format(context, items, model, submitResponse, {
-      state: FormStatus.Draft,
-      isPreview: true
+    const pageDefPayment = definitionPayment.pages[2]
+
+    const controllerPayment = new SummaryPageController(
+      modelPayment,
+      pageDefPayment
+    )
+
+    // TODO - sort type issue
+    // @ts-expect-error - statePayment doesnt quite match up to type
+    const contextPayment = modelPayment.getFormContext(
+      requestPayment,
+      statePayment
+    )
+    const summaryViewModelPayment = controllerPayment.getSummaryViewModel(
+      requestPayment,
+      contextPayment
+    )
+
+    const itemsPayment = getFormSubmissionData(
+      summaryViewModelPayment.context,
+      summaryViewModelPayment.details
+    )
+
+    it('should add payment details', () => {
+      const body = format(
+        contextPayment,
+        itemsPayment,
+        modelPayment,
+        submitResponse,
+        {
+          state: FormStatus.Draft,
+          isPreview: true
+        }
+      )
+
+      const dateNow = new Date()
+
+      expect(body).toContain(
+        outdent`
+              ${definitionPayment.name} form received at ${dateFormat(dateNow, 'h:mmaaa')} on ${dateFormat(dateNow, 'd MMMM yyyy')}.
+
+              ---
+
+              ## Which fishing licence do you want to get?
+
+              12 months \\(365\\)
+
+              ---
+
+              ## What\\'s your name?
+
+              John Smith
+
+              ---
+
+              [Download main form \\(CSV\\)](https://forms-designer/file-download/00000000-0000-0000-0000-000000000000)
+
+              ---
+
+              # Your payment of £250.00 was successful
+
+              ## Payment for
+
+              Payment desc
+
+              ---
+
+              ## Total amount
+
+              £250.00
+
+              ---
+
+              ## Date of payment
+
+              2 January 2026 – 11:00:04
+
+              ---
+            `
+      )
     })
-
-    expect(body1).not.toContain(
-      `This is a test of the ${definition.name} ${formStatus.state} form`
-    )
-
-    expect(body2).toContain(
-      `This is a test of the ${definition.name} ${formStatus.state} form`
-    )
   })
 })
