@@ -9,6 +9,7 @@ export interface PaymentState {
   uuid: string
   formId: string
   isLivePayment: boolean
+  payerEmail?: string
   capture?: {
     status: 'success' | 'failed'
     createdAt: string

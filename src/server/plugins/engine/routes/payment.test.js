@@ -144,6 +144,37 @@ describe('Payment routes', () => {
       // @ts-expect-error - error object
       expect(response.result?.message).toBe('Unknown payment status: invalid')
     })
+
+    it('should handle payment with email from GOV.UK Pay response', async () => {
+      const paymentStatus = {
+        paymentId: 'new-payment-id',
+        payment_id: 'new-payment-id',
+        email: 'payer@example.com',
+        _links: {
+          next_url: {
+            href: '/next-url',
+            method: 'get'
+          },
+          self: {
+            href: '/self',
+            method: 'get'
+          }
+        },
+        state: /** @type {PaymentState} */ ({
+          status: 'success',
+          finished: true
+        })
+      }
+      jest.mocked(getPaymentContext).mockResolvedValueOnce({
+        session: paymentSessionData,
+        sessionKey,
+        paymentStatus
+      })
+      const { response } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
+      expect(response.headers.location).toBe('http://host.com/return-url')
+    })
   })
 })
 
