@@ -64,7 +64,7 @@ describe('Payment routes', () => {
             method: 'get'
           }
         },
-        state: /** @type {PaymentState} */ ({
+        state: /** @type {PaymentResponseState} */ ({
           status: row.status,
           finished: true
         })
@@ -92,7 +92,7 @@ describe('Payment routes', () => {
             method: 'get'
           }
         },
-        state: /** @type {PaymentState} */ ({
+        state: /** @type {PaymentResponseState} */ ({
           status: 'created',
           finished: true
         })
@@ -149,5 +149,5 @@ describe('Payment routes', () => {
 
 /**
  * @import { Server } from '@hapi/hapi'
- * @import { PaymentState } from '~/src/server/plugins/payment/types.js'
+ * @import { PaymentResponseState } from '~/src/server/plugins/payment/types.js'
  */

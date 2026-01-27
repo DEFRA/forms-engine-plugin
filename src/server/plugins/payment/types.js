@@ -1,5 +1,5 @@
 /**
- * @typedef {object} PaymentState
+ * @typedef {object} PaymentResponseState
  * @property {'created' | 'started' | 'submitted' | 'capturable' | 'success' | 'failed' | 'cancelled' | 'error'} status - Current status of the payment
  * @property {boolean} finished - Whether the payment process has completed
  * @property {string} [message] - Human-readable message about the payment state
@@ -25,14 +25,14 @@
 /**
  * @typedef {object} CreatePaymentResponse
  * @property {string} payment_id - Unique identifier for the created payment
- * @property {PaymentState} state - Current state of the payment
+ * @property {PaymentResponseState} state - Current state of the payment
  * @property {{ next_url: PaymentLink }} _links - HATEOAS links for the payment
  */
 
 /**
  * @typedef {object} GetPaymentResponse
  * @property {string} payment_id - Unique identifier for the payment
- * @property {PaymentState} state - Current state of the payment
+ * @property {PaymentResponseState} state - Current state of the payment
  * @property {{ self: PaymentLink, next_url?: PaymentLink }} _links - HATEOAS links for the payment
  */
 
