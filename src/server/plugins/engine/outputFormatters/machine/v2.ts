@@ -15,11 +15,21 @@ import {
 import {
   type FileUploadFieldDetailitem,
   type FormAdapterFile,
-  type FormAdapterPayment,
   type FormContext,
-  type PaymentFieldDetailItem,
   type RichFormValue
 } from '~/src/server/plugins/engine/types.js'
+
+/**
+ * Payment data for the machine output format
+ * Defined locally to avoid circular dependency with types.ts
+ */
+interface PaymentOutput {
+  paymentId: string
+  reference: string
+  amount: number
+  description: string
+  createdAt: string
+}
 
 const designerUrl = config.get('designerUrl')
 
@@ -96,16 +106,7 @@ export function categoriseData(items: DetailItem[]) {
       string,
       { fileId: string; fileName: string; userDownloadLink: string }[]
     >
-    payments: Record<
-      string,
-      {
-        paymentId: string
-        reference: string
-        amount: number
-        description: string
-        createdAt: string
-      }
-    >
+    payments: Record<string, PaymentOutput>
   } = { main: {}, repeaters: {}, files: {}, payments: {} }
 
   items.forEach((item) => {
@@ -178,9 +179,9 @@ function isFileUploadFieldItem(
   return item.field instanceof FileUploadField
 }
 
-function isPaymentFieldItem(
-  item: DetailItemField
-): item is PaymentFieldDetailItem {
+function isPaymentFieldItem(item: DetailItemField): item is DetailItemField & {
+  field: PaymentField
+} {
   return item.field instanceof PaymentField
 }
 
@@ -190,8 +191,8 @@ function isPaymentFieldItem(
  * @returns the payment data
  */
 function extractPayment(
-  item: PaymentFieldDetailItem
-): FormAdapterPayment | undefined {
+  item: DetailItemField & { field: PaymentField }
+): PaymentOutput | undefined {
   const paymentState = item.field.getPaymentStateFromState(item.state)
 
   if (!paymentState) {
