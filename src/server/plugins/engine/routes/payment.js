@@ -17,7 +17,7 @@ export const PAYMENT_SESSION_PREFIX = 'payment-'
 function flashComponentState(request, session, paymentStatus) {
   /** @type {PaymentState} */
   const paymentState = {
-    paymentId: paymentStatus.payment_id,
+    paymentId: paymentStatus.paymentId,
     reference: session.reference,
     amount: session.amount,
     description: session.description,

@@ -30,12 +30,33 @@
  */
 
 /**
- * Response from GOV.UK Pay GET /v1/payments/{PAYMENT_ID} endpoint
- * @typedef {object} GetPaymentResponse
- * @property {string} payment_id - Unique identifier for the payment
+ * Base response from GOV.UK Pay GET /v1/payments/{PAYMENT_ID} endpoint
+ * @typedef {object} GetPaymentResponseBase
  * @property {PaymentResponseState} state - Current state of the payment
  * @property {{ self: PaymentLink, next_url?: PaymentLink }} _links - HATEOAS links for the payment
  * @property {string} [email] - The paying user's email address
+ */
+
+/**
+ * Response from GOV.UK Pay GET /v1/payments/{PAYMENT_ID} endpoint - not underscore in property name
+ * @typedef {object} GetPaymentApiResponsePaymentProp
+ * @property {string} payment_id - Unique identifier for the payment
+ */
+
+/**
+ * Response from GOV.UK Pay GET /v1/payments/{PAYMENT_ID} endpoint
+ * @typedef {GetPaymentResponseBase & GetPaymentApiResponsePaymentProp} GetPaymentApiResponse
+ */
+
+/**
+ * Response returned from getPaymentStatus - subtley different from GetPaymentApiResponse
+ * @typedef {object} GetPaymentResponsePaymentProp
+ * @property {string} paymentId - Unique identifier for the payment - note no underscore in property name
+ */
+
+/**
+ * Response returned from getPaymentStatus - subtley different from GetPaymentApiResponse
+ * @typedef {GetPaymentResponseBase & GetPaymentResponsePaymentProp} GetPaymentResponse
  */
 
 /**

@@ -120,7 +120,7 @@ describe('payment service', () => {
       })
 
       const paymentStatus = await service.getPaymentStatus('payment-id-12345')
-      expect(paymentStatus.payment_id).toBe('payment-id-12345')
+      expect(paymentStatus.paymentId).toBe('payment-id-12345')
       expect(paymentStatus._links.next_url?.href).toBe(
         'http://next-url-href/payment'
       )

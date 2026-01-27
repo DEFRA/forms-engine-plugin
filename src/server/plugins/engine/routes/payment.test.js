@@ -52,8 +52,6 @@ describe('Payment routes', () => {
     ])('should handle payment status of $row.status', async (row) => {
       const paymentStatus = {
         paymentId: 'new-payment-id',
-        // TODO - resolve name mismatch
-        payment_id: 'new-payment-id',
         _links: {
           next_url: {
             href: '/next-url',
@@ -83,8 +81,6 @@ describe('Payment routes', () => {
     it('should throw if nextUrl is missing', async () => {
       const paymentStatus = {
         paymentId: 'new-payment-id',
-        // TODO - resolve name mismatch
-        payment_id: 'new-payment-id',
         _links: {
           next_url: {},
           self: {
@@ -100,7 +96,7 @@ describe('Payment routes', () => {
       jest.mocked(getPaymentContext).mockResolvedValueOnce({
         session: paymentSessionData,
         sessionKey,
-        // @ts-expect-error - missing elements deliberately for test
+        // @ts-expect-error - deliberate missing element from object
         paymentStatus
       })
       const { response } = await renderResponse(server, options)
@@ -115,8 +111,6 @@ describe('Payment routes', () => {
     it('should throw if invalid status', async () => {
       const paymentStatus = {
         paymentId: 'new-payment-id',
-        // TODO - resolve name mismatch
-        payment_id: 'new-payment-id',
         _links: {
           next_url: {
             href: '/next-url',
@@ -135,7 +129,7 @@ describe('Payment routes', () => {
       jest.mocked(getPaymentContext).mockResolvedValueOnce({
         session: paymentSessionData,
         sessionKey,
-        // @ts-expect-error - invalid status deliberately for test
+        // @ts-expect-error - deliberate invalid value which doesnt meet type
         paymentStatus
       })
       const { response } = await renderResponse(server, options)

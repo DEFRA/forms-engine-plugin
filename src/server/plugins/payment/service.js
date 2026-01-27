@@ -58,7 +58,7 @@ export class PaymentService {
    * @returns {Promise<GetPaymentResponse>}
    */
   async getPaymentStatus(paymentId) {
-    const getByType = /** @type {typeof get<GetPaymentResponse>} */ (get)
+    const getByType = /** @type {typeof get<GetPaymentApiResponse>} */ (get)
 
     try {
       const response = await getByType(
@@ -77,7 +77,12 @@ export class PaymentService {
         throw new Error(`Failed to get payment status: ${errorMessage}`)
       }
 
-      return response.payload
+      return {
+        state: response.payload.state,
+        _links: response.payload._links,
+        email: response.payload.email,
+        paymentId: response.payload.payment_id
+      }
     } catch (err) {
       const error = /** @type {Error} */ (err)
       logger.error(
@@ -161,5 +166,5 @@ export class PaymentService {
 }
 
 /**
- * @import { CreatePaymentRequest, CreatePaymentResponse, GetPaymentResponse } from '~/src/server/plugins/payment/types.js'
+ * @import { CreatePaymentRequest, CreatePaymentResponse, GetPaymentApiResponse, GetPaymentResponse } from '~/src/server/plugins/payment/types.js'
  */

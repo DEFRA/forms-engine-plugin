@@ -40,7 +40,7 @@ describe('payment helper', () => {
       }
     }
 
-    const getPaymentStatusResult = {
+    const getPaymentStatusApiResult = {
       payment_id: 'payment-id-12345',
       _links: {
         next_url: {
@@ -57,14 +57,24 @@ describe('payment helper', () => {
         statusCode: 200,
         headers: {}
       }),
-      payload: getPaymentStatusResult,
+      payload: getPaymentStatusApiResult,
       error: undefined
     })
 
     // @ts-expect-error - partial request mock
     const res = await getPaymentContext(mockRequest, uuid)
     expect(res).toEqual({
-      paymentStatus: getPaymentStatusResult,
+      paymentStatus: {
+        paymentId: 'payment-id-12345',
+        _links: {
+          next_url: {
+            href: 'http://next-url-href/payment'
+          }
+        },
+        state: {
+          status: 'created'
+        }
+      },
       session: {
         formId: 'form-id',
         isLivePayment: false,
