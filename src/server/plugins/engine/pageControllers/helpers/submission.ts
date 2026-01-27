@@ -46,10 +46,10 @@ export function buildMainRecords(items: DetailItem[]): SubmitRecord[] {
 
 /**
  * Expands a PaymentField into four submission records:
- * - Payment for (description)
- * - Total amount (formatted with currency symbol)
- * - Reference
- * - Date of payment (formatted date/time)
+ * - Payment description
+ * - Payment amount (formatted with currency symbol)
+ * - Payment reference
+ * - Payment date (formatted date/time)
  *
  * Returns an empty array if no payment state exists.
  */
@@ -64,23 +64,23 @@ export function buildPaymentRecords(item: DetailItemField): SubmitRecord[] {
 
   return [
     {
-      name: `${item.name}_paymentFor`,
-      title: 'Payment for',
+      name: `${item.name}_paymentDescription`,
+      title: 'Payment description',
       value: paymentState.description
     },
     {
-      name: `${item.name}_totalAmount`,
-      title: 'Total amount',
+      name: `${item.name}_paymentAmount`,
+      title: 'Payment amount',
       value: formatPaymentAmount(paymentState.amount)
     },
     {
-      name: `${item.name}_reference`,
-      title: 'Reference',
+      name: `${item.name}_paymentReference`,
+      title: 'Payment reference',
       value: paymentState.reference
     },
     {
-      name: `${item.name}_dateOfPayment`,
-      title: 'Date of payment',
+      name: `${item.name}_paymentDate`,
+      title: 'Payment date',
       value: paymentState.preAuth?.createdAt
         ? formatPaymentDate(paymentState.preAuth.createdAt)
         : ''
