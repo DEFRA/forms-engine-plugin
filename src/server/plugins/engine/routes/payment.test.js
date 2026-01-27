@@ -160,7 +160,7 @@ describe('Payment routes', () => {
             method: 'get'
           }
         },
-        state: /** @type {PaymentState} */ ({
+        state: /** @type {PaymentResponseState} */ ({
           status: 'success',
           finished: true
         })
