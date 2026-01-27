@@ -30,10 +30,12 @@
  */
 
 /**
+ * Response from GOV.UK Pay GET /v1/payments/{PAYMENT_ID} endpoint
  * @typedef {object} GetPaymentResponse
  * @property {string} payment_id - Unique identifier for the payment
  * @property {PaymentState} state - Current state of the payment
  * @property {{ self: PaymentLink, next_url?: PaymentLink }} _links - HATEOAS links for the payment
+ * @property {string} [email] - The paying user's email address
  */
 
 /**

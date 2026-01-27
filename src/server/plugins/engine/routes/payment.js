@@ -12,18 +12,19 @@ export const PAYMENT_SESSION_PREFIX = 'payment-'
  * Flash form component state after successful payment
  * @param {Request} request - the request
  * @param {PaymentSessionData} session - the session data containing payment state
- * @param {string} paymentId - the payment id from GOV.UK Pay
+ * @param {GetPaymentResponse} paymentStatus - the payment status response from GOV.UK Pay
  */
-function flashComponentState(request, session, paymentId) {
+function flashComponentState(request, session, paymentStatus) {
   /** @type {PaymentState} */
   const paymentState = {
-    paymentId,
+    paymentId: paymentStatus.payment_id,
     reference: session.reference,
     amount: session.amount,
     description: session.description,
     uuid: session.uuid,
     formId: session.formId,
     isLivePayment: session.isLivePayment,
+    payerEmail: paymentStatus.email,
     preAuth: {
       status: 'success',
       createdAt: new Date().toISOString()
@@ -53,10 +54,10 @@ export function getRoutes() {
  * @param {ResponseToolkit} h - the response toolkit
  * @param {PaymentSessionData} session - the session data
  * @param {string} sessionKey - the session key
- * @param {string} paymentId - the payment id
+ * @param {GetPaymentResponse} paymentStatus - the payment status from GOV.UK Pay
  */
-function handlePaymentSuccess(request, h, session, sessionKey, paymentId) {
-  flashComponentState(request, session, paymentId)
+function handlePaymentSuccess(request, h, session, sessionKey, paymentStatus) {
+  flashComponentState(request, session, paymentStatus)
   request.yar.clear(sessionKey)
   return h.redirect(session.returnUrl).code(StatusCodes.SEE_OTHER)
 }
@@ -102,7 +103,7 @@ function getReturnRoute() {
             h,
             session,
             sessionKey,
-            session.paymentId
+            paymentStatus
           )
 
         case 'cancelled':
@@ -144,7 +145,7 @@ function getReturnRoute() {
 
 /**
  * @import { Request, ResponseToolkit, ServerRoute } from '@hapi/hapi'
- * @import { PaymentSessionData } from '~/src/server/plugins/payment/types.js'
+ * @import { GetPaymentResponse, PaymentSessionData } from '~/src/server/plugins/payment/types.js'
  * @import { PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
  * @import { ExternalStateAppendage, FormState } from '~/src/server/plugins/engine/types.js'
  */
