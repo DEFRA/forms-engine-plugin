@@ -14,12 +14,22 @@ describe('Location Maps Client JS', () => {
   /** @type {jest.Mock} */
   let addPanelMock
 
+  /** @type {jest.Mock} */
+  let interactPlugin
+
+  /** @type {jest.Mock} */
+  let interactPluginEnable
+
   beforeEach(() => {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     const noop = () => {}
     onMock = jest.fn()
     addMarkerMock = jest.fn()
     addPanelMock = jest.fn()
+    interactPluginEnable = jest.fn()
+    interactPlugin = jest.fn(() => ({
+      enable: interactPluginEnable
+    }))
 
     class MockInteractiveMap {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -36,7 +46,7 @@ describe('Location Maps Client JS', () => {
       maplibreProvider: noop,
       openNamesProvider: noop,
       mapStylesPlugin: noop,
-      interactPlugin: noop,
+      interactPlugin,
       searchPlugin: noop,
       zoomControlsPlugin: noop,
       scaleBarPlugin: noop
@@ -109,7 +119,9 @@ describe('Location Maps Client JS', () => {
           }
         })
 
+        expect(interactPlugin).toHaveBeenCalledWith(expect.any(Object))
         expect(addPanelMock).toHaveBeenCalledWith('info', expect.any(Object))
+        expect(interactPluginEnable).toHaveBeenCalled()
 
         expect(onMock).toHaveBeenLastCalledWith(
           'interact:markerchange',
@@ -166,7 +178,9 @@ describe('Location Maps Client JS', () => {
           }
         })
 
+        expect(interactPlugin).toHaveBeenCalledWith(expect.any(Object))
         expect(addPanelMock).toHaveBeenCalledWith('info', expect.any(Object))
+        expect(interactPluginEnable).toHaveBeenCalled()
 
         expect(onMock).toHaveBeenLastCalledWith(
           'interact:markerchange',
@@ -270,7 +284,9 @@ describe('Location Maps Client JS', () => {
           }
         })
 
+        expect(interactPlugin).toHaveBeenCalledWith(expect.any(Object))
         expect(addPanelMock).toHaveBeenCalledWith('info', expect.any(Object))
+        expect(interactPluginEnable).toHaveBeenCalled()
 
         expect(onMock).toHaveBeenLastCalledWith(
           'interact:markerchange',
@@ -329,7 +345,9 @@ describe('Location Maps Client JS', () => {
           }
         })
 
+        expect(interactPlugin).toHaveBeenCalledWith(expect.any(Object))
         expect(addPanelMock).toHaveBeenCalledWith('info', expect.any(Object))
+        expect(interactPluginEnable).toHaveBeenCalled()
 
         expect(onMock).toHaveBeenLastCalledWith(
           'interact:markerchange',
@@ -418,7 +436,9 @@ describe('Location Maps Client JS', () => {
           }
         })
 
+        expect(interactPlugin).toHaveBeenCalledWith(expect.any(Object))
         expect(addPanelMock).toHaveBeenCalledWith('info', expect.any(Object))
+        expect(interactPluginEnable).toHaveBeenCalled()
 
         expect(onMock).toHaveBeenLastCalledWith(
           'interact:markerchange',
@@ -471,7 +491,9 @@ describe('Location Maps Client JS', () => {
           }
         })
 
+        expect(interactPlugin).toHaveBeenCalledWith(expect.any(Object))
         expect(addPanelMock).toHaveBeenCalledWith('info', expect.any(Object))
+        expect(interactPluginEnable).toHaveBeenCalled()
 
         expect(onMock).toHaveBeenLastCalledWith(
           'interact:markerchange',

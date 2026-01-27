@@ -202,7 +202,7 @@ function processLocation(config, location, index) {
 
   locationInputs.after(mapContainer)
 
-  const map = createMap(mapId, initConfig, config)
+  const { map, interactPlugin } = createMap(mapId, initConfig, config)
 
   map.on(
     'map:ready',
@@ -250,6 +250,9 @@ function processLocation(config, location, index) {
         },
         html: 'If using a map click on a point to update the location.<br><br>If using a keyboard, navigate to the point, centering the crosshair at the location and press enter.'
       })
+
+      // Enable the interact plugin
+      interactPlugin.enable()
     }
   )
 }
@@ -266,6 +269,13 @@ function createMap(mapId, initConfig, mapsConfig) {
 
   // @ts-expect-error - Defra namespace currently comes from UMD support files
   const defra = window.defra
+
+  const interactPlugin = defra.interactPlugin({
+    dataLayers: [],
+    markerColor: { outdoor: '#ff0000', dark: '#00ff00' },
+    interactionMode: 'marker',
+    multiSelect: false
+  })
 
   /** @type {InteractiveMap} */
   const map = new defra.InteractiveMap(mapId, {
@@ -315,12 +325,7 @@ function createMap(mapId, initConfig, mapsConfig) {
           }
         ]
       }),
-      defra.interactPlugin({
-        dataLayers: [],
-        markerColor: { outdoor: '#ff0000', dark: '#00ff00' },
-        interactionMode: 'marker',
-        multiSelect: false
-      }),
+      interactPlugin,
       defra.searchPlugin({
         osNamesURL: `${apiPath}/geocode-proxy?query={query}`,
         width: '300px',
@@ -332,7 +337,7 @@ function createMap(mapId, initConfig, mapsConfig) {
     ]
   })
 
-  return map
+  return { map, interactPlugin }
 }
 
 /**
