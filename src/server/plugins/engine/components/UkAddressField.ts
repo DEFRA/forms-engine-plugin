@@ -284,6 +284,7 @@ export class UkAddressField extends FormComponent {
     )
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   static async dispatcher(
     request: FormRequestPayload,
     h: FormResponseToolkit,
@@ -291,16 +292,14 @@ export class UkAddressField extends FormComponent {
   ) {
     const { controller, component } = args
 
-    return Promise.resolve(
-      dispatch(request, h, {
-        formName: controller.model.name,
-        componentName: component.name,
-        componentHint: component.hint,
-        componentTitle: component.title || controller.title,
-        step: args.actionArgs.step,
-        sourceUrl: args.sourceUrl
-      })
-    )
+    return dispatch(request, h, {
+      formName: controller.model.name,
+      componentName: component.name,
+      componentHint: component.hint,
+      componentTitle: component.title || controller.title,
+      step: args.actionArgs.step,
+      sourceUrl: args.sourceUrl
+    })
   }
 }
 
