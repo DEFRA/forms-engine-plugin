@@ -19,6 +19,12 @@ describe('getPaymentApiKey', () => {
     const apiKey = getPaymentApiKey(true, formId)
     expect(apiKey).toBe('LIVE-API-KEY')
   })
+
+  it('should throw if key is missing', () => {
+    expect(() => getPaymentApiKey(true, 'form-id-missing')).toThrow(
+      'Missing payment api key for live form id form-id-missing'
+    )
+  })
 })
 
 describe('formatPaymentDate', () => {
