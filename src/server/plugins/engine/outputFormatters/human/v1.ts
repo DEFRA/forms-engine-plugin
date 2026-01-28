@@ -120,15 +120,17 @@ function appendPaymentSection(paymentItems: DetailItem[], lines: string[]) {
     ? formatPaymentDate(paymentState.preAuth.createdAt)
     : ''
 
-  lines.push('---\n')
-  lines.push(`# Your payment of ${formattedAmount} was successful\n`)
-  lines.push('## Payment for\n')
-  lines.push(`${escapeMarkdown(paymentState.description)}\n`)
-  lines.push('---\n')
-  lines.push('## Total amount\n')
-  lines.push(`${formattedAmount}\n`)
-  lines.push('---\n')
-  lines.push('## Date of payment\n')
-  lines.push(`${escapeMarkdown(dateOfPayment)}\n`)
-  lines.push('---\n')
+  lines.push(
+    '---\n',
+    `# Your payment of ${formattedAmount} was successful\n`,
+    '## Payment for\n',
+    `${escapeMarkdown(paymentState.description)}\n`,
+    '---\n',
+    '## Total amount\n',
+    `${formattedAmount}\n`,
+    '---\n',
+    '## Date of payment\n',
+    `${escapeMarkdown(dateOfPayment)}\n`,
+    '---\n'
+  )
 }
