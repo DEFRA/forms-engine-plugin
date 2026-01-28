@@ -1,6 +1,6 @@
 {
   "name": "@defra/forms-engine-plugin",
-  "version": "4.0.39",
+  "version": "4.0.42",
   "description": "Defra forms engine",
   "type": "module",
   "files": [
@@ -72,6 +72,7 @@
   "dependencies": {
     "@defra/forms-model": "^3.0.606",
     "@defra/hapi-tracing": "^1.29.0",
+    "@defra/interactive-map": "^0.0.3-alpha",
     "@elastic/ecs-pino-format": "^1.5.0",
     "@hapi/boom": "^10.0.1",
     "@hapi/catbox": "^12.1.1",
@@ -96,6 +97,7 @@
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
     "expr-eval-fork": "^3.0.0",
+    "geodesy": "^2.4.0",
     "govuk-frontend": "^5.13.0",
     "hapi-pino": "^13.0.0",
     "hapi-pulse": "^3.0.1",

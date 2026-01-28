@@ -51,7 +51,8 @@ module.exports = {
       '@defra/forms-model/.*',
       'nanoid', // Supports ESM only
       'slug', // Supports ESM only
-      '@defra/hapi-tracing' // Supports ESM only|
+      '@defra/hapi-tracing', // Supports ESM only
+      'geodesy' // Supports ESM only|
     ].join('|')}/)`
   ],
   testTimeout: 10000,

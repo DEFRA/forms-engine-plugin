@@ -428,7 +428,7 @@ describe('Adapter v1 formatter', () => {
       {
         isPreview: true,
         state: FormStatus.Live,
-        expectedStatus: FormStatus.Draft
+        expectedStatus: FormStatus.Live
       }
     ]
 

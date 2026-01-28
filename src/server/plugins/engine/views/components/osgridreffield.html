@@ -3,8 +3,10 @@
 
 {% macro OsGridRefField(component) %}
   {% set hasErrors = component.model.errorMessage %}
-  <div class="govuk-form-group {{ "govuk-form-group--error" if hasErrors }}">
-    {{ TextField(component) }}
+  <div class="govuk-form-group app-location-field {{ "govuk-form-group--error" if hasErrors }}" data-locationtype="{{component.type | lower}}">
+    <div class="app-location-field-inputs">
+      {{ TextField(component) }}
+    </div>
 
     {% if component.model.instructionText %}
       {{ govukDetails({

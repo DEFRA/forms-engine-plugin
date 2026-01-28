@@ -222,7 +222,8 @@ export class SummaryPageController extends QuestionPageController {
 
     await cacheService.setConfirmationState(request, {
       confirmed: true,
-      formId: context.state.formId
+      formId: context.state.formId,
+      referenceNumber: context.referenceNumber
     } as FormConfirmationState)
 
     await cacheService.clearState(request)

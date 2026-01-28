@@ -58,7 +58,7 @@ export class StatusPageController extends QuestionPageController {
         submissionGuidance,
         formName,
         showReferenceNumber: this.showReferenceNumber,
-        referenceNumber: context.referenceNumber
+        referenceNumber: confirmationState.referenceNumber
       })
     }
   }

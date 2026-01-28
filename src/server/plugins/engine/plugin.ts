@@ -16,6 +16,7 @@ import { getRoutes as getRepeaterItemDeleteRoutes } from '~/src/server/plugins/e
 import { getRoutes as getRepeaterSummaryRoutes } from '~/src/server/plugins/engine/routes/repeaters/summary.js'
 import { type PluginOptions } from '~/src/server/plugins/engine/types.js'
 import { registerVision } from '~/src/server/plugins/engine/vision.js'
+import { mapPlugin } from '~/src/server/plugins/map/index.js'
 import { postcodeLookupPlugin } from '~/src/server/plugins/postcode-lookup/index.js'
 import {
   type FormRequestPayloadRefs,
@@ -53,6 +54,16 @@ export const plugin = {
     if (ordnanceSurveyApiKey) {
       await server.register({
         plugin: postcodeLookupPlugin,
+        options: {
+          ordnanceSurveyApiKey
+        }
+      })
+    }
+
+    // Register the maps plugin only if we have an OS api key
+    if (ordnanceSurveyApiKey) {
+      await server.register({
+        plugin: mapPlugin,
         options: {
           ordnanceSurveyApiKey
         }
