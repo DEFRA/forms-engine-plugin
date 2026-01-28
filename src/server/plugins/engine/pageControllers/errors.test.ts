@@ -3,7 +3,10 @@ import { ComponentType } from '@defra/forms-model'
 import { FileUploadField } from '~/src/server/plugins/engine/components/FileUploadField.js'
 import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import { InvalidComponentStateError } from '~/src/server/plugins/engine/pageControllers/errors.js'
+import {
+  InvalidComponentStateError,
+  PostPaymentSubmissionError
+} from '~/src/server/plugins/engine/pageControllers/errors.js'
 import definition from '~/test/form/definitions/file-upload-basic.js'
 
 describe('InvalidComponentStateError', () => {
@@ -61,6 +64,18 @@ describe('InvalidComponentStateError', () => {
       const stateKeys = error.getStateKeys()
 
       expect(stateKeys).toEqual(['textField'])
+    })
+  })
+
+  describe('PostPaymentSubmissionError', () => {
+    it('should instantiate', () => {
+      const error = new PostPaymentSubmissionError(
+        'reference-number',
+        '/help-link'
+      )
+      expect(error).toBeDefined()
+      expect(error.referenceNumber).toBe('reference-number')
+      expect(error.helpLink).toBe('/help-link')
     })
   })
 })

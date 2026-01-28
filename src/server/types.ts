@@ -15,6 +15,7 @@ import {
   type PluginOptions,
   type PreparePageEventRequestOptions
 } from '~/src/server/plugins/engine/types.js'
+import { type PaymentService } from '~/src/server/plugins/payment/service.js'
 import {
   type FormRequestPayload,
   type FormStatus
@@ -42,6 +43,7 @@ export interface Services {
   formsService: FormsService
   formSubmissionService: FormSubmissionService
   outputService: OutputService
+  paymentService?: PaymentService
 }
 
 export interface RouteConfig {

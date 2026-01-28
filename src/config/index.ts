@@ -260,6 +260,14 @@ export const config = convict({
     nullable: true,
     default: undefined,
     env: 'ORDNANCE_SURVEY_API_KEY'
+  } as SchemaObj<string | undefined>,
+
+  paymentProviderApiKeyTest: {
+    doc: 'A test API key for integrating with a payment provider',
+    format: String,
+    nullable: true,
+    default: undefined,
+    env: 'PAYMENT_PROVIDER_API_KEY_TEST'
   } as SchemaObj<string | undefined>
 })
 

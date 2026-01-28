@@ -191,7 +191,7 @@ export class FormComponent extends ComponentBase {
       return value.filter(isFormValue)
     }
 
-    return this.isValue(value) ? value : null
+    return this.isValue(value) ? (value as Item['value']) : null
   }
 
   getContextValueFromState(

@@ -40,6 +40,7 @@ declare module '@hapi/hapi' {
         request: AnyFormRequest | null
       ) => Record<string, unknown> | Promise<Record<string, unknown>>
       saveAndExit?: PluginOptions['saveAndExit']
+      baseUrl: string
     }
   }
 

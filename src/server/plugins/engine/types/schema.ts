@@ -43,6 +43,7 @@ export const formAdapterSubmissionMessageDataSchema =
   Joi.object<FormAdapterSubmissionMessageData>().keys({
     main: Joi.object(),
     repeaters: Joi.object(),
+    payments: Joi.object(),
     files: Joi.object().pattern(
       Joi.string(),
       Joi.array().items(

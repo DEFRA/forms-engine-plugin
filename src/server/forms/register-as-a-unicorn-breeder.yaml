@@ -243,6 +243,20 @@ pages:
         options:
           required: false
     next:
+      - path: '/pay-for-your-licence'
+  - title: Pay for your licence
+    path: '/pay-for-your-licence'
+    section: section
+    components:
+      - name: licencePayment
+        title: Unicorn breeder licence fee
+        type: PaymentField
+        hint: You'll be redirected to GOV.UK Pay to complete your payment
+        options:
+          required: true
+          amount: 50
+          description: Unicorn breeder annual licence fee
+    next:
       - path: '/summary'
 conditions:
   - displayName: Address is different

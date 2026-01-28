@@ -3,6 +3,7 @@
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
 {% from "partials/components.html" import componentList with context %}
 {% from "govuk/components/input/macro.njk" import govukInput %}
 
@@ -11,6 +12,14 @@
     <div class="govuk-grid-column-two-thirds">
       {% if previewMode %}
         {% include "partials/preview-banner.html" %}
+      {% endif %}
+
+      {% if paymentState and paymentState.preAuth and paymentState.preAuth.status == 'success' %}
+        {{ govukNotificationBanner({
+          type: "success",
+          titleText: "Success",
+          html: "<h3 class=\"govuk-notification-banner__heading\">We have your payment details</h3><p class=\"govuk-body\">Your payment is on hold. We will charge you when you submit the form.</p>"
+        }) }}
       {% endif %}
 
       {% if errors %}
@@ -41,6 +50,13 @@
         {% endif %}
       {% endfor %}
 
+      {% if paymentDetails %}
+        <h2 class="govuk-heading-m">
+          {{ paymentDetails.title.text }}
+        </h2>
+        {{ govukSummaryList(paymentDetails.summaryList) }}
+      {% endif %}
+
       <form method="post" novalidate>
         <input type="hidden" name="crumb" value="{{ crumb }}">
 
@@ -59,7 +75,7 @@
           {% set isDeclaration = declaration or components | length %}
 
           {{ govukButton({
-            text: "Accept and send" if isDeclaration else "Send",
+            text: "Accept and submit" if isDeclaration else "Submit",
             name: "action",
             value: "send",
             preventDoubleClick: true

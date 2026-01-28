@@ -249,6 +249,7 @@ describe('Adapter v1 formatter', () => {
         exampleField: 'hello world',
         exampleField2: 'hello world'
       },
+      payments: {},
       repeaters: {
         exampleRepeat: [
           {

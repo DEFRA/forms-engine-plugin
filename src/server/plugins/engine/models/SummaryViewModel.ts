@@ -1,5 +1,7 @@
 import { SchemaVersion, type Section } from '@defra/forms-model'
 
+import { PaymentField } from '~/src/server/plugins/engine/components/PaymentField.js'
+import { type PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
 import {
   getAnswer,
   type Field
@@ -52,6 +54,8 @@ export class SummaryViewModel {
   hasMissingNotificationEmail?: boolean
   components?: ComponentViewModel[]
   allowSaveAndExit = false
+  paymentState?: PaymentState
+  paymentDetails?: CheckAnswers
 
   constructor(
     request: FormContextRequest,
@@ -144,6 +148,10 @@ export class SummaryViewModel {
           )
         } else {
           for (const field of collection.fields) {
+            // PaymentField is rendered in its own section, skip it here
+            if (field instanceof PaymentField) {
+              continue
+            }
             items.push(ItemField(page, state, field, { path, errors }))
           }
         }
