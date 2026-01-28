@@ -5,9 +5,12 @@ import {
   type PaymentFieldComponent
 } from '@defra/forms-model'
 import { StatusCodes } from 'http-status-codes'
+import joi, { type ObjectSchema } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
+import { getPluginOptions } from '~/src/server/plugins/engine/helpers.js'
+import { InvalidComponentStateError } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import {
   type AnyFormRequest,
   type FormContext,
@@ -17,13 +20,17 @@ import {
 import {
   type ErrorMessageTemplateList,
   type FormPayload,
+  type FormState,
+  type FormStateValue,
   type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
-import { PaymentService } from '~/src/server/plugins/payment/service.js'
+import { createPaymentService } from '~/src/server/plugins/payment/helper.js'
 
 export class PaymentField extends FormComponent {
   declare options: PaymentFieldComponent['options']
+  declare formSchema: ObjectSchema
+  declare stateSchema: ObjectSchema
 
   constructor(
     def: PaymentFieldComponent,
@@ -32,6 +39,31 @@ export class PaymentField extends FormComponent {
     super(def, props)
 
     this.options = def.options
+
+    const paymentStateSchema = joi
+      .object({
+        paymentId: joi.string().required(),
+        reference: joi.string().required(),
+        amount: joi.number().required(),
+        description: joi.string().required(),
+        uuid: joi.string().uuid().required(),
+        formId: joi.string().required(),
+        isLivePayment: joi.boolean().required(),
+        preAuth: joi
+          .object({
+            status: joi
+              .string()
+              .valid('success', 'failed', 'started')
+              .required(),
+            createdAt: joi.string().isoDate().required()
+          })
+          .required()
+      })
+      .unknown(true)
+      .label(this.label)
+
+    this.formSchema = paymentStateSchema
+    this.stateSchema = paymentStateSchema.default(null).allow(null)
   }
 
   /**
@@ -40,7 +72,7 @@ export class PaymentField extends FormComponent {
   getPaymentStateFromState(
     state: FormSubmissionState
   ): PaymentState | undefined {
-    const value = state[this.name] as unknown
+    const value = state[this.name]
     return this.isPaymentState(value) ? value : undefined
   }
 
@@ -89,6 +121,13 @@ export class PaymentField extends FormComponent {
   }
 
   /**
+   * Override base isState to validate PaymentState
+   */
+  isState(value?: FormStateValue | FormState): value is FormState {
+    return this.isPaymentState(value)
+  }
+
+  /**
    * For error preview page that shows all possible errors on a component
    */
   getAllPossibleErrors(): ErrorMessageTemplateList {
@@ -112,67 +151,139 @@ export class PaymentField extends FormComponent {
 
   /**
    * Dispatcher for external redirect to GOV.UK Pay
-   * STUB - Jez to implement
    */
   static async dispatcher(
     request: FormRequestPayload,
     h: FormResponseToolkit,
     args: PaymentDispatcherArgs
   ): Promise<unknown> {
-    const paymentService = new PaymentService()
+    const isLivePayment = args.isLive && !args.isPreview
+    const formId = args.controller.model.formId
+    const paymentService = createPaymentService(isLivePayment, formId)
 
-    // 1. Generate UUID token and store in session
     const uuid = randomUUID()
 
-    const { options } = args.component
+    const { options, name: componentName } = args.component
     const { model } = args.controller
 
     const state = await args.controller.getState(request)
+    const reference = state.$$__referenceNumber as string
+    const amount = options.amount ?? 0
+    const description = options.description ?? ''
 
-    const data = {
-      uuid,
-      reference: state.$$__referenceNumber,
-      description: options.description,
-      amount: options.amount
-    } as PaymentState
-
-    request.yar.set(`${request.url.pathname}-payment`, data)
-
-    const formId = model.formId
     const slug = `/${model.basePath}`
 
-    // 2. Call paymentService.createPayment()
-    // GOV.UK Pay expects amount in pence, so multiply pounds by 100
-    const amountInPence = Math.round(data.amount * 100)
+    const { baseUrl } = getPluginOptions(request.server)
+    const payCallbackUrl = `${baseUrl}/payment-callback?uuid=${uuid}`
+    const summaryUrl = `${baseUrl}/${model.basePath}/summary`
+    const paymentPageUrl = args.sourceUrl
+
+    const amountInPence = Math.round(amount * 100)
     const payment = await paymentService.createPayment(
       amountInPence,
-      data.description,
-      uuid,
-      data.reference,
+      description,
+      payCallbackUrl,
+      reference,
       { formId, slug }
     )
 
-    // 3. Redirect to GOV.UK Pay paymentUrl
+    const sessionData: PaymentSessionData = {
+      uuid,
+      formId,
+      reference,
+      amount,
+      description,
+      paymentId: payment.paymentId,
+      componentName,
+      returnUrl: summaryUrl,
+      failureUrl: paymentPageUrl,
+      isLivePayment
+    }
+
+    request.yar.set(`payment-${uuid}`, sessionData)
+
     return h.redirect(payment.paymentUrl).code(StatusCodes.SEE_OTHER)
   }
 
   /**
    * Called on form submission to capture the payment
-   * STUB - Jez to implement
+   * @see https://docs.payments.service.gov.uk/delayed_capture/#delay-taking-a-payment
    */
-  onSubmit(
-    _request: FormRequestPayload,
+  async onSubmit(
+    request: FormRequestPayload,
     _metadata: FormMetadata,
-    _context: FormContext
+    context: FormContext
   ): Promise<void> {
-    // TODO: Implement
-    // 1. Get payment state from context
-    // 2. If already captured, skip
-    // 3. Call paymentService.getPaymentStatus() to validate pre-auth
-    // 4. Call paymentService.capturePayment()
-    // 5. Update payment state with capture status
-    // 6. If capture fails, throw InvalidComponentStateError
-    return Promise.resolve()
+    const paymentState = this.getPaymentStateFromState(context.state)
+
+    if (!paymentState) {
+      throw new InvalidComponentStateError(
+        this,
+        'Complete the payment to continue',
+        { shouldResetState: true }
+      )
+    }
+
+    if (paymentState.capture?.status === 'success') {
+      return
+    }
+
+    const { paymentId, isLivePayment, formId } = paymentState
+    const paymentService = createPaymentService(isLivePayment, formId)
+
+    /**
+     * @see https://docs.payments.service.gov.uk/api_reference/#payment-status-lifecycle
+     */
+    const status = await paymentService.getPaymentStatus(paymentId)
+
+    if (status.state.status === 'success') {
+      await this.markPaymentCaptured(request, paymentState)
+      return
+    }
+
+    if (status.state.status !== 'capturable') {
+      throw new InvalidComponentStateError(
+        this,
+        'Your payment authorisation has expired. Please add your payment details again.',
+        { shouldResetState: true, isPaymentExpired: true }
+      )
+    }
+
+    const captured = await paymentService.capturePayment(paymentId)
+
+    if (!captured) {
+      throw new InvalidComponentStateError(
+        this,
+        'There was a problem and your form was not submitted. Try submitting the form again.',
+        { shouldResetState: false }
+      )
+    }
+
+    await this.markPaymentCaptured(request, paymentState)
+  }
+
+  /**
+   * Updates payment state to mark capture as successful
+   * This ensures we don't try to re-capture on submission retry
+   */
+  private async markPaymentCaptured(
+    request: FormRequestPayload,
+    paymentState: PaymentState
+  ): Promise<void> {
+    const updatedState: PaymentState = {
+      ...paymentState,
+      capture: {
+        status: 'success',
+        createdAt: new Date().toISOString()
+      }
+    }
+
+    if (this.page) {
+      const currentState = await this.page.getState(request)
+      await this.page.mergeState(request, currentState, {
+        [this.name]: updatedState
+      })
+    }
   }
 }
 
@@ -187,5 +298,22 @@ export interface PaymentDispatcherArgs {
   }
   component: PaymentField
   sourceUrl: string
-  paymentService: PaymentService
+  isLive: boolean
+  isPreview: boolean
+}
+
+/**
+ * Session data stored when dispatching to GOV.UK Pay
+ */
+export interface PaymentSessionData {
+  uuid: string
+  formId: string
+  reference: string
+  amount: number
+  description: string
+  paymentId: string
+  componentName: string
+  returnUrl: string
+  failureUrl: string
+  isLivePayment: boolean
 }

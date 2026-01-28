@@ -15,9 +15,13 @@ import {
 import { type JoiExpression, type ValidationErrorItem } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { type PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
 import { type UkAddressState } from '~/src/server/plugins/engine/components/UkAddressField.js'
 import { type Component } from '~/src/server/plugins/engine/components/helpers/components.js'
-import { type FileUploadField } from '~/src/server/plugins/engine/components/index.js'
+import {
+  type FileUploadField,
+  type PaymentField
+} from '~/src/server/plugins/engine/components/index.js'
 import {
   type BackLink,
   type ComponentText,
@@ -120,6 +124,7 @@ export type FormValue =
   | Item['value'][]
   | UploadState
   | RepeatListState
+  | PaymentState
   | undefined
 
 export type FormState = Partial<Record<string, FormStateValue>>
@@ -329,6 +334,7 @@ export interface FormPageViewModel extends PageViewModelBase {
   hasMissingNotificationEmail?: boolean
   allowSaveAndExit: boolean
   showSubmitButton?: boolean
+  showPaymentExpiredNotification?: boolean
 }
 
 export interface RepeaterSummaryPageViewModel extends PageViewModelBase {
@@ -393,6 +399,8 @@ export interface ExternalArgs {
   controller: QuestionPageController
   sourceUrl: string
   actionArgs: Record<string, string>
+  isLive: boolean
+  isPreview: boolean
 }
 
 export interface PostcodeLookupExternalArgs extends ExternalArgs {
@@ -453,6 +461,14 @@ export interface FormAdapterFile {
   userDownloadLink: string
 }
 
+export interface FormAdapterPayment {
+  paymentId: string
+  reference: string
+  amount: number
+  description: string
+  createdAt: string
+}
+
 export interface FormAdapterSubmissionMessageResult {
   files: {
     main: string
@@ -465,6 +481,13 @@ export interface FormAdapterSubmissionMessageResult {
  */
 export type FileUploadFieldDetailitem = Omit<DetailItemField, 'field'> & {
   field: FileUploadField
+}
+
+/**
+ * A detail item specifically for payments
+ */
+export type PaymentFieldDetailItem = Omit<DetailItemField, 'field'> & {
+  field: PaymentField
 }
 export type RichFormValue =
   | FormValue
@@ -479,6 +502,7 @@ export interface FormAdapterSubmissionMessageData {
   main: Record<string, RichFormValue | null>
   repeaters: Record<string, Record<string, RichFormValue>[]>
   files: Record<string, FormAdapterFile[]>
+  payments: Record<string, FormAdapterPayment>
 }
 
 export interface FormAdapterSubmissionMessagePayload {

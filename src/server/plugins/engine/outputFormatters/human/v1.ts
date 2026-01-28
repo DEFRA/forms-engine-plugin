@@ -7,10 +7,18 @@ import { addDays, format as dateFormat } from 'date-fns'
 import { config } from '~/src/config/index.js'
 import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { escapeMarkdown } from '~/src/server/plugins/engine/components/helpers/index.js'
+import { PaymentField } from '~/src/server/plugins/engine/components/index.js'
 import { type checkFormStatus } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
-import { type DetailItem } from '~/src/server/plugins/engine/models/types.js'
+import {
+  type DetailItem,
+  type DetailItemField
+} from '~/src/server/plugins/engine/models/types.js'
 import { type FormContext } from '~/src/server/plugins/engine/types.js'
+import {
+  formatPaymentAmount,
+  formatPaymentDate
+} from '~/src/server/plugins/payment/helper.js'
 
 const designerUrl = config.get('designerUrl')
 
@@ -49,7 +57,10 @@ export function format(
   lines.push(`${formName} form received at ${escapeMarkdown(formattedNow)}.\n`)
   lines.push('---\n')
 
-  items.forEach((item) => {
+  const regularItems = items.filter((item) => !isPaymentItem(item))
+  const paymentItems = items.filter((item) => isPaymentItem(item))
+
+  regularItems.forEach((item) => {
     const label = escapeMarkdown(item.label)
 
     lines.push(`## ${label}\n`)
@@ -73,5 +84,53 @@ export function format(
   const filename = escapeMarkdown('Download main form (CSV)')
   lines.push(`[${filename}](${designerUrl}/file-download/${files.main})\n`)
 
+  appendPaymentSection(paymentItems, lines)
+
   return lines.join('\n')
+}
+
+/**
+ * Check if an item is a PaymentField
+ */
+function isPaymentItem(item: DetailItem): boolean {
+  if ('subItems' in item) {
+    return false
+  }
+  return item.field instanceof PaymentField
+}
+
+/**
+ * Appends the payment details section to the email lines if payment exists
+ */
+function appendPaymentSection(paymentItems: DetailItem[], lines: string[]) {
+  if (paymentItems.length === 0) {
+    return
+  }
+
+  const paymentItem = paymentItems[0] as DetailItemField
+  const paymentField = paymentItem.field as PaymentField
+  const paymentState = paymentField.getPaymentStateFromState(paymentItem.state)
+
+  if (!paymentState) {
+    return
+  }
+
+  const formattedAmount = formatPaymentAmount(paymentState.amount)
+  const dateOfPayment = paymentState.preAuth?.createdAt
+    ? formatPaymentDate(paymentState.preAuth.createdAt)
+    : ''
+
+  lines.push(
+    '---\n',
+    `# Your payment of ${formattedAmount} was successful\n`,
+    '## Payment for\n',
+    `${escapeMarkdown(paymentState.description)}\n`,
+    '---\n',
+    '## Total amount\n',
+    `${formattedAmount}\n`,
+    '---\n',
+    '## Date of payment\n',
+    `${escapeMarkdown(dateOfPayment)}\n`,
+    '---\n'
+  )
 }

@@ -15,12 +15,14 @@ import { type ValidationErrorItem } from 'joi'
 import {
   COMPONENT_STATE_ERROR,
   EXTERNAL_STATE_APPENDAGE,
-  EXTERNAL_STATE_PAYLOAD
+  EXTERNAL_STATE_PAYLOAD,
+  PAYMENT_EXPIRED_NOTIFICATION
 } from '~/src/server/constants.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import { type BackLink } from '~/src/server/plugins/engine/components/types.js'
 import {
+  checkFormStatus,
   getCacheService,
   getErrors,
   getSaveAndExitHelpers,
@@ -47,6 +49,7 @@ import {
 import { getComponentsByType } from '~/src/server/plugins/engine/validationHelpers.js'
 import {
   FormAction,
+  FormStatus,
   type FormRequest,
   type FormRequestPayload,
   type FormRequestPayloadRefs,
@@ -437,6 +440,12 @@ export class QuestionPageController extends PageController {
 
       viewModel.errors = (viewModel.errors ?? []).concat(flashedErrors)
 
+      const paymentExpiredFlash = request.yar.flash(
+        PAYMENT_EXPIRED_NOTIFICATION
+      )
+      viewModel.showPaymentExpiredNotification =
+        !Array.isArray(paymentExpiredFlash)
+
       /**
        * Content components can be hidden based on a condition. If the condition evaluates to true, it is safe to be kept, otherwise discard it
        */
@@ -616,11 +625,17 @@ export class QuestionPageController extends PageController {
     // Clear any previous state appendage
     request.yar.clear(EXTERNAL_STATE_APPENDAGE)
 
+    // Determine if this is a live form (not preview/draft)
+    const { state, isPreview } = checkFormStatus(request.params)
+    const isLive = state === FormStatus.Live
+
     return await selectedComponent.dispatcher(request, h, {
       component,
       controller: this,
       sourceUrl: request.url.toString(),
-      actionArgs: args
+      actionArgs: args,
+      isLive,
+      isPreview
     })
   }
 

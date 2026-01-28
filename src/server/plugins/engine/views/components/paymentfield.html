@@ -3,7 +3,6 @@
 
 {% macro PaymentField(component) %}
   {% set model = component.model %}
-  {% set paymentState = model.paymentState %}
   {% set amount = model.amount %}
   {% set description = model.description %}
 
@@ -20,34 +19,15 @@
     <p class="govuk-body">You can submit the form after you have added your payment details.</p>
 
     <p class="govuk-body govuk-!-margin-bottom-1">Total amount:</p>
-    <p class="govuk-heading-l govuk-!-margin-bottom-4">£{{ amount }}</p>
+    <p class="govuk-heading-l govuk-!-margin-bottom-4 govuk-!-padding-top-0">£{{ amount }}</p>
 
-    {% if paymentState and paymentState.preAuth and paymentState.preAuth.status == 'success' %}
-      {# Payment pre-authorised - show confirmation #}
-      <p class="govuk-body">
-        <strong class="govuk-tag govuk-tag--green">Payment ready</strong>
-      </p>
-      <p class="govuk-body">
-        Reference: {{ paymentState.reference }}
-      </p>
-      {{ govukButton({
-        text: "Use different payment details",
-        attributes: {
-          name: "action",
-          value: "external-" + model.name
-        },
-        classes: "govuk-button--secondary govuk-!-margin-bottom-0"
-      }) }}
-    {% else %}
-      {# No payment yet - show button to initiate #}
-      {{ govukButton({
-        text: "Add payment details",
-        attributes: {
-          name: "action",
-          value: "external-" + model.name
-        },
-        classes: "govuk-!-margin-bottom-0"
-      }) }}
-    {% endif %}
+    {{ govukButton({
+      text: "Add payment details",
+      attributes: {
+        name: "action",
+        value: "external-" + model.name
+      },
+      classes: "govuk-!-margin-bottom-0"
+    }) }}
   </div>
 {% endmacro %}

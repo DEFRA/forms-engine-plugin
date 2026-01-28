@@ -233,6 +233,7 @@ describe('getPersonalisation', () => {
         exampleField: 'hello world',
         exampleField2: 'hello world'
       },
+      payments: {},
       repeaters: {
         exampleRepeat: [
           {
@@ -291,6 +292,7 @@ describe('getPersonalisation', () => {
       main: {
         orderType: 'delivery'
       },
+      payments: {},
       repeaters: {
         pizza: [
           {
