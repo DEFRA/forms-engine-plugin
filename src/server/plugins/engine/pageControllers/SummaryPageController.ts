@@ -12,7 +12,6 @@ import {
   PAYMENT_EXPIRED_NOTIFICATION
 } from '~/src/server/constants.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { EmailAddressField } from '~/src/server/plugins/engine/components/EmailAddressField.js'
 import { PaymentField } from '~/src/server/plugins/engine/components/PaymentField.js'
 import {
   checkEmailAddressForLiveFormSubmission,
@@ -41,8 +40,7 @@ import {
 import {
   type FormConfirmationState,
   type FormContext,
-  type FormContextRequest,
-  type FormPayload
+  type FormContextRequest
 } from '~/src/server/plugins/engine/types.js'
 import {
   DEFAULT_PAYMENT_HELP_URL,
@@ -89,7 +87,6 @@ export class SummaryPageController extends QuestionPageController {
       .flatMap((page) => page.collection.fields)
       .find((field): field is PaymentField => field instanceof PaymentField)
 
-    let payerEmail: string | undefined
     if (paymentField) {
       const paymentState = paymentField.getPaymentStateFromState(state)
       if (paymentState) {
@@ -98,18 +95,10 @@ export class SummaryPageController extends QuestionPageController {
           paymentField,
           paymentState
         )
-        if (paymentState.payerEmail) {
-          payerEmail = paymentState.payerEmail
-        }
       }
     }
 
-    const componentPayload = this.getPrefilledPayload(payload, payerEmail)
-    const components = this.collection.getViewModel(
-      componentPayload,
-      errors,
-      query
-    )
+    const components = this.collection.getViewModel(payload, errors, query)
 
     viewModel.backLink = this.getBackLink(request, context)
     viewModel.feedbackLink = this.feedbackLink
@@ -119,34 +108,6 @@ export class SummaryPageController extends QuestionPageController {
     viewModel.errors = errors
 
     return viewModel
-  }
-
-  /**
-   * Pre-fills EmailAddressField components with payer email if available.
-   */
-  private getPrefilledPayload(
-    payload: FormPayload,
-    payerEmail?: string
-  ): FormPayload {
-    if (!payerEmail) {
-      return payload
-    }
-
-    const emailFields = this.collection.fields.filter(
-      (field) => field instanceof EmailAddressField
-    )
-
-    if (emailFields.length === 0) {
-      return payload
-    }
-
-    const prefilledPayload = { ...payload }
-    for (const field of emailFields) {
-      // Only pre-fill if not already set
-      prefilledPayload[field.name] ??= payerEmail
-    }
-
-    return prefilledPayload
   }
 
   private buildPaymentDetails(
