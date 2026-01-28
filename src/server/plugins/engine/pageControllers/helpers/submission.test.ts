@@ -59,22 +59,22 @@ describe('Submission helpers', () => {
 
       expect(result).toHaveLength(4)
       expect(result[0]).toEqual({
-        name: 'payment_paymentFor',
-        title: 'Payment for',
+        name: 'payment_paymentDescription',
+        title: 'Payment description',
         value: 'Application fee'
       })
       expect(result[1]).toEqual({
-        name: 'payment_totalAmount',
-        title: 'Total amount',
+        name: 'payment_paymentAmount',
+        title: 'Payment amount',
         value: '£150.00'
       })
       expect(result[2]).toEqual({
-        name: 'payment_reference',
-        title: 'Reference',
+        name: 'payment_paymentReference',
+        title: 'Payment reference',
         value: 'REF-ABC-123'
       })
-      expect(result[3].name).toBe('payment_dateOfPayment')
-      expect(result[3].title).toBe('Date of payment')
+      expect(result[3].name).toBe('payment_paymentDate')
+      expect(result[3].title).toBe('Payment date')
       // Date will be formatted, just check it's not empty
       expect(result[3].value).not.toBe('')
     })
@@ -106,8 +106,8 @@ describe('Submission helpers', () => {
       const result = buildPaymentRecords(item)
 
       expect(result[3]).toEqual({
-        name: 'payment_dateOfPayment',
-        title: 'Date of payment',
+        name: 'payment_paymentDate',
+        title: 'Payment date',
         value: ''
       })
     })
@@ -177,10 +177,10 @@ describe('Submission helpers', () => {
 
       expect(result).toHaveLength(4)
       expect(result.map((r) => r.name)).toEqual([
-        'licencePayment_paymentFor',
-        'licencePayment_totalAmount',
-        'licencePayment_reference',
-        'licencePayment_dateOfPayment'
+        'licencePayment_paymentDescription',
+        'licencePayment_paymentAmount',
+        'licencePayment_paymentReference',
+        'licencePayment_paymentDate'
       ])
     })
 
@@ -226,7 +226,7 @@ describe('Submission helpers', () => {
       // 1 regular field + 4 payment fields = 5 records
       expect(result).toHaveLength(5)
       expect(result[0].name).toBe('email')
-      expect(result[1].name).toBe('payment_paymentFor')
+      expect(result[1].name).toBe('payment_paymentDescription')
     })
 
     it('should skip repeater items (items with subItems)', () => {
