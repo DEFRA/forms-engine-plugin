@@ -185,11 +185,8 @@ export class QuestionPageController extends PageController {
       }
     }
 
-    // Check if any PaymentField component needs payment to be added
-    // If so, hide the submit button until payment is ready
     const hasIncompletePayment = components.some(({ model }) => {
-      // Check if this is a PaymentField by looking for paymentState in model
-      if ('paymentState' in model && 'amount' in model) {
+      if ('paymentState' in model) {
         const paymentState = model.paymentState as
           | { preAuth?: { status?: string } }
           | undefined
