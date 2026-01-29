@@ -108,6 +108,13 @@ export class PaymentField extends FormComponent {
    * Type guard to check if value is PaymentState
    */
   isPaymentState(value: unknown): value is PaymentState {
+    return PaymentField.isPaymentState(value)
+  }
+
+  /**
+   * Static type guard to check if value is PaymentState
+   */
+  static isPaymentState(value: unknown): value is PaymentState {
     if (!value || typeof value !== 'object' || Array.isArray(value)) {
       return false
     }
@@ -125,6 +132,21 @@ export class PaymentField extends FormComponent {
    */
   isState(value?: FormStateValue | FormState): value is FormState {
     return this.isPaymentState(value)
+  }
+
+  /**
+   * Override base isValue to recognize PaymentState objects
+   * The base implementation only recognises primitives (string, number, boolean)
+   */
+  isValue(value?: FormStateValue | FormState): value is PaymentState {
+    return this.isPaymentState(value)
+  }
+
+  /**
+   * Override base getFormValue to handle PaymentState objects
+   */
+  getFormValue(value?: FormStateValue | FormState) {
+    return this.isValue(value) ? value : undefined
   }
 
   /**
@@ -157,25 +179,34 @@ export class PaymentField extends FormComponent {
     h: FormResponseToolkit,
     args: PaymentDispatcherArgs
   ): Promise<unknown> {
+    const { options, name: componentName } = args.component
+    const { model } = args.controller
+
+    const state = await args.controller.getState(request)
+    const { baseUrl } = getPluginOptions(request.server)
+    const summaryUrl = `${baseUrl}/${model.basePath}/summary`
+
+    const existingPaymentState = state[componentName]
+    if (
+      PaymentField.isPaymentState(existingPaymentState) &&
+      existingPaymentState.preAuth?.status === 'success'
+    ) {
+      return h.redirect(summaryUrl).code(StatusCodes.SEE_OTHER)
+    }
+
     const isLivePayment = args.isLive && !args.isPreview
     const formId = args.controller.model.formId
     const paymentService = createPaymentService(isLivePayment, formId)
 
     const uuid = randomUUID()
 
-    const { options, name: componentName } = args.component
-    const { model } = args.controller
-
-    const state = await args.controller.getState(request)
     const reference = state.$$__referenceNumber as string
     const amount = options.amount ?? 0
     const description = options.description ?? ''
 
     const slug = `/${model.basePath}`
 
-    const { baseUrl } = getPluginOptions(request.server)
     const payCallbackUrl = `${baseUrl}/payment-callback?uuid=${uuid}`
-    const summaryUrl = `${baseUrl}/${model.basePath}/summary`
     const paymentPageUrl = args.sourceUrl
 
     const amountInPence = Math.round(amount * 100)

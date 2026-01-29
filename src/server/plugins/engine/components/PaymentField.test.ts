@@ -316,6 +316,60 @@ describe('PaymentField', () => {
           uuid: expect.any(String)
         })
       })
+
+      it('should redirect to summary if payment is already pre-authorised', async () => {
+        const mockRedirectCode = jest.fn().mockReturnValueOnce('redirected')
+        const mockH = {
+          redirect: jest.fn().mockReturnValueOnce({ code: mockRedirectCode })
+        } as unknown as FormResponseToolkit
+        const mockRequest = {
+          server: {
+            plugins: {
+              // eslint-disable-next-line no-useless-computed-key
+              ['forms-engine-plugin']: {
+                baseUrl: 'base-url'
+              }
+            }
+          },
+          yar: {
+            set: jest.fn()
+          }
+        } as unknown as FormRequestPayload
+        const args = {
+          controller: {
+            model: {
+              formId: 'form-id',
+              basePath: 'base-path',
+              name: 'PaymentModel'
+            },
+            getState: jest.fn().mockResolvedValueOnce({
+              $$__referenceNumber: 'pay-ref-123',
+              myComponent: {
+                paymentId: 'existing-payment-id',
+                amount: 100,
+                description: 'Test payment',
+                preAuth: {
+                  status: 'success',
+                  createdAt: '2026-01-29T12:00:00.000Z'
+                }
+              }
+            })
+          },
+          component: paymentField,
+          sourceUrl: 'http://localhost:3009/test-payment',
+          isLive: false,
+          isPreview: true
+        }
+
+        const res = await PaymentField.dispatcher(mockRequest, mockH, args)
+
+        expect(res).toBe('redirected')
+        expect(mockH.redirect).toHaveBeenCalledWith(
+          'base-url/base-path/summary'
+        )
+        expect(mockRedirectCode).toHaveBeenCalledWith(303)
+        expect(postJson).not.toHaveBeenCalled()
+      })
     })
 
     describe('onSubmit', () => {

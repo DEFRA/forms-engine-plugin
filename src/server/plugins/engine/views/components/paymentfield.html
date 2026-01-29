@@ -5,22 +5,29 @@
   {% set model = component.model %}
   {% set amount = model.amount %}
   {% set description = model.description %}
+  {% set paymentState = model.paymentState %}
+  {% set isPreAuthorised = paymentState and paymentState.preAuth and paymentState.preAuth.status == 'success' %}
 
   <div class="app-payment-field">
-    <h2 class="govuk-heading-m">{{ model.label.text if model.label and model.label.text else "Payment details required" }}</h2>
+    {% if isPreAuthorised %}
+      {# Payment already pre-authorised - show confirmation message #}
+      <h2 class="govuk-heading-m">You have already authorised a payment for this form</h2>
 
-    <p class="govuk-body">{{ description }}</p>
+      <p class="govuk-body">Continue to submit the form. You will not be charged twice.</p>
+    {% else %}
+      {# No pre-authorisation - show payment form #}
+      <h2 class="govuk-heading-m">{{ model.label.text if model.label and model.label.text else "Payment details required" }}</h2>
 
-    {{ govukWarningText({
-      text: "You may see a pending transaction in your bank account but you will only be charged when you submit the form.",
-      iconFallbackText: "Warning"
-    }) }}
+      <p class="govuk-body">{{ description }}</p>
 
-    <p class="govuk-body">You can submit the form after you have added your payment details.</p>
+      {{ govukWarningText({
+        text: "You may see a pending transaction in your bank account but you will only be charged when you submit the form.",
+        iconFallbackText: "Warning"
+      }) }}
 
-    <p class="govuk-body govuk-!-margin-bottom-1">Total amount:</p>
-    <p class="govuk-heading-l govuk-!-margin-bottom-4 govuk-!-padding-top-0">£{{ amount }}</p>
+      <p class="govuk-body">You can submit the form after you have added your payment details.</p>
 
+<<<<<<< Updated upstream
   <div class="govuk-button-group">
     {{ govukButton({
       text: "Add payment details",
@@ -42,5 +49,19 @@
     {% endif %}
   </div>
 
+=======
+      <p class="govuk-body govuk-!-margin-bottom-1">Total amount:</p>
+      <p class="govuk-heading-l govuk-!-margin-bottom-4 govuk-!-padding-top-0">£{{ amount }}</p>
+
+      {{ govukButton({
+        text: "Add payment details",
+        attributes: {
+          name: "action",
+          value: "external-" + model.name
+        },
+        classes: "govuk-!-margin-bottom-0"
+      }) }}
+    {% endif %}
+>>>>>>> Stashed changes
   </div>
 {% endmacro %}
