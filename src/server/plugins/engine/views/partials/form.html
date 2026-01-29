@@ -2,10 +2,15 @@
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList -%}
 
 {% set noPaymentFields = true %}
+{% set hasIncompletePayment = false %}
 
 {% for comp in components %}
   {% if comp.type == 'PaymentField' %}
     {% set noPaymentFields = false %}
+    {# Check if payment is incomplete (no preAuth status) #}
+    {% if not comp.model.paymentState or not comp.model.paymentState.preAuth or comp.model.paymentState.preAuth.status != 'success' %}
+      {% set hasIncompletePayment = true %}
+    {% endif %}
   {% endif %}
 {% endfor %}
 
@@ -23,7 +28,7 @@
   {% endif %}
 
   <div class="govuk-button-group">
-    {% if showSubmitButton !== false %}
+    {% if showSubmitButton !== false and not hasIncompletePayment %}
       {{ govukButton({
         text: buttonText,
         isStartButton: isStartPage,
@@ -31,7 +36,7 @@
       }) }}
     {% endif %}
 
-    {% if allowSaveAndExit and noPaymentFields %}
+    {% if allowSaveAndExit %}
       {{ govukButton({
         text: "Save and exit",
         classes: "govuk-button--secondary",

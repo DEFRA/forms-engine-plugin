@@ -27,29 +27,6 @@
 
       <p class="govuk-body">You can submit the form after you have added your payment details.</p>
 
-<<<<<<< Updated upstream
-  <div class="govuk-button-group">
-    {{ govukButton({
-      text: "Add payment details",
-      attributes: {
-        name: "action",
-        value: "external-" + model.name
-      },
-      classes: "govuk-!-margin-bottom-0"
-    }) }}
-
-    {% if allowSaveAndExit %}
-      {{ govukButton({
-        text: "Save and exit",
-        classes: "govuk-button--secondary",
-        name: "action",
-        value: "save-and-exit",
-        preventDoubleClick: true
-      }) }}
-    {% endif %}
-  </div>
-
-=======
       <p class="govuk-body govuk-!-margin-bottom-1">Total amount:</p>
       <p class="govuk-heading-l govuk-!-margin-bottom-4 govuk-!-padding-top-0">£{{ amount }}</p>
 
@@ -58,10 +35,8 @@
         attributes: {
           name: "action",
           value: "external-" + model.name
-        },
-        classes: "govuk-!-margin-bottom-0"
+        }
       }) }}
     {% endif %}
->>>>>>> Stashed changes
   </div>
 {% endmacro %}
