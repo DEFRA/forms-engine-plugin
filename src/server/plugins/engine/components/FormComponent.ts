@@ -5,6 +5,7 @@ import {
 } from '@defra/forms-model'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
+import { type PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import {
   type FormContext,
@@ -179,7 +180,7 @@ export class FormComponent extends ComponentBase {
 
   getContextValueFromFormValue(
     value: FormValue | FormPayload
-  ): Item['value'] | Item['value'][] | null {
+  ): Item['value'] | Item['value'][] | PaymentState | null {
     // Filter object field values
     if (this.isState(value)) {
       const values = Object.values(value).filter(isFormValue)
@@ -191,12 +192,12 @@ export class FormComponent extends ComponentBase {
       return value.filter(isFormValue)
     }
 
-    return this.isValue(value) ? (value as Item['value']) : null
+    return this.isValue(value) ? value : null
   }
 
   getContextValueFromState(
     state: FormSubmissionState
-  ): Item['value'] | Item['value'][] | null {
+  ): Item['value'] | Item['value'][] | PaymentState | null {
     const value = this.getFormValueFromState(state)
 
     return this.getContextValueFromFormValue(value)

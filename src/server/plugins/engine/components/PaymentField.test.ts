@@ -170,7 +170,7 @@ describe('PaymentField', () => {
         amount: 150,
         description: 'payment description',
         uuid: 'ee501106-4ce1-4947-91a7-7cc1a335ccd8',
-        formId: 'form-id',
+        formId: 'formid',
         isLivePayment: false
       }
       it('returns text from state', () => {
@@ -206,7 +206,7 @@ describe('PaymentField', () => {
           paymentId: 'payment-id',
           reference: 'payment-ref',
           uuid: 'ee501106-4ce1-4947-91a7-7cc1a335ccd8',
-          formId: 'form-id',
+          formId: 'formid',
           amount: 100,
           description: 'Test payment description',
           isLivePayment: false
@@ -273,7 +273,7 @@ describe('PaymentField', () => {
         const args = {
           controller: {
             model: {
-              formId: 'form-id',
+              formId: 'formid',
               basePath: 'base-path',
               name: 'PaymentModel'
             },
@@ -308,7 +308,7 @@ describe('PaymentField', () => {
           componentName: 'myComponent',
           description: 'Test payment description',
           failureUrl: 'http://localhost:3009/test-payment',
-          formId: 'form-id',
+          formId: 'formid',
           isLivePayment: false,
           paymentId: 'new-payment-id',
           reference: 'pay-ref-123',
@@ -338,7 +338,7 @@ describe('PaymentField', () => {
         const args = {
           controller: {
             model: {
-              formId: 'form-id',
+              formId: 'formid',
               basePath: 'base-path',
               name: 'PaymentModel'
             },
@@ -432,7 +432,7 @@ describe('PaymentField', () => {
                 amount: 123,
                 description: 'Payment desc',
                 isLivePayment: false,
-                formId: 'form-id'
+                formId: 'formid'
               }
             }
           } as unknown as FormContext
@@ -458,7 +458,7 @@ describe('PaymentField', () => {
                   amount: 123,
                   description: 'Payment desc',
                   isLivePayment: false,
-                  formId: 'form-id'
+                  formId: 'formid'
                 }
               }
             } as unknown as FormContext
@@ -495,7 +495,7 @@ describe('PaymentField', () => {
                   amount: 123,
                   description: 'Payment desc',
                   isLivePayment: false,
-                  formId: 'form-id'
+                  formId: 'formid'
                 }
               }
             } as unknown as FormContext
@@ -531,7 +531,7 @@ describe('PaymentField', () => {
                 amount: 123,
                 description: 'Payment desc',
                 isLivePayment: false,
-                formId: 'form-id'
+                formId: 'formid'
               }
             }
           } as unknown as FormContext

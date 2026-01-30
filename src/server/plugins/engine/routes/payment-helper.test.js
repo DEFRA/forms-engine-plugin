@@ -35,7 +35,7 @@ describe('payment helper', () => {
         get: jest.fn().mockReturnValueOnce({
           paymentId: 'payment-id',
           isLivePayment: false,
-          formId: 'form-id'
+          formId: 'formid'
         })
       }
     }
@@ -76,7 +76,7 @@ describe('payment helper', () => {
         }
       },
       session: {
-        formId: 'form-id',
+        formId: 'formid',
         isLivePayment: false,
         paymentId: 'payment-id'
       },
