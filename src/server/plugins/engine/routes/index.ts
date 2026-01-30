@@ -10,10 +10,7 @@ import {
   EXTERNAL_STATE_PAYLOAD
 } from '~/src/server/constants.js'
 import { resolveFormModel } from '~/src/server/plugins/engine/beta/form-context.js'
-import {
-  FormComponent,
-  isFormState
-} from '~/src/server/plugins/engine/components/FormComponent.js'
+import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import {
   checkFormStatus,
   findPage,
@@ -138,35 +135,24 @@ async function importExternalComponentState(
     throw new Error(`State for component ${componentName} is invalid`)
   }
 
-  // Components with a collection (e.g. UkAddressField) need flattened keys
-  // Components without a collection (e.g. PaymentField) store state as nested object
-  const componentState =
-    component.collection && isFormState(stateAppendage)
-      ? Object.fromEntries(
-          Object.entries(stateAppendage).map(([key, value]) => [
-            `${componentName}__${key}`,
-            value
-          ])
-        )
-      : { [componentName]: stateAppendage }
+  // Store component state under the component name
+  const componentState = { [componentName]: stateAppendage }
 
-  const pageState = page.getStateFromValidForm(
-    request,
-    state,
-    componentState as FormPayload
-  )
-  const savedState = await page.mergeState(request, state, pageState)
+  // Save the external component state directly (already has correct key format)
+  const savedState = await page.mergeState(request, state, componentState)
 
   // Merge any stashed payload into the local state
   const payload = request.yar.flash(EXTERNAL_STATE_PAYLOAD)
   const stashedPayload = Array.isArray(payload) ? {} : (payload as FormPayload)
 
-  const localState = page.getStateFromValidForm(request, savedState, {
-    ...stashedPayload,
-    ...componentState
-  } as FormPayload)
+  if (Object.keys(stashedPayload).length) {
+    const localState = page.getStateFromValidForm(request, savedState, {
+      ...stashedPayload
+    } as FormPayload)
+    return { ...savedState, ...localState }
+  }
 
-  return { ...savedState, ...localState }
+  return savedState
 }
 
 export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
