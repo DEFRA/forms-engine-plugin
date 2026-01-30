@@ -106,8 +106,8 @@ export function categoriseData(items: DetailItem[]) {
       string,
       { fileId: string; fileName: string; userDownloadLink: string }[]
     >
-    payments: Record<string, PaymentOutput>
-  } = { main: {}, repeaters: {}, files: {}, payments: {} }
+    payment?: PaymentOutput
+  } = { main: {}, repeaters: {}, files: {} }
 
   items.forEach((item) => {
     const { name, state } = item
@@ -119,7 +119,7 @@ export function categoriseData(items: DetailItem[]) {
     } else if (isPaymentFieldItem(item)) {
       const payment = extractPayment(item)
       if (payment) {
-        output.payments[name] = payment
+        output.payment = payment
       }
     } else {
       output.main[name] = item.field.getFormValueFromState(state)

@@ -503,7 +503,7 @@ export interface FormAdapterSubmissionMessageData {
   main: Record<string, RichFormValue | null>
   repeaters: Record<string, Record<string, RichFormValue>[]>
   files: Record<string, FormAdapterFile[]>
-  payments: Record<string, FormAdapterPayment>
+  payment?: FormAdapterPayment
 }
 
 export interface FormAdapterSubmissionMessagePayload {

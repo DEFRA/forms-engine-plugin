@@ -91,14 +91,12 @@ describe('getPersonalisation', () => {
         licenceLength: 365,
         fullName: 'John Smith'
       },
-      payments: {
-        paymentField: {
-          amount: 250,
-          createdAt: '2026-01-02T11:00:04+0000',
-          description: 'Payment desc',
-          paymentId: 'payment-id',
-          reference: 'payment-ref'
-        }
+      payment: {
+        amount: 250,
+        createdAt: '2026-01-02T11:00:04+0000',
+        description: 'Payment desc',
+        paymentId: 'payment-id',
+        reference: 'payment-ref'
       },
       repeaters: {},
       files: {}
