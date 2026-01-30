@@ -10,7 +10,10 @@ import joi, { type ObjectSchema } from 'joi'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
 import { getPluginOptions } from '~/src/server/plugins/engine/helpers.js'
-import { InvalidComponentStateError } from '~/src/server/plugins/engine/pageControllers/errors.js'
+import {
+  PaymentErrorTypes,
+  PrePaymentError
+} from '~/src/server/plugins/engine/pageControllers/errors.js'
 import {
   type AnyFormRequest,
   type FormContext,
@@ -248,10 +251,11 @@ export class PaymentField extends FormComponent {
     const paymentState = this.getPaymentStateFromState(context.state)
 
     if (!paymentState) {
-      throw new InvalidComponentStateError(
+      throw new PrePaymentError(
         this,
         'Complete the payment to continue',
-        { shouldResetState: true }
+        true,
+        PaymentErrorTypes.PaymentIncomplete
       )
     }
 
@@ -273,20 +277,21 @@ export class PaymentField extends FormComponent {
     }
 
     if (status.state.status !== 'capturable') {
-      throw new InvalidComponentStateError(
+      throw new PrePaymentError(
         this,
         'Your payment authorisation has expired. Please add your payment details again.',
-        { shouldResetState: true, isPaymentExpired: true }
+        true,
+        PaymentErrorTypes.PaymentExpired
       )
     }
 
     const captured = await paymentService.capturePayment(paymentId)
 
     if (!captured) {
-      throw new InvalidComponentStateError(
+      throw new PrePaymentError(
         this,
         'There was a problem and your form was not submitted. Try submitting the form again.',
-        { shouldResetState: false }
+        false
       )
     }
 

@@ -31,7 +31,9 @@ import {
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
   InvalidComponentStateError,
-  PostPaymentSubmissionError
+  PaymentErrorTypes,
+  PostPaymentSubmissionError,
+  PrePaymentError
 } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import {
   buildMainRecords,
@@ -243,6 +245,10 @@ export class SummaryPageController extends QuestionPageController {
       return this.handleInvalidComponentStateError(error, request, h)
     }
 
+    if (error instanceof PrePaymentError) {
+      return this.handlePrePaymentError(error, request, h)
+    }
+
     if (error instanceof PostPaymentSubmissionError) {
       return this.handlePostPaymentSubmissionError(error, request, h)
     }
@@ -260,10 +266,29 @@ export class SummaryPageController extends QuestionPageController {
   ) {
     const cacheService = getCacheService(request.server)
 
+    const govukError = createError(error.component.name, error.userMessage)
+
+    request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
+
+    await cacheService.resetComponentStates(request, error.getStateKeys())
+
+    return this.proceed(request, h, error.component.page?.path)
+  }
+
+  /**
+   * Handles PrePaymentError during submission
+   */
+  private async handlePrePaymentError(
+    error: PrePaymentError,
+    request: FormRequestPayload,
+    h: FormResponseToolkit
+  ) {
+    const cacheService = getCacheService(request.server)
+
     if (error.shouldResetState) {
       await cacheService.resetComponentStates(request, error.getStateKeys())
 
-      if (error.isPaymentExpired) {
+      if (error.errorType === PaymentErrorTypes.PaymentExpired) {
         request.yar.flash(PAYMENT_EXPIRED_NOTIFICATION, true, true)
         return this.proceed(request, h, error.component.page?.path)
       }
