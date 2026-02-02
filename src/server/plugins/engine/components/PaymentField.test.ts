@@ -422,7 +422,7 @@ describe('PaymentField', () => {
           .mocked(get)
           // @ts-expect-error - partial mock
           .mockResolvedValueOnce({
-            payload: { amount: 100, state: { status: 'success' } }
+            payload: { amount: 10000, state: { status: 'success' } }
           })
         await paymentField.onSubmit(
           mockRequest,
@@ -449,7 +449,7 @@ describe('PaymentField', () => {
           .mocked(get)
           // @ts-expect-error - partial mock
           .mockResolvedValueOnce({
-            payload: { amount: 100, state: { status: 'bad' } }
+            payload: { amount: 10000, state: { status: 'bad' } }
           })
         const error = await paymentField
           .onSubmit(
@@ -482,7 +482,7 @@ describe('PaymentField', () => {
           .mocked(get)
           // @ts-expect-error - partial mock
           .mockResolvedValueOnce({
-            payload: { amount: 100, state: { status: 'capturable' } }
+            payload: { amount: 10000, state: { status: 'capturable' } }
           })
         // @ts-expect-error - partial mock
         jest.mocked(post).mockResolvedValueOnce({ res: { statusCode: 400 } })
@@ -517,7 +517,7 @@ describe('PaymentField', () => {
           .mocked(get)
           // @ts-expect-error - partial mock
           .mockResolvedValueOnce({
-            payload: { amount: 50, state: { status: 'capturable' } }
+            payload: { amount: 5000, state: { status: 'capturable' } }
           })
         // @ts-expect-error - partial mock
         jest.mocked(post).mockResolvedValueOnce({ res: { statusCode: 200 } })
@@ -552,7 +552,7 @@ describe('PaymentField', () => {
           .mocked(get)
           // @ts-expect-error - partial mock
           .mockResolvedValueOnce({
-            payload: { amount: 100, state: { status: 'capturable' } }
+            payload: { amount: 10000, state: { status: 'capturable' } }
           })
         // @ts-expect-error - partial mock
         jest.mocked(post).mockResolvedValueOnce({ res: { statusCode: 200 } })
@@ -573,6 +573,38 @@ describe('PaymentField', () => {
         )
         expect(get).toHaveBeenCalled()
         expect(post).toHaveBeenCalled()
+      })
+    })
+
+    describe('getFormValue', () => {
+      it('should return undefined', () => {
+        expect(paymentField.getFormValue({})).toBeUndefined()
+      })
+      it('should return value', () => {
+        const payment = {
+          paymentId: 'payment-id',
+          amount: 123,
+          description: 'Payment desc',
+          isLivePayment: false,
+          formId: 'formid'
+        }
+        expect(paymentField.getFormValue(payment)).toEqual(payment)
+      })
+    })
+
+    describe('isState', () => {
+      it('should return false if not valid state', () => {
+        expect(paymentField.isState({})).toBe(false)
+      })
+      it('should return value', () => {
+        const payment = {
+          paymentId: 'payment-id',
+          amount: 123,
+          description: 'Payment desc',
+          isLivePayment: false,
+          formId: 'formid'
+        }
+        expect(paymentField.isState(payment)).toBe(true)
       })
     })
   })
