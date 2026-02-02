@@ -5,6 +5,13 @@ export enum PaymentErrorTypes {
   PaymentIncomplete = 'PaymentIncomplete',
   PaymentAmountMismatch = 'PaymentAmountMismatch'
 }
+
+function getStateKeys(component: FormComponent) {
+  const extraStateKeys = component.page?.getStateKeys(component) ?? []
+
+  return [component.name].concat(extraStateKeys)
+}
+
 export class PaymentPreAuthError extends Error {
   public readonly component: FormComponent
   public readonly userMessage: string
@@ -36,10 +43,7 @@ export class PaymentPreAuthError extends Error {
   }
 
   getStateKeys() {
-    const extraStateKeys =
-      this.component.page?.getStateKeys(this.component) ?? []
-
-    return [this.component.name].concat(extraStateKeys)
+    return getStateKeys(this.component)
   }
 }
 
@@ -95,9 +99,6 @@ export class InvalidComponentStateError extends Error {
   }
 
   getStateKeys() {
-    const extraStateKeys =
-      this.component.page?.getStateKeys(this.component) ?? []
-
-    return [this.component.name].concat(extraStateKeys)
+    return getStateKeys(this.component)
   }
 }
