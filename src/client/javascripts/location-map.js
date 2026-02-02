@@ -143,7 +143,7 @@ export function makeTileRequestTransformer(apiPath) {
         return {
           url: url.replace(
             'https://api.os.uk/maps/vector/v1/vts',
-            `${window.location.origin}${apiPath}`
+            `${globalThis.location.origin}${apiPath}`
           ),
           headers: {}
         }
@@ -276,7 +276,7 @@ function createMap(mapId, initConfig, mapsConfig) {
   const logoAltText = 'Ordnance survey logo'
 
   // @ts-expect-error - Defra namespace currently comes from UMD support files
-  const defra = window.defra
+  const defra = globalThis.defra
 
   const interactPlugin = defra.interactPlugin({
     dataLayers: [],
