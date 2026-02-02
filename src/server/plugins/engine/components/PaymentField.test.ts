@@ -11,7 +11,7 @@ import {
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import { InvalidComponentStateError } from '~/src/server/plugins/engine/pageControllers/errors.js'
+import { PaymentPreAuthError } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import {
   type FormContext,
   type FormValue
@@ -384,11 +384,9 @@ describe('PaymentField', () => {
           )
           .catch((e: unknown) => e)
 
-        expect(error).toBeInstanceOf(InvalidComponentStateError)
-        expect((error as InvalidComponentStateError).component).toBe(
-          paymentField
-        )
-        expect((error as InvalidComponentStateError).userMessage).toBe(
+        expect(error).toBeInstanceOf(PaymentPreAuthError)
+        expect((error as PaymentPreAuthError).component).toBe(paymentField)
+        expect((error as PaymentPreAuthError).userMessage).toBe(
           'Complete the payment to continue'
         )
       })
@@ -421,7 +419,9 @@ describe('PaymentField', () => {
         jest
           .mocked(get)
           // @ts-expect-error - partial mock
-          .mockResolvedValueOnce({ payload: { state: { status: 'success' } } })
+          .mockResolvedValueOnce({
+            payload: { amount: 100, state: { status: 'success' } }
+          })
         await paymentField.onSubmit(
           mockRequest,
           {} as FormMetadata,
@@ -429,7 +429,7 @@ describe('PaymentField', () => {
             state: {
               myComponent: {
                 paymentId: 'payment-id',
-                amount: 123,
+                amount: 100,
                 description: 'Payment desc',
                 isLivePayment: false,
                 formId: 'formid'
@@ -446,7 +446,9 @@ describe('PaymentField', () => {
         jest
           .mocked(get)
           // @ts-expect-error - partial mock
-          .mockResolvedValueOnce({ payload: { state: { status: 'bad' } } })
+          .mockResolvedValueOnce({
+            payload: { amount: 100, state: { status: 'bad' } }
+          })
         const error = await paymentField
           .onSubmit(
             mockRequest,
@@ -455,7 +457,7 @@ describe('PaymentField', () => {
               state: {
                 myComponent: {
                   paymentId: 'payment-id',
-                  amount: 123,
+                  amount: 100,
                   description: 'Payment desc',
                   isLivePayment: false,
                   formId: 'formid'
@@ -465,11 +467,9 @@ describe('PaymentField', () => {
           )
           .catch((e: unknown) => e)
 
-        expect(error).toBeInstanceOf(InvalidComponentStateError)
-        expect((error as InvalidComponentStateError).component).toBe(
-          paymentField
-        )
-        expect((error as InvalidComponentStateError).userMessage).toBe(
+        expect(error).toBeInstanceOf(PaymentPreAuthError)
+        expect((error as PaymentPreAuthError).component).toBe(paymentField)
+        expect((error as PaymentPreAuthError).userMessage).toBe(
           'Your payment authorisation has expired. Please add your payment details again.'
         )
       })
@@ -480,7 +480,7 @@ describe('PaymentField', () => {
           .mocked(get)
           // @ts-expect-error - partial mock
           .mockResolvedValueOnce({
-            payload: { state: { status: 'capturable' } }
+            payload: { amount: 100, state: { status: 'capturable' } }
           })
         // @ts-expect-error - partial mock
         jest.mocked(post).mockResolvedValueOnce({ res: { statusCode: 400 } })
@@ -502,12 +502,45 @@ describe('PaymentField', () => {
           )
           .catch((e: unknown) => e)
 
-        expect(error).toBeInstanceOf(InvalidComponentStateError)
-        expect((error as InvalidComponentStateError).component).toBe(
-          paymentField
-        )
-        expect((error as InvalidComponentStateError).userMessage).toBe(
+        expect(error).toBeInstanceOf(PaymentPreAuthError)
+        expect((error as PaymentPreAuthError).component).toBe(paymentField)
+        expect((error as PaymentPreAuthError).userMessage).toBe(
           'There was a problem and your form was not submitted. Try submitting the form again.'
+        )
+      })
+
+      it('should throw if amount mismatch', async () => {
+        const mockRequest = {} as unknown as FormRequestPayload
+        jest
+          .mocked(get)
+          // @ts-expect-error - partial mock
+          .mockResolvedValueOnce({
+            payload: { amount: 50, state: { status: 'capturable' } }
+          })
+        // @ts-expect-error - partial mock
+        jest.mocked(post).mockResolvedValueOnce({ res: { statusCode: 200 } })
+        const error = await paymentField
+          .onSubmit(
+            mockRequest,
+            {} as FormMetadata,
+            {
+              state: {
+                myComponent: {
+                  paymentId: 'payment-id',
+                  amount: 123,
+                  description: 'Payment desc',
+                  isLivePayment: false,
+                  formId: 'formid'
+                }
+              }
+            } as unknown as FormContext
+          )
+          .catch((e: unknown) => e)
+
+        expect(error).toBeInstanceOf(PaymentPreAuthError)
+        expect((error as PaymentPreAuthError).component).toBe(paymentField)
+        expect((error as PaymentPreAuthError).userMessage).toBe(
+          'The pre-authorised payment amount is somehow different from that requested. Try adding payment details again.'
         )
       })
 
@@ -517,7 +550,7 @@ describe('PaymentField', () => {
           .mocked(get)
           // @ts-expect-error - partial mock
           .mockResolvedValueOnce({
-            payload: { state: { status: 'capturable' } }
+            payload: { amount: 100, state: { status: 'capturable' } }
           })
         // @ts-expect-error - partial mock
         jest.mocked(post).mockResolvedValueOnce({ res: { statusCode: 200 } })

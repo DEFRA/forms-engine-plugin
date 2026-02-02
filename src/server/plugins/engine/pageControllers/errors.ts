@@ -2,9 +2,10 @@ import { type FormComponent } from '~/src/server/plugins/engine/components/FormC
 
 export enum PaymentErrorTypes {
   PaymentExpired = 'PaymentExpired',
-  PaymentIncomplete = 'PaymentIncomplete'
+  PaymentIncomplete = 'PaymentIncomplete',
+  PaymentAmountMismatch = 'PaymentAmountMismatch'
 }
-export class PrePaymentError extends Error {
+export class PaymentPreAuthError extends Error {
   public readonly component: FormComponent
   public readonly userMessage: string
 
@@ -27,7 +28,7 @@ export class PrePaymentError extends Error {
     errorType?: PaymentErrorTypes
   ) {
     super('Payment capture failed')
-    this.name = 'PrePaymentError'
+    this.name = 'PaymentPreAuthError'
     this.component = component
     this.userMessage = userMessage
     this.shouldResetState = shouldResetState
@@ -46,15 +47,30 @@ export class PrePaymentError extends Error {
  * Thrown when form submission fails after payment has been captured.
  * User needs to retry or contact support for a refund.
  */
-export class PostPaymentSubmissionError extends Error {
+export class PaymentSubmissionError extends Error {
   public readonly referenceNumber: string
   public readonly helpLink?: string
 
   constructor(referenceNumber: string, helpLink?: string) {
     super('Form submission failed after payment capture')
-    this.name = 'PostPaymentSubmissionError'
+    this.name = 'PaymentSubmissionError'
     this.referenceNumber = referenceNumber
     this.helpLink = helpLink
+  }
+
+  static checkPaymentAmount(
+    stateAmount: number,
+    definitionAmount: number | undefined,
+    component: FormComponent
+  ) {
+    if (stateAmount !== definitionAmount) {
+      throw new PaymentPreAuthError(
+        component,
+        'The pre-authorised payment amount is somehow different from that requested. Try adding payment details again.',
+        true,
+        PaymentErrorTypes.PaymentIncomplete
+      )
+    }
   }
 }
 

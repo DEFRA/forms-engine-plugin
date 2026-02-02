@@ -81,7 +81,8 @@ export class PaymentService {
         state: response.payload.state,
         _links: response.payload._links,
         email: response.payload.email,
-        paymentId: response.payload.payment_id
+        paymentId: response.payload.payment_id,
+        amount: response.payload.amount
       }
     } catch (err) {
       const error = /** @type {Error} */ (err)

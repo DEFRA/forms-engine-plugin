@@ -5,7 +5,7 @@ import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   InvalidComponentStateError,
-  PostPaymentSubmissionError
+  PaymentSubmissionError
 } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import definition from '~/test/form/definitions/file-upload-basic.js'
 
@@ -67,12 +67,9 @@ describe('InvalidComponentStateError', () => {
     })
   })
 
-  describe('PostPaymentSubmissionError', () => {
+  describe('PaymentSubmissionError', () => {
     it('should instantiate', () => {
-      const error = new PostPaymentSubmissionError(
-        'reference-number',
-        '/help-link'
-      )
+      const error = new PaymentSubmissionError('reference-number', '/help-link')
       expect(error).toBeDefined()
       expect(error.referenceNumber).toBe('reference-number')
       expect(error.helpLink).toBe('/help-link')

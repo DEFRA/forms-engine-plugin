@@ -12,7 +12,8 @@ import { type PaymentState } from '~/src/server/plugins/engine/components/Paymen
 import { getPluginOptions } from '~/src/server/plugins/engine/helpers.js'
 import {
   PaymentErrorTypes,
-  PrePaymentError
+  PaymentPreAuthError,
+  PaymentSubmissionError
 } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import {
   type AnyFormRequest,
@@ -34,6 +35,7 @@ export class PaymentField extends FormComponent {
   declare options: PaymentFieldComponent['options']
   declare formSchema: ObjectSchema
   declare stateSchema: ObjectSchema
+  isAppendageStateSingleObject = true
 
   constructor(
     def: PaymentFieldComponent,
@@ -92,11 +94,13 @@ export class PaymentField extends FormComponent {
   getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
     const viewModel = super.getViewModel(payload, errors)
 
+    // Payload is pre-populated from state if a payment has already been made
     const paymentState = this.isPaymentState(payload[this.name] as unknown)
       ? (payload[this.name] as unknown as PaymentState)
       : undefined
 
-    const amount = this.options.amount ?? 0
+    // When user initially visits the payment page, there is no payment state yet so the amount is read form the form definition.
+    const amount = paymentState?.amount ?? this.options.amount ?? 0
     const formattedAmount = amount.toFixed(2)
 
     return {
@@ -251,7 +255,7 @@ export class PaymentField extends FormComponent {
     const paymentState = this.getPaymentStateFromState(context.state)
 
     if (!paymentState) {
-      throw new PrePaymentError(
+      throw new PaymentPreAuthError(
         this,
         'Complete the payment to continue',
         true,
@@ -271,13 +275,19 @@ export class PaymentField extends FormComponent {
      */
     const status = await paymentService.getPaymentStatus(paymentId)
 
+    PaymentSubmissionError.checkPaymentAmount(
+      status.amount,
+      this.options.amount,
+      this
+    )
+
     if (status.state.status === 'success') {
       await this.markPaymentCaptured(request, paymentState)
       return
     }
 
     if (status.state.status !== 'capturable') {
-      throw new PrePaymentError(
+      throw new PaymentPreAuthError(
         this,
         'Your payment authorisation has expired. Please add your payment details again.',
         true,
@@ -288,7 +298,7 @@ export class PaymentField extends FormComponent {
     const captured = await paymentService.capturePayment(paymentId)
 
     if (!captured) {
-      throw new PrePaymentError(
+      throw new PaymentPreAuthError(
         this,
         'There was a problem and your form was not submitted. Try submitting the form again.',
         false

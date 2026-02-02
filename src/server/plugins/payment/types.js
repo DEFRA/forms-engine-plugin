@@ -41,6 +41,7 @@
  * Response from GOV.UK Pay GET /v1/payments/{PAYMENT_ID} endpoint - not underscore in property name
  * @typedef {object} GetPaymentApiResponsePaymentProp
  * @property {string} payment_id - Unique identifier for the payment
+ * @property {number} amount - amount of the payment
  */
 
 /**
@@ -52,6 +53,7 @@
  * Response returned from getPaymentStatus - subtley different from GetPaymentApiResponse
  * @typedef {object} GetPaymentResponsePaymentProp
  * @property {string} paymentId - Unique identifier for the payment - note no underscore in property name
+ * @property {number} amount - amount of the payment
  */
 
 /**

@@ -32,8 +32,8 @@ import { QuestionPageController } from '~/src/server/plugins/engine/pageControll
 import {
   InvalidComponentStateError,
   PaymentErrorTypes,
-  PostPaymentSubmissionError,
-  PrePaymentError
+  PaymentPreAuthError,
+  PaymentSubmissionError
 } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import {
   buildMainRecords,
@@ -245,12 +245,12 @@ export class SummaryPageController extends QuestionPageController {
       return this.handleInvalidComponentStateError(error, request, h)
     }
 
-    if (error instanceof PrePaymentError) {
-      return this.handlePrePaymentError(error, request, h)
+    if (error instanceof PaymentPreAuthError) {
+      return this.handlePaymentPreAuthError(error, request, h)
     }
 
-    if (error instanceof PostPaymentSubmissionError) {
-      return this.handlePostPaymentSubmissionError(error, request, h)
+    if (error instanceof PaymentSubmissionError) {
+      return this.handlePaymentSubmissionError(error, request, h)
     }
 
     throw error
@@ -276,10 +276,10 @@ export class SummaryPageController extends QuestionPageController {
   }
 
   /**
-   * Handles PrePaymentError during submission
+   * Handles PaymentPreAuthError during submission
    */
-  private async handlePrePaymentError(
-    error: PrePaymentError,
+  private async handlePaymentPreAuthError(
+    error: PaymentPreAuthError,
     request: FormRequestPayload,
     h: FormResponseToolkit
   ) {
@@ -305,10 +305,10 @@ export class SummaryPageController extends QuestionPageController {
   }
 
   /**
-   * Handles PostPaymentSubmissionError during submission
+   * Handles PaymentSubmissionError during submission
    */
-  private handlePostPaymentSubmissionError(
-    error: PostPaymentSubmissionError,
+  private handlePaymentSubmissionError(
+    error: PaymentSubmissionError,
     request: FormRequestPayload,
     h: FormResponseToolkit
   ) {
@@ -385,7 +385,7 @@ export async function submitForm(
     )
   } catch (err) {
     if (paymentWasCaptured) {
-      throw new PostPaymentSubmissionError(
+      throw new PaymentSubmissionError(
         context.referenceNumber,
         formMetadata.contact?.online?.url
       )

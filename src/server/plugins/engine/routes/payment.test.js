@@ -52,6 +52,7 @@ describe('Payment routes', () => {
     ])('should handle payment status of $row.status', async (row) => {
       const paymentStatus = {
         paymentId: 'new-payment-id',
+        amount: 125,
         _links: {
           next_url: {
             href: '/next-url',
@@ -143,6 +144,7 @@ describe('Payment routes', () => {
       const paymentStatus = {
         paymentId: 'new-payment-id',
         payment_id: 'new-payment-id',
+        amount: 125,
         email: 'payer@example.com',
         _links: {
           next_url: {
