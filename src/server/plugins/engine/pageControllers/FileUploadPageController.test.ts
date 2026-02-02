@@ -2,7 +2,11 @@
 import { ComponentType, type ComponentDef } from '@defra/forms-model'
 import { type ValidationErrorItem, type ValidationResult } from 'joi'
 
-import { tempItemSchema } from '~/src/server/plugins/engine/components/FileUploadField.js'
+import {
+  FileUploadField,
+  tempItemSchema
+} from '~/src/server/plugins/engine/components/FileUploadField.js'
+import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
 import {
   getCacheService,
   getError
@@ -1131,6 +1135,50 @@ describe('FileUploadPageController', () => {
   describe('shouldShowSaveAndExit', () => {
     it('should return true when save and exit is enabled', () => {
       expect(controller.shouldShowSaveAndExit(serverWithSaveAndExit)).toBe(true)
+    })
+  })
+
+  describe('getStateKeys', () => {
+    it('should return nested upload path for FileUploadField component', () => {
+      const component = controller.fileUpload
+      const stateKeys = controller.getStateKeys(component)
+
+      expect(stateKeys).toEqual(["upload['/file-upload-component']"])
+    })
+
+    it('should return empty array for non-FileUploadField components', () => {
+      const component = new TextField(
+        {
+          name: 'testField',
+          title: 'Test field',
+          type: ComponentType.TextField,
+          options: {},
+          schema: {}
+        },
+        { model, page: controller }
+      )
+
+      const stateKeys = controller.getStateKeys(component)
+      expect(stateKeys).toEqual([])
+    })
+
+    it('should return fallback upload key when component has no page', () => {
+      const componentDef: ComponentDef = {
+        name: 'fileUpload',
+        title: 'Upload something',
+        type: ComponentType.FileUploadField,
+        options: {},
+        schema: {}
+      }
+
+      // Create a component without a page reference - should return ['upload']
+      const component = new FileUploadField(componentDef, {
+        model,
+        page: undefined
+      })
+
+      const stateKeys = controller.getStateKeys(component)
+      expect(stateKeys).toEqual(['upload'])
     })
   })
 })

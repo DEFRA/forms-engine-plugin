@@ -3,3 +3,14 @@
 .govuk-form-group .app-location-field-inputs .govuk-form-group {
   margin-bottom: 0;
 }
+
+.map-container {
+  margin-top: 10px;
+}
+
+// Hides the location instructions text when JS (maps) is available
+.js-enabled .app-location-field {
+  details:last-child {
+    display: none;
+  }
+}

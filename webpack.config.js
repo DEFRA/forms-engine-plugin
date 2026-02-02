@@ -208,5 +208,5 @@ export default {
 }
 
 /**
- * @import { Configuration, NormalModule } from 'webpack'
+ * @import { Configuration } from 'webpack'
  */

@@ -100,6 +100,7 @@ export interface FormSubmissionError
 export interface FormConfirmationState {
   confirmed?: true
   formId?: string
+  referenceNumber?: string
 }
 
 export interface FormPayloadParams {

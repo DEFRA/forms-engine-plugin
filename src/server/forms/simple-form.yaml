@@ -41,6 +41,20 @@ pages:
         schema: {}
         id: 987c1234-56d7-89e0-1234-56789abcdef0
     id: 23456789-0abc-def1-2345-67890abcdef1
+  - title: Upload a copy of your drivers licence
+    controller: FileUploadPageController
+    path: '/upload-driving-licence'
+    components:
+      - type: FileUploadField
+        title: Please upload a copy of your drivers licence
+        name: driversLicenceUpload
+        shortDescription: Upload drivers licence
+        hint: ''
+        options:
+          required: true
+        schema: {}
+        id: 987c1234-56d7-89e0-1234-56789abcdef1
+    id: 23456789-0abc-def1-2345-67890abcdef2
   - title: ''
     path: '/date-of-birth'
     components:
