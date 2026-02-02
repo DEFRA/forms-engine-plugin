@@ -156,6 +156,26 @@ export class PaymentField extends FormComponent {
     return this.isValue(value) ? value : undefined
   }
 
+  getFormValueFromState(state: FormSubmissionState): PaymentState | undefined {
+    const { name } = this
+
+    return this.getFormValue(state[name])
+  }
+
+  getContextValueFromFormValue(value: PaymentState | undefined): string | null {
+    if (!value) {
+      return null
+    }
+
+    return `Reference: ${value.reference}\nAmount: ${value.amount.toFixed(2)}`
+  }
+
+  getContextValueFromState(state: FormSubmissionState) {
+    const value = this.getFormValueFromState(state)
+
+    return this.getContextValueFromFormValue(value)
+  }
+
   /**
    * For error preview page that shows all possible errors on a component
    */
