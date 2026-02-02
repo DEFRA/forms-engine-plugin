@@ -141,39 +141,16 @@ export class PaymentField extends FormComponent {
     return this.isPaymentState(value)
   }
 
-  /**
-   * Override base isValue to recognize PaymentState objects
-   * The base implementation only recognises primitives (string, number, boolean)
-   */
-  isValue(value?: FormStateValue | FormState): value is PaymentState {
-    return this.isPaymentState(value)
-  }
-
-  /**
-   * Override base getFormValue to handle PaymentState objects
-   */
   getFormValue(value?: FormStateValue | FormState) {
-    return this.isValue(value) ? value : undefined
-  }
-
-  getFormValueFromState(state: FormSubmissionState): PaymentState | undefined {
-    const { name } = this
-
-    return this.getFormValue(state[name])
-  }
-
-  getContextValueFromFormValue(value: PaymentState | undefined): string | null {
-    if (!value) {
-      return null
-    }
-
-    return `Reference: ${value.reference}\nAmount: ${value.amount.toFixed(2)}`
+    return this.isPaymentState(value)
+      ? (value as unknown as NonNullable<FormStateValue>)
+      : undefined
   }
 
   getContextValueFromState(state: FormSubmissionState) {
-    const value = this.getFormValueFromState(state)
-
-    return this.getContextValueFromFormValue(value)
+    return this.isPaymentState(state)
+      ? `Reference: ${state.reference}\nAmount: ${state.amount.toFixed(2)}`
+      : ''
   }
 
   /**

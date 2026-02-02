@@ -110,7 +110,9 @@ describe('PaymentField', () => {
           formId: '',
           isLivePayment: false
         }
-        const result = collection.validate(getFormData(payment))
+        const result = collection.validate(
+          getFormData(payment as unknown as FormValue)
+        )
 
         const errors = result.errors ?? []
 
@@ -174,7 +176,7 @@ describe('PaymentField', () => {
         isLivePayment: false
       }
       it('returns text from state', () => {
-        const state1 = getFormState(paymentForState)
+        const state1 = getFormState(paymentForState as unknown as FormValue)
         const state2 = getFormState(null)
 
         const answer1 = getAnswer(field, state1)

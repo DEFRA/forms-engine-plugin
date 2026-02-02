@@ -8,6 +8,7 @@ import {
   getFormSubmissionData
 } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
+import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 import { FormStatus } from '~/src/server/routes/types.js'
 import definition from '~/test/form/definitions/payment.js'
 
@@ -65,7 +66,10 @@ const request = buildFormContextRequest({
   app: { model }
 })
 
-const context = model.getFormContext(request, state)
+const context = model.getFormContext(
+  request,
+  state as unknown as FormSubmissionState
+)
 
 const pageDef = definition.pages[2]
 
