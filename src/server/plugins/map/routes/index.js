@@ -17,10 +17,7 @@ import {
  */
 export function getRoutes(options) {
   return [
-    // mapSourceRoute(options),
-    // mapStyleRoute(options),
     mapStyleResourceRoutes(),
-    // mapProxy2Route(options),
     mapProxyRoute(options),
     tileProxyRoute(options),
     geocodeProxyRoute(options),
@@ -189,113 +186,6 @@ function mapStyleResourceRoutes() {
     }
   }
 }
-
-// /**
-//  * Proxies ordnance survey requests from the front end to api.os.uk
-//  * Used for source requests by forwarding on the request and adding the auth token
-//  * @param {MapConfiguration} options - the map options
-//  * @returns {ServerRoute<MapProxyGetRequestRefs>}
-//  */
-// function mapSourceRoute(options) {
-//   return {
-//     method: 'GET',
-//     path: '/api/source',
-//     handler: async (request, h) => {
-//       const token = await getAccessToken(options)
-
-//       const proxyResponse = await get('https://api.os.uk/maps/vector/v1/vts', {
-//         json: true,
-//         headers: {
-//           Authorization: `Bearer ${token}`
-//         }
-//       })
-
-//       // Rewrite the tile URL from https://api.os.uk/maps/vector/v1/vts/tile/{z}/{y}/{x}.pbf?srs=3857
-//       const tilePath = request.route.path.replace('source', 'tile')
-//       proxyResponse.payload.tiles[0] = `${request.url.origin}${tilePath}/{z}/{y}/{x}.pbf?srs=3857`
-
-//       return proxyResponse.payload
-//     }
-//   }
-// }
-
-// /**
-//  * Returns the styles with rewritten URLs
-//  * @param {MapConfiguration} options - the map options
-//  * @returns {ServerRoute<MapProxyGetRequestRefs>}
-//  */
-// function mapStyleRoute(options) {
-//   return {
-//     method: 'GET',
-//     path: '/api/style/{style}.json',
-//     handler: async (request, h) => {
-//       const { params } = request
-//       const { style } = params
-
-//       const sources = {
-//         esri: {
-//           type: 'vector',
-//           url: `${request.url.origin}/form/api/source`
-//         }
-//       }
-
-//       const spritePath = request.route.path.replace(
-//         'style/{style}.json',
-//         'maps/vts/OS_VTS_3857/resources/sprites/sprite'
-//       )
-
-//       return {
-//         ...styles[style],
-//         glyphs: '/form/api/proxy/resources/fonts/{fontstack}/{range}.pbf',
-//         sprite: `${request.url.origin}${spritePath}`,
-//         // sources
-//       }
-//     },
-//     options: {
-//       validate: {
-//         params: Joi.object()
-//           .keys({
-//             style: Joi.string()
-//               .valid(...Object.keys(styles))
-//               .required()
-//           })
-//           .required()
-//       }
-//     }
-//   }
-// }
-
-// /**
-//  * Proxies ordnance survey requests from the front end to api.os.uk
-//  * @param {MapConfiguration} options - the map options
-//  * @returns {ServerRoute<MapProxyGetRequestRefs>}
-//  */
-// function mapProxy2Route(options) {
-//   return {
-//     method: 'GET',
-//     path: '/api/proxy/{path*}',
-//     handler: async (request, h) => {
-//       const token = await getAccessToken(options)
-//       const proxyResponse = await get(
-//         `https://api.os.uk/maps/vector/v1/vts/${request.params.path}`,
-//         {
-//           headers: {
-//             Authorization: `Bearer ${token}`
-//           }
-//         }
-//       )
-//       const buffer = proxyResponse.payload
-//       const contentType = proxyResponse.res.headers['content-type']
-//       const response = h.response(buffer)
-
-//       if (contentType) {
-//         response.type(contentType)
-//       }
-
-//       return response
-//     }
-//   }
-// }
 
 /**
  * @import { ServerRoute } from '@hapi/hapi'
