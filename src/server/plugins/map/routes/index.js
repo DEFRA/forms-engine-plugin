@@ -4,7 +4,6 @@ import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
 import { getAccessToken } from '~/src/server/plugins/map/routes/get-os-token.js'
-// import { styles } from '~/src/server/plugins/map/routes/vts/index.js'
 import { find, nearest } from '~/src/server/plugins/map/service.js'
 import {
   get,
