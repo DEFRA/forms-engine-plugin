@@ -1,5 +1,6 @@
 import { resolve } from 'node:path'
 
+import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
 import { getAccessToken } from '~/src/server/plugins/map/routes/get-os-token.js'
@@ -97,7 +98,7 @@ function tileProxyRoute(options) {
         gunzip: true
       })
 
-      if (res.statusCode && res.statusCode !== 200) {
+      if (res.statusCode && res.statusCode !== StatusCodes.OK.valueOf()) {
         return h.response('Tile fetch failed').code(res.statusCode)
       }
 
