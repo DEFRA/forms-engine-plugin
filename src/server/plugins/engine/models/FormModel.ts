@@ -29,6 +29,7 @@ import { Parser, type Value } from 'expr-eval-fork'
 import joi from 'joi'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+import { type ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { type ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
 import {} from '~/src/server/plugins/engine/components/YesNoField.js'
 import {
@@ -470,15 +471,6 @@ export class FormModel {
         }
       }
     }
-
-    // Check Payment component - only one allowed per form
-    const paymentComponent = page.collection.fields.find(
-      (field) => field.type === ComponentType.PaymentField
-    )
-    if (paymentComponent) {
-      const fieldVal = paymentComponent.getFormValueFromState(context.state)
-      return fieldVal === undefined
-    }
   }
 
   private fieldStateIsInvalid(
@@ -529,15 +521,30 @@ export class FormModel {
     }
   }
 
+  private isUnpaidPayment(
+    context: FormContext,
+    collection: ComponentCollection
+  ) {
+    const paymentField = collection.fields.find(
+      (field) => field.type === ComponentType.PaymentField
+    )
+    if (paymentField) {
+      const fieldVal = paymentField.getFormValueFromState(context.state)
+      return fieldVal === undefined
+    }
+    return false
+  }
+
   private assignPaths(context: FormContext) {
-    for (const { keys, path } of context.relevantPages) {
+    for (const { keys, path, collection } of context.relevantPages) {
       context.paths.push(path)
 
       // Stop at page with errors
       if (
         context.errors?.some(({ name, path }) => {
           return keys.includes(name) || keys.some((key) => path.includes(key))
-        })
+        }) ||
+        this.isUnpaidPayment(context, collection)
       ) {
         break
       }
