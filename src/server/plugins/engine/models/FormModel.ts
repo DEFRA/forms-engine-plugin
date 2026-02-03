@@ -470,6 +470,15 @@ export class FormModel {
         }
       }
     }
+
+    // Check Payment component - only one allowed per form
+    const paymentComponent = page.collection.fields.find(
+      (field) => field.type === ComponentType.PaymentField
+    )
+    if (paymentComponent) {
+      const fieldVal = paymentComponent.getFormValueFromState(context.state)
+      return fieldVal === undefined
+    }
   }
 
   private fieldStateIsInvalid(
