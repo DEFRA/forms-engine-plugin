@@ -45,7 +45,7 @@ describe('v1 human formatter', () => {
         isLivePayment: false,
         preAuth: {
           status: 'success',
-          createdAt: '2026-01-02T11:00:04+0000'
+          createdAt: '2026-01-02T11:02:04+0000'
         }
       } as PaymentState
     }
@@ -137,7 +137,7 @@ describe('v1 human formatter', () => {
 
               ## Date of payment
 
-              2 January 2026 – 11:00:04
+              2 January 2026 11:02am
 
               ---
             `

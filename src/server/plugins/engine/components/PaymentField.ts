@@ -100,7 +100,8 @@ export class PaymentField extends FormComponent {
       : undefined
 
     // When user initially visits the payment page, there is no payment state yet so the amount is read form the form definition.
-    const amount = paymentState?.amount ?? this.options.amount ?? 0
+    const amount = paymentState?.amount ?? this.options.amount
+
     const formattedAmount = amount.toFixed(2)
 
     return {
@@ -205,8 +206,9 @@ export class PaymentField extends FormComponent {
     const uuid = randomUUID()
 
     const reference = state.$$__referenceNumber as string
-    const amount = options.amount ?? 0
-    const description = options.description ?? ''
+    const amount = options.amount
+
+    const description = options.description
 
     const slug = `/${model.basePath}`
 

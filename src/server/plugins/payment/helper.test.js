@@ -37,7 +37,7 @@ describe('getPaymentApiKey', () => {
 describe('formatPaymentDate', () => {
   it('should format ISO date string to en-GB format', () => {
     const result = formatPaymentDate('2025-11-10T17:01:29.000Z')
-    expect(result).toBe('10 November 2025 – 17:01:29')
+    expect(result).toBe('10 November 2025 5:01pm')
   })
 })
 
