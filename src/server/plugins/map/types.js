@@ -1,6 +1,7 @@
 /**
  * @typedef {{
  *   ordnanceSurveyApiKey: string
+ *   ordnanceSurveyApiSecret: string
  * }} MapConfiguration
  */
 

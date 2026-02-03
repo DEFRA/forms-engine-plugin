@@ -2,15 +2,17 @@ import { StatusCodes } from 'http-status-codes'
 
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
+import { getAccessToken } from '~/src/server/plugins/map/routes/get-os-token.js'
 import { find, nearest } from '~/src/server/plugins/map/service.js'
 import { result as findResult } from '~/src/server/plugins/map/test/__stubs__/find.js'
 import { result as nearestResult } from '~/src/server/plugins/map/test/__stubs__/nearest.js'
-import { request } from '~/src/server/services/httpService.js'
+import { get, request } from '~/src/server/services/httpService.js'
 
 const basePath = `${FORM_PREFIX}/api`
 
 jest.mock('~/src/server/plugins/map/service.js')
 jest.mock('~/src/server/services/httpService.ts')
+jest.mock('src/server/plugins/map/routes/get-os-token.js')
 
 describe('Map API routes', () => {
   /** @type {Server} */
@@ -19,7 +21,8 @@ describe('Map API routes', () => {
   beforeAll(async () => {
     server = await createServer({
       enforceCsrf: true,
-      ordnanceSurveyApiKey: 'dummy'
+      ordnanceSurveyApiKey: 'dummy',
+      ordnanceSurveyApiSecret: 'dummy'
     })
 
     await server.initialize()
@@ -36,6 +39,7 @@ describe('Map API routes', () => {
       res,
       payload: Buffer.from(JSON.stringify({}))
     })
+    jest.mocked(getAccessToken).mockResolvedValueOnce('token')
 
     const urlToProxy = 'http://example.com?srs=3857'
     const response = await server.inject({
@@ -45,36 +49,8 @@ describe('Map API routes', () => {
 
     expect(request).toHaveBeenCalledWith(
       'get',
-      'http://example.com/?srs=3857&key=dummy'
-    )
-    expect(response.statusCode).toBe(StatusCodes.OK)
-    expect(response.headers['content-type']).toBe(
-      'application/json; charset=utf-8'
-    )
-    expect(response.result).toBe('{}')
-  })
-
-  it('should get map proxy results and set SRS if not present in the original request', async () => {
-    const res = /** @type {IncomingMessage} */ ({
-      headers: {
-        'content-type': 'application/json'
-      }
-    })
-
-    jest.mocked(request).mockResolvedValueOnce({
-      res,
-      payload: Buffer.from(JSON.stringify({}))
-    })
-
-    const urlToProxy = 'http://example.com'
-    const response = await server.inject({
-      url: `${basePath}/map-proxy?url=${encodeURIComponent(urlToProxy)}`,
-      method: 'GET'
-    })
-
-    expect(request).toHaveBeenCalledWith(
-      'get',
-      'http://example.com/?key=dummy&srs=3857'
+      'http://example.com/?srs=3857',
+      { headers: { Authorization: 'Bearer token' } }
     )
     expect(response.statusCode).toBe(StatusCodes.OK)
     expect(response.headers['content-type']).toBe(
@@ -92,6 +68,7 @@ describe('Map API routes', () => {
       res,
       payload: Buffer.from(JSON.stringify({}))
     })
+    jest.mocked(getAccessToken).mockResolvedValueOnce('token')
 
     const urlToProxy = 'http://example.com'
     const response = await server.inject({
@@ -101,11 +78,74 @@ describe('Map API routes', () => {
 
     expect(request).toHaveBeenCalledWith(
       'get',
-      'http://example.com/?key=dummy&srs=3857'
+      'http://example.com/?srs=3857',
+      { headers: { Authorization: 'Bearer token' } }
     )
     expect(response.statusCode).toBe(StatusCodes.OK)
     expect(response.headers['content-type']).toBe('application/octet-stream')
     expect(response.result).toBe('{}')
+  })
+
+  it('should get map tile results', async () => {
+    const res = /** @type {IncomingMessage} */ ({
+      headers: {}
+    })
+
+    jest.mocked(get).mockResolvedValueOnce({
+      res,
+      payload: Buffer.from(JSON.stringify({}))
+    })
+    jest.mocked(getAccessToken).mockResolvedValueOnce('token')
+
+    const response = await server.inject({
+      url: `${basePath}/tile/1/1/1.pbf`,
+      method: 'GET'
+    })
+
+    expect(get).toHaveBeenCalledWith(
+      'https://api.os.uk/maps/vector/v1/vts/tile/1/1/1.pbf?srs=3857',
+      {
+        headers: {
+          Authorization: 'Bearer token',
+          Accept: 'application/x-protobuf'
+        },
+        json: false,
+        gunzip: true
+      }
+    )
+    expect(response.statusCode).toBe(StatusCodes.OK)
+    expect(response.headers['content-type']).toBe('application/x-protobuf')
+  })
+
+  it('should fail to get map tile results if proxied url results in an error', async () => {
+    const res = /** @type {IncomingMessage} */ ({
+      statusCode: 500,
+      headers: {}
+    })
+
+    jest.mocked(get).mockResolvedValueOnce({
+      res,
+      payload: Buffer.from(JSON.stringify({}))
+    })
+    jest.mocked(getAccessToken).mockResolvedValueOnce('token')
+
+    const response = await server.inject({
+      url: `${basePath}/tile/1/1/1.pbf`,
+      method: 'GET'
+    })
+
+    expect(get).toHaveBeenCalledWith(
+      'https://api.os.uk/maps/vector/v1/vts/tile/1/1/1.pbf?srs=3857',
+      {
+        headers: {
+          Authorization: 'Bearer token',
+          Accept: 'application/x-protobuf'
+        },
+        json: false,
+        gunzip: true
+      }
+    )
+    expect(response.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
   })
 
   it('should get geocode results', async () => {
