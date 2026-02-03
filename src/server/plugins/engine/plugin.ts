@@ -38,7 +38,8 @@ export const plugin = {
       viewContext,
       preparePageEventRequestOptions,
       onRequest,
-      ordnanceSurveyApiKey
+      ordnanceSurveyApiKey,
+      ordnanceSurveyApiSecret
     } = options
 
     const cacheService =
@@ -58,12 +59,13 @@ export const plugin = {
       })
     }
 
-    // Register the maps plugin only if we have an OS api key
-    if (ordnanceSurveyApiKey) {
+    // Register the maps plugin only if we have an OS api key & secret
+    if (ordnanceSurveyApiKey && ordnanceSurveyApiSecret) {
       await server.register({
         plugin: mapPlugin,
         options: {
-          ordnanceSurveyApiKey
+          ordnanceSurveyApiKey,
+          ordnanceSurveyApiSecret
         }
       })
     }
