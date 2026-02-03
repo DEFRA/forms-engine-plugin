@@ -138,10 +138,18 @@ export function makeTileRequestTransformer(apiPath) {
    * @param {string} resourceType - the resource type
    */
   return function transformTileRequest(url, resourceType) {
-    // Only proxy OS API requests that don't already have a key
-    if (resourceType !== 'Style' && url.startsWith('https://api.os.uk')) {
-      const urlObj = new URL(url)
-      if (!urlObj.searchParams.has('key')) {
+    if (url.startsWith('https://api.os.uk')) {
+      if (resourceType === 'Tile') {
+        return {
+          url: url.replace(
+            'https://api.os.uk/maps/vector/v1/vts',
+            `${window.location.origin}${apiPath}`
+          ),
+          headers: {}
+        }
+      }
+
+      if (resourceType !== 'Style') {
         return {
           url: `${apiPath}/map-proxy?url=${encodeURIComponent(url)}`,
           headers: {}
