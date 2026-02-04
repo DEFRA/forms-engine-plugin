@@ -68,7 +68,10 @@ export class PaymentField extends FormComponent {
       .label(this.label)
 
     this.formSchema = paymentStateSchema
-    this.stateSchema = paymentStateSchema.default(null).allow(null)
+    // 'required()' forces the payment page to be invalid until we have valid payment state
+    // i.e. the user will automatically be directed back to the payment page
+    // if they attempt to access future pages wen no payment entered yet
+    this.stateSchema = paymentStateSchema.required()
   }
 
   /**

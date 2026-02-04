@@ -3,6 +3,17 @@ schema: 2
 name: Payment Test Form
 declaration: "<p class=\"govuk-body\">All the answers you have provided are true to the best of your knowledge.</p>"
 pages:
+  - title: What is your name?
+    path: '/person'
+    components:
+      - name: personName
+        title: What is your name?
+        type: TextField
+        shortDescription: Your name
+        options:
+          required: true
+    next:
+      - path: '/pay-for-your-licence'
   - title: A page title
     path: '/pay-for-your-licence'
     components:
@@ -28,4 +39,4 @@ pages:
 conditions: []
 sections: []
 lists: []
-startPage: '/pay-for-your-licence'
+startPage: '/person'
