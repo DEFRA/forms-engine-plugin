@@ -10,6 +10,7 @@ import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { validatePluginOptions } from '~/src/server/plugins/engine/options.js'
 import { getRoutes as getFileUploadStatusRoutes } from '~/src/server/plugins/engine/routes/file-upload.js'
 import { makeLoadFormPreHandler } from '~/src/server/plugins/engine/routes/index.js'
+import { getRoutes as getPaymentRoutes } from '~/src/server/plugins/engine/routes/payment.js'
 import { getRoutes as getQuestionRoutes } from '~/src/server/plugins/engine/routes/questions.js'
 import { getRoutes as getRepeaterItemDeleteRoutes } from '~/src/server/plugins/engine/routes/repeaters/item-delete.js'
 import { getRoutes as getRepeaterSummaryRoutes } from '~/src/server/plugins/engine/routes/repeaters/summary.js'
@@ -39,6 +40,7 @@ export const plugin = {
       preparePageEventRequestOptions,
       onRequest,
       ordnanceSurveyApiKey,
+      baseUrl,
       ordnanceSurveyApiSecret
     } = options
 
@@ -74,6 +76,7 @@ export const plugin = {
     server.expose('viewContext', viewContext)
     server.expose('cacheService', cacheService)
     server.expose('saveAndExit', saveAndExit)
+    server.expose('baseUrl', baseUrl)
 
     server.app.model = model
 
@@ -106,19 +109,21 @@ export const plugin = {
     }
 
     const routes = [
-      ...getQuestionRoutes(
-        getRouteOptions,
-        postRouteOptions,
-        preparePageEventRequestOptions,
-        onRequest
-      ),
+      ...getPaymentRoutes(),
+      ...getFileUploadStatusRoutes(),
       ...getRepeaterSummaryRoutes(getRouteOptions, postRouteOptions, onRequest),
       ...getRepeaterItemDeleteRoutes(
         getRouteOptions,
         postRouteOptions,
         onRequest
       ),
-      ...getFileUploadStatusRoutes()
+
+      ...getQuestionRoutes(
+        getRouteOptions,
+        postRouteOptions,
+        preparePageEventRequestOptions,
+        onRequest
+      )
     ]
 
     server.route(routes as unknown as ServerRoute[]) // TODO
