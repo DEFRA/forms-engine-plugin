@@ -70,7 +70,7 @@ export class PaymentField extends FormComponent {
     this.formSchema = paymentStateSchema
     // 'required()' forces the payment page to be invalid until we have valid payment state
     // i.e. the user will automatically be directed back to the payment page
-    // if they attempt to access future pages wen no payment entered yet
+    // if they attempt to access future pages when no payment entered yet
     this.stateSchema = paymentStateSchema.required()
   }
 
