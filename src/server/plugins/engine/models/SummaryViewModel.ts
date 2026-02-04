@@ -178,13 +178,13 @@ function ItemRepeat(
   const { name, title } = repeat.options
 
   const values = page.getListFromState(state)
-  const unit = values.length === 1 ? title : `${title}s`
+  const unit = values.length === 1 ? 'answer' : 'answers'
 
   return {
     name,
     label: title,
-    title: values.length ? `${unit} added` : unit,
-    value: values.length ? `You added ${values.length} ${unit}` : '',
+    title,
+    value: `You have added ${values.length} ${unit}`,
     href: getPageHref(page, options.path, {
       returnUrl: getPageHref(page, page.getSummaryPath())
     }),

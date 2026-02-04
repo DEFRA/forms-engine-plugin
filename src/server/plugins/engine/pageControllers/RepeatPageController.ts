@@ -295,9 +295,9 @@ export class RepeatPageController extends QuestionPageController {
         ...viewModel,
         context,
         backLink: this.getBackLink(request, context),
-        pageTitle: `Are you sure you want to remove this ${title}?`,
+        pageTitle: 'Are you sure you want to remove this answer?',
         itemTitle: `${title} ${list.indexOf(item) + 1}`,
-        buttonConfirm: { text: `Remove ${title}` },
+        buttonConfirm: { text: 'Remove' },
         buttonCancel: { text: 'Cancel' }
       } satisfies ItemDeletePageViewModel)
     }
@@ -431,11 +431,13 @@ export class RepeatPageController extends QuestionPageController {
       })
     }
 
+    const unit = count === 1 ? 'answer' : 'answers'
+
     return {
       ...this.viewModel,
       backLink: this.getBackLink(request, context),
       repeatTitle: title,
-      pageTitle: `You have added ${count} ${title}${count === 1 ? '' : 's'}`,
+      pageTitle: `You have added ${count} ${unit}`,
       showTitle: true,
       context,
       errors,
