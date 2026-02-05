@@ -1,0 +1,8 @@
+@use "govuk-frontend" as *;
+
+.app-payment-field {
+  background-color: govuk-colour("light-grey");
+  border-top: 5px solid govuk-colour("blue");
+  padding: govuk-spacing(4);
+  margin-bottom: govuk-spacing(6);
+}

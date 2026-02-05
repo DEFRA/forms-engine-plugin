@@ -1,6 +1,19 @@
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList -%}
 
+{% set noPaymentFields = true %}
+{% set hasIncompletePayment = false %}
+
+{% for comp in components %}
+  {% if comp.type == 'PaymentField' %}
+    {% set noPaymentFields = false %}
+    {# Check if payment is incomplete (no preAuth status) #}
+    {% if not comp.model.paymentState or not comp.model.paymentState.preAuth or comp.model.paymentState.preAuth.status != 'success' %}
+      {% set hasIncompletePayment = true %}
+    {% endif %}
+  {% endif %}
+{% endfor %}
+
 <form method="post" novalidate>
   <input type="hidden" name="crumb" value="{{ crumb }}">
 
@@ -15,11 +28,13 @@
   {% endif %}
 
   <div class="govuk-button-group">
-    {{ govukButton({
-      text: buttonText,
-      isStartButton: isStartPage,
-      preventDoubleClick: true
-    }) }}
+    {% if showSubmitButton !== false and not hasIncompletePayment %}
+      {{ govukButton({
+        text: buttonText,
+        isStartButton: isStartPage,
+        preventDoubleClick: true
+      }) }}
+    {% endif %}
 
     {% if allowSaveAndExit %}
       {{ govukButton({

@@ -30,6 +30,7 @@ export class FormComponent extends ComponentBase {
   label: string
 
   isFormComponent = true
+  isAppendageStateSingleObject = false
 
   constructor(
     def: FormComponentsDef,

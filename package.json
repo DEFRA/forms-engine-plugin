@@ -1,6 +1,6 @@
 {
   "name": "@defra/forms-engine-plugin",
-  "version": "4.0.43",
+  "version": "4.0.44",
   "description": "Defra forms engine",
   "type": "module",
   "files": [
@@ -70,7 +70,7 @@
   },
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
-    "@defra/forms-model": "^3.0.603",
+    "@defra/forms-model": "^3.0.611",
     "@defra/hapi-tracing": "^1.29.0",
     "@defra/interactive-map": "^0.0.3-alpha",
     "@elastic/ecs-pino-format": "^1.5.0",
