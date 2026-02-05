@@ -149,7 +149,7 @@ describe('RepeatPageController', () => {
       description: 'No items',
       list: [] satisfies RepeatListState,
       viewModel: {
-        pageTitle: 'You have added 0 Pizzas',
+        pageTitle: 'You have added 0 answers',
         showTitle: true,
         sectionTitle: 'Food'
       }
@@ -164,7 +164,7 @@ describe('RepeatPageController', () => {
         }
       ] satisfies RepeatListState,
       viewModel: {
-        pageTitle: 'You have added 1 Pizza',
+        pageTitle: 'You have added 1 answer',
         showTitle: true,
         sectionTitle: 'Food'
       }
@@ -184,7 +184,7 @@ describe('RepeatPageController', () => {
         }
       ] satisfies RepeatListState,
       viewModel: {
-        pageTitle: 'You have added 2 Pizzas',
+        pageTitle: 'You have added 2 answers',
         showTitle: true,
         sectionTitle: 'Food'
       }
