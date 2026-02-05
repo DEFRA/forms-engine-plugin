@@ -14,7 +14,10 @@ import joi, {
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type ListItem } from '~/src/server/plugins/engine/components/types.js'
-import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
+import {
+  getLanguageMessages,
+  messageTemplate
+} from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
   type FormPayload,
@@ -75,6 +78,7 @@ export class ListFormComponent extends FormComponent {
       .valid(...this.values)
       .label(this.label)
       .required()
+      .messages(getLanguageMessages(this))
 
     if (options.customValidationMessages) {
       formSchema = formSchema.messages(options.customValidationMessages)

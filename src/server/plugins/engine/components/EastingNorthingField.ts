@@ -3,7 +3,6 @@ import {
   type EastingNorthingFieldComponent
 } from '@defra/forms-model'
 import { type LanguageMessages, type ObjectSchema } from 'joi'
-import lowerFirst from 'lodash/lowerFirst.js'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import {
@@ -15,7 +14,10 @@ import {
   getLocationFieldViewModel
 } from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
-import { createLowerFirstExpression } from '~/src/server/plugins/engine/components/helpers/index.js'
+import {
+  createLowerFirstExpression,
+  lowerFirst
+} from '~/src/server/plugins/engine/components/helpers/index.js'
 import { type EastingNorthingState } from '~/src/server/plugins/engine/components/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
@@ -58,15 +60,15 @@ export class EastingNorthingField extends FormComponent {
     const eastingRequired = 'Enter easting'
     const northingRequired = 'Enter northing'
 
-    const eastingDigitsMessage = `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 6 digits`
-    const northingDigitsMessage = `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 7 digits`
+    const eastingDigitsMessage = `{{#label}} for ${lowerFirst(this)} must be between 1 and 6 digits`
+    const northingDigitsMessage = `{{#label}} st(this.label)} must be between 1 and 7 digits`
 
     const customValidationMessages: LanguageMessages =
       convertToLanguageMessages({
         'any.required': eastingRequired,
         'number.base': eastingRequired,
-        'number.min': `{{#label}} for ${lowerFirst(this.label)} must be between {{#limit}} and ${eastingMax}`,
-        'number.max': `{{#label}} for ${lowerFirst(this.label)} must be between ${eastingMin} and {{#limit}}`,
+        'number.min': `{{#label}} for ${lowerFirst(this)} must be between {{#limit}} and ${eastingMax}`,
+        'number.max': `{{#label}} for ${lowerFirst(this)} must be between ${eastingMin} and {{#limit}}`,
         'number.precision': eastingDigitsMessage,
         'number.integer': eastingDigitsMessage,
         'number.unsafe': eastingDigitsMessage
@@ -76,8 +78,8 @@ export class EastingNorthingField extends FormComponent {
       convertToLanguageMessages({
         'any.required': northingRequired,
         'number.base': northingRequired,
-        'number.min': `{{#label}} for ${lowerFirst(this.label)} must be between {{#limit}} and ${northingMax}`,
-        'number.max': `{{#label}} for ${lowerFirst(this.label)} must be between ${northingMin} and {{#limit}}`,
+        'number.min': `{{#label}} for ${lowerFirst(this)} must be between {{#limit}} and ${northingMax}`,
+        'number.max': `{{#label}} for ${lowerFirst(this)} must be between ${northingMin} and {{#limit}}`,
         'number.precision': northingDigitsMessage,
         'number.integer': northingDigitsMessage,
         'number.unsafe': northingDigitsMessage

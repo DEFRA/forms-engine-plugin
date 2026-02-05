@@ -48,10 +48,15 @@ export class MonthYearField extends FormComponent {
 
     const customValidationMessages: LanguageMessages =
       convertToLanguageMessages({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        'any.required': messageTemplate.objectMissing,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        'number.base': messageTemplate.objectMissing,
+        ...(options.preserveLabelCasing
+          ? {
+              'any.required': messageTemplate.objectMissingPreserveCasing,
+              'number.base': messageTemplate.objectMissingPreserveCasing
+            }
+          : {
+              'any.required': messageTemplate.objectMissing,
+              'number.base': messageTemplate.objectMissing
+            }),
         'number.precision': messageTemplate.dateFormat,
         'number.integer': messageTemplate.dateFormat,
         'number.unsafe': messageTemplate.dateFormat,

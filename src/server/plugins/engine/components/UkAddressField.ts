@@ -181,7 +181,7 @@ export class UkAddressField extends FormComponent {
           name,
           path: [name],
           href: `#${name}`,
-          text: `Enter ${lowerFirst(shortDescription)}`
+          text: `Enter ${this.options.preserveLabelCasing ? shortDescription : lowerFirst(shortDescription)}`
         }
       ]
     }

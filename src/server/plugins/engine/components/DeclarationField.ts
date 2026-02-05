@@ -52,17 +52,28 @@ export class DeclarationField extends FormComponent {
       checkboxSchema = checkboxSchema.required()
     }
 
+    const messages = options.preserveLabelCasing
+      ? {
+          'any.required':
+            messageTemplate.declarationRequiredPreserveCasing as string,
+          'any.unknown':
+            messageTemplate.declarationRequiredPreserveCasing as string,
+          'array.includesRequiredUnknowns':
+            messageTemplate.declarationRequiredPreserveCasing as string
+        }
+      : {
+          'any.required': messageTemplate.declarationRequired as string,
+          'any.unknown': messageTemplate.declarationRequired as string,
+          'array.includesRequiredUnknowns':
+            messageTemplate.declarationRequired as string
+        }
+
     const formSchema = joi
       .array()
       .items(checkboxSchema, joi.string().valid('unchecked').strip())
       .label(this.label)
       .single()
-      .messages({
-        'any.required': messageTemplate.declarationRequired as string,
-        'any.unknown': messageTemplate.declarationRequired as string,
-        'array.includesRequiredUnknowns':
-          messageTemplate.declarationRequired as string
-      }) as ArraySchema<StringSchema[]>
+      .messages(messages) as ArraySchema<StringSchema[]>
 
     this.formSchema = formSchema
     this.stateSchema = joi.boolean().cast('string').label(this.label).required()

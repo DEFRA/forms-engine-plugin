@@ -16,14 +16,17 @@ export class OsGridRefField extends LocationFieldBase {
     const pattern =
       /^((([sS]|[nN])[a-hA-Hj-zJ-Z])|(([tT]|[oO])[abfglmqrvwABFGLMQRVW])|([hH][l-zL-Z])|([jJ][lmqrvwLMQRVW]))\s?(([0-9]{3})\s?([0-9]{3})|([0-9]{4})\s?([0-9]{4})|([0-9]{5})\s?([0-9]{5}))$/
 
-    const patternTemplate =
-      'Enter a valid OS grid reference for {{lowerFirst(#title)}} like TQ123456'
+    const patternTemplate = this.options.preserveLabelCasing
+      ? 'Enter a valid OS grid reference for {{#title}} like TQ123456'
+      : 'Enter a valid OS grid reference for {{lowerFirst(#title)}} like TQ123456'
 
     return {
       pattern,
       patternErrorMessage: createLowerFirstExpression(patternTemplate),
       requiredMessage: createLowerFirstExpression(
-        'Enter {{lowerFirst(#title)}}'
+        this.options.preserveLabelCasing
+          ? 'Enter {{#title}}'
+          : 'Enter {{lowerFirst(#title)}}'
       )
     }
   }

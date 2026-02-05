@@ -13,14 +13,17 @@ export class NationalGridFieldNumberField extends LocationFieldBase {
     const pattern =
       /^((([sS]|[nN])[a-hA-Hj-zJ-Z])|(([tT]|[oO])[abfglmqrvwABFGLMQRVW])|([hH][l-zL-Z])|([jJ][lmqrvwLMQRVW]))\s?([0-9]{4})\s?([0-9]{4})$/
 
-    const patternTemplate =
-      'Enter a valid National Grid field number for {{lowerFirst(#title)}} like NG 1234 5678'
+    const patternTemplate = this.options.preserveLabelCasing
+      ? 'Enter a valid National Grid field number for {{#title}} like NG 1234 5678'
+      : 'Enter a valid National Grid field number for {{lowerFirst(#title)}} like NG 1234 5678'
 
     return {
       pattern,
       patternErrorMessage: createLowerFirstExpression(patternTemplate),
       requiredMessage: createLowerFirstExpression(
-        'Enter {{lowerFirst(#title)}}'
+        this.options.preserveLabelCasing
+          ? 'Enter {{#title}}'
+          : 'Enter {{lowerFirst(#title)}}'
       )
     }
   }

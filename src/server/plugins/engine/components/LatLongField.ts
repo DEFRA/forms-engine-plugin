@@ -1,6 +1,5 @@
 import { ComponentType, type LatLongFieldComponent } from '@defra/forms-model'
 import { type LanguageMessages, type ObjectSchema } from 'joi'
-import lowerFirst from 'lodash/lowerFirst.js'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import {
@@ -12,7 +11,10 @@ import {
   getLocationFieldViewModel
 } from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
-import { createLowerFirstExpression } from '~/src/server/plugins/engine/components/helpers/index.js'
+import {
+  createLowerFirstExpression,
+  lowerFirst
+} from '~/src/server/plugins/engine/components/helpers/index.js'
 import { type LatLongState } from '~/src/server/plugins/engine/components/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
@@ -61,13 +63,13 @@ export class LatLongField extends FormComponent {
         'number.unsafe': '{{#label}} must be a valid number'
       })
 
-    const latitudeRangeMessage = `Latitude for ${lowerFirst(this.label)} must be between ${latitudeMin} and ${latitudeMax}`
-    const longitudeRangeMessage = `Longitude for ${lowerFirst(this.label)} must be between ${longitudeMin} and ${longitudeMax}`
+    const latitudeRangeMessage = `Latitude for ${lowerFirst(this)} must be between ${latitudeMin} and ${latitudeMax}`
+    const longitudeRangeMessage = `Longitude for ${lowerFirst(this)} must be between ${longitudeMin} and ${longitudeMax}`
 
     const latitudeMessages: LanguageMessages = convertToLanguageMessages({
       ...customValidationMessages,
       'any.required': latitudeRequired,
-      'number.base': `Enter a valid latitude for ${lowerFirst(this.label)} like 51.519450`,
+      'number.base': `Enter a valid latitude for ${lowerFirst(this)} like 51.519450`,
       'number.min': latitudeRangeMessage,
       'number.max': latitudeRangeMessage
     })
@@ -75,7 +77,7 @@ export class LatLongField extends FormComponent {
     const longitudeMessages: LanguageMessages = convertToLanguageMessages({
       ...customValidationMessages,
       'any.required': longitudeRequired,
-      'number.base': `Enter a valid longitude for ${lowerFirst(this.label)} like -0.127758`,
+      'number.base': `Enter a valid longitude for ${lowerFirst(this)} like -0.127758`,
       'number.min': longitudeRangeMessage,
       'number.max': longitudeRangeMessage
     })

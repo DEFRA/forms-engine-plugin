@@ -25,6 +25,7 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class FormComponent extends ComponentBase {
+  declare options?: Extract<FormComponentsDef, { options: object }>['options']
   type: FormComponentsDef['type']
   hint: FormComponentsDef['hint']
   label: string

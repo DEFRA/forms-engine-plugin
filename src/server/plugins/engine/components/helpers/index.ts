@@ -1,6 +1,8 @@
 import { type ComponentDef } from '@defra/forms-model'
 import joi, { type JoiExpression, type ReferenceOptions } from 'joi'
-import lowerFirst from 'lodash/lowerFirst.js'
+import _lowerFirst from 'lodash/lowerFirst.js'
+
+import { type FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 
 /**
  * Prevent Markdown formatting
@@ -39,12 +41,22 @@ export const addClassOptionIfNone = (
   options.classes ??= className
 }
 
+export function lowerFirst(component: FormComponent) {
+  const label = component.label
+
+  if (component.options?.preserveLabelCasing) {
+    return label
+  }
+
+  return _lowerFirst(label)
+}
+
 /**
  * Applies lowerFirst but preserves capitalisation of proper nouns
  * like "National Grid", "Ordnance Survey" and "OS".
  */
 export function lowerFirstPreserveProperNouns(text: string): string {
-  const result = lowerFirst(text)
+  const result = _lowerFirst(text)
   return result
     .replace(/\bnational [Gg]rid\b/g, 'National Grid')
     .replace(/\bordnance [Ss]urvey\b/g, 'Ordnance Survey')

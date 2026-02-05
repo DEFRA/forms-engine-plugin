@@ -10,7 +10,10 @@ import {
   isUploadState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { InvalidComponentStateError } from '~/src/server/plugins/engine/pageControllers/errors.js'
-import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
+import {
+  getLanguageMessages,
+  messageTemplate
+} from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   FileStatus,
   UploadStatus,
@@ -122,6 +125,7 @@ export class FileUploadField extends FormComponent {
       .label(this.label)
       .single()
       .required()
+      .messages(getLanguageMessages(this))
 
     if (options.required === false) {
       formSchema = formSchema.optional()

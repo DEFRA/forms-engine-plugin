@@ -3,7 +3,10 @@ import Joi, { type CustomValidator, type StringSchema } from 'joi'
 
 import { type ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
+import {
+  getLanguageMessages,
+  messageTemplate
+} from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
   type FormPayload,
@@ -26,7 +29,11 @@ export class MultilineTextField extends FormComponent {
 
     const { schema, options } = def
 
-    let formSchema = Joi.string().trim().label(this.label).required()
+    let formSchema = Joi.string()
+      .trim()
+      .label(this.label)
+      .required()
+      .messages(getLanguageMessages(this))
 
     if (options.required === false) {
       formSchema = formSchema.allow('')

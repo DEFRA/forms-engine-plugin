@@ -41,9 +41,11 @@ export class NumberField extends FormComponent {
       const messages = options.customValidationMessages
 
       formSchema = formSchema.empty('').messages({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         'any.required':
-          messages?.['any.required'] ?? (messageTemplate.required as string)
+          messages?.['any.required'] ??
+          ((options.preserveLabelCasing
+            ? messageTemplate.requiredPreserveCasing
+            : messageTemplate.required) as string)
       })
     }
 

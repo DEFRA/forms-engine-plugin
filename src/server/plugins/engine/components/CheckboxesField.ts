@@ -5,6 +5,7 @@ import { isFormValue } from '~/src/server/plugins/engine/components/FormComponen
 import { SelectionControlField } from '~/src/server/plugins/engine/components/SelectionControlField.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
+import { getLanguageMessages } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type FormState,
   type FormStateValue,
@@ -37,6 +38,7 @@ export class CheckboxesField extends SelectionControlField {
       .single()
       .label(this.label)
       .required()
+      .messages(getLanguageMessages(this))
 
     if (options.required === false) {
       formSchema = formSchema.optional()

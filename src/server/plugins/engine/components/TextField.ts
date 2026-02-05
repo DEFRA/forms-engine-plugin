@@ -8,7 +8,10 @@ import {
   FormComponent,
   isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
+import {
+  getLanguageMessages,
+  messageTemplate
+} from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
   type FormState,
@@ -35,7 +38,12 @@ export class TextField extends FormComponent {
     const { options } = def
     const schema = 'schema' in def ? def.schema : {}
 
-    let formSchema = joi.string().trim().label(this.label).required()
+    let formSchema = joi
+      .string()
+      .trim()
+      .label(this.label)
+      .required()
+      .messages(getLanguageMessages(this))
 
     if (options.required === false) {
       formSchema = formSchema.allow('')

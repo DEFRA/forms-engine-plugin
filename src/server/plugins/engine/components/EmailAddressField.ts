@@ -2,7 +2,10 @@ import { type EmailAddressFieldComponent } from '@defra/forms-model'
 import joi from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
+import {
+  getLanguageMessages,
+  messageTemplate
+} from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
   type FormPayload,
@@ -20,7 +23,13 @@ export class EmailAddressField extends FormComponent {
 
     const { options } = def
 
-    let formSchema = joi.string().email().trim().label(this.label).required()
+    let formSchema = joi
+      .string()
+      .email()
+      .trim()
+      .label(this.label)
+      .required()
+      .messages(getLanguageMessages(this))
 
     if (options.required === false) {
       formSchema = formSchema.allow('')

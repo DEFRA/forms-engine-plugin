@@ -32,7 +32,7 @@ interface LocationFieldOptions {
 interface ValidationConfig {
   pattern: RegExp
   patternErrorMessage: JoiExpression
-  requiredMessage?: JoiExpression
+  requiredMessage: JoiExpression
 }
 
 /**
@@ -63,12 +63,9 @@ export abstract class LocationFieldBase extends FormComponent {
     addClassOptionIfNone(locationOptions, 'govuk-input--width-10')
 
     const config = this.getValidationConfig()
-    const requiredMessage =
-      config.requiredMessage ?? (messageTemplate.required as string)
-
     const messages = convertToLanguageMessages({
-      'any.required': requiredMessage,
-      'string.empty': requiredMessage,
+      'any.required': config.requiredMessage,
+      'string.empty': config.requiredMessage,
       'string.pattern.base': config.patternErrorMessage
     })
 

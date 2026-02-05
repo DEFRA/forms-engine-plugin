@@ -8,12 +8,13 @@ import joi, {
   type ReferenceOptions,
   type ValidationOptions
 } from 'joi'
+import lowerFirst from 'lodash/lowerFirst.js'
 
-import { lowerFirstPreserveProperNouns } from '~/src/server/plugins/engine/components/helpers/index.js'
+import { type FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 
 const opts = {
   functions: {
-    lowerFirst: lowerFirstPreserveProperNouns
+    lowerFirst
   }
 } as ReferenceOptions
 
@@ -25,12 +26,24 @@ export const messageTemplate: Record<string, JoiExpression> = {
     'You must confirm you understand and agree with the {{lowerFirst(#label)}} to continue',
     opts
   ) as JoiExpression,
+  declarationRequiredPreserveCasing: joi.expression(
+    'You must confirm you understand and agree with the {{#label}} to continue',
+    opts
+  ) as JoiExpression,
   required: joi.expression(
     'Enter {{lowerFirst(#label)}}',
     opts
   ) as JoiExpression,
+  requiredPreserveCasing: joi.expression(
+    'Enter {{#label}}',
+    opts
+  ) as JoiExpression,
   selectRequired: joi.expression(
     'Select {{lowerFirst(#label)}}',
+    opts
+  ) as JoiExpression,
+  selectRequiredPreserveCasing: joi.expression(
+    'Select {{#label}}',
     opts
   ) as JoiExpression,
   selectYesNoRequired: '{{#label}} - select yes or no',
@@ -41,8 +54,16 @@ export const messageTemplate: Record<string, JoiExpression> = {
     'Enter a valid {{lowerFirst(#label)}}',
     opts
   ) as JoiExpression,
+  patternPreserveCasing: joi.expression(
+    'Enter a valid {{#label}}',
+    opts
+  ) as JoiExpression,
   format: joi.expression(
     'Enter {{lowerFirst(#label)}} in the correct format',
+    opts
+  ) as JoiExpression,
+  formatPreserveCasing: joi.expression(
+    'Enter {{#label}} in the correct format',
     opts
   ) as JoiExpression,
   number: '{{#label}} must be a number',
@@ -54,9 +75,20 @@ export const messageTemplate: Record<string, JoiExpression> = {
 
   // Nested fields use component title
 
-  objectRequired: joi.expression('Enter {{#label}}', opts) as JoiExpression,
+  objectRequired: joi.expression(
+    'Enter {{lowerFirst(#label)}}',
+    opts
+  ) as JoiExpression,
+  objectRequiredPreserveCasing: joi.expression(
+    'Enter {{#label}}',
+    opts
+  ) as JoiExpression,
   objectMissing: joi.expression(
     '{{#title}} must include a {{lowerFirst(#label)}}',
+    opts
+  ) as JoiExpression,
+  objectMissingPreserveCasing: joi.expression(
+    '{{#title}} must include a {{#label}}',
     opts
   ) as JoiExpression,
   dateFormat: '{{#title}} must be a real date',
@@ -93,16 +125,61 @@ export const messages: LanguageMessagesExt = {
   'date.max': messageTemplate.dateMax
 }
 
-export const messagesPre: LanguageMessages =
-  messages as unknown as LanguageMessages
+export const messagesPreserveCasing: LanguageMessagesExt = {
+  'string.base': messageTemplate.requiredPreserveCasing,
+  'string.min': messageTemplate.min,
+  'string.empty': messageTemplate.requiredPreserveCasing,
+  'string.max': messageTemplate.max,
+  'string.email': messageTemplate.formatPreserveCasing,
+  'string.pattern.base': messageTemplate.patternPreserveCasing,
+  'string.maxWords': messageTemplate.maxWords,
+
+  'number.base': messageTemplate.number,
+  'number.precision': messageTemplate.numberPrecision,
+  'number.integer': messageTemplate.numberInteger,
+  'number.unsafe': messageTemplate.formatPreserveCasing,
+  'number.min': messageTemplate.numberMin,
+  'number.max': messageTemplate.numberMax,
+
+  'object.required': messageTemplate.objectRequiredPreserveCasing,
+  'object.and': messageTemplate.objectMissingPreserveCasing,
+
+  'any.only': messageTemplate.selectRequiredPreserveCasing,
+  'any.required': messageTemplate.selectRequiredPreserveCasing,
+  'any.empty': messageTemplate.requiredPreserveCasing,
+
+  'date.base': messageTemplate.dateFormat,
+  'date.format': messageTemplate.dateFormat,
+  'date.min': messageTemplate.dateMin,
+  'date.max': messageTemplate.dateMax
+}
 
 export const validationOptions: ValidationOptions = {
   abortEarly: false,
-  messages: messagesPre,
+  messages: messages as unknown as LanguageMessages,
   errors: {
     wrap: {
       array: false,
       label: false
     }
   }
+}
+
+export const validationOptionsPreserveCasing: ValidationOptions = {
+  abortEarly: false,
+  messages: messagesPreserveCasing as unknown as LanguageMessages,
+  errors: {
+    wrap: {
+      array: false,
+      label: false
+    }
+  }
+}
+
+export function getLanguageMessages(component: FormComponent) {
+  if (component.options?.preserveLabelCasing) {
+    return messagesPreserveCasing as unknown as LanguageMessages
+  }
+
+  return messages as unknown as LanguageMessages
 }

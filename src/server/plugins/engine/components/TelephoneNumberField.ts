@@ -3,7 +3,10 @@ import joi, { type StringSchema } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers/index.js'
-import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
+import {
+  getLanguageMessages,
+  messageTemplate
+} from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
   type FormPayload,
@@ -31,6 +34,7 @@ export class TelephoneNumberField extends FormComponent {
       .pattern(PATTERN)
       .label(this.label)
       .required()
+      .messages(getLanguageMessages(this))
 
     if (options.required === false) {
       formSchema = formSchema.allow('')
