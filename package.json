@@ -72,7 +72,7 @@
   "dependencies": {
     "@defra/forms-model": "^3.0.611",
     "@defra/hapi-tracing": "^1.29.0",
-    "@defra/interactive-map": "^0.0.3-alpha",
+    "@defra/interactive-map": "^0.0.4-alpha",
     "@elastic/ecs-pino-format": "^1.5.0",
     "@hapi/boom": "^10.0.1",
     "@hapi/catbox": "^12.1.1",
