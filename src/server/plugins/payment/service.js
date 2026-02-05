@@ -47,6 +47,10 @@ export class PaymentService {
       delayed_capture: true
     })
 
+    logger.info(
+      `[payment] Created payment and user taken to enter pre-auth details for paymentId=${response.payment_id}`
+    )
+
     return {
       paymentId: response.payment_id,
       paymentUrl: response._links.next_url.href
@@ -77,8 +81,13 @@ export class PaymentService {
         throw new Error(`Failed to get payment status: ${errorMessage}`)
       }
 
+      const state = response.payload.state
+      logger.info(
+        `[payment] Got payment status for paymentId=${paymentId}: ${state.status} message:${state.message ?? 'N/A'} code:${state.code ?? 'N/A'}`
+      )
+
       return {
-        state: response.payload.state,
+        state,
         _links: response.payload._links,
         email: response.payload.email,
         paymentId: response.payload.payment_id,
@@ -114,7 +123,9 @@ export class PaymentService {
         statusCode === StatusCodes.OK ||
         statusCode === StatusCodes.NO_CONTENT
       ) {
-        logger.info(`[payment] Successfully captured payment ${paymentId}`)
+        logger.info(
+          `[payment] Successfully captured payment for paymentId=${paymentId}`
+        )
         return true
       }
 

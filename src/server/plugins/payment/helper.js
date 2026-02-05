@@ -20,7 +20,7 @@ export function getPaymentApiKey(isLivePayment, formId) {
 
   if (!apiKeyValue) {
     throw new Error(
-      `Missing payment api key for ${isLivePayment ? 'live' : 'test'} form id ${formId}`
+      `[payment] Missing payment api key for ${isLivePayment ? 'live' : 'test'} form id ${formId}`
     )
   }
   return apiKeyValue
