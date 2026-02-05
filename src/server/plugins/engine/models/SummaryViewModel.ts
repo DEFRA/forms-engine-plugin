@@ -192,7 +192,7 @@ function ItemRepeat(
     name,
     label: title,
     title,
-    value: `You have added ${values.length} ${unit}`,
+    value: values.length ? `You have added ${values.length} ${unit}` : '',
     href: getPageHref(page, options.path, {
       returnUrl: getPageHref(page, page.getSummaryPath())
     }),

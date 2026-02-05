@@ -67,9 +67,9 @@ describe('SummaryViewModel', () => {
       } satisfies FormState,
       keys: [
         'How would you like to receive your pizza?',
-        'Pizzas',
+        'Pizza',
         'How you would like to receive your pizza',
-        'Pizzas',
+        'Pizza',
         'Pizza'
       ],
       values: ['Collection', 'Not provided'],
@@ -91,13 +91,13 @@ describe('SummaryViewModel', () => {
       } satisfies FormState,
       keys: [
         'How would you like to receive your pizza?',
-        'Pizza added',
+        'Pizza',
         'How you would like to receive your pizza',
-        'Pizzas',
+        'Pizza',
         'Pizza'
       ],
-      values: ['Delivery', 'You added 1 Pizza'],
-      answers: ['Delivery', 'You added 1 Pizza'],
+      values: ['Delivery', 'You have added 1 answer'],
+      answers: ['Delivery', 'You have added 1 answer'],
       names: ['orderType', 'pizza']
     },
     {
@@ -120,13 +120,13 @@ describe('SummaryViewModel', () => {
       } satisfies FormState,
       keys: [
         'How would you like to receive your pizza?',
-        'Pizzas added',
+        'Pizza',
         'How you would like to receive your pizza',
-        'Pizzas',
+        'Pizza',
         'Pizza'
       ],
-      values: ['Delivery', 'You added 2 Pizzas'],
-      answers: ['Delivery', 'You added 2 Pizzas'],
+      values: ['Delivery', 'You have added 2 answers'],
+      answers: ['Delivery', 'You have added 2 answers'],
       names: ['orderType', 'pizza']
     }
   ])(
@@ -326,7 +326,7 @@ describe('SummaryViewModel', () => {
     expect(details1.items[0]).toMatchObject({
       name: 'pizza',
       value: '',
-      title: 'Pizzas',
+      title: 'Pizza',
       label: 'Pizza'
     })
 
