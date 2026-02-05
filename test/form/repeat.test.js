@@ -522,7 +522,7 @@ describe('Repeat POST tests', () => {
     })
 
     expect($heading).toBeInTheDocument()
-    expect($errorItems[0]).toHaveTextContent('You can only add up to 3 Pizzas')
+    expect($errorItems[0]).toHaveTextContent('You can only add up to 3 answers')
   })
 
   test('POST /pizza-order/summary CONTINUE with 1 item returns 200 with errors under schema.min', async () => {
@@ -548,7 +548,7 @@ describe('Repeat POST tests', () => {
     })
 
     expect($heading).toBeInTheDocument()
-    expect($errorItems[0]).toHaveTextContent('You must add at least 2 Pizzas')
+    expect($errorItems[0]).toHaveTextContent('You must add at least 2 answers')
   })
 
   test('POST /pizza-order/summary with 2 items CONTINUE returns 303 to /summary', async () => {
@@ -581,7 +581,7 @@ describe('Repeat POST tests', () => {
         classList.contains('govuk-summary-list__value')
       )
 
-    expect($values[0]).toHaveTextContent('You added 2 Pizzas')
+    expect($values[0]).toHaveTextContent('You have added 2 answers')
 
     // POST the summary page
     await server.inject({

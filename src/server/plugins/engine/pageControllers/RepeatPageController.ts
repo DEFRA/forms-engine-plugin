@@ -207,7 +207,7 @@ export class RepeatPageController extends QuestionPageController {
     ) => {
       const { path, repeat } = this
       const { query } = request
-      const { schema, options } = repeat
+      const { schema } = repeat
       const { state } = context
 
       const list = this.getListFromState(state)
@@ -232,7 +232,7 @@ export class RepeatPageController extends QuestionPageController {
       // Show error if repeat limits apply
       if (hasErrorMin || hasErrorMax) {
         const count = hasErrorMax ? schema.max : schema.min
-        const itemTitle = `${options.title}${count === 1 ? '' : 's'}`
+        const itemTitle = `answer${count === 1 ? '' : 's'}`
 
         context.errors = [
           {
