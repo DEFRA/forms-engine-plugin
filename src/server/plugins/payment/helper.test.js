@@ -49,4 +49,12 @@ describe('formatPaymentAmount', () => {
   it('should format decimal amount', () => {
     expect(formatPaymentAmount(99.5)).toBe('£99.50')
   })
+
+  it('should format large amounts with thousand separators', () => {
+    expect(formatPaymentAmount(1234.56)).toBe('£1,234.56')
+  })
+
+  it('should format very large amounts with thousand separators', () => {
+    expect(formatPaymentAmount(20000)).toBe('£20,000.00')
+  })
 })
