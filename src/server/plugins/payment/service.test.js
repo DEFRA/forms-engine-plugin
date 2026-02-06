@@ -154,7 +154,10 @@ describe('payment service', () => {
         error: undefined
       })
 
-      const captureResult = await service.capturePayment('payment-id-12345')
+      const captureResult = await service.capturePayment(
+        'payment-id-12345',
+        100
+      )
       expect(captureResult).toBe(true)
     })
 
@@ -169,7 +172,10 @@ describe('payment service', () => {
         error: undefined
       })
 
-      const captureResult = await service.capturePayment('payment-id-12345')
+      const captureResult = await service.capturePayment(
+        'payment-id-12345',
+        100
+      )
       expect(captureResult).toBe(true)
     })
 
@@ -184,7 +190,10 @@ describe('payment service', () => {
         error: undefined
       })
 
-      const captureResult = await service.capturePayment('payment-id-12345')
+      const captureResult = await service.capturePayment(
+        'payment-id-12345',
+        100
+      )
       expect(captureResult).toBe(false)
     })
 
@@ -194,7 +203,7 @@ describe('payment service', () => {
         .mockRejectedValueOnce(new Error('internal capture error'))
 
       await expect(() =>
-        service.capturePayment('payment-id-12345')
+        service.capturePayment('payment-id-12345', 100)
       ).rejects.toThrow('internal capture error')
     })
   })

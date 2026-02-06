@@ -297,7 +297,10 @@ export class PaymentField extends FormComponent {
       )
     }
 
-    const captured = await paymentService.capturePayment(paymentId)
+    const captured = await paymentService.capturePayment(
+      paymentId,
+      status.amount
+    )
 
     if (!captured) {
       throw new PaymentPreAuthError(
