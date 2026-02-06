@@ -123,9 +123,10 @@ export class PaymentService {
   /**
    * Captures a payment that is in 'capturable' status
    * @param {string} paymentId
+   * @param {number} amount
    * @returns {Promise<boolean>}
    */
-  async capturePayment(paymentId) {
+  async capturePayment(paymentId, amount) {
     try {
       const response = await post(
         `${PAYMENT_BASE_URL}${PAYMENT_ENDPOINT}/${paymentId}/capture`,
@@ -145,7 +146,7 @@ export class PaymentService {
             event: {
               category: 'payment',
               action: 'capture-payment',
-              outcome: 'success',
+              outcome: `success amount=${amount}`,
               reference: paymentId
             }
           },
