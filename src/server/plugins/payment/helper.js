@@ -47,10 +47,13 @@ export function formatPaymentDate(isoString) {
 }
 
 /**
- * Formats a payment amount with two decimal places
+ * Formats a payment amount with thousand separators and two decimal places
  * @param {number} amount - amount in pounds
- * @returns {string} Formatted amount (e.g., "£10.00")
+ * @returns {string} Formatted amount (e.g., "£1,234.56")
  */
 export function formatPaymentAmount(amount) {
-  return `£${amount.toFixed(2)}`
+  return new Intl.NumberFormat('en-GB', {
+    style: 'currency',
+    currency: 'GBP'
+  }).format(amount)
 }
