@@ -1,6 +1,6 @@
 import { config } from '~/src/config/index.js'
 import {
-  formatPaymentAmount,
+  formatCurrency,
   formatPaymentDate,
   getPaymentApiKey
 } from '~/src/server/plugins/payment/helper.js'
@@ -41,20 +41,20 @@ describe('formatPaymentDate', () => {
   })
 })
 
-describe('formatPaymentAmount', () => {
-  it('should format whole number with two decimal places', () => {
-    expect(formatPaymentAmount(10)).toBe('£10.00')
+describe('formatCurrency', () => {
+  it('should format whole number with currency symbol', () => {
+    expect(formatCurrency(10)).toBe('£10.00')
   })
 
-  it('should format decimal amount', () => {
-    expect(formatPaymentAmount(99.5)).toBe('£99.50')
+  it('should format decimal amount with currency symbol', () => {
+    expect(formatCurrency(99.5)).toBe('£99.50')
   })
 
   it('should format large amounts with thousand separators', () => {
-    expect(formatPaymentAmount(1234.56)).toBe('£1,234.56')
+    expect(formatCurrency(1234.56)).toBe('£1,234.56')
   })
 
   it('should format very large amounts with thousand separators', () => {
-    expect(formatPaymentAmount(20000)).toBe('£20,000.00')
+    expect(formatCurrency(20000)).toBe('£20,000.00')
   })
 })

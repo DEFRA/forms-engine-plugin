@@ -7,7 +7,7 @@ import {
   type DetailItemField
 } from '~/src/server/plugins/engine/models/types.js'
 import {
-  formatPaymentAmount,
+  formatCurrency,
   formatPaymentDate
 } from '~/src/server/plugins/payment/helper.js'
 
@@ -71,7 +71,7 @@ export function buildPaymentRecords(item: DetailItemField): SubmitRecord[] {
     {
       name: `${item.name}_paymentAmount`,
       title: 'Payment amount',
-      value: formatPaymentAmount(paymentState.amount)
+      value: formatCurrency(paymentState.amount)
     },
     {
       name: `${item.name}_paymentReference`,

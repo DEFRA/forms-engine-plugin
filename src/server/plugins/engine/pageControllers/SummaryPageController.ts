@@ -46,7 +46,7 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 import {
   DEFAULT_PAYMENT_HELP_URL,
-  formatPaymentAmount,
+  formatCurrency,
   formatPaymentDate
 } from '~/src/server/plugins/payment/helper.js'
 import {
@@ -125,7 +125,7 @@ export class SummaryPageController extends QuestionPageController {
       },
       {
         key: { text: 'Total amount' },
-        value: { text: formatPaymentAmount(paymentState.amount) }
+        value: { text: formatCurrency(paymentState.amount) }
       },
       {
         key: { text: 'Reference' },

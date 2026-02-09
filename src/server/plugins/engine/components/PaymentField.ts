@@ -31,7 +31,7 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 import {
   createPaymentService,
-  formatPaymentAmount
+  formatCurrency
 } from '~/src/server/plugins/payment/helper.js'
 
 export class PaymentField extends FormComponent {
@@ -94,7 +94,7 @@ export class PaymentField extends FormComponent {
       return ''
     }
 
-    return `${formatPaymentAmount(value.amount)} - ${value.description}`
+    return `${formatCurrency(value.amount)} - ${value.description}`
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
@@ -108,14 +108,9 @@ export class PaymentField extends FormComponent {
     // When user initially visits the payment page, there is no payment state yet so the amount is read form the form definition.
     const amount = paymentState?.amount ?? this.options.amount
 
-    const formattedAmount = new Intl.NumberFormat('en-GB', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(amount)
-
     return {
       ...viewModel,
-      amount: formattedAmount,
+      amount: formatCurrency(amount),
       description: this.options.description,
       paymentState
     }
@@ -159,7 +154,7 @@ export class PaymentField extends FormComponent {
 
   getContextValueFromState(state: FormSubmissionState) {
     return this.isPaymentState(state)
-      ? `Reference: ${state.reference}\nAmount: ${formatPaymentAmount(state.amount)}`
+      ? `Reference: ${state.reference}\nAmount: ${formatCurrency(state.amount)}`
       : ''
   }
 
