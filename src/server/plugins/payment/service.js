@@ -50,7 +50,7 @@ export class PaymentService {
     logger.info(
       {
         event: {
-          module: 'payment',
+          category: 'payment',
           action: 'create-payment',
           outcome: 'success',
           reason: `amount=${amount}`,
@@ -94,7 +94,7 @@ export class PaymentService {
       logger.info(
         {
           event: {
-            module: 'payment',
+            category: 'payment',
             action: 'get-payment-status',
             outcome:
               state.status === 'capturable' || state.status === 'success'
@@ -148,7 +148,7 @@ export class PaymentService {
         logger.info(
           {
             event: {
-              module: 'payment',
+              category: 'payment',
               action: 'capture-payment',
               outcome: 'success',
               reason: `amount=${amount}`,
