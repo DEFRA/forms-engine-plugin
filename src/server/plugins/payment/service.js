@@ -50,9 +50,10 @@ export class PaymentService {
     logger.info(
       {
         event: {
-          category: 'payment',
+          module: 'payment',
           action: 'create-payment',
           outcome: 'success',
+          reason: `amount=${amount}`,
           reference: response.payment_id
         }
       },
@@ -93,10 +94,13 @@ export class PaymentService {
       logger.info(
         {
           event: {
-            category: 'payment',
+            module: 'payment',
             action: 'get-payment-status',
-            outcome: state.status,
-            reason: `${state.code ?? 'N/A'} ${state.message ?? 'N/A'}`,
+            outcome:
+              state.status === 'capturable' || state.status === 'success'
+                ? 'success'
+                : 'failure',
+            reason: `status:${state.status} code:${state.code ?? 'N/A'} message:${state.message ?? 'N/A'}`,
             reference: paymentId
           }
         },
@@ -144,9 +148,10 @@ export class PaymentService {
         logger.info(
           {
             event: {
-              category: 'payment',
+              module: 'payment',
               action: 'capture-payment',
-              outcome: `success amount=${amount}`,
+              outcome: 'success',
+              reason: `amount=${amount}`,
               reference: paymentId
             }
           },
