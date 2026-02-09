@@ -29,7 +29,10 @@ import {
   type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
-import { createPaymentService } from '~/src/server/plugins/payment/helper.js'
+import {
+  createPaymentService,
+  formatCurrency
+} from '~/src/server/plugins/payment/helper.js'
 
 export class PaymentField extends FormComponent {
   declare options: PaymentFieldComponent['options']
@@ -91,7 +94,7 @@ export class PaymentField extends FormComponent {
       return ''
     }
 
-    return `£${value.amount.toFixed(2)} - ${value.description}`
+    return `${formatCurrency(value.amount)} - ${value.description}`
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
@@ -105,11 +108,9 @@ export class PaymentField extends FormComponent {
     // When user initially visits the payment page, there is no payment state yet so the amount is read form the form definition.
     const amount = paymentState?.amount ?? this.options.amount
 
-    const formattedAmount = amount.toFixed(2)
-
     return {
       ...viewModel,
-      amount: formattedAmount,
+      amount: formatCurrency(amount),
       description: this.options.description,
       paymentState
     }
@@ -153,7 +154,7 @@ export class PaymentField extends FormComponent {
 
   getContextValueFromState(state: FormSubmissionState) {
     return this.isPaymentState(state)
-      ? `Reference: ${state.reference}\nAmount: ${state.amount.toFixed(2)}`
+      ? `Reference: ${state.reference}\nAmount: ${formatCurrency(state.amount)}`
       : ''
   }
 

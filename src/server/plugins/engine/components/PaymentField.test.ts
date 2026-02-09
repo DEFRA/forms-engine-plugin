@@ -196,7 +196,7 @@ describe('PaymentField', () => {
             label: { text: def.title },
             name: 'myComponent',
             id: 'myComponent',
-            amount: '100.00',
+            amount: '£100.00',
             attributes: {},
             description: 'Test payment description'
           })
@@ -220,7 +220,7 @@ describe('PaymentField', () => {
             label: { text: def.title },
             name: 'myComponent',
             id: 'myComponent',
-            amount: '100.00',
+            amount: '£100.00',
             attributes: {},
             description: 'Test payment description'
           })

@@ -16,7 +16,7 @@ import {
 } from '~/src/server/plugins/engine/models/types.js'
 import { type FormContext } from '~/src/server/plugins/engine/types.js'
 import {
-  formatPaymentAmount,
+  formatCurrency,
   formatPaymentDate
 } from '~/src/server/plugins/payment/helper.js'
 
@@ -115,7 +115,7 @@ function appendPaymentSection(paymentItems: DetailItem[], lines: string[]) {
     return
   }
 
-  const formattedAmount = formatPaymentAmount(paymentState.amount)
+  const formattedAmount = formatCurrency(paymentState.amount)
   const dateOfPayment = paymentState.preAuth?.createdAt
     ? formatPaymentDate(paymentState.preAuth.createdAt)
     : ''
