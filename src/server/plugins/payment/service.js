@@ -48,6 +48,15 @@ export class PaymentService {
     })
 
     logger.info(
+      {
+        event: {
+          category: 'payment',
+          action: 'create-payment',
+          outcome: 'success',
+          reason: `amount=${amount}`,
+          reference: response.payment_id
+        }
+      },
       `[payment] Created payment and user taken to enter pre-auth details for paymentId=${response.payment_id}`
     )
 
@@ -83,7 +92,19 @@ export class PaymentService {
 
       const state = response.payload.state
       logger.info(
-        `[payment] Got payment status for paymentId=${paymentId}: ${state.status} message:${state.message ?? 'N/A'} code:${state.code ?? 'N/A'}`
+        {
+          event: {
+            category: 'payment',
+            action: 'get-payment-status',
+            outcome:
+              state.status === 'capturable' || state.status === 'success'
+                ? 'success'
+                : 'failure',
+            reason: `status:${state.status} code:${state.code ?? 'N/A'} message:${state.message ?? 'N/A'}`,
+            reference: paymentId
+          }
+        },
+        `[payment] Got payment status for paymentId=${paymentId}: status=${state.status}`
       )
 
       return {
@@ -106,9 +127,10 @@ export class PaymentService {
   /**
    * Captures a payment that is in 'capturable' status
    * @param {string} paymentId
+   * @param {number} amount
    * @returns {Promise<boolean>}
    */
-  async capturePayment(paymentId) {
+  async capturePayment(paymentId, amount) {
     try {
       const response = await post(
         `${PAYMENT_BASE_URL}${PAYMENT_ENDPOINT}/${paymentId}/capture`,
@@ -124,6 +146,15 @@ export class PaymentService {
         statusCode === StatusCodes.NO_CONTENT
       ) {
         logger.info(
+          {
+            event: {
+              category: 'payment',
+              action: 'capture-payment',
+              outcome: 'success',
+              reason: `amount=${amount}`,
+              reference: paymentId
+            }
+          },
           `[payment] Successfully captured payment for paymentId=${paymentId}`
         )
         return true
