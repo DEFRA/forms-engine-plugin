@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/dot-notation */
 import { ComponentType, type ComponentDef } from '@defra/forms-model'
+import Boom from '@hapi/boom'
 import { type ValidationErrorItem, type ValidationResult } from 'joi'
 
 import {
@@ -193,6 +194,89 @@ describe('FileUploadPageController', () => {
         ).rejects.toThrow(
           'Unexpected empty response from getUploadStatus for some-id'
         )
+      })
+
+      it('initiates new upload when getUploadStatus throws a 404 error', async () => {
+        const state = {
+          upload: {
+            [controller.path]: {
+              upload: {
+                uploadId: 'some-id',
+                uploadUrl: 'some-url',
+                statusUrl: 'some-status-url'
+              },
+              files: []
+            }
+          }
+        } as unknown as FormSubmissionState
+
+        const notFoundError = Boom.notFound('Upload not found')
+
+        jest
+          .spyOn(uploadService, 'getUploadStatus')
+          .mockRejectedValue(notFoundError)
+
+        const testController = controller as TestableFileUploadPageController
+        const initiateSpy = jest.spyOn(
+          testController,
+          'initiateAndStoreNewUpload'
+        )
+        initiateSpy.mockResolvedValue(state as never)
+
+        const result = await controller['checkUploadStatus'](request, state, 1)
+
+        expect(initiateSpy).toHaveBeenCalledWith(request, state)
+        expect(result).toBe(state)
+      })
+
+      it('re-throws non-404 Boom errors from getUploadStatus', async () => {
+        const state = {
+          upload: {
+            [controller.path]: {
+              upload: {
+                uploadId: 'some-id',
+                uploadUrl: 'some-url',
+                statusUrl: 'some-status-url'
+              },
+              files: []
+            }
+          }
+        } as unknown as FormSubmissionState
+
+        const serverError = Boom.internal('Server error')
+
+        jest
+          .spyOn(uploadService, 'getUploadStatus')
+          .mockRejectedValue(serverError)
+
+        await expect(
+          controller['checkUploadStatus'](request, state, 1)
+        ).rejects.toThrow('Server error')
+      })
+
+      it('re-throws non-Boom errors from getUploadStatus', async () => {
+        const state = {
+          upload: {
+            [controller.path]: {
+              upload: {
+                uploadId: 'some-id',
+                uploadUrl: 'some-url',
+                statusUrl: 'some-status-url'
+              },
+              files: []
+            }
+          }
+        } as unknown as FormSubmissionState
+
+        const networkError = new Error('Network failure')
+
+        jest
+          .spyOn(uploadService, 'getUploadStatus')
+          .mockRejectedValue(networkError)
+
+        await expect(
+          controller['checkUploadStatus'](request, state, 1)
+        ).rejects.toThrow('Network failure')
       })
 
       it('handles pending upload with backoff and retries', async () => {
