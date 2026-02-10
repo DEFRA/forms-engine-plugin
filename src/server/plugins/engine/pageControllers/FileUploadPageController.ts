@@ -327,7 +327,22 @@ export class FileUploadPageController extends QuestionPageController {
     }
 
     const uploadId = upload.uploadId
-    const statusResponse = await getUploadStatus(uploadId)
+
+    let statusResponse
+
+    try {
+      statusResponse = await getUploadStatus(uploadId)
+    } catch (err) {
+      // if the user loads a file upload page and queries the cached upload, after the upload has
+      // expired in CDP, we will get a 404 from the getUploadStatus endpoint.
+      // In this case we want to initiate a new upload and return that state, so the form
+      // doesn't blow up for the end user.
+      if (Boom.isBoom(err) && err.output.statusCode === 404) {
+        return this.initiateAndStoreNewUpload(request, state)
+      }
+      throw err
+    }
+
     if (!statusResponse) {
       throw Boom.badRequest(
         `Unexpected empty response from getUploadStatus for ${uploadId}`
