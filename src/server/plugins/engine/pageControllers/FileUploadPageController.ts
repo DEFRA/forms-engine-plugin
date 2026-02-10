@@ -1,6 +1,7 @@
 import { ComponentType, type PageFileUpload } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { wait } from '@hapi/hoek'
+import { StatusCodes } from 'http-status-codes'
 import { type ValidationErrorItem } from 'joi'
 
 import {
@@ -337,7 +338,10 @@ export class FileUploadPageController extends QuestionPageController {
       // expired in CDP, we will get a 404 from the getUploadStatus endpoint.
       // In this case we want to initiate a new upload and return that state, so the form
       // doesn't blow up for the end user.
-      if (Boom.isBoom(err) && err.output.statusCode === 404) {
+      if (
+        Boom.isBoom(err) &&
+        err.output.statusCode === StatusCodes.NOT_FOUND.valueOf()
+      ) {
         return this.initiateAndStoreNewUpload(request, state)
       }
       throw err
