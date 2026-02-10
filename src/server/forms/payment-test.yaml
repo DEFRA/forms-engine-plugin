@@ -1,0 +1,42 @@
+---
+schema: 2
+name: Payment Test Form
+declaration: "<p class=\"govuk-body\">All the answers you have provided are true to the best of your knowledge.</p>"
+pages:
+  - title: What is your name?
+    path: '/person'
+    components:
+      - name: personName
+        title: What is your name?
+        type: TextField
+        shortDescription: Your name
+        options:
+          required: true
+    next:
+      - path: '/pay-for-your-licence'
+  - title: A page title
+    path: '/pay-for-your-licence'
+    components:
+      - name: pageGuidance
+        type: Html
+        title: Guidance
+        content: "<p class=\"govuk-body\">Random guidance</p>"
+        options: {}
+      - name: licencePayment
+        title: Payment details required
+        type: PaymentField
+        options:
+          required: true
+          amount: 10000
+          description: Processing fee for your application.
+    next:
+      - path: '/summary'
+  - title: Summary
+    path: '/summary'
+    controller: './pages/summary.js'
+    components: []
+    next: []
+conditions: []
+sections: []
+lists: []
+startPage: '/person'

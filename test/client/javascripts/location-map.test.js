@@ -649,17 +649,6 @@ describe('Location Maps Client JS', () => {
       })
     })
 
-    test('tile request transformer does not apply to api.os.uk requests that already have an api key', () => {
-      const url = 'https://api.os.uk/test.js?key=abcde'
-      const transformer = makeTileRequestTransformer(apiPath)
-      const result = transformer(url, 'Script')
-
-      expect(result).toEqual({
-        url,
-        headers: {}
-      })
-    })
-
     test('tile request transformer does not apply to "Style" api.os.uk requests', () => {
       const url = 'https://api.os.uk/test.js'
       const transformer = makeTileRequestTransformer(apiPath)

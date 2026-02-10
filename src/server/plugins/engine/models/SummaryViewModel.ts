@@ -1,5 +1,7 @@
 import { SchemaVersion, type Section } from '@defra/forms-model'
 
+import { PaymentField } from '~/src/server/plugins/engine/components/PaymentField.js'
+import { type PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
 import {
   getAnswer,
   type Field
@@ -52,6 +54,8 @@ export class SummaryViewModel {
   hasMissingNotificationEmail?: boolean
   components?: ComponentViewModel[]
   allowSaveAndExit = false
+  paymentState?: PaymentState
+  paymentDetails?: CheckAnswers
 
   constructor(
     request: FormContextRequest,
@@ -144,6 +148,10 @@ export class SummaryViewModel {
           )
         } else {
           for (const field of collection.fields) {
+            // PaymentField is rendered in its own section, skip it here
+            if (field instanceof PaymentField) {
+              continue
+            }
             items.push(ItemField(page, state, field, { path, errors }))
           }
         }
@@ -178,13 +186,13 @@ function ItemRepeat(
   const { name, title } = repeat.options
 
   const values = page.getListFromState(state)
-  const unit = values.length === 1 ? title : `${title}s`
+  const unit = values.length === 1 ? 'answer' : 'answers'
 
   return {
     name,
     label: title,
-    title: values.length ? `${unit} added` : unit,
-    value: values.length ? `You added ${values.length} ${unit}` : '',
+    title,
+    value: values.length ? `You have added ${values.length} ${unit}` : '',
     href: getPageHref(page, options.path, {
       returnUrl: getPageHref(page, page.getSummaryPath())
     }),

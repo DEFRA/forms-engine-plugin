@@ -119,6 +119,7 @@ async function importExternalComponentState(
   const typedStateAppendage = externalComponentData as ExternalStateAppendage
   const componentName = typedStateAppendage.component
   const stateAppendage = typedStateAppendage.data
+
   const component = request.app.model?.componentMap.get(componentName)
 
   if (!component) {
@@ -137,22 +138,22 @@ async function importExternalComponentState(
     throw new Error(`State for component ${componentName} is invalid`)
   }
 
-  const componentState = isFormState(stateAppendage)
-    ? Object.fromEntries(
-        Object.entries(stateAppendage).map(([key, value]) => [
-          `${componentName}__${key}`,
-          value
-        ])
-      )
-    : { [componentName]: stateAppendage }
+  // Create state structure from appendage state
+  // Some components use a record structure with properties of the format of '<compName>__<fieldName>'
+  // e.g. UKAddressField
+  // Some components use a single object structure e.g. PaymentField
+  const componentState =
+    isFormState(stateAppendage) && !component.isAppendageStateSingleObject
+      ? Object.fromEntries(
+          Object.entries(stateAppendage).map(([key, value]) => [
+            `${componentName}__${key}`,
+            value
+          ])
+        )
+      : { [componentName]: stateAppendage }
 
-  // Save the external component state immediately
-  const pageState = page.getStateFromValidForm(
-    request,
-    state,
-    componentState as FormPayload
-  )
-  const savedState = await page.mergeState(request, state, pageState)
+  // Save the external component state directly (already has correct key format)
+  const savedState = await page.mergeState(request, state, componentState)
 
   // Merge any stashed payload into the local state
   const payload = request.yar.flash(EXTERNAL_STATE_PAYLOAD)

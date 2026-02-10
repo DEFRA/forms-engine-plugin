@@ -5,7 +5,7 @@ exports[`SummaryViewModel Check answers (0 items) should use correct summary lab
   {
     "label": "Pizza",
     "name": "pizza",
-    "title": "Pizzas",
+    "title": "Pizza",
     "value": "",
   },
   {
@@ -22,8 +22,8 @@ exports[`SummaryViewModel Check answers (1 item) should use correct summary labe
   {
     "label": "Pizza",
     "name": "pizza",
-    "title": "Pizza added",
-    "value": "You added 1 Pizza",
+    "title": "Pizza",
+    "value": "You have added 1 answer",
   },
   {
     "label": "How would you like to receive your pizza?",
@@ -39,8 +39,8 @@ exports[`SummaryViewModel Check answers (2 items) should use correct summary lab
   {
     "label": "Pizza",
     "name": "pizza",
-    "title": "Pizzas added",
-    "value": "You added 2 Pizzas",
+    "title": "Pizza",
+    "value": "You have added 2 answers",
   },
   {
     "label": "How would you like to receive your pizza?",
