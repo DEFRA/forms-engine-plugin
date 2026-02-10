@@ -64,7 +64,7 @@ function logPaymentSuccess(session, paymentStatus) {
     buildPaymentInfo(
       'pre-auth',
       'success',
-      `${paymentStatus.state.status} amount=${paymentStatus.amount}`,
+      `${paymentStatus.state.status} amount=${paymentStatus.amount / 100}`,
       session.isLivePayment,
       paymentStatus.paymentId
     ),
@@ -82,7 +82,7 @@ function logPaymentFailure(session, paymentStatus) {
     buildPaymentInfo(
       'pre-auth',
       'failed/cancelled',
-      `${paymentStatus.state.status} amount=${paymentStatus.amount}`,
+      `${paymentStatus.state.status} amount=${paymentStatus.amount / 100}`,
       session.isLivePayment,
       paymentStatus.paymentId
     ),

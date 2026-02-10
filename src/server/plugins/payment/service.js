@@ -60,7 +60,7 @@ export class PaymentService {
       buildPaymentInfo(
         'create-payment',
         'success',
-        `amount=${amount}`,
+        `amount=${amount / 100}`,
         isLivePayment,
         response.payment_id
       ),
@@ -156,7 +156,7 @@ export class PaymentService {
               category: 'payment',
               action: 'capture-payment',
               outcome: 'success',
-              reason: `amount=${amount}`,
+              reason: `amount=${amount / 100}`,
               reference: paymentId
             }
           },
