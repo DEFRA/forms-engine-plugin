@@ -28,9 +28,39 @@ export async function getPaymentContext(request, uuid) {
 
   const apiKey = getPaymentApiKey(isLivePayment, formId)
   const paymentService = new PaymentService(apiKey)
-  const paymentStatus = await paymentService.getPaymentStatus(paymentId)
+  const paymentStatus = await paymentService.getPaymentStatus(
+    paymentId,
+    isLivePayment
+  )
 
   return { session, sessionKey, paymentStatus }
+}
+
+/**
+ * Builds an object for logging payment information
+ * @param {string} action
+ * @param {string} outcome
+ * @param {string} reason
+ * @param {boolean} isLivePayment
+ * @param {string} paymentId
+ */
+export function buildPaymentInfo(
+  action,
+  outcome,
+  reason,
+  isLivePayment,
+  paymentId
+) {
+  return {
+    event: {
+      category: 'payment',
+      action,
+      outcome,
+      reason,
+      type: isLivePayment ? 'live' : 'test',
+      reference: paymentId
+    }
+  }
 }
 
 /**

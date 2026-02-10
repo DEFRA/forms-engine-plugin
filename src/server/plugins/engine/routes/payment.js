@@ -2,11 +2,17 @@ import Boom from '@hapi/boom'
 import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
+import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { EXTERNAL_STATE_APPENDAGE } from '~/src/server/constants.js'
-import { getPaymentContext } from '~/src/server/plugins/engine/routes/payment-helper.js'
+import {
+  buildPaymentInfo,
+  getPaymentContext
+} from '~/src/server/plugins/engine/routes/payment-helper.js'
 
 export const PAYMENT_RETURN_PATH = '/payment-callback'
 export const PAYMENT_SESSION_PREFIX = 'payment-'
+
+const logger = createLogger()
 
 /**
  * Flash form component state after successful payment
@@ -46,6 +52,42 @@ function flashComponentState(request, session, paymentStatus) {
  */
 export function getRoutes() {
   return [getReturnRoute()]
+}
+
+/**
+ * Logs successful payment
+ * @param {PaymentSessionData} session - the session data
+ * @param {GetPaymentResponse} paymentStatus - the payment status from GOV.UK Pay
+ */
+function logPaymentSuccess(session, paymentStatus) {
+  logger.info(
+    buildPaymentInfo(
+      'pre-auth',
+      'success',
+      `${paymentStatus.state.status} amount=${paymentStatus.amount}`,
+      session.isLivePayment,
+      paymentStatus.paymentId
+    ),
+    `[payment] Successful pre-auth for paymentId=${paymentStatus.paymentId}`
+  )
+}
+
+/**
+ * Logs failed/cancelled payment
+ * @param {PaymentSessionData} session - the session data
+ * @param {GetPaymentResponse} paymentStatus - the payment status from GOV.UK Pay
+ */
+function logPaymentFailure(session, paymentStatus) {
+  logger.info(
+    buildPaymentInfo(
+      'pre-auth',
+      'failed/cancelled',
+      `${paymentStatus.state.status} amount=${paymentStatus.amount}`,
+      session.isLivePayment,
+      paymentStatus.paymentId
+    ),
+    `[payment] Failed/cancelled pre-auth for paymentId=${paymentStatus.paymentId}`
+  )
 }
 
 /**
@@ -98,6 +140,7 @@ function getReturnRoute() {
       switch (status) {
         case 'capturable':
         case 'success':
+          logPaymentSuccess(session, paymentStatus)
           return handlePaymentSuccess(
             request,
             h,
@@ -109,6 +152,7 @@ function getReturnRoute() {
         case 'cancelled':
         case 'failed':
         case 'error':
+          logPaymentFailure(session, paymentStatus)
           return handlePaymentFailure(request, h, session, sessionKey)
 
         case 'created':

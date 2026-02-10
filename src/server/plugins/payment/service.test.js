@@ -41,6 +41,7 @@ describe('payment service', () => {
         'Payment description',
         returnUrl,
         referenceNumber,
+        false,
         metadata
       )
       expect(payment.paymentId).toBe('payment-id-12345')
@@ -61,6 +62,7 @@ describe('payment service', () => {
           'Payment description',
           returnUrl,
           referenceNumber,
+          false,
           metadata
         )
       ).rejects.toThrow('internal creation error')
@@ -90,6 +92,7 @@ describe('payment service', () => {
           'Payment description',
           returnUrl,
           referenceNumber,
+          false,
           metadata
         )
       ).rejects.toThrow('Failed to create payment')
@@ -119,7 +122,10 @@ describe('payment service', () => {
         error: undefined
       })
 
-      const paymentStatus = await service.getPaymentStatus('payment-id-12345')
+      const paymentStatus = await service.getPaymentStatus(
+        'payment-id-12345',
+        false
+      )
       expect(paymentStatus.paymentId).toBe('payment-id-12345')
       expect(paymentStatus._links.next_url?.href).toBe(
         'http://next-url-href/payment'
@@ -137,7 +143,7 @@ describe('payment service', () => {
       })
 
       await expect(() =>
-        service.getPaymentStatus('payment-id-12345')
+        service.getPaymentStatus('payment-id-12345', false)
       ).rejects.toThrow('Failed to get payment status: some-error')
     })
   })
