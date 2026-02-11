@@ -1,6 +1,10 @@
 import { StatusCodes } from 'http-status-codes'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+import {
+  buildPaymentInfo,
+  convertPenceToPounds
+} from '~/src/server/plugins/engine/routes/payment-helper.js'
 import { get, post, postJson } from '~/src/server/services/httpService.js'
 
 const PAYMENT_BASE_URL = 'https://publicapi.payments.service.gov.uk'
@@ -35,9 +39,17 @@ export class PaymentService {
    * @param {string} description
    * @param {string} returnUrl
    * @param {string} reference
+   * @param {boolean} isLivePayment
    * @param {{ formId: string, slug: string }} metadata
    */
-  async createPayment(amount, description, returnUrl, reference, metadata) {
+  async createPayment(
+    amount,
+    description,
+    returnUrl,
+    reference,
+    isLivePayment,
+    metadata
+  ) {
     const response = await this.postToPayProvider({
       amount,
       description,
@@ -48,15 +60,13 @@ export class PaymentService {
     })
 
     logger.info(
-      {
-        event: {
-          category: 'payment',
-          action: 'create-payment',
-          outcome: 'success',
-          reason: `amount=${amount}`,
-          reference: response.payment_id
-        }
-      },
+      buildPaymentInfo(
+        'create-payment',
+        'success',
+        `amount=${convertPenceToPounds(amount)}`,
+        isLivePayment,
+        response.payment_id
+      ),
       `[payment] Created payment and user taken to enter pre-auth details for paymentId=${response.payment_id}`
     )
 
@@ -68,9 +78,10 @@ export class PaymentService {
 
   /**
    * @param {string} paymentId
+   * @param {boolean} isLivePayment
    * @returns {Promise<GetPaymentResponse>}
    */
-  async getPaymentStatus(paymentId) {
+  async getPaymentStatus(paymentId, isLivePayment) {
     const getByType = /** @type {typeof get<GetPaymentApiResponse>} */ (get)
 
     try {
@@ -92,18 +103,15 @@ export class PaymentService {
 
       const state = response.payload.state
       logger.info(
-        {
-          event: {
-            category: 'payment',
-            action: 'get-payment-status',
-            outcome:
-              state.status === 'capturable' || state.status === 'success'
-                ? 'success'
-                : 'failure',
-            reason: `status:${state.status} code:${state.code ?? 'N/A'} message:${state.message ?? 'N/A'}`,
-            reference: paymentId
-          }
-        },
+        buildPaymentInfo(
+          'get-payment-status',
+          state.status === 'capturable' || state.status === 'success'
+            ? 'success'
+            : 'failure',
+          `status:${state.status} code:${state.code ?? 'N/A'} message:${state.message ?? 'N/A'}`,
+          isLivePayment,
+          paymentId
+        ),
         `[payment] Got payment status for paymentId=${paymentId}: status=${state.status}`
       )
 
@@ -151,7 +159,7 @@ export class PaymentService {
               category: 'payment',
               action: 'capture-payment',
               outcome: 'success',
-              reason: `amount=${amount}`,
+              reason: `amount=${convertPenceToPounds(amount)}`,
               reference: paymentId
             }
           },

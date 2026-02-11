@@ -1,4 +1,7 @@
-import { getPaymentContext } from '~/src/server/plugins/engine/routes/payment-helper.js'
+import {
+  buildPaymentInfo,
+  getPaymentContext
+} from '~/src/server/plugins/engine/routes/payment-helper.js'
 import { get } from '~/src/server/services/httpService.js'
 
 jest.mock('~/src/server/services/httpService.ts')
@@ -81,6 +84,46 @@ describe('payment helper', () => {
         paymentId: 'payment-id'
       },
       sessionKey: 'payment-5a54c2fe-da49-4202-8cd3-2121eaca03c3'
+    })
+  })
+
+  it('should create logging info for a test payment', () => {
+    const res = buildPaymentInfo(
+      'action1',
+      'outcome1',
+      'reason1',
+      false,
+      'pay-123'
+    )
+    expect(res).toEqual({
+      event: {
+        category: 'payment',
+        action: 'action1',
+        outcome: 'outcome1',
+        reason: 'reason1',
+        type: 'test',
+        reference: 'pay-123'
+      }
+    })
+  })
+
+  it('should create logging info for a live payment', () => {
+    const res = buildPaymentInfo(
+      'action2',
+      'outcome2',
+      'reason2',
+      true,
+      'pay-123'
+    )
+    expect(res).toEqual({
+      event: {
+        category: 'payment',
+        action: 'action2',
+        outcome: 'outcome2',
+        reason: 'reason2',
+        type: 'live',
+        reference: 'pay-123'
+      }
     })
   })
 })

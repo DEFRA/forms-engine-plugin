@@ -225,6 +225,7 @@ export class PaymentField extends FormComponent {
       description,
       payCallbackUrl,
       reference,
+      isLivePayment,
       { formId, slug }
     )
 
@@ -276,7 +277,10 @@ export class PaymentField extends FormComponent {
     /**
      * @see https://docs.payments.service.gov.uk/api_reference/#payment-status-lifecycle
      */
-    const status = await paymentService.getPaymentStatus(paymentId)
+    const status = await paymentService.getPaymentStatus(
+      paymentId,
+      isLivePayment
+    )
 
     PaymentSubmissionError.checkPaymentAmount(
       status.amount,
