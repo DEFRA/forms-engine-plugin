@@ -64,6 +64,13 @@ export function buildPaymentInfo(
 }
 
 /**
+ * @param {number} amount
+ */
+export function convertPenceToPounds(amount) {
+  return `${amount / 100}`
+}
+
+/**
  * @import { Request } from '@hapi/hapi'
  * @import { GetPaymentResponse, PaymentSessionData } from '~/src/server/plugins/payment/types.js'
  */

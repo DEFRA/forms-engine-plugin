@@ -1,7 +1,10 @@
 import { StatusCodes } from 'http-status-codes'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
-import { buildPaymentInfo } from '~/src/server/plugins/engine/routes/payment-helper.js'
+import {
+  buildPaymentInfo,
+  convertPenceToPounds
+} from '~/src/server/plugins/engine/routes/payment-helper.js'
 import { get, post, postJson } from '~/src/server/services/httpService.js'
 
 const PAYMENT_BASE_URL = 'https://publicapi.payments.service.gov.uk'
@@ -60,7 +63,7 @@ export class PaymentService {
       buildPaymentInfo(
         'create-payment',
         'success',
-        `amount=${amount / 100}`,
+        `amount=${convertPenceToPounds(amount)}`,
         isLivePayment,
         response.payment_id
       ),
@@ -156,7 +159,7 @@ export class PaymentService {
               category: 'payment',
               action: 'capture-payment',
               outcome: 'success',
-              reason: `amount=${amount / 100}`,
+              reason: `amount=${convertPenceToPounds(amount)}`,
               reference: paymentId
             }
           },

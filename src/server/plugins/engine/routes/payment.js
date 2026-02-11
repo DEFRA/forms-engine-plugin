@@ -6,6 +6,7 @@ import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { EXTERNAL_STATE_APPENDAGE } from '~/src/server/constants.js'
 import {
   buildPaymentInfo,
+  convertPenceToPounds,
   getPaymentContext
 } from '~/src/server/plugins/engine/routes/payment-helper.js'
 
@@ -64,7 +65,7 @@ function logPaymentSuccess(session, paymentStatus) {
     buildPaymentInfo(
       'pre-auth',
       'success',
-      `${paymentStatus.state.status} amount=${paymentStatus.amount / 100}`,
+      `${paymentStatus.state.status} amount=${convertPenceToPounds(paymentStatus.amount)}`,
       session.isLivePayment,
       paymentStatus.paymentId
     ),
@@ -82,7 +83,7 @@ function logPaymentFailure(session, paymentStatus) {
     buildPaymentInfo(
       'pre-auth',
       'failed/cancelled',
-      `${paymentStatus.state.status} amount=${paymentStatus.amount / 100}`,
+      `${paymentStatus.state.status} amount=${convertPenceToPounds(paymentStatus.amount)}`,
       session.isLivePayment,
       paymentStatus.paymentId
     ),
