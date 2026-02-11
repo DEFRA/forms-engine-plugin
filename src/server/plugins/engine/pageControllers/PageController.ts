@@ -119,7 +119,9 @@ export class PageController {
   }
 
   get feedbackLink() {
-    return `/form/feedback?formId=${this.model.formId}`
+    return this.def.options?.disableUserFeedback
+      ? undefined
+      : `/form/feedback?formId=${this.model.formId}`
   }
 
   get phaseTag() {
