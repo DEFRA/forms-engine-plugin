@@ -134,6 +134,8 @@ export class FileUploadField extends FormComponent {
 
       if (typeof schema.min === 'number') {
         formSchema = formSchema.min(schema.min)
+      } else if (options.required !== false) {
+        formSchema = formSchema.min(1)
       }
     } else {
       formSchema = formSchema.length(schema.length)

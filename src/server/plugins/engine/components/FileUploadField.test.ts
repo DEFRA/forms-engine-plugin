@@ -649,6 +649,29 @@ describe('FileUploadField', () => {
         ]
       },
       {
+        description: 'Schema default min',
+        component: {
+          title: 'Example file upload field',
+          name: 'myComponent',
+          type: ComponentType.FileUploadField,
+          options: {},
+          schema: {}
+        } satisfies FileUploadFieldComponent,
+        assertions: [
+          {
+            input: getFormData([]),
+            output: {
+              value: getFormData([]),
+              errors: [
+                expect.objectContaining({
+                  text: 'Example file upload field must contain at least 1 items'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
         description: 'Schema length',
         component: {
           title: 'Example file upload field',
