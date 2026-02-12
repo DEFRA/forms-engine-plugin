@@ -126,7 +126,7 @@ export class FileUploadPageController extends QuestionPageController {
     const files = this.getFilesFromState(state)
 
     // Append the files to the payload
-    payload[fileUpload.name] = files.length ? files : undefined
+    payload[fileUpload.name] = files?.length ? files : undefined
 
     return payload
   }
@@ -151,7 +151,7 @@ export class FileUploadPageController extends QuestionPageController {
     const { path } = this
 
     const uploadState = state.upload?.[path]
-    return uploadState?.files ?? []
+    return uploadState?.files // ?? []
   }
 
   /**
@@ -176,7 +176,7 @@ export class FileUploadPageController extends QuestionPageController {
 
       const files = this.getFilesFromState(state)
 
-      const fileToRemove = files.find(
+      const fileToRemove = files?.find(
         ({ uploadId }) => uploadId === params.itemId
       )
 
@@ -400,7 +400,7 @@ export class FileUploadPageController extends QuestionPageController {
 
     const file = fileState.status.form.file
     if (file.fileStatus === FileStatus.complete) {
-      files.unshift(prepareFileState(fileState))
+      files?.unshift(prepareFileState(fileState))
       await this.mergeState(request, state, {
         upload: { [this.path]: { files, upload } }
       })
@@ -437,11 +437,11 @@ export class FileUploadPageController extends QuestionPageController {
     const upload = this.getUploadFromState(state)
     const files = this.getFilesFromState(state)
 
-    const filesUpdated = files.filter(
+    const filesUpdated = files?.filter(
       ({ uploadId }) => uploadId !== params.itemId
     )
 
-    if (filesUpdated.length === files.length) {
+    if (filesUpdated?.length === files?.length) {
       return
     }
 
@@ -471,7 +471,7 @@ export class FileUploadPageController extends QuestionPageController {
     // Don't initiate anymore after minimum of `schema.max` or MAX_UPLOADS
     const max = Math.min(schema.max ?? MAX_UPLOADS, MAX_UPLOADS)
 
-    if (files.length < max) {
+    if (files && files.length < max) {
       const formMetadata = await getFormMetadata(request.params.slug)
       const notificationEmail =
         formMetadata.notificationEmail ?? 'defraforms@defra.gov.uk'
