@@ -211,7 +211,14 @@ describe('File upload POST tests', () => {
 
     expect(response.statusCode).toBe(StatusCodes.OK)
 
-    const $errorSummary = container.getByRole('alert')
+    const $errorSummary = container
+      .getAllByRole('alert')
+      .find((el) => within(el).queryAllByRole('listitem').length)
+
+    if (!$errorSummary) {
+      throw new Error('Unable to find error summary')
+    }
+
     const $errorItems = within($errorSummary).getAllByRole('listitem')
 
     const $heading = within($errorSummary).getByRole('heading', {
