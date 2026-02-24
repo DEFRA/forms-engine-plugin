@@ -4,6 +4,7 @@ import Joi from 'joi'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { EXTERNAL_STATE_APPENDAGE } from '~/src/server/constants.js'
+import { getPluginOptions } from '~/src/server/plugins/engine/helpers.js'
 import {
   buildPaymentInfo,
   convertPenceToPounds,
@@ -49,11 +50,10 @@ function flashComponentState(request, session, paymentStatus) {
 
 /**
  * Gets the payment routes for handling GOV.UK Pay callbacks
- * @param {PluginOptions} options
  * @returns {ServerRoute[]}
  */
-export function getRoutes(options) {
-  return [getReturnRoute(options)]
+export function getRoutes() {
+  return [getReturnRoute()]
 }
 
 /**
@@ -121,20 +121,21 @@ function handlePaymentFailure(request, h, session, sessionKey) {
 /**
  * Route handler for payment return URL
  * This is called when GOV.UK Pay redirects the user back after payment
- * @param {PluginOptions} options
  * @returns {ServerRoute}
  */
-function getReturnRoute(options) {
+function getReturnRoute() {
   return {
     method: 'GET',
     path: PAYMENT_RETURN_PATH,
     async handler(request, h) {
       const { uuid } = /** @type {{ uuid: string }} */ (request.query)
 
+      const { services } = getPluginOptions(request.server)
+
       const { session, sessionKey, paymentStatus } = await getPaymentContext(
         request,
         uuid,
-        /** @type {FormsService} */ (options.services?.formsService)
+        /** @type {FormsService} */ (services?.formsService)
       )
 
       /**
