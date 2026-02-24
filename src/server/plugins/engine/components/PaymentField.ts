@@ -19,7 +19,8 @@ import {
   type AnyFormRequest,
   type FormContext,
   type FormRequestPayload,
-  type FormResponseToolkit
+  type FormResponseToolkit,
+  type Services
 } from '~/src/server/plugins/engine/types/index.js'
 import {
   type ErrorMessageTemplateList,
@@ -205,7 +206,12 @@ export class PaymentField extends FormComponent {
 
     const isLivePayment = args.isLive && !args.isPreview
     const formId = args.controller.model.formId
-    const paymentService = createPaymentService(isLivePayment, formId)
+    const formsService = model.services.formsService
+    const paymentService = await createPaymentService(
+      isLivePayment,
+      formId,
+      formsService
+    )
 
     const uuid = randomUUID()
 
@@ -272,7 +278,12 @@ export class PaymentField extends FormComponent {
     }
 
     const { paymentId, isLivePayment, formId } = paymentState
-    const paymentService = createPaymentService(isLivePayment, formId)
+    const formsService = this.model.services.formsService
+    const paymentService = await createPaymentService(
+      isLivePayment,
+      formId,
+      formsService
+    )
 
     /**
      * @see https://docs.payments.service.gov.uk/api_reference/#payment-status-lifecycle
@@ -349,6 +360,7 @@ export interface PaymentDispatcherArgs {
       formId: string
       basePath: string
       name: string
+      services: Services
     }
     getState: (request: AnyFormRequest) => Promise<FormSubmissionState>
   }

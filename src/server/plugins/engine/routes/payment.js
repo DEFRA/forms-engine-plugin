@@ -49,10 +49,11 @@ function flashComponentState(request, session, paymentStatus) {
 
 /**
  * Gets the payment routes for handling GOV.UK Pay callbacks
+ * @param {PluginOptions} options
  * @returns {ServerRoute[]}
  */
-export function getRoutes() {
-  return [getReturnRoute()]
+export function getRoutes(options) {
+  return [getReturnRoute(options)]
 }
 
 /**
@@ -120,17 +121,20 @@ function handlePaymentFailure(request, h, session, sessionKey) {
 /**
  * Route handler for payment return URL
  * This is called when GOV.UK Pay redirects the user back after payment
+ * @param {PluginOptions} options
  * @returns {ServerRoute}
  */
-function getReturnRoute() {
+function getReturnRoute(options) {
   return {
     method: 'GET',
     path: PAYMENT_RETURN_PATH,
     async handler(request, h) {
       const { uuid } = /** @type {{ uuid: string }} */ (request.query)
+
       const { session, sessionKey, paymentStatus } = await getPaymentContext(
         request,
-        uuid
+        uuid,
+        /** @type {FormsService} */ (options.services?.formsService)
       )
 
       /**
@@ -193,4 +197,6 @@ function getReturnRoute() {
  * @import { GetPaymentResponse, PaymentSessionData } from '~/src/server/plugins/payment/types.js'
  * @import { PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
  * @import { ExternalStateAppendage, FormState } from '~/src/server/plugins/engine/types.js'
+ * @import { PluginOptions } from '~/src/server/plugins/engine/types.js'
+ * @import { FormsService } from '~/src/server/types.js'
  */

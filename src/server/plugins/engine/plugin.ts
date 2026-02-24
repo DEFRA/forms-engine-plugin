@@ -109,7 +109,7 @@ export const plugin = {
     }
 
     const routes = [
-      ...getPaymentRoutes(),
+      ...getPaymentRoutes(options),
       ...getFileUploadStatusRoutes(),
       ...getRepeaterSummaryRoutes(getRouteOptions, postRouteOptions, onRequest),
       ...getRepeaterItemDeleteRoutes(

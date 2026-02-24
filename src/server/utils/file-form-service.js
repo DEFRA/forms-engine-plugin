@@ -160,6 +160,16 @@ export class FileFormService {
        */
       getFormDefinition: (id) => {
         return Promise.resolve(this.getFormDefinition(id))
+      },
+
+      /**
+       * Get a form secret
+       * @param {string} _formId
+       * @param {string} _secretName
+       * @returns {Promise<string>}
+       */
+      getFormSecret: (_formId, _secretName) => {
+        return Promise.resolve('dummy-secret-value')
       }
     }
   }

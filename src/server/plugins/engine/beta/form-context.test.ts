@@ -150,7 +150,8 @@ describe('getFormModel helper', () => {
       formsService: {
         getFormMetadata: jest.fn().mockResolvedValue(metadata),
         getFormMetadataById: jest.fn(),
-        getFormDefinition: jest.fn().mockResolvedValue(definition)
+        getFormDefinition: jest.fn().mockResolvedValue(definition),
+        getFormSecret: jest.fn()
       },
       formSubmissionService: {
         persistFiles: jest.fn(),

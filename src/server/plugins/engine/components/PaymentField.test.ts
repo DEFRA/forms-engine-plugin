@@ -21,10 +21,17 @@ import {
   type FormResponseToolkit
 } from '~/src/server/routes/types.js'
 import { get, post, postJson } from '~/src/server/services/httpService.js'
+import { type Services } from '~/src/server/types.js'
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
 jest.mock('~/src/server/services/httpService.ts')
+
+const mockServices = {
+  formsService: {
+    getFormSecret: () => 'secret-value'
+  }
+} as unknown as Services
 
 describe('PaymentField', () => {
   let model: FormModel
@@ -250,6 +257,7 @@ describe('PaymentField', () => {
 
     const collection = new ComponentCollection([def], { model })
     const paymentField = collection.fields[0] as PaymentField
+    paymentField.model = { services: mockServices } as unknown as FormModel
 
     describe('dispatcher', () => {
       it('should create payment and redirect to gov pay', async () => {
@@ -277,7 +285,8 @@ describe('PaymentField', () => {
             model: {
               formId: 'formid',
               basePath: 'base-path',
-              name: 'PaymentModel'
+              name: 'PaymentModel',
+              services: mockServices
             },
             getState: jest
               .fn()
@@ -342,7 +351,8 @@ describe('PaymentField', () => {
             model: {
               formId: 'formid',
               basePath: 'base-path',
-              name: 'PaymentModel'
+              name: 'PaymentModel',
+              services: mockServices
             },
             getState: jest.fn().mockResolvedValueOnce({
               $$__referenceNumber: 'pay-ref-123',
