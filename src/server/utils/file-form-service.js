@@ -169,7 +169,8 @@ export class FileFormService {
        * @returns {Promise<string>}
        */
       getFormSecret: (_formId, _secretName) => {
-        return Promise.resolve('dummy-secret-value')
+        // For local env only
+        return Promise.resolve(process.env.PAYMENT_PROVIDER_API_KEY_TEST ?? '')
       }
     }
   }

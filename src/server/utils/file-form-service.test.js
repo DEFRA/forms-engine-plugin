@@ -106,7 +106,7 @@ describe('File-form-service', () => {
         '95e92559-968d-44ae-8666-2b1ad3dffd31',
         'my-secret-name'
       )
-      expect(res4).toBe('dummy-secret-value')
+      expect(res4).toBe('test-api-key')
     })
   })
 

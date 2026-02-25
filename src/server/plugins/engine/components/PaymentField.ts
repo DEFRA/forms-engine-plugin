@@ -16,11 +16,9 @@ import {
   PaymentSubmissionError
 } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import {
-  type AnyFormRequest,
   type FormContext,
   type FormRequestPayload,
-  type FormResponseToolkit,
-  type Services
+  type FormResponseToolkit
 } from '~/src/server/plugins/engine/types/index.js'
 import {
   type ErrorMessageTemplateList,
@@ -28,7 +26,8 @@ import {
   type FormState,
   type FormStateValue,
   type FormSubmissionError,
-  type FormSubmissionState
+  type FormSubmissionState,
+  type PaymentExternalArgs
 } from '~/src/server/plugins/engine/types.js'
 import {
   createPaymentService,
@@ -187,7 +186,7 @@ export class PaymentField extends FormComponent {
   static async dispatcher(
     request: FormRequestPayload,
     h: FormResponseToolkit,
-    args: PaymentDispatcherArgs
+    args: PaymentExternalArgs
   ): Promise<unknown> {
     const { options, name: componentName } = args.component
     const { model } = args.controller
@@ -352,22 +351,6 @@ export class PaymentField extends FormComponent {
       })
     }
   }
-}
-
-export interface PaymentDispatcherArgs {
-  controller: {
-    model: {
-      formId: string
-      basePath: string
-      name: string
-      services: Services
-    }
-    getState: (request: AnyFormRequest) => Promise<FormSubmissionState>
-  }
-  component: PaymentField
-  sourceUrl: string
-  isLive: boolean
-  isPreview: boolean
 }
 
 /**

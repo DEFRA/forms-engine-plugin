@@ -14,7 +14,8 @@ import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { PaymentPreAuthError } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import {
   type FormContext,
-  type FormValue
+  type FormValue,
+  type PaymentExternalArgs
 } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequestPayload,
@@ -296,7 +297,7 @@ describe('PaymentField', () => {
           sourceUrl: 'http://localhost:3009/test-payment',
           isLive: false,
           isPreview: true
-        }
+        } as unknown as PaymentExternalArgs
         // @ts-expect-error - partial mock
         jest.mocked(postJson).mockResolvedValueOnce({
           payload: {
@@ -371,7 +372,7 @@ describe('PaymentField', () => {
           sourceUrl: 'http://localhost:3009/test-payment',
           isLive: false,
           isPreview: true
-        }
+        } as unknown as PaymentExternalArgs
 
         const res = await PaymentField.dispatcher(mockRequest, mockH, args)
 
