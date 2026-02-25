@@ -107,6 +107,13 @@ describe('File-form-service', () => {
         'my-secret-name'
       )
       expect(res4).toBe('test-api-key')
+
+      delete process.env.PAYMENT_PROVIDER_API_KEY_TEST
+      const res5 = await interfaceImpl.getFormSecret(
+        '95e92559-968d-44ae-8666-2b1ad3dffd31',
+        'my-secret-name'
+      )
+      expect(res5).toBe('')
     })
   })
 
