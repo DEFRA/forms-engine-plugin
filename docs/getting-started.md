@@ -1,34 +1,20 @@
----
-layout: default
-title: Getting started
-render_with_liquid: false
-nav_order: 2
----
-
-# Getting started with DXT
-
-1. [Foundational knowledge](#foundational-knowledge)
-2. [Add forms-engine-plugin as a dependency](#step-1-add-forms-engine-plugin-as-a-dependency)
-3. [Register DXT as a hapi plugin](#step-2-register-dxt-as-a-hapi-plugin)
-4. [Handling static assets](#step-3-handling-static-assets)
-5. [Environment variables](#step-4-environment-variables)
-6. [Creating and loading a form](#step-5-creating-and-loading-a-form)
+# Getting started
 
 ## Foundational knowledge
 
-DXT's forms engine is a plugin for a frontend service, which allows development teams to construct forms using configuration and minimal code. Forms are closely based on the knowledge, components and patterns from the GDS Design System. Forms should remain as lightweight as possible, with business logic being implemented in a backend/BFF API and DXT used as a simple presentation layer.
+forms-engine-plugin is a hapi plugin for a frontend service, which allows development teams to construct forms using configuration and minimal code. Forms are closely based on the knowledge, components and patterns from the GDS Design System. Forms should remain as lightweight as possible, with business logic being implemented in a backend/BFF API and forms-engine-plugin used as a simple presentation layer.
 
-You should aim, wherever possible, to utilise the existing behaviours of DXT. Our team puts a lot of effort into development, user testing and accessibility testing to ensure the forms created with DXT will be of a consistently high quality. Where your team introduces custom behaviour, such as custom components or custom pages, this work will now need to be done by your team. Where possible, favour fixing something upstream in the plugin so many teams can benefit from the work we do. Then, if you still need custom behaviour - go for it! DXT is designed to be extended, just be wise with how you spend your efforts.
+You should aim, wherever possible, to utilise the existing behaviours of forms-engine-plugin. Our team puts a lot of effort into development, user testing and accessibility testing to ensure the forms created with forms-engine-plugin will be of a consistently high quality. Where your team introduces custom behaviour, such as custom components or custom pages, this work will now need to be done by your team. Where possible, favour fixing something upstream in the plugin so many teams can benefit from the work we do. Then, if you still need custom behaviour - go for it! forms-engine-plugin is designed to be extended, just be wise with how you spend your efforts.
 
-When developing with DXT, you should favour development using the below priority order. This will ensure your team is writing the minimum amount of code, focusing your efforts on custom code where the requirements are niche and there is value.
+When developing with forms-engine-plugin, you should favour development using the below priority order. This will ensure your team is writing the minimum amount of code, focusing your efforts on custom code where the requirements are niche and there is value.
 
-1. Use out-of-the box DXT components and page types (components, controllers)
+1. Use out-of-the box forms-engine-plugin components and page types (components, controllers)
 2. Use configuration-driven advanced functionality to integrate with backends and dynamically change page content (page events, page templates)
 3. Use custom views, custom components and page controllers to implement highly tailored and niche logic (custom Nunjucks, custom Javascript)
 
-### Contributing back to DXT
+### Contributing back to forms-engine-plugin
 
-When you build custom components and page controllers, they might be useful for other teams in Defra to utilise. For example, many teams collect CPH numbers but have no way to validate it's correct. Rather than creating a new CPH number component and letting it sit in your codebase for just your team, see our [contribution guide](./CONTRIBUTING.md) to learn how to contribute this back to DXT for everyone to benefit from.
+When you build custom components and page controllers, they might be useful for other teams in Defra to utilise. For example, many teams collect CPH numbers but have no way to validate it's correct. Rather than creating a new CPH number component and letting it sit in your codebase for just your team, see our [contribution guide](./contributing) to learn how to contribute this back to forms-engine-plugin for everyone to benefit from.
 
 ## Step 1: Add forms-engine-plugin as a dependency
 
@@ -62,11 +48,11 @@ Optional dependencies
 
 ## Step 2: Decide where you want to store your forms and in what format
 
-See [form definition formats](./FORM_DEFINITION_FORMATS.md) to understand your options. For simple use-cases, we recommend you use our disk-based form loader using YAML form definitions.
+See [form definition formats](./form-definition-formats) to understand your options. For simple use-cases, we recommend you use our disk-based form loader using YAML form definitions.
 
 This will influence the `services.formsService` you provide when registering the plugin (see step 3 below).
 
-## Step 3: Register DXT as a hapi plugin
+## Step 3: Register forms-engine-plugin as a hapi plugin
 
 ```javascript
 import plugin from '@defra/forms-engine-plugin'
@@ -113,14 +99,14 @@ await server.register({
   options: {
     cache: 'session', // must match a session you've instantiated in your hapi server config. Also accepts a CacheService instance for advanced use-cases.
     /**
-     * Options that DXT uses to render Nunjucks templates
+     * Options that forms-engine-plugin uses to render Nunjucks templates
      */
     nunjucks: {
       baseLayoutPath: 'your-base-layout.html', // the base page layout. Usually based off https://design-system.service.gov.uk/styles/page-template/
-      paths // list of directories DXT should use to render your views. Must contain baseLayoutPath.
+      paths // list of directories forms-engine-plugin should use to render your views. Must contain baseLayoutPath.
     },
     /**
-     * Services is what DXT uses to interact with external APIs
+     * Services is what forms-engine-plugin uses to interact with external APIs
      */
     services: {
       formsService, // where your forms should be retrieved from
@@ -177,16 +163,16 @@ Blocks marked with `# FEATURE: <name>` are optional and can be omitted if the fe
 FEEDBACK_LINK=http://test.com
 # END FEATURE: Phase banner
 
-# START FEATURE: DXT -- used if using DXT's infrastructure for file uploads
+# START FEATURE: Hosted tools -- used if using Defra Forms' infrastructure for file uploads
 DESIGNER_URL=http://localhost:3000
 SUBMISSION_URL=http://localhost:3002
 
-# S3 bucket and URL of the CDP uploader. Bucket is owned by DXT, uploader is your service's URL.
+# S3 bucket and URL of the CDP uploader. Bucket is owned by Defra Forms, uploader is your service's URL.
 UPLOADER_BUCKET_NAME=my-bucket
 UPLOADER_URL=http://localhost:7337
-# END FEATURE: DXT
+# END FEATURE: Hosted tools
 
-# START FEATURE: GOV.UK Notify -- used if using DXT's default GOV.UK Notify email sender
+# START FEATURE: GOV.UK Notify -- used if using forms-engine-plugin's default GOV.UK Notify email sender
 NOTIFY_TEMPLATE_ID="your-gov-notify-api-key"
 NOTIFY_API_KEY="your-gov-notify-api-key"
 # END FEATURE: GOV.UK Notify
@@ -198,7 +184,7 @@ GOOGLE_ANALYTICS_TRACKING_ID='12345'
 
 ## Step 6: Creating and loading a form
 
-Forms in DXT are represented by a configuration object called a "form definition". The form definition can be stored in a location and format of your choosing by providing a `formsService` as a registration option. If you are using our 'loader' pattern as recommended in step 2, you will likely be writing YAML or JSON files in your repository as files.
+Forms in forms-engine-plugin are represented by a configuration object called a "form definition". The form definition can be stored in a location and format of your choosing by providing a `formsService` as a registration option. If you are using our 'loader' pattern as recommended in step 2, you will likely be writing YAML or JSON files in your repository as files.
 
 Our examples primarily use JSON. If you are using YAML, simply convert the data structure from JSON to YAML and the examples will still work.
 

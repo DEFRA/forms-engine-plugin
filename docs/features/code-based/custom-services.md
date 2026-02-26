@@ -1,12 +1,4 @@
----
-layout: default
-title: Custom Services
-parent: Code-based Features
-grand_parent: Features
-render_with_liquid: false
----
-
-# Overriding DXT logic with custom services
+# Overriding forms-engine-plugin logic with custom services
 
 ## Customising where forms are loaded from
 
@@ -21,7 +13,7 @@ POST    /{slug}/{path}
 
 A unique `slug` is used to route the user to the correct form, and the `path` used to identify the correct page within the form to show.
 
-The [plugin registration options](/forms-engine-plugin/PLUGIN_OPTIONS.md) have a `services` setting to provide a `formsService` that is responsible for returning `form definition` data.
+The [plugin registration options](/plugin-options) have a `services` setting to provide a `formsService` that is responsible for returning `form definition` data.
 
 WARNING: This below is subject to change
 
@@ -51,7 +43,7 @@ To create a `formsService` from form config files that live on disk, you can use
 Form definition config files can be either `.json` or `.yaml`.
 
 Once created and files have been loaded using the `addForm` method,
-call the `toFormsService` method to return a `FormService` compliant interface which can be passed in to the `services` setting of the [plugin options](/forms-engine-plugin/PLUGIN_OPTIONS.md).
+call the `toFormsService` method to return a `FormService` compliant interface which can be passed in to the `services` setting of the [plugin options](/plugin-options).
 
 ```javascript
 import { FileFormService } from '@defra/forms-engine-plugin/file-form-service.js'

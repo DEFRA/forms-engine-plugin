@@ -1,15 +1,8 @@
----
-layout: default
-title: Contributing
-render_with_liquid: false
-nav_order: 4
----
-
-# Contributing to DXT
+# Contributing to forms-engine-plugin
 
 > **Note:** This guide is for developers within the Department for Environment, Food & Rural Affairs. We do not guarantee support for those outside of this organisation.
 
-Thank you for considering making a contribution to DXT! Our goal is to make DXT a community-driven effort, collaboratively supporting the needs of the many teams within the Defra Group.
+Thank you for considering making a contribution to our plugin! We want to make this a community-driven effort, collaboratively supporting the needs of the many teams within the Defra Group.
 
 This guide aims to set clear expectations for everyone involved in our project, to make collaborating a smooth and enjoyable experience.
 

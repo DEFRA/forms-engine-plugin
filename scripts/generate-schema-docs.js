@@ -140,97 +140,135 @@ export function runJsonSchema2Md(tempDir) {
 }
 
 /**
- * Create index and README files listing all schemas
- * @param {string[]} schemaFiles - List of schema files
+ * @typedef {{ name: string, label?: string }} SchemaEntry
+ * @typedef {{ heading: string, schemas: SchemaEntry[] }} SubSection
+ * @typedef {{ heading: string, description: string, schemas?: SchemaEntry[], subsections?: SubSection[] }} IndexSection
  */
-export function createIndexFile(schemaFiles) {
-  const coreSchemas = [
-    'component-schema-v2',
-    'component-schema',
-    'form-definition-schema',
-    'form-definition-v2-payload-schema',
-    'form-metadata-schema',
-    'page-schema',
-    'page-schema-v2',
-    'list-schema',
-    'list-schema-v2'
-  ]
 
-  const advancedSchemas = [
-    'form-metadata-author-schema',
-    'form-metadata-input-schema',
-    'form-metadata-state-schema',
-    'form-metadata-contact-schema',
-    'form-metadata-email-schema',
-    'form-metadata-online-schema',
-    'page-schema-payload-v2',
-    'question-schema'
-  ]
+/** @type {IndexSection[]} */
+const INDEX_SECTIONS = [
+  {
+    heading: 'Form definition schema',
+    description:
+      'The complete form definition, including all pages, components, conditions and lists.',
+    subsections: [
+      {
+        heading: 'v2 schema (latest)',
+        schemas: [{ name: 'form-definition-v2-schema' }]
+      },
+      {
+        heading: 'v1 schema (deprecated)',
+        schemas: [{ name: 'form-definition-schema' }]
+      }
+    ]
+  },
+  {
+    heading: 'Form metadata schema',
+    description:
+      'Properties describing a form, such as title, organisation and contact details.',
+    schemas: [{ name: 'form-metadata-schema' }]
+  },
+  {
+    heading: 'Specific schemas',
+    description:
+      'Used within the full form definition but included here for quick reference.',
+    subsections: [
+      {
+        heading: 'Component schema',
+        schemas: [
+          { name: 'component-schema-v2', label: 'latest' },
+          { name: 'component-schema', label: 'deprecated' }
+        ]
+      },
+      {
+        heading: 'List schema',
+        schemas: [
+          { name: 'list-schema-v2', label: 'latest' },
+          { name: 'list-schema', label: 'deprecated' }
+        ]
+      },
+      {
+        heading: 'Condition schema',
+        schemas: [
+          { name: 'form-definition-schema-defs-condition-group-schema' }
+        ]
+      }
+    ]
+  }
+]
 
-  const core = /** @type {string[]} */ ([])
-  const advanced = /** @type {string[]} */ ([])
+/**
+ * Renders a list of schema entries as markdown links
+ * @param {SchemaEntry[]} schemas
+ * @returns {string}
+ */
+function renderSchemaList(schemas) {
+  return schemas
+    .map(({ name, label }) => {
+      const text = label ? `${name} (${label})` : name
+      return `* [${text}](${name}.md)`
+    })
+    .join('\n')
+}
 
-  schemaFiles.forEach((file) => {
-    const baseName = path.basename(file, '.json')
-    const link = `* [${baseName}](${baseName}.md)`
+/**
+ * Create the index file listing all schemas
+ * Validates all referenced schemas have a generated markdown file
+ */
+export function createIndexFile() {
+  const generatedFiles = new Set(
+    fs
+      .readdirSync(docsOutputDir)
+      .filter((f) => f.endsWith('.md'))
+      .map((f) => path.basename(f, '.md'))
+  )
 
-    if (coreSchemas.includes(baseName)) {
-      core.push(link)
-    } else if (advancedSchemas.includes(baseName)) {
-      advanced.push(link)
-    } else {
-      console.log(
-        `Note: Schema '${baseName}' is not categorised as core or advanced`
-      )
+  // Collect every schema name referenced in the index definition
+  const allIndexedSchemas = INDEX_SECTIONS.flatMap((section) => [
+    ...(section.schemas ?? []),
+    ...(section.subsections?.flatMap((sub) => sub.schemas) ?? [])
+  ])
+
+  // Validate all referenced schemas have a generated markdown file
+  const missing = allIndexedSchemas
+    .map((s) => s.name)
+    .filter((name) => !generatedFiles.has(name))
+
+  if (missing.length > 0) {
+    throw new Error(
+      `Schema index references schemas that no longer exist:\n${missing.map((n) => `  - ${n}`).join('\n')}\n\nUpdate INDEX_SECTIONS in generate-schema-docs.js to fix this.`
+    )
+  }
+
+  // Build the markdown by looping over the data structure
+  const sections = INDEX_SECTIONS.map((section) => {
+    const lines = [`## ${section.heading}`, '', section.description]
+
+    if (section.schemas) {
+      lines.push('', renderSchemaList(section.schemas))
     }
-  })
 
-  core.sort((a, b) => a.localeCompare(b))
-  advanced.sort((a, b) => a.localeCompare(b))
+    if (section.subsections) {
+      for (const sub of section.subsections) {
+        lines.push('', `### ${sub.heading}`, '', renderSchemaList(sub.schemas))
+      }
+    }
 
-  const content = `---
-layout: default
-title: Schema Reference
-nav_order: 5
-has_children: true
-permalink: /schemas/
-nav_exclude: true
-toc: false
----
+    return lines.join('\n')
+  }).join('\n\n')
 
-# Defra Forms Model Schema Reference
+  const content = `# Defra Forms Schema Reference
 
 This reference documentation details the data structures and validation rules for the Defra Forms Model.
 
 > **Note:** This documentation is automatically generated from the JSON Schema files.
 
-## Overview
-
-The schemas in this directory define the data models used throughout the DXT forms engine. They provide validation rules, type definitions, and structural constraints that ensure form data is consistent and valid.
-
-Key schema categories include:
-- Form definitions (structure of form configurations)
-- Component schemas (input fields, buttons, etc.)
-- Metadata schemas (form properties, versioning)
-
-## Core Schemas
-
-The following schemas are the most commonly used for form configuration:
-
-${core.join('\n')}
-
-## Advanced Schemas
-
-These schemas are primarily for internal use or advanced customisation:
-
-${advanced.join('\n')}
+${sections}
 `
 
   fs.writeFileSync(path.join(docsOutputDir, 'index.md'), content)
 
-  console.log(
-    '📝 Created README.md and index.md files with precisely categorised schemas'
-  )
+  console.log('📝 Created index.md with restructured schema categories')
 }
 
 /**
@@ -245,6 +283,12 @@ export function cleanupFiles(tempDir) {
       recursive: true,
       force: true
     })
+  }
+
+  // Remove README.md generated by jsonschema2md — index.md is used instead
+  const readmePath = path.join(docsOutputDir, 'README.md')
+  if (fs.existsSync(readmePath)) {
+    fs.unlinkSync(readmePath)
   }
 
   const docgenFiles = fs
@@ -332,12 +376,11 @@ export function processSchemaFiles(schemaFiles, tempDir, schemaTitleMap) {
  * Generate markdown documentation from processed schemas
  * @param {string} tempDir - Path to temporary directory with schema files
  * @param {Record<string, string>} titleMap - Map of schema paths to titles
- * @param {string[]} schemaFiles - List of original schema files
  */
-export function generateMarkdownDocumentation(tempDir, titleMap, schemaFiles) {
+export function generateMarkdownDocumentation(tempDir, titleMap) {
   runJsonSchema2Md(tempDir)
   fixMarkdownHeadings(docsOutputDir, titleMap)
-  createIndexFile(schemaFiles)
+  createIndexFile()
 }
 
 /**
@@ -573,16 +616,8 @@ export function addFrontMatterToSchemaFiles() {
       .replace(/-/g, ' ')
       .replace(/\b\w/g, (l) => l.toUpperCase())
 
-    // Add front matter
-    const frontMatter = `---
-layout: default
-title: ${title}
-parent: Schema Reference
-toc: false
----
-
-`
-    fs.writeFileSync(filePath, frontMatter + content)
+    // Write content without any front matter
+    fs.writeFileSync(filePath, content)
   }
 }
 
@@ -601,7 +636,7 @@ export function generateSchemaDocs() {
     const schemaTitleMap = /** @type {Record<string, string>} */ ({})
     processSchemaFiles(schemaFiles, tempDir, schemaTitleMap)
 
-    generateMarkdownDocumentation(tempDir, schemaTitleMap, schemaFiles)
+    generateMarkdownDocumentation(tempDir, schemaTitleMap)
     addFrontMatterToSchemaFiles()
 
     cleanupFiles(tempDir)
