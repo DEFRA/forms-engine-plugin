@@ -22,20 +22,17 @@ const config = {
   presets: [],
 
   themes: [
-    [
+    /** @type {any} */ ([
       require.resolve('@easyops-cn/docusaurus-search-local'),
-      /** @type {import("@easyops-cn/docusaurus-search-local").PluginOptions} */
-      ({
-        // docs-only mode: routeBasePath is '/'
+      {
         docsRouteBasePath: '/',
         indexBlog: false,
         indexPages: false,
-        // hashed filenames for long-term caching of the search index
         hashed: 'filename',
         highlightSearchTermsOnTargetPage: true,
         searchResultContextMaxLength: 60
-      })
-    ],
+      }
+    ]),
     '@defra/docusaurus-theme-govuk'
   ],
 
