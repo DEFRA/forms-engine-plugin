@@ -46,4 +46,4 @@ pages:
 }
 ```
 
-See the [Custom Services guide](features/code-based/CUSTOM_SERVICES.md) for complete documentation on using the `FileFormService` class with the loader pattern, or for implementing custom `formsService` solutions for more complex requirements.
+See the [Custom Services guide](features/code-based/custom-services) for complete documentation on using the `FileFormService` class with the loader pattern, or for implementing custom `formsService` solutions for more complex requirements.
