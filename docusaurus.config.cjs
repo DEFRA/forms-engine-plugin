@@ -116,6 +116,7 @@ const config = {
           ]
         },
         { text: 'Plugin Options', href: '/plugin-options', sidebar: 'auto' },
+        { text: 'Schema', href: '/schemas', sidebar: 'auto' },
         {
           text: 'Reference',
           href: '/request-lifecycle',

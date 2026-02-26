@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'docs/**'
+      - 'scripts/generate-schema-docs.js'
       - 'static/**'
       - 'docusaurus.config.cjs'
       - 'package.json'
@@ -43,7 +44,7 @@ jobs:
         run: npm ci
 
       - name: Build Docusaurus
-        run: npm run docs:build
+        run: npm run docs:build:all
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

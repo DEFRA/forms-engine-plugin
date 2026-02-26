@@ -188,17 +188,7 @@ export function createIndexFile(schemaFiles) {
   core.sort((a, b) => a.localeCompare(b))
   advanced.sort((a, b) => a.localeCompare(b))
 
-  const content = `---
-layout: default
-title: Schema Reference
-nav_order: 5
-has_children: true
-permalink: /schemas/
-nav_exclude: true
-toc: false
----
-
-# Defra Forms Model Schema Reference
+  const content = `# Defra Forms Schema Reference
 
 This reference documentation details the data structures and validation rules for the Defra Forms Model.
 
@@ -206,7 +196,7 @@ This reference documentation details the data structures and validation rules fo
 
 ## Overview
 
-The schemas in this directory define the data models used throughout the DXT forms engine. They provide validation rules, type definitions, and structural constraints that ensure form data is consistent and valid.
+The schemas in this directory define the data models used throughout the forms-engine-plugin. They provide validation rules, type definitions, and structural constraints that ensure form data is consistent and valid.
 
 Key schema categories include:
 - Form definitions (structure of form configurations)
@@ -573,16 +563,8 @@ export function addFrontMatterToSchemaFiles() {
       .replace(/-/g, ' ')
       .replace(/\b\w/g, (l) => l.toUpperCase())
 
-    // Add front matter
-    const frontMatter = `---
-layout: default
-title: ${title}
-parent: Schema Reference
-toc: false
----
-
-`
-    fs.writeFileSync(filePath, frontMatter + content)
+    // Write content without any front matter
+    fs.writeFileSync(filePath, content)
   }
 }
 
