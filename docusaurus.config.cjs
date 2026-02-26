@@ -3,8 +3,7 @@
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'Forms Engine Plugin',
-  tagline:
-    'A hapi plugin for building GOV.UK-compliant form journeys with minimal code',
+  tagline: 'A hapi plugin for building GOV.UK form journeys with minimal code',
   favicon: undefined,
 
   url: 'https://defra.github.io',
@@ -151,7 +150,7 @@ const config = {
       homepage: {
         getStartedHref: '/getting-started',
         description:
-          'A hapi plugin that simplifies form development with a configuration-driven approach. Create GOV.UK form journeys effortlessly — no code required.'
+          'Schema-driven and extensible, built on Hapi.js foundations. Handles routing, validation, state management, and GOV.UK Frontend rendering — so teams can focus on form design, not plumbing.'
       }
     }
   }
