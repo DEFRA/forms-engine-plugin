@@ -1,11 +1,3 @@
----
-layout: default
-title: File upload
-parent: Code-based Features
-grand_parent: Features
-render_with_liquid: false
----
-
 # File Upload Feature
 
 Our forms platform allows users to upload files as part of their form submissions. This feature is designed to work for both users with JavaScript enabled and those without, ensuring accessibility and reliability.

@@ -1,10 +1,3 @@
----
-layout: default
-title: Getting started
-render_with_liquid: false
-nav_order: 2
----
-
 # Getting started with DXT
 
 1. [Foundational knowledge](#foundational-knowledge)
@@ -28,7 +21,7 @@ When developing with DXT, you should favour development using the below priority
 
 ### Contributing back to DXT
 
-When you build custom components and page controllers, they might be useful for other teams in Defra to utilise. For example, many teams collect CPH numbers but have no way to validate it's correct. Rather than creating a new CPH number component and letting it sit in your codebase for just your team, see our [contribution guide](./CONTRIBUTING.md) to learn how to contribute this back to DXT for everyone to benefit from.
+When you build custom components and page controllers, they might be useful for other teams in Defra to utilise. For example, many teams collect CPH numbers but have no way to validate it's correct. Rather than creating a new CPH number component and letting it sit in your codebase for just your team, see our [contribution guide](./contributing) to learn how to contribute this back to DXT for everyone to benefit from.
 
 ## Step 1: Add forms-engine-plugin as a dependency
 
@@ -62,7 +55,7 @@ Optional dependencies
 
 ## Step 2: Decide where you want to store your forms and in what format
 
-See [form definition formats](./FORM_DEFINITION_FORMATS.md) to understand your options. For simple use-cases, we recommend you use our disk-based form loader using YAML form definitions.
+See [form definition formats](./form-definition-formats) to understand your options. For simple use-cases, we recommend you use our disk-based form loader using YAML form definitions.
 
 This will influence the `services.formsService` you provide when registering the plugin (see step 3 below).
 

@@ -1,16 +1,8 @@
----
-layout: default
-title: Save and exit
-parent: Code-based Features
-grand_parent: Features
-render_with_liquid: false
----
-
 # Save and Exit
 
 The forms engine supports save and exit capabilities through the `saveAndExit` plugin option. This feature enables applications to support end users saving their current answers and returning to the form at a later date.
 
-It does this by displaying a secondary button on each question page when the feature is enabled. When the button is clicked the form is submitted in the usual way and once the page data is validated, the provided `saveAndExit` handler is called. This is a standard hapi route handler with an additional `FormContext` parameter passed that contains the [current state of the users progression through the form](../../REQUEST_LIFECYCLE.md).
+It does this by displaying a secondary button on each question page when the feature is enabled. When the button is clicked the form is submitted in the usual way and once the page data is validated, the provided `saveAndExit` handler is called. This is a standard hapi route handler with an additional `FormContext` parameter passed that contains the [current state of the users progression through the form](../../request-lifecycle).
 
 > **Note:** it is your responsibility to ensure any state that exists outside of the form engine is captured upon persistence and available during hydration, e.g. file uploads via CDP.
 

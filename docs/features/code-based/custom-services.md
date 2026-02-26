@@ -1,11 +1,3 @@
----
-layout: default
-title: Custom Services
-parent: Code-based Features
-grand_parent: Features
-render_with_liquid: false
----
-
 # Overriding DXT logic with custom services
 
 ## Customising where forms are loaded from

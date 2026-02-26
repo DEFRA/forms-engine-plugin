@@ -1,11 +1,3 @@
----
-layout: default
-title: Page Templates
-parent: Configuration-based Features
-grand_parent: Features
-render_with_liquid: false
----
-
 # Page templates
 
 Page templates are a configuration-based way of adding dynamic content to the form UI, such as displaying the answer to a question, or some data from your API. This feature is only used for presentation purposes.
@@ -134,7 +126,7 @@ Here is an example of a Liquid template that renders a page title, displays a li
 </p>
 ```
 
-When using these kind of multi-line HTML snippets, you would benefit from our [YAML-based form definitions](../../FORM_DEFINITION_FORMATS.md) that provide a better developer experience compared to JSON files.
+When using these kind of multi-line HTML snippets, you would benefit from our [YAML-based form definitions](../../form-definition-formats) that provide a better developer experience compared to JSON files.
 
 If you choose to stick with JSON form definitions, the above template should be minified and inserted into the content field in the form definition example. E.g. quotes should be either replaced with `'` or escaped `\"`. Your IDE should do this automatically when pasting the into a JSON string, or a tool like https://www.freeformatter.com/json-escape.html can do it manually.
 
@@ -157,7 +149,7 @@ Full example of the minified and escaped component, which can be appended to [th
 
 ## Providing your own filters
 
-Whilst DXT offers some out of the box filters, teams using the plugin have the capability to provide their own. See [PLUGIN_OPTIONS.md](/forms-engine-plugin/PLUGIN_OPTIONS) for more information.
+Whilst DXT offers some out of the box filters, teams using the plugin have the capability to provide their own. See [PLUGIN_OPTIONS.md](/plugin-options) for more information.
 
 ## Using page templates with data from your own API
 

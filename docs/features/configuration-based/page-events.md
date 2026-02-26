@@ -1,11 +1,3 @@
----
-layout: default
-title: Page Events
-parent: Configuration-based Features
-grand_parent: Features
-render_with_liquid: false
----
-
 # Page events
 
 Page events are a configuration-based way of triggering an action on an event trigger. For example, when a page loads, call an API and retrieve the data from it.

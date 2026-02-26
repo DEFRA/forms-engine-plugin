@@ -1,10 +1,3 @@
----
-layout: default
-title: Plugin options
-render_with_liquid: false
-nav_order: 3
----
-
 # Plugin options
 
 The forms plugin is configured with [registration options](https://hapi.dev/api/?v=21.4.0#plugins)
@@ -29,13 +22,13 @@ The forms plugin is configured with [registration options](https://hapi.dev/api/
   - a string representing the cache name to use (e.g. hapi's default server cache). See [custom cache](#custom-cache) for more details.
   - a custom `CacheService` instance implementing your own caching logic
 - `pluginPath` (optional) - The location of the plugin (defaults to `node_modules/@defra/forms-engine-plugin`)
-- `preparePageEventRequestOptions` (optional) - A function that will be invoked for http-based [page events](./features/configuration-based/PAGE_EVENTS.md). See [here](./features/configuration-based/PAGE_EVENTS.md#authenticating-a-http-page-event-request-from-dxt-in-your-api) for details
-- `saveAndExit` (optional) - Configuration for custom session management including key generation, session hydration, and persistence. See [save and exit documentation](./features/code-based/SAVE_AND_EXIT.md) for details
+- `preparePageEventRequestOptions` (optional) - A function that will be invoked for http-based [page events](./features/configuration-based/page-events). See [here](./features/configuration-based/page-events#authenticating-a-http-page-event-request-from-dxt-in-your-api) for details
+- `saveAndExit` (optional) - Configuration for custom session management including key generation, session hydration, and persistence. See [save and exit documentation](./features/code-based/save-and-exit) for details
 - `onRequest` (optional) - A function that will be invoked on each request to any form route e.g `/{slug}/{path}`. See [onRequest](#onrequest) for more details
 
 ## Services
 
-See [our services documentation](./features/code-based/CUSTOM_SERVICES.md).
+See [our services documentation](./features/code-based/custom-services).
 
 ## Custom controllers
 
@@ -263,7 +256,7 @@ await server.register({
 
 ## saveAndExit
 
-The `saveAndExit` plugin option enables custom session handling to enable "Save and Exit" functionality. It is an optional route handler function that is called with the hapi request and response toolkit in addition to the last argument which is the [form context](./REQUEST_LIFECYCLE.md) of the current page from which the save and exit button was pressed:
+The `saveAndExit` plugin option enables custom session handling to enable "Save and Exit" functionality. It is an optional route handler function that is called with the hapi request and response toolkit in addition to the last argument which is the [form context](./request-lifecycle) of the current page from which the save and exit button was pressed:
 
 ```ts
 export type SaveAndExitHandler = (
@@ -292,4 +285,4 @@ await server.register({
 })
 ```
 
-For detailed documentation and examples, see [Save and Exit](./features/code-based/SAVE_AND_EXIT.md).
+For detailed documentation and examples, see [Save and Exit](./features/code-based/save-and-exit).

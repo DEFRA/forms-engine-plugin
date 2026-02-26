@@ -1,8 +1,3 @@
----
-layout: default
-nav_order: 1
----
-
 # Forms engine
 
 **@defra/forms-engine-plugin** is a hapi plugin that simplifies form development with a configuration-driven approach. Create GOV.UK-compliant journeys effortlessly — no code required. For advanced needs, extend functionality with minimal code. Build custom components, tailored pages, and integrate seamlessly with APIs, all while adhering to the GDS Design System.
@@ -11,7 +6,7 @@ nav_order: 1
 
 ## Installation
 
-[See our getting started developer guide](./GETTING_STARTED.md).
+[See our getting started developer guide](./getting-started).
 
 ## Demo
 
