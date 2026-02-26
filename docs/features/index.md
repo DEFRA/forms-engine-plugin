@@ -1,1 +1,1 @@
-# DXT Features
+# Features

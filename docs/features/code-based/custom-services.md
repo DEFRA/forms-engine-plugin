@@ -1,4 +1,4 @@
-# Overriding DXT logic with custom services
+# Overriding forms-engine-plugin logic with custom services
 
 ## Customising where forms are loaded from
 

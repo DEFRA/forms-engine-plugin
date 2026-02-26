@@ -34,7 +34,7 @@ Nunjucks is the templating library of choice for frontends within Defra. Nunjuck
 
 LiquidJS is a safe alternative that provides very similar functionality to Nunjucks, but is not passed to `eval` or invoked as a function. This allows us to insert dynamic content into our forms using our configuration files, rather than requiring each team to hardcode it into the codebase.
 
-The core codebase for DXT uses Nunjucks. LiquidJS is only used from the form definition JSON files.
+The core codebase for forms-engine-plugin uses Nunjucks. LiquidJS is only used from the form definition JSON files.
 
 ## Where page templates are supported
 
@@ -60,7 +60,7 @@ The current FormContext is also available as `context` in the templates. This al
 
 Templates should be single line JSON strings, where line breaks are not rendered and are defined as `\n`. Our recommendation is that template strings are edited separately to the form JSON, before being minified and copied into the JSON.
 
-## DXT filters
+## Built-in filters
 
 There are a number of filters available to you from within the templates:
 
@@ -149,7 +149,7 @@ Full example of the minified and escaped component, which can be appended to [th
 
 ## Providing your own filters
 
-Whilst DXT offers some out of the box filters, teams using the plugin have the capability to provide their own. See [PLUGIN_OPTIONS.md](/plugin-options) for more information.
+Whilst forms-engine-plugin offers some out of the box filters, teams using the plugin have the capability to provide their own. See [PLUGIN_OPTIONS.md](/plugin-options) for more information.
 
 ## Using page templates with data from your own API
 

@@ -22,7 +22,7 @@ The forms plugin is configured with [registration options](https://hapi.dev/api/
   - a string representing the cache name to use (e.g. hapi's default server cache). See [custom cache](#custom-cache) for more details.
   - a custom `CacheService` instance implementing your own caching logic
 - `pluginPath` (optional) - The location of the plugin (defaults to `node_modules/@defra/forms-engine-plugin`)
-- `preparePageEventRequestOptions` (optional) - A function that will be invoked for http-based [page events](./features/configuration-based/page-events). See [here](./features/configuration-based/page-events#authenticating-a-http-page-event-request-from-dxt-in-your-api) for details
+- `preparePageEventRequestOptions` (optional) - A function that will be invoked for http-based [page events](./features/configuration-based/page-events). See [here](./features/configuration-based/page-events#authenticating-a-http-page-event-request-from-forms-engine-plugin-in-your-api) for details
 - `saveAndExit` (optional) - Configuration for custom session management including key generation, session hydration, and persistence. See [save and exit documentation](./features/code-based/save-and-exit) for details
 - `onRequest` (optional) - A function that will be invoked on each request to any form route e.g `/{slug}/{path}`. See [onRequest](#onrequest) for more details
 
