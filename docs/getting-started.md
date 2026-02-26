@@ -1,22 +1,4 @@
-# Getting started with forms-engine-plugin
-
-- [Getting started with forms-engine-plugin](#getting-started-with-forms-engine-plugin)
-  - [Foundational knowledge](#foundational-knowledge)
-    - [Contributing back to forms-engine-plugin](#contributing-back-to-forms-engine-plugin)
-  - [Step 1: Add forms-engine-plugin as a dependency](#step-1-add-forms-engine-plugin-as-a-dependency)
-    - [Installation](#installation)
-    - [Dependencies](#dependencies)
-  - [Step 2: Decide where you want to store your forms and in what format](#step-2-decide-where-you-want-to-store-your-forms-and-in-what-format)
-  - [Step 3: Register forms-engine-plugin as a hapi plugin](#step-3-register-forms-engine-plugin-as-a-hapi-plugin)
-  - [Step 4: Include forms-engine-plugin's client-side assets](#step-4-include-forms-engine-plugins-client-side-assets)
-  - [Step 5: Environment variables](#step-5-environment-variables)
-  - [Step 6: Creating and loading a form](#step-6-creating-and-loading-a-form)
-    - [Config](#config)
-      - [Pages](#pages)
-      - [Components](#components)
-      - [Lists](#lists)
-      - [Conditions](#conditions)
-      - [Condition examples](#condition-examples)
+# Getting started
 
 ## Foundational knowledge
 
