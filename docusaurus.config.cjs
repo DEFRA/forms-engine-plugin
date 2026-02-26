@@ -70,7 +70,6 @@ const config = {
 
       navigation: [
         { text: 'Getting Started', href: '/getting-started', sidebar: 'auto' },
-        { text: 'Plugin Options', href: '/plugin-options', sidebar: 'auto' },
         {
           text: 'Features',
           href: '/features',
@@ -116,6 +115,7 @@ const config = {
             }
           ]
         },
+        { text: 'Plugin Options', href: '/plugin-options', sidebar: 'auto' },
         {
           text: 'Reference',
           href: '/request-lifecycle',
@@ -126,8 +126,7 @@ const config = {
               href: '/form-definition-formats'
             }
           ]
-        },
-        { text: 'Contributing', href: '/contributing' }
+        }
       ],
 
       phaseBanner: {
@@ -140,6 +139,10 @@ const config = {
           {
             text: 'GitHub',
             href: 'https://github.com/DEFRA/forms-engine-plugin'
+          },
+          {
+            text: 'Contributing',
+            href: '/forms-engine-plugin/contributing'
           }
         ]
       },
