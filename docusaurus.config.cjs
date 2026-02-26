@@ -69,8 +69,8 @@ const config = {
       },
 
       navigation: [
-        { text: 'Getting Started', href: '/getting-started' },
-        { text: 'Plugin Options', href: '/plugin-options' },
+        { text: 'Getting Started', href: '/getting-started', sidebar: 'auto' },
+        { text: 'Plugin Options', href: '/plugin-options', sidebar: 'auto' },
         {
           text: 'Features',
           href: '/features',

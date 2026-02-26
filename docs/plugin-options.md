@@ -26,15 +26,17 @@ The forms plugin is configured with [registration options](https://hapi.dev/api/
 - `saveAndExit` (optional) - Configuration for custom session management including key generation, session hydration, and persistence. See [save and exit documentation](./features/code-based/save-and-exit) for details
 - `onRequest` (optional) - A function that will be invoked on each request to any form route e.g `/{slug}/{path}`. See [onRequest](#onrequest) for more details
 
-## Services
+## Option details
+
+### Services
 
 See [our services documentation](./features/code-based/custom-services).
 
-## Custom controllers
+### Custom controllers
 
 TODO
 
-## nunjucks configuration
+### nunjucks configuration
 
 The `nunjucks` option is required and configures the template engine paths and layout.
 
@@ -64,7 +66,7 @@ await server.register({
 
 The `baseLayoutPath` is the file that all form pages will extend. The `paths` array tells Nunjucks where to look for templates, including your custom templates and any third-party template libraries (like GOV.UK Frontend).
 
-## viewContext
+### viewContext
 
 The `viewContext` option is a required function that provides global context variables to all templates rendered by the plugin.
 
@@ -109,7 +111,7 @@ await server.register({
 
 The context returned by this function is merged with the plugin's internal context and made available to all templates.
 
-## model
+### model
 
 The `model` option allows you to provide a pre-built `FormModel` instance to serve a single static form definition.
 
@@ -147,7 +149,7 @@ await server.register({
 })
 ```
 
-## Custom globals
+### Custom globals
 
 Use the `globals` plugin option to provide custom functions that can be called from within Nunjucks templates.
 
@@ -177,7 +179,7 @@ In your templates:
 <p>Total: {{ formatCurrency(123.45) }}</p>
 ```
 
-## Custom filters
+### Custom filters
 
 Use the `filter` plugin option to provide custom template filters.
 Filters are available in both [nunjucks](https://mozilla.github.io/nunjucks/templating.html#filters) and [liquid](https://liquidjs.com/filters/overview.html) templates.
@@ -196,7 +198,7 @@ await server.register({
 })
 ```
 
-## Custom cache
+### Custom cache
 
 The plugin will use the [default server cache](https://hapi.dev/api/?v=21.4.0#-serveroptionscache) to store form answers on the server.
 This is just an in-memory cache which is fine for development.
@@ -221,7 +223,7 @@ const server = new Hapi.Server({
 })
 ```
 
-## onRequest
+### onRequest
 
 If provided, the `onRequest` plugin option will be invoked on each request to any routes registered by the plugin.
 
@@ -254,7 +256,7 @@ await server.register({
 })
 ```
 
-## saveAndExit
+### saveAndExit
 
 The `saveAndExit` plugin option enables custom session handling to enable "Save and Exit" functionality. It is an optional route handler function that is called with the hapi request and response toolkit in addition to the last argument which is the [form context](./request-lifecycle) of the current page from which the save and exit button was pressed:
 
