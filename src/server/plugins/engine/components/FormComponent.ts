@@ -12,6 +12,7 @@ import {
 } from '~/src/server/plugins/engine/types/index.js'
 import {
   type ErrorMessageTemplateList,
+  type Feature,
   type FileState,
   type FormPayload,
   type FormState,
@@ -19,6 +20,7 @@ import {
   type FormSubmissionError,
   type FormSubmissionState,
   type FormValue,
+  type GeospatialState,
   type RepeatItemState,
   type RepeatListState,
   type UploadState
@@ -304,8 +306,35 @@ export function isUploadState(value?: unknown): value is UploadState {
 }
 
 /**
+ * Check for geospatial state
+ */
+export function isGeospatialState(value?: unknown): value is GeospatialState {
+  if (!Array.isArray(value)) {
+    return false
+  }
+
+  // Skip checks when empty
+  if (!value.length) {
+    return true
+  }
+
+  return value.every(isGeospatialValue)
+}
+
+/**
  * Check for upload state value
  */
 export function isUploadValue(value?: unknown): value is FileState {
   return isFormState(value) && typeof value.uploadId === 'string'
+}
+
+/**
+ * Check for geospatial state value
+ */
+export function isGeospatialValue(value?: unknown): value is Feature {
+  return (
+    isFormState(value) &&
+    typeof value.type === 'string' &&
+    value.type === 'Feature'
+  )
 }
