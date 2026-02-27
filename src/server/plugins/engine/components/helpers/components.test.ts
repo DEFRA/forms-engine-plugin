@@ -2,11 +2,13 @@ import {
   ComponentType,
   type DeclarationFieldComponent,
   type EastingNorthingFieldComponent,
+  type GeospatialFieldComponent,
   type LatLongFieldComponent,
   type NationalGridFieldNumberFieldComponent,
   type OsGridRefFieldComponent
 } from '@defra/forms-model'
 
+import { validState } from '~/src/server/plugins/engine/components/helpers/__stubs__/geospatial.js'
 import {
   getAnswer,
   getAnswerMarkdown
@@ -14,6 +16,7 @@ import {
 import {
   DeclarationField,
   EastingNorthingField,
+  GeospatialField,
   LatLongField,
   NationalGridFieldNumberField,
   OsGridRefField
@@ -215,6 +218,51 @@ describe('Location field formatting', () => {
 
       const answer = getAnswer(field, state, { format: 'summary' })
       expect(answer).toBe('NG12345678')
+    })
+  })
+
+  describe('GeospatialField', () => {
+    let field: GeospatialField
+
+    beforeEach(() => {
+      const def: GeospatialFieldComponent = {
+        type: ComponentType.GeospatialField,
+        name: 'geoField',
+        title: 'Geospatial',
+        options: {}
+      }
+      field = new GeospatialField(def, { model })
+    })
+
+    it('formats for email output as single value', () => {
+      const state = {
+        geoField: validState
+      }
+
+      const answer = getAnswer(field, state, { format: 'email' })
+      expect(answer).toBe(
+        'My farm house:\nSJ 61896 71377\n\nMain gas line:\nSJ 62022 71500 to SJ 61904 71391\n\nMy Pony Paddock:\nSJ 61829 71378\n\nMy farm house #2:\nSJ 61894 71483\n\n'
+      )
+    })
+
+    it('formats for data output', () => {
+      const state = {
+        geoField: validState
+      }
+
+      const answer = getAnswer(field, state, { format: 'data' })
+      expect(answer).toBe('a,b,c,d')
+    })
+
+    it('formats for summary display', () => {
+      const state = {
+        geoField: validState
+      }
+
+      const answer = getAnswer(field, state, { format: 'summary' })
+      expect(answer).toBe(
+        'My farm house:<br>SJ 61896 71377<br>Main gas line:<br>SJ 62022 71500 to SJ 61904 71391<br>My Pony Paddock:<br>SJ 61829 71378<br>My farm house #2:<br>SJ 61894 71483<br>'
+      )
     })
   })
 
