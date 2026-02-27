@@ -129,7 +129,7 @@
     "@babel/plugin-syntax-import-attributes": "^7.27.1",
     "@babel/preset-env": "^7.28.5",
     "@babel/preset-typescript": "^7.28.5",
-    "@defra/docusaurus-theme-govuk": "^0.0.11-alpha",
+    "@defra/docusaurus-theme-govuk": "^0.0.12-alpha",
     "@docusaurus/core": "^3.9.2",
     "@docusaurus/plugin-content-docs": "^3.9.2",
     "@easyops-cn/docusaurus-search-local": "^0.55.0",
