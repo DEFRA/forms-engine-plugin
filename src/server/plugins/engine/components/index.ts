@@ -30,3 +30,4 @@ export { NationalGridFieldNumberField } from '~/src/server/plugins/engine/compon
 export { LatLongField } from '~/src/server/plugins/engine/components/LatLongField.js'
 export { HiddenField } from '~/src/server/plugins/engine/components/HiddenField.js'
 export { PaymentField } from '~/src/server/plugins/engine/components/PaymentField.js'
+export { GeospatialField } from '~/src/server/plugins/engine/components/GeospatialField.js'
