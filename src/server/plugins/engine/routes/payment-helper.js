@@ -1,16 +1,16 @@
 import Boom from '@hapi/boom'
 
 import { PAYMENT_SESSION_PREFIX } from '~/src/server/plugins/engine/routes/payment.js'
-import { getPaymentApiKey } from '~/src/server/plugins/payment/helper.js'
-import { PaymentService } from '~/src/server/plugins/payment/service.js'
+import { createPaymentService } from '~/src/server/plugins/payment/helper.js'
 
 /**
  * Validates session data and retrieves payment status
  * @param {Request} request - the request
  * @param {string} uuid - the payment UUID
+ * @param {FormsService} formsService - the forms service
  * @returns {Promise<{ session: PaymentSessionData, sessionKey: string, paymentStatus: GetPaymentResponse }>}
  */
-export async function getPaymentContext(request, uuid) {
+export async function getPaymentContext(request, uuid, formsService) {
   const sessionKey = `${PAYMENT_SESSION_PREFIX}${uuid}`
   const session = /** @type {PaymentSessionData | null} */ (
     request.yar.get(sessionKey)
@@ -26,8 +26,11 @@ export async function getPaymentContext(request, uuid) {
     throw Boom.badRequest('No paymentId in session')
   }
 
-  const apiKey = getPaymentApiKey(isLivePayment, formId)
-  const paymentService = new PaymentService(apiKey)
+  const paymentService = await createPaymentService(
+    isLivePayment,
+    formId,
+    formsService
+  )
   const paymentStatus = await paymentService.getPaymentStatus(
     paymentId,
     isLivePayment
@@ -73,4 +76,5 @@ export function convertPenceToPounds(amount) {
 /**
  * @import { Request } from '@hapi/hapi'
  * @import { GetPaymentResponse, PaymentSessionData } from '~/src/server/plugins/payment/types.js'
+ * @import { FormsService } from '~/src/server/types.js'
  */

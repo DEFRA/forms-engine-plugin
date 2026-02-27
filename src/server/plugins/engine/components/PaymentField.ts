@@ -16,7 +16,6 @@ import {
   PaymentSubmissionError
 } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import {
-  type AnyFormRequest,
   type FormContext,
   type FormRequestPayload,
   type FormResponseToolkit
@@ -27,7 +26,8 @@ import {
   type FormState,
   type FormStateValue,
   type FormSubmissionError,
-  type FormSubmissionState
+  type FormSubmissionState,
+  type PaymentExternalArgs
 } from '~/src/server/plugins/engine/types.js'
 import {
   createPaymentService,
@@ -186,7 +186,7 @@ export class PaymentField extends FormComponent {
   static async dispatcher(
     request: FormRequestPayload,
     h: FormResponseToolkit,
-    args: PaymentDispatcherArgs
+    args: PaymentExternalArgs
   ): Promise<unknown> {
     const { options, name: componentName } = args.component
     const { model } = args.controller
@@ -205,7 +205,12 @@ export class PaymentField extends FormComponent {
 
     const isLivePayment = args.isLive && !args.isPreview
     const formId = args.controller.model.formId
-    const paymentService = createPaymentService(isLivePayment, formId)
+    const formsService = model.services.formsService
+    const paymentService = await createPaymentService(
+      isLivePayment,
+      formId,
+      formsService
+    )
 
     const uuid = randomUUID()
 
@@ -272,7 +277,12 @@ export class PaymentField extends FormComponent {
     }
 
     const { paymentId, isLivePayment, formId } = paymentState
-    const paymentService = createPaymentService(isLivePayment, formId)
+    const formsService = this.model.services.formsService
+    const paymentService = await createPaymentService(
+      isLivePayment,
+      formId,
+      formsService
+    )
 
     /**
      * @see https://docs.payments.service.gov.uk/api_reference/#payment-status-lifecycle
@@ -341,21 +351,6 @@ export class PaymentField extends FormComponent {
       })
     }
   }
-}
-
-export interface PaymentDispatcherArgs {
-  controller: {
-    model: {
-      formId: string
-      basePath: string
-      name: string
-    }
-    getState: (request: AnyFormRequest) => Promise<FormSubmissionState>
-  }
-  component: PaymentField
-  sourceUrl: string
-  isLive: boolean
-  isPreview: boolean
 }
 
 /**

@@ -3,7 +3,8 @@ import { FormStatus } from '@defra/forms-model'
 import {
   getFormDefinition,
   getFormMetadata,
-  getFormMetadataById
+  getFormMetadataById,
+  getFormSecret
 } from '~/src/server/plugins/engine/services/formsService.js'
 
 describe('formsService', () => {
@@ -17,5 +18,9 @@ describe('formsService', () => {
 
   it('getFormDefinition should throw error', () => {
     expect(() => getFormDefinition('id', FormStatus.Draft)).toThrow()
+  })
+
+  it('getFormSecret should throw error', () => {
+    expect(() => getFormSecret('id', 'my-secret-name')).toThrow()
   })
 })

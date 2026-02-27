@@ -5,35 +5,23 @@ import { PaymentService } from '~/src/server/plugins/payment/service.js'
 export const DEFAULT_PAYMENT_HELP_URL =
   'https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs'
 
-/**
- * Determine which payment API key value to use.
- * If a draft preview form or a live preview form, read the TEST API key value specific to that form.
- * If a live (non-preview) form, read the LIVE API key value specific to that form.
- * @param {boolean} isLivePayment - true if this is a live payment (as opposed to a test one)
- * @param {string} formId - id of the form
- * @returns {string}
- */
-export function getPaymentApiKey(isLivePayment, formId) {
-  const apiKeyValue = isLivePayment
-    ? process.env[`PAYMENT_PROVIDER_API_KEY_LIVE_${formId}`]
-    : process.env[`PAYMENT_PROVIDER_API_KEY_TEST_${formId}`]
-
-  if (!apiKeyValue) {
-    throw new Error(
-      `[payment] Missing payment api key for ${isLivePayment ? 'live' : 'test'} form id ${formId}`
-    )
-  }
-  return apiKeyValue
-}
+const PAYMENT_TEST_API_KEY = 'payment-test-api-key'
+const PAYMENT_LIVE_API_KEY = 'payment-live-api-key'
 
 /**
  * Creates a PaymentService instance with the appropriate API key
  * @param {boolean} isLivePayment - true if this is a live payment
  * @param {string} formId - id of the form
- * @returns {PaymentService}
+ * @param {FormsService} formsService - service to handle form data operations
+ * @returns {Promise<PaymentService>}
  */
-export function createPaymentService(isLivePayment, formId) {
-  const apiKey = getPaymentApiKey(isLivePayment, formId)
+export async function createPaymentService(
+  isLivePayment,
+  formId,
+  formsService
+) {
+  const secretName = isLivePayment ? PAYMENT_LIVE_API_KEY : PAYMENT_TEST_API_KEY
+  const apiKey = await formsService.getFormSecret(formId, secretName)
   return new PaymentService(apiKey)
 }
 
@@ -61,3 +49,7 @@ export function formatCurrency(amount, locale = 'en-GB', currency = 'GBP') {
 
   return formatter.format(amount)
 }
+
+/**
+ * @import { FormsService } from '~/src/server/types.js'
+ */

@@ -33,6 +33,17 @@ export function getFormDefinition(_id, _state) {
   throw error
 }
 
+// eslint-disable-next-line jsdoc/require-returns-check
+/**
+ * Dummy function to get a form secret.
+ * @param {string} _id - the id of the form
+ * @param {string} _secretName - the name of the secret
+ * @returns {Promise<string>}
+ */
+export function getFormSecret(_id, _secretName) {
+  throw error
+}
+
 /**
  * @import { FormStatus, FormDefinition, FormMetadata } from '@defra/forms-model'
  */

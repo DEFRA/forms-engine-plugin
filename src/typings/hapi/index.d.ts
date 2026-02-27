@@ -41,6 +41,7 @@ declare module '@hapi/hapi' {
       ) => Record<string, unknown> | Promise<Record<string, unknown>>
       saveAndExit?: PluginOptions['saveAndExit']
       baseUrl: string
+      services: PluginOptions['services']
     }
   }
 
