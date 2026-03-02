@@ -8,7 +8,6 @@ jest.mock('../node_modules/@defra/forms-model/schemas', () => ({}), {
   virtual: true
 })
 
- 
 import {
   addFrontMatterToSchemaFiles,
   applyReplacements,
