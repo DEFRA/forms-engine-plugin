@@ -55,7 +55,7 @@ export function stripParam(query: FormQuery, paramToRemove: string) {
  * Any hidden parameters defined in the FormDefinition may be pre-filled by URL parameter values.
  * Other parameters are ignored for security reasons.
  * @param request
- * @param model
+ * @param page
  */
 export async function prefillStateFromQueryParameters(
   request: AnyFormRequest,

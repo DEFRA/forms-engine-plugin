@@ -11,7 +11,9 @@ import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 describe('Submission helpers', () => {
   describe('buildPaymentRecords', () => {
     it('should return empty array when no payment state exists', () => {
-      const mockPaymentField = Object.create(PaymentField.prototype)
+      const mockPaymentField = Object.create(
+        PaymentField.prototype
+      ) as PaymentField
       mockPaymentField.getPaymentStateFromState = jest
         .fn()
         .mockReturnValue(undefined)
@@ -43,7 +45,9 @@ describe('Submission helpers', () => {
         }
       }
 
-      const mockPaymentField = Object.create(PaymentField.prototype)
+      const mockPaymentField = Object.create(
+        PaymentField.prototype
+      ) as PaymentField
       mockPaymentField.getPaymentStateFromState = jest
         .fn()
         .mockReturnValue(mockPaymentState)
@@ -91,7 +95,9 @@ describe('Submission helpers', () => {
         }
       }
 
-      const mockPaymentField = Object.create(PaymentField.prototype)
+      const mockPaymentField = Object.create(
+        PaymentField.prototype
+      ) as PaymentField
       mockPaymentField.getPaymentStateFromState = jest
         .fn()
         .mockReturnValue(mockPaymentState)
@@ -120,7 +126,7 @@ describe('Submission helpers', () => {
     })
 
     it('should process regular fields correctly', () => {
-      const mockTextField = Object.create(TextField.prototype)
+      const mockTextField = Object.create(TextField.prototype) as TextField
       mockTextField.getDisplayStringFromState = jest
         .fn()
         .mockReturnValue('John Doe')
@@ -159,7 +165,9 @@ describe('Submission helpers', () => {
         }
       }
 
-      const mockPaymentField = Object.create(PaymentField.prototype)
+      const mockPaymentField = Object.create(
+        PaymentField.prototype
+      ) as PaymentField
       mockPaymentField.getPaymentStateFromState = jest
         .fn()
         .mockReturnValue(mockPaymentState)
@@ -185,7 +193,7 @@ describe('Submission helpers', () => {
     })
 
     it('should handle mixed regular and payment fields', () => {
-      const mockTextField = Object.create(TextField.prototype)
+      const mockTextField = Object.create(TextField.prototype) as TextField
       mockTextField.getDisplayStringFromState = jest
         .fn()
         .mockReturnValue('test@example.com')
@@ -201,7 +209,9 @@ describe('Submission helpers', () => {
         preAuth: { status: 'success', createdAt: '2026-01-26T12:00:00.000Z' }
       }
 
-      const mockPaymentField = Object.create(PaymentField.prototype)
+      const mockPaymentField = Object.create(
+        PaymentField.prototype
+      ) as PaymentField
       mockPaymentField.getPaymentStateFromState = jest
         .fn()
         .mockReturnValue(mockPaymentState)
@@ -246,7 +256,7 @@ describe('Submission helpers', () => {
 
   describe('buildRepeaterRecords', () => {
     it('should return empty array when no repeater items', () => {
-      const mockField = Object.create(TextField.prototype)
+      const mockField = Object.create(TextField.prototype) as TextField
 
       const items = [
         {
@@ -263,7 +273,7 @@ describe('Submission helpers', () => {
     })
 
     it('should process repeater items correctly', () => {
-      const mockSubField = Object.create(TextField.prototype)
+      const mockSubField = Object.create(TextField.prototype) as TextField
       mockSubField.getDisplayStringFromState = jest
         .fn()
         .mockReturnValue('123 Main St')
