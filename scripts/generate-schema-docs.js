@@ -611,7 +611,7 @@ export function addFrontMatterToSchemaFiles() {
     }
 
     // Generate title from filename
-    const title = file
+    const _title = file
       .replace('.md', '')
       .replace(/-/g, ' ')
       .replace(/\b\w/g, (l) => l.toUpperCase())

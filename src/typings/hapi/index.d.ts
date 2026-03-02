@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/unified-signatures */
-
 import { type Plugin } from '@hapi/hapi'
 import { type ServerYar, type Yar } from '@hapi/yar'
 import { type Logger } from 'pino'

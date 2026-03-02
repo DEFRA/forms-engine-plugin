@@ -1,6 +1,5 @@
 import Boom from '@hapi/boom'
 import { type ResponseObject } from '@hapi/hapi'
-// eslint-disable-next-line n/no-unpublished-import
 import nock from 'nock'
 
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'

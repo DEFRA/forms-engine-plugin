@@ -20,7 +20,7 @@
     "**/*.js",
     "**/*.mjs",
     "**/*.ts",
-    ".eslintrc.*",
+    "eslint.config.*",
     ".prettierrc.*",
     ".lintstagedrc.*",
     "node_modules/@types/jest/index.d.ts"

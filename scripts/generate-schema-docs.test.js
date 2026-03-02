@@ -1,4 +1,5 @@
 // @ts-nocheck
+// eslint-disable-next-line import-x/order -- jest must be imported first for jest.mock hoisting
 import { jest } from '@jest/globals'
 import * as fs from 'fs'
 import path from 'path'
@@ -7,24 +8,25 @@ jest.mock('../node_modules/@defra/forms-model/schemas', () => ({}), {
   virtual: true
 })
 
+ 
 import {
-  setupDirectories,
-  getSchemaFiles,
-  processSchemaContent,
-  readSchemaFile,
-  processSchemaFile,
-  runJsonSchema2Md,
-  createIndexFile,
-  cleanupFiles,
-  processStandardMarkdownFiles,
+  addFrontMatterToSchemaFiles,
   applyReplacements,
-  fixConditionFileHeadings,
-  processConditionMarkdownFiles,
-  fixMarkdownHeadings,
   buildTitleMap,
+  cleanupFiles,
+  createIndexFile,
+  fixConditionFileHeadings,
+  fixMarkdownHeadings,
   formatPropertyName,
   generateSchemaDocs,
-  addFrontMatterToSchemaFiles
+  getSchemaFiles,
+  processConditionMarkdownFiles,
+  processSchemaContent,
+  processSchemaFile,
+  processStandardMarkdownFiles,
+  readSchemaFile,
+  runJsonSchema2Md,
+  setupDirectories
 } from './generate-schema-docs.js'
 
 jest.mock('fs', () => ({
@@ -162,7 +164,7 @@ jest.mock('./generate-schema-docs.js', () => {
 
   return {
     ...originalModule,
-    runJsonSchema2Md: jest.fn().mockImplementation((tempDir) => {}),
+    runJsonSchema2Md: jest.fn().mockImplementation((_tempDir) => {}),
     __dirname: '/mock/cwd'
   }
 })
@@ -174,7 +176,7 @@ describe('Schema Documentation Generator', () => {
     fs.existsSync.mockReturnValue(false)
     fs.readdirSync.mockReturnValue([])
 
-    runJsonSchema2Md.mockImplementation((tempDir) => {
+    runJsonSchema2Md.mockImplementation((_tempDir) => {
       console.log('Mock runJsonSchema2Md called')
     })
   })
@@ -233,7 +235,7 @@ describe('Schema Documentation Generator', () => {
 
   describe('processSchemaContent', () => {
     it('adds $id if missing', () => {
-      const { $id, ...schema } = { ...mockSchema }
+      const { $id: _$id, ...schema } = { ...mockSchema }
 
       const schemaTitleMap = /** @type {Record<string, string>} */ ({})
 
@@ -825,7 +827,7 @@ describe('Schema Documentation Generator', () => {
           '---\ntitle: Existing\n---\n# Content'
       }
 
-      fs.readFileSync.mockImplementation((filePath, encoding) => {
+      fs.readFileSync.mockImplementation((filePath, _encoding) => {
         const path = String(filePath)
         return mockFiles[path] || '# Default content'
       })
