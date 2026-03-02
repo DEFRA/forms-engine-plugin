@@ -1,11 +1,3 @@
----
-layout: default
-title: Components
-parent: Code-based Features
-grand_parent: Features
-nav_order: 6
----
-
 # Components
 
 This guide covers key concepts for developing components.

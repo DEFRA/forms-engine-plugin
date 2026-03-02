@@ -112,7 +112,7 @@ export function initMaps(config = {}) {
   // If there are location components on the page fix up the main form submit
   // handler so it doesn't fire when using the integrated map search feature
   if (locations.length) {
-    const form = document.querySelector('form')
+    const form = locations[0].closest('form')
 
     if (form === null) {
       return
