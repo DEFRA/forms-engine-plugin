@@ -70,7 +70,9 @@
     "url": "git+https://github.com/DEFRA/forms-engine-plugin.git"
   },
   "overrides": {
-    "minimatch": ">=3.1.4",
+    "serve-handler": {
+      "minimatch": "3.1.5"
+    },
     "serialize-javascript": ">=7.0.3"
   },
   "engines": {
