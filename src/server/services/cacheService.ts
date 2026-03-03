@@ -6,7 +6,7 @@ import { config } from '~/src/config/index.js'
 import { type createServer } from '~/src/server/index.js'
 import {
   type AnyFormRequest,
-  type AnyRequest,
+  type CacheRequest,
   type FormConfirmationState,
   type FormPayload,
   type FormState,
@@ -39,14 +39,14 @@ export class CacheService {
     this.logger = server.logger
   }
 
-  async getState(request: AnyRequest): Promise<FormSubmissionState> {
+  async getState(request: CacheRequest): Promise<FormSubmissionState> {
     const key = this.Key(request)
     const cached = await this.cache.get(key)
 
     return cached ?? {}
   }
 
-  async setState(request: AnyFormRequest, state: FormSubmissionState) {
+  async setState(request: CacheRequest, state: FormSubmissionState) {
     const key = this.Key(request)
     const ttl = config.get('sessionTimeout')
 
@@ -56,7 +56,7 @@ export class CacheService {
   }
 
   async getConfirmationState(
-    request: AnyFormRequest
+    request: CacheRequest
   ): Promise<FormConfirmationState> {
     const key = this.Key(request, ADDITIONAL_IDENTIFIER.Confirmation)
     const value = await this.cache.get(key)
@@ -65,7 +65,7 @@ export class CacheService {
   }
 
   async setConfirmationState(
-    request: AnyFormRequest,
+    request: CacheRequest,
     confirmationState: FormConfirmationState
   ) {
     const key = this.Key(request, ADDITIONAL_IDENTIFIER.Confirmation)
@@ -74,7 +74,7 @@ export class CacheService {
     return this.cache.set(key, confirmationState, ttl)
   }
 
-  async clearState(request: AnyFormRequest) {
+  async clearState(request: CacheRequest) {
     if (request.yar.id) {
       await this.cache.drop(this.Key(request))
     }
@@ -123,10 +123,7 @@ export class CacheService {
    * ```
    * @returns The updated state after removal
    */
-  async resetComponentStates(
-    request: AnyFormRequest,
-    componentNames: string[]
-  ) {
+  async resetComponentStates(request: CacheRequest, componentNames: string[]) {
     const state = await this.getState(request)
 
     for (const componentName of componentNames) {
@@ -142,13 +139,13 @@ export class CacheService {
    * @param request - hapi request object
    * @param additionalIdentifier - appended to the id
    */
-  Key(request: AnyRequest, additionalIdentifier?: ADDITIONAL_IDENTIFIER) {
+  Key(request: CacheRequest, additionalIdentifier?: ADDITIONAL_IDENTIFIER) {
     if (!request.yar.id) {
       throw new Error('No session ID found')
     }
 
-    const state = (request.params.state as string) || ''
-    const slug = (request.params.slug as string) || ''
+    const state = request.params.state ?? ''
+    const slug = request.params.slug ?? ''
     const key = `${request.yar.id}:${state}:${slug}:`
 
     return {

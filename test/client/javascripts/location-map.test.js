@@ -4,6 +4,20 @@ import {
   makeTileRequestTransformer
 } from '~/src/client/javascripts/location-map.js'
 
+/**
+ * Extracts a callback from a mock's calls array.
+ * @template {(...args: unknown[]) => unknown} T
+ * @param {jest.Mock} mock - the mock
+ * @param {number} callIndex - call index
+ * @param {number} argIndex - argument index
+ * @returns {T}
+ */
+function getMockCallback(mock, callIndex, argIndex) {
+  return /** @type {T} */ (
+    /** @type {unknown[][]} */ (mock.mock.calls)[callIndex][argIndex]
+  )
+}
+
 describe('Location Maps Client JS', () => {
   /** @type {jest.Mock} */
   let onMock
@@ -108,7 +122,7 @@ describe('Location Maps Client JS', () => {
           expect.any(Function)
         )
 
-        const onMapReady = onMock.mock.calls[0][1]
+        const onMapReady = getMockCallback(onMock, 0, 1)
         expect(typeof onMapReady).toBe('function')
 
         // Manually invoke onMapReady callback
@@ -144,8 +158,7 @@ describe('Location Maps Client JS', () => {
         expect(addMarkerMock).toHaveBeenCalledTimes(1)
         expect(flyToMock).toHaveBeenCalledTimes(1)
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        const onInteractMarkerChange = onMock.mock.calls[1][1]
+        const onInteractMarkerChange = getMockCallback(onMock, 1, 1)
         expect(typeof onInteractMarkerChange).toBe('function')
         onInteractMarkerChange({ coords: [-2.1478238, 54.155676] })
       })
@@ -167,7 +180,7 @@ describe('Location Maps Client JS', () => {
           expect.any(Function)
         )
 
-        const onMapReady = onMock.mock.calls[0][1]
+        const onMapReady = getMockCallback(onMock, 0, 1)
         expect(typeof onMapReady).toBe('function')
 
         // Manually invoke onMapReady callback
@@ -273,7 +286,7 @@ describe('Location Maps Client JS', () => {
           expect.any(Function)
         )
 
-        const onMapReady = onMock.mock.calls[0][1]
+        const onMapReady = getMockCallback(onMock, 0, 1)
         expect(typeof onMapReady).toBe('function')
 
         // Manually invoke onMapReady callback
@@ -309,8 +322,7 @@ describe('Location Maps Client JS', () => {
         expect(addMarkerMock).toHaveBeenCalledTimes(1)
         expect(flyToMock).toHaveBeenCalledTimes(1)
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        const onInteractMarkerChange = onMock.mock.calls[1][1]
+        const onInteractMarkerChange = getMockCallback(onMock, 1, 1)
         expect(typeof onInteractMarkerChange).toBe('function')
         onInteractMarkerChange({
           coords: [-2.147823, 54.155676]
@@ -334,7 +346,7 @@ describe('Location Maps Client JS', () => {
           expect.any(Function)
         )
 
-        const onMapReady = onMock.mock.calls[0][1]
+        const onMapReady = getMockCallback(onMock, 0, 1)
         expect(typeof onMapReady).toBe('function')
 
         // Manually invoke onMapReady callback
@@ -425,7 +437,7 @@ describe('Location Maps Client JS', () => {
           expect.any(Function)
         )
 
-        const onMapReady = onMock.mock.calls[0][1]
+        const onMapReady = getMockCallback(onMock, 0, 1)
         expect(typeof onMapReady).toBe('function')
 
         // Manually invoke onMapReady callback
@@ -457,8 +469,7 @@ describe('Location Maps Client JS', () => {
         expect(addMarkerMock).toHaveBeenCalledTimes(1)
         expect(flyToMock).toHaveBeenCalledTimes(1)
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        const onInteractMarkerChange = onMock.mock.calls[1][1]
+        const onInteractMarkerChange = getMockCallback(onMock, 1, 1)
         expect(typeof onInteractMarkerChange).toBe('function')
         onInteractMarkerChange({
           coords: [-2.147823, 54.155676]
@@ -480,7 +491,7 @@ describe('Location Maps Client JS', () => {
           expect.any(Function)
         )
 
-        const onMapReady = onMock.mock.calls[0][1]
+        const onMapReady = getMockCallback(onMock, 0, 1)
         expect(typeof onMapReady).toBe('function')
 
         // Manually invoke onMapReady callback
