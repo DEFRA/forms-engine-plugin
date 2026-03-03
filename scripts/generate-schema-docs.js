@@ -610,12 +610,6 @@ export function addFrontMatterToSchemaFiles() {
       continue
     }
 
-    // Generate title from filename
-    const _title = file
-      .replace('.md', '')
-      .replace(/-/g, ' ')
-      .replace(/\b\w/g, (l) => l.toUpperCase())
-
     // Write content without any front matter
     fs.writeFileSync(filePath, content)
   }
