@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 // Declaration above is needed for: https://github.com/hapijs/joi/issues/3064
 
 import joi, {

@@ -174,7 +174,6 @@ export class FormComponent extends ComponentBase {
 
   getDisplayStringFromState(state: FormSubmissionState): string {
     const value = this.getFormValueFromState(state)
-    // eslint-disable-next-line @typescript-eslint/no-base-to-string
     return this.getDisplayStringFromFormValue(value)
   }
 
