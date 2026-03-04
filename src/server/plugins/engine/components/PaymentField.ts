@@ -7,9 +7,13 @@ import {
 import { StatusCodes } from 'http-status-codes'
 import joi, { type ObjectSchema } from 'joi'
 
+import { COMPONENT_STATE_ERROR } from '~/src/server/constants.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
-import { getPluginOptions } from '~/src/server/plugins/engine/helpers.js'
+import {
+  createError,
+  getPluginOptions
+} from '~/src/server/plugins/engine/helpers.js'
 import {
   PaymentErrorTypes,
   PaymentPreAuthError,
@@ -233,6 +237,15 @@ export class PaymentField extends FormComponent {
       isLivePayment,
       { formId, slug }
     )
+
+    if (!payment) {
+      const message = isLivePayment
+        ? 'There is a problem and we cannot take a payment. Contact us (details in the footer of this form) or save your progress and return to the form later.'
+        : 'Add a valid test API key before you can preview the payment journey'
+      const govukError = createError(componentName, message)
+      request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
+      return h.redirect(request.url.href).code(StatusCodes.SEE_OTHER)
+    }
 
     const sessionData: PaymentSessionData = {
       uuid,
