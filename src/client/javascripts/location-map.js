@@ -2,9 +2,6 @@ import { bbox } from '@turf/bbox'
 // @ts-expect-error - no types
 import OsGridRef, { LatLon } from 'geodesy/osgridref.js'
 
-// @ts-expect-error - Defra namespace currently comes from UMD support files
-const defra = window.defra
-
 /**
  * Converts lat long to easting and northing
  * @param {object} param
@@ -70,7 +67,12 @@ const defaultConfig = {
 const COMPANY_SYMBOL_CODE = 169
 const LOCATION_FIELD_SELECTOR = 'input.govuk-input'
 const EVENTS = {
-  interactMarkerChange: 'interact:markerchange'
+  mapReady: 'map:ready',
+  interactMarkerChange: 'interact:markerchange',
+  drawReady: 'draw:ready',
+  drawCreated: 'draw:created',
+  drawEdited: 'draw:edited',
+  drawCancelled: 'draw:cancelled'
 }
 
 const defaultData = {
@@ -243,7 +245,7 @@ function processLocation(config, location, index) {
   const { map, interactPlugin } = createMap(mapId, initConfig, config)
 
   map.on(
-    'map:ready',
+    EVENTS.mapReady,
     /**
      * Callback function which fires when the map is ready
      * @param {object} e - the event
@@ -302,6 +304,9 @@ function processLocation(config, location, index) {
  * @param {number} index - the 0-based index
  */
 function processGeospatial(config, geospatial, index) {
+  // @ts-expect-error - Defra namespace currently comes from UMD support files
+  const defra = window.defra
+
   if (!(geospatial instanceof HTMLDivElement)) {
     return
   }
@@ -321,10 +326,11 @@ function processGeospatial(config, geospatial, index) {
   const listId = `${mapId}_list`
   listContainer.setAttribute('id', listId)
 
+  const value = geospatialInput.value.trim()
+  const hasValue = !!value
+
   /** @type {FeatureCollection} */
-  const features = geospatialInput.value
-    ? JSON.parse(geospatialInput.value)
-    : []
+  const features = hasValue ? JSON.parse(value) : []
 
   /** @type {GeoJSON} */
   const geojson = {
@@ -332,7 +338,7 @@ function processGeospatial(config, geospatial, index) {
     features
   }
 
-  const bounds = bbox(geojson)
+  const bounds = hasValue ? bbox(geojson) : undefined
   const drawPlugin = defra.drawMLPlugin()
 
   const initConfig = {
@@ -348,7 +354,7 @@ function processGeospatial(config, geospatial, index) {
   const { map, interactPlugin } = createMap(mapId, initConfig, config)
 
   map.on(
-    'map:ready',
+    EVENTS.mapReady,
     /**
      * Callback function which fires when the map is ready
      */
@@ -425,7 +431,7 @@ function processGeospatial(config, geospatial, index) {
     }
   )
 
-  map.on('draw:ready', function () {
+  map.on(EVENTS.drawReady, function () {
     geojson.features.forEach((feature) => {
       switch (feature.geometry.type) {
         case 'Polygon':
@@ -463,6 +469,9 @@ function processGeospatial(config, geospatial, index) {
     map.toggleButtonState('btnAddLine', 'hidden', hidden)
   }
 
+  /**
+   * Set focus to the last description input
+   */
   function focusDescriptionInput() {
     const inputs = listContainer.querySelectorAll('input')
     if (inputs.length) {
@@ -473,6 +482,7 @@ function processGeospatial(config, geospatial, index) {
       lastInput.select()
     }
   }
+
   /**
    * Removes a feature from the geojson
    * @param {string} id - the feature id
@@ -516,7 +526,7 @@ function processGeospatial(config, geospatial, index) {
     toggleActionButtons(false)
     focusDescriptionInput()
   }
-  map.on('draw:created', onDrawCreated)
+  map.on(EVENTS.drawCreated, onDrawCreated)
 
   /**
    * Callback when a draw feature has been edited
@@ -541,7 +551,7 @@ function processGeospatial(config, geospatial, index) {
 
     resetActiveFeature()
   }
-  map.on('draw:edited', onDrawEdited)
+  map.on(EVENTS.drawEdited, onDrawEdited)
 
   /**
    * Callback when a draw feature has been cancelled
@@ -549,7 +559,7 @@ function processGeospatial(config, geospatial, index) {
   function onDrawCancelled() {
     toggleActionButtons(false)
   }
-  map.on('draw:cancelled', onDrawCancelled)
+  map.on(EVENTS.drawCancelled, onDrawCancelled)
 
   /**
    * Callback when an interact marker has been changed
@@ -672,6 +682,9 @@ function processGeospatial(config, geospatial, index) {
 function createMap(mapId, initConfig, mapsConfig) {
   const { assetPath, apiPath, data = defaultData } = mapsConfig
   const logoAltText = 'Ordnance survey logo'
+
+  // @ts-expect-error - Defra namespace currently comes from UMD support files
+  const defra = window.defra
 
   const interactPlugin = defra.interactPlugin({
     markerColor: { outdoor: '#ff0000', dark: '#00ff00' },
