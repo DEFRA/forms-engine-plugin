@@ -94,8 +94,10 @@ export type FormSubmissionState = {
   upload?: Record<string, TempFileState>
 } & FormState
 
-export interface FormSubmissionError
-  extends Pick<ValidationErrorItem, 'context' | 'path'> {
+export interface FormSubmissionError extends Pick<
+  ValidationErrorItem,
+  'context' | 'path'
+> {
   href: string // e.g: '#dateField__day'
   name: string // e.g: 'dateField__day'
   text: string // e.g: 'Date field must be a real date'
@@ -516,8 +518,7 @@ export interface FormAdapterSubmissionMessagePayload {
   result: FormAdapterSubmissionMessageResult
 }
 
-export interface FormAdapterSubmissionMessage
-  extends FormAdapterSubmissionMessagePayload {
+export interface FormAdapterSubmissionMessage extends FormAdapterSubmissionMessagePayload {
   messageId: string
   recordCreatedAt: Date
 }
