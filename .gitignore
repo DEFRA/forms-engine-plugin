@@ -12,3 +12,7 @@ coverage
 tsconfig.tsbuildinfo
 docs/schemas
 temp-schemas
+
+# Docusaurus
+build
+.docusaurus
