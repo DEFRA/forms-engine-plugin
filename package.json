@@ -1,6 +1,6 @@
 {
   "name": "@defra/forms-engine-plugin",
-  "version": "4.0.59",
+  "version": "4.0.60",
   "description": "Defra forms engine",
   "type": "module",
   "files": [
@@ -55,7 +55,7 @@
     "lint": "npm run lint:editorconfig && npm run lint:js && npm run lint:types",
     "lint:editorconfig": "editorconfig-checker",
     "lint:fix": "npm run lint:js -- --fix",
-    "lint:js": "eslint --cache --cache-location .cache/eslint --cache-strategy content --color --ignore-path .gitignore .",
+    "lint:js": "eslint --cache --cache-location .cache/eslint --cache-strategy content --color .",
     "lint:scss": "stylelint --cache --cache-location .cache/stylelint --cache-strategy content --color --ignore-path .gitignore --max-warnings 0 \"**/*.scss\"",
     "lint:types": "tsc --noEmit",
     "test": "jest --color --coverage --verbose",
@@ -71,6 +71,12 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/DEFRA/forms-engine-plugin.git"
+  },
+  "overrides": {
+    "serve-handler": {
+      "minimatch": "3.1.5"
+    },
+    "serialize-javascript": ">=7.0.3"
   },
   "engines": {
     "node": ">=22.11.0 <25.0.0",
@@ -161,8 +167,6 @@
     "@types/url-parse": "^1.4.11",
     "@types/webpack-assets-manifest": "^5.1.4",
     "@types/wreck": "^14.0.5",
-    "@typescript-eslint/eslint-plugin": "^8.46.4",
-    "@typescript-eslint/parser": "^8.46.4",
     "autoprefixer": "^10.4.22",
     "babel-loader": "^10.0.0",
     "babel-plugin-module-resolver": "^5.0.2",
@@ -176,15 +180,13 @@
     "cssnano": "^7.1.2",
     "cssnano-preset-default": "^7.0.10",
     "editorconfig-checker": "^6.1.1",
-    "eslint": "^8.57.1",
-    "eslint-config-prettier": "^9.1.2",
-    "eslint-config-standard": "^17.1.0",
-    "eslint-import-resolver-typescript": "^3.10.1",
-    "eslint-plugin-import": "^2.32.0",
+    "eslint": "^9.39.3",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jest": "^28.14.0",
     "eslint-plugin-jsdoc": "^50.8.0",
-    "eslint-plugin-n": "^16.6.2",
-    "eslint-plugin-promise": "^6.6.0",
+    "globals": "^17.3.0",
+    "neostandard": "^0.12.2",
+    "typescript-eslint": "^8.56.1",
     "global-jsdom": "^26.0.0",
     "husky": "^9.1.7",
     "jest": "^30.2.0",
