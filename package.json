@@ -84,7 +84,7 @@
   "dependencies": {
     "@defra/forms-model": "^3.0.637",
     "@defra/hapi-tracing": "^1.29.0",
-    "@defra/interactive-map": "^0.0.4-alpha",
+    "@defra/interactive-map": "^0.0.11-alpha",
     "@elastic/ecs-pino-format": "^1.5.0",
     "@hapi/boom": "^10.0.1",
     "@hapi/bourne": "^3.0.0",
@@ -99,6 +99,7 @@
     "@hapi/vision": "^7.0.3",
     "@hapi/wreck": "^18.1.0",
     "@hapi/yar": "^11.0.3",
+    "@turf/bbox": "^7.3.4",
     "@turf/centroid": "^7.3.4",
     "@turf/helpers": "^7.3.4",
     "@types/humanize-duration": "^3.27.4",
