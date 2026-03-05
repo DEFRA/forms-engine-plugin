@@ -10,6 +10,13 @@ on:
 
   workflow_dispatch:
 
+  workflow_call:
+    inputs:
+      skip-sonar:
+        description: 'Skip SonarCloud scan'
+        type: boolean
+        default: false
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
@@ -193,7 +200,7 @@ jobs:
 
   analysis:
     name: Analysis
-    if: github.event.pull_request.head.repo.full_name == github.repository || github.event_name != 'pull_request'
+    if: inputs.skip-sonar != true && (github.event.pull_request.head.repo.full_name == github.repository || github.event_name != 'pull_request')
     runs-on: ubuntu-24.04
     needs: [build, tasks]
 
