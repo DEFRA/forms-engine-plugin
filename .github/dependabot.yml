@@ -18,23 +18,18 @@ updates:
           - 'core-js'
           - 'cssnano'
           - 'cssnano-*'
-          - 'i18next'
-          - 'i18next-*'
           - 'postcss'
           - 'postcss-*'
           - 'react'
           - 'react-*'
           - '*-react'
           - 'sass-embedded'
-          - 'tsc-alias'
           - 'typescript'
           - 'webpack'
           - 'webpack-*'
 
         # Exclude packages in other groups
         exclude-patterns:
-          - 'eslint-plugin-react'
-          - 'eslint-plugin-react-hooks'
           - 'postcss-scss'
 
       lint:
@@ -60,7 +55,6 @@ updates:
       tools:
         patterns:
           - '@testing-library/*'
-          - 'cheerio'
           - 'concurrently'
           - 'global-jsdom'
           - 'jest'
@@ -72,17 +66,10 @@ updates:
       types:
         patterns:
           - '@types/*'
-          - 'oidc-client-ts'
 
       forms:
         patterns:
           - '@defra/forms-model'
-          - '@defra/forms-engine-plugin'
-
-      aws:
-        patterns:
-          - '@aws-sdk/*'
-          - 'aws-embedded-metrics'
 
       hapi:
         patterns:
@@ -90,12 +77,10 @@ updates:
           - 'blankie'
           - 'blipp'
           - 'hapi-*'
-          - '*-hapi'
           - 'joi'
 
       frontend:
         patterns:
-          - '@dagrejs/dagre'
           - '@defra/interactive-map'
           - 'accessible-autocomplete'
           - 'govuk-frontend'
@@ -103,18 +88,13 @@ updates:
           - 'humanize-duration'
           - 'liquidjs'
           - 'nunjucks'
-          - 'prismjs'
-          - 'svgo'
 
       runtime:
         patterns:
           - '@defra/hapi-tracing'
           - 'dotenv'
           - 'ioredis'
-          - 'js-yaml'
           - 'marked'
-          - 'minimatch'
-          - 'mongodb'
           - 'yaml'
 
     # Schedule run every Monday, local time
