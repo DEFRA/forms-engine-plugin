@@ -1,6 +1,6 @@
 {
   "name": "@defra/forms-engine-plugin",
-  "version": "4.0.61",
+  "version": "4.0.62",
   "description": "Defra forms engine",
   "type": "module",
   "files": [
