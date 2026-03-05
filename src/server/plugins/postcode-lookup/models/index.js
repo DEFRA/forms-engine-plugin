@@ -343,9 +343,14 @@ export const manualPayloadSchema = Joi.object()
       '*': 'Enter town or city'
     }),
     [countyFieldName]: Joi.string().trim().allow('').required(),
-    [postcodeFieldName]: Joi.string().trim().required().messages({
-      '*': 'Enter postcode'
-    })
+    [postcodeFieldName]: Joi.string()
+      .pattern(/^[a-zA-Z]{1,2}\d[a-zA-Z\d]?\s?\d[a-zA-Z]{2}$/)
+      .trim()
+      .required()
+      .messages({
+        'string.pattern.base': 'Enter a valid postcode',
+        '*': 'Enter postcode'
+      })
   })
   .required()
 
