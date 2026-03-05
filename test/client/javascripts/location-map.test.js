@@ -32,11 +32,8 @@ describe('Location Maps Client JS', () => {
     }))
 
     class MockInteractiveMap {
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
       on = onMock
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
       addMarker = addMarkerMock
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
       addPanel = addPanelMock
     }
 
