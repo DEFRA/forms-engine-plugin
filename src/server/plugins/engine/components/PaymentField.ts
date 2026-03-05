@@ -241,7 +241,7 @@ export class PaymentField extends FormComponent {
     if (!payment) {
       const message = isLivePayment
         ? 'There is a problem and we cannot take a payment. Contact us (details in the footer of this form) or save your progress and return to the form later.'
-        : 'Add a valid test API key before you can preview the payment journey'
+        : 'Add a valid test API key before you can preview the payment journey.'
       const govukError = createError(componentName, message)
       request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
       return h.redirect(request.url.href).code(StatusCodes.SEE_OTHER)
