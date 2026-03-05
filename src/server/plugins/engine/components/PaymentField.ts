@@ -7,16 +7,19 @@ import {
 import { StatusCodes } from 'http-status-codes'
 import joi, { type ObjectSchema } from 'joi'
 
+import { COMPONENT_STATE_ERROR } from '~/src/server/constants.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
-import { getPluginOptions } from '~/src/server/plugins/engine/helpers.js'
+import {
+  createError,
+  getPluginOptions
+} from '~/src/server/plugins/engine/helpers.js'
 import {
   PaymentErrorTypes,
   PaymentPreAuthError,
   PaymentSubmissionError
 } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import {
-  type AnyFormRequest,
   type FormContext,
   type FormRequestPayload,
   type FormResponseToolkit
@@ -27,7 +30,8 @@ import {
   type FormState,
   type FormStateValue,
   type FormSubmissionError,
-  type FormSubmissionState
+  type FormSubmissionState,
+  type PaymentExternalArgs
 } from '~/src/server/plugins/engine/types.js'
 import {
   createPaymentService,
@@ -186,7 +190,7 @@ export class PaymentField extends FormComponent {
   static async dispatcher(
     request: FormRequestPayload,
     h: FormResponseToolkit,
-    args: PaymentDispatcherArgs
+    args: PaymentExternalArgs
   ): Promise<unknown> {
     const { options, name: componentName } = args.component
     const { model } = args.controller
@@ -205,7 +209,12 @@ export class PaymentField extends FormComponent {
 
     const isLivePayment = args.isLive && !args.isPreview
     const formId = args.controller.model.formId
-    const paymentService = createPaymentService(isLivePayment, formId)
+    const formsService = model.services.formsService
+    const paymentService = await createPaymentService(
+      isLivePayment,
+      formId,
+      formsService
+    )
 
     const uuid = randomUUID()
 
@@ -228,6 +237,15 @@ export class PaymentField extends FormComponent {
       isLivePayment,
       { formId, slug }
     )
+
+    if (!payment) {
+      const message = isLivePayment
+        ? 'There is a problem and we cannot take a payment. Contact us (details in the footer of this form) or save your progress and return to the form later.'
+        : 'Add a valid test API key before you can preview the payment journey.'
+      const govukError = createError(componentName, message)
+      request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
+      return h.redirect(request.url.href).code(StatusCodes.SEE_OTHER)
+    }
 
     const sessionData: PaymentSessionData = {
       uuid,
@@ -272,7 +290,12 @@ export class PaymentField extends FormComponent {
     }
 
     const { paymentId, isLivePayment, formId } = paymentState
-    const paymentService = createPaymentService(isLivePayment, formId)
+    const formsService = this.model.services.formsService
+    const paymentService = await createPaymentService(
+      isLivePayment,
+      formId,
+      formsService
+    )
 
     /**
      * @see https://docs.payments.service.gov.uk/api_reference/#payment-status-lifecycle
@@ -341,21 +364,6 @@ export class PaymentField extends FormComponent {
       })
     }
   }
-}
-
-export interface PaymentDispatcherArgs {
-  controller: {
-    model: {
-      formId: string
-      basePath: string
-      name: string
-    }
-    getState: (request: AnyFormRequest) => Promise<FormSubmissionState>
-  }
-  component: PaymentField
-  sourceUrl: string
-  isLive: boolean
-  isPreview: boolean
 }
 
 /**

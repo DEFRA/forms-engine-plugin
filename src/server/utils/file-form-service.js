@@ -160,6 +160,17 @@ export class FileFormService {
        */
       getFormDefinition: (id) => {
         return Promise.resolve(this.getFormDefinition(id))
+      },
+
+      /**
+       * Get a form secret
+       * @param {string} _formId
+       * @param {string} _secretName
+       * @returns {Promise<string>}
+       */
+      getFormSecret: (_formId, _secretName) => {
+        // For local env only
+        return Promise.resolve(process.env.PAYMENT_PROVIDER_API_KEY_TEST ?? '')
       }
     }
   }

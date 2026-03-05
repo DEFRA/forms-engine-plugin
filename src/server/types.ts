@@ -29,6 +29,7 @@ export interface FormsService {
     id: string,
     state: FormStatus
   ) => Promise<FormDefinition | undefined>
+  getFormSecret: (formId: string, secretName: string) => Promise<string>
 }
 
 export interface FormSubmissionService {

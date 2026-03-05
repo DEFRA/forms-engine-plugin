@@ -4,6 +4,7 @@ import Joi from 'joi'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { EXTERNAL_STATE_APPENDAGE } from '~/src/server/constants.js'
+import { getPluginOptions } from '~/src/server/plugins/engine/helpers.js'
 import {
   buildPaymentInfo,
   convertPenceToPounds,
@@ -128,9 +129,13 @@ function getReturnRoute() {
     path: PAYMENT_RETURN_PATH,
     async handler(request, h) {
       const { uuid } = /** @type {{ uuid: string }} */ (request.query)
+
+      const { services } = getPluginOptions(request.server)
+
       const { session, sessionKey, paymentStatus } = await getPaymentContext(
         request,
-        uuid
+        uuid,
+        /** @type {FormsService} */ (services?.formsService)
       )
 
       /**
@@ -193,4 +198,6 @@ function getReturnRoute() {
  * @import { GetPaymentResponse, PaymentSessionData } from '~/src/server/plugins/payment/types.js'
  * @import { PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
  * @import { ExternalStateAppendage, FormState } from '~/src/server/plugins/engine/types.js'
+ * @import { PluginOptions } from '~/src/server/plugins/engine/types.js'
+ * @import { FormsService } from '~/src/server/types.js'
  */

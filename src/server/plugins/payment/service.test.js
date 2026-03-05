@@ -44,11 +44,11 @@ describe('payment service', () => {
         false,
         metadata
       )
-      expect(payment.paymentId).toBe('payment-id-12345')
-      expect(payment.paymentUrl).toBe('http://next-url-href/payment')
+      expect(payment?.paymentId).toBe('payment-id-12345')
+      expect(payment?.paymentUrl).toBe('http://next-url-href/payment')
     })
 
-    it('should throw if fails to create a payment - failed API call', async () => {
+    it('should return undefined if fails to create a payment - failed API call', async () => {
       jest
         .mocked(postJson)
         .mockRejectedValueOnce(new Error('internal creation error'))
@@ -56,19 +56,18 @@ describe('payment service', () => {
       const referenceNumber = 'ABC-DEF-123'
       const returnUrl = 'http://localhost:3009/payment-callback-handler'
       const metadata = { formId: 'form-id', slug: 'my-form-slug' }
-      await expect(() =>
-        service.createPayment(
-          100,
-          'Payment description',
-          returnUrl,
-          referenceNumber,
-          false,
-          metadata
-        )
-      ).rejects.toThrow('internal creation error')
+      const res = await service.createPayment(
+        100,
+        'Payment description',
+        returnUrl,
+        referenceNumber,
+        false,
+        metadata
+      )
+      expect(res).toBeUndefined()
     })
 
-    it('should throw if fails to create a payment - bad result from API call', async () => {
+    it('should return undefined if fails to create a payment - bad result from API call', async () => {
       const createPaymentResult = {
         state: {
           status: 'failed'
@@ -86,16 +85,15 @@ describe('payment service', () => {
       const referenceNumber = 'ABC-DEF-123'
       const returnUrl = 'http://localhost:3009/payment-callback-handler'
       const metadata = { formId: 'form-id', slug: 'my-form-slug' }
-      await expect(() =>
-        service.createPayment(
-          100,
-          'Payment description',
-          returnUrl,
-          referenceNumber,
-          false,
-          metadata
-        )
-      ).rejects.toThrow('Failed to create payment')
+      const res = await service.createPayment(
+        100,
+        'Payment description',
+        returnUrl,
+        referenceNumber,
+        false,
+        metadata
+      )
+      expect(res).toBeUndefined()
     })
   })
 
