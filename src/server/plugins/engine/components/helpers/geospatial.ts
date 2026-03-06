@@ -37,6 +37,7 @@ const Joi = JoiBase.extend({
         }
       } else {
         return {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           value
         }
       }

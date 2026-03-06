@@ -12,29 +12,76 @@ describe('Location Maps Client JS', () => {
   let addMarkerMock
 
   /** @type {jest.Mock} */
+  let removeMarkerMock
+
+  /** @type {jest.Mock} */
   let addPanelMock
+
+  /** @type {jest.Mock} */
+  let addButtonMock
 
   /** @type {jest.Mock} */
   let interactPlugin
 
   /** @type {jest.Mock} */
+  let interactPluginSelectFeature
+
+  /** @type {jest.Mock} */
   let interactPluginEnable
 
+  /** @type {jest.Mock} */
+  let interactPluginDisable
+
+  /** @type {jest.Mock} */
+  let drawMLPlugin
+
+  /** @type {jest.Mock} */
+  let drawPluginAddFeature
+
+  /** @type {jest.Mock} */
+  let drawPluginEditFeature
+
+  /** @type {jest.Mock} */
+  let drawPluginDeleteFeature
+
+  /** @type {jest.Mock} */
+  let toggleButtonStateMock
+
   beforeEach(() => {
+    jest.resetAllMocks()
+
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     const noop = () => {}
     onMock = jest.fn()
     addMarkerMock = jest.fn()
+    removeMarkerMock = jest.fn()
     addPanelMock = jest.fn()
+    addButtonMock = jest.fn()
+    toggleButtonStateMock = jest.fn()
+    interactPluginSelectFeature = jest.fn()
     interactPluginEnable = jest.fn()
+    interactPluginDisable = jest.fn()
+    drawPluginAddFeature = jest.fn()
+    drawPluginEditFeature = jest.fn()
+    drawPluginDeleteFeature = jest.fn()
     interactPlugin = jest.fn(() => ({
-      enable: interactPluginEnable
+      selectFeature: interactPluginSelectFeature,
+      enable: interactPluginEnable,
+      disable: interactPluginDisable
+    }))
+    drawMLPlugin = jest.fn(() => ({
+      addFeature: drawPluginAddFeature,
+      editFeature: drawPluginEditFeature,
+      deleteFeature: drawPluginDeleteFeature
     }))
 
     class MockInteractiveMap {
       on = onMock
       addMarker = addMarkerMock
+      removeMarker = removeMarkerMock
       addPanel = addPanelMock
+      addButton = addButtonMock
+      toggleButtonState = toggleButtonStateMock
     }
 
     // @ts-expect-error - loaded via UMD
@@ -46,7 +93,8 @@ describe('Location Maps Client JS', () => {
       interactPlugin,
       searchPlugin: noop,
       zoomControlsPlugin: noop,
-      scaleBarPlugin: noop
+      scaleBarPlugin: noop,
+      drawMLPlugin
     }
   })
 
@@ -528,6 +576,736 @@ describe('Location Maps Client JS', () => {
         expect(() => initMaps()).not.toThrow()
         expect(onMock).not.toHaveBeenCalled()
       })
+    })
+  })
+
+  describe('Geospatial component', () => {
+    /** @type {import('~/src/server/plugins/engine/types.js').Feature[]} */
+    let features
+
+    beforeEach(() => {
+      features = [
+        {
+          type: 'Feature',
+          properties: { description: 'Buckingham palace' },
+          geometry: {
+            type: 'Point',
+            coordinates: [-0.14242385752663722, 51.50118200993498]
+          },
+          id: '6d67810c-7228-4f71-b6ec-0d16b132fcd7'
+        },
+        {
+          id: '6d75415d-31e8-4ce7-88f0-621ae3321d6a',
+          type: 'Feature',
+          properties: { description: "St James' Park" },
+          geometry: {
+            coordinates: [
+              [
+                [-0.13995851581486818, 51.50204381014825],
+                [-0.13995851581486818, 51.50165035614205],
+                [-0.14019554033424697, 51.501429036771015],
+                [-0.13964248312336736, 51.50096180345744],
+                [-0.13908942591109508, 51.50039619882682],
+                [-0.12984546966541188, 51.50130608110035],
+                [-0.12968745331966147, 51.50270775608101],
+                [-0.1288973715894599, 51.503666772017255],
+                [-0.12937142062813223, 51.50509296351919],
+                [-0.13083307182887438, 51.505855219983005],
+                [-0.13995851581486818, 51.50204381014825]
+              ]
+            ],
+            type: 'Polygon'
+          }
+        },
+        {
+          id: '20e4fcc4-d9b0-4226-8d02-a3fbb314ba4a',
+          type: 'Feature',
+          properties: { description: 'Constitution Hill' },
+          geometry: {
+            coordinates: [
+              [-0.14969813781837615, 51.502534952613814],
+              [-0.1404050934734471, 51.50217984872572]
+            ],
+            type: 'LineString'
+          }
+        }
+      ]
+
+      document.body.innerHTML = `
+        <form method="post" novalidate="">
+          <div class="app-geospatial-field">
+            <div class="govuk-form-group">
+              <h1 class="govuk-label-wrapper">
+                <label class="govuk-label govuk-label--l" for="DzDkCy">
+                  Add site geospatial features
+                </label>
+              </h1>
+              <textarea class="govuk-textarea" id="DzDkCy" name="DzDkCy" rows="5"></textarea>
+            </div>
+          </div>
+          <div class="govuk-button-group">
+            <button type="submit" data-prevent-double-click="true" class="govuk-button" data-module="govuk-button" data-govuk-button-init="">Continue</button>
+          </div>
+        </form>
+      `
+    })
+
+    function initialiseGeospatialMaps() {
+      const input = document.body.querySelector('textarea.govuk-textarea')
+      expect(input).toBeDefined()
+
+      const geospatialInput = /** @type {HTMLInputElement} */ (input)
+
+      // Set some initial values prior to initMaps
+      geospatialInput.value = JSON.stringify(features, null, 2)
+
+      expect(() => initMaps()).not.toThrow()
+
+      return geospatialInput
+    }
+
+    describe('Map initialisation', () => {
+      test('initMaps geospatial component initializes without errors when DOM elements are present', () => {
+        expect(() => initMaps()).not.toThrow()
+        expect(onMock).toHaveBeenCalledTimes(6)
+        expect(onMock).toHaveBeenNthCalledWith(
+          1,
+          'map:ready',
+          expect.any(Function)
+        )
+        expect(onMock).toHaveBeenNthCalledWith(
+          2,
+          'draw:ready',
+          expect.any(Function)
+        )
+        expect(onMock).toHaveBeenNthCalledWith(
+          3,
+          'draw:created',
+          expect.any(Function)
+        )
+        expect(onMock).toHaveBeenNthCalledWith(
+          4,
+          'draw:edited',
+          expect.any(Function)
+        )
+        expect(onMock).toHaveBeenNthCalledWith(
+          5,
+          'draw:cancelled',
+          expect.any(Function)
+        )
+        expect(onMock).toHaveBeenNthCalledWith(
+          6,
+          'interact:markerchange',
+          expect.any(Function)
+        )
+
+        const onMapReady = onMock.mock.calls[0][1]
+        expect(typeof onMapReady).toBe('function')
+
+        // Manually invoke onMapReady callback
+        onMapReady()
+
+        expect(interactPlugin).toHaveBeenCalledWith(expect.any(Object))
+        expect(addPanelMock).toHaveBeenCalledWith('info', expect.any(Object))
+        expect(addButtonMock).toHaveBeenCalledTimes(3)
+        expect(interactPluginEnable).not.toHaveBeenCalled()
+
+        const input = document.body.querySelector('textarea.govuk-textarea')
+        expect(input).toBeDefined()
+      })
+
+      test('initMaps with initial values', () => {
+        initialiseGeospatialMaps()
+        expect(onMock).toHaveBeenCalledTimes(6)
+        expect(onMock).toHaveBeenNthCalledWith(
+          1,
+          'map:ready',
+          expect.any(Function)
+        )
+        expect(onMock).toHaveBeenNthCalledWith(
+          2,
+          'draw:ready',
+          expect.any(Function)
+        )
+        expect(onMock).toHaveBeenNthCalledWith(
+          3,
+          'draw:created',
+          expect.any(Function)
+        )
+        expect(onMock).toHaveBeenNthCalledWith(
+          4,
+          'draw:edited',
+          expect.any(Function)
+        )
+        expect(onMock).toHaveBeenNthCalledWith(
+          5,
+          'draw:cancelled',
+          expect.any(Function)
+        )
+        expect(onMock).toHaveBeenNthCalledWith(
+          6,
+          'interact:markerchange',
+          expect.any(Function)
+        )
+
+        const onMapReady = onMock.mock.calls[0][1]
+        expect(typeof onMapReady).toBe('function')
+
+        // Manually invoke onMapReady callback
+        onMapReady()
+
+        const onDrawReady = onMock.mock.calls[1][1]
+        expect(typeof onDrawReady).toBe('function')
+
+        // Manually invoke onDrawReady callback
+        onDrawReady()
+
+        expect(drawPluginAddFeature).toHaveBeenCalledTimes(2)
+        expect(addMarkerMock).toHaveBeenCalledOnce()
+      })
+
+      test('drawing created', () => {
+        const geospatialInput = initialiseGeospatialMaps()
+        expect(onMock).toHaveBeenCalledTimes(6)
+        expect(onMock).toHaveBeenNthCalledWith(
+          3,
+          'draw:created',
+          expect.any(Function)
+        )
+
+        const onDrawCreated = onMock.mock.calls[2][1]
+        expect(typeof onDrawCreated).toBe('function')
+
+        // Manually invoke onDrawCreated callback with a new polygon
+        const newPolygonFeature = {
+          id: 'guid',
+          type: 'Feature',
+          geometry: {
+            type: 'Polygon',
+            coordinates: [
+              [
+                [0, 0],
+                [1, 1],
+                [2, 2]
+              ]
+            ]
+          }
+        }
+
+        onDrawCreated(newPolygonFeature)
+
+        expect(toggleButtonStateMock).toHaveBeenCalledTimes(3)
+        expect(toggleButtonStateMock).toHaveBeenNthCalledWith(
+          1,
+          'btnAddPoint',
+          'hidden',
+          false
+        )
+        expect(toggleButtonStateMock).toHaveBeenNthCalledWith(
+          2,
+          'btnAddPolygon',
+          'hidden',
+          false
+        )
+        expect(toggleButtonStateMock).toHaveBeenNthCalledWith(
+          3,
+          'btnAddLine',
+          'hidden',
+          false
+        )
+
+        expect(geospatialInput.value).toBe(
+          JSON.stringify(
+            [
+              ...features,
+              {
+                ...newPolygonFeature,
+                properties: {
+                  description: 'New polygon'
+                }
+              }
+            ],
+            null,
+            2
+          )
+        )
+
+        // Manually invoke onDrawCreated callback with a new line
+        const newLineFeature = {
+          id: 'guid1',
+          type: 'Feature',
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [0, 0],
+              [1, 1]
+            ]
+          }
+        }
+
+        onDrawCreated(newLineFeature)
+
+        expect(toggleButtonStateMock).toHaveBeenCalledTimes(6)
+        expect(toggleButtonStateMock).toHaveBeenNthCalledWith(
+          4,
+          'btnAddPoint',
+          'hidden',
+          false
+        )
+        expect(toggleButtonStateMock).toHaveBeenNthCalledWith(
+          5,
+          'btnAddPolygon',
+          'hidden',
+          false
+        )
+        expect(toggleButtonStateMock).toHaveBeenNthCalledWith(
+          6,
+          'btnAddLine',
+          'hidden',
+          false
+        )
+
+        expect(geospatialInput.value).toBe(
+          JSON.stringify(
+            [
+              ...features,
+              {
+                ...newPolygonFeature,
+                properties: {
+                  description: 'New polygon'
+                }
+              },
+              {
+                ...newLineFeature,
+                properties: {
+                  description: 'New line'
+                }
+              }
+            ],
+            null,
+            2
+          )
+        )
+      })
+
+      test('drawing edited', () => {
+        const geospatialInput = initialiseGeospatialMaps()
+        const onDrawReady = onMock.mock.calls[1][1]
+        expect(typeof onDrawReady).toBe('function')
+
+        // Manually invoke onDrawReady callback (to render the list)
+        onDrawReady()
+
+        expect(onMock).toHaveBeenCalledTimes(6)
+        expect(onMock).toHaveBeenNthCalledWith(
+          4,
+          'draw:edited',
+          expect.any(Function)
+        )
+
+        const onDrawEdited = onMock.mock.calls[3][1]
+        expect(typeof onDrawEdited).toBe('function')
+
+        // Manually click the "Change" link to set the _activeFeatureId
+        const listContainer = document.body.querySelector(
+          '#geospatialmap_0_list'
+        )
+
+        if (listContainer === null) {
+          throw new Error('Unexpected null found for listContainer')
+        }
+        expect(listContainer).toBeDefined()
+        const stJamesParkChangeEl = listContainer.querySelector(
+          '.govuk-link.govuk-link--no-visited-state[data-action="edit"][data-id="6d75415d-31e8-4ce7-88f0-621ae3321d6a"]'
+        )
+
+        expect(stJamesParkChangeEl).toBeDefined()
+
+        if (stJamesParkChangeEl === null) {
+          throw new Error('Unexpected null found for stJamesParkChangeEl')
+        }
+
+        const stJamesParkChangeLink = /** @type {HTMLAnchorElement} */ (
+          stJamesParkChangeEl
+        )
+        stJamesParkChangeLink.click()
+
+        expect(drawPluginEditFeature).toHaveBeenCalledWith(
+          '6d75415d-31e8-4ce7-88f0-621ae3321d6a'
+        )
+        expect(toggleButtonStateMock).toHaveBeenNthCalledWith(
+          1,
+          'btnAddPoint',
+          'hidden',
+          true
+        )
+        expect(toggleButtonStateMock).toHaveBeenNthCalledWith(
+          2,
+          'btnAddPolygon',
+          'hidden',
+          true
+        )
+        expect(toggleButtonStateMock).toHaveBeenNthCalledWith(
+          3,
+          'btnAddLine',
+          'hidden',
+          true
+        )
+
+        // Manually invoke onDrawEdited callback with updated feature
+        const updatedPolygonFeature = {
+          ...features[1],
+          geometry: {
+            type: 'Polygon',
+            coordinates: [
+              [
+                [0, 0],
+                [1, 1],
+                [2, 2]
+              ]
+            ]
+          }
+        }
+
+        onDrawEdited(updatedPolygonFeature)
+
+        expect(geospatialInput.value).toBe(
+          JSON.stringify(
+            [features[0], updatedPolygonFeature, features[2]],
+            null,
+            2
+          )
+        )
+      })
+
+      test('drawing deleted', () => {
+        const geospatialInput = initialiseGeospatialMaps()
+        const onDrawReady = onMock.mock.calls[1][1]
+        expect(typeof onDrawReady).toBe('function')
+
+        // Manually invoke onDrawReady callback (to render the list)
+        onDrawReady()
+
+        // Manually click the "Change" link to set the _activeFeatureId
+        const listContainer = document.body.querySelector(
+          '#geospatialmap_0_list'
+        )
+
+        if (listContainer === null) {
+          throw new Error('Unexpected null found for listContainer')
+        }
+        expect(listContainer).toBeDefined()
+        const stJamesParkDeleteEl = listContainer.querySelector(
+          '.govuk-link.govuk-link--no-visited-state[data-action="delete"][data-id="6d75415d-31e8-4ce7-88f0-621ae3321d6a"]'
+        )
+
+        expect(stJamesParkDeleteEl).toBeDefined()
+
+        if (stJamesParkDeleteEl === null) {
+          throw new Error('Unexpected null found for stJamesParkDeleteEl')
+        }
+
+        const stJamesParkDeleteLink = /** @type {HTMLAnchorElement} */ (
+          stJamesParkDeleteEl
+        )
+
+        stJamesParkDeleteLink.click()
+
+        expect(drawPluginDeleteFeature).toHaveBeenCalledWith(
+          '6d75415d-31e8-4ce7-88f0-621ae3321d6a'
+        )
+
+        expect(JSON.parse(geospatialInput.value)).toHaveLength(2)
+        expect(geospatialInput.value).toBe(
+          JSON.stringify([features[0], features[2]], null, 2)
+        )
+      })
+
+      test('drawing cancelled', () => {
+        expect(() => initMaps()).not.toThrow()
+
+        const onDrawCancelled = onMock.mock.calls[4][1]
+        expect(typeof onDrawCancelled).toBe('function')
+
+        // Manually invoke onDrawReady callback (to render the list)
+        onDrawCancelled()
+
+        expect(toggleButtonStateMock).toHaveBeenNthCalledWith(
+          1,
+          'btnAddPoint',
+          'hidden',
+          false
+        )
+        expect(toggleButtonStateMock).toHaveBeenNthCalledWith(
+          2,
+          'btnAddPolygon',
+          'hidden',
+          false
+        )
+        expect(toggleButtonStateMock).toHaveBeenNthCalledWith(
+          3,
+          'btnAddLine',
+          'hidden',
+          false
+        )
+      })
+
+      test('marker added', () => {
+        const input = document.body.querySelector('textarea.govuk-textarea')
+        expect(input).toBeDefined()
+
+        const geospatialInput = /** @type {HTMLInputElement} */ (input)
+
+        expect(() => initMaps()).not.toThrow()
+
+        const interactMarkerChange = onMock.mock.calls[5][1]
+        expect(typeof interactMarkerChange).toBe('function')
+
+        // Manually invoke interactMarkerChange callback with a new point
+        const newPointFeature = {
+          coords: [0, 0]
+        }
+
+        interactMarkerChange(newPointFeature)
+
+        expect(addMarkerMock).toHaveBeenCalledExactlyOnceWith(
+          expect.any(String),
+          newPointFeature.coords
+        )
+        expect(removeMarkerMock).toHaveBeenCalledExactlyOnceWith('location')
+        expect(interactPluginDisable).toHaveBeenCalled()
+        expect(toggleButtonStateMock).toHaveBeenNthCalledWith(
+          1,
+          'btnAddPoint',
+          'hidden',
+          false
+        )
+        expect(toggleButtonStateMock).toHaveBeenNthCalledWith(
+          2,
+          'btnAddPolygon',
+          'hidden',
+          false
+        )
+        expect(toggleButtonStateMock).toHaveBeenNthCalledWith(
+          3,
+          'btnAddLine',
+          'hidden',
+          false
+        )
+
+        expect(JSON.parse(geospatialInput.value)).toEqual([
+          {
+            geometry: {
+              type: 'Point',
+              coordinates: [0, 0]
+            },
+            properties: {
+              description: 'New point'
+            },
+            id: expect.any(String),
+            type: 'Feature'
+          }
+        ])
+      })
+
+      test('marker edited', () => {
+        const geospatialInput = initialiseGeospatialMaps()
+        const onDrawReady = onMock.mock.calls[1][1]
+        expect(typeof onDrawReady).toBe('function')
+
+        const interactMarkerChange = onMock.mock.calls[5][1]
+        expect(typeof interactMarkerChange).toBe('function')
+
+        // Manually invoke onDrawReady callback (to render the list)
+        onDrawReady()
+
+        // Manually click the "Change" link to set the _activeFeatureId
+        const listContainer = document.body.querySelector(
+          '#geospatialmap_0_list'
+        )
+
+        if (listContainer === null) {
+          throw new Error('Unexpected null found for listContainer')
+        }
+        expect(listContainer).toBeDefined()
+        const buckinghamPalaceChangeEl = listContainer.querySelector(
+          '.govuk-link.govuk-link--no-visited-state[data-action="edit"][data-id="6d67810c-7228-4f71-b6ec-0d16b132fcd7"]'
+        )
+
+        expect(buckinghamPalaceChangeEl).toBeDefined()
+
+        if (buckinghamPalaceChangeEl === null) {
+          throw new Error('Unexpected null found for buckinghamPalaceChangeEl')
+        }
+
+        const buckinghamPalaceChangeLink = /** @type {HTMLAnchorElement} */ (
+          buckinghamPalaceChangeEl
+        )
+        buckinghamPalaceChangeLink.click()
+
+        expect(interactPluginSelectFeature).toHaveBeenCalledExactlyOnceWith({
+          featureId: '6d67810c-7228-4f71-b6ec-0d16b132fcd7'
+        })
+        expect(interactPluginEnable).toHaveBeenCalledOnce()
+        expect(toggleButtonStateMock).toHaveBeenNthCalledWith(
+          1,
+          'btnAddPoint',
+          'hidden',
+          true
+        )
+        expect(toggleButtonStateMock).toHaveBeenNthCalledWith(
+          2,
+          'btnAddPolygon',
+          'hidden',
+          true
+        )
+        expect(toggleButtonStateMock).toHaveBeenNthCalledWith(
+          3,
+          'btnAddLine',
+          'hidden',
+          true
+        )
+
+        // Manually invoke interactMarkerChange callback with a new point
+        const updatedPointArgs = {
+          coords: [0, 0]
+        }
+
+        interactMarkerChange(updatedPointArgs)
+
+        expect(addMarkerMock).toHaveBeenLastCalledWith(
+          '6d67810c-7228-4f71-b6ec-0d16b132fcd7',
+          [0, 0]
+        )
+
+        expect(geospatialInput.value).toBe(
+          JSON.stringify(
+            [
+              {
+                ...features[0],
+                geometry: {
+                  ...features[0].geometry,
+                  coordinates: [0, 0]
+                }
+              },
+              ...features.splice(1)
+            ],
+            null,
+            2
+          )
+        )
+      })
+
+      test('marker deleted', () => {
+        const geospatialInput = initialiseGeospatialMaps()
+        const onDrawReady = onMock.mock.calls[1][1]
+        expect(typeof onDrawReady).toBe('function')
+
+        // Manually invoke onDrawReady callback (to render the list)
+        onDrawReady()
+
+        // Manually click the "Change" link to set the _activeFeatureId
+        const listContainer = document.body.querySelector(
+          '#geospatialmap_0_list'
+        )
+
+        if (listContainer === null) {
+          throw new Error('Unexpected null found for listContainer')
+        }
+        expect(listContainer).toBeDefined()
+        const buckinghamPalaceDeleteEl = listContainer.querySelector(
+          '.govuk-link.govuk-link--no-visited-state[data-action="delete"][data-id="6d67810c-7228-4f71-b6ec-0d16b132fcd7"]'
+        )
+
+        expect(buckinghamPalaceDeleteEl).toBeDefined()
+
+        if (buckinghamPalaceDeleteEl === null) {
+          throw new Error('Unexpected null found for buckinghamPalaceDeleteEl')
+        }
+
+        const buckinghamPalaceDeleteLink = /** @type {HTMLAnchorElement} */ (
+          buckinghamPalaceDeleteEl
+        )
+
+        buckinghamPalaceDeleteLink.click()
+
+        expect(removeMarkerMock).toHaveBeenCalledWith(
+          '6d67810c-7228-4f71-b6ec-0d16b132fcd7'
+        )
+
+        expect(JSON.parse(geospatialInput.value)).toHaveLength(2)
+        expect(geospatialInput.value).toBe(
+          JSON.stringify([features[1], features[2]], null, 2)
+        )
+      })
+
+      test.skip('description changed', () => {
+        const geospatialInput = initialiseGeospatialMaps()
+        const onDrawReady = onMock.mock.calls[1][1]
+        expect(typeof onDrawReady).toBe('function')
+
+        // Manually invoke onDrawReady callback (to render the list)
+        onDrawReady()
+
+        // Manually change the description
+        const listContainer = document.body.querySelector(
+          '#geospatialmap_0_list'
+        )
+
+        if (listContainer === null) {
+          throw new Error('Unexpected null found for listContainer')
+        }
+        expect(listContainer).toBeDefined()
+        const buckinghamPalaceDescriptionEl = listContainer.querySelector(
+          'input[id="description_6d67810c-7228-4f71-b6ec-0d16b132fcd7"]'
+        )
+
+        if (buckinghamPalaceDescriptionEl === null) {
+          throw new Error(
+            'Unexpected null found for buckinghamPalaceDescriptionEl'
+          )
+        }
+
+        const buckinghamPalaceInputEl = /** @type {HTMLInputElement} */ (
+          buckinghamPalaceDescriptionEl
+        )
+        buckinghamPalaceInputEl.value = 'New description'
+        buckinghamPalaceInputEl.dispatchEvent(new window.Event('change'))
+
+        expect(JSON.parse(geospatialInput.value)).toEqual([
+          {
+            ...features[0],
+            properties: {
+              description: 'New description'
+            }
+          },
+          ...features.slice(1)
+        ])
+      })
+
+      // test('initMaps only applies when there are location components on the page', () => {
+      //   const locations = document.querySelectorAll('.app-location-field')
+
+      //   // Remove any locations for the test
+      //   locations.forEach((location) => {
+      //     location.remove()
+      //   })
+
+      //   expect(() => initMaps()).not.toThrow()
+      //   expect(onMock).not.toHaveBeenCalled()
+      // })
+
+      // test('initMaps only applies when there are supported location components on the page', () => {
+      //   const locations = document.querySelectorAll('.app-location-field')
+
+      //   // Reset the location type of each component
+      //   locations.forEach((location) => {
+      //     location.setAttribute('data-locationtype', 'unknowntype')
+      //   })
+
+      //   expect(() => initMaps()).not.toThrow()
+      //   expect(onMock).not.toHaveBeenCalled()
+      // })
     })
   })
 
