@@ -240,6 +240,16 @@ export function processGeospatial(config, geospatial, index) {
     focusDescriptionInput
   }
 
+  addEventListeners(context)
+}
+
+/**
+ * Setup the UI event listeners
+ * @param {Context} context - the context
+ */
+function addEventListeners(context) {
+  const { map, listContainer } = context
+
   map.on(EVENTS.mapReady, onMapReadyFactory(context))
   map.on(EVENTS.drawReady, onDrawReadyFactory(context))
   map.on(EVENTS.drawCreated, onDrawCreatedFactory(context))
