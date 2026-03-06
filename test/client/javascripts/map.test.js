@@ -2,7 +2,7 @@ import {
   formSubmitFactory,
   initMaps,
   makeTileRequestTransformer
-} from '~/src/client/javascripts/location-map.js'
+} from '~/src/client/javascripts/map.js'
 
 describe('Location Maps Client JS', () => {
   /** @type {jest.Mock} */
