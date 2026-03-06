@@ -144,89 +144,27 @@ export function processGeospatial(config, geospatial, index) {
 
   const { map, interactPlugin } = createMap(mapId, initConfig, config)
 
-  map.on(
-    EVENTS.mapReady,
-    /**
-     * Callback function which fires when the map is ready
-     */
-    function onMapReady() {
-      // Add info panel
-      map.addPanel('info', {
-        showLabel: true,
-        label: 'How to use the map',
-        mobile: {
-          slot: 'bottom',
-          open: true,
-          dismissible: true,
-          modal: false
-        },
-        tablet: {
-          slot: 'bottom',
-          open: true,
-          dismissible: true,
-          modal: false
-        },
-        desktop: {
-          slot: 'bottom',
-          open: true,
-          dismissible: true,
-          modal: false
-        },
-        html: 'Use the buttons below to add points, shapes and lines to the map<br><br>To finish drawing a line or shape you can double-click or click the "Done" button.<br>Once added you can give each feature a name in the table below.'
-      })
-
-      map.addButton('btnAddPoint', {
-        variant: 'tertiary',
-        label: 'Add point',
-        iconSvgContent:
-          '<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /><circle cx="12" cy="10" r="3" /> ',
-        onClick: () => {
-          resetActiveFeature()
-          toggleActionButtons(true)
-          interactPlugin.enable()
-        },
-        mobile: { slot: 'actions' },
-        tablet: { slot: 'actions' },
-        desktop: { slot: 'actions' }
-      })
-
-      map.addButton('btnAddPolygon', {
-        variant: 'tertiary',
-        label: 'Add shape',
-        iconSvgContent:
-          '<path d="M19.5 7v10M4.5 7v10M7 19.5h10M7 4.5h10"/><path d="M22 18v3a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1zm0-15v3a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1zM7 18v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1zM7 3v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1z"/>',
-        onClick: () => {
-          resetActiveFeature()
-          toggleActionButtons(true)
-          drawPlugin.newPolygon(generateID(), polygonFeatureProperties)
-        },
-        mobile: { slot: 'actions' },
-        tablet: { slot: 'actions' },
-        desktop: { slot: 'actions' }
-      })
-
-      map.addButton('btnAddLine', {
-        variant: 'tertiary',
-        label: 'Add line',
-        iconSvgContent:
-          '<path d="M5.706 16.294L16.294 5.706"/><path d="M21 2v3c0 .549-.451 1-1 1h-3c-.549 0-1-.451-1-1V2c0-.549.451-1 1-1h3c.549 0 1 .451 1 1zM6 17v3c0 .549-.451 1-1 1H2c-.549 0-1-.451-1-1v-3c0-.549.451-1 1-1h3c.549 0 1 .451 1 1z"/>',
-        onClick: () => {
-          resetActiveFeature()
-          toggleActionButtons(true)
-          drawPlugin.newLine(generateID(), lineFeatureProperties)
-        },
-        mobile: { slot: 'actions' },
-        tablet: { slot: 'actions' },
-        desktop: { slot: 'actions' }
-      })
-    }
-  )
-
   /** @type {string | undefined} */
   let _activeFeature
 
+  /**
+   * Returns the active feature id
+   * @returns {string | undefined}
+   */
+  function getActiveFeature() {
+    return _activeFeature
+  }
+
+  /**
+   * Sets the active feature id
+   * @param {string | undefined} value
+   */
+  function setActiveFeature(value) {
+    _activeFeature = value
+  }
+
   function resetActiveFeature() {
-    _activeFeature = undefined
+    setActiveFeature(undefined)
   }
 
   /**
@@ -254,6 +192,14 @@ export function processGeospatial(config, geospatial, index) {
   }
 
   /**
+   * Add a feature to the geojson
+   * @param {Feature} feature - the feature to add
+   */
+  function addFeature(feature) {
+    geojson.features.push(feature)
+  }
+
+  /**
    * Removes a feature from the geojson
    * @param {string} id - the feature id
    */
@@ -271,9 +217,144 @@ export function processGeospatial(config, geospatial, index) {
   }
 
   /**
+   * @type {Context}
+   */
+  const context = {
+    map,
+    geojson,
+    addFeature,
+    removeFeature,
+    interactPlugin,
+    drawPlugin,
+    geospatialInput,
+    listContainer,
+    getActiveFeature,
+    setActiveFeature,
+    resetActiveFeature,
+    toggleActionButtons,
+    focusDescriptionInput
+  }
+
+  map.on(EVENTS.mapReady, onMapReadyFactory(context))
+  map.on(EVENTS.drawReady, onDrawReadyFactory(context))
+  map.on(EVENTS.drawCreated, onDrawCreatedFactory(context))
+  map.on(EVENTS.drawEdited, onDrawEditedFactory(context))
+  map.on(EVENTS.drawCancelled, onDrawCancelledFactory(context))
+  map.on(EVENTS.interactMarkerChange, onInteractMarkerChangedFactory(context))
+
+  listContainer.addEventListener(
+    'click',
+    onListContainerClickFactory(context),
+    false
+  )
+
+  listContainer.addEventListener(
+    'change',
+    onListContainerChangeFactory(context),
+    false
+  )
+}
+
+/**
+ * Callback factory function which fires when the map is ready
+ * @param {Context} context - the UI context
+ */
+function onMapReadyFactory(context) {
+  const {
+    map,
+    resetActiveFeature,
+    toggleActionButtons,
+    interactPlugin,
+    drawPlugin
+  } = context
+
+  /**
+   * Callback function which fires when the map is ready
+   */
+  return function onMapReady() {
+    // Add info panel
+    map.addPanel('info', {
+      showLabel: true,
+      label: 'How to use the map',
+      mobile: {
+        slot: 'bottom',
+        open: true,
+        dismissible: true,
+        modal: false
+      },
+      tablet: {
+        slot: 'bottom',
+        open: true,
+        dismissible: true,
+        modal: false
+      },
+      desktop: {
+        slot: 'bottom',
+        open: true,
+        dismissible: true,
+        modal: false
+      },
+      html: 'Use the buttons below to add points, shapes and lines to the map<br><br>To finish drawing a line or shape you can double-click or click the "Done" button.<br>Once added you can give each feature a name in the table below.'
+    })
+
+    map.addButton('btnAddPoint', {
+      variant: 'tertiary',
+      label: 'Add point',
+      iconSvgContent:
+        '<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /><circle cx="12" cy="10" r="3" /> ',
+      onClick: () => {
+        resetActiveFeature()
+        toggleActionButtons(true)
+        interactPlugin.enable()
+      },
+      mobile: { slot: 'actions' },
+      tablet: { slot: 'actions' },
+      desktop: { slot: 'actions' }
+    })
+
+    map.addButton('btnAddPolygon', {
+      variant: 'tertiary',
+      label: 'Add shape',
+      iconSvgContent:
+        '<path d="M19.5 7v10M4.5 7v10M7 19.5h10M7 4.5h10"/><path d="M22 18v3a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1zm0-15v3a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1zM7 18v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1zM7 3v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1z"/>',
+      onClick: () => {
+        resetActiveFeature()
+        toggleActionButtons(true)
+        drawPlugin.newPolygon(generateID(), polygonFeatureProperties)
+      },
+      mobile: { slot: 'actions' },
+      tablet: { slot: 'actions' },
+      desktop: { slot: 'actions' }
+    })
+
+    map.addButton('btnAddLine', {
+      variant: 'tertiary',
+      label: 'Add line',
+      iconSvgContent:
+        '<path d="M5.706 16.294L16.294 5.706"/><path d="M21 2v3c0 .549-.451 1-1 1h-3c-.549 0-1-.451-1-1V2c0-.549.451-1 1-1h3c.549 0 1 .451 1 1zM6 17v3c0 .549-.451 1-1 1H2c-.549 0-1-.451-1-1v-3c0-.549.451-1 1-1h3c.549 0 1 .451 1 1z"/>',
+      onClick: () => {
+        resetActiveFeature()
+        toggleActionButtons(true)
+        drawPlugin.newLine(generateID(), lineFeatureProperties)
+      },
+      mobile: { slot: 'actions' },
+      tablet: { slot: 'actions' },
+      desktop: { slot: 'actions' }
+    })
+  }
+}
+
+/**
+ * Callback factory function which fires when the map draw plugin is ready
+ * @param {Context} context - the UI context
+ */
+function onDrawReadyFactory(context) {
+  const { geojson, drawPlugin, map, listContainer, geospatialInput } = context
+
+  /**
    * Callback when the draw plugin is ready
    */
-  function onDrawReady() {
+  return function onDrawReady() {
     geojson.features.forEach((feature) => {
       switch (feature.geometry.type) {
         case 'Polygon':
@@ -297,19 +378,33 @@ export function processGeospatial(config, geospatial, index) {
       /** @type {HTMLTextAreaElement} */ (geospatialInput)
     )
   }
-  map.on(EVENTS.drawReady, onDrawReady)
+}
+
+/**
+ * Callback factory function which fires when the map draw plugin creates a new feature
+ * @param {Context} context - the UI context
+ */
+function onDrawCreatedFactory(context) {
+  const {
+    geojson,
+    addFeature,
+    listContainer,
+    geospatialInput,
+    toggleActionButtons,
+    focusDescriptionInput
+  } = context
 
   /**
    * Callback when a draw feature has been created
    * @param {Feature} e
    */
-  function onDrawCreated(e) {
+  return function onDrawCreated(e) {
     // New feature
     const typeName = e.geometry.type === 'LineString' ? 'line' : 'shape'
 
     const description = `New ${typeName}`
 
-    geojson.features.push({
+    addFeature({
       ...e,
       properties: {
         description
@@ -325,19 +420,32 @@ export function processGeospatial(config, geospatial, index) {
     toggleActionButtons(false)
     focusDescriptionInput()
   }
-  map.on(EVENTS.drawCreated, onDrawCreated)
+}
+
+/**
+ * Callback factory function which fires when the map draw plugin edits a feature
+ * @param {Context} context - the UI context
+ */
+function onDrawEditedFactory(context) {
+  const {
+    geojson,
+    getActiveFeature,
+    listContainer,
+    geospatialInput,
+    resetActiveFeature
+  } = context
 
   /**
    * Callback when a draw feature has been edited
    * @param {{ id: string, geometry: Geometry }} e
    */
-  function onDrawEdited(e) {
+  return function onDrawEdited(e) {
     const changedFeature = e
     const featureId = changedFeature.id
     const feature = geojson.features.find((f) => f.id === featureId)
 
     // Ensure the featureId exists in the geojson
-    if (feature && _activeFeature === featureId) {
+    if (feature && getActiveFeature() === featureId) {
       feature.geometry = changedFeature.geometry
 
       // Update the features
@@ -350,25 +458,51 @@ export function processGeospatial(config, geospatial, index) {
 
     resetActiveFeature()
   }
-  map.on(EVENTS.drawEdited, onDrawEdited)
+}
+
+/**
+ * Callback factory function which fires when the map draw plugin cancels the editing of a feature
+ * @param {Context} context - the UI context
+ */
+function onDrawCancelledFactory(context) {
+  const { toggleActionButtons } = context
 
   /**
    * Callback when a draw feature has been cancelled
    */
-  function onDrawCancelled() {
+  return function onDrawCancelled() {
     toggleActionButtons(false)
   }
-  map.on(EVENTS.drawCancelled, onDrawCancelled)
+}
+
+/**
+ * Callback factory function that fires when an interact marker has been changed
+ * @param {Context} context - the UI context
+ */
+function onInteractMarkerChangedFactory(context) {
+  const {
+    getActiveFeature,
+    geojson,
+    addFeature,
+    map,
+    geospatialInput,
+    resetActiveFeature,
+    listContainer,
+    focusDescriptionInput,
+    interactPlugin,
+    toggleActionButtons
+  } = context
 
   /**
    * Callback when an interact marker has been changed
    * @param {{ coords: Coordinates }} e
    */
-  function onInteractMarkerChange(e) {
-    if (_activeFeature) {
+  return function onInteractMarkerChange(e) {
+    const activeFeature = getActiveFeature()
+    if (activeFeature) {
       // Editing an existing point
-      const feature = geojson.features.find((f) => f.id === _activeFeature)
-      map.addMarker(_activeFeature, e.coords)
+      const feature = geojson.features.find((f) => f.id === activeFeature)
+      map.addMarker(activeFeature, e.coords)
 
       if (feature) {
         feature.geometry.coordinates = e.coords
@@ -386,7 +520,7 @@ export function processGeospatial(config, geospatial, index) {
       const id = generateID()
       const description = 'New point'
 
-      geojson.features.push({
+      addFeature({
         type: 'Feature',
         properties: {
           description
@@ -397,6 +531,7 @@ export function processGeospatial(config, geospatial, index) {
         },
         id
       })
+
       map.addMarker(id, e.coords)
 
       // Update the features
@@ -413,87 +548,98 @@ export function processGeospatial(config, geospatial, index) {
     interactPlugin.disable()
     toggleActionButtons(false)
   }
-  map.on(EVENTS.interactMarkerChange, onInteractMarkerChange)
-
-  listContainer.addEventListener(
-    'click',
-    /**
-     * List container delegated 'click' events handler
-     * @param {MouseEvent} e
-     */
-    function (e) {
-      e.preventDefault()
-      e.stopPropagation()
-
-      const target = e.target
-      if (!(target instanceof HTMLElement)) {
-        return
-      }
-
-      if (
-        target.tagName === 'A' &&
-        target.dataset.action &&
-        target.dataset.id
-      ) {
-        const { action, id, type } = target.dataset
-
-        if (action === 'edit') {
-          _activeFeature = id
-          // "Change" feature link was clicked
-          if (type === 'Point') {
-            interactPlugin.selectFeature({ featureId: id })
-            interactPlugin.enable()
-          } else {
-            drawPlugin.editFeature(id)
-          }
-          toggleActionButtons(true)
-        }
-
-        if (action === 'delete') {
-          // "Remove" feature link was clicked
-          if (type === 'Point') {
-            map.removeMarker(id)
-            removeFeature(id)
-          } else {
-            drawPlugin.deleteFeature(id)
-            removeFeature(id)
-          }
-        }
-      }
-    },
-    false
-  )
-
-  listContainer.addEventListener(
-    'change',
-    /**
-     * List container delegated 'change' events handler
-     * Used to update the description of features
-     * @param {Event} e
-     */
-    function (e) {
-      e.preventDefault()
-      e.stopPropagation()
-
-      const target = e.target
-      if (!(target instanceof HTMLInputElement) || !target.dataset.id) {
-        return
-      }
-
-      const { id } = target.dataset
-      const feature = geojson.features.find((f) => f.id === id)
-
-      if (feature) {
-        feature.properties.description = target.value.trim()
-        renderFeaturesValue(geojson, geospatialInput)
-      }
-    },
-    false
-  )
 }
 
 /**
- * @import { MapsEnvironmentConfig } from '~/src/client/javascripts/map.js'
+ * Callback factory function that fires a 'click' event is fired on the list container
+ * @param {Context} context - the UI context
+ */
+function onListContainerClickFactory(context) {
+  const {
+    map,
+    removeFeature,
+    setActiveFeature,
+    interactPlugin,
+    toggleActionButtons,
+    drawPlugin
+  } = context
+
+  /**
+   * List container delegated 'click' events handler
+   * @param {MouseEvent} e
+   */
+  return function (e) {
+    e.preventDefault()
+    e.stopPropagation()
+
+    const target = e.target
+    if (!(target instanceof HTMLElement)) {
+      return
+    }
+
+    if (target.tagName === 'A' && target.dataset.action && target.dataset.id) {
+      const { action, id, type } = target.dataset
+
+      if (action === 'edit') {
+        setActiveFeature(id)
+
+        // "Change" feature link was clicked
+        if (type === 'Point') {
+          interactPlugin.selectFeature({ featureId: id })
+          interactPlugin.enable()
+        } else {
+          drawPlugin.editFeature(id)
+        }
+        toggleActionButtons(true)
+      }
+
+      if (action === 'delete') {
+        // "Remove" feature link was clicked
+        if (type === 'Point') {
+          map.removeMarker(id)
+          removeFeature(id)
+        } else {
+          drawPlugin.deleteFeature(id)
+          removeFeature(id)
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Callback factory function that fires a 'change' event is fired on the list container
+ * @param {Context} context - the UI context
+ */
+function onListContainerChangeFactory(context) {
+  const { geojson, geospatialInput } = context
+
+  /**
+   * List container delegated 'change' events handler
+   * Used to update the description of features
+   * @param {Event} e
+   */
+  return function (e) {
+    e.preventDefault()
+    e.stopPropagation()
+
+    const target = e.target
+    if (!(target instanceof HTMLInputElement) || !target.dataset.id) {
+      return
+    }
+
+    const { id } = target.dataset
+    const feature = geojson.features.find((f) => f.id === id)
+
+    if (feature) {
+      feature.properties.description = target.value.trim()
+      renderFeaturesValue(geojson, geospatialInput)
+    }
+  }
+}
+
+/**
+ * @import { MapsEnvironmentConfig, InteractiveMap } from '~/src/client/javascripts/map.js'
  */
 
 /**
@@ -504,4 +650,21 @@ export function processGeospatial(config, geospatial, index) {
  * @typedef {object} GeoJSON
  * @property {'FeatureCollection'} type - the GeoJSON type string
  * @property {FeatureCollection} features - the features
+ */
+
+/**
+ * @typedef {object} Context
+ * @property {InteractiveMap} map - the interactive map
+ * @property {GeoJSON} geojson - the geojson features collection
+ * @property {Function} addFeature - function that adds feature to the geojson
+ * @property {Function} removeFeature - function that removes a feature from the geojson
+ * @property {any} interactPlugin - the map interact plugin
+ * @property {any} drawPlugin - the map draw plugin
+ * @property {HTMLTextAreaElement} geospatialInput - the hidden geospatial textarea input
+ * @property {HTMLDivElement} listContainer - the summary list of features
+ * @property {Function} getActiveFeature - function that returns the current active feature id
+ * @property {Function} setActiveFeature - function that sets the current active feature id
+ * @property {Function} resetActiveFeature - function that resets the current active feature id
+ * @property {Function} toggleActionButtons - function that toggles the action buttons
+ * @property {Function} focusDescriptionInput - function that sets focus to a description input element
  */
