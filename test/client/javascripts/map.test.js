@@ -663,14 +663,16 @@ describe('Maps Client JS', () => {
     /**
      * Initialise geospatial maps helper
      */
-    function initialiseGeospatialMaps() {
+    function initialiseGeospatialMaps(prefillFeatures = true) {
       const input = document.body.querySelector('textarea.govuk-textarea')
       expect(input).toBeDefined()
 
       const geospatialInput = /** @type {HTMLInputElement} */ (input)
 
       // Set some initial values prior to initMaps
-      geospatialInput.value = JSON.stringify(features, null, 2)
+      geospatialInput.value = prefillFeatures
+        ? JSON.stringify(features, null, 2)
+        : ''
 
       expect(() => initMaps()).not.toThrow()
       expect(onMock).toHaveBeenCalledTimes(6)
@@ -812,6 +814,15 @@ describe('Maps Client JS', () => {
         expect(addMarkerMock).toHaveBeenCalledOnce()
       })
 
+      test('initMaps with no initial value', () => {
+        initialiseGeospatialMaps(false)
+
+        expect(interactPlugin).toHaveBeenCalledWith(expect.any(Object))
+        expect(addPanelMock).toHaveBeenCalledWith('info', expect.any(Object))
+        expect(addButtonMock).toHaveBeenCalledTimes(3)
+        expect(interactPluginEnable).not.toHaveBeenCalled()
+      })
+
       test('drawing created', () => {
         const { geospatialInput } = initialiseGeospatialMaps()
 
@@ -935,6 +946,8 @@ describe('Maps Client JS', () => {
             2
           )
         )
+
+        expectToggleButtons(false, 3)
       })
 
       test('drawing deleted', () => {
