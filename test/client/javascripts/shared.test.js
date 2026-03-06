@@ -8,7 +8,7 @@ import { initAll } from '~/src/client/javascripts/shared.js'
 jest.mock('~/src/client/javascripts/autocomplete.js')
 jest.mock('~/src/client/javascripts/file-upload.js')
 jest.mock('~/src/client/javascripts/govuk.js')
-jest.mock('~/src/client/javascripts/location-map.js')
+jest.mock('~/src/client/javascripts/map.js')
 jest.mock('~/src/client/javascripts/preview-close-link.js')
 
 describe('Shared client JS', () => {
