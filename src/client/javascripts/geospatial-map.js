@@ -6,6 +6,30 @@ import {
   defaultConfig
 } from '~/src/client/javascripts/map.js'
 
+const helpPanelConfig = {
+  showLabel: true,
+  label: 'How to use the map',
+  mobile: {
+    slot: 'bottom',
+    open: true,
+    dismissible: true,
+    modal: false
+  },
+  tablet: {
+    slot: 'bottom',
+    open: true,
+    dismissible: true,
+    modal: false
+  },
+  desktop: {
+    slot: 'bottom',
+    open: true,
+    dismissible: true,
+    modal: false
+  },
+  html: 'Use the buttons below to add points, shapes and lines to the map<br><br>To finish drawing a line or shape you can double-click or click the "Done" button.<br>Once added you can give each feature a name in the table below.'
+}
+
 const lineFeatureProperties = {
   stroke: 'rgba(0, 11, 112, 1)',
   fill: 'rgba(0, 11, 112, 0.2)',
@@ -107,28 +131,8 @@ export function processGeospatial(config, geospatial, index) {
     return
   }
 
-  const mapContainer = document.createElement('div')
-  const mapId = `geospatialmap_${index}`
-
-  mapContainer.setAttribute('id', mapId)
-  mapContainer.setAttribute('class', 'map-container')
-
-  const listContainer = document.createElement('div')
-  const listId = `${mapId}_list`
-  listContainer.setAttribute('id', listId)
-
-  const value = geospatialInput.value.trim()
-  const hasValue = !!value
-
-  /** @type {FeatureCollection} */
-  const features = hasValue ? JSON.parse(value) : []
-
-  /** @type {GeoJSON} */
-  const geojson = {
-    type: 'FeatureCollection',
-    features
-  }
-
+  const { listContainer, mapId } = createContainers(geospatialInput, index)
+  const { hasValue, geojson } = getGeoJSON(geospatialInput)
   const bounds = hasValue ? bbox(geojson) : undefined
   const drawPlugin = defra.drawMLPlugin()
 
@@ -137,10 +141,6 @@ export function processGeospatial(config, geospatial, index) {
     bounds,
     plugins: [drawPlugin]
   }
-
-  geospatialInput.after(mapContainer)
-  mapContainer.after(listContainer)
-  geospatialInput.classList.add('js-hidden')
 
   const { map, interactPlugin } = createMap(mapId, initConfig, config)
 
@@ -157,10 +157,10 @@ export function processGeospatial(config, geospatial, index) {
 
   /**
    * Sets the active feature id
-   * @param {string | undefined} value
+   * @param {string | undefined} id
    */
-  function setActiveFeature(value) {
-    _activeFeature = value
+  function setActiveFeature(id) {
+    _activeFeature = id
   }
 
   function resetActiveFeature() {
@@ -256,6 +256,50 @@ export function processGeospatial(config, geospatial, index) {
 }
 
 /**
+ * Extract and parses the GeoJSON from the textarea
+ * @param {HTMLTextAreaElement} geospatialInput - the textarea containing the geojson
+ * @returns
+ */
+function getGeoJSON(geospatialInput) {
+  const value = geospatialInput.value.trim()
+  const hasValue = !!value
+
+  /** @type {FeatureCollection} */
+  const features = hasValue ? JSON.parse(value) : []
+
+  /** @type {GeoJSON} */
+  const geojson = {
+    type: 'FeatureCollection',
+    features
+  }
+
+  return { hasValue, geojson }
+}
+
+/**
+ * Create the map and list containers and adds them to the DOM
+ * @param {HTMLTextAreaElement} geospatialInput - the textarea containing the geojson
+ * @param {number} index - the 0 based index
+ */
+function createContainers(geospatialInput, index) {
+  const mapContainer = document.createElement('div')
+  const mapId = `geospatialmap_${index}`
+
+  mapContainer.setAttribute('id', mapId)
+  mapContainer.setAttribute('class', 'map-container')
+
+  const listContainer = document.createElement('div')
+  const listId = `${mapId}_list`
+  listContainer.setAttribute('id', listId)
+
+  geospatialInput.after(mapContainer)
+  mapContainer.after(listContainer)
+  geospatialInput.classList.add('js-hidden')
+
+  return { mapContainer, listContainer, mapId }
+}
+
+/**
  * Callback factory function which fires when the map is ready
  * @param {Context} context - the UI context
  */
@@ -273,29 +317,7 @@ function onMapReadyFactory(context) {
    */
   return function onMapReady() {
     // Add info panel
-    map.addPanel('info', {
-      showLabel: true,
-      label: 'How to use the map',
-      mobile: {
-        slot: 'bottom',
-        open: true,
-        dismissible: true,
-        modal: false
-      },
-      tablet: {
-        slot: 'bottom',
-        open: true,
-        dismissible: true,
-        modal: false
-      },
-      desktop: {
-        slot: 'bottom',
-        open: true,
-        dismissible: true,
-        modal: false
-      },
-      html: 'Use the buttons below to add points, shapes and lines to the map<br><br>To finish drawing a line or shape you can double-click or click the "Done" button.<br>Once added you can give each feature a name in the table below.'
-    })
+    map.addPanel('info', helpPanelConfig)
 
     map.addButton('btnAddPoint', {
       variant: 'tertiary',
