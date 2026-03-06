@@ -797,6 +797,25 @@ describe('Maps Client JS', () => {
       return /** @type {HTMLAnchorElement} */ (linkEl)
     }
 
+    /**
+     * Get the decsription element by id
+     * @param {HTMLDivElement} listContainer
+     * @param {string} id
+     */
+    function getDescription(listContainer, id) {
+      const descriptionEl = listContainer.querySelector(
+        `input[id="description_${id}"]`
+      )
+
+      expect(descriptionEl).toBeDefined()
+
+      if (descriptionEl === null) {
+        throw new Error(`Unexpected null found for description ${id}`)
+      }
+
+      return /** @type {HTMLInputElement} */ (descriptionEl)
+    }
+
     describe('Map initialisation', () => {
       test('initMaps geospatial component initializes without errors when DOM elements are present', () => {
         initialiseGeospatialMaps()
@@ -1126,25 +1145,19 @@ describe('Maps Client JS', () => {
         )
       })
 
-      test.skip('description changed', () => {
+      test('description changed', () => {
         const { geospatialInput, listContainer } = initialiseGeospatialMaps()
 
         // Manually change the description
-        const buckinghamPalaceDescriptionEl = listContainer.querySelector(
-          'input[id="description_6d67810c-7228-4f71-b6ec-0d16b132fcd7"]'
+        const buckinghamPalaceInputEl = getDescription(
+          listContainer,
+          '6d67810c-7228-4f71-b6ec-0d16b132fcd7'
         )
 
-        if (buckinghamPalaceDescriptionEl === null) {
-          throw new Error(
-            'Unexpected null found for buckinghamPalaceDescriptionEl'
-          )
-        }
-
-        const buckinghamPalaceInputEl = /** @type {HTMLInputElement} */ (
-          buckinghamPalaceDescriptionEl
-        )
         buckinghamPalaceInputEl.value = 'New description'
-        buckinghamPalaceInputEl.dispatchEvent(new window.Event('change'))
+        buckinghamPalaceInputEl.dispatchEvent(
+          new window.Event('change', { bubbles: true })
+        )
 
         expect(JSON.parse(geospatialInput.value)).toEqual([
           {
