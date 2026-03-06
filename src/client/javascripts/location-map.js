@@ -139,7 +139,9 @@ export function initMaps(config = {}) {
 
     const buttons = Array.from(form.querySelectorAll('button'))
     form.addEventListener('submit', formSubmitFactory(buttons), false)
-  } else if (geospatials.length) {
+  }
+
+  if (geospatials.length) {
     const form = geospatials[0].closest('form')
 
     if (form === null) {
