@@ -149,7 +149,7 @@ export function processGeospatial(config, geospatial, index) {
 
   /**
    * Returns the active feature id
-   * @returns {string | undefined}
+   * @type {GetActiveFeature}
    */
   function getActiveFeature() {
     return _activeFeature
@@ -157,19 +157,23 @@ export function processGeospatial(config, geospatial, index) {
 
   /**
    * Sets the active feature id
-   * @param {string | undefined} id
+   * @type {SetActiveFeature}
    */
   function setActiveFeature(id) {
     _activeFeature = id
   }
 
+  /**
+   * Resets the active feature id
+   * @type {ResetActiveFeature}
+   */
   function resetActiveFeature() {
-    setActiveFeature(undefined)
+    _activeFeature = undefined
   }
 
   /**
    * Toggle the hidden state of the action buttons
-   * @param {boolean} hidden - whether to hide the action buttons
+   * @type {ToggleActionButtons}
    */
   function toggleActionButtons(hidden) {
     map.toggleButtonState('btnAddPoint', 'hidden', hidden)
@@ -179,6 +183,7 @@ export function processGeospatial(config, geospatial, index) {
 
   /**
    * Set focus to the last description input
+   * @type {FocusDescriptionInput}
    */
   function focusDescriptionInput() {
     const inputs = listContainer.querySelectorAll('input')
@@ -193,7 +198,7 @@ export function processGeospatial(config, geospatial, index) {
 
   /**
    * Add a feature to the geojson
-   * @param {Feature} feature - the feature to add
+   * @type {AddFeature}
    */
   function addFeature(feature) {
     geojson.features.push(feature)
@@ -201,7 +206,7 @@ export function processGeospatial(config, geospatial, index) {
 
   /**
    * Removes a feature from the geojson
-   * @param {string} id - the feature id
+   * @type {RemoveFeature}
    */
   function removeFeature(id) {
     const idx = geojson.features.findIndex((f) => f.id === id)
@@ -678,15 +683,59 @@ function onListContainerChangeFactory(context) {
  * @typedef {object} Context
  * @property {InteractiveMap} map - the interactive map
  * @property {GeoJSON} geojson - the geojson features collection
- * @property {Function} addFeature - function that adds feature to the geojson
- * @property {Function} removeFeature - function that removes a feature from the geojson
+ * @property {AddFeature} addFeature - function that adds feature to the geojson
+ * @property {RemoveFeature} removeFeature - function that removes a feature from the geojson
  * @property {any} interactPlugin - the map interact plugin
  * @property {any} drawPlugin - the map draw plugin
  * @property {HTMLTextAreaElement} geospatialInput - the hidden geospatial textarea input
  * @property {HTMLDivElement} listContainer - the summary list of features
- * @property {Function} getActiveFeature - function that returns the current active feature id
- * @property {Function} setActiveFeature - function that sets the current active feature id
- * @property {Function} resetActiveFeature - function that resets the current active feature id
- * @property {Function} toggleActionButtons - function that toggles the action buttons
- * @property {Function} focusDescriptionInput - function that sets focus to a description input element
+ * @property {GetActiveFeature} getActiveFeature - function that returns the current active feature id
+ * @property {SetActiveFeature} setActiveFeature - function that sets the current active feature id
+ * @property {ResetActiveFeature} resetActiveFeature - function that resets the current active feature id
+ * @property {ToggleActionButtons} toggleActionButtons - function that toggles the action buttons
+ * @property {FocusDescriptionInput} focusDescriptionInput - function that sets focus to a description input element
+ */
+
+/**
+ * Add a feature to the geojson
+ * @callback AddFeature
+ * @param {Feature} feature - the feature to add
+ */
+
+/**
+ * Removes a feature from the geojson
+ * @callback RemoveFeature
+ * @param {string} id - the feature id
+ */
+
+/**
+ * Gets the active feature id
+ * @callback GetActiveFeature
+ * @returns {string | undefined}
+ */
+
+/**
+ * Set the active feature id
+ * @callback SetActiveFeature
+ * @param {string} id - the feature id
+ * @returns {void}
+ */
+
+/**
+ * Resets the active feature id
+ * @callback ResetActiveFeature
+ * @returns {void}
+ */
+
+/**
+ * Toggles the action button hidden state
+ * @callback ToggleActionButtons
+ * @param {boolean} hidden - whether to hide the action buttons
+ * @returns {void}
+ */
+
+/**
+ * Set focus to the last description input
+ * @callback FocusDescriptionInput
+ * @returns {void}
  */
