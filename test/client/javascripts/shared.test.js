@@ -1,7 +1,7 @@
 import { initAllAutocomplete } from '~/src/client/javascripts/autocomplete.js'
 import { initFileUpload } from '~/src/client/javascripts/file-upload.js'
 import { initAllGovuk } from '~/src/client/javascripts/govuk.js'
-import { initMaps } from '~/src/client/javascripts/location-map.js'
+import { initMaps } from '~/src/client/javascripts/map.js'
 import { initPreviewCloseLink } from '~/src/client/javascripts/preview-close-link.js'
 import { initAll } from '~/src/client/javascripts/shared.js'
 
