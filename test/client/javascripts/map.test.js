@@ -844,7 +844,7 @@ describe('Maps Client JS', () => {
               {
                 ...newPolygonFeature,
                 properties: {
-                  description: 'New polygon'
+                  description: 'New shape'
                 }
               }
             ],
@@ -876,7 +876,7 @@ describe('Maps Client JS', () => {
               {
                 ...newPolygonFeature,
                 properties: {
-                  description: 'New polygon'
+                  description: 'New shape'
                 }
               },
               {
