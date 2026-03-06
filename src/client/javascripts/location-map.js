@@ -431,27 +431,6 @@ function processGeospatial(config, geospatial, index) {
     }
   )
 
-  map.on(EVENTS.drawReady, function () {
-    geojson.features.forEach((feature) => {
-      switch (feature.geometry.type) {
-        case 'Polygon':
-          drawPlugin.addFeature({ ...feature, ...polygonFeatureProperties })
-          break
-        case 'LineString':
-          drawPlugin.addFeature({ ...feature, ...lineFeatureProperties })
-          break
-        case 'Point':
-          map.addMarker(feature.id, feature.geometry.coordinates)
-          break
-        default:
-          break
-      }
-    })
-
-    // Update the features
-    renderFeatures(geojson, listContainer, geospatialInput)
-  })
-
   /** @type {string | undefined} */
   let _activeFeature
 
@@ -499,6 +478,35 @@ function processGeospatial(config, geospatial, index) {
       )
     }
   }
+
+  /**
+   * Callback when the draw plugin is ready
+   */
+  function onDrawReady() {
+    geojson.features.forEach((feature) => {
+      switch (feature.geometry.type) {
+        case 'Polygon':
+          drawPlugin.addFeature({ ...feature, ...polygonFeatureProperties })
+          break
+        case 'LineString':
+          drawPlugin.addFeature({ ...feature, ...lineFeatureProperties })
+          break
+        case 'Point':
+          map.addMarker(feature.id, feature.geometry.coordinates)
+          break
+        default:
+          break
+      }
+    })
+
+    // Update the features
+    renderFeatures(
+      geojson,
+      listContainer,
+      /** @type {HTMLTextAreaElement} */ (geospatialInput)
+    )
+  }
+  map.on(EVENTS.drawReady, onDrawReady)
 
   /**
    * Callback when a draw feature has been created
@@ -566,34 +574,53 @@ function processGeospatial(config, geospatial, index) {
    * @param {{ coords: Coordinates }} e
    */
   function onInteractMarkerChange(e) {
-    const id = generateID()
-    const description = 'New point'
+    if (_activeFeature) {
+      // Editing an existing point
+      const feature = geojson.features.find((f) => f.id === _activeFeature)
+      map.addMarker(_activeFeature, e.coords)
 
-    geojson.features.push({
-      type: 'Feature',
-      properties: {
-        description
-      },
-      geometry: {
-        type: 'Point',
-        coordinates: e.coords
-      },
-      id
-    })
+      if (feature) {
+        feature.geometry.coordinates = e.coords
 
-    map.addMarker(id, e.coords)
+        // Update the features
+        renderFeaturesValue(
+          geojson,
+          /** @type {HTMLTextAreaElement} */ (geospatialInput)
+        )
+      }
+
+      resetActiveFeature()
+    } else {
+      // Adding a new point
+      const id = generateID()
+      const description = 'New point'
+
+      geojson.features.push({
+        type: 'Feature',
+        properties: {
+          description
+        },
+        geometry: {
+          type: 'Point',
+          coordinates: e.coords
+        },
+        id
+      })
+      map.addMarker(id, e.coords)
+
+      // Update the features
+      renderFeatures(
+        geojson,
+        listContainer,
+        /** @type {HTMLTextAreaElement} */ (geospatialInput)
+      )
+
+      focusDescriptionInput()
+    }
     map.removeMarker('location')
 
     interactPlugin.disable()
-
-    // Update the features
-    renderFeatures(
-      geojson,
-      listContainer,
-      /** @type {HTMLTextAreaElement} */ (geospatialInput)
-    )
     toggleActionButtons(false)
-    focusDescriptionInput()
   }
   map.on(EVENTS.interactMarkerChange, onInteractMarkerChange)
 
@@ -620,11 +647,12 @@ function processGeospatial(config, geospatial, index) {
         const { action, id, type } = target.dataset
 
         if (action === 'edit') {
+          _activeFeature = id
           // "Change" feature link was clicked
           if (type === 'Point') {
             interactPlugin.selectFeature({ featureId: id })
+            interactPlugin.enable()
           } else {
-            _activeFeature = id
             drawPlugin.editFeature(id)
           }
           toggleActionButtons(true)
@@ -1200,7 +1228,7 @@ function createFeatureHTML(feature) {
   </dt>
   <dd class="govuk-summary-list__actions">
     <ul class="govuk-summary-list__actions-list">
-      ${feature.geometry.type !== 'Point' ? changeAction() : ''}
+      ${changeAction()}
       ${deleteAction()}
     </ul>
   </dd>
