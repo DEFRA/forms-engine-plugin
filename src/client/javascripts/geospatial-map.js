@@ -469,7 +469,8 @@ function onDrawEditedFactory(context) {
     getActiveFeature,
     listContainer,
     geospatialInput,
-    resetActiveFeature
+    resetActiveFeature,
+    toggleActionButtons
   } = context
 
   /**
@@ -494,6 +495,7 @@ function onDrawEditedFactory(context) {
     }
 
     resetActiveFeature()
+    toggleActionButtons(false)
   }
 }
 
