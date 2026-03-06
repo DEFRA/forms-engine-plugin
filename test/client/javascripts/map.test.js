@@ -4,7 +4,7 @@ import {
   makeTileRequestTransformer
 } from '~/src/client/javascripts/map.js'
 
-describe('Location Maps Client JS', () => {
+describe('Maps Client JS', () => {
   /** @type {jest.Mock} */
   let onMock
 
@@ -42,6 +42,12 @@ describe('Location Maps Client JS', () => {
   let drawPluginEditFeature
 
   /** @type {jest.Mock} */
+  let drawPluginNewPolygon
+
+  /** @type {jest.Mock} */
+  let drawPluginNewLine
+
+  /** @type {jest.Mock} */
   let drawPluginDeleteFeature
 
   /** @type {jest.Mock} */
@@ -64,6 +70,8 @@ describe('Location Maps Client JS', () => {
     drawPluginAddFeature = jest.fn()
     drawPluginEditFeature = jest.fn()
     drawPluginDeleteFeature = jest.fn()
+    drawPluginNewPolygon = jest.fn()
+    drawPluginNewLine = jest.fn()
     interactPlugin = jest.fn(() => ({
       selectFeature: interactPluginSelectFeature,
       enable: interactPluginEnable,
@@ -72,7 +80,9 @@ describe('Location Maps Client JS', () => {
     drawMLPlugin = jest.fn(() => ({
       addFeature: drawPluginAddFeature,
       editFeature: drawPluginEditFeature,
-      deleteFeature: drawPluginDeleteFeature
+      deleteFeature: drawPluginDeleteFeature,
+      newPolygon: drawPluginNewPolygon,
+      newLine: drawPluginNewLine
     }))
 
     class MockInteractiveMap {
@@ -1063,6 +1073,43 @@ describe('Location Maps Client JS', () => {
         expect(JSON.parse(geospatialInput.value)).toHaveLength(2)
         expect(geospatialInput.value).toBe(
           JSON.stringify([features[1], features[2]], null, 2)
+        )
+      })
+
+      test('action buttons', () => {
+        initialiseGeospatialMaps()
+
+        const onMapReady = onMock.mock.calls[5][1]
+        expect(typeof onMapReady).toBe('function')
+
+        expect(addButtonMock).toHaveBeenCalledTimes(3)
+        const { onClick: onAddPointClick } = addButtonMock.mock.calls[0][1]
+        const { onClick: onAddPolygonClick } = addButtonMock.mock.calls[1][1]
+        const { onClick: onAddLineClick } = addButtonMock.mock.calls[2][1]
+
+        expect(typeof onAddPointClick).toBe('function')
+        expect(typeof onAddPolygonClick).toBe('function')
+        expect(typeof onAddLineClick).toBe('function')
+
+        // Manually invoke add point button click
+        onAddPointClick()
+        expectToggleButtons(true)
+        expect(interactPluginEnable).toHaveBeenCalledTimes(1)
+
+        // Manually invoke add polygon button click
+        onAddPolygonClick()
+        expectToggleButtons(true, 3)
+        expect(drawPluginNewPolygon).toHaveBeenCalledExactlyOnceWith(
+          expect.any(String),
+          expect.any(Object)
+        )
+
+        // Manually invoke add line button click
+        onAddLineClick()
+        expectToggleButtons(true, 6)
+        expect(drawPluginNewLine).toHaveBeenCalledExactlyOnceWith(
+          expect.any(String),
+          expect.any(Object)
         )
       })
 
