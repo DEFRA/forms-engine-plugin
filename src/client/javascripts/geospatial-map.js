@@ -172,7 +172,7 @@ export function processGeospatial(config, geospatial, index) {
           dismissible: true,
           modal: false
         },
-        html: 'Use the buttons below to add Points, Polygons and Lines to the map<br><br>To finish drawing a shape you can double-click or click the "Done" button.<br>Once added you can give each feature a name in the table below.'
+        html: 'Use the buttons below to add points, shapes and lines to the map<br><br>To finish drawing a line or shape you can double-click or click the "Done" button.<br>Once added you can give each feature a name in the table below.'
       })
 
       map.addButton('btnAddPoint', {
@@ -192,7 +192,7 @@ export function processGeospatial(config, geospatial, index) {
 
       map.addButton('btnAddPolygon', {
         variant: 'tertiary',
-        label: 'Add polygon',
+        label: 'Add shape',
         iconSvgContent:
           '<path d="M19.5 7v10M4.5 7v10M7 19.5h10M7 4.5h10"/><path d="M22 18v3a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1zm0-15v3a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1zM7 18v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1zM7 3v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1z"/>',
         onClick: () => {
@@ -305,7 +305,7 @@ export function processGeospatial(config, geospatial, index) {
    */
   function onDrawCreated(e) {
     // New feature
-    const typeName = e.geometry.type === 'LineString' ? 'line' : 'polygon'
+    const typeName = e.geometry.type === 'LineString' ? 'line' : 'shape'
 
     const description = `New ${typeName}`
 
