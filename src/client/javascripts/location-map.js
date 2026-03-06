@@ -692,7 +692,7 @@ function processGeospatial(config, geospatial, index) {
       }
 
       const { id } = target.dataset
-      const feature = geojson.features.find((feature) => feature.id === id)
+      const feature = geojson.features.find((f) => f.id === id)
 
       if (feature) {
         feature.properties.description = target.value.trim()
