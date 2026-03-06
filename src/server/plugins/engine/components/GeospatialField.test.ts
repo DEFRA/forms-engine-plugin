@@ -108,7 +108,7 @@ describe('GeospatialField', () => {
 
         expect(result.errors).toEqual([
           expect.objectContaining({
-            text: 'Example geospatial must be a valid json array string'
+            text: 'Example geospatial must contain at least 1 items'
           })
         ])
       })
