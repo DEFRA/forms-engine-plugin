@@ -7,7 +7,6 @@ import {
   isGeospatialState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { geospatialSchema } from '~/src/server/plugins/engine/components/helpers/geospatial.js'
-import { getGridRef } from '~/src/server/plugins/engine/components/helpers/gridref.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
@@ -57,11 +56,9 @@ export class GeospatialField extends FormComponent {
       return ''
     }
 
-    return features
-      .map((feature) => {
-        return `${feature.properties.description}:\n${getGridRef(feature)}\n`
-      })
-      .join('\n')
+    const unit = features.length === 1 ? 'feature' : 'features'
+
+    return `Added ${features.length} ${unit}`
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
@@ -72,8 +69,8 @@ export class GeospatialField extends FormComponent {
 
   getContextValueFromFormValue(
     features: GeospatialState | undefined
-  ): string[] | null {
-    return features?.map(({ id }) => id) ?? null
+  ): string | null {
+    return features ? JSON.stringify(features) : null
   }
 
   getContextValueFromState(state: FormSubmissionState) {

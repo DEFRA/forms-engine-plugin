@@ -240,9 +240,7 @@ describe('Location field formatting', () => {
       }
 
       const answer = getAnswer(field, state, { format: 'email' })
-      expect(answer).toBe(
-        'My farm house:\nSJ 61896 71377\n\nMain gas line:\nSJ 62022 71500 to SJ 61904 71391\n\nMy Pony Paddock:\nSJ 61829 71378\n\nMy farm house #2:\nSJ 61894 71483\n\n'
-      )
+      expect(answer).toBe('Added 4 features\n')
     })
 
     it('formats for data output', () => {
@@ -251,7 +249,7 @@ describe('Location field formatting', () => {
       }
 
       const answer = getAnswer(field, state, { format: 'data' })
-      expect(answer).toBe('a,b,c,d')
+      expect(answer).toBe(JSON.stringify(validState))
     })
 
     it('formats for summary display', () => {
@@ -260,9 +258,7 @@ describe('Location field formatting', () => {
       }
 
       const answer = getAnswer(field, state, { format: 'summary' })
-      expect(answer).toBe(
-        'My farm house:<br>SJ 61896 71377<br>Main gas line:<br>SJ 62022 71500 to SJ 61904 71391<br>My Pony Paddock:<br>SJ 61829 71378<br>My farm house #2:<br>SJ 61894 71483<br>'
-      )
+      expect(answer).toBe('Added 4 features')
     })
   })
 

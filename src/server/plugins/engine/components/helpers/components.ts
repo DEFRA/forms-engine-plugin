@@ -240,8 +240,7 @@ export function getAnswer(
     field instanceof Components.MultilineTextField ||
     field instanceof Components.UkAddressField ||
     field instanceof Components.EastingNorthingField ||
-    field instanceof Components.LatLongField ||
-    field instanceof Components.GeospatialField
+    field instanceof Components.LatLongField
   ) {
     return markdown
       .parse(getAnswerMarkdown(field, state), { async: false })

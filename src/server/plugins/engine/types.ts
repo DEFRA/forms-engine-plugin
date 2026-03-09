@@ -567,6 +567,7 @@ export type RichFormValue =
   | UkAddressState
   | EastingNorthingState
   | LatLongState
+  | GeospatialState
 
 export interface FormAdapterSubmissionMessageData {
   main: Record<string, RichFormValue | null>
