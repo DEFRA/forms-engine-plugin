@@ -69,8 +69,8 @@ export class GeospatialField extends FormComponent {
 
   getContextValueFromFormValue(
     features: GeospatialState | undefined
-  ): string | null {
-    return features ? JSON.stringify(features) : null
+  ): string[] | null {
+    return features?.map(({ id }) => id) ?? null
   }
 
   getContextValueFromState(state: FormSubmissionState) {
