@@ -108,7 +108,7 @@ describe('GeospatialField', () => {
 
         expect(result.errors).toEqual([
           expect.objectContaining({
-            text: 'Example geospatial must contain at least 1 items'
+            text: 'Select example geospatial'
           })
         ])
       })
@@ -126,7 +126,7 @@ describe('GeospatialField', () => {
 
         expect(result.errors).toEqual([
           expect.objectContaining({
-            text: 'Example geospatial title must contain at least 1 items'
+            text: 'Select example geospatial title'
           })
         ])
       })
@@ -235,7 +235,7 @@ describe('GeospatialField', () => {
       it('should return errors', () => {
         const errors = field.getAllPossibleErrors()
         expect(errors.baseErrors).not.toBeEmpty()
-        expect(errors.advancedSettingsErrors).not.toBeEmpty()
+        expect(errors.advancedSettingsErrors).toBeEmpty()
       })
     })
   })
