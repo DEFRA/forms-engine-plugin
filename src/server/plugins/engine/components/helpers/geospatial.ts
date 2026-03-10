@@ -20,7 +20,7 @@ const Joi = JoiBase.extend({
       if (typeof value === 'string') {
         if (value.trim() === '') {
           return {
-            value: []
+            value: undefined
           }
         }
 
