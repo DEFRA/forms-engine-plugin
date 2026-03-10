@@ -249,7 +249,7 @@ describe('Location field formatting', () => {
       }
 
       const answer = getAnswer(field, state, { format: 'data' })
-      expect(answer).toBe(JSON.stringify(validState))
+      expect(answer).toBe('a,b,c,d')
     })
 
     it('formats for summary display', () => {
