@@ -9,6 +9,7 @@ describe('Geospatial validation helpers', () => {
     expect(result.value).toBeDefined()
     expect(result.value).toHaveLength(4)
   })
+
   test('it should not have errors for valid geojson string', () => {
     const result = geospatialSchema.validate(JSON.stringify(validState))
 

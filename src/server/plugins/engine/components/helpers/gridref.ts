@@ -10,7 +10,7 @@ export function getGridRef(feature: Feature) {
     const [long, lat] = feature.geometry.coordinates
     const point = new LatLon(lat, long)
 
-    return point.toOsGrid()
+    return point.toOsGrid().toString()
   }
 
   if (feature.geometry.type === 'LineString') {
@@ -21,7 +21,7 @@ export function getGridRef(feature: Feature) {
     const [long2, lat2] = feature.geometry.coordinates[numLinePoints - 1]
     const point2 = new LatLon(lat2, long2)
 
-    return `${point1.toOsGrid()} to ${point2.toOsGrid()}`
+    return `${point1.toOsGrid().toString()} to ${point2.toOsGrid().toString()}`
   }
 
   const shape = polygon(feature.geometry.coordinates)
@@ -29,5 +29,5 @@ export function getGridRef(feature: Feature) {
   const [long, lat] = centre.geometry.coordinates
   const point = new LatLon(lat, long)
 
-  return point.toOsGrid()
+  return point.toOsGrid().toString()
 }
