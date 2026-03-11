@@ -331,6 +331,10 @@ export interface FeatureProperties {
    * Human-readable description of the feature
    */
   description: string
+  /**
+   * The OS grid reference of the centroid of the feature
+   */
+  gridReference?: string
 }
 
 /**

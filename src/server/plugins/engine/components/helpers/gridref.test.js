@@ -33,7 +33,7 @@ describe('Gridref helpers', () => {
       }
     })
 
-    expect(result).toBe('TQ 29472 80890 to TQ 34850 81718')
+    expect(result).toBe('TQ 32161 81303')
   })
 
   test('it should return gridref for a polygon feature', () => {

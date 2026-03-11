@@ -1,3 +1,4 @@
+import { centroid } from '@turf/centroid'
 // @ts-expect-error - no types
 import OsGridRef, { LatLon } from 'geodesy/osgridref.js'
 
@@ -65,6 +66,25 @@ export function osGridRefToLatLong(osGridRef) {
   const latLong = point.toLatLon()
 
   return { lat: latLong.latitude, long: latLong.longitude }
+}
+
+/**
+ * Get a grid ref from a long/lat feature
+ * @param {Feature} feature
+ */
+export function getGridRef(feature) {
+  if (feature.geometry.type === 'Point') {
+    const [long, lat] = feature.geometry.coordinates
+    const point = new LatLon(lat, long)
+
+    return point.toOsGrid().toString()
+  }
+
+  const centre = centroid(feature)
+  const [long, lat] = centre.geometry.coordinates
+  const point = new LatLon(lat, long)
+
+  return point.toOsGrid().toString()
 }
 
 /** @type {InteractiveMapInitConfig} */
@@ -338,4 +358,8 @@ export function centerMap(map, mapProvider, center) {
  * @property {string} assetPath - the root asset path
  * @property {string} apiPath - the root API path
  * @property {TileData} data - the tile data config
+ */
+
+/**
+ * @import { Feature } from '~/src/server/plugins/engine/types.js'
  */
