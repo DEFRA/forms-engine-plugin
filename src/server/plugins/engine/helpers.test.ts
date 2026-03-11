@@ -228,6 +228,18 @@ describe('Helpers', () => {
         expect(h.redirect).not.toHaveBeenCalledWith(request.query.returnUrl)
       }
     )
+
+    it('should not forward custom query params to the next page URL', () => {
+      request = {
+        ...request,
+        method: 'post',
+        query: { parcelId: 'SD5848-9205' }
+      }
+
+      proceed(request, h, '/test/next-page')
+
+      expect(h.redirect).toHaveBeenCalledWith('/test/next-page')
+    })
   })
 
   describe('encodeUrl', () => {
