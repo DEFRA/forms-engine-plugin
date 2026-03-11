@@ -598,7 +598,10 @@ describe('Maps Client JS', () => {
       features = [
         {
           type: 'Feature',
-          properties: { description: 'Buckingham palace' },
+          properties: {
+            description: 'Buckingham palace',
+            gridReference: 'TQ 29031 79662'
+          },
           geometry: {
             type: 'Point',
             coordinates: [-0.14242385752663722, 51.50118200993498]
@@ -608,7 +611,10 @@ describe('Maps Client JS', () => {
         {
           id: '6d75415d-31e8-4ce7-88f0-621ae3321d6a',
           type: 'Feature',
-          properties: { description: "St James' Park" },
+          properties: {
+            description: "St James' Park",
+            gridReference: 'TQ 29560 79824'
+          },
           geometry: {
             coordinates: [
               [
@@ -631,7 +637,10 @@ describe('Maps Client JS', () => {
         {
           id: '20e4fcc4-d9b0-4226-8d02-a3fbb314ba4a',
           type: 'Feature',
-          properties: { description: 'Constitution Hill' },
+          properties: {
+            description: 'Constitution Hill',
+            gridReference: 'TQ 29560 79824'
+          },
           geometry: {
             coordinates: [
               [-0.14969813781837615, 51.502534952613814],
@@ -857,9 +866,10 @@ describe('Maps Client JS', () => {
             type: 'Polygon',
             coordinates: [
               [
-                [0, 0],
-                [1, 1],
-                [2, 2]
+                [-2.0868919921875886, 53.896834237148596],
+                [-1.8561791015627875, 53.728181570441876],
+                [-1.3068626953125317, 54.019651598965936],
+                [-2.0868919921875886, 53.896834237148596]
               ]
             ]
           }
@@ -875,7 +885,8 @@ describe('Maps Client JS', () => {
               {
                 ...newPolygonFeature,
                 properties: {
-                  description: 'New shape'
+                  description: 'New shape',
+                  gridReference: 'SE 16533 42846'
                 }
               }
             ],
@@ -891,8 +902,8 @@ describe('Maps Client JS', () => {
           geometry: {
             type: 'LineString',
             coordinates: [
-              [0, 0],
-              [1, 1]
+              [-1.3068626953125317, 54.019651598965936],
+              [-2.0868919921875886, 53.896834237148596]
             ]
           }
         }
@@ -907,13 +918,15 @@ describe('Maps Client JS', () => {
               {
                 ...newPolygonFeature,
                 properties: {
-                  description: 'New shape'
+                  description: 'New shape',
+                  gridReference: 'SE 16533 42846'
                 }
               },
               {
                 ...newLineFeature,
                 properties: {
-                  description: 'New line'
+                  description: 'New line',
+                  gridReference: 'SE 19987 51392'
                 }
               }
             ],
@@ -1010,7 +1023,7 @@ describe('Maps Client JS', () => {
 
         // Manually invoke interactMarkerChange callback with a new point
         const newPointFeature = {
-          coords: [0, 0]
+          coords: [-2.0868919921875886, 53.896834237148596]
         }
 
         interactMarkerChange(newPointFeature)
@@ -1028,10 +1041,11 @@ describe('Maps Client JS', () => {
           {
             geometry: {
               type: 'Point',
-              coordinates: [0, 0]
+              coordinates: [-2.0868919921875886, 53.896834237148596]
             },
             properties: {
-              description: 'New point'
+              description: 'New point',
+              gridReference: 'SD 94387 44521'
             },
             id: expect.any(String),
             type: 'Feature'
@@ -1164,7 +1178,8 @@ describe('Maps Client JS', () => {
           {
             ...features[0],
             properties: {
-              description: 'New description'
+              description: 'New description',
+              gridReference: 'TQ 29031 79662'
             }
           },
           ...features.slice(1)
