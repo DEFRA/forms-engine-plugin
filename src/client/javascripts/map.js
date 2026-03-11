@@ -78,13 +78,13 @@ export function getGridRef(feature) {
     const point = new LatLon(lat, long)
 
     return point.toOsGrid().toString()
+  } else {
+    const centre = centroid(feature)
+    const [long, lat] = centre.geometry.coordinates
+    const point = new LatLon(lat, long)
+
+    return point.toOsGrid().toString()
   }
-
-  const centre = centroid(feature)
-  const [long, lat] = centre.geometry.coordinates
-  const point = new LatLon(lat, long)
-
-  return point.toOsGrid().toString()
 }
 
 /** @type {InteractiveMapInitConfig} */
