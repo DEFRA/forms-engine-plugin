@@ -3,7 +3,8 @@ import { bbox } from '@turf/bbox'
 import {
   EVENTS,
   createMap,
-  defaultConfig
+  defaultConfig,
+  getGridRef
 } from '~/src/client/javascripts/map.js'
 
 const helpPanelConfig = {
@@ -59,7 +60,6 @@ function renderFeatures(geojson, listContainer, geospatialInput) {
   const html = createFeaturesHTML(geojson.features)
 
   listContainer.innerHTML = html
-  geospatialInput.value = JSON.stringify(geojson.features, null, 2)
 
   renderFeaturesValue(geojson, geospatialInput)
 }
@@ -197,11 +197,37 @@ export function processGeospatial(config, geospatial, index) {
   }
 
   /**
+   * Get a feature from the geojson by id
+   * @type {GetFeature}
+   */
+  function getFeature(id) {
+    return geojson.features.find((f) => f.id === id)
+  }
+
+  /**
    * Add a feature to the geojson
    * @type {AddFeature}
    */
   function addFeature(feature) {
+    feature.properties.gridReference = getGridRef(feature)
+
     geojson.features.push(feature)
+  }
+
+  /**
+   * Updates a feature in the geojson
+   * @type {UpdateFeature}
+   */
+  function updateFeature(id, geometry) {
+    const feature = getFeature(id)
+
+    // Ensure the feature exists in the geojson
+    if (feature) {
+      feature.properties.gridReference = getGridRef(feature)
+      feature.geometry = geometry
+    }
+
+    return feature
   }
 
   /**
@@ -227,7 +253,9 @@ export function processGeospatial(config, geospatial, index) {
   const context = {
     map,
     geojson,
+    getFeature,
     addFeature,
+    updateFeature,
     removeFeature,
     interactPlugin,
     drawPlugin,
@@ -466,6 +494,7 @@ function onDrawCreatedFactory(context) {
 function onDrawEditedFactory(context) {
   const {
     geojson,
+    updateFeature,
     getActiveFeature,
     listContainer,
     geospatialInput,
@@ -480,11 +509,9 @@ function onDrawEditedFactory(context) {
   return function onDrawEdited(e) {
     const changedFeature = e
     const featureId = changedFeature.id
-    const feature = geojson.features.find((f) => f.id === featureId)
 
-    // Ensure the featureId exists in the geojson
-    if (feature && getActiveFeature() === featureId) {
-      feature.geometry = changedFeature.geometry
+    if (getActiveFeature() === featureId) {
+      updateFeature(featureId, changedFeature.geometry)
 
       // Update the features
       renderFeatures(
@@ -523,6 +550,7 @@ function onInteractMarkerChangedFactory(context) {
     getActiveFeature,
     geojson,
     addFeature,
+    updateFeature,
     map,
     geospatialInput,
     resetActiveFeature,
@@ -537,15 +565,18 @@ function onInteractMarkerChangedFactory(context) {
    * @param {{ coords: Coordinates }} e
    */
   return function onInteractMarkerChange(e) {
-    const activeFeature = getActiveFeature()
-    if (activeFeature) {
+    const activeFeatureId = getActiveFeature()
+
+    if (activeFeatureId) {
       // Editing an existing point
-      const feature = geojson.features.find((f) => f.id === activeFeature)
-      map.addMarker(activeFeature, e.coords)
+      const feature = updateFeature(activeFeatureId, {
+        type: 'Point',
+        coordinates: e.coords
+      })
+
+      map.addMarker(activeFeatureId, e.coords)
 
       if (feature) {
-        feature.geometry.coordinates = e.coords
-
         // Update the features
         renderFeaturesValue(
           geojson,
@@ -651,7 +682,7 @@ function onListContainerClickFactory(context) {
  * @param {Context} context - the UI context
  */
 function onListContainerChangeFactory(context) {
-  const { geojson, geospatialInput } = context
+  const { geojson, getFeature, geospatialInput } = context
 
   /**
    * List container delegated 'change' events handler
@@ -668,7 +699,7 @@ function onListContainerChangeFactory(context) {
     }
 
     const { id } = target.dataset
-    const feature = geojson.features.find((f) => f.id === id)
+    const feature = getFeature(id)
 
     if (feature) {
       feature.properties.description = target.value.trim()
@@ -695,7 +726,9 @@ function onListContainerChangeFactory(context) {
  * @typedef {object} Context
  * @property {InteractiveMap} map - the interactive map
  * @property {GeoJSON} geojson - the geojson features collection
+ * @property {GetFeature} getFeature - function that gets a feature from the geojson
  * @property {AddFeature} addFeature - function that adds feature to the geojson
+ * @property {UpdateFeature} updateFeature - function that updates a feature in the geojson
  * @property {RemoveFeature} removeFeature - function that removes a feature from the geojson
  * @property {any} interactPlugin - the map interact plugin
  * @property {any} drawPlugin - the map draw plugin
@@ -709,9 +742,24 @@ function onListContainerChangeFactory(context) {
  */
 
 /**
+ * Gets a feature from the geojson by id
+ * @callback GetFeature
+ * @param {string} id - the feature id
+ * @returns {Feature | undefined}
+ */
+
+/**
  * Add a feature to the geojson
  * @callback AddFeature
  * @param {Feature} feature - the feature to add
+ */
+
+/**
+ * Update a feature in the geojson
+ * @callback UpdateFeature
+ * @param {string} id - the feature id
+ * @param {Geometry} geometry - the feature geometry
+ * @returns {Feature | undefined}
  */
 
 /**

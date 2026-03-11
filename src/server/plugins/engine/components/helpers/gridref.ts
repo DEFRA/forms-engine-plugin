@@ -1,5 +1,4 @@
 import { centroid } from '@turf/centroid'
-import { polygon } from '@turf/helpers'
 // @ts-expect-error - no types
 import { LatLon } from 'geodesy/osgridref.js'
 
@@ -13,19 +12,7 @@ export function getGridRef(feature: Feature) {
     return point.toOsGrid().toString()
   }
 
-  if (feature.geometry.type === 'LineString') {
-    const [long1, lat1] = feature.geometry.coordinates[0]
-    const point1 = new LatLon(lat1, long1)
-
-    const numLinePoints = feature.geometry.coordinates.length
-    const [long2, lat2] = feature.geometry.coordinates[numLinePoints - 1]
-    const point2 = new LatLon(lat2, long2)
-
-    return `${point1.toOsGrid().toString()} to ${point2.toOsGrid().toString()}`
-  }
-
-  const shape = polygon(feature.geometry.coordinates)
-  const centre = centroid(shape)
+  const centre = centroid(feature)
   const [long, lat] = centre.geometry.coordinates
   const point = new LatLon(lat, long)
 
