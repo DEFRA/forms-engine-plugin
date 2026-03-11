@@ -22,7 +22,6 @@ import {
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
-import { stripParam } from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
 import {
   type AnyFormRequest,
   type FormContext,
@@ -134,7 +133,7 @@ export function proceed(
   const response =
     isReturnAllowed && isPathRelative(returnUrl)
       ? h.redirect(returnUrl)
-      : h.redirect(redirectPath(nextUrl, stripParam(query, 'returnUrl')))
+      : h.redirect(redirectPath(nextUrl))
 
   // Redirect POST to GET to avoid resubmission
   return method === 'post'
