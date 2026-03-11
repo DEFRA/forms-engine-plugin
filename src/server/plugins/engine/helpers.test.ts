@@ -229,7 +229,7 @@ describe('Helpers', () => {
       }
     )
 
-    it('should not forward custom query params to the next page URL', () => {
+    it('should not forward custom query params on POST', () => {
       request = {
         ...request,
         method: 'post',
@@ -239,6 +239,34 @@ describe('Helpers', () => {
       proceed(request, h, '/test/next-page')
 
       expect(h.redirect).toHaveBeenCalledWith('/test/next-page')
+    })
+
+    it('should forward custom query params on GET so pre-population params survive dispatch redirects', () => {
+      request = {
+        ...request,
+        method: 'get',
+        query: { formId: '69afefa99b7b18cc1cd2c606' }
+      }
+
+      proceed(request, h, '/test/next-page')
+
+      expect(h.redirect).toHaveBeenCalledWith(
+        '/test/next-page?formId=69afefa99b7b18cc1cd2c606'
+      )
+    })
+
+    it('should forward custom query params on GET but not returnUrl', () => {
+      request = {
+        ...request,
+        method: 'get',
+        query: { formId: '69afefa99b7b18cc1cd2c606', returnUrl: '/summary' }
+      }
+
+      proceed(request, h, '/test/next-page')
+
+      expect(h.redirect).toHaveBeenCalledWith(
+        '/test/next-page?formId=69afefa99b7b18cc1cd2c606'
+      )
     })
   })
 
