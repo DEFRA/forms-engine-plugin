@@ -137,9 +137,12 @@ export function proceed(
   const response =
     isReturnAllowed && isPathRelative(returnUrl)
       ? h.redirect(returnUrl)
-      : method === 'post'
-        ? h.redirect(redirectPath(nextUrl))
-        : h.redirect(redirectPath(nextUrl, stripParam(query, 'returnUrl')))
+      : h.redirect(
+          redirectPath(
+            nextUrl,
+            method === 'get' ? stripParam(query, 'returnUrl') : undefined
+          )
+        )
 
   // Redirect POST to GET to avoid resubmission
   return method === 'post'
