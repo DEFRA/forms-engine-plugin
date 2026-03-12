@@ -151,64 +151,10 @@ function trackActiveFeature() {
 }
 
 /**
- * Processes a geospatial field to add map capability
- * @param {MapsEnvironmentConfig} config - the geospatial field element
- * @param {Element} geospatial - the geospatial field element
- * @param {number} index - the 0-based index
+ * Factory closure to manage the geojson
+ * @param {GeoJSON} geojson
  */
-export function processGeospatial(config, geospatial, index) {
-  // @ts-expect-error - Defra namespace currently comes from UMD support files
-  const defra = window.defra
-
-  if (!(geospatial instanceof HTMLDivElement)) {
-    return
-  }
-
-  const geospatialInput = geospatial.querySelector('.govuk-textarea')
-  if (!(geospatialInput instanceof HTMLTextAreaElement)) {
-    return
-  }
-
-  const { listContainer, mapId } = createContainers(geospatialInput, index)
-  const { hasValue, geojson } = getGeoJSON(geospatialInput)
-  const bounds = hasValue ? bbox(geojson) : undefined
-  const drawPlugin = defra.drawMLPlugin()
-
-  const initConfig = {
-    ...defaultConfig,
-    bounds,
-    plugins: [drawPlugin]
-  }
-
-  const { map, interactPlugin } = createMap(mapId, initConfig, config)
-  const { getActiveFeature, setActiveFeature, resetActiveFeature } =
-    trackActiveFeature()
-
-  /**
-   * Toggle the hidden state of the action buttons
-   * @type {ToggleActionButtons}
-   */
-  function toggleActionButtons(hidden) {
-    map.toggleButtonState('btnAddPoint', 'hidden', hidden)
-    map.toggleButtonState('btnAddPolygon', 'hidden', hidden)
-    map.toggleButtonState('btnAddLine', 'hidden', hidden)
-  }
-
-  /**
-   * Set focus to the last description input
-   * @type {FocusDescriptionInput}
-   */
-  function focusDescriptionInput() {
-    const inputs = listContainer.querySelectorAll('input')
-    if (inputs.length) {
-      const lastInput = /** @type {HTMLInputElement} */ inputs.item(
-        inputs.length - 1
-      )
-      lastInput.focus()
-      lastInput.select()
-    }
-  }
-
+function manageFeatures(geojson) {
   /**
    * Get a feature from the geojson by id
    * @type {GetFeature}
@@ -251,12 +197,76 @@ export function processGeospatial(config, geospatial, index) {
     const idx = geojson.features.findIndex((f) => f.id === id)
 
     if (idx > -1) {
-      geojson.features.splice(idx, 1)
-      renderFeatures(
-        geojson,
-        listContainer,
-        /** @type {HTMLTextAreaElement} */ (geospatialInput)
+      return geojson.features.splice(idx, 1)
+    }
+  }
+
+  return {
+    getFeature,
+    addFeature,
+    updateFeature,
+    removeFeature
+  }
+}
+
+/**
+ * Processes a geospatial field to add map capability
+ * @param {MapsEnvironmentConfig} config - the geospatial field element
+ * @param {Element} geospatial - the geospatial field element
+ * @param {number} index - the 0-based index
+ */
+export function processGeospatial(config, geospatial, index) {
+  // @ts-expect-error - Defra namespace currently comes from UMD support files
+  const defra = window.defra
+
+  if (!(geospatial instanceof HTMLDivElement)) {
+    return
+  }
+
+  const geospatialInput = geospatial.querySelector('.govuk-textarea')
+  if (!(geospatialInput instanceof HTMLTextAreaElement)) {
+    return
+  }
+
+  const { listContainer, mapId } = createContainers(geospatialInput, index)
+  const { hasValue, geojson } = getGeoJSON(geospatialInput)
+  const bounds = hasValue ? bbox(geojson) : undefined
+  const drawPlugin = defra.drawMLPlugin()
+
+  const initConfig = {
+    ...defaultConfig,
+    bounds,
+    plugins: [drawPlugin]
+  }
+
+  const { map, interactPlugin } = createMap(mapId, initConfig, config)
+  const { getActiveFeature, setActiveFeature, resetActiveFeature } =
+    trackActiveFeature()
+  const { getFeature, addFeature, updateFeature, removeFeature } =
+    manageFeatures(geojson)
+
+  /**
+   * Toggle the hidden state of the action buttons
+   * @type {ToggleActionButtons}
+   */
+  function toggleActionButtons(hidden) {
+    map.toggleButtonState('btnAddPoint', 'hidden', hidden)
+    map.toggleButtonState('btnAddPolygon', 'hidden', hidden)
+    map.toggleButtonState('btnAddLine', 'hidden', hidden)
+  }
+
+  /**
+   * Set focus to the last description input
+   * @type {FocusDescriptionInput}
+   */
+  function focusDescriptionInput() {
+    const inputs = listContainer.querySelectorAll('input')
+    if (inputs.length) {
+      const lastInput = /** @type {HTMLInputElement} */ inputs.item(
+        inputs.length - 1
       )
+      lastInput.focus()
+      lastInput.select()
     }
   }
 
@@ -450,11 +460,7 @@ function onDrawReadyFactory(context) {
     })
 
     // Update the features
-    renderFeatures(
-      geojson,
-      listContainer,
-      /** @type {HTMLTextAreaElement} */ (geospatialInput)
-    )
+    renderFeatures(geojson, listContainer, geospatialInput)
   }
 }
 
@@ -490,11 +496,7 @@ function onDrawCreatedFactory(context) {
     })
 
     // Update the features
-    renderFeatures(
-      geojson,
-      listContainer,
-      /** @type {HTMLTextAreaElement} */ (geospatialInput)
-    )
+    renderFeatures(geojson, listContainer, geospatialInput)
     toggleActionButtons(false)
     focusDescriptionInput()
   }
@@ -527,11 +529,7 @@ function onDrawEditedFactory(context) {
       updateFeature(featureId, changedFeature.geometry)
 
       // Update the features
-      renderFeatures(
-        geojson,
-        listContainer,
-        /** @type {HTMLTextAreaElement} */ (geospatialInput)
-      )
+      renderFeatures(geojson, listContainer, geospatialInput)
     }
 
     resetActiveFeature()
@@ -591,10 +589,7 @@ function onInteractMarkerChangedFactory(context) {
 
       if (feature) {
         // Update the features
-        renderFeaturesValue(
-          geojson,
-          /** @type {HTMLTextAreaElement} */ (geospatialInput)
-        )
+        renderFeaturesValue(geojson, geospatialInput)
       }
 
       resetActiveFeature()
@@ -618,11 +613,7 @@ function onInteractMarkerChangedFactory(context) {
       map.addMarker(id, e.coords)
 
       // Update the features
-      renderFeatures(
-        geojson,
-        listContainer,
-        /** @type {HTMLTextAreaElement} */ (geospatialInput)
-      )
+      renderFeatures(geojson, listContainer, geospatialInput)
 
       focusDescriptionInput()
     }
@@ -644,6 +635,9 @@ function onListContainerClickFactory(context) {
     setActiveFeature,
     interactPlugin,
     toggleActionButtons,
+    geojson,
+    geospatialInput,
+    listContainer,
     drawPlugin
   } = context
 
@@ -685,6 +679,8 @@ function onListContainerClickFactory(context) {
           drawPlugin.deleteFeature(id)
           removeFeature(id)
         }
+
+        renderFeatures(geojson, listContainer, geospatialInput)
       }
     }
   }
