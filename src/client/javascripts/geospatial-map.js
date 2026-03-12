@@ -199,9 +199,7 @@ function manageFeatures(geojson) {
   function removeFeature(id) {
     const idx = geojson.features.findIndex((f) => f.id === id)
 
-    if (idx > -1) {
-      return geojson.features.splice(idx, 1)
-    }
+    return idx > -1 ? geojson.features.splice(idx, 1) : undefined
   }
 
   return {
