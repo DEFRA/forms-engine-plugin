@@ -4,7 +4,8 @@ import {
   EVENTS,
   createMap,
   defaultConfig,
-  getGridRef
+  getCentroidGridRef,
+  getCoordinateGridRef
 } from '~/src/client/javascripts/map.js'
 
 const helpPanelConfig = {
@@ -168,7 +169,8 @@ function manageFeatures(geojson) {
    * @type {AddFeature}
    */
   function addFeature(feature) {
-    feature.properties.gridReference = getGridRef(feature)
+    feature.properties.coordinateGridReference = getCoordinateGridRef(feature)
+    feature.properties.centroidGridReference = getCentroidGridRef(feature)
 
     geojson.features.push(feature)
   }
@@ -182,7 +184,8 @@ function manageFeatures(geojson) {
 
     // Ensure the feature exists in the geojson
     if (feature) {
-      feature.properties.gridReference = getGridRef(feature)
+      feature.properties.coordinateGridReference = getCoordinateGridRef(feature)
+      feature.properties.centroidGridReference = getCentroidGridRef(feature)
       feature.geometry = geometry
     }
 
@@ -229,8 +232,8 @@ export function processGeospatial(config, geospatial, index) {
   }
 
   const { listContainer, mapId } = createContainers(geospatialInput, index)
-  const { hasValue, geojson } = getGeoJSON(geospatialInput)
-  const bounds = hasValue ? bbox(geojson) : undefined
+  const geojson = getGeoJSON(geospatialInput)
+  const bounds = geojson.features.length ? bbox(geojson) : undefined
   const drawPlugin = defra.drawMLPlugin()
 
   const initConfig = {
@@ -324,7 +327,6 @@ function addEventListeners(context) {
 /**
  * Extract and parses the GeoJSON from the textarea
  * @param {HTMLTextAreaElement} geospatialInput - the textarea containing the geojson
- * @returns
  */
 function getGeoJSON(geospatialInput) {
   const value = geospatialInput.value.trim()
@@ -339,7 +341,7 @@ function getGeoJSON(geospatialInput) {
     features
   }
 
-  return { hasValue, geojson }
+  return geojson
 }
 
 /**

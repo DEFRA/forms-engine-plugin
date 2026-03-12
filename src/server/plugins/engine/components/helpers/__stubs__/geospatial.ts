@@ -5,7 +5,8 @@ export const validState: GeospatialState = [
     type: 'Feature',
     properties: {
       description: 'My farm house',
-      gridReference: 'ST 00001'
+      coordinateGridReference: 'ST 00001',
+      centroidGridReference: 'ST 00001'
     },
     geometry: {
       coordinates: [-2.5723699109417737, 53.2380485215034],
@@ -17,7 +18,8 @@ export const validState: GeospatialState = [
     type: 'Feature',
     properties: {
       description: 'Main gas line',
-      gridReference: 'ST 00001'
+      coordinateGridReference: 'ST 00001',
+      centroidGridReference: 'ST 00001'
     },
     geometry: {
       coordinates: [
@@ -32,7 +34,8 @@ export const validState: GeospatialState = [
     type: 'Feature',
     properties: {
       description: 'My Pony Paddock',
-      gridReference: 'ST 00001'
+      coordinateGridReference: 'ST 00001',
+      centroidGridReference: 'ST 00001'
     },
     geometry: {
       coordinates: [
@@ -54,7 +57,8 @@ export const validState: GeospatialState = [
     type: 'Feature',
     properties: {
       description: 'My farm house #2',
-      gridReference: 'ST 00001'
+      coordinateGridReference: 'ST 00001',
+      centroidGridReference: 'ST 00001'
     },
     geometry: {
       coordinates: [-2.5724, 53.239],
@@ -69,7 +73,8 @@ export const validSingleState: GeospatialState = [
     type: 'Feature',
     properties: {
       description: 'My farm house',
-      gridReference: 'ST 00001'
+      coordinateGridReference: 'ST 00001',
+      centroidGridReference: 'ST 00001'
     },
     geometry: {
       coordinates: [-2.5723699109417737, 53.2380485215034],

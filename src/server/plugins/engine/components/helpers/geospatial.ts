@@ -52,7 +52,8 @@ const coordinatesSchema = Joi.array<Coordinates[]>()
 const featurePropertiesSchema = Joi.object<FeatureProperties>()
   .keys({
     description: Joi.string().required(),
-    gridReference: Joi.string().required()
+    coordinateGridReference: Joi.string().required(),
+    centroidGridReference: Joi.string().required()
   })
   .required()
 
