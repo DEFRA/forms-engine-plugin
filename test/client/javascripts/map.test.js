@@ -1,6 +1,7 @@
 import {
   formSubmitFactory,
-  getGridRef,
+  getCentroidGridRef,
+  getCoordinateGridRef,
   initMaps,
   makeTileRequestTransformer
 } from '~/src/client/javascripts/map.js'
@@ -600,7 +601,8 @@ describe('Maps Client JS', () => {
           type: 'Feature',
           properties: {
             description: 'Buckingham palace',
-            gridReference: 'TQ 29031 79662'
+            coordinateGridReference: 'TQ 29031 79662',
+            centroidGridReference: 'TQ 29031 79662'
           },
           geometry: {
             type: 'Point',
@@ -613,7 +615,8 @@ describe('Maps Client JS', () => {
           type: 'Feature',
           properties: {
             description: "St James' Park",
-            gridReference: 'TQ 29560 79824'
+            coordinateGridReference: 'TQ 29560 79824',
+            centroidGridReference: 'TQ 29560 79824'
           },
           geometry: {
             coordinates: [
@@ -639,7 +642,8 @@ describe('Maps Client JS', () => {
           type: 'Feature',
           properties: {
             description: 'Constitution Hill',
-            gridReference: 'TQ 29560 79824'
+            coordinateGridReference: 'TQ 29560 79824',
+            centroidGridReference: 'TQ 29560 79824'
           },
           geometry: {
             coordinates: [
@@ -1045,7 +1049,8 @@ describe('Maps Client JS', () => {
             },
             properties: {
               description: 'New point',
-              gridReference: 'SD 94387 44521'
+              coordinateGridReference: 'SD 94387 44521',
+              centroidGridReference: 'SD 94387 44521'
             },
             id: expect.any(String),
             type: 'Feature'
@@ -1179,7 +1184,8 @@ describe('Maps Client JS', () => {
             ...features[0],
             properties: {
               description: 'New description',
-              gridReference: 'TQ 29031 79662'
+              coordinateGridReference: 'TQ 29031 79662',
+              centroidGridReference: 'TQ 29031 79662'
             }
           },
           ...features.slice(1)
@@ -1339,8 +1345,8 @@ describe('Maps Client JS', () => {
   })
 
   describe('Gridref helpers', () => {
-    test('it should return gridref for a point feature', () => {
-      const result = getGridRef({
+    test('it should return centroid gridref for a point feature', () => {
+      const result = getCentroidGridRef({
         id: 'id',
         type: 'Feature',
         geometry: {
@@ -1355,8 +1361,8 @@ describe('Maps Client JS', () => {
       expect(result).toBe('TQ 29472 80890')
     })
 
-    test('it should return gridref for a linestring feature', () => {
-      const result = getGridRef({
+    test('it should return centroid gridref for a linestring feature', () => {
+      const result = getCentroidGridRef({
         id: 'id',
         type: 'Feature',
         geometry: {
@@ -1374,8 +1380,8 @@ describe('Maps Client JS', () => {
       expect(result).toBe('TQ 32161 81303')
     })
 
-    test('it should return gridref for a polygon feature', () => {
-      const result = getGridRef({
+    test('it should return centroid gridref for a polygon feature', () => {
+      const result = getCentroidGridRef({
         id: 'id',
         type: 'Feature',
         geometry: {
@@ -1395,6 +1401,64 @@ describe('Maps Client JS', () => {
       })
 
       expect(result).toBe('TQ 31778 82963')
+    })
+
+    test('it should return coordinate gridref for a point feature', () => {
+      const result = getCoordinateGridRef({
+        id: 'id',
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: [-0.1356213, 51.5121161]
+        },
+        properties: {
+          description: 'New point'
+        }
+      })
+
+      expect(result).toBe('TQ 29472 80890')
+    })
+
+    test('it should return coordinate gridref for a linestring feature', () => {
+      const result = getCoordinateGridRef({
+        id: 'id',
+        type: 'Feature',
+        geometry: {
+          type: 'LineString',
+          coordinates: [
+            [-0.1356213, 51.5121161],
+            [-0.0578579, 51.5182996]
+          ]
+        },
+        properties: {
+          description: 'New line'
+        }
+      })
+
+      expect(result).toBe('TQ 29472 80890')
+    })
+
+    test('it should return coordinate gridref for a polygon feature', () => {
+      const result = getCoordinateGridRef({
+        id: 'id',
+        type: 'Feature',
+        geometry: {
+          type: 'Polygon',
+          coordinates: [
+            [
+              [-0.1356213, 51.5121161],
+              [-0.0578579, 51.5182996],
+              [-0.1114282, 51.5602178],
+              [-0.1356213, 51.5121161]
+            ]
+          ]
+        },
+        properties: {
+          description: 'New polygon'
+        }
+      })
+
+      expect(result).toBe('TQ 29472 80890')
     })
   })
 })

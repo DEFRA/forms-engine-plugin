@@ -332,9 +332,13 @@ export interface FeatureProperties {
    */
   description: string
   /**
+   * The OS grid reference of the first coordinate of the feature
+   */
+  coordinateGridReference?: string
+  /**
    * The OS grid reference of the centroid of the feature
    */
-  gridReference?: string
+  centroidGridReference?: string
 }
 
 /**

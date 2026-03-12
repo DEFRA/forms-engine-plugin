@@ -69,10 +69,33 @@ export function osGridRefToLatLong(osGridRef) {
 }
 
 /**
- * Get a grid ref from a long/lat feature
+ * Get the grid ref from the first coordinate of a long/lat feature
  * @param {Feature} feature
  */
-export function getGridRef(feature) {
+export function getCoordinateGridRef(feature) {
+  if (feature.geometry.type === 'Point') {
+    const [long, lat] = feature.geometry.coordinates
+    const point = new LatLon(lat, long)
+
+    return point.toOsGrid().toString()
+  } else if (feature.geometry.type === 'LineString') {
+    const [long, lat] = feature.geometry.coordinates[0]
+    const point = new LatLon(lat, long)
+
+    return point.toOsGrid().toString()
+  } else {
+    const [long, lat] = feature.geometry.coordinates[0][0]
+    const point = new LatLon(lat, long)
+
+    return point.toOsGrid().toString()
+  }
+}
+
+/**
+ * Get the centroid grid ref from a long/lat feature
+ * @param {Feature} feature
+ */
+export function getCentroidGridRef(feature) {
   if (feature.geometry.type === 'Point') {
     const [long, lat] = feature.geometry.coordinates
     const point = new LatLon(lat, long)
