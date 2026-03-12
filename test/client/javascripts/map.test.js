@@ -616,7 +616,7 @@ describe('Maps Client JS', () => {
           properties: {
             description: "St James' Park",
             coordinateGridReference: 'TQ 29560 79824',
-            centroidGridReference: 'TQ 29560 79824'
+            centroidGridReference: 'TQ 29200 79762'
           },
           geometry: {
             coordinates: [
@@ -890,7 +890,8 @@ describe('Maps Client JS', () => {
                 ...newPolygonFeature,
                 properties: {
                   description: 'New shape',
-                  gridReference: 'SE 16533 42846'
+                  coordinateGridReference: 'SD 94387 44521',
+                  centroidGridReference: 'SE 16533 42846'
                 }
               }
             ],
@@ -923,14 +924,16 @@ describe('Maps Client JS', () => {
                 ...newPolygonFeature,
                 properties: {
                   description: 'New shape',
-                  gridReference: 'SE 16533 42846'
+                  coordinateGridReference: 'SD 94387 44521',
+                  centroidGridReference: 'SE 16533 42846'
                 }
               },
               {
                 ...newLineFeature,
                 properties: {
                   description: 'New line',
-                  gridReference: 'SE 19987 51392'
+                  coordinateGridReference: 'SE 45512 58405',
+                  centroidGridReference: 'SE 19987 51392'
                 }
               }
             ],
@@ -971,6 +974,11 @@ describe('Maps Client JS', () => {
                 [2, 2]
               ]
             ]
+          },
+          properties: {
+            description: "St James' Park",
+            coordinateGridReference: 'TQ 29200 79762',
+            centroidGridReference: 'TQ 29560 79824'
           }
         }
 
