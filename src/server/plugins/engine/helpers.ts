@@ -22,6 +22,7 @@ import {
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
+import { stripParam } from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
 import {
   type AnyFormRequest,
   type FormContext,
@@ -129,11 +130,17 @@ export function proceed(
         payload.action === FormAction.Validate
       : false
 
+  // On POST, strip all query params to prevent them persisting across pages.
+  // On GET, forward params (minus returnUrl) so pre-population query params
+  // survive dispatch redirects (e.g. ?formId= reaching the start page).
+  const nextQuery =
+    method === 'get' ? stripParam(query, 'returnUrl') : undefined
+
   // Redirect to return location (optional)
   const response =
     isReturnAllowed && isPathRelative(returnUrl)
       ? h.redirect(returnUrl)
-      : h.redirect(redirectPath(nextUrl))
+      : h.redirect(redirectPath(nextUrl, nextQuery))
 
   // Redirect POST to GET to avoid resubmission
   return method === 'post'
