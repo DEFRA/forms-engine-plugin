@@ -113,6 +113,44 @@ function renderFeaturesValue(geojson, geospatialInput) {
 }
 
 /**
+ * Factory closure to track the active feature id
+ */
+function trackActiveFeature() {
+  /** @type {string | undefined} */
+  let activeFeature
+
+  /**
+   * Returns the active feature id
+   * @type {GetActiveFeature}
+   */
+  function getActiveFeature() {
+    return activeFeature
+  }
+
+  /**
+   * Sets the active feature id
+   * @type {SetActiveFeature}
+   */
+  function setActiveFeature(id) {
+    activeFeature = id
+  }
+
+  /**
+   * Resets the active feature id
+   * @type {ResetActiveFeature}
+   */
+  function resetActiveFeature() {
+    activeFeature = undefined
+  }
+
+  return {
+    getActiveFeature,
+    setActiveFeature,
+    resetActiveFeature
+  }
+}
+
+/**
  * Processes a geospatial field to add map capability
  * @param {MapsEnvironmentConfig} config - the geospatial field element
  * @param {Element} geospatial - the geospatial field element
@@ -143,33 +181,8 @@ export function processGeospatial(config, geospatial, index) {
   }
 
   const { map, interactPlugin } = createMap(mapId, initConfig, config)
-
-  /** @type {string | undefined} */
-  let _activeFeature
-
-  /**
-   * Returns the active feature id
-   * @type {GetActiveFeature}
-   */
-  function getActiveFeature() {
-    return _activeFeature
-  }
-
-  /**
-   * Sets the active feature id
-   * @type {SetActiveFeature}
-   */
-  function setActiveFeature(id) {
-    _activeFeature = id
-  }
-
-  /**
-   * Resets the active feature id
-   * @type {ResetActiveFeature}
-   */
-  function resetActiveFeature() {
-    _activeFeature = undefined
-  }
+  const { getActiveFeature, setActiveFeature, resetActiveFeature } =
+    trackActiveFeature()
 
   /**
    * Toggle the hidden state of the action buttons
