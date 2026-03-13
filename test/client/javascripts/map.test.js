@@ -814,11 +814,11 @@ describe('Maps Client JS', () => {
     /**
      * Get the decsription element by id
      * @param {HTMLDivElement} listContainer
-     * @param {string} id
+     * @param {number} index
      */
-    function getDescription(listContainer, id) {
+    function getDescription(listContainer, index) {
       const descriptionEl = listContainer.querySelector(
-        `input[id="description_${id}"]`
+        `input[id="description_${index}"]`
       )
 
       expect(descriptionEl).toBeDefined()
@@ -1177,10 +1177,7 @@ describe('Maps Client JS', () => {
         const { geospatialInput, listContainer } = initialiseGeospatialMaps()
 
         // Manually change the description
-        const buckinghamPalaceInputEl = getDescription(
-          listContainer,
-          '6d67810c-7228-4f71-b6ec-0d16b132fcd7'
-        )
+        const buckinghamPalaceInputEl = getDescription(listContainer, 0)
 
         buckinghamPalaceInputEl.value = 'New description'
         buckinghamPalaceInputEl.dispatchEvent(
