@@ -78,8 +78,9 @@ function createFeaturesHTML(features) {
 /**
  * Returns HTML summary row for an single feature
  * @param {Feature} feature - the geo feature
+ * @param {number} index - the feature index
  */
-function createFeatureHTML(feature) {
+function createFeatureHTML(feature, index) {
   const changeAction = () => `<li class="govuk-summary-list__actions-list-item">
   <a class="govuk-link govuk-link--no-visited-state" href="#" data-action="edit" data-id="${feature.id}"
     data-type="${feature.geometry.type}">Change<span class="govuk-visually-hidden"> feature</span></a>
@@ -92,7 +93,7 @@ function createFeatureHTML(feature) {
 
   return `<div class="govuk-summary-list__row">
   <dt class="govuk-summary-list__key">
-    <input class="govuk-input govuk-!-width-two-thirds" type="text" id="description_${feature.id}"
+    <input class="govuk-input govuk-!-width-two-thirds" type="text" id="description_${index}"
       value="${feature.properties.description}" data-id="${feature.id}">
   </dt>
   <dd class="govuk-summary-list__actions">
@@ -632,6 +633,7 @@ function onListContainerClickFactory(context) {
   const {
     map,
     removeFeature,
+    getActiveFeature,
     setActiveFeature,
     interactPlugin,
     toggleActionButtons,
@@ -657,7 +659,7 @@ function onListContainerClickFactory(context) {
     if (target.tagName === 'A' && target.dataset.action && target.dataset.id) {
       const { action, id, type } = target.dataset
 
-      if (action === 'edit') {
+      if (!getActiveFeature() && action === 'edit') {
         setActiveFeature(id)
 
         // "Change" feature link was clicked

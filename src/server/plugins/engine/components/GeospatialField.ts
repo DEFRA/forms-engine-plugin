@@ -91,6 +91,24 @@ export class GeospatialField extends FormComponent {
       value
     }
   }
+  getErrors(errors?: FormSubmissionError[]): FormSubmissionError[] | undefined {
+    const fieldErrors = super.getErrors(errors)
+
+    fieldErrors?.forEach((err) => {
+      if (err.name === 'description') {
+        err.href = `#description_${err.path[1]}`
+        err.text = `Enter description for feature ${Number(err.path[1]) + 1}`
+      }
+    })
+
+    return fieldErrors
+  }
+
+  getViewErrors(
+    errors?: FormSubmissionError[]
+  ): FormSubmissionError[] | undefined {
+    return this.getErrors(errors)
+  }
 
   isValue(value?: FormStateValue | FormState): value is GeospatialState {
     return isGeospatialState(value)
