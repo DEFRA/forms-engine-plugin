@@ -45,6 +45,15 @@ const polygonFeatureProperties = {
 }
 
 /**
+ * @type {Record<'Point' | 'LineString' | 'Polygon', string>}
+ */
+const typeDescriptions = {
+  Point: 'Point',
+  LineString: 'Line',
+  Polygon: 'Shape'
+}
+
+/**
  * Generate a random id
  */
 function generateID() {
@@ -52,37 +61,25 @@ function generateID() {
 }
 
 /**
- * Render features into the list and hidden textarea
- * @param {GeoJSON} geojson - the geojson of features
- * @param {HTMLDivElement} listContainer - where to render the feature list
- * @param {HTMLTextAreaElement} geospatialInput - the geospatial textarea
- */
-function renderFeatures(geojson, listContainer, geospatialInput) {
-  const html = createFeaturesHTML(geojson.features)
-
-  listContainer.innerHTML = html
-
-  renderFeaturesValue(geojson, geospatialInput)
-}
-
-/**
  * Returns HTML summary list for the features
  * @param {FeatureCollection} features - the features
+ * @param {string} mapId - the ID of the map
  */
-function createFeaturesHTML(features) {
-  return `<dl class="govuk-summary-list">
-    ${features.map(createFeatureHTML).join('\n')}
-  </dl>`
+function createFeaturesHTML(features, mapId) {
+  return `<div class="govuk-!-margin-top-5">
+    ${features.map((feature, index) => createFeatureHTML(feature, index, mapId)).join('\n')}
+  </div>`
 }
 
 /**
  * Returns HTML summary row for an single feature
- * @param {Feature} feature - the geo feature
+ * @param {Feature} feature - the feature
  * @param {number} index - the feature index
+ * @param {string} mapId - the ID of the map
  */
-function createFeatureHTML(feature, index) {
+function createFeatureHTML(feature, index, mapId) {
   const changeAction = () => `<li class="govuk-summary-list__actions-list-item">
-  <a class="govuk-link govuk-link--no-visited-state" href="#" data-action="edit" data-id="${feature.id}"
+  <a class="govuk-link govuk-link--no-visited-state" href="#${mapId}" data-action="edit" data-id="${feature.id}"
     data-type="${feature.geometry.type}">Change<span class="govuk-visually-hidden"> feature</span></a>
 </li>`
 
@@ -91,33 +88,69 @@ function createFeatureHTML(feature, index) {
     data-type="${feature.geometry.type}">Delete<span class="govuk-visually-hidden"> feature</span></a>
 </li>`
 
-  return `<div class="govuk-summary-list__row">
-  <dt class="govuk-summary-list__key">
-    <input class="govuk-input govuk-!-width-two-thirds" type="text" id="description_${index}"
-      value="${feature.properties.description}" data-id="${feature.id}">
-  </dt>
-  <dd class="govuk-summary-list__actions">
-    <ul class="govuk-summary-list__actions-list">
+  const coordinates = () => {
+    const flattened = feature.geometry.coordinates.flat(2)
+
+    const points = []
+    for (let i = 0; i < flattened.length; i += 2) {
+      points.push(flattened.slice(i, i + 2).join(', '))
+    }
+
+    return points.map((p) => `<li>${p}</li>`).join('')
+  }
+
+  return `<div class="govuk-summary-card">
+  <div class="govuk-summary-card__title-wrapper">
+    <h2 class="govuk-summary-card__title">
+      Feature ${index + 1}
+    </h2>
+    <ul class="govuk-summary-card__actions">
       ${changeAction()}
       ${deleteAction()}
     </ul>
-  </dd>
+  </div>
+  <div class="govuk-summary-card__content">
+    <div class="govuk-form-group">
+      <label class="govuk-label govuk-visually-hidden" for="description_${index}">Label</label>
+      <input class="govuk-input govuk-!-width-two-thirds" type="text" id="description_${index}"
+          value="${feature.properties.description}" data-id="${feature.id}">
+    </div>
+    <details class="govuk-details govuk-!-margin-bottom-0 govuk-!-margin-top-3">
+      <summary class="govuk-details__summary">
+        <span class="govuk-details__summary-text">Coordinates</span>
+      </summary>
+      <div class="govuk-details__text">
+        <dl class="govuk-summary-list">
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Type</dt>
+            <dd class="govuk-summary-list__value">${typeDescriptions[feature.geometry.type]}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Center grid reference</dt>
+            <dd class="govuk-summary-list__value">${feature.properties.centroidGridReference}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Area grid reference</dt>
+            <dd class="govuk-summary-list__value">${feature.properties.coordinateGridReference}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Detailed coordinates</dt>
+            <dd class="govuk-summary-list__value">
+              <ol class="govuk-list govuk-list--number">${coordinates()}</ol>
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </details>
+  </div>
 </div>`
 }
 
 /**
- * Render features JSON into the hidden textarea
- * @param {GeoJSON} geojson - the features
- * @param {HTMLTextAreaElement} geospatialInput - the geospatial textarea
- */
-function renderFeaturesValue(geojson, geospatialInput) {
-  geospatialInput.value = JSON.stringify(geojson.features, null, 2)
-}
-
-/**
  * Factory closure to track the active feature id
+ * @returns {ActiveFeatureManager}
  */
-function trackActiveFeature() {
+function getActiveFeatureManager() {
   /** @type {string | undefined} */
   let activeFeature
 
@@ -153,10 +186,19 @@ function trackActiveFeature() {
 }
 
 /**
- * Factory closure to manage the geojson
+ * Factory closure to return a features manager
  * @param {GeoJSON} geojson
+ * @returns {FeaturesManager}
  */
-function manageFeatures(geojson) {
+function getFeaturesManager(geojson) {
+  /**
+   * Get a feature from the geojson by id
+   * @type {GetFeatures}
+   */
+  function getFeatures() {
+    return geojson.features
+  }
+
   /**
    * Get a feature from the geojson by id
    * @type {GetFeature}
@@ -204,10 +246,41 @@ function manageFeatures(geojson) {
   }
 
   return {
+    getFeatures,
     getFeature,
     addFeature,
     updateFeature,
     removeFeature
+  }
+}
+
+/**
+ * Factory to render features into the list and hidden textarea
+ * @param {GeoJSON} geojson - the geojson of features
+ * @param {string} mapId - the ID of the map
+ * @param {HTMLDivElement} listContainer - where to render the feature list
+ * @param {Function} renderValue - function that renders the features JSON into the hidden textarea
+ * @returns {RenderList}
+ */
+function getListRenderer(geojson, mapId, listContainer, renderValue) {
+  return function renderList() {
+    const html = createFeaturesHTML(geojson.features, mapId)
+
+    listContainer.innerHTML = html
+
+    renderValue()
+  }
+}
+
+/**
+ * Factory to render features JSON into the hidden textarea
+ * @param {GeoJSON} geojson - the features
+ * @param {HTMLTextAreaElement} geospatialInput - the geospatial textarea
+ * @returns {RenderValue}
+ */
+function getValueRenderer(geojson, geospatialInput) {
+  return function renderValue() {
+    geospatialInput.value = JSON.stringify(geojson.features, null, 2)
   }
 }
 
@@ -242,10 +315,10 @@ export function processGeospatial(config, geospatial, index) {
   }
 
   const { map, interactPlugin } = createMap(mapId, initConfig, config)
-  const { getActiveFeature, setActiveFeature, resetActiveFeature } =
-    trackActiveFeature()
-  const { getFeature, addFeature, updateFeature, removeFeature } =
-    manageFeatures(geojson)
+  const featuresManager = getFeaturesManager(geojson)
+  const activeFeatureManager = getActiveFeatureManager()
+  const renderValue = getValueRenderer(geojson, geospatialInput)
+  const renderList = getListRenderer(geojson, mapId, listContainer, renderValue)
 
   /**
    * Toggle the hidden state of the action buttons
@@ -272,25 +345,25 @@ export function processGeospatial(config, geospatial, index) {
     }
   }
 
+  /** @type {UIManager} */
+  const uiManager = {
+    renderList,
+    renderValue,
+    listContainer,
+    toggleActionButtons,
+    focusDescriptionInput
+  }
+
   /**
    * @type {Context}
    */
   const context = {
     map,
-    geojson,
-    getFeature,
-    addFeature,
-    updateFeature,
-    removeFeature,
+    featuresManager,
+    activeFeatureManager,
+    uiManager,
     interactPlugin,
-    drawPlugin,
-    geospatialInput,
-    listContainer,
-    getActiveFeature,
-    setActiveFeature,
-    resetActiveFeature,
-    toggleActionButtons,
-    focusDescriptionInput
+    drawPlugin
   }
 
   addEventListeners(context)
@@ -301,7 +374,8 @@ export function processGeospatial(config, geospatial, index) {
  * @param {Context} context - the context
  */
 function addEventListeners(context) {
-  const { map, listContainer } = context
+  const { map, uiManager } = context
+  const { listContainer } = uiManager
 
   map.on(EVENTS.mapReady, onMapReadyFactory(context))
   map.on(EVENTS.drawReady, onDrawReadyFactory(context))
@@ -371,13 +445,10 @@ function createContainers(geospatialInput, index) {
  * @param {Context} context - the UI context
  */
 function onMapReadyFactory(context) {
-  const {
-    map,
-    resetActiveFeature,
-    toggleActionButtons,
-    interactPlugin,
-    drawPlugin
-  } = context
+  const { map, activeFeatureManager, uiManager, interactPlugin, drawPlugin } =
+    context
+  const { toggleActionButtons } = uiManager
+  const { resetActiveFeature } = activeFeatureManager
 
   /**
    * Callback function which fires when the map is ready
@@ -438,13 +509,15 @@ function onMapReadyFactory(context) {
  * @param {Context} context - the UI context
  */
 function onDrawReadyFactory(context) {
-  const { geojson, drawPlugin, map, listContainer, geospatialInput } = context
+  const { featuresManager, uiManager, drawPlugin, map } = context
+  const { renderList } = uiManager
+  const { getFeatures } = featuresManager
 
   /**
    * Callback when the draw plugin is ready
    */
   return function onDrawReady() {
-    geojson.features.forEach((feature) => {
+    getFeatures().forEach((feature) => {
       switch (feature.geometry.type) {
         case 'Polygon':
           drawPlugin.addFeature({ ...feature, ...polygonFeatureProperties })
@@ -461,7 +534,7 @@ function onDrawReadyFactory(context) {
     })
 
     // Update the features
-    renderFeatures(geojson, listContainer, geospatialInput)
+    renderList()
   }
 }
 
@@ -470,14 +543,9 @@ function onDrawReadyFactory(context) {
  * @param {Context} context - the UI context
  */
 function onDrawCreatedFactory(context) {
-  const {
-    geojson,
-    addFeature,
-    listContainer,
-    geospatialInput,
-    toggleActionButtons,
-    focusDescriptionInput
-  } = context
+  const { featuresManager, uiManager } = context
+  const { addFeature } = featuresManager
+  const { renderList, toggleActionButtons, focusDescriptionInput } = uiManager
 
   /**
    * Callback when a draw feature has been created
@@ -485,7 +553,7 @@ function onDrawCreatedFactory(context) {
    */
   return function onDrawCreated(e) {
     // New feature
-    const typeName = e.geometry.type === 'LineString' ? 'line' : 'shape'
+    const typeName = typeDescriptions[e.geometry.type].toLowerCase()
 
     const description = `New ${typeName}`
 
@@ -497,7 +565,7 @@ function onDrawCreatedFactory(context) {
     })
 
     // Update the features
-    renderFeatures(geojson, listContainer, geospatialInput)
+    renderList()
     toggleActionButtons(false)
     focusDescriptionInput()
   }
@@ -508,15 +576,10 @@ function onDrawCreatedFactory(context) {
  * @param {Context} context - the UI context
  */
 function onDrawEditedFactory(context) {
-  const {
-    geojson,
-    updateFeature,
-    getActiveFeature,
-    listContainer,
-    geospatialInput,
-    resetActiveFeature,
-    toggleActionButtons
-  } = context
+  const { featuresManager, activeFeatureManager, uiManager } = context
+  const { updateFeature } = featuresManager
+  const { getActiveFeature, resetActiveFeature } = activeFeatureManager
+  const { renderList, toggleActionButtons } = uiManager
 
   /**
    * Callback when a draw feature has been edited
@@ -530,7 +593,7 @@ function onDrawEditedFactory(context) {
       updateFeature(featureId, changedFeature.geometry)
 
       // Update the features
-      renderFeatures(geojson, listContainer, geospatialInput)
+      renderList()
     }
 
     resetActiveFeature()
@@ -543,7 +606,8 @@ function onDrawEditedFactory(context) {
  * @param {Context} context - the UI context
  */
 function onDrawCancelledFactory(context) {
-  const { toggleActionButtons } = context
+  const { uiManager } = context
+  const { toggleActionButtons } = uiManager
 
   /**
    * Callback when a draw feature has been cancelled
@@ -559,18 +623,15 @@ function onDrawCancelledFactory(context) {
  */
 function onInteractMarkerChangedFactory(context) {
   const {
-    getActiveFeature,
-    geojson,
-    addFeature,
-    updateFeature,
+    featuresManager,
+    activeFeatureManager,
     map,
-    geospatialInput,
-    resetActiveFeature,
-    listContainer,
-    focusDescriptionInput,
     interactPlugin,
-    toggleActionButtons
+    uiManager
   } = context
+  const { addFeature, updateFeature } = featuresManager
+  const { getActiveFeature, resetActiveFeature } = activeFeatureManager
+  const { renderList, focusDescriptionInput, toggleActionButtons } = uiManager
 
   /**
    * Callback when an interact marker has been changed
@@ -590,7 +651,7 @@ function onInteractMarkerChangedFactory(context) {
 
       if (feature) {
         // Update the features
-        renderFeaturesValue(geojson, geospatialInput)
+        renderList()
       }
 
       resetActiveFeature()
@@ -614,7 +675,7 @@ function onInteractMarkerChangedFactory(context) {
       map.addMarker(id, e.coords)
 
       // Update the features
-      renderFeatures(geojson, listContainer, geospatialInput)
+      renderList()
 
       focusDescriptionInput()
     }
@@ -632,25 +693,21 @@ function onInteractMarkerChangedFactory(context) {
 function onListContainerClickFactory(context) {
   const {
     map,
-    removeFeature,
-    getActiveFeature,
-    setActiveFeature,
+    featuresManager,
+    activeFeatureManager,
     interactPlugin,
-    toggleActionButtons,
-    geojson,
-    geospatialInput,
-    listContainer,
+    uiManager,
     drawPlugin
   } = context
+  const { removeFeature } = featuresManager
+  const { getActiveFeature, setActiveFeature } = activeFeatureManager
+  const { renderList, toggleActionButtons } = uiManager
 
   /**
    * List container delegated 'click' events handler
    * @param {MouseEvent} e
    */
   return function (e) {
-    e.preventDefault()
-    e.stopPropagation()
-
     const target = e.target
     if (!(target instanceof HTMLElement)) {
       return
@@ -670,19 +727,22 @@ function onListContainerClickFactory(context) {
           drawPlugin.editFeature(id)
         }
         toggleActionButtons(true)
-      }
+      } else {
+        e.preventDefault()
+        e.stopPropagation()
 
-      if (action === 'delete') {
-        // "Remove" feature link was clicked
-        if (type === 'Point') {
-          map.removeMarker(id)
-          removeFeature(id)
-        } else {
-          drawPlugin.deleteFeature(id)
-          removeFeature(id)
+        if (action === 'delete') {
+          // "Remove" feature link was clicked
+          if (type === 'Point') {
+            map.removeMarker(id)
+            removeFeature(id)
+          } else {
+            drawPlugin.deleteFeature(id)
+            removeFeature(id)
+          }
+
+          renderList()
         }
-
-        renderFeatures(geojson, listContainer, geospatialInput)
       }
     }
   }
@@ -693,7 +753,9 @@ function onListContainerClickFactory(context) {
  * @param {Context} context - the UI context
  */
 function onListContainerChangeFactory(context) {
-  const { geojson, getFeature, geospatialInput } = context
+  const { featuresManager, uiManager } = context
+  const { getFeature } = featuresManager
+  const { renderValue } = uiManager
 
   /**
    * List container delegated 'change' events handler
@@ -714,7 +776,7 @@ function onListContainerChangeFactory(context) {
 
     if (feature) {
       feature.properties.description = target.value.trim()
-      renderFeaturesValue(geojson, geospatialInput)
+      renderValue()
     }
   }
 }
@@ -734,22 +796,9 @@ function onListContainerChangeFactory(context) {
  */
 
 /**
- * @typedef {object} Context
- * @property {InteractiveMap} map - the interactive map
- * @property {GeoJSON} geojson - the geojson features collection
- * @property {GetFeature} getFeature - function that gets a feature from the geojson
- * @property {AddFeature} addFeature - function that adds feature to the geojson
- * @property {UpdateFeature} updateFeature - function that updates a feature in the geojson
- * @property {RemoveFeature} removeFeature - function that removes a feature from the geojson
- * @property {any} interactPlugin - the map interact plugin
- * @property {any} drawPlugin - the map draw plugin
- * @property {HTMLTextAreaElement} geospatialInput - the hidden geospatial textarea input
- * @property {HTMLDivElement} listContainer - the summary list of features
- * @property {GetActiveFeature} getActiveFeature - function that returns the current active feature id
- * @property {SetActiveFeature} setActiveFeature - function that sets the current active feature id
- * @property {ResetActiveFeature} resetActiveFeature - function that resets the current active feature id
- * @property {ToggleActionButtons} toggleActionButtons - function that toggles the action buttons
- * @property {FocusDescriptionInput} focusDescriptionInput - function that sets focus to a description input element
+ * Gets all the features
+ * @callback GetFeatures
+ * @returns {FeatureCollection}
  */
 
 /**
@@ -799,6 +848,18 @@ function onListContainerChangeFactory(context) {
  */
 
 /**
+ * Renders the features into the list
+ * @callback RenderList
+ * @returns {void}
+ */
+
+/**
+ * Renders the features JSON into the hidden textarea
+ * @callback RenderValue
+ * @returns {void}
+ */
+
+/**
  * Toggles the action button hidden state
  * @callback ToggleActionButtons
  * @param {boolean} hidden - whether to hide the action buttons
@@ -809,4 +870,39 @@ function onListContainerChangeFactory(context) {
  * Set focus to the last description input
  * @callback FocusDescriptionInput
  * @returns {void}
+ */
+
+/**
+ * @typedef {object} FeaturesManager
+ * @property {GetFeatures} getFeatures - function that gets all the features
+ * @property {GetFeature} getFeature - function that gets a feature from the geojson
+ * @property {AddFeature} addFeature - function that adds feature to the geojson
+ * @property {UpdateFeature} updateFeature - function that updates a feature in the geojson
+ * @property {RemoveFeature} removeFeature - function that removes a feature from the geojson
+ */
+
+/**
+ * @typedef {object} ActiveFeatureManager
+ * @property {GetActiveFeature} getActiveFeature - function that returns the current active feature id
+ * @property {SetActiveFeature} setActiveFeature - function that sets the current active feature id
+ * @property {ResetActiveFeature} resetActiveFeature - function that resets the current active feature id
+ */
+
+/**
+ * @typedef {object} UIManager
+ * @property {RenderValue} renderValue - function that renders the features JSON into the hidden textarea
+ * @property {RenderList} renderList - function that renders the features into the list
+ * @property {HTMLDivElement} listContainer - the summary list of features
+ * @property {ToggleActionButtons} toggleActionButtons - function that toggles the action buttons
+ * @property {FocusDescriptionInput} focusDescriptionInput - function that sets focus to a description input element
+ */
+
+/**
+ * @typedef {object} Context
+ * @property {InteractiveMap} map - the interactive map
+ * @property {FeaturesManager} featuresManager - the features manager
+ * @property {ActiveFeatureManager} activeFeatureManager - the active feature manager
+ * @property {UIManager} uiManager - the UI manager
+ * @property {any} interactPlugin - the map interact plugin
+ * @property {any} drawPlugin - the map draw plugin
  */
