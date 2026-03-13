@@ -89,7 +89,9 @@ export const messages: LanguageMessagesExt = {
   'date.base': messageTemplate.dateFormat,
   'date.format': messageTemplate.dateFormat,
   'date.min': messageTemplate.dateMin,
-  'date.max': messageTemplate.dateMax
+  'date.max': messageTemplate.dateMax,
+
+  'object.invalidjson': messageTemplate.format
 }
 
 export const messagesPre: LanguageMessages =
