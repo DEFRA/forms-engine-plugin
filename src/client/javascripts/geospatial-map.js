@@ -102,8 +102,6 @@ function createFeatureHTML(feature, index, mapId) {
   <div class="govuk-summary-card__title-wrapper">
     <h2 class="govuk-summary-card__title">
       Feature ${index + 1}
-      <input class="govuk-input govuk-!-width-two-thirds" type="text" id="description_${index}"
-        value="${feature.properties.description}" data-id="${feature.id}">
     </h2>
     <ul class="govuk-summary-card__actions">
       ${changeAction()}
@@ -113,8 +111,8 @@ function createFeatureHTML(feature, index, mapId) {
   <div class="govuk-summary-card__content">
     <div class="govuk-form-group">
       <label class="govuk-label govuk-visually-hidden" for="description_${index}">Label</label>
-      <input class="govuk-input govuk-!-width-two-thirds govuk-visually-hidden" type="text" id="description_${index}"
-          value="${feature.properties.description}" data-id="${feature.id}">
+      <input class="govuk-input govuk-!-width-two-thirds" type="text" id="description_${index}"
+        value="${feature.properties.description}" data-id="${feature.id}">
     </div>
     <details class="govuk-details govuk-!-margin-bottom-0 govuk-!-margin-top-3">
       <summary class="govuk-details__summary">
