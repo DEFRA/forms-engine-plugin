@@ -78,31 +78,32 @@ function createFeaturesHTML(features, mapId) {
  * @param {string} mapId - the ID of the map
  */
 function createFeatureHTML(feature, index, mapId) {
+  const flattened = feature.geometry.coordinates.flat(2)
+
+  const points = []
+  for (let i = 0; i < flattened.length; i += 2) {
+    points.push(flattened.slice(i, i + 2).join(', '))
+  }
+  const coordinates = points.map((p) => `<li>${p}</li>`).join('')
+
+  // Change action link
   const changeAction = () => `<li class="govuk-summary-list__actions-list-item">
   <a class="govuk-link govuk-link--no-visited-state" href="#${mapId}" data-action="edit" data-id="${feature.id}"
-    data-type="${feature.geometry.type}">Change<span class="govuk-visually-hidden"> feature</span></a>
+    data-type="${feature.geometry.type}">Update<span class="govuk-visually-hidden"> feature</span></a>
 </li>`
 
+  // Delete action link
   const deleteAction = () => `<li class="govuk-summary-list__actions-list-item">
   <a class="govuk-link govuk-link--no-visited-state" href="#" data-action="delete" data-id="${feature.id}"
     data-type="${feature.geometry.type}">Delete<span class="govuk-visually-hidden"> feature</span></a>
 </li>`
 
-  const coordinates = () => {
-    const flattened = feature.geometry.coordinates.flat(2)
-
-    const points = []
-    for (let i = 0; i < flattened.length; i += 2) {
-      points.push(flattened.slice(i, i + 2).join(', '))
-    }
-
-    return points.map((p) => `<li>${p}</li>`).join('')
-  }
-
   return `<div class="govuk-summary-card">
   <div class="govuk-summary-card__title-wrapper">
     <h2 class="govuk-summary-card__title">
       Feature ${index + 1}
+      <input class="govuk-input govuk-!-width-two-thirds" type="text" id="description_${index}"
+        value="${feature.properties.description}" data-id="${feature.id}">
     </h2>
     <ul class="govuk-summary-card__actions">
       ${changeAction()}
@@ -112,7 +113,7 @@ function createFeatureHTML(feature, index, mapId) {
   <div class="govuk-summary-card__content">
     <div class="govuk-form-group">
       <label class="govuk-label govuk-visually-hidden" for="description_${index}">Label</label>
-      <input class="govuk-input govuk-!-width-two-thirds" type="text" id="description_${index}"
+      <input class="govuk-input govuk-!-width-two-thirds govuk-visually-hidden" type="text" id="description_${index}"
           value="${feature.properties.description}" data-id="${feature.id}">
     </div>
     <details class="govuk-details govuk-!-margin-bottom-0 govuk-!-margin-top-3">
@@ -136,7 +137,7 @@ function createFeatureHTML(feature, index, mapId) {
           <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">Detailed coordinates</dt>
             <dd class="govuk-summary-list__value">
-              <ol class="govuk-list govuk-list--number">${coordinates()}</ol>
+              <ol class="govuk-list govuk-list--number">${coordinates}</ol>
             </dd>
           </div>
         </dl>

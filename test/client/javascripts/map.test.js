@@ -824,7 +824,7 @@ describe('Maps Client JS', () => {
       expect(descriptionEl).toBeDefined()
 
       if (descriptionEl === null) {
-        throw new Error(`Unexpected null found for description ${id}`)
+        throw new Error(`Unexpected null found for description ${index}`)
       }
 
       return /** @type {HTMLInputElement} */ (descriptionEl)
