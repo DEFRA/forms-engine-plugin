@@ -257,15 +257,15 @@ function getFeaturesManager(geojson) {
  * Factory to render features into the list and hidden textarea
  * @param {GeoJSON} geojson - the geojson of features
  * @param {string} mapId - the ID of the map
- * @param {HTMLDivElement} listContainer - where to render the feature list
+ * @param {HTMLDivElement} listEl - where to render the feature list
  * @param {Function} renderValue - function that renders the features JSON into the hidden textarea
  * @returns {RenderList}
  */
-function getListRenderer(geojson, mapId, listContainer, renderValue) {
+function getListRenderer(geojson, mapId, listEl, renderValue) {
   return function renderList() {
     const html = createFeaturesHTML(geojson.features, mapId)
 
-    listContainer.innerHTML = html
+    listEl.innerHTML = html
 
     renderValue()
   }
@@ -280,6 +280,53 @@ function getListRenderer(geojson, mapId, listContainer, renderValue) {
 function getValueRenderer(geojson, geospatialInput) {
   return function renderValue() {
     geospatialInput.value = JSON.stringify(geojson.features, null, 2)
+  }
+}
+
+/**
+ * Factory closure to manage the UI
+ * @param {GeoJSON} geojson - the features
+ * @param {InteractiveMap} map - the map
+ * @param {string} mapId - the ID of the map
+ * @param {HTMLDivElement} listEl - where to render the feature list
+ * @param {HTMLTextAreaElement} geospatialInput - the geospatial textarea
+ */
+function getUIManager(geojson, map, mapId, listEl, geospatialInput) {
+  /**
+   * Toggle the hidden state of the action buttons
+   * @type {ToggleActionButtons}
+   */
+  function toggleActionButtons(hidden) {
+    map.toggleButtonState('btnAddPoint', 'hidden', hidden)
+    map.toggleButtonState('btnAddPolygon', 'hidden', hidden)
+    map.toggleButtonState('btnAddLine', 'hidden', hidden)
+  }
+
+  /**
+   * Set focus to the last description input
+   * @type {FocusDescriptionInput}
+   */
+  function focusDescriptionInput() {
+    const inputs = listEl.querySelectorAll('input')
+    if (inputs.length) {
+      const lastInput = /** @type {HTMLInputElement} */ inputs.item(
+        inputs.length - 1
+      )
+      lastInput.focus()
+      lastInput.select()
+    }
+  }
+
+  const renderValue = getValueRenderer(geojson, geospatialInput)
+  const renderList = getListRenderer(geojson, mapId, listEl, renderValue)
+
+  /** @type {UIManager} */
+  return {
+    renderList,
+    renderValue,
+    listEl,
+    toggleActionButtons,
+    focusDescriptionInput
   }
 }
 
@@ -302,7 +349,7 @@ export function processGeospatial(config, geospatial, index) {
     return
   }
 
-  const { listContainer, mapId } = createContainers(geospatialInput, index)
+  const { listEl, mapId } = createContainers(geospatialInput, index)
   const geojson = getGeoJSON(geospatialInput)
   const bounds = geojson.features.length ? bbox(geojson) : undefined
   const drawPlugin = defra.drawMLPlugin()
@@ -316,42 +363,7 @@ export function processGeospatial(config, geospatial, index) {
   const { map, interactPlugin } = createMap(mapId, initConfig, config)
   const featuresManager = getFeaturesManager(geojson)
   const activeFeatureManager = getActiveFeatureManager()
-  const renderValue = getValueRenderer(geojson, geospatialInput)
-  const renderList = getListRenderer(geojson, mapId, listContainer, renderValue)
-
-  /**
-   * Toggle the hidden state of the action buttons
-   * @type {ToggleActionButtons}
-   */
-  function toggleActionButtons(hidden) {
-    map.toggleButtonState('btnAddPoint', 'hidden', hidden)
-    map.toggleButtonState('btnAddPolygon', 'hidden', hidden)
-    map.toggleButtonState('btnAddLine', 'hidden', hidden)
-  }
-
-  /**
-   * Set focus to the last description input
-   * @type {FocusDescriptionInput}
-   */
-  function focusDescriptionInput() {
-    const inputs = listContainer.querySelectorAll('input')
-    if (inputs.length) {
-      const lastInput = /** @type {HTMLInputElement} */ inputs.item(
-        inputs.length - 1
-      )
-      lastInput.focus()
-      lastInput.select()
-    }
-  }
-
-  /** @type {UIManager} */
-  const uiManager = {
-    renderList,
-    renderValue,
-    listContainer,
-    toggleActionButtons,
-    focusDescriptionInput
-  }
+  const uiManager = getUIManager(geojson, map, mapId, listEl, geospatialInput)
 
   /**
    * @type {Context}
@@ -374,7 +386,7 @@ export function processGeospatial(config, geospatial, index) {
  */
 function addEventListeners(context) {
   const { map, uiManager } = context
-  const { listContainer } = uiManager
+  const { listEl } = uiManager
 
   map.on(EVENTS.mapReady, onMapReadyFactory(context))
   map.on(EVENTS.drawReady, onDrawReadyFactory(context))
@@ -383,17 +395,8 @@ function addEventListeners(context) {
   map.on(EVENTS.drawCancelled, onDrawCancelledFactory(context))
   map.on(EVENTS.interactMarkerChange, onInteractMarkerChangedFactory(context))
 
-  listContainer.addEventListener(
-    'click',
-    onListContainerClickFactory(context),
-    false
-  )
-
-  listContainer.addEventListener(
-    'change',
-    onListContainerChangeFactory(context),
-    false
-  )
+  listEl.addEventListener('click', onListElClickFactory(context), false)
+  listEl.addEventListener('change', onListElChangeFactory(context), false)
 }
 
 /**
@@ -422,21 +425,21 @@ function getGeoJSON(geospatialInput) {
  * @param {number} index - the 0 based index
  */
 function createContainers(geospatialInput, index) {
-  const mapContainer = document.createElement('div')
+  const mapEl = document.createElement('div')
   const mapId = `geospatialmap_${index}`
 
-  mapContainer.setAttribute('id', mapId)
-  mapContainer.setAttribute('class', 'map-container')
+  mapEl.setAttribute('id', mapId)
+  mapEl.setAttribute('class', 'map-container')
 
-  const listContainer = document.createElement('div')
+  const listEl = document.createElement('div')
   const listId = `${mapId}_list`
-  listContainer.setAttribute('id', listId)
+  listEl.setAttribute('id', listId)
 
-  geospatialInput.after(mapContainer)
-  mapContainer.after(listContainer)
+  geospatialInput.after(mapEl)
+  mapEl.after(listEl)
   geospatialInput.classList.add('js-hidden')
 
-  return { mapContainer, listContainer, mapId }
+  return { mapEl, listEl, mapId }
 }
 
 /**
@@ -689,7 +692,7 @@ function onInteractMarkerChangedFactory(context) {
  * Callback factory function that fires a 'click' event is fired on the list container
  * @param {Context} context - the UI context
  */
-function onListContainerClickFactory(context) {
+function onListElClickFactory(context) {
   const {
     map,
     featuresManager,
@@ -703,44 +706,68 @@ function onListContainerClickFactory(context) {
   const { renderList, toggleActionButtons } = uiManager
 
   /**
+   * Delete a feature
+   * @param {string} id - the feature id
+   * @param {string} type - the feature type
+   */
+  function deleteFeature(id, type) {
+    if (type === 'Point') {
+      map.removeMarker(id)
+      removeFeature(id)
+    } else {
+      drawPlugin.deleteFeature(id)
+      removeFeature(id)
+    }
+
+    renderList()
+  }
+
+  /**
+   * Start editing feature
+   * @param {string} id - the feature id
+   * @param {string} type - the feature type
+   */
+  function editFeature(id, type) {
+    setActiveFeature(id)
+
+    // "Change" feature link was clicked
+    if (type === 'Point') {
+      interactPlugin.selectFeature({ featureId: id })
+      interactPlugin.enable()
+    } else {
+      drawPlugin.editFeature(id)
+    }
+    toggleActionButtons(true)
+  }
+
+  /**
    * List container delegated 'click' events handler
    * @param {MouseEvent} e
    */
   return function (e) {
     const target = e.target
+
     if (!(target instanceof HTMLElement)) {
       return
     }
 
-    if (target.tagName === 'A' && target.dataset.action && target.dataset.id) {
+    if (
+      target.tagName === 'A' &&
+      target.dataset.action &&
+      target.dataset.id &&
+      target.dataset.type
+    ) {
       const { action, id, type } = target.dataset
 
       if (!getActiveFeature() && action === 'edit') {
-        setActiveFeature(id)
-
-        // "Change" feature link was clicked
-        if (type === 'Point') {
-          interactPlugin.selectFeature({ featureId: id })
-          interactPlugin.enable()
-        } else {
-          drawPlugin.editFeature(id)
-        }
-        toggleActionButtons(true)
+        editFeature(id, type)
       } else {
         e.preventDefault()
         e.stopPropagation()
 
         if (action === 'delete') {
           // "Remove" feature link was clicked
-          if (type === 'Point') {
-            map.removeMarker(id)
-            removeFeature(id)
-          } else {
-            drawPlugin.deleteFeature(id)
-            removeFeature(id)
-          }
-
-          renderList()
+          deleteFeature(id, type)
         }
       }
     }
@@ -751,7 +778,7 @@ function onListContainerClickFactory(context) {
  * Callback factory function that fires a 'change' event is fired on the list container
  * @param {Context} context - the UI context
  */
-function onListContainerChangeFactory(context) {
+function onListElChangeFactory(context) {
   const { featuresManager, uiManager } = context
   const { getFeature } = featuresManager
   const { renderValue } = uiManager
@@ -891,7 +918,7 @@ function onListContainerChangeFactory(context) {
  * @typedef {object} UIManager
  * @property {RenderValue} renderValue - function that renders the features JSON into the hidden textarea
  * @property {RenderList} renderList - function that renders the features into the list
- * @property {HTMLDivElement} listContainer - the summary list of features
+ * @property {HTMLDivElement} listEl - the summary list of features
  * @property {ToggleActionButtons} toggleActionButtons - function that toggles the action buttons
  * @property {FocusDescriptionInput} focusDescriptionInput - function that sets focus to a description input element
  */
