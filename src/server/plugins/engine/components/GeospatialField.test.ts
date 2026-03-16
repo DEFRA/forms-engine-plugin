@@ -151,7 +151,7 @@ describe('GeospatialField', () => {
         const answer1 = getAnswer(field, state1)
         const answer2 = getAnswer(field, state2)
 
-        expect(answer1).toBe('Added 1 feature')
+        expect(answer1).toBe('Added 1 location')
         expect(answer2).toBe('')
       })
 
@@ -162,7 +162,7 @@ describe('GeospatialField', () => {
         const answer1 = getAnswer(field, state1)
         const answer2 = getAnswer(field, state2)
 
-        expect(answer1).toBe('Added 4 features')
+        expect(answer1).toBe('Added 4 locations')
         expect(answer2).toBe('')
       })
 
