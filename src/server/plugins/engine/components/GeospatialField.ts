@@ -56,7 +56,7 @@ export class GeospatialField extends FormComponent {
       return ''
     }
 
-    const unit = features.length === 1 ? 'feature' : 'features'
+    const unit = features.length === 1 ? 'location' : 'locations'
 
     return `Added ${features.length} ${unit}`
   }

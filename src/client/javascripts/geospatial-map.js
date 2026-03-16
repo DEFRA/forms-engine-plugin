@@ -190,6 +190,31 @@ function getActiveFeatureManager() {
  */
 function getFeaturesManager(geojson) {
   /**
+   * Reduce cordinate precision to 7 dps
+   * @param {Feature} feature
+   */
+  function prepareGeometry(feature) {
+    const { geometry } = feature
+    const maxPrecision = 7
+
+    /**
+     * @param {Coordinates} coordinates
+     */
+    function formatPrecision(coordinates) {
+      coordinates[0] = +coordinates[0].toFixed(maxPrecision)
+      coordinates[1] = +coordinates[1].toFixed(maxPrecision)
+    }
+
+    if (geometry.type === 'Point') {
+      formatPrecision(geometry.coordinates)
+    } else if (geometry.type === 'LineString') {
+      geometry.coordinates.forEach(formatPrecision)
+    } else {
+      geometry.coordinates.flat().forEach(formatPrecision)
+    }
+  }
+
+  /**
    * Get a feature from the geojson by id
    * @type {GetFeatures}
    */
@@ -212,6 +237,7 @@ function getFeaturesManager(geojson) {
   function addFeature(feature) {
     feature.properties.coordinateGridReference = getCoordinateGridRef(feature)
     feature.properties.centroidGridReference = getCentroidGridRef(feature)
+    prepareGeometry(feature)
 
     geojson.features.push(feature)
   }
@@ -228,6 +254,7 @@ function getFeaturesManager(geojson) {
       feature.properties.coordinateGridReference = getCoordinateGridRef(feature)
       feature.properties.centroidGridReference = getCentroidGridRef(feature)
       feature.geometry = geometry
+      prepareGeometry(feature)
     }
 
     return feature
