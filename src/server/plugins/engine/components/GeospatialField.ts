@@ -97,7 +97,7 @@ export class GeospatialField extends FormComponent {
     fieldErrors?.forEach((err) => {
       if (err.name === 'description') {
         err.href = `#description_${err.path[1]}`
-        err.text = `Enter description for feature ${Number(err.path[1]) + 1}`
+        err.text = `Enter description for location ${Number(err.path[1]) + 1}`
       }
     })
 

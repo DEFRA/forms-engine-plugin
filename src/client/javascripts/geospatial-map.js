@@ -66,14 +66,14 @@ function generateID() {
  * @param {string} mapId - the ID of the map
  */
 function createFeaturesHTML(features, mapId) {
-  return `<div class="govuk-!-margin-top-5">
+  return `<dl class="govuk-summary-list">
     ${features.map((feature, index) => createFeatureHTML(feature, index, mapId)).join('\n')}
   </div>`
 }
 
 /**
  * Returns HTML summary row for an single feature
- * @param {Feature} feature - the feature
+ * @param {Feature} feature - the geo feature
  * @param {number} index - the feature index
  * @param {string} mapId - the ID of the map
  */
@@ -89,59 +89,58 @@ function createFeatureHTML(feature, index, mapId) {
   // Change action link
   const changeAction = () => `<li class="govuk-summary-list__actions-list-item">
   <a class="govuk-link govuk-link--no-visited-state" href="#${mapId}" data-action="edit" data-id="${feature.id}"
-    data-type="${feature.geometry.type}">Update<span class="govuk-visually-hidden"> feature</span></a>
+    data-type="${feature.geometry.type}">Update<span class="govuk-visually-hidden"> location</span></a>
 </li>`
 
   // Delete action link
   const deleteAction = () => `<li class="govuk-summary-list__actions-list-item">
   <a class="govuk-link govuk-link--no-visited-state" href="#" data-action="delete" data-id="${feature.id}"
-    data-type="${feature.geometry.type}">Delete<span class="govuk-visually-hidden"> feature</span></a>
+    data-type="${feature.geometry.type}">Delete<span class="govuk-visually-hidden"> location</span></a>
 </li>`
 
-  return `<div class="govuk-summary-card">
-  <div class="govuk-summary-card__title-wrapper">
-    <h2 class="govuk-summary-card__title">
-      Location ${index + 1}
-    </h2>
-    <ul class="govuk-summary-card__actions">
-      ${changeAction()}
-      ${deleteAction()}
-    </ul>
-  </div>
-  <div class="govuk-summary-card__content">
+  return `<div class="govuk-summary-list__row govuk-summary-list__row--no-border">
+  <dt class="govuk-summary-list__key">
     <div class="govuk-form-group">
-      <label class="govuk-label" for="description_${index}">Description</label>
+      <label class="govuk-label govuk-label--s" for="description_${index}">Description for location ${index + 1}</label>
       <input class="govuk-input govuk-!-width-two-thirds" type="text" id="description_${index}"
         value="${feature.properties.description}" data-id="${feature.id}">
     </div>
-    <details class="govuk-details govuk-!-margin-bottom-0 govuk-!-margin-top-3">
-      <summary class="govuk-details__summary">
-        <span class="govuk-details__summary-text">Coordinates</span>
-      </summary>
-      <div class="govuk-details__text">
-        <dl class="govuk-summary-list">
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">Type</dt>
-            <dd class="govuk-summary-list__value">${typeDescriptions[feature.geometry.type]}</dd>
-          </div>
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">Center grid reference</dt>
-            <dd class="govuk-summary-list__value">${feature.properties.centroidGridReference}</dd>
-          </div>
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">Area grid reference</dt>
-            <dd class="govuk-summary-list__value">${feature.properties.coordinateGridReference}</dd>
-          </div>
-          <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">Detailed coordinates</dt>
-            <dd class="govuk-summary-list__value">
-              <ol class="govuk-list govuk-list--number">${coordinates}</ol>
-            </dd>
-          </div>
-        </dl>
-      </div>
-    </details>
-  </div>
+  </dt>
+  <dd class="govuk-summary-list__actions">
+    <ul class="govuk-summary-list__actions-list">
+      ${changeAction()}
+      ${deleteAction()}
+    </ul>
+  </dd>
+</div>
+<div class="govuk-summary-list__row">
+  <details class="govuk-details govuk-!-margin-bottom-2">
+    <summary class="govuk-details__summary">
+      <span class="govuk-details__summary-text">Coordinates</span>
+    </summary>
+    <div class="govuk-details__text">
+      <dl class="govuk-summary-list">
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">Type</dt>
+          <dd class="govuk-summary-list__value">${typeDescriptions[feature.geometry.type]}</dd>
+        </div>
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">Center grid reference</dt>
+          <dd class="govuk-summary-list__value">${feature.properties.centroidGridReference}</dd>
+        </div>
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">First point grid reference</dt>
+          <dd class="govuk-summary-list__value">${feature.properties.coordinateGridReference}</dd>
+        </div>
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">Detailed coordinates</dt>
+          <dd class="govuk-summary-list__value">
+            <ol class="govuk-list govuk-list--number">${coordinates}</ol>
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </details>
 </div>`
 }
 
@@ -555,14 +554,10 @@ function onDrawCreatedFactory(context) {
    */
   return function onDrawCreated(e) {
     // New feature
-    const typeName = typeDescriptions[e.geometry.type].toLowerCase()
-
-    const description = `New ${typeName}`
-
     addFeature({
       ...e,
       properties: {
-        description
+        description: ''
       }
     })
 
@@ -660,12 +655,10 @@ function onInteractMarkerChangedFactory(context) {
     } else {
       // Adding a new point
       const id = generateID()
-      const description = 'New point'
-
       addFeature({
         type: 'Feature',
         properties: {
-          description
+          description: ''
         },
         geometry: {
           type: 'Point',
