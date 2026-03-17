@@ -1,9 +1,11 @@
-import { getHiddenFields } from '@defra/forms-model'
+import { ControllerType, getHiddenFields } from '@defra/forms-model'
+import { validate as isValidUUID } from 'uuid'
 
 import {
   CURRENT_PAGE_PATH_KEY,
   STATE_NOT_YET_VALIDATED
 } from '~/src/server/plugins/engine/index.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import {
   type AnyFormRequest,
@@ -15,6 +17,8 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 import { type FormQuery } from '~/src/server/routes/types.js'
 import { type Services } from '~/src/server/types.js'
+
+const GUID_LENGTH = 36
 
 /**
  * A series of functions that can transform a pre-fill input parameter e.g lookup a form title based on form id
@@ -98,6 +102,50 @@ export async function prefillStateFromQueryParameters(
   await page.mergeState(request, formData, params)
 
   return true
+}
+
+/**
+ * Checks whether the save-and-exit finished on a repeater with partial state
+ * @param context - the form context
+ */
+export function checkSaveAndExitRepeater(
+  context: FormContext,
+  model: FormModel
+) {
+  const potentiallyInvalidState = context.state[STATE_NOT_YET_VALIDATED] as
+    | Record<string, FormValue>
+    | undefined
+  if (!potentiallyInvalidState) {
+    return
+  }
+
+  const originalPath = potentiallyInvalidState[CURRENT_PAGE_PATH_KEY]
+
+  const repeaterPaths = model.def.pages
+    .filter((page) => page.controller === ControllerType.Repeat)
+    .map((p) => `/${model.basePath}${p.path}/`)
+
+  if (typeof originalPath === 'string') {
+    const lastParam = originalPath.split('/').at(-1) ?? ''
+    if (lastParam.length === GUID_LENGTH && isValidUUID(lastParam)) {
+      const pathWithoutBase = originalPath.substring(model.basePath.length + 1)
+      const pathStripGuid = originalPath.substring(
+        0,
+        originalPath.length - GUID_LENGTH
+      )
+      if (repeaterPaths.includes(pathStripGuid)) {
+        return {
+          pathIncludingGuid: pathWithoutBase,
+          pathExcludingGuid: pathWithoutBase.substring(
+            0,
+            pathWithoutBase.length - GUID_LENGTH - 1
+          )
+        }
+      }
+    }
+  }
+
+  return undefined
 }
 
 /**
