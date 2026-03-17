@@ -334,6 +334,12 @@ describe('State helpers', () => {
       expect(checkSaveAndExitRepeater(mockContext, mockModel)).toBeUndefined()
     })
 
+    it('should return undefined if url is not a string', () => {
+      // @ts-expect-error - invalid dataype on purpose for this test
+      const mockContext = createMockContextWithPath({})
+      expect(checkSaveAndExitRepeater(mockContext, mockModel)).toBeUndefined()
+    })
+
     it('should return correct urls if url ends in a guid and is a repeater path', () => {
       const mockContext = createMockContextWithPath(
         '/form/preview/draft/repeater-test/personal_details/7d27fe6e-73e8-4265-84bd-1e118c92470b'
