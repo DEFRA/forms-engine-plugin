@@ -184,36 +184,36 @@ function getActiveFeatureManager() {
 }
 
 /**
+ * Reduce cordinate precision to 7 dps
+ * @param {Feature} feature
+ */
+function prepareGeometry(feature) {
+  const { geometry } = feature
+  const maxPrecision = 7
+
+  /**
+   * @param {Coordinates} coordinates
+   */
+  function formatPrecision(coordinates) {
+    coordinates[0] = +coordinates[0].toFixed(maxPrecision)
+    coordinates[1] = +coordinates[1].toFixed(maxPrecision)
+  }
+
+  if (geometry.type === 'Point') {
+    formatPrecision(geometry.coordinates)
+  } else if (geometry.type === 'LineString') {
+    geometry.coordinates.forEach(formatPrecision)
+  } else {
+    geometry.coordinates.flat().forEach(formatPrecision)
+  }
+}
+
+/**
  * Factory closure to return a features manager
  * @param {GeoJSON} geojson
  * @returns {FeaturesManager}
  */
 function getFeaturesManager(geojson) {
-  /**
-   * Reduce cordinate precision to 7 dps
-   * @param {Feature} feature
-   */
-  function prepareGeometry(feature) {
-    const { geometry } = feature
-    const maxPrecision = 7
-
-    /**
-     * @param {Coordinates} coordinates
-     */
-    function formatPrecision(coordinates) {
-      coordinates[0] = +coordinates[0].toFixed(maxPrecision)
-      coordinates[1] = +coordinates[1].toFixed(maxPrecision)
-    }
-
-    if (geometry.type === 'Point') {
-      formatPrecision(geometry.coordinates)
-    } else if (geometry.type === 'LineString') {
-      geometry.coordinates.forEach(formatPrecision)
-    } else {
-      geometry.coordinates.flat().forEach(formatPrecision)
-    }
-  }
-
   /**
    * Get a feature from the geojson by id
    * @type {GetFeatures}
