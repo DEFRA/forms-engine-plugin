@@ -240,7 +240,7 @@ describe('Location field formatting', () => {
       }
 
       const answer = getAnswer(field, state, { format: 'email' })
-      expect(answer).toBe('Added 4 features\n')
+      expect(answer).toBe('Added 4 locations\n')
     })
 
     it('formats for data output', () => {
@@ -258,7 +258,7 @@ describe('Location field formatting', () => {
       }
 
       const answer = getAnswer(field, state, { format: 'summary' })
-      expect(answer).toBe('Added 4 features')
+      expect(answer).toBe('Added 4 locations')
     })
   })
 
