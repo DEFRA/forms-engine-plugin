@@ -1,8 +1,9 @@
-import { ComponentType, type Page } from '@defra/forms-model'
+import { ComponentType, ControllerType, type Page } from '@defra/forms-model'
 
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import {
+  checkSaveAndExitRepeater,
   copyNotYetValidatedState,
   prefillStateFromQueryParameters,
   stripParam
@@ -289,6 +290,58 @@ describe('State helpers', () => {
       })
       expect(mockContext.payload).toEqual({
         def: '456'
+      })
+    })
+  })
+
+  describe('checkSaveAndExitRepeater', () => {
+    function createMockContextWithPath(path) {
+      return {
+        state: {
+          abc: '123',
+          __stateNotYetValidated: {
+            def: '456',
+            __currentPagePath: path
+          }
+        },
+        payload: {}
+      } as unknown as FormContext
+    }
+
+    const mockModel = {
+      def: {
+        pages: [
+          {
+            controller: ControllerType.Repeat,
+            path: '/personal_details'
+          }
+        ]
+      },
+      basePath: 'form/preview/draft/repeater-test'
+    } as unknown as FormModel
+
+    it('should return undefined if url does not end in a guid', () => {
+      const mockContext = createMockContextWithPath(
+        '/form/preview/draft/repeater-test/personal_details'
+      )
+      expect(checkSaveAndExitRepeater(mockContext, mockModel)).toBeUndefined()
+    })
+
+    it('should return undefined if url ends in a guid but not a repeater path', () => {
+      const mockContext = createMockContextWithPath(
+        '/form/preview/draft/repeater-test/wrong_page/7d27fe6e-73e8-4265-84bd-1e118c92470b'
+      )
+      expect(checkSaveAndExitRepeater(mockContext, mockModel)).toBeUndefined()
+    })
+
+    it('should return correct urls if url ends in a guid and is a repeater path', () => {
+      const mockContext = createMockContextWithPath(
+        '/form/preview/draft/repeater-test/personal_details/7d27fe6e-73e8-4265-84bd-1e118c92470b'
+      )
+      expect(checkSaveAndExitRepeater(mockContext, mockModel)).toEqual({
+        pathExcludingGuid: '/personal_details',
+        pathIncludingGuid:
+          '/personal_details/7d27fe6e-73e8-4265-84bd-1e118c92470b'
       })
     })
   })

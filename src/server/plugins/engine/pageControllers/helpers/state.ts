@@ -125,27 +125,36 @@ export function checkSaveAndExitRepeater(
     .filter((page) => page.controller === ControllerType.Repeat)
     .map((p) => `/${model.basePath}${p.path}/`)
 
-  if (typeof originalPath === 'string') {
-    const lastParam = originalPath.split('/').at(-1) ?? ''
-    if (lastParam.length === GUID_LENGTH && isValidUUID(lastParam)) {
-      const pathWithoutBase = originalPath.substring(model.basePath.length + 1)
-      const pathStripGuid = originalPath.substring(
-        0,
-        originalPath.length - GUID_LENGTH
-      )
-      if (repeaterPaths.includes(pathStripGuid)) {
-        return {
-          pathIncludingGuid: pathWithoutBase,
-          pathExcludingGuid: pathWithoutBase.substring(
-            0,
-            pathWithoutBase.length - GUID_LENGTH - 1
-          )
-        }
-      }
-    }
+  if (typeof originalPath !== 'string') {
+    return undefined
   }
 
-  return undefined
+  const segments = originalPath.split('/')
+  const lastSegment = segments.at(-1) ?? ''
+
+  if (!isValidUUID(lastSegment)) {
+    return undefined
+  }
+
+  const baseOffset = model.basePath.length + 1
+  const pathIncludingGuid = originalPath.substring(baseOffset)
+
+  const guidStartIndex = originalPath.length - GUID_LENGTH
+  const originalPathWithoutGuid = originalPath.substring(0, guidStartIndex)
+
+  if (!repeaterPaths.includes(originalPathWithoutGuid)) {
+    return undefined
+  }
+
+  const pathExcludingGuid = pathIncludingGuid.substring(
+    0,
+    pathIncludingGuid.length - GUID_LENGTH - 1
+  )
+
+  return {
+    pathIncludingGuid,
+    pathExcludingGuid
+  }
 }
 
 /**
