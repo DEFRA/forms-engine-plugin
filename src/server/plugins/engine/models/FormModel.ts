@@ -48,10 +48,6 @@ import {
   createPage,
   type PageControllerClass
 } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
-import {
-  checkSaveAndExitRepeater,
-  copyNotYetValidatedState
-} from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import {
@@ -378,9 +374,6 @@ export class FormModel {
 
     this.initialiseContext(context)
 
-    // Check if save-and-exit finished on a repeater
-    const repeaterPageResume = checkSaveAndExitRepeater(context, this)
-
     // Walk form pages from start
     while (nextPage) {
       // Add page to context
@@ -393,8 +386,7 @@ export class FormModel {
       // Stop at current page
       if (
         this.pageStateIsInvalid(context, nextPage) ||
-        nextPage.path === currentPath ||
-        nextPage.path === repeaterPageResume?.pathExcludingGuid
+        nextPage.path === currentPath
       ) {
         break
       }
@@ -408,12 +400,6 @@ export class FormModel {
 
     // Add paths for navigation
     this.assignPaths(context)
-    if (repeaterPageResume) {
-      context.paths.push(repeaterPageResume.pathIncludingGuid)
-    }
-
-    // Handle restoration of payload from say a 'save-and-exit' request
-    copyNotYetValidatedState(request, context)
 
     return context
   }

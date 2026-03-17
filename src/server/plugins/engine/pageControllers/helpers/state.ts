@@ -1,6 +1,7 @@
 import { ControllerType, getHiddenFields } from '@defra/forms-model'
 import { validate as isValidUUID } from 'uuid'
 
+import { getCacheService } from '~/src/server/plugins/engine/helpers.js'
 import {
   CURRENT_PAGE_PATH_KEY,
   STATE_NOT_YET_VALIDATED
@@ -10,9 +11,7 @@ import { type PageControllerClass } from '~/src/server/plugins/engine/pageContro
 import {
   type AnyFormRequest,
   type FormContext,
-  type FormContextRequest,
   type FormStateValue,
-  type FormSubmissionState,
   type FormValue
 } from '~/src/server/plugins/engine/types.js'
 import { type FormQuery } from '~/src/server/routes/types.js'
@@ -163,8 +162,8 @@ export function checkSaveAndExitRepeater(
  * @param request - the form request
  * @param context - the form context
  */
-export function copyNotYetValidatedState(
-  request: FormContextRequest,
+export async function copyNotYetValidatedState(
+  request: AnyFormRequest,
   context: FormContext
 ) {
   const potentiallyInvalidState = context.state[STATE_NOT_YET_VALIDATED] as
@@ -183,17 +182,12 @@ export function copyNotYetValidatedState(
       [CURRENT_PAGE_PATH_KEY]: undefined
     }
   }
-}
 
-/**
- * Remove any temporary 'not yet validated' state now that it's been validated
- * @param state - the form state
- */
-export function clearNotYetValidatedState(
-  state: FormSubmissionState
-): FormSubmissionState {
-  if (state[STATE_NOT_YET_VALIDATED]) {
-    state[STATE_NOT_YET_VALIDATED] = undefined
+  // Remove any temporary 'not yet validated' state now it's been copied to the payload
+  if (context.state[STATE_NOT_YET_VALIDATED]) {
+    context.state[STATE_NOT_YET_VALIDATED] = undefined
   }
-  return state
+
+  const cacheService = getCacheService(request.server)
+  await cacheService.setState(request, context.state)
 }
