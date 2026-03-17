@@ -889,7 +889,7 @@ describe('Maps Client JS', () => {
               {
                 ...newPolygonFeature,
                 properties: {
-                  description: 'New shape',
+                  description: '',
                   coordinateGridReference: 'SD 94387 44521',
                   centroidGridReference: 'SE 16533 42846'
                 }
@@ -923,7 +923,7 @@ describe('Maps Client JS', () => {
               {
                 ...newPolygonFeature,
                 properties: {
-                  description: 'New shape',
+                  description: '',
                   coordinateGridReference: 'SD 94387 44521',
                   centroidGridReference: 'SE 16533 42846'
                 }
@@ -931,7 +931,7 @@ describe('Maps Client JS', () => {
               {
                 ...newLineFeature,
                 properties: {
-                  description: 'New line',
+                  description: '',
                   coordinateGridReference: 'SE 45512 58405',
                   centroidGridReference: 'SE 19987 51392'
                 }
@@ -1053,10 +1053,10 @@ describe('Maps Client JS', () => {
           {
             geometry: {
               type: 'Point',
-              coordinates: [-2.0868919921875886, 53.896834237148596]
+              coordinates: [-2.086892, 53.8968342]
             },
             properties: {
-              description: 'New point',
+              description: '',
               coordinateGridReference: 'SD 94387 44521',
               centroidGridReference: 'SD 94387 44521'
             },
