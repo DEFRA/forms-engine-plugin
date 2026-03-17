@@ -295,7 +295,7 @@ describe('State helpers', () => {
   })
 
   describe('checkSaveAndExitRepeater', () => {
-    function createMockContextWithPath(path) {
+    function createMockContextWithPath(path: string) {
       return {
         state: {
           abc: '123',
