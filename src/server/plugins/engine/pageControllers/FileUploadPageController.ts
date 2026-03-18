@@ -400,7 +400,36 @@ export class FileUploadPageController extends QuestionPageController {
     // CDP returns form.file as a single object for one file,
     // or an array for multiple files. The Joi schema normalises
     // both to an array via .single().
-    const validatedStatus = validationResult.value.status
+    await this.processUploadedFiles(
+      request,
+      state,
+      validationResult.value,
+      files,
+      upload
+    )
+
+    return this.initiateAndStoreNewUpload(request, state)
+  }
+
+  /**
+   * Processes the uploaded files from a CDP status response.
+   * Complete files are added to state, rejected/pending files
+   * have their error messages flashed.
+   * @param request - the hapi request
+   * @param state - the form state
+   * @param validatedItem - the Joi-validated upload item
+   * @param files - the current files array from state
+   * @param upload - the current upload initiation response
+   */
+  private async processUploadedFiles(
+    request: AnyFormRequest,
+    state: FormSubmissionState,
+    validatedItem: FileState,
+    files: FileState[],
+    upload: UploadInitiateResponse | undefined
+  ) {
+    const { uploadId } = validatedItem
+    const validatedStatus = validatedItem.status
     const rawFile = validatedStatus.form.file as unknown as
       | FileUpload
       | FileUpload[]
@@ -435,8 +464,6 @@ export class FileUploadPageController extends QuestionPageController {
         upload: { [this.path]: { files, upload } }
       })
     }
-
-    return this.initiateAndStoreNewUpload(request, state)
   }
 
   /**
