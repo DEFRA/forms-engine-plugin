@@ -194,12 +194,12 @@ function createFeatureHTML(feature, index, mapId, readonly) {
 </li>`
 
   const actions = () =>
-    !readonly
-      ? `<ul class="govuk-summary-list__actions-list">
+    readonly
+      ? ''
+      : `<ul class="govuk-summary-list__actions-list">
   ${changeAction()}
   ${deleteAction()}
 </ul>`
-      : ''
 
   return `<div class="govuk-summary-list__row govuk-summary-list__row--no-border">
   <dt class="govuk-summary-list__key">
