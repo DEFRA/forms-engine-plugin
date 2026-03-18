@@ -10,7 +10,7 @@ import {
 
 const helpPanelConfig = {
   showLabel: true,
-  label: 'How to use the map',
+  label: 'How to use this map',
   mobile: {
     slot: 'bottom',
     open: true,
@@ -29,7 +29,7 @@ const helpPanelConfig = {
     dismissible: true,
     modal: false
   },
-  html: 'Use the buttons below to add points, shapes and lines to the map<br><br>To finish drawing a line or shape you can double-click or click the "Done" button.<br>Once added you can give each feature a name in the table below.'
+  html: '<p class="govuk-body-s govuk-!-margin-bottom-2">You can add points, shapes or lines to the map.</p><ul class="govuk-list govuk-list--number govuk-body-s"><li>Search for a county, place or postcode</li><li>Use the + and - icons to zoom in and out</li><li>Add a point or click \'Done\' when you have finished drawing a line or shape</li><li>Give the location a name</li></ul>'
 }
 
 const lineFeatureProperties = {
