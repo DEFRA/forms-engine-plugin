@@ -134,10 +134,7 @@ export function checkSaveAndExitRepeater(
   if (!isValidUUID(lastSegment)) {
     return undefined
   }
-
-  const baseOffset = model.basePath.length + 1
-  const pathIncludingGuid = originalPath.substring(baseOffset)
-
+  
   const guidStartIndex = originalPath.length - GUID_LENGTH
   const originalPathWithoutGuid = originalPath.substring(0, guidStartIndex)
 
@@ -145,15 +142,7 @@ export function checkSaveAndExitRepeater(
     return undefined
   }
 
-  const pathExcludingGuid = pathIncludingGuid.substring(
-    0,
-    pathIncludingGuid.length - GUID_LENGTH - 1
-  )
-
-  return {
-    pathIncludingGuid,
-    pathExcludingGuid
-  }
+  return originalPath
 }
 
 /**
@@ -181,13 +170,13 @@ export async function copyNotYetValidatedState(
       ...potentiallyInvalidState,
       [CURRENT_PAGE_PATH_KEY]: undefined
     }
-  }
 
-  // Remove any temporary 'not yet validated' state now it's been copied to the payload
-  if (context.state[STATE_NOT_YET_VALIDATED]) {
-    context.state[STATE_NOT_YET_VALIDATED] = undefined
-  }
+    // Remove any temporary 'not yet validated' state now it's been copied to the payload
+    if (context.state[STATE_NOT_YET_VALIDATED]) {
+      context.state[STATE_NOT_YET_VALIDATED] = undefined
+    }
 
-  const cacheService = getCacheService(request.server)
-  await cacheService.setState(request, context.state)
+    const cacheService = getCacheService(request.server)
+    await cacheService.setState(request, context.state)
+  }
 }

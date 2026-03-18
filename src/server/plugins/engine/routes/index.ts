@@ -23,7 +23,7 @@ import {
   proceed
 } from '~/src/server/plugins/engine/helpers.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
-import { copyNotYetValidatedState } from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
+import { checkSaveAndExitRepeater, copyNotYetValidatedState } from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
 import { generateUniqueReference } from '~/src/server/plugins/engine/referenceNumbers.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import {
@@ -102,10 +102,15 @@ export async function redirectOrMakeHandler(
 
   // Redirect back to last relevant page
   const redirectTo = findPage(model, relevantPath)
-  console.log('redirectTo', redirectTo)
   // Set the return URL unless an exit page
   if (redirectTo?.next.length) {
     request.query.returnUrl = page.getHref(summaryPath)
+  }
+
+  // Handle save-and-exit resume from within a repeater
+  const resumeInRepeaterUrl = checkSaveAndExitRepeater(context, model)
+  if (resumeInRepeaterUrl) {
+    return proceed(request, h, resumeInRepeaterUrl)
   }
 
   return proceed(request, h, page.getHref(relevantPath))
