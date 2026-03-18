@@ -64,10 +64,11 @@ function generateID() {
  * Returns HTML summary list for the features
  * @param {FeatureCollection} features - the features
  * @param {string} mapId - the ID of the map
+ * @param {boolean} [readonly] - render the list in readonly mode
  */
-function createFeaturesHTML(features, mapId) {
+export function createFeaturesHTML(features, mapId, readonly = false) {
   return `<dl class="govuk-summary-list">
-    ${features.map((feature, index) => createFeatureHTML(feature, index, mapId)).join('\n')}
+    ${features.map((feature, index) => createFeatureHTML(feature, index, mapId, readonly)).join('\n')}
   </div>`
 }
 
@@ -76,8 +77,9 @@ function createFeaturesHTML(features, mapId) {
  * @param {Feature} feature - the geo feature
  * @param {number} index - the feature index
  * @param {string} mapId - the ID of the map
+ * @param {boolean} readonly - render the list item in readonly mode
  */
-function createFeatureHTML(feature, index, mapId) {
+function createFeatureHTML(feature, index, mapId, readonly) {
   const flattened = feature.geometry.coordinates.flat(2)
 
   const points = []
@@ -98,19 +100,24 @@ function createFeatureHTML(feature, index, mapId) {
     data-type="${feature.geometry.type}">Delete<span class="govuk-visually-hidden"> location</span></a>
 </li>`
 
+  const actions = () =>
+    !readonly
+      ? `<ul class="govuk-summary-list__actions-list">
+  ${changeAction()}
+  ${deleteAction()}
+</ul>`
+      : ''
+
   return `<div class="govuk-summary-list__row govuk-summary-list__row--no-border">
   <dt class="govuk-summary-list__key">
     <div class="govuk-form-group">
       <label class="govuk-label govuk-label--s" for="description_${index}">Description for location ${index + 1}</label>
-      <input class="govuk-input govuk-!-width-two-thirds" type="text" id="description_${index}"
+      <input class="govuk-input govuk-!-width-two-thirds" type="text" id="description_${index}" ${readonly ? 'readonly' : ''}
         value="${feature.properties.description}" data-id="${feature.id}">
     </div>
   </dt>
   <dd class="govuk-summary-list__actions">
-    <ul class="govuk-summary-list__actions-list">
-      ${changeAction()}
-      ${deleteAction()}
-    </ul>
+    ${actions()}
   </dd>
 </div>
 <div class="govuk-summary-list__row">
@@ -184,7 +191,7 @@ function getActiveFeatureManager() {
 }
 
 /**
- * Reduce cordinate precision to 7 dps
+ * Reduce coordinate precision to 7 dps
  * @param {Feature} feature
  */
 function prepareGeometry(feature) {
@@ -357,6 +364,14 @@ function getUIManager(geojson, map, mapId, listEl, geospatialInput) {
 }
 
 /**
+ * Gets the bounding box covering a feature collection
+ * @param {GeoJSON} geojson - the geojson
+ */
+export function getBoundingBox(geojson) {
+  return bbox(geojson)
+}
+
+/**
  * Processes a geospatial field to add map capability
  * @param {MapsEnvironmentConfig} config - the geospatial field element
  * @param {Element} geospatial - the geospatial field element
@@ -377,7 +392,7 @@ export function processGeospatial(config, geospatial, index) {
 
   const { listEl, mapId } = createContainers(geospatialInput, index)
   const geojson = getGeoJSON(geospatialInput)
-  const bounds = geojson.features.length ? bbox(geojson) : undefined
+  const bounds = geojson.features.length ? getBoundingBox(geojson) : undefined
   const drawPlugin = defra.drawMLPlugin()
 
   const initConfig = {
@@ -429,7 +444,7 @@ function addEventListeners(context) {
  * Extract and parses the GeoJSON from the textarea
  * @param {HTMLTextAreaElement} geospatialInput - the textarea containing the geojson
  */
-function getGeoJSON(geospatialInput) {
+export function getGeoJSON(geospatialInput) {
   const value = geospatialInput.value.trim()
   const hasValue = !!value
 
@@ -545,24 +560,34 @@ function onDrawReadyFactory(context) {
    * Callback when the draw plugin is ready
    */
   return function onDrawReady() {
-    getFeatures().forEach((feature) => {
-      switch (feature.geometry.type) {
-        case 'Polygon':
-          drawPlugin.addFeature({ ...feature, ...polygonFeatureProperties })
-          break
-        case 'LineString':
-          drawPlugin.addFeature({ ...feature, ...lineFeatureProperties })
-          break
-        case 'Point':
-          map.addMarker(feature.id, feature.geometry.coordinates)
-          break
-        default:
-          break
-      }
-    })
+    getFeatures().forEach((feature) =>
+      addFeatureToMap(feature, drawPlugin, map)
+    )
 
     // Update the features
     renderList()
+  }
+}
+
+/**
+ * Adds a feature to the map
+ * @param {Feature} feature - the geojson feature
+ * @param {any} drawPlugin - the map draw plugin
+ * @param {InteractiveMap} map - the interactive map
+ */
+export function addFeatureToMap(feature, drawPlugin, map) {
+  switch (feature.geometry.type) {
+    case 'Polygon':
+      drawPlugin.addFeature({ ...feature, ...polygonFeatureProperties })
+      break
+    case 'LineString':
+      drawPlugin.addFeature({ ...feature, ...lineFeatureProperties })
+      break
+    case 'Point':
+      map.addMarker(feature.id, feature.geometry.coordinates)
+      break
+    default:
+      break
   }
 }
 
@@ -630,14 +655,16 @@ function onDrawEditedFactory(context) {
  * @param {Context} context - the UI context
  */
 function onDrawCancelledFactory(context) {
-  const { uiManager } = context
+  const { uiManager, activeFeatureManager } = context
   const { toggleActionButtons } = uiManager
+  const { resetActiveFeature } = activeFeatureManager
 
   /**
    * Callback when a draw feature has been cancelled
    */
   return function onDrawCancelled() {
     toggleActionButtons(false)
+    resetActiveFeature()
   }
 }
 
