@@ -29,7 +29,6 @@ import {
   normalisePath,
   proceed
 } from '~/src/server/plugins/engine/helpers.js'
-import { STATE_NOT_YET_VALIDATED } from '~/src/server/plugins/engine/index.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { prefillStateFromQueryParameters } from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
@@ -542,13 +541,6 @@ export class QuestionPageController extends PageController {
        * @todo Refactor to match POST REDIRECT GET pattern
        */
       if (context.errors || isForceAccess) {
-        // console.log('pre state', context.state)
-        context.state = {
-          ...context.state,
-          [STATE_NOT_YET_VALIDATED]: undefined
-        } as unknown as FormSubmissionState
-        // console.log('post state', context.state)
-
         const viewModel = this.getViewModel(request, context)
         viewModel.errors = collection.getViewErrors(viewModel.errors)
 
