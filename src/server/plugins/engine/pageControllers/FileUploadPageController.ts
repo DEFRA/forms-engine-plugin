@@ -27,6 +27,7 @@ import {
   type AnyFormRequest,
   type FeaturedFormPageViewModel,
   type FileState,
+  type FileUpload,
   type FormContext,
   type FormContextRequest,
   type FormSubmissionError,
@@ -177,7 +178,7 @@ export class FileUploadPageController extends QuestionPageController {
       const files = this.getFilesFromState(state)
 
       const fileToRemove = files.find(
-        ({ uploadId }) => uploadId === params.itemId
+        ({ status }) => status.form.file.fileId === params.itemId
       )
 
       if (!fileToRemove) {
@@ -385,36 +386,54 @@ export class FileUploadPageController extends QuestionPageController {
 
     // Only add to files state if the file validates.
     // This secures against html tampering of the file input
-    // by adding a 'multiple' attribute or it being
-    // changed to a simple text field or similar.
+    // (e.g. changing it to a simple text field or similar).
     const validationResult = tempItemSchema.validate(
       { uploadId, status: statusResponse },
       { stripUnknown: true }
     )
     const error = validationResult.error
-    const fileState = validationResult.value as FileState
 
     if (error) {
       return this.initiateAndStoreNewUpload(request, state)
     }
 
-    const file = fileState.status.form.file
-    if (file.fileStatus === FileStatus.complete) {
-      files.unshift(prepareFileState(fileState))
+    // CDP returns form.file as a single object for one file,
+    // or an array for multiple files. The Joi schema normalises
+    // both to an array via .single().
+    const validatedStatus = validationResult.value.status
+    const rawFile = validatedStatus.form.file as unknown as
+      | FileUpload
+      | FileUpload[]
+    const uploadedFiles = Array.isArray(rawFile) ? rawFile : [rawFile]
+
+    for (const file of uploadedFiles) {
+      if (file.fileStatus === FileStatus.complete) {
+        const perFileState: FileState = {
+          uploadId,
+          status: {
+            ...validatedStatus,
+            form: { file }
+          } as FileState['status']
+        }
+        files.unshift(prepareFileState(perFileState))
+      } else {
+        // Flash the error message for rejected/pending files.
+        const { fileUpload } = this
+        const cacheService = getCacheService(request.server)
+
+        const name = fileUpload.name
+        const text = file.errorMessage ?? 'Unknown error'
+        const errors: FormSubmissionError[] = [
+          { path: [name], href: `#${name}`, name, text }
+        ]
+        cacheService.setFlash(request, { errors })
+      }
+    }
+
+    if (uploadedFiles.some((f) => f.fileStatus === FileStatus.complete)) {
       await this.mergeState(request, state, {
         upload: { [this.path]: { files, upload } }
       })
-    } else {
-      // Flash the error message.
-      const { fileUpload } = this
-      const cacheService = getCacheService(request.server)
-
-      const name = fileUpload.name
-      const text = file.errorMessage ?? 'Unknown error'
-      const errors: FormSubmissionError[] = [
-        { path: [name], href: `#${name}`, name, text }
-      ]
-      cacheService.setFlash(request, { errors })
     }
 
     return this.initiateAndStoreNewUpload(request, state)
@@ -438,7 +457,7 @@ export class FileUploadPageController extends QuestionPageController {
     const files = this.getFilesFromState(state)
 
     const filesUpdated = files.filter(
-      ({ uploadId }) => uploadId !== params.itemId
+      ({ status }) => status.form.file.fileId !== params.itemId
     )
 
     if (filesUpdated.length === files.length) {
