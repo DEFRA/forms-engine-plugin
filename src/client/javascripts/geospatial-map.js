@@ -132,6 +132,28 @@ export function processGeospatial(config, geospatial, index) {
 }
 
 /**
+ * Adds a feature to the map
+ * @param {Feature} feature - the geojson feature
+ * @param {any} drawPlugin - the map draw plugin
+ * @param {InteractiveMap} map - the interactive map
+ */
+export function addFeatureToMap(feature, drawPlugin, map) {
+  switch (feature.geometry.type) {
+    case 'Polygon':
+      drawPlugin.addFeature({ ...feature, ...polygonFeatureProperties })
+      break
+    case 'LineString':
+      drawPlugin.addFeature({ ...feature, ...lineFeatureProperties })
+      break
+    case 'Point':
+      map.addMarker(feature.id, feature.geometry.coordinates)
+      break
+    default:
+      break
+  }
+}
+
+/**
  * Returns HTML summary list for the features
  * @param {FeatureCollection} features - the features
  * @param {string} mapId - the ID of the map
@@ -566,28 +588,6 @@ function onDrawReadyFactory(context) {
 
     // Update the features
     renderList()
-  }
-}
-
-/**
- * Adds a feature to the map
- * @param {Feature} feature - the geojson feature
- * @param {any} drawPlugin - the map draw plugin
- * @param {InteractiveMap} map - the interactive map
- */
-export function addFeatureToMap(feature, drawPlugin, map) {
-  switch (feature.geometry.type) {
-    case 'Polygon':
-      drawPlugin.addFeature({ ...feature, ...polygonFeatureProperties })
-      break
-    case 'LineString':
-      drawPlugin.addFeature({ ...feature, ...lineFeatureProperties })
-      break
-    case 'Point':
-      map.addMarker(feature.id, feature.geometry.coordinates)
-      break
-    default:
-      break
   }
 }
 
