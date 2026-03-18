@@ -54,10 +54,81 @@ const typeDescriptions = {
 }
 
 /**
- * Generate a random id
+ * Extract and parses the GeoJSON from the textarea
+ * @param {HTMLTextAreaElement} geospatialInput - the textarea containing the geojson
  */
-function generateID() {
-  return window.crypto.randomUUID()
+export function getGeoJSON(geospatialInput) {
+  const value = geospatialInput.value.trim()
+  const hasValue = !!value
+
+  /** @type {FeatureCollection} */
+  const features = hasValue ? JSON.parse(value) : []
+
+  /** @type {GeoJSON} */
+  const geojson = {
+    type: 'FeatureCollection',
+    features
+  }
+
+  return geojson
+}
+
+/**
+ * Gets the bounding box covering a feature collection
+ * @param {GeoJSON} geojson - the geojson
+ */
+export function getBoundingBox(geojson) {
+  return bbox(geojson)
+}
+
+/**
+ * Processes a geospatial field to add map capability
+ * @param {MapsEnvironmentConfig} config - the geospatial field element
+ * @param {Element} geospatial - the geospatial field element
+ * @param {number} index - the 0-based index
+ */
+export function processGeospatial(config, geospatial, index) {
+  // @ts-expect-error - Defra namespace currently comes from UMD support files
+  const defra = window.defra
+
+  if (!(geospatial instanceof HTMLDivElement)) {
+    return
+  }
+
+  const geospatialInput = geospatial.querySelector('.govuk-textarea')
+  if (!(geospatialInput instanceof HTMLTextAreaElement)) {
+    return
+  }
+
+  const { listEl, mapId } = createContainers(geospatialInput, index)
+  const geojson = getGeoJSON(geospatialInput)
+  const bounds = geojson.features.length ? getBoundingBox(geojson) : undefined
+  const drawPlugin = defra.drawMLPlugin()
+
+  const initConfig = {
+    ...defaultConfig,
+    bounds,
+    plugins: [drawPlugin]
+  }
+
+  const { map, interactPlugin } = createMap(mapId, initConfig, config)
+  const featuresManager = getFeaturesManager(geojson)
+  const activeFeatureManager = getActiveFeatureManager()
+  const uiManager = getUIManager(geojson, map, mapId, listEl, geospatialInput)
+
+  /**
+   * @type {Context}
+   */
+  const context = {
+    map,
+    featuresManager,
+    activeFeatureManager,
+    uiManager,
+    interactPlugin,
+    drawPlugin
+  }
+
+  addEventListeners(context)
 }
 
 /**
@@ -149,6 +220,13 @@ function createFeatureHTML(feature, index, mapId, readonly) {
     </div>
   </details>
 </div>`
+}
+
+/**
+ * Generate a random id
+ */
+function generateID() {
+  return window.crypto.randomUUID()
 }
 
 /**
@@ -364,64 +442,6 @@ function getUIManager(geojson, map, mapId, listEl, geospatialInput) {
 }
 
 /**
- * Gets the bounding box covering a feature collection
- * @param {GeoJSON} geojson - the geojson
- */
-export function getBoundingBox(geojson) {
-  return bbox(geojson)
-}
-
-/**
- * Processes a geospatial field to add map capability
- * @param {MapsEnvironmentConfig} config - the geospatial field element
- * @param {Element} geospatial - the geospatial field element
- * @param {number} index - the 0-based index
- */
-export function processGeospatial(config, geospatial, index) {
-  // @ts-expect-error - Defra namespace currently comes from UMD support files
-  const defra = window.defra
-
-  if (!(geospatial instanceof HTMLDivElement)) {
-    return
-  }
-
-  const geospatialInput = geospatial.querySelector('.govuk-textarea')
-  if (!(geospatialInput instanceof HTMLTextAreaElement)) {
-    return
-  }
-
-  const { listEl, mapId } = createContainers(geospatialInput, index)
-  const geojson = getGeoJSON(geospatialInput)
-  const bounds = geojson.features.length ? getBoundingBox(geojson) : undefined
-  const drawPlugin = defra.drawMLPlugin()
-
-  const initConfig = {
-    ...defaultConfig,
-    bounds,
-    plugins: [drawPlugin]
-  }
-
-  const { map, interactPlugin } = createMap(mapId, initConfig, config)
-  const featuresManager = getFeaturesManager(geojson)
-  const activeFeatureManager = getActiveFeatureManager()
-  const uiManager = getUIManager(geojson, map, mapId, listEl, geospatialInput)
-
-  /**
-   * @type {Context}
-   */
-  const context = {
-    map,
-    featuresManager,
-    activeFeatureManager,
-    uiManager,
-    interactPlugin,
-    drawPlugin
-  }
-
-  addEventListeners(context)
-}
-
-/**
  * Setup the UI event listeners
  * @param {Context} context - the context
  */
@@ -438,26 +458,6 @@ function addEventListeners(context) {
 
   listEl.addEventListener('click', onListElClickFactory(context), false)
   listEl.addEventListener('change', onListElChangeFactory(context), false)
-}
-
-/**
- * Extract and parses the GeoJSON from the textarea
- * @param {HTMLTextAreaElement} geospatialInput - the textarea containing the geojson
- */
-export function getGeoJSON(geospatialInput) {
-  const value = geospatialInput.value.trim()
-  const hasValue = !!value
-
-  /** @type {FeatureCollection} */
-  const features = hasValue ? JSON.parse(value) : []
-
-  /** @type {GeoJSON} */
-  const geojson = {
-    type: 'FeatureCollection',
-    features
-  }
-
-  return geojson
 }
 
 /**
