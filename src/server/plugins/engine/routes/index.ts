@@ -23,7 +23,10 @@ import {
   proceed
 } from '~/src/server/plugins/engine/helpers.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
-import { checkSaveAndExitRepeater, copyNotYetValidatedState } from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
+import {
+  checkSaveAndExitRepeater,
+  copyNotYetValidatedState
+} from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
 import { generateUniqueReference } from '~/src/server/plugins/engine/referenceNumbers.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import {
@@ -80,9 +83,7 @@ export async function redirectOrMakeHandler(
   const flash = cacheService.getFlash(request)
   const context = model.getFormContext(request, state, flash?.errors)
 
-  console.log('pre state', state)
   await copyNotYetValidatedState(request, context)
-  console.log('post state', state)
 
   const relevantPath = page.getRelevantPath(request, context)
   const summaryPath = page.getSummaryPath()

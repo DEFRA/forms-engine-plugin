@@ -134,7 +134,7 @@ export function checkSaveAndExitRepeater(
   if (!isValidUUID(lastSegment)) {
     return undefined
   }
-  
+
   const guidStartIndex = originalPath.length - GUID_LENGTH
   const originalPathWithoutGuid = originalPath.substring(0, guidStartIndex)
 
