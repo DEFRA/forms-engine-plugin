@@ -73,9 +73,12 @@ export const tempStatusSchema = joi
       .valid(UploadStatus.ready, UploadStatus.pending)
       .required(),
     metadata: metadataSchema,
-    form: joi.object().required().keys({
-      file: tempFileSchema
-    }),
+    form: joi
+      .object()
+      .required()
+      .keys({
+        file: joi.array().items(tempFileSchema).single().required()
+      }),
     numberOfRejectedFiles: joi.number().optional()
   })
   .required()
@@ -191,7 +194,7 @@ export class FileUploadField extends FormComponent {
     errors?: FormSubmissionError[],
     query: FormQuery = {}
   ) {
-    const { options, page } = this
+    const { options, page, schema } = this
 
     // Allow preview URL direct access
     const isForceAccess = 'force' in query
@@ -233,7 +236,7 @@ export class FileUploadField extends FormComponent {
 
       // Remove summary list actions from previews
       if (!isForceAccess) {
-        const path = `/${item.uploadId}/confirm-delete`
+        const path = `/${file.fileId}/confirm-delete`
         const href = page?.getHref(`${page.path}${path}`) ?? '#'
 
         items.push({
@@ -263,6 +266,9 @@ export class FileUploadField extends FormComponent {
       attributes.accept = options.accept
     }
 
+    // Allow multiple file selection when schema permits more than 1 file
+    const allowsMultiple = schema.max !== 1 && schema.length !== 1
+
     const summaryList: SummaryList = {
       classes: 'govuk-summary-list--long-key',
       rows
@@ -276,6 +282,9 @@ export class FileUploadField extends FormComponent {
 
       // Override the component name we send to CDP
       name: 'file',
+
+      // Enable multi-file selection in the file picker
+      ...(allowsMultiple && { multiple: true }),
 
       upload: {
         count,

@@ -859,7 +859,16 @@ describe('FileUploadPageController', () => {
 
     describe('file removal', () => {
       it('returns early when no file is removed', async () => {
-        const files = [{ uploadId: 'file1' }, { uploadId: 'file2' }]
+        const files = [
+          {
+            uploadId: 'upload1',
+            status: { form: { file: { fileId: 'file1' } } }
+          },
+          {
+            uploadId: 'upload2',
+            status: { form: { file: { fileId: 'file2' } } }
+          }
+        ]
 
         Object.defineProperty(request, 'params', {
           value: { itemId: 'nonexistent-file' },
@@ -892,7 +901,16 @@ describe('FileUploadPageController', () => {
       })
 
       it('merges state when file is removed', async () => {
-        const files = [{ uploadId: 'file1' }, { uploadId: 'file2' }]
+        const files = [
+          {
+            uploadId: 'upload1',
+            status: { form: { file: { fileId: 'file1' } } }
+          },
+          {
+            uploadId: 'upload2',
+            status: { form: { file: { fileId: 'file2' } } }
+          }
+        ]
 
         Object.defineProperty(request, 'params', {
           value: { itemId: 'file1' },
@@ -924,7 +942,12 @@ describe('FileUploadPageController', () => {
         expect(mergeStateSpy).toHaveBeenCalledWith(request, state, {
           upload: {
             [controller.path]: {
-              files: [{ uploadId: 'file2' }],
+              files: [
+                {
+                  uploadId: 'upload2',
+                  status: { form: { file: { fileId: 'file2' } } }
+                }
+              ],
               upload: {
                 uploadId: 'upload-123',
                 uploadUrl: 'some-url',
@@ -1121,11 +1144,15 @@ describe('FileUploadPageController', () => {
             files: [
               {
                 uploadId: 'file-1',
-                status: { form: { file: { filename: 'file-1.pdf' } } }
+                status: {
+                  form: { file: { fileId: 'file-1', filename: 'file-1.pdf' } }
+                }
               },
               {
                 uploadId: 'file-2',
-                status: { form: { file: { filename: 'file-2.pdf' } } }
+                status: {
+                  form: { file: { fileId: 'file-2', filename: 'file-2.pdf' } }
+                }
               }
             ]
           }
