@@ -20,8 +20,10 @@ updates:
           - 'cssnano-*'
           - 'postcss'
           - 'postcss-*'
+          - 'react'
+          - 'react-*'
+          - '*-react'
           - 'sass-embedded'
-          - 'tsc-alias'
           - 'typescript'
           - 'webpack'
           - 'webpack-*'
@@ -52,15 +54,54 @@ updates:
 
       tools:
         patterns:
+          - '@testing-library/*'
           - 'concurrently'
           - 'global-jsdom'
           - 'jest'
+          - 'jest-*'
           - 'jsdom'
+          - 'nock'
           - 'tsx'
 
       types:
         patterns:
           - '@types/*'
+
+      forms:
+        patterns:
+          - '@defra/forms-model'
+
+      hapi:
+        patterns:
+          - '@hapi/*'
+          - 'blankie'
+          - 'blipp'
+          - 'hapi-*'
+          - 'joi'
+
+      frontend:
+        patterns:
+          - '@defra/interactive-map'
+          - 'accessible-autocomplete'
+          - 'govuk-frontend'
+          - 'highlight.js'
+          - 'humanize-duration'
+          - 'liquidjs'
+          - 'nunjucks'
+
+      runtime:
+        patterns:
+          - '@defra/hapi-tracing'
+          - 'dotenv'
+          - 'ioredis'
+          - 'marked'
+          - 'yaml'
+
+      dependencies:
+        patterns:
+          - '*'
+        update-types:
+          - patch
 
     # Schedule run every Monday, local time
     schedule:
@@ -77,6 +118,11 @@ updates:
   # Update GitHub Actions
   - package-ecosystem: github-actions
     directory: /
+
+    groups:
+      actions:
+        patterns:
+          - '*'
 
     # Schedule run every Monday, local time
     schedule:
