@@ -1,20 +1,23 @@
-import { getHiddenFields } from '@defra/forms-model'
+import { ControllerType, getHiddenFields } from '@defra/forms-model'
+import { validate as isValidUUID } from 'uuid'
 
+import { getCacheService } from '~/src/server/plugins/engine/helpers.js'
 import {
   CURRENT_PAGE_PATH_KEY,
   STATE_NOT_YET_VALIDATED
 } from '~/src/server/plugins/engine/index.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import {
   type AnyFormRequest,
   type FormContext,
-  type FormContextRequest,
   type FormStateValue,
-  type FormSubmissionState,
   type FormValue
 } from '~/src/server/plugins/engine/types.js'
 import { type FormQuery } from '~/src/server/routes/types.js'
 import { type Services } from '~/src/server/types.js'
+
+const GUID_LENGTH = 36
 
 /**
  * A series of functions that can transform a pre-fill input parameter e.g lookup a form title based on form id
@@ -101,13 +104,55 @@ export async function prefillStateFromQueryParameters(
 }
 
 /**
+ * Checks whether the save-and-exit finished on a repeater with partial state
+ * @param context - the form context
+ */
+export function checkSaveAndExitRepeater(
+  context: FormContext,
+  model: FormModel
+) {
+  const potentiallyInvalidState = context.state[STATE_NOT_YET_VALIDATED] as
+    | Record<string, FormValue>
+    | undefined
+  if (!potentiallyInvalidState) {
+    return
+  }
+
+  const originalPath = potentiallyInvalidState[CURRENT_PAGE_PATH_KEY]
+
+  const repeaterPaths = model.def.pages
+    .filter((page) => page.controller === ControllerType.Repeat)
+    .map((p) => `/${model.basePath}${p.path}/`)
+
+  if (typeof originalPath !== 'string') {
+    return undefined
+  }
+
+  const segments = originalPath.split('/')
+  const lastSegment = segments.at(-1) ?? ''
+
+  if (!isValidUUID(lastSegment)) {
+    return undefined
+  }
+
+  const guidStartIndex = originalPath.length - GUID_LENGTH
+  const originalPathWithoutGuid = originalPath.substring(0, guidStartIndex)
+
+  if (!repeaterPaths.includes(originalPathWithoutGuid)) {
+    return undefined
+  }
+
+  return originalPath
+}
+
+/**
  * Copies any potentially invalid state into the payload, and removes those values from state
  * NOTE - this method has a side-effect on 'context.state' and 'context.payload'
  * @param request - the form request
  * @param context - the form context
  */
-export function copyNotYetValidatedState(
-  request: FormContextRequest,
+export async function copyNotYetValidatedState(
+  request: AnyFormRequest,
   context: FormContext
 ) {
   const potentiallyInvalidState = context.state[STATE_NOT_YET_VALIDATED] as
@@ -125,18 +170,13 @@ export function copyNotYetValidatedState(
       ...potentiallyInvalidState,
       [CURRENT_PAGE_PATH_KEY]: undefined
     }
-  }
-}
 
-/**
- * Remove any temporary 'not yet validated' state now that it's been validated
- * @param state - the form state
- */
-export function clearNotYetValidatedState(
-  state: FormSubmissionState
-): FormSubmissionState {
-  if (state[STATE_NOT_YET_VALIDATED]) {
-    state[STATE_NOT_YET_VALIDATED] = undefined
+    // Remove any temporary 'not yet validated' state now it's been copied to the payload
+    if (context.state[STATE_NOT_YET_VALIDATED]) {
+      context.state[STATE_NOT_YET_VALIDATED] = undefined
+    }
+
+    const cacheService = getCacheService(request.server)
+    await cacheService.setState(request, context.state)
   }
-  return state
 }
