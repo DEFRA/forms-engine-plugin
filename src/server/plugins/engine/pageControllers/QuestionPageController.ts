@@ -31,10 +31,7 @@ import {
 } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
-import {
-  clearNotYetValidatedState,
-  prefillStateFromQueryParameters
-} from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
+import { prefillStateFromQueryParameters } from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
 import {
   type AnyFormRequest,
   type FormContext,
@@ -342,8 +339,7 @@ export class QuestionPageController extends PageController {
 
     const cacheService = getCacheService(request.server)
 
-    // Clear any 'not yet validated' state before saving to cache
-    return cacheService.setState(request, clearNotYetValidatedState(state))
+    return cacheService.setState(request, state)
   }
 
   async mergeState(
