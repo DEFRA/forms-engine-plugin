@@ -1,5 +1,7 @@
+import { GeospatialField } from '~/src/server/plugins/engine/components/GeospatialField.js'
 import { PaymentField } from '~/src/server/plugins/engine/components/PaymentField.js'
 import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
+import { validSingleState } from '~/src/server/plugins/engine/components/helpers/__stubs__/geospatial.js'
 import { type DetailItemField } from '~/src/server/plugins/engine/models/types.js'
 import {
   buildMainRecords,
@@ -242,6 +244,34 @@ describe('Submission helpers', () => {
 
       expect(result).toEqual([])
     })
+
+    it('should JSON stringify GeospatialField', () => {
+      const mockGeospatialField = Object.create(GeospatialField.prototype)
+      mockGeospatialField.name = 'geospatial'
+
+      const items = [
+        {
+          name: 'geospatial',
+          label: 'Site features',
+          field: mockGeospatialField,
+          state: {
+            geospatial: validSingleState
+          } as FormSubmissionState
+        }
+      ] as unknown as DetailItemField[]
+
+      const result = buildMainRecords(items)
+
+      expect(result).toHaveLength(1)
+      expect(result).toEqual([
+        {
+          name: 'geospatial',
+          title: 'Site features',
+          value:
+            '[{"type":"Feature","properties":{"description":"My farm house","coordinateGridReference":"ST 00001","centroidGridReference":"ST 00001"},"geometry":{"coordinates":[-2.5723699109417737,53.2380485215034],"type":"Point"},"id":"a"}]'
+        }
+      ])
+    })
   })
 
   describe('buildRepeaterRecords', () => {
@@ -294,6 +324,50 @@ describe('Submission helpers', () => {
       expect(result[0].name).toBe('addresses')
       expect(result[0].title).toBe('Addresses')
       expect(result[0].value).toHaveLength(1)
+    })
+
+    it('should JSON stringify GeospatialField', () => {
+      const mockGeospatialField = Object.create(GeospatialField.prototype)
+      mockGeospatialField.name = 'geospatial'
+
+      const items = [
+        {
+          name: 'features',
+          label: 'Site features repeater',
+          subItems: [
+            [
+              {
+                name: 'geospatial',
+                label: 'Site features',
+                field: mockGeospatialField,
+                state: {
+                  geospatial: validSingleState
+                } as FormSubmissionState
+              } as unknown as DetailItemField[]
+            ]
+          ]
+        }
+      ] as unknown as DetailItemField[]
+
+      const result = buildRepeaterRecords(items)
+
+      expect(result).toHaveLength(1)
+      expect(result).toEqual([
+        {
+          name: 'features',
+          title: 'Site features repeater',
+          value: [
+            [
+              {
+                name: 'geospatial',
+                title: 'Site features',
+                value:
+                  '[{"type":"Feature","properties":{"description":"My farm house","coordinateGridReference":"ST 00001","centroidGridReference":"ST 00001"},"geometry":{"coordinates":[-2.5723699109417737,53.2380485215034],"type":"Point"},"id":"a"}]'
+              }
+            ]
+          ]
+        }
+      ])
     })
   })
 })

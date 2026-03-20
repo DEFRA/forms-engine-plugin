@@ -15,6 +15,7 @@ import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 
 export class ComponentBase {
+  id?: string
   page?: PageControllerClass
   parent: Component | undefined
   collection: ComponentCollection | undefined
@@ -40,6 +41,7 @@ export class ComponentBase {
       model: FormModel
     }
   ) {
+    this.id = def.id
     this.type = def.type
     this.name = def.name
     this.title = def.title
