@@ -96,6 +96,12 @@ export async function redirectOrMakeHandler(
     }
   }
 
+  // Check whether save-and-exit should resume from within a repeater
+  const resumeInRepeaterUrl = checkSaveAndExitRepeater(context, model)
+  if (resumeInRepeaterUrl) {
+    return proceed(request, h, resumeInRepeaterUrl)
+  }
+
   // Return handler for relevant pages or preview URL direct access
   if (relevantPath.startsWith(page.path) || context.isForceAccess) {
     return makeHandler(page, context)
@@ -106,12 +112,6 @@ export async function redirectOrMakeHandler(
   // Set the return URL unless an exit page
   if (redirectTo?.next.length) {
     request.query.returnUrl = page.getHref(summaryPath)
-  }
-
-  // Handle save-and-exit resume from within a repeater
-  const resumeInRepeaterUrl = checkSaveAndExitRepeater(context, model)
-  if (resumeInRepeaterUrl) {
-    return proceed(request, h, resumeInRepeaterUrl)
   }
 
   return proceed(request, h, page.getHref(relevantPath))
