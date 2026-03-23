@@ -204,7 +204,7 @@ function createFeatureHTML(feature, index, mapId, readonly) {
   return `<div class="govuk-summary-list__row govuk-summary-list__row--no-border">
   <dt class="govuk-summary-list__key">
     <div class="govuk-form-group">
-      <label class="govuk-label govuk-label--s" for="description_${index}">Description for location ${index + 1}</label>
+      <label class="govuk-label govuk-label--s" for="description_${index}">=Location ${index + 1} description</label>
       <input class="govuk-input govuk-!-width-two-thirds" type="text" id="description_${index}" ${readonly ? 'readonly' : ''}
         value="${feature.properties.description}" data-id="${feature.id}">
     </div>
