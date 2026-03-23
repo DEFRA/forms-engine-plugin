@@ -689,12 +689,20 @@ describe('Maps Client JS', () => {
         : ''
 
       expect(() => initMaps()).not.toThrow()
-      expect(onMock).toHaveBeenCalledTimes(6)
+      expect(onMock).toHaveBeenCalledTimes(1)
       expect(onMock).toHaveBeenNthCalledWith(
         1,
         'map:ready',
         expect.any(Function)
       )
+
+      const onMapReady = onMock.mock.calls[0][1]
+      expect(typeof onMapReady).toBe('function')
+
+      // Manually invoke onMapReady callback
+      onMapReady({})
+
+      expect(onMock).toHaveBeenCalledTimes(6)
       expect(onMock).toHaveBeenNthCalledWith(
         2,
         'draw:ready',
@@ -720,12 +728,6 @@ describe('Maps Client JS', () => {
         'interact:markerchange',
         expect.any(Function)
       )
-
-      const onMapReady = onMock.mock.calls[0][1]
-      expect(typeof onMapReady).toBe('function')
-
-      // Manually invoke onMapReady callback
-      onMapReady()
 
       const onDrawReady = onMock.mock.calls[1][1]
       expect(typeof onDrawReady).toBe('function')

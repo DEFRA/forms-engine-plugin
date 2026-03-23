@@ -355,6 +355,7 @@ export function centerMap(map, mapProvider, center) {
 /**
  * @typedef {object} MapLibreMap
  * @property {Function} flyTo - pans/zooms to a new location
+ * @property {Function} fitBounds - fits the my to the new bounds
  */
 
 /**

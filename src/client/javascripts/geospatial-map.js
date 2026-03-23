@@ -162,7 +162,16 @@ export function addFeatureToMap(feature, drawPlugin, map) {
 export function createFeaturesHTML(features, mapId, readonly = false) {
   return `<dl class="govuk-summary-list">
     ${features.map((feature, index) => createFeatureHTML(feature, index, mapId, readonly)).join('\n')}
-  </div>`
+  </dl>`
+}
+
+/**
+ * Focus feature
+ * @param {Feature} feature - the feature
+ * @param {MapLibreMap} mapProvider - the feature id
+ */
+export function focusFeature(feature, mapProvider) {
+  mapProvider.fitBounds(bbox(feature))
 }
 
 /**
@@ -181,6 +190,10 @@ function createFeatureHTML(feature, index, mapId, readonly) {
   }
   const coordinates = points.map((p) => `<li>${p}</li>`).join('')
 
+  const description = readonly
+    ? `<p class="govuk-body govuk-!-margin-bottom-0">${feature.properties.description}</p>`
+    : `<input class="govuk-input govuk-!-width-two-thirds" type="text" id="description_${index}" value="${feature.properties.description}" data-id="${feature.id}">`
+
   // Change action link
   const changeAction = () => `<li class="govuk-summary-list__actions-list-item">
   <a class="govuk-link govuk-link--no-visited-state" href="#${mapId}" data-action="edit" data-id="${feature.id}"
@@ -193,24 +206,24 @@ function createFeatureHTML(feature, index, mapId, readonly) {
     data-type="${feature.geometry.type}">Delete<span class="govuk-visually-hidden"> location</span></a>
 </li>`
 
-  const actions = () =>
-    readonly
-      ? ''
-      : `<ul class="govuk-summary-list__actions-list">
-  ${changeAction()}
-  ${deleteAction()}
-</ul>`
+  // Focus action link
+  const focusAction = () => `<li class="govuk-summary-list__actions-list-item">
+  <a class="govuk-link govuk-link--no-visited-state" href="#${mapId}" data-action="focus" data-id="${feature.id}">Show<span class="govuk-visually-hidden"> location</span></a>
+</li>`
+
+  const links = readonly ? focusAction() : `${changeAction()}${deleteAction()}`
+
+  const actions = `<ul class="govuk-summary-list__actions-list">${links}</ul>`
 
   return `<div class="govuk-summary-list__row govuk-summary-list__row--no-border">
   <dt class="govuk-summary-list__key">
     <div class="govuk-form-group">
-      <label class="govuk-label govuk-label--s" for="description_${index}">=Location ${index + 1} description</label>
-      <input class="govuk-input govuk-!-width-two-thirds" type="text" id="description_${index}" ${readonly ? 'readonly' : ''}
-        value="${feature.properties.description}" data-id="${feature.id}">
+      <label class="govuk-label govuk-label--s" ${readonly ? '' : `for="description_${index}"`}>Location ${index + 1} description</label>
+      ${description}
     </div>
   </dt>
   <dd class="govuk-summary-list__actions">
-    ${actions()}
+    ${actions}
   </dd>
 </div>
 <div class="govuk-summary-list__row">
@@ -468,18 +481,9 @@ function getUIManager(geojson, map, mapId, listEl, geospatialInput) {
  * @param {Context} context - the context
  */
 function addEventListeners(context) {
-  const { map, uiManager } = context
-  const { listEl } = uiManager
+  const { map } = context
 
   map.on(EVENTS.mapReady, onMapReadyFactory(context))
-  map.on(EVENTS.drawReady, onDrawReadyFactory(context))
-  map.on(EVENTS.drawCreated, onDrawCreatedFactory(context))
-  map.on(EVENTS.drawEdited, onDrawEditedFactory(context))
-  map.on(EVENTS.drawCancelled, onDrawCancelledFactory(context))
-  map.on(EVENTS.interactMarkerChange, onInteractMarkerChangedFactory(context))
-
-  listEl.addEventListener('click', onListElClickFactory(context), false)
-  listEl.addEventListener('change', onListElChangeFactory(context), false)
 }
 
 /**
@@ -517,8 +521,10 @@ function onMapReadyFactory(context) {
 
   /**
    * Callback function which fires when the map is ready
+   * @param {object} e - the event
+   * @param {MapLibreMap} e.map - the map provider instance
    */
-  return function onMapReady() {
+  return function onMapReady(e) {
     // Add info panel
     map.addPanel('info', helpPanelConfig)
 
@@ -566,6 +572,19 @@ function onMapReadyFactory(context) {
       tablet: { slot: 'actions' },
       desktop: { slot: 'actions' }
     })
+
+    // Set the map provider on the context
+    context.mapProvider = e.map
+
+    map.on(EVENTS.drawReady, onDrawReadyFactory(context))
+    map.on(EVENTS.drawCreated, onDrawCreatedFactory(context))
+    map.on(EVENTS.drawEdited, onDrawEditedFactory(context))
+    map.on(EVENTS.drawCancelled, onDrawCancelledFactory(context))
+    map.on(EVENTS.interactMarkerChange, onInteractMarkerChangedFactory(context))
+
+    const { listEl } = uiManager
+    listEl.addEventListener('click', onListElClickFactory(context), false)
+    listEl.addEventListener('change', onListElChangeFactory(context), false)
   }
 }
 
@@ -742,13 +761,14 @@ function onInteractMarkerChangedFactory(context) {
 function onListElClickFactory(context) {
   const {
     map,
+    mapProvider,
     featuresManager,
     activeFeatureManager,
     interactPlugin,
     uiManager,
     drawPlugin
   } = context
-  const { removeFeature } = featuresManager
+  const { getFeature, removeFeature } = featuresManager
   const { getActiveFeature, setActiveFeature } = activeFeatureManager
   const { renderList, toggleActionButtons } = uiManager
 
@@ -784,6 +804,12 @@ function onListElClickFactory(context) {
     } else {
       drawPlugin.editFeature(id)
     }
+
+    const feature = getFeature(id)
+    if (feature && mapProvider) {
+      focusFeature(feature, mapProvider)
+    }
+
     toggleActionButtons(true)
   }
 
@@ -806,15 +832,21 @@ function onListElClickFactory(context) {
     ) {
       const { action, id, type } = target.dataset
 
-      if (!getActiveFeature() && action === 'edit') {
-        editFeature(id, type)
-      } else {
+      if (getActiveFeature()) {
         e.preventDefault()
         e.stopPropagation()
+      } else {
+        if (action === 'edit') {
+          // "Update" feature link was clicked
+          editFeature(id, type)
+        } else {
+          e.preventDefault()
+          e.stopPropagation()
 
-        if (action === 'delete') {
-          // "Remove" feature link was clicked
-          deleteFeature(id, type)
+          if (action === 'delete') {
+            // "Remove" feature link was clicked
+            deleteFeature(id, type)
+          }
         }
       }
     }
@@ -973,9 +1005,14 @@ function onListElChangeFactory(context) {
 /**
  * @typedef {object} Context
  * @property {InteractiveMap} map - the interactive map
+ * @property {MapLibreMap} [mapProvider] - the interactive map provider
  * @property {FeaturesManager} featuresManager - the features manager
  * @property {ActiveFeatureManager} activeFeatureManager - the active feature manager
  * @property {UIManager} uiManager - the UI manager
  * @property {any} interactPlugin - the map interact plugin
  * @property {any} drawPlugin - the map draw plugin
+ */
+
+/**
+ * @import { MapLibreMap } from '~/src/client/javascripts/map.js'
  */
