@@ -44,7 +44,7 @@ jest.mock('../pageControllers/index.ts', () => {
 })
 
 jest.mock('../helpers.ts', () => ({
-  __esModule: true,
+  ...jest.requireActual('../helpers.ts'),
   getCacheService: (...args: unknown[]) => mockGetCacheService(...args),
   checkEmailAddressForLiveFormSubmission: (...args: unknown[]) =>
     mockCheckEmailAddressForLiveFormSubmission(...args)
@@ -134,10 +134,17 @@ describe('getFormModel helper', () => {
   class CustomController extends PageController {}
   const controllers = { CustomController }
   const metadata = {
-    id: 'form-meta-123',
-    versions: [{ versionNumber: 17 }]
+    id: 'form-meta-123'
   }
-  const definition = { pages: [{ path: '/start' }] }
+  const definition = {
+    pages: [{ path: '/start' }],
+    metadata: {
+      $$__formVersion: {
+        versionNumber: 17,
+        createdAt: new Date('2024-10-15T10:00:00Z')
+      }
+    }
+  }
   let formsService: FormsService
   let services: Services
   let formModelInstance: { id: string }
@@ -176,7 +183,7 @@ describe('getFormModel helper', () => {
       definition,
       {
         basePath: slug,
-        versionNumber: metadata.versions[0].versionNumber,
+        versionNumber: 17,
         ordnanceSurveyApiKey: undefined,
         formId: metadata.id
       },
@@ -195,6 +202,29 @@ describe('getFormModel helper', () => {
     )
   })
 
+  test('prefers $$__formVersion from definition metadata over metadata.versions', async () => {
+    const definitionWithFormVersion = {
+      ...definition,
+      metadata: {
+        $$__formVersion: { versionNumber: 42 }
+      }
+    }
+    formsService.getFormDefinition = jest
+      .fn()
+      .mockResolvedValue(definitionWithFormVersion)
+
+    await getFormModel(slug, state, { services, controllers })
+
+    expect(FormModel).toHaveBeenCalledWith(
+      definitionWithFormVersion,
+      expect.objectContaining({
+        versionNumber: 42
+      }),
+      services,
+      controllers
+    )
+  })
+
   test('throws when no form definition is available', async () => {
     jest.mocked(formsService.getFormDefinition).mockResolvedValue(undefined)
 
@@ -210,11 +240,18 @@ describe('getFormModel helper', () => {
 
 describe('resolveFormModel helper', () => {
   const slug = 'tb-origin'
-  const definition = { pages: [] }
+  const definition = {
+    pages: [],
+    metadata: {
+      $$__formVersion: {
+        versionNumber: 9,
+        createdAt: new Date('2024-10-15T10:00:00Z')
+      }
+    }
+  }
   const metadata = {
     id: 'metadata-123',
     live: { updatedAt: new Date('2024-10-15T10:00:00Z') },
-    versions: [{ versionNumber: 9 }],
     notificationEmail: 'enrique.chase@defra.gov.uk'
   }
   let server: Request['server']
@@ -274,9 +311,32 @@ describe('resolveFormModel helper', () => {
       definition,
       expect.objectContaining({
         basePath: 'forms/preview/live/tb-origin',
-        versionNumber: metadata.versions[0].versionNumber,
+        versionNumber: 9,
         ordnanceSurveyApiKey: 'os-api-key',
         formId: metadata.id
+      }),
+      mockServices,
+      undefined
+    )
+  })
+
+  test('prefers $$__formVersion from definition metadata over metadata.versions', async () => {
+    const definitionWithFormVersion = {
+      ...definition,
+      metadata: {
+        $$__formVersion: { versionNumber: 55 }
+      }
+    }
+    mockFormsService.getFormDefinition = jest
+      .fn()
+      .mockResolvedValue(definitionWithFormVersion)
+
+    await resolveFormModel(server, slug, FormStatus.Live)
+
+    expect(FormModel).toHaveBeenCalledWith(
+      definitionWithFormVersion,
+      expect.objectContaining({
+        versionNumber: 55
       }),
       mockServices,
       undefined

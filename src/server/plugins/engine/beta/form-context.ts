@@ -5,7 +5,8 @@ import { isEqual } from 'date-fns'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
   checkEmailAddressForLiveFormSubmission,
-  getCacheService
+  getCacheService,
+  getFormVersion
 } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
@@ -27,7 +28,6 @@ export interface FormModelOptions {
   services?: Services
   controllers?: Record<string, typeof PageController>
   basePath?: string
-  versionNumber?: number
   ordnanceSurveyApiKey?: string
   formId?: string
   routePrefix?: string
@@ -53,8 +53,6 @@ export async function getFormModel(
   const formState = resolveState(state)
 
   const metadata = await formsService.getFormMetadata(slug)
-  const versionNumber =
-    options.versionNumber ?? metadata.versions?.[0]?.versionNumber
 
   const definition = await formsService.getFormDefinition(
     metadata.id,
@@ -66,6 +64,8 @@ export async function getFormModel(
       `No definition found for form metadata ${metadata.id} (${slug}) ${state}`
     )
   }
+
+  const versionNumber = getFormVersion(definition)?.versionNumber
 
   return new FormModel(
     definition,
@@ -182,14 +182,15 @@ export async function resolveFormModel(
     const routePrefix =
       options.routePrefix ?? server.realm.modifiers.route.prefix
 
+    const versionNumber = getFormVersion(definition)?.versionNumber
+
     const model = new FormModel(
       definition,
       {
         basePath:
           options.basePath ??
           buildBasePath(routePrefix, slug, formState, isPreview),
-        versionNumber:
-          options.versionNumber ?? metadata.versions?.[0]?.versionNumber,
+        versionNumber,
         ordnanceSurveyApiKey: options.ordnanceSurveyApiKey,
         formId: options.formId ?? metadata.id
       },

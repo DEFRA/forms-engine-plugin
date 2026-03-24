@@ -3,7 +3,10 @@ import {
   type SubmitResponsePayload
 } from '@defra/forms-model'
 
-import { type checkFormStatus } from '~/src/server/plugins/engine/helpers.js'
+import {
+  getFormVersion,
+  type checkFormStatus
+} from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type DetailItem } from '~/src/server/plugins/engine/models/types.js'
 import { categoriseData } from '~/src/server/plugins/engine/outputFormatters/machine/v2.js'
@@ -28,10 +31,9 @@ export function format(
 
   const { main: v2Main, ...v2Data } = categoriseData(items)
 
-  const versionMetadata = getVersionMetadata(
-    context.submittedVersionNumber,
-    formMetadata
-  )
+  const versionMetadata =
+    getFormVersion(model.def) ??
+    getVersionMetadata(context.submittedVersionNumber, formMetadata)
 
   const meta: FormAdapterSubmissionMessageMeta = {
     schemaVersion: FormAdapterSubmissionSchemaVersion.V1,

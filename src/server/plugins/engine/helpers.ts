@@ -16,6 +16,7 @@ import { type Schema, type ValidationErrorItem } from 'joi'
 import { Liquid } from 'liquidjs'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+import { FORM_VERSION_METADATA_KEY } from '~/src/server/constants.js'
 import {
   getAnswer,
   type Field
@@ -416,6 +417,22 @@ export function handleLegacyRedirect(h: ResponseToolkit, targetUrl: string) {
  * If the page doesn't have a title, set it from the title of the first form component
  * @param def - the form definition
  */
+export interface FormVersionMetadata {
+  versionNumber: number
+  createdAt: Date
+}
+
+/**
+ * Extracts form version metadata from a form definition
+ */
+export function getFormVersion(
+  definition: Pick<FormDefinition, 'metadata'>
+): FormVersionMetadata | undefined {
+  return definition.metadata?.[FORM_VERSION_METADATA_KEY] as
+    | FormVersionMetadata
+    | undefined
+}
+
 export function setPageTitles(def: FormDefinition) {
   def.pages.forEach((page) => {
     if (!page.title) {
