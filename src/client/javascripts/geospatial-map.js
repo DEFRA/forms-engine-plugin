@@ -824,6 +824,12 @@ function onListElClickFactory(context) {
       return
     }
 
+    if (getActiveFeature()) {
+      e.preventDefault()
+      e.stopPropagation()
+      return
+    }
+
     if (
       target.tagName === 'A' &&
       target.dataset.action &&
@@ -832,21 +838,16 @@ function onListElClickFactory(context) {
     ) {
       const { action, id, type } = target.dataset
 
-      if (getActiveFeature()) {
+      if (action === 'edit') {
+        // "Update" feature link was clicked
+        editFeature(id, type)
+      } else {
         e.preventDefault()
         e.stopPropagation()
-      } else {
-        if (action === 'edit') {
-          // "Update" feature link was clicked
-          editFeature(id, type)
-        } else {
-          e.preventDefault()
-          e.stopPropagation()
 
-          if (action === 'delete') {
-            // "Remove" feature link was clicked
-            deleteFeature(id, type)
-          }
+        if (action === 'delete') {
+          // "Remove" feature link was clicked
+          deleteFeature(id, type)
         }
       }
     }
