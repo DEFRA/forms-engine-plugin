@@ -202,29 +202,6 @@ describe('getFormModel helper', () => {
     )
   })
 
-  test('prefers $$__formVersion from definition metadata over metadata.versions', async () => {
-    const definitionWithFormVersion = {
-      ...definition,
-      metadata: {
-        $$__formVersion: { versionNumber: 42 }
-      }
-    }
-    formsService.getFormDefinition = jest
-      .fn()
-      .mockResolvedValue(definitionWithFormVersion)
-
-    await getFormModel(slug, state, { services, controllers })
-
-    expect(FormModel).toHaveBeenCalledWith(
-      definitionWithFormVersion,
-      expect.objectContaining({
-        versionNumber: 42
-      }),
-      services,
-      controllers
-    )
-  })
-
   test('throws when no form definition is available', async () => {
     jest.mocked(formsService.getFormDefinition).mockResolvedValue(undefined)
 
@@ -314,29 +291,6 @@ describe('resolveFormModel helper', () => {
         versionNumber: 9,
         ordnanceSurveyApiKey: 'os-api-key',
         formId: metadata.id
-      }),
-      mockServices,
-      undefined
-    )
-  })
-
-  test('prefers $$__formVersion from definition metadata over metadata.versions', async () => {
-    const definitionWithFormVersion = {
-      ...definition,
-      metadata: {
-        $$__formVersion: { versionNumber: 55 }
-      }
-    }
-    mockFormsService.getFormDefinition = jest
-      .fn()
-      .mockResolvedValue(definitionWithFormVersion)
-
-    await resolveFormModel(server, slug, FormStatus.Live)
-
-    expect(FormModel).toHaveBeenCalledWith(
-      definitionWithFormVersion,
-      expect.objectContaining({
-        versionNumber: 55
       }),
       mockServices,
       undefined
