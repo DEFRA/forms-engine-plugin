@@ -91,6 +91,7 @@ export class GeospatialField extends FormComponent {
       value
     }
   }
+
   getErrors(errors?: FormSubmissionError[]): FormSubmissionError[] | undefined {
     const fieldErrors = super.getErrors(errors)
 
