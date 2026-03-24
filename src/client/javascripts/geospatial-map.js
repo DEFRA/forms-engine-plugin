@@ -7,6 +7,7 @@ import {
   getCentroidGridRef,
   getCoordinateGridRef
 } from '~/src/client/javascripts/map.js'
+import { GeometryType } from '~/src/server/plugins/engine/types.js'
 
 const helpPanelConfig = {
   showLabel: true,
@@ -45,7 +46,7 @@ const polygonFeatureProperties = {
 }
 
 /**
- * @type {Record<'Point' | 'LineString' | 'Polygon', string>}
+ * @type {Record<GeometryType.Point | GeometryType.LineString | GeometryType.Polygon, string>}
  */
 const typeDescriptions = {
   Point: 'Point',
@@ -139,13 +140,13 @@ export function processGeospatial(config, geospatial, index) {
  */
 export function addFeatureToMap(feature, drawPlugin, map) {
   switch (feature.geometry.type) {
-    case 'Polygon':
+    case GeometryType.Polygon:
       drawPlugin.addFeature({ ...feature, ...polygonFeatureProperties })
       break
-    case 'LineString':
+    case GeometryType.LineString:
       drawPlugin.addFeature({ ...feature, ...lineFeatureProperties })
       break
-    case 'Point':
+    case GeometryType.Point:
       map.addMarker(feature.id, feature.geometry.coordinates)
       break
     default:
@@ -319,9 +320,9 @@ function prepareGeometry(feature) {
     coordinates[1] = +coordinates[1].toFixed(maxPrecision)
   }
 
-  if (geometry.type === 'Point') {
+  if (geometry.type === GeometryType.Point) {
     formatPrecision(geometry.coordinates)
-  } else if (geometry.type === 'LineString') {
+  } else if (geometry.type === GeometryType.LineString) {
     geometry.coordinates.forEach(formatPrecision)
   } else {
     geometry.coordinates.flat().forEach(formatPrecision)
@@ -713,7 +714,7 @@ function onInteractMarkerChangedFactory(context) {
     if (activeFeatureId) {
       // Editing an existing point
       const feature = updateFeature(activeFeatureId, {
-        type: 'Point',
+        type: GeometryType.Point,
         coordinates: e.coords
       })
 
@@ -734,7 +735,7 @@ function onInteractMarkerChangedFactory(context) {
           description: ''
         },
         geometry: {
-          type: 'Point',
+          type: GeometryType.Point,
           coordinates: e.coords
         },
         id
@@ -775,10 +776,10 @@ function onListElClickFactory(context) {
   /**
    * Delete a feature
    * @param {string} id - the feature id
-   * @param {string} type - the feature type
+   * @param {GeometryType} type - the feature type
    */
   function deleteFeature(id, type) {
-    if (type === 'Point') {
+    if (type === GeometryType.Point) {
       map.removeMarker(id)
       removeFeature(id)
     } else {
@@ -792,13 +793,13 @@ function onListElClickFactory(context) {
   /**
    * Start editing feature
    * @param {string} id - the feature id
-   * @param {string} type - the feature type
+   * @param {GeometryType} type - the feature type
    */
   function editFeature(id, type) {
     setActiveFeature(id)
 
     // "Change" feature link was clicked
-    if (type === 'Point') {
+    if (type === GeometryType.Point) {
       interactPlugin.selectFeature({ featureId: id })
       interactPlugin.enable()
     } else {
@@ -840,14 +841,14 @@ function onListElClickFactory(context) {
 
       if (action === 'edit') {
         // "Update" feature link was clicked
-        editFeature(id, type)
+        editFeature(id, /** @type {GeometryType} */ (type))
       } else {
         e.preventDefault()
         e.stopPropagation()
 
         if (action === 'delete') {
           // "Remove" feature link was clicked
-          deleteFeature(id, type)
+          deleteFeature(id, /** @type {GeometryType} */ (type))
         }
       }
     }

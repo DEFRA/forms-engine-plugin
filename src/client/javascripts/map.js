@@ -4,6 +4,7 @@ import OsGridRef, { LatLon } from 'geodesy/osgridref.js'
 
 import { processGeospatial } from '~/src/client/javascripts/geospatial-map.js'
 import { processLocation } from '~/src/client/javascripts/location-map.js'
+import { GeometryType } from '~/src/server/plugins/engine/types.js'
 
 // Center of UK
 const DEFAULT_LAT = 53.825564
@@ -73,12 +74,12 @@ export function osGridRefToLatLong(osGridRef) {
  * @param {Feature} feature
  */
 export function getCoordinateGridRef(feature) {
-  if (feature.geometry.type === 'Point') {
+  if (feature.geometry.type === GeometryType.Point) {
     const [long, lat] = feature.geometry.coordinates
     const point = new LatLon(lat, long)
 
     return point.toOsGrid().toString()
-  } else if (feature.geometry.type === 'LineString') {
+  } else if (feature.geometry.type === GeometryType.LineString) {
     const [long, lat] = feature.geometry.coordinates[0]
     const point = new LatLon(lat, long)
 
@@ -96,7 +97,7 @@ export function getCoordinateGridRef(feature) {
  * @param {Feature} feature
  */
 export function getCentroidGridRef(feature) {
-  if (feature.geometry.type === 'Point') {
+  if (feature.geometry.type === GeometryType.Point) {
     const [long, lat] = feature.geometry.coordinates
     const point = new LatLon(lat, long)
 

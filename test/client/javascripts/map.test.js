@@ -5,6 +5,7 @@ import {
   initMaps,
   makeTileRequestTransformer
 } from '~/src/client/javascripts/map.js'
+import { GeometryType } from '~/src/server/plugins/engine/types.js'
 
 describe('Maps Client JS', () => {
   /** @type {jest.Mock} */
@@ -605,7 +606,7 @@ describe('Maps Client JS', () => {
             centroidGridReference: 'TQ 29031 79662'
           },
           geometry: {
-            type: 'Point',
+            type: GeometryType.Point,
             coordinates: [-0.14242385752663722, 51.50118200993498]
           },
           id: '6d67810c-7228-4f71-b6ec-0d16b132fcd7'
@@ -634,7 +635,7 @@ describe('Maps Client JS', () => {
                 [-0.13995851581486818, 51.50204381014825]
               ]
             ],
-            type: 'Polygon'
+            type: GeometryType.Polygon
           }
         },
         {
@@ -650,7 +651,7 @@ describe('Maps Client JS', () => {
               [-0.14969813781837615, 51.502534952613814],
               [-0.1404050934734471, 51.50217984872572]
             ],
-            type: 'LineString'
+            type: GeometryType.LineString
           }
         }
       ]
@@ -869,7 +870,7 @@ describe('Maps Client JS', () => {
           id: 'guid',
           type: 'Feature',
           geometry: {
-            type: 'Polygon',
+            type: GeometryType.Polygon,
             coordinates: [
               [
                 [-2.0868919921875886, 53.896834237148596],
@@ -907,7 +908,7 @@ describe('Maps Client JS', () => {
           id: 'guid1',
           type: 'Feature',
           geometry: {
-            type: 'LineString',
+            type: GeometryType.LineString,
             coordinates: [
               [-1.3068626953125317, 54.019651598965936],
               [-2.0868919921875886, 53.896834237148596]
@@ -968,7 +969,7 @@ describe('Maps Client JS', () => {
         const updatedPolygonFeature = {
           ...features[1],
           geometry: {
-            type: 'Polygon',
+            type: GeometryType.Polygon,
             coordinates: [
               [
                 [0, 0],
@@ -1054,7 +1055,7 @@ describe('Maps Client JS', () => {
           ...features,
           {
             geometry: {
-              type: 'Point',
+              type: GeometryType.Point,
               coordinates: [-2.086892, 53.8968342]
             },
             properties: {
@@ -1357,7 +1358,7 @@ describe('Maps Client JS', () => {
         id: 'id',
         type: 'Feature',
         geometry: {
-          type: 'Point',
+          type: GeometryType.Point,
           coordinates: [-0.1356213, 51.5121161]
         },
         properties: {
@@ -1373,7 +1374,7 @@ describe('Maps Client JS', () => {
         id: 'id',
         type: 'Feature',
         geometry: {
-          type: 'LineString',
+          type: GeometryType.LineString,
           coordinates: [
             [-0.1356213, 51.5121161],
             [-0.0578579, 51.5182996]
@@ -1392,7 +1393,7 @@ describe('Maps Client JS', () => {
         id: 'id',
         type: 'Feature',
         geometry: {
-          type: 'Polygon',
+          type: GeometryType.Polygon,
           coordinates: [
             [
               [-0.1356213, 51.5121161],
@@ -1415,7 +1416,7 @@ describe('Maps Client JS', () => {
         id: 'id',
         type: 'Feature',
         geometry: {
-          type: 'Point',
+          type: GeometryType.Point,
           coordinates: [-0.1356213, 51.5121161]
         },
         properties: {
@@ -1431,7 +1432,7 @@ describe('Maps Client JS', () => {
         id: 'id',
         type: 'Feature',
         geometry: {
-          type: 'LineString',
+          type: GeometryType.LineString,
           coordinates: [
             [-0.1356213, 51.5121161],
             [-0.0578579, 51.5182996]
@@ -1450,7 +1451,7 @@ describe('Maps Client JS', () => {
         id: 'id',
         type: 'Feature',
         geometry: {
-          type: 'Polygon',
+          type: GeometryType.Polygon,
           coordinates: [
             [
               [-0.1356213, 51.5121161],

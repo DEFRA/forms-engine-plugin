@@ -2,6 +2,7 @@ import Bourne from '@hapi/bourne'
 import JoiBase from 'joi'
 
 import {
+  GeometryType,
   type Coordinates,
   type Feature,
   type FeatureProperties,
@@ -58,17 +59,19 @@ const featurePropertiesSchema = Joi.object<FeatureProperties>()
   .required()
 
 const featureGeometrySchema = Joi.object<Geometry>().keys({
-  type: Joi.string().valid('Point', 'LineString', 'Polygon').required(),
+  type: Joi.string()
+    .valid(GeometryType.Point, GeometryType.LineString, GeometryType.Polygon)
+    .required(),
   coordinates: Joi.array()
     .when('type', {
       switch: [
-        { is: 'Point', then: coordinatesSchema },
+        { is: GeometryType.Point, then: coordinatesSchema },
         {
-          is: 'LineString',
+          is: GeometryType.LineString,
           then: Joi.array().items(coordinatesSchema).min(2)
         },
         {
-          is: 'Polygon',
+          is: GeometryType.Polygon,
           then: Joi.array().items(Joi.array().items(coordinatesSchema).min(3))
         }
       ]
