@@ -5,6 +5,7 @@ import {
   type Item,
   type List,
   type Page,
+  type PaymentFieldComponent,
   type UkAddressFieldComponent
 } from '@defra/forms-model'
 import {
@@ -402,7 +403,7 @@ export interface ExternalArgs {
   component: ComponentDef
   controller: QuestionPageController
   sourceUrl: string
-  actionArgs: Record<string, string>
+  actionArgs?: Record<string, string>
   isLive: boolean
   isPreview: boolean
 }
@@ -410,6 +411,10 @@ export interface ExternalArgs {
 export interface PostcodeLookupExternalArgs extends ExternalArgs {
   component: UkAddressFieldComponent
   actionArgs: { step: string }
+}
+
+export interface PaymentExternalArgs extends ExternalArgs {
+  component: PaymentFieldComponent
 }
 
 export interface ExternalStateAppendage {

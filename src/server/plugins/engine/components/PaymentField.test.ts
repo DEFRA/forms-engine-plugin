@@ -3,6 +3,7 @@ import {
   type FormMetadata,
   type PaymentFieldComponent
 } from '@defra/forms-model'
+import { StatusCodes } from 'http-status-codes'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { PaymentField } from '~/src/server/plugins/engine/components/PaymentField.js'
@@ -14,17 +15,25 @@ import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { PaymentPreAuthError } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import {
   type FormContext,
-  type FormValue
+  type FormValue,
+  type PaymentExternalArgs
 } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequestPayload,
   type FormResponseToolkit
 } from '~/src/server/routes/types.js'
 import { get, post, postJson } from '~/src/server/services/httpService.js'
+import { type Services } from '~/src/server/types.js'
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
 jest.mock('~/src/server/services/httpService.ts')
+
+const mockServices = {
+  formsService: {
+    getFormSecret: () => 'secret-value'
+  }
+} as unknown as Services
 
 describe('PaymentField', () => {
   let model: FormModel
@@ -250,6 +259,7 @@ describe('PaymentField', () => {
 
     const collection = new ComponentCollection([def], { model })
     const paymentField = collection.fields[0] as PaymentField
+    paymentField.model = { services: mockServices } as unknown as FormModel
 
     describe('dispatcher', () => {
       it('should create payment and redirect to gov pay', async () => {
@@ -277,7 +287,8 @@ describe('PaymentField', () => {
             model: {
               formId: 'formid',
               basePath: 'base-path',
-              name: 'PaymentModel'
+              name: 'PaymentModel',
+              services: mockServices
             },
             getState: jest
               .fn()
@@ -287,7 +298,7 @@ describe('PaymentField', () => {
           sourceUrl: 'http://localhost:3009/test-payment',
           isLive: false,
           isPreview: true
-        }
+        } as unknown as PaymentExternalArgs
         // @ts-expect-error - partial mock
         jest.mocked(postJson).mockResolvedValueOnce({
           payload: {
@@ -342,7 +353,8 @@ describe('PaymentField', () => {
             model: {
               formId: 'formid',
               basePath: 'base-path',
-              name: 'PaymentModel'
+              name: 'PaymentModel',
+              services: mockServices
             },
             getState: jest.fn().mockResolvedValueOnce({
               $$__referenceNumber: 'pay-ref-123',
@@ -361,7 +373,7 @@ describe('PaymentField', () => {
           sourceUrl: 'http://localhost:3009/test-payment',
           isLive: false,
           isPreview: true
-        }
+        } as unknown as PaymentExternalArgs
 
         const res = await PaymentField.dispatcher(mockRequest, mockH, args)
 
@@ -371,6 +383,128 @@ describe('PaymentField', () => {
         )
         expect(mockRedirectCode).toHaveBeenCalledWith(303)
         expect(postJson).not.toHaveBeenCalled()
+      })
+
+      it('should display error if create payment fails (e.g. network or bad api key) - test payment', async () => {
+        const mockYarSet = jest.fn()
+        const mockYarFlash = jest.fn()
+        const mockRequest = {
+          server: {
+            plugins: {
+              // eslint-disable-next-line no-useless-computed-key
+              ['forms-engine-plugin']: {
+                baseUrl: 'base-url'
+              }
+            }
+          },
+          yar: {
+            set: mockYarSet,
+            flash: mockYarFlash
+          },
+          url: {
+            href: '/here'
+          }
+        } as unknown as FormRequestPayload
+        const mockH = {
+          redirect: jest
+            .fn()
+            .mockReturnValueOnce({ code: jest.fn().mockReturnValueOnce('ok') })
+        } as unknown as FormResponseToolkit
+        const args = {
+          controller: {
+            model: {
+              formId: 'formid',
+              basePath: 'base-path',
+              name: 'PaymentModel',
+              services: mockServices
+            },
+            getState: jest
+              .fn()
+              .mockResolvedValueOnce({ $$__referenceNumber: 'pay-ref-123' })
+          },
+          component: paymentField,
+          sourceUrl: 'http://localhost:3009/test-payment',
+          isLive: false,
+          isPreview: true
+        } as unknown as PaymentExternalArgs
+        jest.mocked(postJson).mockImplementationOnce(() => {
+          // eslint-disable-next-line @typescript-eslint/only-throw-error
+          throw { output: { statusCode: StatusCodes.UNAUTHORIZED } }
+        })
+
+        const res = await PaymentField.dispatcher(mockRequest, mockH, args)
+        expect(res).toBe('ok')
+        expect(mockYarSet).not.toHaveBeenCalled()
+        expect(mockYarFlash).toHaveBeenCalledWith(
+          'COMPONENT_STATE_ERROR',
+          {
+            href: '#myComponent',
+            name: 'myComponent',
+            text: 'Add a valid test API key before you can preview the payment journey.'
+          },
+          true
+        )
+      })
+
+      it('should display error if create payment fails (e.g. network or bad api key) - live payment', async () => {
+        const mockYarSet = jest.fn()
+        const mockYarFlash = jest.fn()
+        const mockRequest = {
+          server: {
+            plugins: {
+              // eslint-disable-next-line no-useless-computed-key
+              ['forms-engine-plugin']: {
+                baseUrl: 'base-url'
+              }
+            }
+          },
+          yar: {
+            set: mockYarSet,
+            flash: mockYarFlash
+          },
+          url: {
+            href: '/here'
+          }
+        } as unknown as FormRequestPayload
+        const mockH = {
+          redirect: jest
+            .fn()
+            .mockReturnValueOnce({ code: jest.fn().mockReturnValueOnce('ok') })
+        } as unknown as FormResponseToolkit
+        const args = {
+          controller: {
+            model: {
+              formId: 'formid',
+              basePath: 'base-path',
+              name: 'PaymentModel',
+              services: mockServices
+            },
+            getState: jest
+              .fn()
+              .mockResolvedValueOnce({ $$__referenceNumber: 'pay-ref-123' })
+          },
+          component: paymentField,
+          sourceUrl: 'http://localhost:3009/test-payment',
+          isLive: true,
+          isPreview: false
+        } as unknown as PaymentExternalArgs
+        jest.mocked(postJson).mockImplementationOnce(() => {
+          // eslint-disable-next-line @typescript-eslint/only-throw-error
+          throw { output: { statusCode: StatusCodes.UNAUTHORIZED } }
+        })
+
+        const res = await PaymentField.dispatcher(mockRequest, mockH, args)
+        expect(res).toBe('ok')
+        expect(mockYarSet).not.toHaveBeenCalled()
+        expect(mockYarFlash).toHaveBeenCalledWith(
+          'COMPONENT_STATE_ERROR',
+          {
+            href: '#myComponent',
+            name: 'myComponent',
+            text: 'There is a problem and we cannot take a payment. Contact us (details in the footer of this form) or save your progress and return to the form later.'
+          },
+          true
+        )
       })
     })
 

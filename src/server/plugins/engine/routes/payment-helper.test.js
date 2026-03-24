@@ -64,8 +64,11 @@ describe('payment helper', () => {
       error: undefined
     })
 
+    const mockFormsService = {
+      getFormSecret: () => 'secret-value'
+    }
     // @ts-expect-error - partial request mock
-    const res = await getPaymentContext(mockRequest, uuid)
+    const res = await getPaymentContext(mockRequest, uuid, mockFormsService)
     expect(res).toEqual({
       paymentStatus: {
         paymentId: 'payment-id-12345',

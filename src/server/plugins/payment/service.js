@@ -40,7 +40,7 @@ export class PaymentService {
    * @param {string} returnUrl
    * @param {string} reference
    * @param {boolean} isLivePayment
-   * @param {{ formId: string, slug: string }} metadata
+   * @param {{ formId: string, slug: string } | undefined } metadata
    */
   async createPayment(
     amount,
@@ -50,30 +50,42 @@ export class PaymentService {
     isLivePayment,
     metadata
   ) {
-    const response = await this.postToPayProvider({
-      amount,
-      description,
-      reference,
-      metadata,
-      return_url: returnUrl,
-      delayed_capture: true
-    })
+    try {
+      const response = await this.postToPayProvider({
+        amount,
+        description,
+        reference,
+        metadata,
+        return_url: returnUrl,
+        delayed_capture: true
+      })
 
-    logger.info(
-      buildPaymentInfo(
-        'create-payment',
-        'success',
-        `amount=${convertPenceToPounds(amount)}`,
-        isLivePayment,
-        response.payment_id
-      ),
-      `[payment] Created payment and user taken to enter pre-auth details for paymentId=${response.payment_id}`
-    )
+      logger.info(
+        buildPaymentInfo(
+          'create-payment',
+          'success',
+          `amount=${convertPenceToPounds(amount)}`,
+          isLivePayment,
+          response.payment_id
+        ),
+        `[payment] Created payment and user taken to enter pre-auth details for paymentId=${response.payment_id}`
+      )
 
-    return {
-      paymentId: response.payment_id,
-      paymentUrl: response._links.next_url.href
+      return {
+        paymentId: response.payment_id,
+        paymentUrl: response._links.next_url.href
+      }
+    } catch (err) {
+      const error =
+        /** @type {{ output?: { payload?: any }, message?: any }} */ (err)
+      if (isLivePayment) {
+        logger.error(
+          error.output?.payload ?? error.message,
+          `[payment] Failed to create payment session for reference ${reference}`
+        )
+      }
     }
+    return undefined
   }
 
   /**
@@ -207,10 +219,12 @@ export class PaymentService {
       return response.payload
     } catch (err) {
       const error = /** @type {Error} */ (err)
-      logger.error(
-        error,
-        `[payment] Error creating payment for reference=${payload.reference}: ${error.message}`
-      )
+      if (!error.message.includes('401 Unauthorized')) {
+        logger.error(
+          error,
+          `[payment] Error creating payment for reference=${payload.reference}: ${error.message}`
+        )
+      }
       throw err
     }
   }

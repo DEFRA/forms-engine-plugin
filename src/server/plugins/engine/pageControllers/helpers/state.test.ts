@@ -1,18 +1,26 @@
-import { ComponentType, type Page } from '@defra/forms-model'
+import { ComponentType, ControllerType, type Page } from '@defra/forms-model'
 
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import {
+  checkSaveAndExitRepeater,
   copyNotYetValidatedState,
   prefillStateFromQueryParameters,
   stripParam
 } from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
 import {
   type AnyFormRequest,
-  type FormContext,
-  type FormContextRequest
+  type FormContext
 } from '~/src/server/plugins/engine/types.js'
 import { type FormsService, type Services } from '~/src/server/types.js'
+
+const mockGetCacheService = jest.fn()
+const mockCacheService = { setState: jest.fn() }
+
+jest.mock('~/src/server/plugins/engine/helpers.ts', () => ({
+  __esModule: true,
+  getCacheService: (...args: unknown[]) => mockGetCacheService(...args)
+}))
 
 function buildMockPage(
   pagesOverride = {},
@@ -225,23 +233,26 @@ describe('State helpers', () => {
   })
 
   describe('copyNotYetValidatedState', () => {
-    it('should ignore if no invalid state', () => {
-      const mockRequest = {} as FormContextRequest
+    beforeEach(() => {
+      mockGetCacheService.mockReturnValue(mockCacheService)
+    })
+    it('should ignore if no invalid state', async () => {
+      const mockRequest = {} as AnyFormRequest
       const mockContext = {
         state: { abc: '123' },
         payload: {}
       } as unknown as FormContext
-      copyNotYetValidatedState(mockRequest, mockContext)
+      await copyNotYetValidatedState(mockRequest, mockContext)
       expect(mockContext.state).toEqual({ abc: '123' })
       expect(mockContext.payload).toEqual({})
     })
 
-    it('should ignore if wrong path', () => {
+    it('should ignore if wrong path', async () => {
       const mockRequest = {
         url: {
           pathname: '/form-page1'
         }
-      } as unknown as FormContextRequest
+      } as unknown as AnyFormRequest
       const mockContext = {
         state: {
           abc: '123',
@@ -252,7 +263,7 @@ describe('State helpers', () => {
         },
         payload: {}
       } as unknown as FormContext
-      copyNotYetValidatedState(mockRequest, mockContext)
+      await copyNotYetValidatedState(mockRequest, mockContext)
       expect(mockContext.state).toEqual({
         abc: '123',
         __stateNotYetValidated: {
@@ -263,12 +274,12 @@ describe('State helpers', () => {
       expect(mockContext.payload).toEqual({})
     })
 
-    it('should apply if correct path', () => {
+    it('should apply if correct path', async () => {
       const mockRequest = {
         url: {
           pathname: '/form-page1'
         }
-      } as unknown as FormContextRequest
+      } as unknown as AnyFormRequest
       const mockContext = {
         state: {
           abc: '123',
@@ -279,17 +290,70 @@ describe('State helpers', () => {
         },
         payload: {}
       } as unknown as FormContext
-      copyNotYetValidatedState(mockRequest, mockContext)
+      await copyNotYetValidatedState(mockRequest, mockContext)
       expect(mockContext.state).toEqual({
         abc: '123',
-        __stateNotYetValidated: {
-          def: '456',
-          __currentPagePath: '/form-page1'
-        }
+        __stateNotYetValidated: undefined
       })
       expect(mockContext.payload).toEqual({
         def: '456'
       })
+    })
+  })
+
+  describe('checkSaveAndExitRepeater', () => {
+    function createMockContextWithPath(path: string) {
+      return {
+        state: {
+          abc: '123',
+          __stateNotYetValidated: {
+            def: '456',
+            __currentPagePath: path
+          }
+        },
+        payload: {}
+      } as unknown as FormContext
+    }
+
+    const mockModel = {
+      def: {
+        pages: [
+          {
+            controller: ControllerType.Repeat,
+            path: '/personal_details'
+          }
+        ]
+      },
+      basePath: 'form/preview/draft/repeater-test'
+    } as unknown as FormModel
+
+    it('should return undefined if url does not end in a guid', () => {
+      const mockContext = createMockContextWithPath(
+        '/form/preview/draft/repeater-test/personal_details'
+      )
+      expect(checkSaveAndExitRepeater(mockContext, mockModel)).toBeUndefined()
+    })
+
+    it('should return undefined if url ends in a guid but not a repeater path', () => {
+      const mockContext = createMockContextWithPath(
+        '/form/preview/draft/repeater-test/wrong_page/7d27fe6e-73e8-4265-84bd-1e118c92470b'
+      )
+      expect(checkSaveAndExitRepeater(mockContext, mockModel)).toBeUndefined()
+    })
+
+    it('should return undefined if url is not a string', () => {
+      // @ts-expect-error - invalid dataype on purpose for this test
+      const mockContext = createMockContextWithPath({})
+      expect(checkSaveAndExitRepeater(mockContext, mockModel)).toBeUndefined()
+    })
+
+    it('should return correct urls if url ends in a guid and is a repeater path', () => {
+      const mockContext = createMockContextWithPath(
+        '/form/preview/draft/repeater-test/personal_details/7d27fe6e-73e8-4265-84bd-1e118c92470b'
+      )
+      expect(checkSaveAndExitRepeater(mockContext, mockModel)).toBe(
+        '/form/preview/draft/repeater-test/personal_details/7d27fe6e-73e8-4265-84bd-1e118c92470b'
+      )
     })
   })
 })

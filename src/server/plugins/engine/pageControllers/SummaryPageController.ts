@@ -214,8 +214,7 @@ export class SummaryPageController extends QuestionPageController {
           request,
           viewModel,
           model,
-          notificationEmail,
-          formMetadata
+          notificationEmail
         )
       } catch (error) {
         return this.handleSubmissionError(error, request, h)
@@ -340,14 +339,13 @@ export class SummaryPageController extends QuestionPageController {
 
 export async function submitForm(
   context: FormContext,
-  metadata: FormMetadata,
+  formMetadata: FormMetadata,
   request: FormRequestPayload,
   summaryViewModel: SummaryViewModel,
   model: FormModel,
-  emailAddress: string,
-  formMetadata: FormMetadata
+  emailAddress: string
 ) {
-  await finaliseComponents(request, metadata, context)
+  await finaliseComponents(request, formMetadata, context)
 
   const paymentWasCaptured = hasPaymentBeenCaptured(context)
 

@@ -1,6 +1,6 @@
 {
   "name": "@defra/forms-engine-plugin",
-  "version": "4.0.60",
+  "version": "4.0.62",
   "description": "Defra forms engine",
   "type": "module",
   "files": [
@@ -70,13 +70,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DEFRA/forms-engine-plugin.git"
+    "url": "https://github.com/DEFRA/forms-engine-plugin"
   },
   "overrides": {
     "serve-handler": {
       "minimatch": "3.1.5"
     },
-    "serialize-javascript": ">=7.0.3"
+    "serialize-javascript": ">=7.0.3",
+    "react-router": "^7.13.1"
   },
   "engines": {
     "node": ">=22.11.0 <25.0.0",
@@ -84,7 +85,7 @@
   },
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
-    "@defra/forms-model": "^3.0.622",
+    "@defra/forms-model": "^3.0.637",
     "@defra/hapi-tracing": "^1.29.0",
     "@defra/interactive-map": "^0.0.4-alpha",
     "@elastic/ecs-pino-format": "^1.5.0",

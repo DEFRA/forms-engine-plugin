@@ -51,17 +51,17 @@ jest.mock('../helpers.ts', () => ({
     mockCheckEmailAddressForLiveFormSubmission(...args)
 }))
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+ 
 const mockServices: {
   formsService: { getFormMetadata: jest.Mock; getFormDefinition: jest.Mock }
 } = jest.requireMock('~/src/server/plugins/engine/services/index.js')
 const mockFormsService = mockServices.formsService
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+ 
 const { FormModel }: { FormModel: jest.Mock } =
   jest.requireMock('../models/index.ts')
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+ 
 const {
   TerminalPageController: MockTerminalPageController
 }: { TerminalPageController: new () => { path: string } } = jest.requireMock(
@@ -164,7 +164,8 @@ describe('getFormModel helper', () => {
       formsService: {
         getFormMetadata: jest.fn().mockResolvedValue(metadata),
         getFormMetadataById: jest.fn(),
-        getFormDefinition: jest.fn().mockResolvedValue(definition)
+        getFormDefinition: jest.fn().mockResolvedValue(definition),
+        getFormSecret: jest.fn()
       },
       formSubmissionService: {
         persistFiles: jest.fn(),

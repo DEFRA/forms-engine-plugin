@@ -41,7 +41,8 @@ export const plugin = {
       onRequest,
       ordnanceSurveyApiKey,
       baseUrl,
-      ordnanceSurveyApiSecret
+      ordnanceSurveyApiSecret,
+      services
     } = options
 
     const cacheService =
@@ -77,6 +78,7 @@ export const plugin = {
     server.expose('cacheService', cacheService)
     server.expose('saveAndExit', saveAndExit)
     server.expose('baseUrl', baseUrl)
+    server.expose('services', services)
 
     server.app.model = model
 
