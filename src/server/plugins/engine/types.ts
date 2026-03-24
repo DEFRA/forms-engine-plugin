@@ -288,12 +288,6 @@ export interface RepeatItemState extends FormPayload {
 
 export type RepeatListState = RepeatItemState[]
 
-export enum GeometryType {
-  Point = 'Point',
-  LineString = 'LineString',
-  Polygon = 'Polygon'
-}
-
 /**
  * A longitude/latitude coordinate pair in WGS84 format
  * Format: [longitude, latitude]
@@ -304,7 +298,7 @@ export type Coordinates = [longitude: number, latitude: number]
  * GeoJSON Point geometry
  */
 export interface PointGeometry {
-  type: GeometryType.Point
+  type: 'Point'
   coordinates: Coordinates
 }
 
@@ -312,7 +306,7 @@ export interface PointGeometry {
  * GeoJSON LineString geometry
  */
 export interface LineStringGeometry {
-  type: GeometryType.LineString
+  type: 'LineString'
   coordinates: Coordinates[]
 }
 
@@ -320,7 +314,7 @@ export interface LineStringGeometry {
  * GeoJSON Polygon geometry
  */
 export interface PolygonGeometry {
-  type: GeometryType.Polygon
+  type: 'Polygon'
   coordinates: Coordinates[][]
 }
 

@@ -1,7 +1,4 @@
-import {
-  GeometryType,
-  type GeospatialState
-} from '~/src/server/plugins/engine/types.js'
+import { type GeospatialState } from '~/src/server/plugins/engine/types.js'
 
 export const validState: GeospatialState = [
   {
@@ -13,7 +10,7 @@ export const validState: GeospatialState = [
     },
     geometry: {
       coordinates: [-2.5723699109417737, 53.2380485215034],
-      type: GeometryType.Point
+      type: 'Point'
     },
     id: 'a'
   },
@@ -29,7 +26,7 @@ export const validState: GeospatialState = [
         [-2.570496516462896, 53.239162468888566],
         [-2.5722447488110447, 53.238174174285746]
       ],
-      type: GeometryType.LineString
+      type: 'LineString'
     },
     id: 'b'
   },
@@ -52,7 +49,7 @@ export const validState: GeospatialState = [
           [-2.573552894955583, 53.238229751360706]
         ]
       ],
-      type: GeometryType.Polygon
+      type: 'Polygon'
     },
     id: 'c'
   },
@@ -65,7 +62,7 @@ export const validState: GeospatialState = [
     },
     geometry: {
       coordinates: [-2.5724, 53.239],
-      type: GeometryType.Point
+      type: 'Point'
     },
     id: 'd'
   }
@@ -81,7 +78,7 @@ export const validSingleState: GeospatialState = [
     },
     geometry: {
       coordinates: [-2.5723699109417737, 53.2380485215034],
-      type: GeometryType.Point
+      type: 'Point'
     },
     id: 'a'
   }
