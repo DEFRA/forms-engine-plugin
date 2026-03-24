@@ -86,7 +86,8 @@ describe('redirectOrMakeHandler', () => {
     // Reset mock model
     mockModel.getFormContext = jest.fn().mockReturnValue({
       isForceAccess: false,
-      data: {}
+      data: {},
+      state: {}
     })
 
     // Setup mocks
@@ -225,7 +226,8 @@ describe('redirectOrMakeHandler', () => {
     it('should call makeHandler when context has force access', async () => {
       mockModel.getFormContext = jest.fn().mockReturnValue({
         isForceAccess: true,
-        data: {}
+        data: {},
+        state: {}
       })
 
       await redirectOrMakeHandler(
