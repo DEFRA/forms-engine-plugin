@@ -4,6 +4,7 @@ import {
 } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import { type GeospatialField } from '~/src/server/plugins/engine/components/GeospatialField.js'
 import {
   validSingleState,
   validState
@@ -13,6 +14,7 @@ import {
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { type GeospatialState } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
@@ -333,6 +335,46 @@ describe('GeospatialField', () => {
           expect(result).toEqual(output)
         }
       )
+    })
+
+    it('getErrors formats description errors', () => {
+      const component = {
+        title: 'Example geospatial field',
+        name: 'myComponent',
+        type: ComponentType.GeospatialField,
+        options: {
+          required: true
+        }
+      } satisfies GeospatialFieldComponent
+
+      const collection = new ComponentCollection([component], { model })
+      const invalidSingleState: GeospatialState = [
+        {
+          type: 'Feature',
+          properties: {
+            coordinateGridReference: 'ST 00001',
+            centroidGridReference: 'ST 00001',
+            description: '' // Missing description should trigger error with href to description field and custom text
+          },
+          geometry: {
+            coordinates: [-2.5723699109417737, 53.2380485215034],
+            type: 'Point'
+          },
+          id: 'a'
+        }
+      ]
+
+      const result = collection.validate(getFormData(invalidSingleState))
+      const geospatialField = collection.components.at(0) as GeospatialField
+
+      const errors = geospatialField.getErrors(result.errors)
+      expect(errors).toEqual([
+        expect.objectContaining({
+          name: 'description',
+          href: '#description_0',
+          text: 'Enter description for location 1'
+        })
+      ])
     })
   })
 })
