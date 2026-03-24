@@ -259,7 +259,7 @@ describe('GeospatialField', () => {
               value: getFormData([]),
               errors: [
                 expect.objectContaining({
-                  text: 'Example geospatial field must contain at least 1 item'
+                  text: 'Example geospatial field must contain at least 1 items'
                 })
               ]
             }

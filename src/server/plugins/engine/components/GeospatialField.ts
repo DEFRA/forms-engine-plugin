@@ -134,7 +134,7 @@ export class GeospatialField extends FormComponent {
         { type: 'required', template: messageTemplate.selectRequired },
         {
           type: 'array.min',
-          template: '{{#title}} must contain at least 1 item'
+          template: '{{#title}} must contain at least 1 items'
         },
         { type: 'object.invalidjson', template: messageTemplate.format }
       ],
