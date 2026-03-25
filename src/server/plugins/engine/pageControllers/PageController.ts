@@ -37,6 +37,7 @@ export class PageController {
   name?: string
   model: FormModel
   pageDef: Page
+  id?: string
   title: string
   section?: Section
   condition?: ExecutableCondition
@@ -52,6 +53,7 @@ export class PageController {
     this.name = def.name
     this.model = model
     this.pageDef = pageDef
+    this.id = pageDef.id
     this.title = pageDef.title
     this.events = pageDef.events
 
