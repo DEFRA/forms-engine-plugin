@@ -304,16 +304,19 @@ function pollUploadStatus(uploadId) {
  * @param {HTMLInputElement} fileInput - The file input element
  * @param {HTMLButtonElement} uploadButton - The upload button
  * @param {HTMLButtonElement} continueButton - The continue button
- * @param {File | null} selectedFile - The selected file
+ * @param {File[]} selectedFiles - The selected files
  */
 function handleStandardFormSubmission(
   formElement,
   fileInput,
   uploadButton,
   continueButton,
-  selectedFile
+  selectedFiles
 ) {
-  renderSummary(selectedFile, 'Uploading…', formElement)
+  // Render in reverse so first file ends up at the top of the summary list
+  for (let i = selectedFiles.length - 1; i >= 0; i--) {
+    renderSummary(selectedFiles[i], 'Uploading…', formElement)
+  }
 
   fileInput.focus()
 
@@ -403,8 +406,8 @@ function initUpload() {
   }
 
   const formElement = /** @type {HTMLFormElement} */ (form)
-  /** @type {File | null} */
-  let selectedFile = null
+  /** @type {File[]} */
+  let selectedFiles = []
   let isSubmitting = false
   const uploadId = formElement.dataset.uploadId
 
@@ -414,12 +417,12 @@ function initUpload() {
     }
 
     if (fileInput.files && fileInput.files.length > 0) {
-      selectedFile = fileInput.files[0]
+      selectedFiles = Array.from(fileInput.files)
     }
   })
 
   uploadButton.addEventListener('click', (event) => {
-    if (!selectedFile) {
+    if (selectedFiles.length === 0) {
       event.preventDefault()
       showError(
         'Select a file',
@@ -436,12 +439,13 @@ function initUpload() {
 
     isSubmitting = true
 
+    // Show all selected files in the summary table
     handleStandardFormSubmission(
       formElement,
       fileInput,
       uploadButton,
       continueButton,
-      selectedFile
+      selectedFiles
     )
 
     handleAjaxFormSubmission(
