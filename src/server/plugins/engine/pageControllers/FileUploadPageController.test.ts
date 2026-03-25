@@ -795,6 +795,83 @@ describe('FileUploadPageController', () => {
           })
         })
 
+        it('collects all file errors into a single flash when multiple files fail', async () => {
+          const state = {
+            upload: {
+              [controller.path]: {
+                upload: {
+                  uploadId: 'some-id',
+                  uploadUrl: 'some-url',
+                  statusUrl: 'some-status-url'
+                },
+                files: []
+              }
+            }
+          } as unknown as FormSubmissionState
+
+          const errorStatus = {
+            uploadStatus: UploadStatus.ready,
+            form: {
+              file: [
+                {
+                  fileStatus: FileStatus.rejected,
+                  errorMessage: 'File too large'
+                },
+                {
+                  fileStatus: FileStatus.rejected,
+                  errorMessage: 'Invalid file type'
+                }
+              ]
+            }
+          }
+
+          jest
+            .spyOn(uploadService, 'getUploadStatus')
+            .mockResolvedValue(errorStatus as unknown as UploadStatusResponse)
+
+          jest.spyOn(tempItemSchema, 'validate').mockReturnValue({
+            value: {
+              status: errorStatus,
+              uploadId: 'some-id'
+            },
+            error: undefined
+          } as ValidationResult)
+
+          const testController = controller as TestableFileUploadPageController
+
+          const initiateSpy = jest.spyOn(
+            testController,
+            'initiateAndStoreNewUpload'
+          ) as jest.SpyInstance<
+            Promise<FormSubmissionState>,
+            [FormRequest, FormSubmissionState]
+          >
+
+          initiateSpy.mockResolvedValue(state)
+
+          const cacheService = getCacheService(request.server)
+
+          await controller['checkUploadStatus'](request, state, 1)
+
+          expect(cacheService.setFlash).toHaveBeenCalledTimes(1)
+          expect(cacheService.setFlash).toHaveBeenCalledWith(request, {
+            errors: [
+              {
+                path: ['fileUpload'],
+                href: '#fileUpload',
+                name: 'fileUpload',
+                text: 'File too large'
+              },
+              {
+                path: ['fileUpload'],
+                href: '#fileUpload',
+                name: 'fileUpload',
+                text: 'Invalid file type'
+              }
+            ]
+          })
+        })
+
         it('sets default error message when none provided', async () => {
           const state = {
             upload: {

@@ -435,6 +435,8 @@ export class FileUploadPageController extends QuestionPageController {
       | FileUpload[]
     const uploadedFiles = Array.isArray(rawFile) ? rawFile : [rawFile]
 
+    const allErrors: FormSubmissionError[] = []
+
     for (const file of uploadedFiles) {
       if (file.fileStatus === FileStatus.complete) {
         const perFileState: FileState = {
@@ -446,17 +448,17 @@ export class FileUploadPageController extends QuestionPageController {
         }
         files.unshift(prepareFileState(perFileState))
       } else {
-        // Flash the error message for rejected/pending files.
+        // Collect the error for rejected/pending files.
         const { fileUpload } = this
-        const cacheService = getCacheService(request.server)
-
         const name = fileUpload.name
         const text = file.errorMessage ?? 'Unknown error'
-        const errors: FormSubmissionError[] = [
-          { path: [name], href: `#${name}`, name, text }
-        ]
-        cacheService.setFlash(request, { errors })
+        allErrors.push({ path: [name], href: `#${name}`, name, text })
       }
+    }
+
+    if (allErrors.length) {
+      const cacheService = getCacheService(request.server)
+      cacheService.setFlash(request, { errors: allErrors })
     }
 
     if (uploadedFiles.some((f) => f.fileStatus === FileStatus.complete)) {
