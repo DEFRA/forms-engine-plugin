@@ -1,5 +1,6 @@
 import { type SubmitPayload } from '@defra/forms-model'
 
+import { GeospatialField } from '~/src/server/plugins/engine/components/GeospatialField.js'
 import { PaymentField } from '~/src/server/plugins/engine/components/PaymentField.js'
 import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import {
@@ -32,6 +33,14 @@ export function buildMainRecords(items: DetailItem[]): SubmitRecord[] {
   for (const item of fieldItems) {
     if (item.field instanceof PaymentField) {
       records.push(...buildPaymentRecords(item))
+    } else if (item.field instanceof GeospatialField) {
+      // Stringify of GeoJSON is done here rather than inside `getContextValueFromState`
+      // so we don't incur the overhead of JSON.stringify on every request when building context
+      records.push({
+        name: item.name,
+        title: item.label,
+        value: JSON.stringify(item.field.getFormValueFromState(item.state))
+      })
     } else {
       records.push({
         name: item.name,
@@ -103,7 +112,14 @@ export function buildRepeaterRecords(
         detailItems.map((subItem) => ({
           name: subItem.name,
           title: subItem.label,
-          value: getAnswer(subItem.field, subItem.state, { format: 'data' })
+          value:
+            // Stringify of GeoJSON is done here rather than inside `getContextValueFromState`
+            // so we don't incur the overhead of JSON.stringify on every request when building context
+            subItem.field instanceof GeospatialField
+              ? JSON.stringify(
+                  subItem.field.getFormValueFromState(subItem.state)
+                )
+              : getAnswer(subItem.field, subItem.state, { format: 'data' })
         }))
       )
     }))

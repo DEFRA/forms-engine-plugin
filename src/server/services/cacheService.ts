@@ -147,7 +147,9 @@ export class CacheService {
       throw new Error('No session ID found')
     }
 
+    // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
     const state = (request.params.state as string) || ''
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const slug = (request.params.slug as string) || ''
     const key = `${request.yar.id}:${state}:${slug}:`
 
