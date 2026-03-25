@@ -24,7 +24,13 @@ export default tseslint.config(
       'build',
       'build/**',
       '.docusaurus',
-      '.docusaurus/**'
+      '.docusaurus/**',
+      'package',
+      'package/**',
+      '.src',
+      '.src/**',
+      '.src.bak',
+      '.src.bak/**'
     ]
   },
 

@@ -51,17 +51,14 @@ jest.mock('../helpers.ts', () => ({
     mockCheckEmailAddressForLiveFormSubmission(...args)
 }))
 
- 
 const mockServices: {
   formsService: { getFormMetadata: jest.Mock; getFormDefinition: jest.Mock }
 } = jest.requireMock('~/src/server/plugins/engine/services/index.js')
 const mockFormsService = mockServices.formsService
 
- 
 const { FormModel }: { FormModel: jest.Mock } =
   jest.requireMock('../models/index.ts')
 
- 
 const {
   TerminalPageController: MockTerminalPageController
 }: { TerminalPageController: new () => { path: string } } = jest.requireMock(

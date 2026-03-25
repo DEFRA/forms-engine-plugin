@@ -1,6 +1,5 @@
-import { cp, readFile, writeFile } from 'node:fs/promises'
+import { cp, glob, readFile, writeFile } from 'node:fs/promises'
 import { dirname, relative, sep } from 'node:path'
-import { glob } from 'node:fs/promises'
 
 /**
  * Copies `src` to `.src` and resolves `~/src/...` path aliases to relative

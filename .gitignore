@@ -9,6 +9,7 @@ coverage
 .server
 .src
 .src.bak
+package
 .cache
 .env
 tsconfig.tsbuildinfo
