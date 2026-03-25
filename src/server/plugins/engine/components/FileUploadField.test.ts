@@ -405,7 +405,7 @@ describe('FileUploadField', () => {
                     actions: {
                       items: [
                         {
-                          href: `/test/file-upload-component/${validState[0].uploadId}/confirm-delete`,
+                          href: `/test/file-upload-component/${validState[0].status.form.file.fileId}/confirm-delete`,
                           text: 'Remove',
                           attributes: { id: 'myComponent__0' },
                           classes: 'govuk-link--no-visited-state',
@@ -424,7 +424,7 @@ describe('FileUploadField', () => {
                     actions: {
                       items: [
                         {
-                          href: `/test/file-upload-component/${validState[1].uploadId}/confirm-delete`,
+                          href: `/test/file-upload-component/${validState[1].status.form.file.fileId}/confirm-delete`,
                           text: 'Remove',
                           attributes: { id: 'myComponent__1' },
                           classes: 'govuk-link--no-visited-state',
@@ -443,7 +443,7 @@ describe('FileUploadField', () => {
                     actions: {
                       items: [
                         {
-                          href: `/test/file-upload-component/${validState[2].uploadId}/confirm-delete`,
+                          href: `/test/file-upload-component/${validState[2].status.form.file.fileId}/confirm-delete`,
                           text: 'Remove',
                           attributes: { id: 'myComponent__2' },
                           classes: 'govuk-link--no-visited-state',
@@ -454,7 +454,8 @@ describe('FileUploadField', () => {
                   }
                 ]
               }
-            }
+            },
+            multiple: true
           })
         )
       })
@@ -543,7 +544,7 @@ describe('FileUploadField', () => {
                     actions: {
                       items: [
                         {
-                          href: `/test/file-upload-component/${validState[2].uploadId}/confirm-delete`,
+                          href: `/test/file-upload-component/${validState[2].status.form.file.fileId}/confirm-delete`,
                           text: 'Remove',
                           attributes: { id: 'myComponent__0' },
                           classes: 'govuk-link--no-visited-state',
@@ -554,7 +555,8 @@ describe('FileUploadField', () => {
                   }
                 ]
               }
-            }
+            },
+            multiple: true
           })
         )
       })
@@ -583,7 +585,7 @@ describe('FileUploadField', () => {
                     actions: {
                       items: [
                         {
-                          href: `/test/file-upload-component/${validState[2].uploadId}/confirm-delete`,
+                          href: `/test/file-upload-component/${validState[2].status.form.file.fileId}/confirm-delete`,
                           text: 'Remove',
                           attributes: { id: 'myComponent__0' },
                           classes: 'govuk-link--no-visited-state',
@@ -594,7 +596,8 @@ describe('FileUploadField', () => {
                   }
                 ]
               }
-            }
+            },
+            multiple: true
           })
         )
       })

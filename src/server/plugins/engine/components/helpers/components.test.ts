@@ -2,11 +2,13 @@ import {
   ComponentType,
   type DeclarationFieldComponent,
   type EastingNorthingFieldComponent,
+  type GeospatialFieldComponent,
   type LatLongFieldComponent,
   type NationalGridFieldNumberFieldComponent,
   type OsGridRefFieldComponent
 } from '@defra/forms-model'
 
+import { validState } from '~/src/server/plugins/engine/components/helpers/__stubs__/geospatial.js'
 import {
   getAnswer,
   getAnswerMarkdown
@@ -14,6 +16,7 @@ import {
 import {
   DeclarationField,
   EastingNorthingField,
+  GeospatialField,
   LatLongField,
   NationalGridFieldNumberField,
   OsGridRefField
@@ -215,6 +218,47 @@ describe('Location field formatting', () => {
 
       const answer = getAnswer(field, state, { format: 'summary' })
       expect(answer).toBe('NG12345678')
+    })
+  })
+
+  describe('GeospatialField', () => {
+    let field: GeospatialField
+
+    beforeEach(() => {
+      const def: GeospatialFieldComponent = {
+        type: ComponentType.GeospatialField,
+        name: 'geoField',
+        title: 'Geospatial',
+        options: {}
+      }
+      field = new GeospatialField(def, { model })
+    })
+
+    it('formats for email output as single value', () => {
+      const state = {
+        geoField: validState
+      }
+
+      const answer = getAnswer(field, state, { format: 'email' })
+      expect(answer).toBe('Added 4 locations\n')
+    })
+
+    it('formats for data output', () => {
+      const state = {
+        geoField: validState
+      }
+
+      const answer = getAnswer(field, state, { format: 'data' })
+      expect(answer).toBe('a,b,c,d')
+    })
+
+    it('formats for summary display', () => {
+      const state = {
+        geoField: validState
+      }
+
+      const answer = getAnswer(field, state, { format: 'summary' })
+      expect(answer).toBe('Added 4 locations')
     })
   })
 
