@@ -764,6 +764,60 @@ describe('Adapter v1 formatter', () => {
   })
 
   describe('version metadata handling', () => {
+    it('should prefer $$__formVersion from definition metadata over formMetadata.versions', () => {
+      const definitionWithFormVersion = {
+        ...definition,
+        metadata: {
+          $$__formVersion: {
+            versionNumber: 42,
+            createdAt: new Date('2024-06-01T00:00:00.000Z')
+          }
+        }
+      }
+
+      const modelWithFormVersion = new FormModel(definitionWithFormVersion, {
+        basePath: 'test'
+      })
+
+      const contextWithFormVersion = modelWithFormVersion.getFormContext(
+        request,
+        state
+      )
+
+      const formMetadata: Partial<FormMetadata> = {
+        id: 'form-123',
+        slug: 'test-form',
+        title: 'Test Form',
+        notificationEmail: 'test@example.com',
+        versions: [
+          {
+            versionNumber: 1,
+            createdAt: new Date('2024-01-01T00:00:00.000Z')
+          }
+        ]
+      }
+
+      const formStatus = {
+        isPreview: false,
+        state: FormStatus.Live
+      }
+
+      const body = format(
+        contextWithFormVersion,
+        items,
+        modelWithFormVersion,
+        submitResponse,
+        formStatus,
+        formMetadata as FormMetadata
+      )
+      const parsedBody = JSON.parse(body) as FormAdapterSubmissionMessagePayload
+
+      expect(parsedBody.meta.versionMetadata).toEqual({
+        versionNumber: 42,
+        createdAt: '2024-06-01T00:00:00.000Z'
+      })
+    })
+
     it('should include versionMetadata when context has submittedVersionNumber and formMetadata has versions', () => {
       const formMetadata: Partial<FormMetadata> = {
         id: 'form-123',
