@@ -3,7 +3,6 @@ import { type Context, type CustomValidator } from 'joi'
 import { type EastingNorthingField } from '~/src/server/plugins/engine/components/EastingNorthingField.js'
 import { isFormValue } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type LatLongField } from '~/src/server/plugins/engine/components/LatLongField.js'
-import { markdown } from '~/src/server/plugins/engine/components/markdownParser.js'
 import {
   type DateInputItem,
   type Label,
@@ -19,6 +18,74 @@ export type LocationField =
   | InstanceType<typeof EastingNorthingField>
   | InstanceType<typeof LatLongField>
 
+/**
+ * Lowercases the start of a message for concatenation.
+ * Handles patterns like:
+ * - "Enter latitude" -> "enter latitude"
+ * - "Enter a valid latitude..." -> "enter a valid latitude..."
+ * - "latitude must be..." -> "latitude must be..."
+ */
+function lowercaseMessageStart(message: string): string {
+  if (message.startsWith('Enter ')) {
+    return 'enter' + message.slice(5)
+  }
+
+  // Lowercase first character for any other message
+  return message.charAt(0).toLowerCase() + message.slice(1)
+}
+
+export function joinWithAnd(items: string[]): string {
+  if (items.length === 2) {
+    return `${items[0]} and ${items[1]}`
+  }
+
+  const leading = items.slice(0, -1).join(', ')
+  const last = items[items.length - 1]
+  return `${leading} and ${last}`
+}
+
+export function formatErrorList(messages: string[]): string {
+  if (!messages.length) {
+    return ''
+  }
+
+  if (messages.length === 1) {
+    return messages[0]
+  }
+
+  const formattedMessages = messages.map((msg, index) =>
+    index === 0 ? msg : lowercaseMessageStart(msg)
+  )
+
+  return joinWithAnd(formattedMessages)
+}
+
+export function mergeCssClasses(...classNames: (string | undefined)[]) {
+  const tokens = classNames
+    .flatMap((name) => name?.split(/\s+/) ?? [])
+    .map((token) => token.trim())
+    .filter(Boolean)
+
+  if (!tokens.length) {
+    return undefined
+  }
+
+  return Array.from(new Set(tokens)).join(' ')
+}
+
+export function deduplicateErrorsByHref(
+  errors?: FormSubmissionError[]
+): FormSubmissionError[] | undefined {
+  if (!errors?.length) {
+    return undefined
+  }
+
+  return errors.filter(
+    (error, index, self) =>
+      index === self.findIndex((err) => err.href === error.href)
+  )
+}
+
 export function getLocationFieldViewModel(
   component: LocationField,
   viewModel: ViewModel & {
@@ -30,43 +97,65 @@ export function getLocationFieldViewModel(
   payload: FormPayload,
   errors?: FormSubmissionError[]
 ) {
-  const { collection, name } = component
+  const { collection } = component
   const { fieldset: existingFieldset, label } = viewModel
 
-  // Check for component errors only
-  const hasError = errors?.some((error) => error.name === name)
+  const subViewModels = collection.getViewModel(payload, errors)
 
-  // Use the component collection to generate the subitems
-  const items: DateInputItem[] = collection
-    .getViewModel(payload, errors)
-    .map(({ model }): DateInputItem => {
+  const fieldErrors: string[] = []
+  subViewModels.forEach(({ model }) => {
+    if (model.errorMessage?.text) {
+      fieldErrors.push(model.errorMessage.text)
+    }
+  })
+
+  const hasFieldErrors = fieldErrors.length > 0
+
+  const items: DateInputItem[] = subViewModels.map(
+    ({ model }): DateInputItem => {
       let { label, type, value, classes, prefix, suffix, errorMessage } = model
 
       if (label) {
-        label.toString = () => label.text // Use string labels
+        label.toString = () => label.text
       }
 
-      if (hasError || errorMessage) {
-        classes = `${classes ?? ''} govuk-input--error`.trim()
-      }
-
-      // Allow any `toString()`-able value so non-numeric
-      // values are shown alongside their error messages
       if (!isFormValue(value)) {
         value = undefined
       }
 
-      return {
+      const baseItem: DateInputItem = {
         label,
         id: model.id,
         name: model.name,
         type,
         value,
-        classes,
+        classes: mergeCssClasses(
+          classes,
+          hasFieldErrors ? 'govuk-input--error' : undefined
+        ),
         prefix,
         suffix
       }
-    })
+
+      if (!hasFieldErrors && errorMessage) {
+        baseItem.errorMessage = errorMessage
+      }
+
+      return baseItem
+    }
+  )
+
+  const showFieldsetError =
+    hasFieldErrors || Boolean(viewModel.errorMessage?.text)
+
+  viewModel.showFieldsetError = showFieldsetError
+
+  if (hasFieldErrors) {
+    viewModel.errorMessage = {
+      text:
+        fieldErrors.length === 1 ? fieldErrors[0] : formatErrorList(fieldErrors)
+    }
+  }
 
   const fieldset = existingFieldset ?? {
     legend: {
@@ -84,9 +173,7 @@ export function getLocationFieldViewModel(
   if (component.options.instructionText) {
     return {
       ...result,
-      instructionText: markdown.parse(component.options.instructionText, {
-        async: false
-      })
+      instructionText: component.options.instructionText
     }
   }
 

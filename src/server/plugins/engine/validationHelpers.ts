@@ -20,7 +20,7 @@ export interface ExternalComponent {
     request: FormRequestPayload,
     h: FormResponseToolkit,
     args: ExternalArgs
-  ): ResponseObject
+  ): Promise<ResponseObject>
 }
 
 /**

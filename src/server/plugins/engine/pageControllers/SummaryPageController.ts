@@ -7,12 +7,16 @@ import {
 import Boom from '@hapi/boom'
 import { type RouteOptions } from '@hapi/hapi'
 
+import {
+  COMPONENT_STATE_ERROR,
+  PAYMENT_EXPIRED_NOTIFICATION
+} from '~/src/server/constants.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { FileUploadField } from '~/src/server/plugins/engine/components/FileUploadField.js'
-import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
+import { PaymentField } from '~/src/server/plugins/engine/components/PaymentField.js'
 import {
   checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
+  createError,
   getCacheService
 } from '~/src/server/plugins/engine/helpers.js'
 import {
@@ -21,14 +25,30 @@ import {
 } from '~/src/server/plugins/engine/models/index.js'
 import {
   type Detail,
-  type DetailItem
+  type DetailItem,
+  type DetailItemField
 } from '~/src/server/plugins/engine/models/types.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
+  InvalidComponentStateError,
+  PaymentErrorTypes,
+  PaymentPreAuthError,
+  PaymentSubmissionError
+} from '~/src/server/plugins/engine/pageControllers/errors.js'
+import {
+  buildMainRecords,
+  buildRepeaterRecords
+} from '~/src/server/plugins/engine/pageControllers/helpers/submission.js'
+import {
+  type FormConfirmationState,
   type FormContext,
-  type FormContextRequest,
-  type FormSubmissionState
+  type FormContextRequest
 } from '~/src/server/plugins/engine/types.js'
+import {
+  DEFAULT_PAYMENT_HELP_URL,
+  formatCurrency,
+  formatPaymentDate
+} from '~/src/server/plugins/payment/helper.js'
 import {
   FormAction,
   type FormRequest,
@@ -63,11 +83,25 @@ export class SummaryPageController extends QuestionPageController {
     const viewModel = new SummaryViewModel(request, this, context)
 
     const { query } = request
-    const { payload, errors } = context
+    const { payload, errors, state } = context
+
+    const paymentField = context.relevantPages
+      .flatMap((page) => page.collection.fields)
+      .find((field): field is PaymentField => field instanceof PaymentField)
+
+    if (paymentField) {
+      const paymentState = paymentField.getPaymentStateFromState(state)
+      if (paymentState) {
+        viewModel.paymentState = paymentState
+        viewModel.paymentDetails = this.buildPaymentDetails(
+          paymentField,
+          paymentState
+        )
+      }
+    }
+
     const components = this.collection.getViewModel(payload, errors, query)
 
-    // We already figure these out in the base page controller. Take them and apply them to our page-specific model.
-    // This is a stop-gap until we can add proper inheritance in place.
     viewModel.backLink = this.getBackLink(request, context)
     viewModel.feedbackLink = this.feedbackLink
     viewModel.phaseTag = this.phaseTag
@@ -76,6 +110,40 @@ export class SummaryPageController extends QuestionPageController {
     viewModel.errors = errors
 
     return viewModel
+  }
+
+  private buildPaymentDetails(
+    paymentField: PaymentField,
+    paymentState: NonNullable<
+      ReturnType<PaymentField['getPaymentStateFromState']>
+    >
+  ) {
+    const rows = [
+      {
+        key: { text: 'Payment for' },
+        value: { text: paymentState.description }
+      },
+      {
+        key: { text: 'Total amount' },
+        value: { text: formatCurrency(paymentState.amount) }
+      },
+      {
+        key: { text: 'Reference' },
+        value: { text: paymentState.reference }
+      }
+    ]
+
+    if (paymentState.preAuth?.createdAt) {
+      rows.push({
+        key: { text: 'Date of payment' },
+        value: { text: formatPaymentDate(paymentState.preAuth.createdAt) }
+      })
+    }
+
+    return {
+      title: { text: 'Payment details' },
+      summaryList: { rows }
+    }
   }
 
   /**
@@ -108,7 +176,6 @@ export class SummaryPageController extends QuestionPageController {
       context: FormContext,
       h: FormResponseToolkit
     ) => {
-      // Check if this is a save-and-exit action
       const { action } = request.payload
       if (action === FormAction.SaveAndExit) {
         return this.handleSaveAndExit(request, context, h)
@@ -131,33 +198,130 @@ export class SummaryPageController extends QuestionPageController {
     const { formsService } = this.model.services
     const { getFormMetadata } = formsService
 
-    // Get the form metadata using the `slug` param
     const formMetadata = await getFormMetadata(params.slug)
     const { notificationEmail } = formMetadata
     const { isPreview } = checkFormStatus(request.params)
-    const emailAddress = notificationEmail ?? this.model.def.outputEmail
 
-    checkEmailAddressForLiveFormSubmission(emailAddress, isPreview)
+    checkEmailAddressForLiveFormSubmission(notificationEmail, isPreview)
 
-    // Send submission email
-    if (emailAddress) {
+    if (notificationEmail) {
       const viewModel = this.getSummaryViewModel(request, context)
-      await submitForm(
-        context,
-        request,
-        viewModel,
-        model,
-        emailAddress,
-        formMetadata
-      )
+
+      try {
+        await submitForm(
+          context,
+          formMetadata,
+          request,
+          viewModel,
+          model,
+          notificationEmail
+        )
+      } catch (error) {
+        return this.handleSubmissionError(error, request, h)
+      }
     }
 
-    await cacheService.setConfirmationState(request, { confirmed: true })
+    await cacheService.setConfirmationState(request, {
+      confirmed: true,
+      formId: context.state.formId,
+      referenceNumber: context.referenceNumber
+    } as FormConfirmationState)
 
-    // Clear all form data
     await cacheService.clearState(request)
 
     return this.proceed(request, h, this.getStatusPath())
+  }
+
+  /**
+   * Handles errors during form submission
+   */
+  private async handleSubmissionError(
+    error: unknown,
+    request: FormRequestPayload,
+    h: FormResponseToolkit
+  ) {
+    if (error instanceof InvalidComponentStateError) {
+      return this.handleInvalidComponentStateError(error, request, h)
+    }
+
+    if (error instanceof PaymentPreAuthError) {
+      return this.handlePaymentPreAuthError(error, request, h)
+    }
+
+    if (error instanceof PaymentSubmissionError) {
+      return this.handlePaymentSubmissionError(error, request, h)
+    }
+
+    throw error
+  }
+
+  /**
+   * Handles InvalidComponentStateError during submission
+   */
+  private async handleInvalidComponentStateError(
+    error: InvalidComponentStateError,
+    request: FormRequestPayload,
+    h: FormResponseToolkit
+  ) {
+    const cacheService = getCacheService(request.server)
+
+    const govukError = createError(error.component.name, error.userMessage)
+
+    request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
+
+    await cacheService.resetComponentStates(request, error.getStateKeys())
+
+    return this.proceed(request, h, error.component.page?.path)
+  }
+
+  /**
+   * Handles PaymentPreAuthError during submission
+   */
+  private async handlePaymentPreAuthError(
+    error: PaymentPreAuthError,
+    request: FormRequestPayload,
+    h: FormResponseToolkit
+  ) {
+    const cacheService = getCacheService(request.server)
+
+    if (error.shouldResetState) {
+      await cacheService.resetComponentStates(request, error.getStateKeys())
+
+      if (error.errorType === PaymentErrorTypes.PaymentExpired) {
+        request.yar.flash(PAYMENT_EXPIRED_NOTIFICATION, true, true)
+        return this.proceed(request, h, error.component.page?.path)
+      }
+    }
+
+    const govukError = createError(error.component.name, error.userMessage)
+    request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
+
+    const redirectPath = error.shouldResetState
+      ? error.component.page?.path
+      : undefined
+
+    return this.proceed(request, h, redirectPath)
+  }
+
+  /**
+   * Handles PaymentSubmissionError during submission
+   */
+  private handlePaymentSubmissionError(
+    error: PaymentSubmissionError,
+    request: FormRequestPayload,
+    h: FormResponseToolkit
+  ) {
+    const helpUrl = error.helpLink ?? DEFAULT_PAYMENT_HELP_URL
+    const helpLinkHtml = ` or you can <a href="${helpUrl}" target="_blank" rel="noopener noreferrer" class="govuk-link">contact us (opens in new tab)</a> and quote your reference number to arrange a refund`
+
+    const govukError = createError(
+      'submission',
+      `There was a problem and your form was not submitted. Try submitting the form again${helpLinkHtml}.`
+    )
+
+    request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
+
+    return this.proceed(request, h)
   }
 
   get postRouteOptions(): RouteOptions<FormRequestPayloadRefs> {
@@ -175,82 +339,98 @@ export class SummaryPageController extends QuestionPageController {
 
 export async function submitForm(
   context: FormContext,
+  formMetadata: FormMetadata,
   request: FormRequestPayload,
   summaryViewModel: SummaryViewModel,
   model: FormModel,
-  emailAddress: string,
-  formMetadata: FormMetadata
+  emailAddress: string
 ) {
-  await extendFileRetention(model, context.state, emailAddress)
+  await finaliseComponents(request, formMetadata, context)
+
+  const paymentWasCaptured = hasPaymentBeenCaptured(context)
 
   const formStatus = checkFormStatus(request.params)
   const logTags = ['submit', 'submissionApi']
 
   request.logger.info(logTags, 'Preparing email', formStatus)
 
-  // Get detail items
   const items = getFormSubmissionData(
     summaryViewModel.context,
     summaryViewModel.details
   )
 
-  // Submit data
-  request.logger.info(logTags, 'Submitting data')
-  const submitResponse = await submitData(
-    model,
-    items,
-    emailAddress,
-    request.yar.id
-  )
-
-  if (submitResponse === undefined) {
-    throw Boom.badRequest('Unexpected empty response from submit api')
-  }
-
-  return model.services.outputService.submit(
-    context,
-    request,
-    model,
-    emailAddress,
-    items,
-    submitResponse,
-    formMetadata
-  )
-}
-
-async function extendFileRetention(
-  model: FormModel,
-  state: FormSubmissionState,
-  updatedRetrievalKey: string
-) {
-  const { formSubmissionService } = model.services
-  const { persistFiles } = formSubmissionService
-  const files: { fileId: string; initiatedRetrievalKey: string }[] = []
-
-  // For each file upload component with files in
-  // state, add the files to the batch getting persisted
-  model.pages.forEach((page) => {
-    const fileUploadComponents = page.collection.fields.filter(
-      (component) => component instanceof FileUploadField
+  try {
+    request.logger.info(logTags, 'Submitting data')
+    const submitResponse = await submitData(
+      model,
+      items,
+      emailAddress,
+      request.yar.id
     )
 
-    fileUploadComponents.forEach((component) => {
-      const values = component.getFormValueFromState(state)
-      if (!values?.length) {
-        return
-      }
+    if (submitResponse === undefined) {
+      throw Boom.badRequest('Unexpected empty response from submit api')
+    }
 
-      files.push(
-        ...values.map(({ status }) => ({
-          fileId: status.form.file.fileId,
-          initiatedRetrievalKey: status.metadata.retrievalKey
-        }))
+    await model.services.outputService.submit(
+      context,
+      request,
+      model,
+      emailAddress,
+      items,
+      submitResponse,
+      formMetadata
+    )
+  } catch (err) {
+    if (paymentWasCaptured) {
+      throw new PaymentSubmissionError(
+        context.referenceNumber,
+        formMetadata.contact?.online?.url
       )
-    })
-  })
+    }
+    throw err
+  }
+}
 
-  if (files.length) {
-    return persistFiles(files, updatedRetrievalKey)
+/**
+ * Checks if any payment component has been captured
+ */
+function hasPaymentBeenCaptured(context: FormContext): boolean {
+  for (const page of context.relevantPages) {
+    for (const field of page.collection.fields) {
+      if (field instanceof PaymentField) {
+        const paymentState = field.getPaymentStateFromState(context.state)
+        if (paymentState?.capture?.status === 'success') {
+          return true
+        }
+      }
+    }
+  }
+  return false
+}
+
+/**
+ * Finalises any components that need post-processing before form submission. Candidates usually involve
+ * those that have external state.
+ * Examples include:
+ * - file uploads which are 'persisted' before submission
+ * - payments which are 'captured' before submission
+ */
+async function finaliseComponents(
+  request: FormRequestPayload,
+  metadata: FormMetadata,
+  context: FormContext
+) {
+  const relevantFields = context.relevantPages.flatMap(
+    (page) => page.collection.fields
+  )
+
+  for (const component of relevantFields) {
+    /*
+      Each component will throw InvalidComponent if its state is invalid, which is handled
+      by handleFormSubmit
+    */
+    await component.onSubmit(request, metadata, context)
   }
 }
 
@@ -266,43 +446,50 @@ function submitData(
   const payload: SubmitPayload = {
     sessionId,
     retrievalKey,
-
-    // Main form answers
-    main: items
-      .filter((item) => 'field' in item)
-      .map((item) => ({
-        name: item.name,
-        title: item.label,
-        value: getAnswer(item.field, item.state, { format: 'data' })
-      })),
-
-    // Repeater form answers
-    repeaters: items
-      .filter((item) => 'subItems' in item)
-      .map((item) => ({
-        name: item.name,
-        title: item.label,
-
-        // Repeater item values
-        value: item.subItems.map((detailItems) =>
-          detailItems.map((subItem) => ({
-            name: subItem.name,
-            title: subItem.label,
-            value: getAnswer(subItem.field, subItem.state, { format: 'data' })
-          }))
-        )
-      }))
+    main: buildMainRecords(items),
+    repeaters: buildRepeaterRecords(items)
   }
 
   return submit(payload)
 }
 
 export function getFormSubmissionData(context: FormContext, details: Detail[]) {
-  return context.relevantPages
+  const items = context.relevantPages
     .map(({ href }) =>
       details.flatMap(({ items }) =>
         items.filter(({ page }) => page.href === href)
       )
     )
     .flat()
+
+  const paymentItems = getPaymentFieldItems(context)
+
+  return [...items, ...paymentItems]
+}
+
+/**
+ * Gets DetailItems for PaymentField components
+ * PaymentField is excluded from summaryDetails for UI but needs to be in submission data
+ */
+function getPaymentFieldItems(context: FormContext): DetailItemField[] {
+  const items: DetailItemField[] = []
+
+  for (const page of context.relevantPages) {
+    for (const field of page.collection.fields) {
+      if (field instanceof PaymentField) {
+        items.push({
+          name: field.name,
+          page,
+          title: field.title,
+          label: field.label,
+          field,
+          state: context.state,
+          href: page.href,
+          value: field.getDisplayStringFromState(context.state)
+        })
+      }
+    }
+  }
+
+  return items
 }

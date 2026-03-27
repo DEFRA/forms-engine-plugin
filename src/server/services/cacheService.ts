@@ -1,11 +1,13 @@
 import { type Server } from '@hapi/hapi'
 import * as Hoek from '@hapi/hoek'
+import unset from 'lodash/unset.js'
 
 import { config } from '~/src/config/index.js'
 import { type createServer } from '~/src/server/index.js'
 import {
   type AnyFormRequest,
   type AnyRequest,
+  type FormConfirmationState,
   type FormPayload,
   type FormState,
   type FormSubmissionError,
@@ -55,7 +57,7 @@ export class CacheService {
 
   async getConfirmationState(
     request: AnyFormRequest
-  ): Promise<{ confirmed?: true }> {
+  ): Promise<FormConfirmationState> {
     const key = this.Key(request, ADDITIONAL_IDENTIFIER.Confirmation)
     const value = await this.cache.get(key)
 
@@ -64,7 +66,7 @@ export class CacheService {
 
   async setConfirmationState(
     request: AnyFormRequest,
-    confirmationState: { confirmed?: true }
+    confirmationState: FormConfirmationState
   ) {
     const key = this.Key(request, ADDITIONAL_IDENTIFIER.Confirmation)
     const ttl = config.get('confirmationSessionTimeout')
@@ -85,7 +87,7 @@ export class CacheService {
     const messages = request.yar.flash(key.id)
 
     if (Array.isArray(messages) && messages.length) {
-      return messages.at(0) as { errors: FormSubmissionError[] }
+      return messages.at(0)
     }
   }
 
@@ -99,6 +101,42 @@ export class CacheService {
   }
 
   /**
+   * Resets (removes) component states from the form state by their keys.
+   * Supports both flat keys and nested paths.
+   * @param request - The Hapi request object
+   * @param componentNames - Array of state keys to remove. Uses lodash's unset syntax. Can be:
+   * - Flat keys: `'componentName'` for top-level state
+   * - Nested paths: `"upload['/my-page']"` or `'upload./my-page'` for nested state
+   * @example
+   * ```typescript
+   * // Remove a flat component state
+   * await cacheService.resetComponentStates(request, ['emailAddress'])
+   *
+   * // Remove nested upload state for a specific page
+   * await cacheService.resetComponentStates(request, ["upload['/file-upload-page']"])
+   *
+   * // Remove multiple states at once
+   * await cacheService.resetComponentStates(request, [
+   *   'componentName',
+   *   "upload['/my-page']"
+   * ])
+   * ```
+   * @returns The updated state after removal
+   */
+  async resetComponentStates(
+    request: AnyFormRequest,
+    componentNames: string[]
+  ) {
+    const state = await this.getState(request)
+
+    for (const componentName of componentNames) {
+      unset(state, componentName)
+    }
+
+    return this.setState(request, state)
+  }
+
+  /**
    * The key used to store user session data against.
    * If there are multiple forms on the same runner instance, for example `form-a` and `form-a-feedback` this will prevent CacheService from clearing data from `form-a` if a user gave feedback before they finished `form-a`
    * @param request - hapi request object
@@ -109,7 +147,9 @@ export class CacheService {
       throw new Error('No session ID found')
     }
 
+    // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
     const state = (request.params.state as string) || ''
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const slug = (request.params.slug as string) || ''
     const key = `${request.yar.id}:${state}:${slug}:`
 

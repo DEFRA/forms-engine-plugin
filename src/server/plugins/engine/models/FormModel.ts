@@ -21,10 +21,11 @@ import {
   type Engine,
   type FormDefinition,
   type List,
-  type Page
+  type Page,
+  type Section
 } from '@defra/forms-model'
 import { add, format } from 'date-fns'
-import { Parser, type Value } from 'expr-eval'
+import { Parser, type Value } from 'expr-eval-fork'
 import joi from 'joi'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
@@ -74,6 +75,7 @@ export class FormModel {
   lists: FormDefinition['lists']
   sections: FormDefinition['sections'] = []
   name: string
+  formId: string
   values: FormDefinition
   basePath: string
   versionNumber?: number
@@ -100,6 +102,7 @@ export class FormModel {
       basePath: string
       versionNumber?: number
       ordnanceSurveyApiKey?: string
+      formId?: string
     },
     services: Services = defaultServices,
     controllers?: Record<string, typeof PageController>
@@ -152,6 +155,7 @@ export class FormModel {
     this.lists = def.lists
     this.sections = def.sections
     this.name = def.name ?? ''
+    this.formId = options.formId ?? ''
     this.values = result.value
     this.basePath = options.basePath
     this.versionNumber = options.versionNumber
@@ -318,12 +322,18 @@ export class FormModel {
       : this.lists.find((list) => list.id === nameOrId)
   }
 
+  getSection(nameOrId: string): Section | undefined {
+    return this.schemaVersion === SchemaVersion.V1
+      ? this.sections.find((section) => section.name === nameOrId)
+      : this.sections.find((section) => section.id === nameOrId)
+  }
+
   /**
    * Form context for the current page
    */
   getFormContext(
     request: FormContextRequest,
-    state: FormState,
+    state: FormSubmissionState,
     errors?: FormSubmissionError[]
   ): FormContext {
     const { query } = request
@@ -558,7 +568,7 @@ function validateFormPayload(
   if (
     !request.payload ||
     (action &&
-      ![FormAction.Validate, FormAction.SaveAndExit].includes(action) &&
+      action !== FormAction.Validate &&
       !action.startsWith(FormAction.External))
   ) {
     return context
@@ -622,7 +632,7 @@ function validateFormState(
   return context
 }
 
-function getReferenceNumber(state: FormState): string {
+function getReferenceNumber(state: FormSubmissionState): string {
   if (
     !state.$$__referenceNumber ||
     typeof state.$$__referenceNumber !== 'string'

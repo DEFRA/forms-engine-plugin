@@ -1,15 +1,28 @@
-/* eslint-disable @typescript-eslint/unified-signatures */
-
 import { type Plugin } from '@hapi/hapi'
 import { type ServerYar, type Yar } from '@hapi/yar'
 import { type Logger } from 'pino'
 
+import {
+  type COMPONENT_STATE_ERROR,
+  type EXTERNAL_STATE_APPENDAGE,
+  type EXTERNAL_STATE_PAYLOAD
+} from '~/src/server/constants.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type AnyFormRequest,
+  type FormSubmissionError,
   type PluginOptions
 } from '~/src/server/plugins/engine/types.ts'
 import { type CacheService } from '~/src/server/services/index.js'
+
+declare module '@hapi/yar' {
+  interface YarFlashes {
+    [EXTERNAL_STATE_APPENDAGE]: object
+    [EXTERNAL_STATE_PAYLOAD]: object
+    [COMPONENT_STATE_ERROR]: string
+    [key: string]: { errors: FormSubmissionError[] }
+  }
+}
 
 declare module '@hapi/hapi' {
   // Here we are decorating Hapi interface types with
@@ -25,6 +38,8 @@ declare module '@hapi/hapi' {
         request: AnyFormRequest | null
       ) => Record<string, unknown> | Promise<Record<string, unknown>>
       saveAndExit?: PluginOptions['saveAndExit']
+      baseUrl: string
+      services: PluginOptions['services']
     }
   }
 
@@ -46,14 +61,6 @@ declare module '@hapi/hapi' {
     model?: FormModel
     models: Map<string, { model: FormModel; updatedAt: Date }>
   }
-}
-
-declare module '@hapi/scooter' {
-  declare const hapiScooter: {
-    plugin: Plugin
-  }
-
-  export = hapiScooter
 }
 
 declare module 'blankie' {

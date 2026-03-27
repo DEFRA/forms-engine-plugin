@@ -5,6 +5,7 @@ import {
   type Item,
   type List,
   type Page,
+  type PaymentFieldComponent,
   type UkAddressFieldComponent
 } from '@defra/forms-model'
 import {
@@ -17,7 +18,10 @@ import { type JoiExpression, type ValidationErrorItem } from 'joi'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type UkAddressState } from '~/src/server/plugins/engine/components/UkAddressField.js'
 import { type Component } from '~/src/server/plugins/engine/components/helpers/components.js'
-import { type FileUploadField } from '~/src/server/plugins/engine/components/index.js'
+import {
+  type FileUploadField,
+  type PaymentField
+} from '~/src/server/plugins/engine/components/index.js'
 import {
   type BackLink,
   type ComponentText,
@@ -90,11 +94,19 @@ export type FormSubmissionState = {
   upload?: Record<string, TempFileState>
 } & FormState
 
-export interface FormSubmissionError
-  extends Pick<ValidationErrorItem, 'context' | 'path'> {
+export interface FormSubmissionError extends Pick<
+  ValidationErrorItem,
+  'context' | 'path'
+> {
   href: string // e.g: '#dateField__day'
   name: string // e.g: 'dateField__day'
   text: string // e.g: 'Date field must be a real date'
+}
+
+export interface FormConfirmationState {
+  confirmed?: true
+  formId?: string
+  referenceNumber?: string
 }
 
 export interface FormPayloadParams {
@@ -115,6 +127,7 @@ export type FormValue =
   | Item['value'][]
   | UploadState
   | RepeatListState
+  | GeospatialState
   | undefined
 
 export type FormState = Partial<Record<string, FormStateValue>>
@@ -275,6 +288,76 @@ export interface RepeatItemState extends FormPayload {
 
 export type RepeatListState = RepeatItemState[]
 
+/**
+ * A longitude/latitude coordinate pair in WGS84 format
+ * Format: [longitude, latitude]
+ */
+export type Coordinates = [longitude: number, latitude: number]
+
+/**
+ * GeoJSON Point geometry
+ */
+export interface PointGeometry {
+  type: 'Point'
+  coordinates: Coordinates
+}
+
+/**
+ * GeoJSON LineString geometry
+ */
+export interface LineStringGeometry {
+  type: 'LineString'
+  coordinates: Coordinates[]
+}
+
+/**
+ * GeoJSON Polygon geometry
+ */
+export interface PolygonGeometry {
+  type: 'Polygon'
+  coordinates: Coordinates[][]
+}
+
+/**
+ * Supported geometry types
+ */
+export type Geometry = PointGeometry | LineStringGeometry | PolygonGeometry
+
+/**
+ * Feature metadata
+ */
+export interface FeatureProperties {
+  /**
+   * Human-readable description of the feature
+   */
+  description: string
+  /**
+   * The OS grid reference of the first coordinate of the feature
+   */
+  coordinateGridReference?: string
+  /**
+   * The OS grid reference of the centroid of the feature
+   */
+  centroidGridReference?: string
+}
+
+/**
+ * A single GeoJSON Feature
+ */
+export interface Feature {
+  id: string
+  type: 'Feature'
+  properties: FeatureProperties
+  geometry: Geometry
+}
+
+/**
+ * A GeoJSON FeatureCollection
+ */
+export type FeatureCollection = Feature[]
+
+export type GeospatialState = FeatureCollection
+
 export interface CheckAnswers {
   title?: ComponentText
   summaryList: SummaryList
@@ -323,6 +406,8 @@ export interface FormPageViewModel extends PageViewModelBase {
   errors?: FormSubmissionError[]
   hasMissingNotificationEmail?: boolean
   allowSaveAndExit: boolean
+  showSubmitButton?: boolean
+  showPaymentExpiredNotification?: boolean
 }
 
 export interface RepeaterSummaryPageViewModel extends PageViewModelBase {
@@ -386,12 +471,18 @@ export interface ExternalArgs {
   component: ComponentDef
   controller: QuestionPageController
   sourceUrl: string
-  actionArgs: Record<string, string>
+  actionArgs?: Record<string, string>
+  isLive: boolean
+  isPreview: boolean
 }
 
 export interface PostcodeLookupExternalArgs extends ExternalArgs {
   component: UkAddressFieldComponent
   actionArgs: { step: string }
+}
+
+export interface PaymentExternalArgs extends ExternalArgs {
+  component: PaymentFieldComponent
 }
 
 export interface ExternalStateAppendage {
@@ -417,6 +508,7 @@ export interface PluginOptions {
   onRequest?: OnRequestCallback
   baseUrl: string // base URL of the application, protocol and hostname e.g. "https://myapp.com"
   ordnanceSurveyApiKey?: string
+  ordnanceSurveyApiSecret?: string
 }
 
 export interface FormAdapterSubmissionMessageMeta {
@@ -447,6 +539,14 @@ export interface FormAdapterFile {
   userDownloadLink: string
 }
 
+export interface FormAdapterPayment {
+  paymentId: string
+  reference: string
+  amount: number
+  description: string
+  createdAt: string
+}
+
 export interface FormAdapterSubmissionMessageResult {
   files: {
     main: string
@@ -460,6 +560,13 @@ export interface FormAdapterSubmissionMessageResult {
 export type FileUploadFieldDetailitem = Omit<DetailItemField, 'field'> & {
   field: FileUploadField
 }
+
+/**
+ * A detail item specifically for payments
+ */
+export type PaymentFieldDetailItem = Omit<DetailItemField, 'field'> & {
+  field: PaymentField
+}
 export type RichFormValue =
   | FormValue
   | FormPayload
@@ -468,11 +575,13 @@ export type RichFormValue =
   | UkAddressState
   | EastingNorthingState
   | LatLongState
+  | GeospatialState
 
 export interface FormAdapterSubmissionMessageData {
   main: Record<string, RichFormValue | null>
   repeaters: Record<string, Record<string, RichFormValue>[]>
   files: Record<string, FormAdapterFile[]>
+  payment?: FormAdapterPayment
 }
 
 export interface FormAdapterSubmissionMessagePayload {
@@ -481,8 +590,7 @@ export interface FormAdapterSubmissionMessagePayload {
   result: FormAdapterSubmissionMessageResult
 }
 
-export interface FormAdapterSubmissionMessage
-  extends FormAdapterSubmissionMessagePayload {
+export interface FormAdapterSubmissionMessage extends FormAdapterSubmissionMessagePayload {
   messageId: string
   recordCreatedAt: Date
 }

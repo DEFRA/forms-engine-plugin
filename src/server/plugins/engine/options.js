@@ -26,7 +26,8 @@ const pluginRegistrationOptionsSchema = Joi.object({
   onRequest: Joi.function().optional(),
   baseUrl: Joi.string().uri().required(),
   saveAndExit: Joi.function().optional(),
-  ordnanceSurveyApiKey: Joi.string().optional()
+  ordnanceSurveyApiKey: Joi.string().optional(),
+  ordnanceSurveyApiSecret: Joi.string().optional()
 })
 
 /**

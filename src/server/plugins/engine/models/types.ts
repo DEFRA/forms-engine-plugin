@@ -3,7 +3,7 @@ import {
   type FormComponentsDef,
   type Section
 } from '@defra/forms-model'
-import { type Expression } from 'expr-eval'
+import { type Expression } from 'expr-eval-fork'
 
 import {
   getAnswer,

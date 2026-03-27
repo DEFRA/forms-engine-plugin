@@ -1,9 +1,18 @@
-import { type FormComponentsDef, type Item } from '@defra/forms-model'
+import {
+  type FormComponentsDef,
+  type FormMetadata,
+  type Item
+} from '@defra/forms-model'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import {
+  type FormContext,
+  type FormRequestPayload
+} from '~/src/server/plugins/engine/types/index.js'
+import {
   type ErrorMessageTemplateList,
+  type Feature,
   type FileState,
   type FormPayload,
   type FormState,
@@ -11,6 +20,7 @@ import {
   type FormSubmissionError,
   type FormSubmissionState,
   type FormValue,
+  type GeospatialState,
   type RepeatItemState,
   type RepeatListState,
   type UploadState
@@ -22,6 +32,7 @@ export class FormComponent extends ComponentBase {
   label: string
 
   isFormComponent = true
+  isAppendageStateSingleObject = false
 
   constructor(
     def: FormComponentsDef,
@@ -165,7 +176,6 @@ export class FormComponent extends ComponentBase {
 
   getDisplayStringFromState(state: FormSubmissionState): string {
     const value = this.getFormValueFromState(state)
-    // eslint-disable-next-line @typescript-eslint/no-base-to-string
     return this.getDisplayStringFromFormValue(value)
   }
 
@@ -219,6 +229,14 @@ export class FormComponent extends ComponentBase {
       baseErrors: [],
       advancedSettingsErrors: []
     }
+  }
+
+  onSubmit(
+    _request: FormRequestPayload,
+    _metadata: FormMetadata,
+    _context: FormContext
+  ): Promise<void> {
+    return Promise.resolve()
   }
 }
 
@@ -287,8 +305,35 @@ export function isUploadState(value?: unknown): value is UploadState {
 }
 
 /**
+ * Check for geospatial state
+ */
+export function isGeospatialState(value?: unknown): value is GeospatialState {
+  if (!Array.isArray(value)) {
+    return false
+  }
+
+  // Skip checks when empty
+  if (!value.length) {
+    return true
+  }
+
+  return value.every(isGeospatialValue)
+}
+
+/**
  * Check for upload state value
  */
 export function isUploadValue(value?: unknown): value is FileState {
   return isFormState(value) && typeof value.uploadId === 'string'
+}
+
+/**
+ * Check for geospatial state value
+ */
+export function isGeospatialValue(value?: unknown): value is Feature {
+  return (
+    isFormState(value) &&
+    typeof value.type === 'string' &&
+    value.type === 'Feature'
+  )
 }

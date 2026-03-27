@@ -22,7 +22,8 @@ export const configureEnginePlugin = async (
     preparePageEventRequestOptions,
     onRequest,
     saveAndExit,
-    ordnanceSurveyApiKey
+    ordnanceSurveyApiKey,
+    ordnanceSurveyApiSecret
   }: RouteConfig = {},
   cache?: CacheService
 ): Promise<{
@@ -65,7 +66,8 @@ export const configureEnginePlugin = async (
       onRequest,
       baseUrl: 'http://localhost:3009', // always runs locally
       saveAndExit,
-      ordnanceSurveyApiKey
+      ordnanceSurveyApiKey,
+      ordnanceSurveyApiSecret
     }
   }
 }

@@ -1,4 +1,7 @@
-import { generateUniqueReference } from '~/src/server/plugins/engine/referenceNumbers.js'
+import {
+  convertToDecAlpha,
+  generateUniqueReference
+} from '~/src/server/plugins/engine/referenceNumbers.js'
 
 describe('generateUniqueReference', () => {
   it('should generate a reference number with 3 segments when no prefix is provided', () => {
@@ -29,5 +32,43 @@ describe('generateUniqueReference', () => {
     const referenceNumber1 = generateUniqueReference()
     const referenceNumber2 = generateUniqueReference()
     expect(referenceNumber1).not.toBe(referenceNumber2)
+  })
+
+  describe('convertToDecAlpha', () => {
+    it('should generate correct characters in string', () => {
+      const allValuesHexPairs = Array.from(Array(256).keys())
+      expect(convertToDecAlpha(allValuesHexPairs)).toBe(
+        'AAAAAAAAA' +
+          'BBBBBBBBB' +
+          'CCCCCCCC' +
+          'DDDDDDDDD' +
+          'EEEEEEEE' +
+          'FFFFFFFFF' +
+          'HHHHHHHH' +
+          'JJJJJJJJJ' +
+          'KKKKKKKK' +
+          'LLLLLLLLL' +
+          'MMMMMMMM' +
+          'NNNNNNNNN' +
+          'PPPPPPPP' +
+          'RRRRRRRRR' +
+          'SSSSSSSS' +
+          'TTTTTTTTT' +
+          'UUUUUUUUU' +
+          'VVVVVVVV' +
+          'WWWWWWWWW' +
+          'XXXXXXXX' +
+          'YYYYYYYYY' +
+          'ZZZZZZZZ' +
+          '222222222' +
+          '33333333' +
+          '444444444' +
+          '55555555' +
+          '666666666' +
+          '77777777' +
+          '888888888' +
+          '99999999'
+      )
+    })
   })
 })

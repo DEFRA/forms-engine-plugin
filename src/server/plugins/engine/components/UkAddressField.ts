@@ -284,7 +284,8 @@ export class UkAddressField extends FormComponent {
     )
   }
 
-  static dispatcher(
+  // eslint-disable-next-line @typescript-eslint/require-await
+  static async dispatcher(
     request: FormRequestPayload,
     h: FormResponseToolkit,
     args: PostcodeLookupExternalArgs

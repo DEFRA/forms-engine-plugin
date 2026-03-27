@@ -2,7 +2,7 @@
 @use "pkg:accessible-autocomplete";
 @use "prose";
 @use "summary-list";
-@use "location-input";
+@use "location-fields";
 
 // Use default GDS Transport font for autocomplete
 .autocomplete__hint,
@@ -14,6 +14,13 @@
 .app-hidden {
   display: none;
   visibility: hidden;
+}
+
+.js-enabled {
+  .js-hidden {
+    display: none;
+    visibility: hidden;
+  }
 }
 
 // Used in postcode lookup

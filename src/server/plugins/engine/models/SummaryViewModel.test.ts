@@ -1,3 +1,9 @@
+import {
+  type FormDefinition,
+  type PageQuestion,
+  type RadiosFieldComponent
+} from '@defra/forms-model'
+
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import {
   FormModel,
@@ -61,12 +67,12 @@ describe('SummaryViewModel', () => {
       } satisfies FormState,
       keys: [
         'How would you like to receive your pizza?',
-        'Pizzas',
+        'Pizza',
         'How you would like to receive your pizza',
-        'Pizzas',
+        'Pizza',
         'Pizza'
       ],
-      values: ['Collection', 'Not supplied'],
+      values: ['Collection', 'Not provided'],
       answers: ['Collection', ''],
       names: ['orderType', 'pizza']
     },
@@ -85,13 +91,13 @@ describe('SummaryViewModel', () => {
       } satisfies FormState,
       keys: [
         'How would you like to receive your pizza?',
-        'Pizza added',
+        'Pizza',
         'How you would like to receive your pizza',
-        'Pizzas',
+        'Pizza',
         'Pizza'
       ],
-      values: ['Delivery', 'You added 1 Pizza'],
-      answers: ['Delivery', 'You added 1 Pizza'],
+      values: ['Delivery', 'You have added 1 answer'],
+      answers: ['Delivery', 'You have added 1 answer'],
       names: ['orderType', 'pizza']
     },
     {
@@ -114,13 +120,13 @@ describe('SummaryViewModel', () => {
       } satisfies FormState,
       keys: [
         'How would you like to receive your pizza?',
-        'Pizzas added',
+        'Pizza',
         'How you would like to receive your pizza',
-        'Pizzas',
+        'Pizza',
         'Pizza'
       ],
-      values: ['Delivery', 'You added 2 Pizzas'],
-      answers: ['Delivery', 'You added 2 Pizzas'],
+      values: ['Delivery', 'You have added 2 answers'],
+      answers: ['Delivery', 'You have added 2 answers'],
       names: ['orderType', 'pizza']
     }
   ])(
@@ -134,13 +140,13 @@ describe('SummaryViewModel', () => {
       it('should add title for each section', () => {
         const [checkAnswers1, checkAnswers2] = summaryViewModel.checkAnswers
 
-        // 1st summary list has no title
-        expect(checkAnswers1).toHaveProperty('title', undefined)
-
-        // 2nd summary list has section title
-        expect(checkAnswers2).toHaveProperty('title', {
+        // 1st summary list has section title
+        expect(checkAnswers1).toHaveProperty('title', {
           text: 'Food'
         })
+
+        // 2nd summary list has no title (unsectioned questions at bottom)
+        expect(checkAnswers2).toHaveProperty('title', undefined)
       })
 
       it('should add summary list for each section', () => {
@@ -151,29 +157,8 @@ describe('SummaryViewModel', () => {
         const { summaryList: summaryList1 } = checkAnswers1
         const { summaryList: summaryList2 } = checkAnswers2
 
+        // 1st summary list contains sectioned questions (Food section)
         expect(summaryList1).toHaveProperty('rows', [
-          {
-            key: {
-              text: keys[2]
-            },
-            value: {
-              classes: 'app-prose-scope',
-              html: values[0]
-            },
-            actions: {
-              items: [
-                {
-                  classes: 'govuk-link--no-visited-state',
-                  href: `${basePath}/delivery-or-collection?returnUrl=${encodeURIComponent(`${basePath}/summary`)}`,
-                  text: 'Change',
-                  visuallyHiddenText: keys[0]
-                }
-              ]
-            }
-          }
-        ])
-
-        expect(summaryList2).toHaveProperty('rows', [
           {
             key: {
               text: keys[1]
@@ -194,6 +179,29 @@ describe('SummaryViewModel', () => {
             }
           }
         ])
+
+        // 2nd summary list contains unsectioned questions (at bottom)
+        expect(summaryList2).toHaveProperty('rows', [
+          {
+            key: {
+              text: keys[2]
+            },
+            value: {
+              classes: 'app-prose-scope',
+              html: values[0]
+            },
+            actions: {
+              items: [
+                {
+                  classes: 'govuk-link--no-visited-state',
+                  href: `${basePath}/delivery-or-collection?returnUrl=${encodeURIComponent(`${basePath}/summary`)}`,
+                  text: 'Change',
+                  visuallyHiddenText: keys[0]
+                }
+              ]
+            }
+          }
+        ])
       })
 
       it('should add summary list for each section (preview URL direct access)', () => {
@@ -208,22 +216,8 @@ describe('SummaryViewModel', () => {
         const { summaryList: summaryList1 } = checkAnswers1
         const { summaryList: summaryList2 } = checkAnswers2
 
+        // 1st summary list contains sectioned questions (Food section)
         expect(summaryList1).toHaveProperty('rows', [
-          {
-            key: {
-              text: keys[2]
-            },
-            value: {
-              classes: 'app-prose-scope',
-              html: values[0]
-            },
-            actions: {
-              items: []
-            }
-          }
-        ])
-
-        expect(summaryList2).toHaveProperty('rows', [
           {
             key: {
               text: keys[1]
@@ -231,6 +225,22 @@ describe('SummaryViewModel', () => {
             value: {
               classes: 'app-prose-scope',
               html: values[1]
+            },
+            actions: {
+              items: []
+            }
+          }
+        ])
+
+        // 2nd summary list contains unsectioned questions (at bottom)
+        expect(summaryList2).toHaveProperty('rows', [
+          {
+            key: {
+              text: keys[2]
+            },
+            value: {
+              classes: 'app-prose-scope',
+              html: values[0]
             },
             actions: {
               items: []
@@ -248,32 +258,34 @@ describe('SummaryViewModel', () => {
 
         const [details1, details2] = summaryViewModel.details
 
+        // 1st details contains sectioned questions (Food section)
         expect(details1.items[0]).toMatchObject({
-          name: names[0],
-          value: answers[0],
-          title: keys[2],
-          label: keys[0]
-        })
-
-        expect(details2.items[0]).toMatchObject({
           name: names[1],
           value: answers[1],
           title: keys[1],
           label: keys[4]
         })
 
+        // 2nd details contains unsectioned questions (at bottom)
+        expect(details2.items[0]).toMatchObject({
+          name: names[0],
+          value: answers[0],
+          title: keys[2],
+          label: keys[0]
+        })
+
         const snapshot = [
-          {
-            name: names[0],
-            value: answers[0],
-            title: keys[2],
-            label: keys[0]
-          },
           {
             name: names[1],
             value: answers[1],
             title: keys[1],
             label: keys[4]
+          },
+          {
+            name: names[0],
+            value: answers[0],
+            title: keys[2],
+            label: keys[0]
           }
         ]
 
@@ -281,6 +293,51 @@ describe('SummaryViewModel', () => {
       })
     }
   )
+
+  it('should use correct summary labels', () => {
+    request.query.force = '' // Preview URL '?force'
+    const state = {
+      $$__referenceNumber: 'foobar',
+      orderType: 'collection',
+      pizza: []
+    } satisfies FormState
+
+    // Setup an optional question
+    const definitionOptional = structuredClone(definition) as FormDefinition
+    const firstPage = definitionOptional.pages[0] as PageQuestion
+    const firstComponent = firstPage.components[0] as RadiosFieldComponent
+    firstComponent.options.required = false
+
+    const model = new FormModel(definitionOptional, {
+      basePath: `${FORM_PREFIX}/test`
+    })
+
+    context = model.getFormContext(request, state)
+
+    const page = createPage(model, definition.pages[2])
+
+    summaryViewModel = new SummaryViewModel(request, page, context)
+
+    expect(summaryViewModel.details).toHaveLength(2)
+
+    const [details1, details2] = summaryViewModel.details
+
+    // 1st details contains sectioned questions (Food section)
+    expect(details1.items[0]).toMatchObject({
+      name: 'pizza',
+      value: '',
+      title: 'Pizza',
+      label: 'Pizza'
+    })
+
+    // 2nd details contains unsectioned questions (at bottom)
+    expect(details2.items[0]).toMatchObject({
+      name: 'orderType',
+      value: 'Collection',
+      title: 'How you would like to receive your pizza (optional)',
+      label: 'How would you like to receive your pizza?'
+    })
+  })
 })
 
 describe('SummaryPageController', () => {
@@ -342,7 +399,7 @@ describe('SummaryPageController', () => {
       )
     })
 
-    it('should display default page title for v2 form when title not supplied', () => {
+    it('should display default page title for v2 form when title not provided', () => {
       const state: FormState = {
         $$__referenceNumber: 'foobar',
         orderType: 'collection',

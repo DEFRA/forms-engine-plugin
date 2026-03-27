@@ -1,3 +1,4 @@
+import { type Page } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type ResponseObject, type ResponseToolkit } from '@hapi/hapi'
 
@@ -15,8 +16,30 @@ import {
   type OnRequestCallback
 } from '~/src/server/plugins/engine/types.js'
 import { type FormResponseToolkit } from '~/src/server/routes/types.js'
+import { type Services } from '~/src/server/types.js'
 
 jest.mock('~/src/server/plugins/engine/helpers')
+
+function buildMockModel(
+  pagesOverride = [] as Page[],
+  pagesControllerOverride = [] as PageControllerClass[],
+  servicesOverride = {} as Services
+) {
+  return {
+    def: {
+      metadata: {
+        submission: { code: 'TEST-CODE' }
+      } as { submission: { code: string } },
+      pages: pagesOverride
+    },
+    getFormContext: jest.fn().mockReturnValue({
+      isForceAccess: false,
+      data: {}
+    }),
+    pages: pagesControllerOverride,
+    services: servicesOverride
+  } as unknown as FormModel
+}
 
 describe('redirectOrMakeHandler', () => {
   const mockServer = {} as unknown as Parameters<
@@ -38,17 +61,7 @@ describe('redirectOrMakeHandler', () => {
 
   let mockPage: PageControllerClass
 
-  const mockModel: FormModel = {
-    def: {
-      metadata: {
-        submission: { code: 'TEST-CODE' }
-      } as { submission: { code: string } }
-    },
-    getFormContext: jest.fn().mockReturnValue({
-      isForceAccess: false,
-      data: {}
-    })
-  } as unknown as FormModel
+  const mockModel = buildMockModel()
 
   const mockMakeHandler = jest
     .fn()
@@ -73,7 +86,8 @@ describe('redirectOrMakeHandler', () => {
     // Reset mock model
     mockModel.getFormContext = jest.fn().mockReturnValue({
       isForceAccess: false,
-      data: {}
+      data: {},
+      state: {}
     })
 
     // Setup mocks
@@ -212,7 +226,8 @@ describe('redirectOrMakeHandler', () => {
     it('should call makeHandler when context has force access', async () => {
       mockModel.getFormContext = jest.fn().mockReturnValue({
         isForceAccess: true,
-        data: {}
+        data: {},
+        state: {}
       })
 
       await redirectOrMakeHandler(

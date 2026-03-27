@@ -64,6 +64,9 @@ export interface DateInputItem {
   // but not by date fields. This interface is reused by both component types.
   prefix?: ComponentText
   suffix?: ComponentText
+  errorMessage?: {
+    text: string
+  }
   condition?: undefined
 }
 
@@ -107,6 +110,7 @@ export interface ViewModel extends Record<string, unknown> {
     classes?: string
     attributes?: string | Record<string, string>
   }
+  showFieldsetError?: boolean
   components?: ComponentViewModel[]
   upload?: {
     count: number

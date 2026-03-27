@@ -1,5 +1,4 @@
 import { type Server } from '@hapi/hapi'
-// eslint-disable-next-line n/no-unpublished-import -- not sure why this is triggering, it's not a private module
 import MockDate from 'mockdate'
 
 import { createServer } from '~/src/server/index.js'

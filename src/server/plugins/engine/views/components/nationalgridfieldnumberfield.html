@@ -2,12 +2,16 @@
 {% from "govuk/components/details/macro.njk" import govukDetails %}
 
 {% macro NationalGridFieldNumberField(component) %}
-  {{ TextField(component) }}
+  {% set hasErrors = component.model.errorMessage %}
+  <div class="govuk-form-group {{ "govuk-form-group--error" if hasErrors }}">
+    {{ TextField(component) }}
 
-  {% if component.model.instructionText %}
-    {{ govukDetails({
-      summaryText: "How to find location details",
-      html: component.model.instructionText | safe
-    }) }}
-  {% endif %}
+    {% if component.model.instructionText %}
+      {{ govukDetails({
+        summaryText: "How to find location details",
+        html: component.model.instructionText | markdown | safe,
+        classes: "govuk-!-margin-top-3"
+      }) }}
+    {% endif %}
+  </div>
 {% endmacro %}

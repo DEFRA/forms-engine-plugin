@@ -16,12 +16,14 @@ import { type Schema, type ValidationErrorItem } from 'joi'
 import { Liquid } from 'liquidjs'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+import { FORM_VERSION_METADATA_KEY } from '~/src/server/constants.js'
 import {
   getAnswer,
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
+import { stripParam } from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
 import {
   type FormContext,
   type FormContextRequest,
@@ -128,11 +130,17 @@ export function proceed(
         payload.action === FormAction.Validate
       : false
 
+  // On POST, strip all query params to prevent them persisting across pages.
+  // On GET, forward params (minus returnUrl) so pre-population query params
+  // survive dispatch redirects (e.g. ?formId= reaching the start page).
+  const nextQuery =
+    method === 'get' ? stripParam(query, 'returnUrl') : undefined
+
   // Redirect to return location (optional)
   const response =
     isReturnAllowed && isPathRelative(returnUrl)
       ? h.redirect(returnUrl)
-      : h.redirect(redirectPath(nextUrl))
+      : h.redirect(redirectPath(nextUrl, nextQuery))
 
   // Redirect POST to GET to avoid resubmission
   return method === 'post'
@@ -319,6 +327,14 @@ export function getError(detail: ValidationErrorItem): FormSubmissionError {
   }
 }
 
+export function createError(componentName: string, message: string) {
+  return {
+    href: `#${componentName}`,
+    name: componentName,
+    text: message
+  }
+}
+
 /**
  * Calculates an exponential backoff delay (in milliseconds) based on the current retry depth,
  * using a base delay of 2000ms (2 seconds) and doubling for each additional depth, while capping the delay at 25,000ms (25 seconds).
@@ -374,6 +390,22 @@ export function handleLegacyRedirect(h: ResponseToolkit, targetUrl: string) {
  * If the page doesn't have a title, set it from the title of the first form component
  * @param def - the form definition
  */
+export interface FormVersionMetadata {
+  versionNumber: number
+  createdAt: Date
+}
+
+/**
+ * Extracts form version metadata from a form definition
+ */
+export function getFormVersion(
+  definition: Pick<FormDefinition, 'metadata'>
+): FormVersionMetadata | undefined {
+  return definition.metadata?.[FORM_VERSION_METADATA_KEY] as
+    | FormVersionMetadata
+    | undefined
+}
+
 export function setPageTitles(def: FormDefinition) {
   def.pages.forEach((page) => {
     if (!page.title) {
@@ -384,14 +416,6 @@ export function setPageTitles(def: FormDefinition) {
         )
 
         page.title = firstFormComponent?.title ?? ''
-      }
-
-      if (!page.title) {
-        const formNameMsg = def.name ? ` in form '${def.name}'` : ''
-
-        logger.info(
-          `[pageTitleMissing] Page '${page.path}' has no title${formNameMsg}`
-        )
       }
     }
   })

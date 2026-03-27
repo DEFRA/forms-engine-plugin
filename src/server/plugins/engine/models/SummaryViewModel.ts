@@ -1,5 +1,7 @@
 import { SchemaVersion, type Section } from '@defra/forms-model'
 
+import { PaymentField } from '~/src/server/plugins/engine/components/PaymentField.js'
+import { type PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
 import {
   getAnswer,
   type Field
@@ -52,6 +54,8 @@ export class SummaryViewModel {
   hasMissingNotificationEmail?: boolean
   components?: ComponentViewModel[]
   allowSaveAndExit = false
+  paymentState?: PaymentState
+  paymentDetails?: CheckAnswers
 
   constructor(
     request: FormContextRequest,
@@ -104,7 +108,7 @@ export class SummaryViewModel {
           },
           value: {
             classes: 'app-prose-scope',
-            html: item.value || 'Not supplied'
+            html: item.value || 'Not provided'
           },
           actions: {
             items
@@ -125,7 +129,7 @@ export class SummaryViewModel {
 
     const details: Detail[] = []
 
-    ;[undefined, ...sections].forEach((section) => {
+    ;[...sections, undefined].forEach((section) => {
       const items: DetailItem[] = []
 
       const sectionPages = relevantPages.filter(
@@ -144,6 +148,10 @@ export class SummaryViewModel {
           )
         } else {
           for (const field of collection.fields) {
+            // PaymentField is rendered in its own section, skip it here
+            if (field instanceof PaymentField) {
+              continue
+            }
             items.push(ItemField(page, state, field, { path, errors }))
           }
         }
@@ -178,13 +186,13 @@ function ItemRepeat(
   const { name, title } = repeat.options
 
   const values = page.getListFromState(state)
-  const unit = values.length === 1 ? title : `${title}s`
+  const unit = values.length === 1 ? 'answer' : 'answers'
 
   return {
     name,
     label: title,
-    title: values.length ? `${unit} added` : unit,
-    value: values.length ? `You added ${values.length} ${unit}` : '',
+    title,
+    value: values.length ? `You have added ${values.length} ${unit}` : '',
     href: getPageHref(page, options.path, {
       returnUrl: getPageHref(page, page.getSummaryPath())
     }),
@@ -204,7 +212,7 @@ function ItemRepeat(
  * Creates a form field detail item
  * @see {@link DetailItemField}
  */
-function ItemField(
+export function ItemField(
   page: PageControllerClass,
   state: FormState,
   field: Field,
@@ -216,7 +224,10 @@ function ItemField(
   return {
     name: field.name,
     label: field.title,
-    title: field.label,
+    title:
+      field.options.required === false
+        ? `${field.label} (optional)`
+        : field.label,
     error: field.getFirstError(options.errors),
     value: getAnswer(field, state),
     href: getPageHref(page, options.path, {

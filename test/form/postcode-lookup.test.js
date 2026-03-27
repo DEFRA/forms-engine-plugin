@@ -19,7 +19,6 @@ jest.mock('~/src/server/plugins/engine/services/formsService.js')
 jest.mock('~/src/server/plugins/postcode-lookup/service.js')
 
 /**
- *
  * @param {Server} server
  */
 async function initialiseJourney(server) {
@@ -555,6 +554,51 @@ describe('Postcode lookup form pages', () => {
       level: 2
     })
     expect($heading).toBeInTheDocument()
+  })
+
+  it('should render validation error when invalid postcode is provided on manual page', async () => {
+    const { csrfToken, headers } = await initialiseJourney(server)
+
+    // Dispatch to postcode journey
+    await server.inject({
+      url: `${basePath}/address`,
+      method: 'POST',
+      headers,
+      payload: {
+        action: 'external-ybMHIv',
+        crumb: csrfToken
+      }
+    })
+
+    const { response, container } = await renderResponse(server, {
+      url: '/postcode-lookup?step=manual',
+      method: 'POST',
+      headers,
+      payload: {
+        step: 'manual',
+        addressLine1: '1 Street Name',
+        addressLine2: '',
+        town: 'Middletown',
+        county: '',
+        postcode: 'INVALID123',
+        crumb: csrfToken
+      }
+    })
+
+    expect(response.statusCode).toBe(StatusCodes.OK)
+    const $errorSummary = container.getByRole('alert')
+
+    const $heading = within($errorSummary).getByRole('heading', {
+      name: 'There is a problem',
+      level: 2
+    })
+    expect($heading).toBeInTheDocument()
+
+    // Verify the specific postcode error message is shown
+    const $postcodeError = container.getByRole('link', {
+      name: 'Enter a valid postcode'
+    })
+    expect($postcodeError).toBeInTheDocument()
   })
 
   it('should redirect back to the source page after successful POST to manual page', async () => {

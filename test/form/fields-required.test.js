@@ -179,6 +179,14 @@ describe('Form fields (required)', () => {
             empty: {},
             valid: { checkboxesMultipleNumber: '1' }
           }
+        },
+        {
+          name: 'declaration',
+          title: 'Declaration',
+          payload: {
+            empty: {},
+            valid: { declaration: 'true' }
+          }
         }
       ]
     }
@@ -241,6 +249,13 @@ describe('Form fields (required)', () => {
         })
 
         expect($heading).toBeInTheDocument()
+      })
+
+      it('should render the field label without (optional)', () => {
+        for (const field of fields) {
+          const $label = container.getByText(field.title)
+          expect($label).toBeInTheDocument()
+        }
       })
 
       it('should show errors when invalid on submit', async () => {

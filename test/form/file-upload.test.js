@@ -212,7 +212,14 @@ describe('File upload POST tests', () => {
 
     expect(response.statusCode).toBe(StatusCodes.OK)
 
-    const $errorSummary = container.getByRole('alert')
+    const $errorSummary = container
+      .getAllByRole('alert')
+      .find((el) => within(el).queryAllByRole('listitem').length)
+
+    if (!$errorSummary) {
+      throw new Error('Unable to find error summary')
+    }
+
     const $errorItems = within($errorSummary).getAllByRole('listitem')
 
     const $heading = within($errorSummary).getByRole('heading', {
@@ -289,14 +296,14 @@ describe('File upload POST tests', () => {
     expect(res2.statusCode).toBe(StatusCodes.OK)
 
     const res3 = await server.inject({
-      url: `${basePath}/methodology-statement/15b2303c-9965-4632-acb6-0776081e0399/confirm-delete`,
+      url: `${basePath}/methodology-statement/5a76a1a3-bc8a-4bc0-859a-116d775c7f15/confirm-delete`,
       headers
     })
 
     expect(res3.statusCode).toBe(StatusCodes.OK)
 
     const res4 = await server.inject({
-      url: `${basePath}/methodology-statement/15b2303c-9965-4632-acb6-0776081e0399/confirm-delete`,
+      url: `${basePath}/methodology-statement/5a76a1a3-bc8a-4bc0-859a-116d775c7f15/confirm-delete`,
       method: 'POST',
       headers,
       payload: {

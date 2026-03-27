@@ -1,202 +1,51 @@
-name: Publish Engine Plugin
-
+name: Publish to NPM
 on:
-  workflow_dispatch:
-    inputs:
-      version_bump:
-        description: 'Type of version bump to perform'
-        required: true
-        default: 'patch'
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
-      npm_tag:
-        description: 'Custom npm tag (only needed for non-standard branches; release branches will use their major version tag automatically)'
-        required: false
-        default: 'beta'
-        type: string
-      dry_run:
-        description: 'Dry run (no actual publishing)'
-        required: false
-        default: true
-        type: boolean
-
-  push:
-    branches:
-      - main
-      - 'release/v[0-9]*'
-
-concurrency:
-  group: publish-engine-plugin-${{ github.ref }}
+  release:
+    types:
+      - published
 
 permissions:
-  contents: write
-  packages: write
+  id-token: write  # Required for OIDC trusted publishing
+  contents: read
 
 jobs:
-  determine-path:
-    name: Determine Workflow Path
-    runs-on: ubuntu-24.04
-    outputs:
-      workflow-path: ${{ steps.check-path.outputs.workflow-path }}
-      version-bump: ${{ steps.check-path.outputs.version-bump }}
-      npm-tag: ${{ steps.check-path.outputs.npm-tag }}
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-
-      - name: Determine workflow path
-        id: check-path
-        run: bash .github/scripts/publish/determine-workflow-path.sh "${{ github.event_name }}" "${{ github.event.inputs.version_bump }}" "${{ github.event.inputs.npm_tag }}"
-
-  build:
-    name: Build
-    needs: [determine-path]
-    if: needs.determine-path.outputs.workflow-path != 'skip'
-    runs-on: ubuntu-24.04
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        id: npm-install-cache
-        with:
-          enableCrossOsArchive: true
-          key: npm-install-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-          path: node_modules
-
-      - name: Cache build
-        uses: actions/cache@v4
-        with:
-          enableCrossOsArchive: true
-          key: npm-build-${{ runner.os }}-${{ github.sha }}
-          path: |
-            .server
-            .public
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          cache: 'npm'
-          node-version-file: .nvmrc
-
-      - name: Install dependencies
-        if: steps.npm-install-cache.outputs.cache-hit != 'true'
-        run: npm ci
-
-      - name: Run build
-        run: npm run build
+  ci:
+    uses: ./.github/workflows/check-pull-request.yml
+    secrets: inherit
+    with:
+      skip-sonar: true
 
   publish:
-    name: Publish
-    needs: [determine-path, build]
-    if: needs.determine-path.outputs.workflow-path != 'skip'
-    runs-on: ubuntu-24.04
-    environment: production
-
+    needs: ci
+    runs-on: ubuntu-latest
     steps:
-      - name: Check out code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
-          ref: ${{ github.ref }}
+          fetch-depth: 0
+          ref: ${{ github.event.release.tag_name }}
 
-      - name: Display workflow path
-        run: |
-          echo "⭐ Executing ${{ needs.determine-path.outputs.workflow-path }} workflow path"
-          echo "Version bump type: ${{ needs.determine-path.outputs.version-bump }}"
-          echo "NPM Tag: ${{ needs.determine-path.outputs.npm-tag || '<auto-detect>' }}"
-
-      - name: Restore dependencies
-        uses: actions/cache/restore@v4
+      - uses: actions/setup-node@v5
         with:
-          enableCrossOsArchive: true
-          key: npm-install-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-          path: node_modules
+          node-version-file: .nvmrc
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
 
-      - name: Restore build artifacts
-        uses: actions/cache/restore@v4
+      - name: Cache webpack and build artifacts
+        uses: actions/cache@v4
         with:
-          enableCrossOsArchive: true
-          key: npm-build-${{ runner.os }}-${{ github.sha }}
           path: |
-            .server
-            .public
+            node_modules/.cache/webpack
+            node_modules/.cache/terser-webpack-plugin
+          key: ${{ runner.os }}-build-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('webpack.*.mjs', 'babel.config.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ hashFiles('**/package-lock.json') }}-
+            ${{ runner.os }}-build-
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          registry-url: https://registry.npmjs.org
-          scope: '@defra'
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Determine version bump details
-        id: version-details
-        run: bash .github/scripts/publish/version-bump-details.sh "${{ github.ref_name }}" "${{ needs.determine-path.outputs.version-bump }}"
+      - name: Build
+        run: npm run build
 
-      - name: Update package version
-        run: |
-          echo "Bumping version: $VERSION_TYPE"
-          npm version $VERSION_TYPE --git-tag-version false --save
-
-      - name: Commit and push updates
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          NEW_VERSION=$(npm pkg get version | tr -d \")
-          git commit -am "v$NEW_VERSION [skip ci]" && git push
-
-      - name: Publish to npm with appropriate dist-tag
-        run: bash .github/scripts/publish/publish-to-npm.sh "${{ github.ref_name }}" "${{ needs.determine-path.outputs.workflow-path }}" "${{ needs.determine-path.outputs.npm-tag }}" "${{ github.event.inputs.dry_run }}"
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
-
-  generate-docs:
-    name: Generate and Publish Documentation
-    needs: [publish]
-    if: needs.determine-path.outputs.workflow-path != 'skip' && (startsWith(github.ref, 'refs/heads/release/v') || github.ref == 'refs/heads/main')
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-
-      - name: Restore dependencies
-        uses: actions/cache/restore@v4
-        with:
-          enableCrossOsArchive: true
-          key: npm-install-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-          path: node_modules
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-
-      - name: Generate and process documentation
-        run: bash .github/scripts/docs/generate-and-publish-docs.sh "${{ github.ref_name }}" "$(npm pkg get version | tr -d \")"
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: './docs-site'
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Publish
+        run: ./scripts/publish-package.sh "${{ github.event.release.tag_name }}" "${{ github.event.release.prerelease }}"

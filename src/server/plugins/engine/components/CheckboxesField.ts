@@ -65,8 +65,14 @@ export class CheckboxesField extends SelectionControlField {
     return this.isValue(value) ? value : undefined
   }
 
-  getDisplayStringFromFormValue(selected: (string | number | boolean)[]) {
+  getDisplayStringFromFormValue(
+    selected: (string | number | boolean)[] | undefined
+  ) {
     const { items } = this
+
+    if (!selected) {
+      return ''
+    }
 
     // Map selected values to text
     return items

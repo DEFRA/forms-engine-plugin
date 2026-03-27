@@ -34,6 +34,9 @@ export type Field = InstanceType<
   | typeof Components.TextField
   | typeof Components.UkAddressField
   | typeof Components.FileUploadField
+  | typeof Components.HiddenField
+  | typeof Components.PaymentField
+  | typeof Components.GeospatialField
 >
 
 // Guidance component instances only
@@ -186,6 +189,18 @@ export function createComponent(
     case ComponentType.LatLongField:
       component = new Components.LatLongField(def, options)
       break
+
+    case ComponentType.HiddenField:
+      component = new Components.HiddenField(def, options)
+      break
+
+    case ComponentType.PaymentField:
+      component = new Components.PaymentField(def, options)
+      break
+
+    case ComponentType.GeospatialField:
+      component = new Components.GeospatialField(def, options)
+      break
   }
 
   if (typeof component === 'undefined') {
@@ -322,6 +337,11 @@ export function getAnswerMarkdown(
   ) {
     const contextValue = field.getContextValueFromState(state)
     answerEscaped = contextValue ? `${contextValue}\n` : ''
+  } else if (field instanceof Components.GeospatialField) {
+    const features = field.getFormValueFromState(state)
+    const value = field.getDisplayStringFromFormValue(features)
+
+    answerEscaped = value ? `${value}\n` : ''
   }
 
   return answerEscaped

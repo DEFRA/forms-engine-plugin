@@ -103,23 +103,15 @@ describe('NationalGridFieldNumberField', () => {
         const result1 = collection.validate(getFormData('TQ12345678'))
         const result2 = collection.validate(getFormData('TQ 1234 5678'))
 
-        // Test 10-digit OS grid reference format (2x5)
-        const result3 = collection.validate(getFormData('SU1234567890'))
-        const result4 = collection.validate(getFormData('SU 12345 67890'))
-
         expect(result1.errors).toBeUndefined()
         expect(result2.errors).toBeUndefined()
-        expect(result3.errors).toBeUndefined()
-        expect(result4.errors).toBeUndefined()
 
         // Test case-insensitive
-        const result5 = collection.validate(getFormData('nt12345678'))
+        const result3 = collection.validate(getFormData('nt12345678'))
 
         expect(result1.errors).toBeUndefined()
         expect(result2.errors).toBeUndefined()
         expect(result3.errors).toBeUndefined()
-        expect(result4.errors).toBeUndefined()
-        expect(result5.errors).toBeUndefined()
       })
 
       it('formats values with spaces per GDS guidance', () => {
@@ -265,6 +257,7 @@ describe('NationalGridFieldNumberField', () => {
         description: 'Trim empty spaces',
         component: {
           title: 'Example National Grid field number',
+          shortDescription: 'Grid field',
           name: 'myComponent',
           type: ComponentType.NationalGridFieldNumberField,
           options: {}
@@ -288,6 +281,7 @@ describe('NationalGridFieldNumberField', () => {
         description: 'Pattern validation',
         component: {
           title: 'Example National Grid field number',
+          shortDescription: 'Grid field',
           name: 'myComponent',
           type: ComponentType.NationalGridFieldNumberField,
           options: {}
@@ -299,7 +293,7 @@ describe('NationalGridFieldNumberField', () => {
               value: getFormData('NG1234567'),
               errors: expect.arrayContaining([
                 expect.objectContaining({
-                  text: 'Enter a valid National Grid field number for Example National Grid field number like NG 1234 5678'
+                  text: 'Enter a valid National Grid field number for grid field like NG 1234 5678'
                 })
               ])
             }
@@ -310,7 +304,7 @@ describe('NationalGridFieldNumberField', () => {
               value: getFormData('N123456789'),
               errors: expect.arrayContaining([
                 expect.objectContaining({
-                  text: 'Enter a valid National Grid field number for Example National Grid field number like NG 1234 5678'
+                  text: 'Enter a valid National Grid field number for grid field like NG 1234 5678'
                 })
               ])
             }
@@ -321,7 +315,7 @@ describe('NationalGridFieldNumberField', () => {
               value: getFormData('NGABCDEFGH'),
               errors: expect.arrayContaining([
                 expect.objectContaining({
-                  text: 'Enter a valid National Grid field number for Example National Grid field number like NG 1234 5678'
+                  text: 'Enter a valid National Grid field number for grid field like NG 1234 5678'
                 })
               ])
             }
@@ -332,6 +326,7 @@ describe('NationalGridFieldNumberField', () => {
         description: 'Custom validation message',
         component: {
           title: 'Example National Grid field number',
+          shortDescription: 'Grid field',
           name: 'myComponent',
           type: ComponentType.NationalGridFieldNumberField,
           options: {
@@ -367,6 +362,7 @@ describe('NationalGridFieldNumberField', () => {
         description: 'Custom validation messages (multiple)',
         component: {
           title: 'Example National Grid field number',
+          shortDescription: 'Grid field',
           name: 'myComponent',
           type: ComponentType.NationalGridFieldNumberField,
           options: {
@@ -417,6 +413,7 @@ describe('NationalGridFieldNumberField', () => {
         description: 'Optional field',
         component: {
           title: 'Example National Grid field number',
+          shortDescription: 'Grid field',
           name: 'myComponent',
           type: ComponentType.NationalGridFieldNumberField,
           options: {

@@ -1,12 +1,15 @@
 import { type FormComponentsDef } from '@defra/forms-model'
-import joi, { type LanguageMessages, type StringSchema } from 'joi'
+import joi, {
+  type JoiExpression,
+  type LanguageMessages,
+  type StringSchema
+} from 'joi'
 
 import {
   FormComponent,
   isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers/index.js'
-import { markdown } from '~/src/server/plugins/engine/components/markdownParser.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
@@ -16,6 +19,7 @@ import {
   type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
+import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 
 interface LocationFieldOptions {
   instructionText?: string
@@ -27,7 +31,8 @@ interface LocationFieldOptions {
 
 interface ValidationConfig {
   pattern: RegExp
-  patternErrorMessage: string
+  patternErrorMessage: JoiExpression
+  requiredMessage?: JoiExpression
 }
 
 /**
@@ -42,7 +47,7 @@ export abstract class LocationFieldBase extends FormComponent {
   protected abstract getValidationConfig(): ValidationConfig
   protected abstract getErrorTemplates(): {
     type: string
-    template: string
+    template: JoiExpression
   }[]
 
   constructor(
@@ -58,6 +63,14 @@ export abstract class LocationFieldBase extends FormComponent {
     addClassOptionIfNone(locationOptions, 'govuk-input--width-10')
 
     const config = this.getValidationConfig()
+    const requiredMessage =
+      config.requiredMessage ?? (messageTemplate.required as string)
+
+    const messages = convertToLanguageMessages({
+      'any.required': requiredMessage,
+      'string.empty': requiredMessage,
+      'string.pattern.base': config.patternErrorMessage
+    })
 
     let formSchema = joi
       .string()
@@ -65,9 +78,7 @@ export abstract class LocationFieldBase extends FormComponent {
       .label(this.label)
       .required()
       .pattern(config.pattern)
-      .messages({
-        'string.pattern.base': config.patternErrorMessage
-      })
+      .messages(messages)
 
     if (locationOptions.required === false) {
       formSchema = formSchema.allow('')
@@ -115,7 +126,7 @@ export abstract class LocationFieldBase extends FormComponent {
     if (this.instructionText) {
       return {
         ...viewModel,
-        instructionText: markdown.parse(this.instructionText, { async: false })
+        instructionText: this.instructionText
       }
     }
 
@@ -123,9 +134,15 @@ export abstract class LocationFieldBase extends FormComponent {
   }
 
   getAllPossibleErrors(): ErrorMessageTemplateList {
+    const config = this.getValidationConfig()
+
     return {
       baseErrors: [
-        { type: 'required', template: messageTemplate.required },
+        {
+          type: 'required',
+          template:
+            config.requiredMessage ?? (messageTemplate.required as string)
+        },
         ...this.getErrorTemplates()
       ],
       advancedSettingsErrors: []

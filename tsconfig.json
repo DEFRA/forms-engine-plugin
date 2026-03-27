@@ -20,10 +20,10 @@
     "**/*.js",
     "**/*.mjs",
     "**/*.ts",
-    ".eslintrc.*",
+    "eslint.config.*",
     ".prettierrc.*",
     ".lintstagedrc.*",
     "node_modules/@types/jest/index.d.ts"
   ],
-  "exclude": ["coverage", "node_modules", ".public", ".server"]
+  "exclude": ["build", "coverage", "node_modules", ".public", ".server"]
 }

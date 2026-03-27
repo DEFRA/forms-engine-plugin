@@ -43,24 +43,6 @@ describe.each([
   },
   {
     component: {
-      title: 'String list title',
-      shortDescription: 'String list',
-      name: 'myComponent',
-      type: ComponentType.CheckboxesField,
-      list: 'listString',
-      options: {}
-    } satisfies CheckboxesFieldComponent,
-
-    options: {
-      label: 'string list',
-      list: listString,
-      examples: listStringExamples,
-      allow: ['1', '2', '3', '4'],
-      deny: ['5', '6', '7', '8']
-    }
-  },
-  {
-    component: {
       title: 'Number list title',
       name: 'myComponent',
       shortDescription: 'Number list',
@@ -405,6 +387,44 @@ describe.each([
         const errors = field.getAllPossibleErrors()
         expect(errors.baseErrors).not.toBeEmpty()
         expect(errors.advancedSettingsErrors).toBeEmpty()
+      })
+    })
+
+    describe('getDisplayStringFromFormValue', () => {
+      it('returns empty string when value is undefined', () => {
+        const checkboxField = field as CheckboxesField
+        const result = checkboxField.getDisplayStringFromFormValue(undefined)
+        expect(result).toBe('')
+      })
+
+      it('returns empty string when value is empty array', () => {
+        const checkboxField = field as CheckboxesField
+        const result = checkboxField.getDisplayStringFromFormValue([])
+        expect(result).toBe('')
+      })
+
+      it.each([...options.examples])(
+        'returns text for single selected value',
+        (item) => {
+          const checkboxField = field as CheckboxesField
+          const result = checkboxField.getDisplayStringFromFormValue([
+            item.value
+          ])
+          expect(result).toBe(item.text)
+        }
+      )
+
+      it('returns comma-separated text for multiple selected values', () => {
+        const checkboxField = field as CheckboxesField
+        const item1 = options.examples[0]
+        const item2 = options.examples[2]
+
+        const result = checkboxField.getDisplayStringFromFormValue([
+          item1.value,
+          item2.value
+        ])
+
+        expect(result).toBe(`${item1.text}, ${item2.text}`)
       })
     })
   })

@@ -9,8 +9,8 @@ import Boom from '@hapi/boom'
 import { type Lifecycle, type RouteOptions, type Server } from '@hapi/hapi'
 
 import { type ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import { type FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import {
-  encodeUrl,
   getSaveAndExitHelpers,
   getStartPath,
   normalisePath
@@ -37,6 +37,7 @@ export class PageController {
   name?: string
   model: FormModel
   pageDef: Page
+  id?: string
   title: string
   section?: Section
   condition?: ExecutableCondition
@@ -52,13 +53,14 @@ export class PageController {
     this.name = def.name
     this.model = model
     this.pageDef = pageDef
+    this.id = pageDef.id
     this.title = pageDef.title
     this.events = pageDef.events
 
     // Resolve section
-    this.section = model.sections.find(
-      (section) => section.name === pageDef.section
-    )
+    if (pageDef.section) {
+      this.section = model.getSection(pageDef.section)
+    }
 
     // Resolve condition
     if (pageDef.condition) {
@@ -119,14 +121,9 @@ export class PageController {
   }
 
   get feedbackLink() {
-    const { def } = this
-
-    // setting the feedbackLink to undefined here for feedback forms prevents the feedback link from being shown
-    const feedbackLink = def.feedback?.emailAddress
-      ? `mailto:${def.feedback.emailAddress}`
-      : def.feedback?.url
-
-    return encodeUrl(feedbackLink)
+    return this.def.options?.disableUserFeedback
+      ? undefined
+      : `/form/feedback?formId=${this.model.formId}`
   }
 
   get phaseTag() {
@@ -181,6 +178,22 @@ export class PageController {
     h: FormResponseToolkit
   ) => ReturnType<Lifecycle.Method<FormRequestPayloadRefs>> {
     throw Boom.badRequest('Unsupported POST route handler for this page')
+  }
+
+  /**
+   * Get supplementary state keys for clearing component state.
+   *
+   * This method returns page controller-level state keys only. The core component's
+   * state key (the component's name) is managed separately by the framework and should
+   * NOT be included in the returned array.
+   *
+   * Returns an empty array by default. Override in subclasses to provide
+   * page-specific supplementary state keys (e.g., upload state, cached data).
+   * @param _component - The component to get supplementary state keys for (optional)
+   * @returns Array of supplementary state keys to clear (excluding the component name itself)
+   */
+  getStateKeys(_component?: FormComponent): string[] {
+    return []
   }
 
   shouldShowSaveAndExit(server: Server): boolean {

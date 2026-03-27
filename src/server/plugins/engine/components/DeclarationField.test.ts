@@ -11,6 +11,8 @@ import {
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import definition from '~/test/form/definitions/blank.js'
+import declarationWithGuidance from '~/test/form/definitions/declaration-with-guidance.js'
+import declarationWithoutGuidance from '~/test/form/definitions/declaration-without-guidance.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
 describe('DeclarationField', () => {
@@ -186,7 +188,7 @@ describe('DeclarationField', () => {
         const answer2 = getAnswer(field, state2)
 
         expect(answer1).toBe('I understand and agree')
-        expect(answer2).toBe('')
+        expect(answer2).toBe('Not provided')
       })
 
       it('returns payload from state', () => {
@@ -197,7 +199,7 @@ describe('DeclarationField', () => {
         const payload2 = field.getFormDataFromState(state2)
 
         expect(payload1).toEqual(getFormData('true'))
-        expect(payload2).toEqual(getFormData())
+        expect(payload2).toEqual(getFormData('false'))
       })
 
       it('returns value from state', () => {
@@ -208,7 +210,7 @@ describe('DeclarationField', () => {
         const value2 = field.getFormValueFromState(state2)
 
         expect(value1).toBe('true')
-        expect(value2).toBeUndefined()
+        expect(value2).toBe('false')
       })
 
       it('returns context for conditions and form submission', () => {
@@ -239,25 +241,104 @@ describe('DeclarationField', () => {
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = field.getViewModel(getFormData([]))
+        const viewModel = field.getViewModel(getFormData(undefined))
 
         expect(viewModel).toEqual(
           expect.objectContaining({
             label: { text: def.title },
             name: 'myComponent',
             attributes: {},
-            values: [],
             content: 'Lorem ipsum dolar sit amet',
             id: 'myComponent',
             fieldset: {
               legend: {
-                text: 'Example Declaration Component'
+                text: 'Example Declaration Component',
+                classes: 'govuk-fieldset__legend--m'
               }
             },
             items: [
               {
                 value: 'true',
-                text: 'I understand and agree'
+                text: 'I understand and agree',
+                checked: false
+              }
+            ]
+          })
+        )
+      })
+
+      it('sets Nunjucks component to false when not checked', () => {
+        def = {
+          ...def,
+          hint: 'Please read and confirm the following'
+        } satisfies DeclarationFieldComponent
+
+        collection = new ComponentCollection([def], { model })
+        field = collection.fields[0]
+        const viewModel = field.getViewModel(getFormData('unchecked'))
+
+        expect(viewModel).toEqual(
+          expect.objectContaining({
+            hint: {
+              text: 'Please read and confirm the following'
+            },
+            items: [
+              {
+                value: 'true',
+                text: 'I understand and agree',
+                checked: false
+              }
+            ]
+          })
+        )
+      })
+
+      it('sets Nunjucks component to true when checked from save-anbd-exit', () => {
+        def = {
+          ...def,
+          hint: 'Please read and confirm the following'
+        } satisfies DeclarationFieldComponent
+
+        collection = new ComponentCollection([def], { model })
+        field = collection.fields[0]
+        const viewModel = field.getViewModel(getFormData(['true', 'unchecked']))
+
+        expect(viewModel).toEqual(
+          expect.objectContaining({
+            hint: {
+              text: 'Please read and confirm the following'
+            },
+            items: [
+              {
+                value: 'true',
+                text: 'I understand and agree',
+                checked: true
+              }
+            ]
+          })
+        )
+      })
+
+      it('sets Nunjucks component to false when unchecked from save-anbd-exit', () => {
+        def = {
+          ...def,
+          hint: 'Please read and confirm the following'
+        } satisfies DeclarationFieldComponent
+
+        collection = new ComponentCollection([def], { model })
+        field = collection.fields[0]
+        const viewModel = field.getViewModel(getFormData(['unchecked']))
+
+        expect(viewModel).toEqual(
+          expect.objectContaining({
+            hint: {
+              text: 'Please read and confirm the following'
+            },
+            items: [
+              {
+                value: 'true',
+                text: 'I understand and agree',
+                checked: false
               }
             ]
           })
@@ -272,14 +353,20 @@ describe('DeclarationField', () => {
 
         collection = new ComponentCollection([def], { model })
         field = collection.fields[0]
-        const viewModel = field.getViewModel(getFormData(['true']))
+        const viewModel = field.getViewModel(getFormData('true'))
 
         expect(viewModel).toEqual(
           expect.objectContaining({
-            values: ['true'],
             hint: {
               text: 'Please read and confirm the following'
-            }
+            },
+            items: [
+              {
+                value: 'true',
+                text: 'I understand and agree',
+                checked: true
+              }
+            ]
           })
         )
       })
@@ -301,14 +388,39 @@ describe('DeclarationField', () => {
         collection = new ComponentCollection([def], { model })
         field = collection.fields[0]
 
-        const viewModel = field.getViewModel(getFormData(['unchecked', 'true']))
+        const viewModel = field.getViewModel(getFormData('true'))
 
         expect(viewModel).toEqual(
           expect.objectContaining({
             items: [
               {
                 value: 'true',
-                text: 'I consent to the processing of my personal data'
+                text: 'I consent to the processing of my personal data',
+                checked: true
+              }
+            ]
+          })
+        )
+      })
+
+      it('sets checkbox as unchecked', () => {
+        def = {
+          ...def,
+          hint: 'Please read and confirm the following'
+        } satisfies DeclarationFieldComponent
+
+        collection = new ComponentCollection([def], { model })
+        field = collection.fields[0]
+
+        const viewModel = field.getViewModel(getFormData(undefined))
+
+        expect(viewModel).toEqual(
+          expect.objectContaining({
+            items: [
+              {
+                value: 'true',
+                text: 'I understand and agree',
+                checked: false
               }
             ]
           })
@@ -421,6 +533,28 @@ describe('DeclarationField', () => {
     test('should return correct boolean', () => {
       expect(DeclarationField.isBool('string')).toBe(false)
       expect(DeclarationField.isBool(true)).toBe(true)
+    })
+  })
+
+  describe('Markdown header starting level', () => {
+    test('should determine startHeadingLevel is 3 some guidance', () => {
+      const modelDecl = new FormModel(declarationWithGuidance, {
+        basePath: 'test'
+      })
+      const field = modelDecl.componentMap.get(
+        'declarationField'
+      ) as DeclarationField
+      expect(field.headerStartLevel).toBe(3)
+    })
+
+    test('should determine startHeadingLevel is 2 when no guidance', () => {
+      const modelDecl = new FormModel(declarationWithoutGuidance, {
+        basePath: 'test'
+      })
+      const field = modelDecl.componentMap.get(
+        'declarationField'
+      ) as DeclarationField
+      expect(field.headerStartLevel).toBe(2)
     })
   })
 })

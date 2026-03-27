@@ -99,7 +99,7 @@ export function makeGetHandler(
           throw Boom.notFound(`No model found for /${params.path}`)
         }
 
-        if (events?.onLoad && events.onLoad.type === 'http') {
+        if (events?.onLoad?.type === 'http') {
           await handleHttpEvent(
             request,
             page,
@@ -147,11 +147,7 @@ export function makePostHandler(
 
         const response = await page.makePostRouteHandler()(request, context, h)
 
-        if (
-          events?.onSave &&
-          events.onSave.type === 'http' &&
-          isSuccessful(response)
-        ) {
+        if (events?.onSave?.type === 'http' && isSuccessful(response)) {
           await handleHttpEvent(
             request,
             page,

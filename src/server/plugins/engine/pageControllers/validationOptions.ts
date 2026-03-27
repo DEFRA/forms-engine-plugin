@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 // Declaration above is needed for: https://github.com/hapijs/joi/issues/3064
 
 import joi, {
@@ -8,11 +7,12 @@ import joi, {
   type ReferenceOptions,
   type ValidationOptions
 } from 'joi'
-import lowerFirst from 'lodash/lowerFirst.js'
+
+import { lowerFirstPreserveProperNouns } from '~/src/server/plugins/engine/components/helpers/index.js'
 
 const opts = {
   functions: {
-    lowerFirst
+    lowerFirst: lowerFirstPreserveProperNouns
   }
 } as ReferenceOptions
 
@@ -89,7 +89,9 @@ export const messages: LanguageMessagesExt = {
   'date.base': messageTemplate.dateFormat,
   'date.format': messageTemplate.dateFormat,
   'date.min': messageTemplate.dateMin,
-  'date.max': messageTemplate.dateMax
+  'date.max': messageTemplate.dateMax,
+
+  'object.invalidjson': messageTemplate.format
 }
 
 export const messagesPre: LanguageMessages =

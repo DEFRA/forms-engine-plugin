@@ -1,8 +1,13 @@
 /* eslint-disable @typescript-eslint/dot-notation */
 import { ComponentType, type ComponentDef } from '@defra/forms-model'
+import Boom from '@hapi/boom'
 import { type ValidationErrorItem, type ValidationResult } from 'joi'
 
-import { tempItemSchema } from '~/src/server/plugins/engine/components/FileUploadField.js'
+import {
+  FileUploadField,
+  tempItemSchema
+} from '~/src/server/plugins/engine/components/FileUploadField.js'
+import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
 import {
   getCacheService,
   getError
@@ -15,6 +20,7 @@ import {
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import { serverWithSaveAndExit } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
 import * as pageHelpers from '~/src/server/plugins/engine/pageControllers/helpers/index.js'
+import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import * as uploadService from '~/src/server/plugins/engine/services/uploadService.js'
 import {
   FileStatus,
@@ -33,7 +39,10 @@ import {
   type FormResponseToolkit
 } from '~/src/server/routes/types.js'
 import { type CacheService } from '~/src/server/services/index.js'
+import * as fixtures from '~/test/fixtures/index.js'
 import definition from '~/test/form/definitions/file-upload-basic.js'
+
+jest.mock('~/src/server/plugins/engine/services/formsService.js')
 
 type TestableFileUploadPageController = FileUploadPageController & {
   initiateAndStoreNewUpload(
@@ -65,8 +74,13 @@ describe('FileUploadPageController', () => {
       basePath: 'test'
     })
 
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+
     controller = new FileUploadPageController(model, pages[0])
     request = {
+      params: {
+        slug: 'test-form'
+      },
       logger: {
         info: jest.fn(),
         error: jest.fn(),
@@ -180,6 +194,89 @@ describe('FileUploadPageController', () => {
         ).rejects.toThrow(
           'Unexpected empty response from getUploadStatus for some-id'
         )
+      })
+
+      it('initiates new upload when getUploadStatus throws a 404 error', async () => {
+        const state = {
+          upload: {
+            [controller.path]: {
+              upload: {
+                uploadId: 'some-id',
+                uploadUrl: 'some-url',
+                statusUrl: 'some-status-url'
+              },
+              files: []
+            }
+          }
+        } as unknown as FormSubmissionState
+
+        const notFoundError = Boom.notFound('Upload not found')
+
+        jest
+          .spyOn(uploadService, 'getUploadStatus')
+          .mockRejectedValue(notFoundError)
+
+        const testController = controller as TestableFileUploadPageController
+        const initiateSpy = jest.spyOn(
+          testController,
+          'initiateAndStoreNewUpload'
+        )
+        initiateSpy.mockResolvedValue(state as never)
+
+        const result = await controller['checkUploadStatus'](request, state, 1)
+
+        expect(initiateSpy).toHaveBeenCalledWith(request, state)
+        expect(result).toBe(state)
+      })
+
+      it('re-throws non-404 Boom errors from getUploadStatus', async () => {
+        const state = {
+          upload: {
+            [controller.path]: {
+              upload: {
+                uploadId: 'some-id',
+                uploadUrl: 'some-url',
+                statusUrl: 'some-status-url'
+              },
+              files: []
+            }
+          }
+        } as unknown as FormSubmissionState
+
+        const serverError = Boom.internal('Server error')
+
+        jest
+          .spyOn(uploadService, 'getUploadStatus')
+          .mockRejectedValue(serverError)
+
+        await expect(
+          controller['checkUploadStatus'](request, state, 1)
+        ).rejects.toThrow('Server error')
+      })
+
+      it('re-throws non-Boom errors from getUploadStatus', async () => {
+        const state = {
+          upload: {
+            [controller.path]: {
+              upload: {
+                uploadId: 'some-id',
+                uploadUrl: 'some-url',
+                statusUrl: 'some-status-url'
+              },
+              files: []
+            }
+          }
+        } as unknown as FormSubmissionState
+
+        const networkError = new Error('Network failure')
+
+        jest
+          .spyOn(uploadService, 'getUploadStatus')
+          .mockRejectedValue(networkError)
+
+        await expect(
+          controller['checkUploadStatus'](request, state, 1)
+        ).rejects.toThrow('Network failure')
       })
 
       it('handles pending upload with backoff and retries', async () => {
@@ -698,6 +795,83 @@ describe('FileUploadPageController', () => {
           })
         })
 
+        it('collects all file errors into a single flash when multiple files fail', async () => {
+          const state = {
+            upload: {
+              [controller.path]: {
+                upload: {
+                  uploadId: 'some-id',
+                  uploadUrl: 'some-url',
+                  statusUrl: 'some-status-url'
+                },
+                files: []
+              }
+            }
+          } as unknown as FormSubmissionState
+
+          const errorStatus = {
+            uploadStatus: UploadStatus.ready,
+            form: {
+              file: [
+                {
+                  fileStatus: FileStatus.rejected,
+                  errorMessage: 'File too large'
+                },
+                {
+                  fileStatus: FileStatus.rejected,
+                  errorMessage: 'Invalid file type'
+                }
+              ]
+            }
+          }
+
+          jest
+            .spyOn(uploadService, 'getUploadStatus')
+            .mockResolvedValue(errorStatus as unknown as UploadStatusResponse)
+
+          jest.spyOn(tempItemSchema, 'validate').mockReturnValue({
+            value: {
+              status: errorStatus,
+              uploadId: 'some-id'
+            },
+            error: undefined
+          } as ValidationResult)
+
+          const testController = controller as TestableFileUploadPageController
+
+          const initiateSpy = jest.spyOn(
+            testController,
+            'initiateAndStoreNewUpload'
+          ) as jest.SpyInstance<
+            Promise<FormSubmissionState>,
+            [FormRequest, FormSubmissionState]
+          >
+
+          initiateSpy.mockResolvedValue(state)
+
+          const cacheService = getCacheService(request.server)
+
+          await controller['checkUploadStatus'](request, state, 1)
+
+          expect(cacheService.setFlash).toHaveBeenCalledTimes(1)
+          expect(cacheService.setFlash).toHaveBeenCalledWith(request, {
+            errors: [
+              {
+                path: ['fileUpload'],
+                href: '#fileUpload',
+                name: 'fileUpload',
+                text: 'File too large'
+              },
+              {
+                path: ['fileUpload'],
+                href: '#fileUpload',
+                name: 'fileUpload',
+                text: 'Invalid file type'
+              }
+            ]
+          })
+        })
+
         it('sets default error message when none provided', async () => {
           const state = {
             upload: {
@@ -762,7 +936,16 @@ describe('FileUploadPageController', () => {
 
     describe('file removal', () => {
       it('returns early when no file is removed', async () => {
-        const files = [{ uploadId: 'file1' }, { uploadId: 'file2' }]
+        const files = [
+          {
+            uploadId: 'upload1',
+            status: { form: { file: { fileId: 'file1' } } }
+          },
+          {
+            uploadId: 'upload2',
+            status: { form: { file: { fileId: 'file2' } } }
+          }
+        ]
 
         Object.defineProperty(request, 'params', {
           value: { itemId: 'nonexistent-file' },
@@ -795,7 +978,16 @@ describe('FileUploadPageController', () => {
       })
 
       it('merges state when file is removed', async () => {
-        const files = [{ uploadId: 'file1' }, { uploadId: 'file2' }]
+        const files = [
+          {
+            uploadId: 'upload1',
+            status: { form: { file: { fileId: 'file1' } } }
+          },
+          {
+            uploadId: 'upload2',
+            status: { form: { file: { fileId: 'file2' } } }
+          }
+        ]
 
         Object.defineProperty(request, 'params', {
           value: { itemId: 'file1' },
@@ -827,7 +1019,12 @@ describe('FileUploadPageController', () => {
         expect(mergeStateSpy).toHaveBeenCalledWith(request, state, {
           upload: {
             [controller.path]: {
-              files: [{ uploadId: 'file2' }],
+              files: [
+                {
+                  uploadId: 'upload2',
+                  status: { form: { file: { fileId: 'file2' } } }
+                }
+              ],
               upload: {
                 uploadId: 'upload-123',
                 uploadUrl: 'some-url',
@@ -1024,11 +1221,15 @@ describe('FileUploadPageController', () => {
             files: [
               {
                 uploadId: 'file-1',
-                status: { form: { file: { filename: 'file-1.pdf' } } }
+                status: {
+                  form: { file: { fileId: 'file-1', filename: 'file-1.pdf' } }
+                }
               },
               {
                 uploadId: 'file-2',
-                status: { form: { file: { filename: 'file-2.pdf' } } }
+                status: {
+                  form: { file: { fileId: 'file-2', filename: 'file-2.pdf' } }
+                }
               }
             ]
           }
@@ -1122,6 +1323,50 @@ describe('FileUploadPageController', () => {
   describe('shouldShowSaveAndExit', () => {
     it('should return true when save and exit is enabled', () => {
       expect(controller.shouldShowSaveAndExit(serverWithSaveAndExit)).toBe(true)
+    })
+  })
+
+  describe('getStateKeys', () => {
+    it('should return nested upload path for FileUploadField component', () => {
+      const component = controller.fileUpload
+      const stateKeys = controller.getStateKeys(component)
+
+      expect(stateKeys).toEqual(["upload['/file-upload-component']"])
+    })
+
+    it('should return empty array for non-FileUploadField components', () => {
+      const component = new TextField(
+        {
+          name: 'testField',
+          title: 'Test field',
+          type: ComponentType.TextField,
+          options: {},
+          schema: {}
+        },
+        { model, page: controller }
+      )
+
+      const stateKeys = controller.getStateKeys(component)
+      expect(stateKeys).toEqual([])
+    })
+
+    it('should return fallback upload key when component has no page', () => {
+      const componentDef: ComponentDef = {
+        name: 'fileUpload',
+        title: 'Upload something',
+        type: ComponentType.FileUploadField,
+        options: {},
+        schema: {}
+      }
+
+      // Create a component without a page reference - should return ['upload']
+      const component = new FileUploadField(componentDef, {
+        model,
+        page: undefined
+      })
+
+      const stateKeys = controller.getStateKeys(component)
+      expect(stateKeys).toEqual(['upload'])
     })
   })
 })

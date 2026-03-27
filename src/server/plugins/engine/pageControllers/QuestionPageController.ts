@@ -13,13 +13,16 @@ import { type RouteOptions } from '@hapi/hapi'
 import { type ValidationErrorItem } from 'joi'
 
 import {
+  COMPONENT_STATE_ERROR,
   EXTERNAL_STATE_APPENDAGE,
-  EXTERNAL_STATE_PAYLOAD
+  EXTERNAL_STATE_PAYLOAD,
+  PAYMENT_EXPIRED_NOTIFICATION
 } from '~/src/server/constants.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import { type BackLink } from '~/src/server/plugins/engine/components/types.js'
 import {
+  checkFormStatus,
   getCacheService,
   getErrors,
   getSaveAndExitHelpers,
@@ -28,6 +31,7 @@ import {
 } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
+import { prefillStateFromQueryParameters } from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
 import {
   type AnyFormRequest,
   type FormContext,
@@ -42,6 +46,7 @@ import {
 import { getComponentsByType } from '~/src/server/plugins/engine/validationHelpers.js'
 import {
   FormAction,
+  FormStatus,
   type FormRequest,
   type FormRequestPayload,
   type FormRequestPayloadRefs,
@@ -177,6 +182,16 @@ export class QuestionPageController extends PageController {
       }
     }
 
+    const hasIncompletePayment = components.some(({ model }) => {
+      if ('paymentState' in model) {
+        const paymentState = model.paymentState as
+          | { preAuth?: { status?: string } }
+          | undefined
+        return !paymentState?.preAuth?.status
+      }
+      return false
+    })
+
     return {
       ...viewModel,
       backLink: this.getBackLink(request, context),
@@ -184,7 +199,8 @@ export class QuestionPageController extends PageController {
       showTitle,
       components,
       errors,
-      allowSaveAndExit: this.shouldShowSaveAndExit(request.server)
+      allowSaveAndExit: this.shouldShowSaveAndExit(request.server),
+      showSubmitButton: !hasIncompletePayment
     }
   }
 
@@ -403,8 +419,25 @@ export class QuestionPageController extends PageController {
       const { collection, model, viewName } = this
       const { evaluationState } = context
 
+      // Copy any URL params into the form state (if not already done so)
+      if (await prefillStateFromQueryParameters(request, this)) {
+        // Forward to same page without query string
+        return h.redirect(`${request.url.origin}${request.url.pathname}`)
+      }
+
       const viewModel = this.getViewModel(request, context)
       viewModel.errors = collection.getViewErrors(viewModel.errors)
+
+      const flashedError = request.yar.flash(COMPONENT_STATE_ERROR)
+      const flashedErrors = !Array.isArray(flashedError) ? [flashedError] : []
+
+      viewModel.errors = (viewModel.errors ?? []).concat(flashedErrors)
+
+      const paymentExpiredFlash = request.yar.flash(
+        PAYMENT_EXPIRED_NOTIFICATION
+      )
+      viewModel.showPaymentExpiredNotification =
+        !Array.isArray(paymentExpiredFlash)
 
       /**
        * Content components can be hidden based on a condition. If the condition evaluates to true, it is safe to be kept, otherwise discard it
@@ -500,7 +533,7 @@ export class QuestionPageController extends PageController {
       const action = request.payload.action
 
       if (action?.startsWith(FormAction.External)) {
-        return this.dispatchExternal(request, h, context)
+        return await this.dispatchExternal(request, h, context)
       }
 
       /**
@@ -534,7 +567,7 @@ export class QuestionPageController extends PageController {
     }
   }
 
-  private dispatchExternal(
+  private async dispatchExternal(
     request: FormRequestPayload,
     h: FormResponseToolkit,
     context: FormContext
@@ -585,11 +618,17 @@ export class QuestionPageController extends PageController {
     // Clear any previous state appendage
     request.yar.clear(EXTERNAL_STATE_APPENDAGE)
 
-    return selectedComponent.dispatcher(request, h, {
+    // Determine if this is a live form (not preview/draft)
+    const { state, isPreview } = checkFormStatus(request.params)
+    const isLive = state === FormStatus.Live
+
+    return await selectedComponent.dispatcher(request, h, {
       component,
       controller: this,
       sourceUrl: request.url.toString(),
-      actionArgs: args
+      actionArgs: args,
+      isLive,
+      isPreview
     })
   }
 

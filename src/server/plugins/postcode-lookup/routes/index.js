@@ -24,12 +24,14 @@ const viewName = 'postcode-lookup-details'
  */
 function getSessionState(request) {
   /**
-   * @type {PostcodeLookupSessionData | undefined}
+   * @type {PostcodeLookupSessionData | null | undefined}
    */
   const state = request.yar.get(JOURNEY_BASE_URL)
 
   if (!state) {
-    throw Boom.internal(`No postcode lookup data found for ${JOURNEY_BASE_URL}`)
+    throw Boom.badRequest(
+      `No postcode lookup data found for ${JOURNEY_BASE_URL}`
+    )
   }
 
   return state

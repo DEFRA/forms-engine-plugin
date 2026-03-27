@@ -17,6 +17,7 @@
  * @property {string} [currentPath] - Current path
  * @property {string} [previewMode] - Preview mode
  * @property {string} [slug] - Form slug
+ * @property {string} [error] - Error message for temporary error messages (not related to form state)
  * @property {FormContext} [context] - the current form context
  */
 
@@ -26,7 +27,5 @@
  */
 
 /**
- * @import { config } from '~/src/config/index.js'
  * @import { FormContext } from '~/src/server/plugins/engine/types.js'
- * @import { PluginOptions } from '~/src/server/plugins/engine/plugin.js'
  */

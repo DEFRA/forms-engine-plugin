@@ -1,17 +1,22 @@
 import {
   ComponentType,
+  type DeclarationFieldComponent,
   type EastingNorthingFieldComponent,
+  type GeospatialFieldComponent,
   type LatLongFieldComponent,
   type NationalGridFieldNumberFieldComponent,
   type OsGridRefFieldComponent
 } from '@defra/forms-model'
 
+import { validState } from '~/src/server/plugins/engine/components/helpers/__stubs__/geospatial.js'
 import {
   getAnswer,
   getAnswerMarkdown
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import {
+  DeclarationField,
   EastingNorthingField,
+  GeospatialField,
   LatLongField,
   NationalGridFieldNumberField,
   OsGridRefField
@@ -48,7 +53,7 @@ describe('Location field formatting', () => {
       }
 
       const answer = getAnswer(field, state, { format: 'email' })
-      expect(answer).toBe('Northing: 654321\nEasting: 123456\n')
+      expect(answer).toBe('Easting: 123456\nNorthing: 654321\n')
     })
 
     it('formats for data output', () => {
@@ -58,7 +63,7 @@ describe('Location field formatting', () => {
       }
 
       const answer = getAnswer(field, state, { format: 'data' })
-      expect(answer).toBe('Northing: 654321\nEasting: 123456')
+      expect(answer).toBe('Easting: 123456\nNorthing: 654321')
     })
 
     it('formats for summary display', () => {
@@ -69,8 +74,8 @@ describe('Location field formatting', () => {
 
       const answer = getAnswer(field, state, { format: 'summary' })
       // Should render as HTML from markdown
-      expect(answer).toContain('Northing: 654321')
       expect(answer).toContain('Easting: 123456')
+      expect(answer).toContain('Northing: 654321')
     })
 
     it('returns empty string when no values', () => {
@@ -101,7 +106,7 @@ describe('Location field formatting', () => {
       }
 
       const answer = getAnswer(field, state, { format: 'email' })
-      expect(answer).toBe('Lat: 51.51945\nLong: -0.127758\n')
+      expect(answer).toBe('Latitude: 51.51945\nLongitude: -0.127758\n')
     })
 
     it('formats for data output', () => {
@@ -111,7 +116,7 @@ describe('Location field formatting', () => {
       }
 
       const answer = getAnswer(field, state, { format: 'data' })
-      expect(answer).toBe('Lat: 51.51945\nLong: -0.127758')
+      expect(answer).toBe('Latitude: 51.51945\nLongitude: -0.127758')
     })
 
     it('formats for summary display', () => {
@@ -122,8 +127,8 @@ describe('Location field formatting', () => {
 
       const answer = getAnswer(field, state, { format: 'summary' })
       // Should render as HTML from markdown
-      expect(answer).toContain('Lat: 51.51945')
-      expect(answer).toContain('Long: -0.127758')
+      expect(answer).toContain('Latitude: 51.51945')
+      expect(answer).toContain('Longitude: -0.127758')
     })
 
     it('returns empty string when no values', () => {
@@ -216,6 +221,130 @@ describe('Location field formatting', () => {
     })
   })
 
+  describe('GeospatialField', () => {
+    let field: GeospatialField
+
+    beforeEach(() => {
+      const def: GeospatialFieldComponent = {
+        type: ComponentType.GeospatialField,
+        name: 'geoField',
+        title: 'Geospatial',
+        options: {}
+      }
+      field = new GeospatialField(def, { model })
+    })
+
+    it('formats for email output as single value', () => {
+      const state = {
+        geoField: validState
+      }
+
+      const answer = getAnswer(field, state, { format: 'email' })
+      expect(answer).toBe('Added 4 locations\n')
+    })
+
+    it('formats for data output', () => {
+      const state = {
+        geoField: validState
+      }
+
+      const answer = getAnswer(field, state, { format: 'data' })
+      expect(answer).toBe('a,b,c,d')
+    })
+
+    it('formats for summary display', () => {
+      const state = {
+        geoField: validState
+      }
+
+      const answer = getAnswer(field, state, { format: 'summary' })
+      expect(answer).toBe('Added 4 locations')
+    })
+  })
+
+  describe('DeclarationField', () => {
+    let field: DeclarationField
+
+    beforeEach(() => {
+      const def: DeclarationFieldComponent = {
+        type: ComponentType.DeclarationField,
+        name: 'declField',
+        title: 'Declaration title',
+        content: '# markup heading',
+        options: {}
+      }
+      field = new DeclarationField(def, { model })
+    })
+
+    it('formats correctly when agreed', () => {
+      const state = {
+        declField: true
+      }
+
+      const answer = getAnswer(field, state, { format: 'email' })
+      expect(answer).toBe('I understand and agree\n')
+    })
+
+    it('formats correctly when not agreed', () => {
+      const state = {
+        declField: false
+      }
+
+      const answer = getAnswer(field, state, { format: 'email' })
+      expect(answer).toBe('Not provided\n')
+    })
+
+    it('formats for data output when agreed', () => {
+      const state = {
+        declField: true
+      }
+
+      const answer = getAnswer(field, state, { format: 'data' })
+      expect(answer).toBe('true')
+    })
+
+    it('formats for data output when not agreed', () => {
+      const state = {
+        declField: false
+      }
+
+      const answer = getAnswer(field, state, { format: 'data' })
+      expect(answer).toBe('false')
+    })
+
+    it('formats for data output when no value', () => {
+      const state = {}
+
+      const answer = getAnswer(field, state, { format: 'data' })
+      expect(answer).toBe('false')
+    })
+
+    it('formats for summary display when agreed', () => {
+      const state = {
+        declField: true
+      }
+
+      const answer = getAnswer(field, state, { format: 'summary' })
+      expect(answer).toBe('I understand and agree')
+    })
+
+    it('formats for summary display when not agreed', () => {
+      const state = {
+        declField: false
+      }
+
+      const answer = getAnswer(field, state, { format: 'summary' })
+      expect(answer).toBe('Not provided')
+    })
+
+    it('formats for summary display when no value', () => {
+      const state = {}
+
+      const answer = getAnswer(field, state, { format: 'summary' })
+      expect(answer).toBe('Not provided')
+    })
+  })
+
   describe('getAnswerMarkdown', () => {
     it('formats EastingNorthingField correctly', () => {
       const def: EastingNorthingFieldComponent = {
@@ -231,7 +360,7 @@ describe('Location field formatting', () => {
       }
 
       const answer = getAnswerMarkdown(field, state, { format: 'email' })
-      expect(answer).toBe('Northing: 654321\nEasting: 123456\n')
+      expect(answer).toBe('Easting: 123456\nNorthing: 654321\n')
     })
 
     it('formats LatLongField correctly', () => {
@@ -248,7 +377,7 @@ describe('Location field formatting', () => {
       }
 
       const answer = getAnswerMarkdown(field, state, { format: 'email' })
-      expect(answer).toBe('Lat: 51.51945\nLong: -0.127758\n')
+      expect(answer).toBe('Latitude: 51.51945\nLongitude: -0.127758\n')
     })
 
     it('formats simple location fields correctly', () => {

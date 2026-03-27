@@ -14,6 +14,12 @@ import * as filters from '~/src/server/plugins/nunjucks/filters/index.js'
 
 export { getPageHref } from '~/src/server/plugins/engine/helpers.js'
 export { context } from '~/src/server/plugins/nunjucks/context.js'
+export {
+  getFirstJourneyPage,
+  getFormContext,
+  getFormModel,
+  resolveFormModel
+} from '~/src/server/plugins/engine/beta/form-context.js'
 
 const globals = {
   checkComponentTemplates,
@@ -25,6 +31,10 @@ const globals = {
 export const VIEW_PATH = 'src/server/plugins/engine/views'
 export const PLUGIN_PATH = 'node_modules/@defra/forms-engine-plugin'
 
+export const STATE_NOT_YET_VALIDATED = '__stateNotYetValidated'
+export const CURRENT_PAGE_PATH_KEY = '__currentPagePath'
+export const MAGIC_LINK_GROUP_ID = '__magicLinkGroupId'
+
 export const prepareNunjucksEnvironment = function (
   env: Environment,
   pluginOptions: PluginOptions
@@ -33,8 +43,11 @@ export const prepareNunjucksEnvironment = function (
     env.addFilter(name, nunjucksFilter)
   }
 
-  env.addFilter('markdown', (text: string) =>
-    markdownToHtml(text, pluginOptions.baseUrl)
+  env.addFilter('markdown', (text: string, startingHeaderLevel?: number) =>
+    markdownToHtml(text, {
+      baseUrl: pluginOptions.baseUrl,
+      startingHeaderLevel
+    })
   )
 
   for (const [name, nunjucksGlobal] of Object.entries(globals)) {

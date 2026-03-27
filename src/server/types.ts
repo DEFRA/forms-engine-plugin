@@ -15,6 +15,7 @@ import {
   type PluginOptions,
   type PreparePageEventRequestOptions
 } from '~/src/server/plugins/engine/types.js'
+import { type PaymentService } from '~/src/server/plugins/payment/service.js'
 import {
   type FormRequestPayload,
   type FormStatus
@@ -23,10 +24,12 @@ import { type CacheService } from '~/src/server/services/cacheService.js'
 
 export interface FormsService {
   getFormMetadata: (slug: string) => Promise<FormMetadata>
+  getFormMetadataById: (id: string) => Promise<FormMetadata>
   getFormDefinition: (
     id: string,
     state: FormStatus
   ) => Promise<FormDefinition | undefined>
+  getFormSecret: (formId: string, secretName: string) => Promise<string>
 }
 
 export interface FormSubmissionService {
@@ -41,6 +44,7 @@ export interface Services {
   formsService: FormsService
   formSubmissionService: FormSubmissionService
   outputService: OutputService
+  paymentService?: PaymentService
 }
 
 export interface RouteConfig {
@@ -54,6 +58,7 @@ export interface RouteConfig {
   saveAndExit?: PluginOptions['saveAndExit']
   cacheServiceCreator?: (server: Server) => CacheService
   ordnanceSurveyApiKey?: string
+  ordnanceSurveyApiSecret?: string
 }
 
 export interface OutputService {

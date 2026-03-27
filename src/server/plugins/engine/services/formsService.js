@@ -16,10 +16,31 @@ export function getFormMetadata(_slug) {
 /**
  * Dummy function to get form metadata.
  * @param {string} _id - the id of the form
+ * @returns {Promise<FormMetadata>}
+ */
+export function getFormMetadataById(_id) {
+  throw error
+}
+
+// eslint-disable-next-line jsdoc/require-returns-check
+/**
+ * Dummy function to get form metadata.
+ * @param {string} _id - the id of the form
  * @param {FormStatus} _state - the state of the form
  * @returns {Promise<FormDefinition | undefined>}
  */
 export function getFormDefinition(_id, _state) {
+  throw error
+}
+
+// eslint-disable-next-line jsdoc/require-returns-check
+/**
+ * Dummy function to get a form secret.
+ * @param {string} _id - the id of the form
+ * @param {string} _secretName - the name of the secret
+ * @returns {Promise<string>}
+ */
+export function getFormSecret(_id, _secretName) {
   throw error
 }
 

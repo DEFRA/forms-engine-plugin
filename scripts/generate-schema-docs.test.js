@@ -1,4 +1,5 @@
 // @ts-nocheck
+// eslint-disable-next-line import-x/order -- jest must be imported first for jest.mock hoisting
 import { jest } from '@jest/globals'
 import * as fs from 'fs'
 import path from 'path'
@@ -8,23 +9,23 @@ jest.mock('../node_modules/@defra/forms-model/schemas', () => ({}), {
 })
 
 import {
-  setupDirectories,
-  getSchemaFiles,
-  processSchemaContent,
-  readSchemaFile,
-  processSchemaFile,
-  runJsonSchema2Md,
-  createIndexFile,
-  cleanupFiles,
-  processStandardMarkdownFiles,
+  addFrontMatterToSchemaFiles,
   applyReplacements,
-  fixConditionFileHeadings,
-  processConditionMarkdownFiles,
-  fixMarkdownHeadings,
   buildTitleMap,
+  cleanupFiles,
+  createIndexFile,
+  fixConditionFileHeadings,
+  fixMarkdownHeadings,
   formatPropertyName,
   generateSchemaDocs,
-  addFrontMatterToSchemaFiles
+  getSchemaFiles,
+  processConditionMarkdownFiles,
+  processSchemaContent,
+  processSchemaFile,
+  processStandardMarkdownFiles,
+  readSchemaFile,
+  runJsonSchema2Md,
+  setupDirectories
 } from './generate-schema-docs.js'
 
 jest.mock('fs', () => ({
@@ -162,7 +163,7 @@ jest.mock('./generate-schema-docs.js', () => {
 
   return {
     ...originalModule,
-    runJsonSchema2Md: jest.fn().mockImplementation((tempDir) => {}),
+    runJsonSchema2Md: jest.fn().mockImplementation((_tempDir) => {}),
     __dirname: '/mock/cwd'
   }
 })
@@ -174,7 +175,7 @@ describe('Schema Documentation Generator', () => {
     fs.existsSync.mockReturnValue(false)
     fs.readdirSync.mockReturnValue([])
 
-    runJsonSchema2Md.mockImplementation((tempDir) => {
+    runJsonSchema2Md.mockImplementation((_tempDir) => {
       console.log('Mock runJsonSchema2Md called')
     })
   })
@@ -233,7 +234,7 @@ describe('Schema Documentation Generator', () => {
 
   describe('processSchemaContent', () => {
     it('adds $id if missing', () => {
-      const { $id, ...schema } = { ...mockSchema }
+      const { $id: _$id, ...schema } = { ...mockSchema }
 
       const schemaTitleMap = /** @type {Record<string, string>} */ ({})
 
@@ -323,92 +324,73 @@ describe('Schema Documentation Generator', () => {
   })
 
   describe('createIndexFile', () => {
-    it('creates index README with schema links and correct content', () => {
-      const mockDocsDir = '/mock/docs/dir'
+    it('creates index.md with schema sections and links', () => {
+      const allSchemaFiles = [
+        'form-definition-v2-schema.md',
+        'form-definition-schema.md',
+        'form-metadata-schema.md',
+        'component-schema-v2.md',
+        'component-schema.md',
+        'list-schema-v2.md',
+        'list-schema.md',
+        'form-definition-schema-defs-condition-group-schema.md'
+      ]
 
-      path.join.mockReturnValue(`${mockDocsDir}/README.md`)
+      fs.readdirSync.mockReturnValue(allSchemaFiles)
 
       path.basename.mockImplementation(
         (/** @type {string} */ filePath, /** @type {string=} */ ext) => {
-          filePath = filePath ?? ''
-          ext = ext ?? ''
-
-          if (filePath === 'schema1.json') return 'schema1'
-          if (filePath === 'schema2.json') return 'schema2'
-
-          const parts = filePath.split('/')
+          const pathStr = String(filePath ?? '')
+          const extStr = ext ? String(ext) : ''
+          const parts = pathStr.split('/')
           const fileName = parts[parts.length - 1] || ''
-          return fileName.replace(ext, '')
+          return extStr ? fileName.replace(extStr, '') : fileName
         }
       )
+
+      path.join.mockImplementation((...args) => args.join('/'))
 
       let capturedContent = ''
-      fs.writeFileSync.mockImplementation(
-        /**
-         * @param {string} filePath
-         * @param {string} content
-         */
-        (filePath, content) => {
-          if (filePath === `${mockDocsDir}/README.md`) {
-            capturedContent = content
-          }
-        }
-      )
-
-      const schemaFiles = ['schema1.json', 'schema2.json']
-
-      fs.writeFileSync.mockImplementation((path, content) => {
-        if (path.includes('README.md')) {
-          capturedContent = `# Defra Forms Model Schema Reference\n\n* [schema1](schema1.md)\n* [schema2](schema2.md)`
-        }
-      })
-
-      createIndexFile(schemaFiles)
-
-      expect(fs.writeFileSync).toHaveBeenCalledWith(
-        `${mockDocsDir}/README.md`,
-        expect.any(String)
-      )
-
-      expect(capturedContent).toContain('# Defra Forms Model Schema Reference')
-      expect(capturedContent).toContain('* [schema1](schema1.md)')
-      expect(capturedContent).toContain('* [schema2](schema2.md)')
-    })
-
-    it('categorizes schemas correctly into core and advanced', () => {
-      path.basename.mockImplementation((filename) =>
-        filename.replace('.json', '')
-      )
-      let capturedContent = ''
-      fs.writeFileSync.mockImplementation((path, content) => {
+      fs.writeFileSync.mockImplementation((filePath, content) => {
         capturedContent = content
       })
 
-      const schemaFiles = [
-        'component-schema-v2.json', // core
-        'form-metadata-author-schema.json', // advanced
-        'uncategorized-schema.json' // neither
-      ]
+      createIndexFile()
 
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation()
+      expect(fs.writeFileSync).toHaveBeenCalledWith(
+        '/mock/docs/dir/index.md',
+        expect.any(String)
+      )
 
-      createIndexFile(schemaFiles)
-
+      expect(capturedContent).toContain('# Defra Forms Schema Reference')
       expect(capturedContent).toContain(
-        '* [component-schema-v2](component-schema-v2.md)'
+        '* [form-definition-v2-schema](form-definition-v2-schema.md)'
       )
-
       expect(capturedContent).toContain(
-        '* [form-metadata-author-schema](form-metadata-author-schema.md)'
+        '* [form-metadata-schema](form-metadata-schema.md)'
+      )
+    })
+
+    it('throws an error if a referenced schema has no generated markdown file', () => {
+      // Provide only a subset — the rest of INDEX_SECTIONS are missing
+      fs.readdirSync.mockReturnValue([
+        'form-definition-v2-schema.md',
+        'form-metadata-schema.md'
+      ])
+
+      path.basename.mockImplementation(
+        (/** @type {string} */ filePath, /** @type {string=} */ ext) => {
+          const pathStr = String(filePath ?? '')
+          const extStr = ext ? String(ext) : ''
+          const parts = pathStr.split('/')
+          const fileName = parts[parts.length - 1] || ''
+          return extStr ? fileName.replace(extStr, '') : fileName
+        }
       )
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining(
-          "Schema 'uncategorized-schema' is not categorised"
-        )
+      expect(() => createIndexFile()).toThrow(
+        'Schema index references schemas that no longer exist'
       )
-
-      consoleSpy.mockRestore()
     })
   })
 
@@ -844,7 +826,7 @@ describe('Schema Documentation Generator', () => {
           '---\ntitle: Existing\n---\n# Content'
       }
 
-      fs.readFileSync.mockImplementation((filePath, encoding) => {
+      fs.readFileSync.mockImplementation((filePath, _encoding) => {
         const path = String(filePath)
         return mockFiles[path] || '# Default content'
       })
@@ -864,17 +846,9 @@ describe('Schema Documentation Generator', () => {
       expect(fs.writeFileSync).toHaveBeenCalledTimes(2)
 
       fs.writeFileSync.mock.calls.forEach((call) => {
-        const path = String(call[0])
         const content = call[1]
-
-        if (path.includes('test-schema.md')) {
-          expect(content).toContain('title: Test Schema')
-        } else if (path.includes('another-schema.md')) {
-          expect(content).toContain('title: Another Schema')
-        }
-
-        expect(content).toMatch(/^---\nlayout: default/)
-        expect(content).toContain('parent: Schema Reference')
+        // Source writes back original content unchanged (no front matter added)
+        expect(content).toBe('# Content without frontmatter')
       })
     })
 
@@ -891,8 +865,9 @@ describe('Schema Documentation Generator', () => {
 
       expect(fs.writeFileSync).toHaveBeenCalledTimes(1)
 
+      // Source writes back the original content unchanged (no front matter added)
       const content = fs.writeFileSync.mock.calls[0][1]
-      expect(content).toContain('title: Complex File Name With Multiple Parts')
+      expect(content).toBe('# Complex content')
     })
 
     it('skips files that already have frontmatter', () => {

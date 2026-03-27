@@ -12,10 +12,12 @@ import {
 export class StatusPageController extends QuestionPageController {
   declare pageDef: PageStatus
   allowSaveAndExit = false
+  showReferenceNumber = false
 
   constructor(model: FormModel, pageDef: PageStatus) {
     super(model, pageDef)
     this.viewName = 'confirmation'
+    this.showReferenceNumber = model.def.options?.showReferenceNumber ?? false
   }
 
   getRelevantPath() {
@@ -41,13 +43,22 @@ export class StatusPageController extends QuestionPageController {
 
       const slug = request.params.slug
       const { formsService } = this.model.services
-      const { getFormMetadata } = formsService
+      const { getFormMetadata, getFormMetadataById } = formsService
 
       const { submissionGuidance } = await getFormMetadata(slug)
 
+      // Re-read form name if overriding display (for example, in a feedback form)
+      const storedFormId = confirmationState.formId
+      const formName = storedFormId
+        ? (await getFormMetadataById(storedFormId)).title
+        : undefined
+
       return h.view(viewName, {
         ...viewModel,
-        submissionGuidance
+        submissionGuidance,
+        formName,
+        showReferenceNumber: this.showReferenceNumber,
+        referenceNumber: confirmationState.referenceNumber
       })
     }
   }

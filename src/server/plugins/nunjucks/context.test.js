@@ -33,9 +33,8 @@ describe('Nunjucks context', () => {
         const { config } = await import('~/src/config/index.js')
 
         // Import when isolated to avoid cache
-        const { devtoolContext } = await import(
-          '~/src/server/plugins/nunjucks/context.js'
-        )
+        const { devtoolContext } =
+          await import('~/src/server/plugins/nunjucks/context.js')
 
         // Update config for missing manifest
         config.set('publicDir', tmpdir())
@@ -87,7 +86,11 @@ describe('Nunjucks context', () => {
             }
           },
           path: '/test',
-          url: { search: '' }
+          url: { search: '' },
+          yar: {
+            flash: jest.fn().mockReturnValue([]),
+            commit: jest.fn()
+          }
           // state intentionally omitted to test real malformed requests
         })
       )

@@ -1,3 +1,8 @@
+import {
+  ComponentType,
+  type FormDefinition,
+  type PageQuestion
+} from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type ResponseObject, type ResponseToolkit } from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
@@ -13,6 +18,7 @@ import {
   getExponentialBackoffDelay,
   getPageHref,
   proceed,
+  setPageTitles,
   type GlobalScope
 } from '~/src/server/plugins/engine/helpers.js'
 import { handleLegacyRedirect } from '~/src/server/plugins/engine/helpers.js'
@@ -49,6 +55,7 @@ describe('Helpers', () => {
   let h: FormResponseToolkit
 
   beforeEach(() => {
+    jest.clearAllMocks()
     const model = new FormModel(definition, {
       basePath: 'test'
     })
@@ -219,6 +226,46 @@ describe('Helpers', () => {
         expect(h.redirect).not.toHaveBeenCalledWith(request.query.returnUrl)
       }
     )
+
+    it('should not forward custom query params on POST', () => {
+      request = {
+        ...request,
+        method: 'post',
+        query: { parcelId: 'SD5848-9205' }
+      }
+
+      proceed(request, h, '/test/next-page')
+
+      expect(h.redirect).toHaveBeenCalledWith('/test/next-page')
+    })
+
+    it('should forward custom query params on GET so pre-population params survive dispatch redirects', () => {
+      request = {
+        ...request,
+        method: 'get',
+        query: { formId: '69afefa99b7b18cc1cd2c606' }
+      }
+
+      proceed(request, h, '/test/next-page')
+
+      expect(h.redirect).toHaveBeenCalledWith(
+        '/test/next-page?formId=69afefa99b7b18cc1cd2c606'
+      )
+    })
+
+    it('should forward custom query params on GET but not returnUrl', () => {
+      request = {
+        ...request,
+        method: 'get',
+        query: { formId: '69afefa99b7b18cc1cd2c606', returnUrl: '/summary' }
+      }
+
+      proceed(request, h, '/test/next-page')
+
+      expect(h.redirect).toHaveBeenCalledWith(
+        '/test/next-page?formId=69afefa99b7b18cc1cd2c606'
+      )
+    })
   })
 
   describe('encodeUrl', () => {
@@ -767,6 +814,55 @@ describe('Helpers', () => {
       )
 
       expect(response).toBe(mockRedirectResponse)
+    })
+  })
+
+  describe('setPageTitles', () => {
+    const definition: FormDefinition = {
+      name: 'Test Form',
+      startPage: '/page1',
+      pages: [
+        {
+          path: '/page1',
+          title: '',
+          next: [],
+          components: [
+            {
+              type: ComponentType.TextField,
+              name: 'textfield1',
+              title: 'What is your name?',
+              options: {},
+              schema: {}
+            },
+            {
+              type: ComponentType.TextField,
+              name: 'textfield2',
+              title: 'What is your favourite food?',
+              options: {},
+              schema: {}
+            }
+          ]
+        } satisfies PageQuestion
+      ],
+      lists: [],
+      sections: [],
+      conditions: []
+    }
+
+    beforeEach(() => {
+      jest.clearAllMocks()
+    })
+    it('should set title if missing', () => {
+      const def = structuredClone(definition)
+      setPageTitles(def)
+      expect(def.pages[0].title).toBe('What is your name?')
+    })
+
+    it('should keep title if supplied', () => {
+      const def = structuredClone(definition)
+      def.pages[0].title = 'Page 1 title'
+      setPageTitles(def)
+      expect(def.pages[0].title).toBe('Page 1 title')
     })
   })
 })

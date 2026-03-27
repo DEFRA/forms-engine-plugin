@@ -6,15 +6,18 @@ It is designed to be embedded in the frontend of a digital service and provide a
 
 ## Table of Contents
 
-- [Demo of DXT](#demo-of-dxt)
-- [Installation](#installation)
-- [Documentation](#documentation)
-- [Publishing the Package](#publishing-the-package)
-  - [Semantic Versioning Control](#semantic-versioning-control)
-  - [Major-Version Release Branches](#major-version-release-branches)
-  - [Manual Workflow Triggers](#manual-workflow-triggers)
-  - [Workflow Triggers](#workflow-triggers)
-  - [Safety and Consistency](#safety-and-consistency)
+- [@defra/forms-engine-plugin](#defraforms-engine-plugin)
+  - [Table of Contents](#table-of-contents)
+  - [Demo of DXT](#demo-of-dxt)
+  - [Installation](#installation)
+  - [Documentation](#documentation)
+  - [Contributing](#contributing)
+  - [Publishing the package](#publishing-the-package)
+    - [Semantic Versioning Control](#semantic-versioning-control)
+    - [Major-Version Release Branches](#major-version-release-branches)
+    - [Manual Workflow Triggers](#manual-workflow-triggers)
+    - [Workflow Triggers](#workflow-triggers)
+    - [Safety and Consistency](#safety-and-consistency)
 
 ## Demo of DXT
 
