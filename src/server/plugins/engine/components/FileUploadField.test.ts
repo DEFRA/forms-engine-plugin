@@ -1029,6 +1029,27 @@ describe('FileUploadField', () => {
       )
     })
 
+    it('should throw InvalidComponentStateError when persistFiles throws 404 Not Found', async () => {
+      const notFoundError = Boom.notFound('File not found')
+      mockPersistFiles.mockRejectedValue(notFoundError)
+
+      await expect(
+        fileUploadField.onSubmit(mockRequest, mockMetadata, mockContext)
+      ).rejects.toThrow(InvalidComponentStateError)
+
+      const error = await fileUploadField
+        .onSubmit(mockRequest, mockMetadata, mockContext)
+        .catch((e: unknown) => e)
+
+      expect(error).toBeInstanceOf(InvalidComponentStateError)
+      expect((error as InvalidComponentStateError).component).toBe(
+        fileUploadField
+      )
+      expect((error as InvalidComponentStateError).userMessage).toBe(
+        'There was a problem with your uploaded files. Re-upload them before submitting the form again.'
+      )
+    })
+
     it('should re-throw other Boom errors without wrapping', async () => {
       const serverError = Boom.internal('Internal server error')
       mockPersistFiles.mockRejectedValue(serverError)

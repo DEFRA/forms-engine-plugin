@@ -339,6 +339,7 @@ export class FileUploadField extends FormComponent {
       if (
         Boom.isBoom(error) &&
         (error.output.statusCode === 403 || // Forbidden - retrieval key invalid
+          error.output.statusCode === 404 || // Not Found - file not found
           error.output.statusCode === 410) // Gone - file expired (took to long to submit, etc)
       ) {
         // Failed to persist files. We can't recover from this, the only real way we can recover the submissions is
