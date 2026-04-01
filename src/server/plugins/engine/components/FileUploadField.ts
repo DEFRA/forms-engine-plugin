@@ -90,7 +90,7 @@ export const formStatusSchema = joi
     form: joi.object().required().keys({
       file: formFileSchema
     }),
-    numberOfRejectedFiles: joi.number().valid(0).required()
+    numberOfRejectedFiles: joi.number().required()
   })
   .required()
 
