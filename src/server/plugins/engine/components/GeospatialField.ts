@@ -33,6 +33,8 @@ export class GeospatialField extends FormComponent {
 
     let formSchema = geospatialSchema.label(this.label).required()
 
+    formSchema = formSchema.max(50)
+
     if (options.required !== false) {
       formSchema = formSchema.min(1)
     }
