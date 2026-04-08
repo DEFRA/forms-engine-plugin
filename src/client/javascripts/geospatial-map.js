@@ -12,19 +12,19 @@ const helpPanelConfig = {
   showLabel: true,
   label: 'How to use this map',
   mobile: {
-    slot: 'bottom',
+    slot: 'drawer',
     open: true,
     dismissible: true,
     modal: false
   },
   tablet: {
-    slot: 'bottom',
+    slot: 'drawer',
     open: true,
     dismissible: true,
     modal: false
   },
   desktop: {
-    slot: 'bottom',
+    slot: 'drawer',
     open: true,
     dismissible: true,
     modal: false
@@ -245,7 +245,7 @@ function createFeatureHTML(feature, index, mapId, readonly) {
           <dd class="govuk-summary-list__value">${typeDescriptions[feature.geometry.type]}</dd>
         </div>
         <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">Center grid reference</dt>
+          <dt class="govuk-summary-list__key">Centre grid reference</dt>
           <dd class="govuk-summary-list__value">${feature.properties.centroidGridReference}</dd>
         </div>
         <div class="govuk-summary-list__row">
