@@ -3,7 +3,8 @@ import {
   getCentroidGridRef,
   getCoordinateGridRef,
   initMaps,
-  makeTileRequestTransformer
+  makeTileRequestTransformer,
+  transformGeocodeRequest
 } from '~/src/client/javascripts/map.js'
 
 describe('Maps Client JS', () => {
@@ -1466,6 +1467,19 @@ describe('Maps Client JS', () => {
       })
 
       expect(result).toBe('TQ 29472 80890')
+    })
+  })
+
+  describe('Geocode request transformer - temporarily needed until v0.0.18', () => {
+    test('it should return centroid gridref for a point feature', () => {
+      const result = transformGeocodeRequest({
+        url: '/a/b/c',
+        options: {
+          method: 'get'
+        }
+      })
+
+      expect(result instanceof Request).toBe(true)
     })
   })
 })
