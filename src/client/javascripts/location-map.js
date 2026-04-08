@@ -447,19 +447,19 @@ export function processLocation(config, location, index) {
         showLabel: true,
         label: 'How to use the map',
         mobile: {
-          slot: 'bottom',
+          slot: 'drawer',
           open: true,
           dismissible: true,
           modal: false
         },
         tablet: {
-          slot: 'bottom',
+          slot: 'drawer',
           open: true,
           dismissible: true,
           modal: false
         },
         desktop: {
-          slot: 'bottom',
+          slot: 'drawer',
           open: true,
           dismissible: true,
           modal: false
