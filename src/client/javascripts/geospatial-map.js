@@ -605,6 +605,7 @@ function onMapReadyFactory(context) {
     const { listEl } = uiManager
     listEl.addEventListener('click', onListElClickFactory(context), false)
     listEl.addEventListener('change', onListElChangeFactory(context), false)
+    listEl.addEventListener('keydown', onListElKeydownFactory(), false)
   }
 }
 
@@ -876,7 +877,7 @@ function onListElClickFactory(context) {
 }
 
 /**
- * Callback factory function that fires a 'change' event is fired on the list container
+ * Callback factory function that fires when a 'change' event is fired on the list container
  * @param {Context} context - the UI context
  */
 function onListElChangeFactory(context) {
@@ -904,6 +905,29 @@ function onListElChangeFactory(context) {
     if (feature) {
       feature.properties.description = target.value.trim()
       renderValue()
+    }
+  }
+}
+
+/**
+ * Callback factory function that fires when a 'keydown' event is fired on the list container
+ */
+function onListElKeydownFactory() {
+  /**
+   * List container delegated 'keydown' events handler
+   * Fixes the issue of pressing "Enter" key in the description input triggering the map search
+   * @param {KeyboardEvent} e
+   */
+  return function (e) {
+    const target = e.target
+
+    if (!(target instanceof HTMLInputElement)) {
+      return
+    }
+
+    if (e.code === 'Enter' || e.code === 'NumpadEnter') {
+      e.preventDefault()
+      e.stopPropagation()
     }
   }
 }
