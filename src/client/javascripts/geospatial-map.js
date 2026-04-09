@@ -696,7 +696,7 @@ function onDrawEditedFactory(context) {
  */
 function onDrawCancelledFactory(context) {
   const { uiManager, activeFeatureManager } = context
-  const { toggleActionButtons } = uiManager
+  const { toggleActionButtons, renderList } = uiManager
   const { resetActiveFeature } = activeFeatureManager
 
   /**
@@ -705,6 +705,7 @@ function onDrawCancelledFactory(context) {
   return function onDrawCancelled() {
     toggleActionButtons(false)
     resetActiveFeature()
+    renderList()
   }
 }
 
