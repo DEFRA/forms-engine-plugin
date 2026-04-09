@@ -1,4 +1,7 @@
-import { createFeaturesHTML } from '~/src/client/javascripts/geospatial-map.js'
+import {
+  createFeatureHTML,
+  createFeaturesHTML
+} from '~/src/client/javascripts/geospatial-map.js'
 import {
   formSubmitFactory,
   getCentroidGridRef,
@@ -1290,6 +1293,15 @@ describe('Maps Client JS', () => {
         expect(html).toContain('govuk-link--disabled')
         expect(html).toContain('data-action="delete"')
         expect(html).toContain('data-action="edit"')
+        expect(html).not.toContain('data-action="focus"')
+      })
+
+      test('createFeatureHTML - normal (defaults)', () => {
+        const html = createFeatureHTML(features[1], 0, 'test')
+
+        expect(html).toContain('data-action="delete"')
+        expect(html).toContain('data-action="edit"')
+        expect(html).not.toContain('govuk-link--disabled')
         expect(html).not.toContain('data-action="focus"')
       })
     })

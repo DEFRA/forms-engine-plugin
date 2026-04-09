@@ -195,7 +195,7 @@ export function focusFeature(feature, mapProvider) {
  * @param {boolean} [disabled] - render the list with disabled links
  * @param {boolean} [readonly] - render the list item in readonly mode
  */
-function createFeatureHTML(
+export function createFeatureHTML(
   feature,
   index,
   mapId,
