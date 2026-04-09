@@ -164,11 +164,17 @@ export function addFeatureToMap(feature, drawPlugin, map) {
  * Returns HTML summary list for the features
  * @param {FeatureCollection} features - the features
  * @param {string} mapId - the ID of the map
+ * @param {boolean} [disabled] - render the list with disabled links
  * @param {boolean} [readonly] - render the list in readonly mode
  */
-export function createFeaturesHTML(features, mapId, readonly = false) {
+export function createFeaturesHTML(
+  features,
+  mapId,
+  disabled = false,
+  readonly = false
+) {
   return `<dl class="govuk-summary-list">
-    ${features.map((feature, index) => createFeatureHTML(feature, index, mapId, readonly)).join('\n')}
+    ${features.map((feature, index) => createFeatureHTML(feature, index, mapId, disabled, readonly)).join('\n')}
   </dl>`
 }
 
@@ -186,9 +192,16 @@ export function focusFeature(feature, mapProvider) {
  * @param {Feature} feature - the geo feature
  * @param {number} index - the feature index
  * @param {string} mapId - the ID of the map
- * @param {boolean} readonly - render the list item in readonly mode
+ * @param {boolean} [disabled] - render the list with disabled links
+ * @param {boolean} [readonly] - render the list item in readonly mode
  */
-function createFeatureHTML(feature, index, mapId, readonly) {
+function createFeatureHTML(
+  feature,
+  index,
+  mapId,
+  disabled = false,
+  readonly = false
+) {
   const flattened = feature.geometry.coordinates.flat(2)
 
   const points = []
@@ -203,13 +216,13 @@ function createFeatureHTML(feature, index, mapId, readonly) {
 
   // Change action link
   const changeAction = () => `<li class="govuk-summary-list__actions-list-item">
-  <a class="govuk-link govuk-link--no-visited-state" href="#${mapId}" data-action="edit" data-id="${feature.id}"
+  <a class="govuk-link govuk-link--no-visited-state ${disabled ? 'govuk-link--disabled' : ''}" href="#${mapId}" data-action="edit" data-id="${feature.id}"
     data-type="${feature.geometry.type}">Update<span class="govuk-visually-hidden"> location</span></a>
 </li>`
 
   // Delete action link
   const deleteAction = () => `<li class="govuk-summary-list__actions-list-item">
-  <a class="govuk-link govuk-link--no-visited-state" href="#" data-action="delete" data-id="${feature.id}"
+  <a class="govuk-link govuk-link--no-visited-state ${disabled ? 'govuk-link--disabled' : ''}" href="#" data-action="delete" data-id="${feature.id}"
     data-type="${feature.geometry.type}">Delete<span class="govuk-visually-hidden"> location</span></a>
 </li>`
 
@@ -415,8 +428,8 @@ function getFeaturesManager(geojson) {
  * @returns {RenderList}
  */
 function getListRenderer(geojson, mapId, listEl, renderValue) {
-  return function renderList() {
-    const html = createFeaturesHTML(geojson.features, mapId)
+  return function renderList(disabled = false) {
+    const html = createFeaturesHTML(geojson.features, mapId, disabled)
 
     listEl.innerHTML = html
 
@@ -523,7 +536,7 @@ function createContainers(geospatialInput, index) {
 function onMapReadyFactory(context) {
   const { map, activeFeatureManager, uiManager, interactPlugin, drawPlugin } =
     context
-  const { toggleActionButtons } = uiManager
+  const { toggleActionButtons, renderList } = uiManager
   const { resetActiveFeature } = activeFeatureManager
 
   /**
@@ -542,6 +555,7 @@ function onMapReadyFactory(context) {
       onClick: () => {
         resetActiveFeature()
         toggleActionButtons(true)
+        renderList(true)
         interactPlugin.enable()
       },
       mobile: { slot: 'actions' },
@@ -556,6 +570,7 @@ function onMapReadyFactory(context) {
       onClick: () => {
         resetActiveFeature()
         toggleActionButtons(true)
+        renderList(true)
         drawPlugin.newPolygon(generateID(), polygonFeatureProperties)
       },
       mobile: { slot: 'actions' },
@@ -570,6 +585,7 @@ function onMapReadyFactory(context) {
       onClick: () => {
         resetActiveFeature()
         toggleActionButtons(true)
+        renderList(true)
         drawPlugin.newLine(generateID(), lineFeatureProperties)
       },
       mobile: { slot: 'actions' },
@@ -815,6 +831,7 @@ function onListElClickFactory(context) {
     }
 
     toggleActionButtons(true)
+    renderList(true)
   }
 
   /**
@@ -960,6 +977,7 @@ function onListElChangeFactory(context) {
 /**
  * Renders the features into the list
  * @callback RenderList
+ * @param {boolean} [disabled] - whether to render the list with disabled links
  * @returns {void}
  */
 
