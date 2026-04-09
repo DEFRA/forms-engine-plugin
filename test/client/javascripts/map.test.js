@@ -1258,16 +1258,30 @@ describe('Maps Client JS', () => {
         ])
       })
 
+      test('createFeaturesHTML - normal', () => {
+        const html = createFeaturesHTML(features.slice(1), 'test', false, false)
+
+        expect(html).toContain('data-action="delete"')
+        expect(html).toContain('data-action="edit"')
+        expect(html).not.toContain('govuk-link--disabled')
+        expect(html).not.toContain('data-action="focus"')
+      })
+
       test('createFeaturesHTML - readonly (for use in designer viewer)', () => {
         const html = createFeaturesHTML(features.slice(1), 'test', false, true)
 
+        expect(html).not.toContain('data-action="delete"')
+        expect(html).not.toContain('data-action="edit"')
         expect(html).toContain('data-action="focus"')
       })
 
-      test('createFeaturesHTML - exported for use in designer viewer - disabled', () => {
+      test('createFeaturesHTML - disabled', () => {
         const html = createFeaturesHTML(features.slice(1), 'test', true, false)
 
         expect(html).toContain('govuk-link--disabled')
+        expect(html).toContain('data-action="delete"')
+        expect(html).toContain('data-action="edit"')
+        expect(html).not.toContain('data-action="focus"')
       })
     })
   })
