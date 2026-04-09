@@ -1,3 +1,4 @@
+import { createFeaturesHTML } from '~/src/client/javascripts/geospatial-map.js'
 import {
   formSubmitFactory,
   getCentroidGridRef,
@@ -1255,6 +1256,18 @@ describe('Maps Client JS', () => {
           },
           ...features.slice(1)
         ])
+      })
+
+      test('createFeaturesHTML - readonly (for use in designer viewer)', () => {
+        const html = createFeaturesHTML(features.slice(1), 'test', false, true)
+
+        expect(html).toContain('data-action="focus"')
+      })
+
+      test('createFeaturesHTML - exported for use in designer viewer - disabled', () => {
+        const html = createFeaturesHTML(features.slice(1), 'test', true, false)
+
+        expect(html).toContain('govuk-link--disabled')
       })
     })
   })
