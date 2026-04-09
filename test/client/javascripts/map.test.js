@@ -1,4 +1,8 @@
 import {
+  createFeatureHTML,
+  createFeaturesHTML
+} from '~/src/client/javascripts/geospatial-map.js'
+import {
   formSubmitFactory,
   getCentroidGridRef,
   getCoordinateGridRef,
@@ -1198,6 +1202,107 @@ describe('Maps Client JS', () => {
           },
           ...features.slice(1)
         ])
+      })
+
+      test('description enter/return key', () => {
+        const { geospatialInput, listContainer } = initialiseGeospatialMaps()
+
+        // Manually change the description
+        const buckinghamPalaceInputEl = getDescription(listContainer, 0)
+
+        buckinghamPalaceInputEl.value = 'New description'
+        buckinghamPalaceInputEl.dispatchEvent(
+          new window.Event('change', { bubbles: true })
+        )
+        buckinghamPalaceInputEl.dispatchEvent(
+          new window.KeyboardEvent('keydown', { bubbles: true, code: 'Enter' })
+        )
+
+        expect(JSON.parse(geospatialInput.value)).toEqual([
+          {
+            ...features[0],
+            properties: {
+              description: 'New description',
+              coordinateGridReference: 'TQ 29031 79662',
+              centroidGridReference: 'TQ 29031 79662'
+            }
+          },
+          ...features.slice(1)
+        ])
+      })
+
+      test('description enter/return numpad key', () => {
+        const { geospatialInput, listContainer } = initialiseGeospatialMaps()
+
+        // Manually change the description
+        const buckinghamPalaceInputEl = getDescription(listContainer, 0)
+
+        buckinghamPalaceInputEl.value = 'New description'
+        buckinghamPalaceInputEl.dispatchEvent(
+          new window.Event('change', { bubbles: true })
+        )
+        buckinghamPalaceInputEl.dispatchEvent(
+          new window.KeyboardEvent('keydown', {
+            bubbles: true,
+            code: 'NumpadEnter'
+          })
+        )
+
+        expect(JSON.parse(geospatialInput.value)).toEqual([
+          {
+            ...features[0],
+            properties: {
+              description: 'New description',
+              coordinateGridReference: 'TQ 29031 79662',
+              centroidGridReference: 'TQ 29031 79662'
+            }
+          },
+          ...features.slice(1)
+        ])
+      })
+
+      test('createFeaturesHTML - normal', () => {
+        const html = createFeaturesHTML(features.slice(1), 'test', false, false)
+
+        expect(html).toContain('data-action="delete"')
+        expect(html).toContain('data-action="edit"')
+        expect(html).not.toContain('govuk-link--disabled')
+        expect(html).not.toContain('data-action="focus"')
+      })
+
+      test('createFeaturesHTML - normal (defaults)', () => {
+        const html = createFeaturesHTML(features.slice(1), 'test')
+
+        expect(html).toContain('data-action="delete"')
+        expect(html).toContain('data-action="edit"')
+        expect(html).not.toContain('govuk-link--disabled')
+        expect(html).not.toContain('data-action="focus"')
+      })
+
+      test('createFeaturesHTML - readonly (for use in designer viewer)', () => {
+        const html = createFeaturesHTML(features.slice(1), 'test', false, true)
+
+        expect(html).not.toContain('data-action="delete"')
+        expect(html).not.toContain('data-action="edit"')
+        expect(html).toContain('data-action="focus"')
+      })
+
+      test('createFeaturesHTML - disabled', () => {
+        const html = createFeaturesHTML(features.slice(1), 'test', true, false)
+
+        expect(html).toContain('govuk-link--disabled')
+        expect(html).toContain('data-action="delete"')
+        expect(html).toContain('data-action="edit"')
+        expect(html).not.toContain('data-action="focus"')
+      })
+
+      test('createFeatureHTML - normal (defaults)', () => {
+        const html = createFeatureHTML(features[1], 0, 'test')
+
+        expect(html).toContain('data-action="delete"')
+        expect(html).toContain('data-action="edit"')
+        expect(html).not.toContain('govuk-link--disabled')
+        expect(html).not.toContain('data-action="focus"')
       })
     })
   })
