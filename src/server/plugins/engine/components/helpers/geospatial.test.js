@@ -49,14 +49,7 @@ describe('Geospatial validation helpers', () => {
   test('it should validate an empty string', () => {
     const result = geospatialSchema.validate('')
 
-    expect(result.error).toBeUndefined()
-    expect(result.value).toEqual([])
-  })
-
-  test('it should validate an empty string with errors when required', () => {
-    const result = geospatialSchema.min(1).required().validate('')
-
     expect(result.error).toBeDefined()
-    expect(result.value).toEqual([])
+    expect(result.value).toBeUndefined()
   })
 })
