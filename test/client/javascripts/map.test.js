@@ -1199,6 +1199,63 @@ describe('Maps Client JS', () => {
           ...features.slice(1)
         ])
       })
+
+      test('description enter/return key', () => {
+        const { geospatialInput, listContainer } = initialiseGeospatialMaps()
+
+        // Manually change the description
+        const buckinghamPalaceInputEl = getDescription(listContainer, 0)
+
+        buckinghamPalaceInputEl.value = 'New description'
+        buckinghamPalaceInputEl.dispatchEvent(
+          new window.Event('change', { bubbles: true })
+        )
+        buckinghamPalaceInputEl.dispatchEvent(
+          new window.KeyboardEvent('keydown', { bubbles: true, code: 'Enter' })
+        )
+
+        expect(JSON.parse(geospatialInput.value)).toEqual([
+          {
+            ...features[0],
+            properties: {
+              description: 'New description',
+              coordinateGridReference: 'TQ 29031 79662',
+              centroidGridReference: 'TQ 29031 79662'
+            }
+          },
+          ...features.slice(1)
+        ])
+      })
+
+      test('description enter/return numpad key', () => {
+        const { geospatialInput, listContainer } = initialiseGeospatialMaps()
+
+        // Manually change the description
+        const buckinghamPalaceInputEl = getDescription(listContainer, 0)
+
+        buckinghamPalaceInputEl.value = 'New description'
+        buckinghamPalaceInputEl.dispatchEvent(
+          new window.Event('change', { bubbles: true })
+        )
+        buckinghamPalaceInputEl.dispatchEvent(
+          new window.KeyboardEvent('keydown', {
+            bubbles: true,
+            code: 'NumpadEnter'
+          })
+        )
+
+        expect(JSON.parse(geospatialInput.value)).toEqual([
+          {
+            ...features[0],
+            properties: {
+              description: 'New description',
+              coordinateGridReference: 'TQ 29031 79662',
+              centroidGridReference: 'TQ 29031 79662'
+            }
+          },
+          ...features.slice(1)
+        ])
+      })
     })
   })
 
