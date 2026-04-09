@@ -1267,6 +1267,15 @@ describe('Maps Client JS', () => {
         expect(html).not.toContain('data-action="focus"')
       })
 
+      test('createFeaturesHTML - normal (defaults)', () => {
+        const html = createFeaturesHTML(features.slice(1), 'test')
+
+        expect(html).toContain('data-action="delete"')
+        expect(html).toContain('data-action="edit"')
+        expect(html).not.toContain('govuk-link--disabled')
+        expect(html).not.toContain('data-action="focus"')
+      })
+
       test('createFeaturesHTML - readonly (for use in designer viewer)', () => {
         const html = createFeaturesHTML(features.slice(1), 'test', false, true)
 
