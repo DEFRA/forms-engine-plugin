@@ -29,7 +29,7 @@ const helpPanelConfig = {
     dismissible: true,
     modal: false
   },
-  html: '<p class="govuk-body-s govuk-!-margin-bottom-2">You can add points, shapes or lines to the map.</p><ul class="govuk-list govuk-list--number govuk-body-s"><li>Search for a county, place or postcode</li><li>Use the + and - icons to zoom in and out</li><li>Add a point or click \'Done\' when you have finished drawing a line or shape</li><li>Give the location a name</li></ul>'
+  html: '<p class="govuk-body-s govuk-!-margin-bottom-2">You can add points, shapes or lines to the map.</p><ul class="govuk-list govuk-list--number govuk-body-s"><li>Search for a county, place or postcode</li><li>Use the + and - icons to zoom in and out</li><li>Double‑click, tap again, or select \'Done\' when you have finished drawing a line or shape</li><li>Give the location a name</li></ul>'
 }
 
 const lineFeatureProperties = {
