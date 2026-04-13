@@ -194,7 +194,6 @@ export interface FormContext {
   pageMap: Map<string, PageControllerClass>
   componentMap: Map<string, Component>
   referenceNumber: string
-  submittedVersionNumber?: number
 }
 
 export type FormContextRequest = (

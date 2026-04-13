@@ -78,7 +78,6 @@ export class FormModel {
   formId: string
   values: FormDefinition
   basePath: string
-  versionNumber?: number
   ordnanceSurveyApiKey?: string
   conditions: Partial<Record<string, ExecutableCondition>>
   pages: PageControllerClass[]
@@ -100,7 +99,6 @@ export class FormModel {
     def: typeof this.def,
     options: {
       basePath: string
-      versionNumber?: number
       ordnanceSurveyApiKey?: string
       formId?: string
     },
@@ -158,7 +156,6 @@ export class FormModel {
     this.formId = options.formId ?? ''
     this.values = result.value
     this.basePath = options.basePath
-    this.versionNumber = options.versionNumber
     this.ordnanceSurveyApiKey = options.ordnanceSurveyApiKey
     this.conditions = {}
     this.services = services
@@ -362,8 +359,7 @@ export class FormModel {
       componentDefMap: this.componentDefMap,
       pageMap: this.pageMap,
       componentMap: this.componentMap,
-      referenceNumber: getReferenceNumber(state),
-      submittedVersionNumber: this.versionNumber
+      referenceNumber: getReferenceNumber(state)
     }
 
     // Validate current page
