@@ -25,8 +25,8 @@ export class EmailAddressField extends FormComponent {
 
     let formSchema = joi
       .string()
-      .email()
       .trim()
+      .email()
       .custom((value, helpers: CustomHelpers<string>) =>
         preventUnicodeInEmail(value, helpers)
       )
