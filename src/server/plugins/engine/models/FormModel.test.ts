@@ -141,21 +141,6 @@ describe('FormModel', () => {
       expect(model.schemaVersion).toBe(SchemaVersion.V1)
     })
 
-    it('sets versionNumber from options', () => {
-      const model = new FormModel(definition, {
-        basePath: 'test',
-        versionNumber: 42
-      })
-
-      expect(model.versionNumber).toBe(42)
-    })
-
-    it('sets versionNumber to undefined when not provided', () => {
-      const model = new FormModel(definition, { basePath: 'test' })
-
-      expect(model.versionNumber).toBeUndefined()
-    })
-
     it.each([
       {
         input: undefined,
@@ -342,55 +327,6 @@ describe('FormModel', () => {
       expect(() => formModel.getFormContext(request, state)).toThrow(
         'Reference number not found in form state'
       )
-    })
-
-    it('includes submittedVersionNumber in context when versionNumber is set', () => {
-      const formModel = new FormModel(fieldsRequiredDefinition, {
-        basePath: '/components',
-        versionNumber: 123
-      })
-
-      const state = {
-        $$__referenceNumber: 'foobar'
-      }
-      const pageUrl = new URL('http://example.com/components/fields-required')
-
-      const request: FormContextRequest = buildFormContextRequest({
-        method: 'get',
-        query: {},
-        path: pageUrl.pathname,
-        params: { path: 'components', slug: 'fields-required' },
-        url: pageUrl,
-        app: { model: formModel }
-      })
-
-      const context = formModel.getFormContext(request, state)
-
-      expect(context.submittedVersionNumber).toBe(123)
-    })
-
-    it('sets submittedVersionNumber to undefined when versionNumber is not set', () => {
-      const formModel = new FormModel(fieldsRequiredDefinition, {
-        basePath: '/components'
-      })
-
-      const state = {
-        $$__referenceNumber: 'foobar'
-      }
-      const pageUrl = new URL('http://example.com/components/fields-required')
-
-      const request: FormContextRequest = buildFormContextRequest({
-        method: 'get',
-        query: {},
-        path: pageUrl.pathname,
-        params: { path: 'components', slug: 'fields-required' },
-        url: pageUrl,
-        app: { model: formModel }
-      })
-
-      const context = formModel.getFormContext(request, state)
-
-      expect(context.submittedVersionNumber).toBeUndefined()
     })
 
     it('redirects to the page if the list field (radio) is invalidated due to list item conditions', () => {
