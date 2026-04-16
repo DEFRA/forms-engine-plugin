@@ -1,67 +1,25 @@
 // Declaration above is needed for: https://github.com/hapijs/joi/issues/3064
 
-import joi, {
-  type JoiExpression,
+import {
   type LanguageMessages,
   type LanguageMessagesExt,
-  type ReferenceOptions,
   type ValidationOptions
 } from 'joi'
 
-import { lowerFirstPreserveProperNouns } from '~/src/server/plugins/engine/components/helpers/index.js'
-
-const opts = {
-  functions: {
-    lowerFirst: lowerFirstPreserveProperNouns
-  }
-} as ReferenceOptions
+import {
+  buildValidationMessages,
+  type ValidationMessages
+} from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
+import { t } from '~/src/server/plugins/engine/i18n/index.js'
 
 /**
- * see @link https://joi.dev/api/?v=17.4.2#template-syntax for template syntax
+ * Module-level English message templates — built via the same factory used per-form.
+ * Components that have not yet been migrated to use model.validationMessages still
+ * import messageTemplate directly and get the English version.
  */
-export const messageTemplate: Record<string, JoiExpression> = {
-  declarationRequired: joi.expression(
-    'You must confirm you understand and agree with the {{lowerFirst(#label)}} to continue',
-    opts
-  ) as JoiExpression,
-  required: joi.expression(
-    'Enter {{lowerFirst(#label)}}',
-    opts
-  ) as JoiExpression,
-  selectRequired: joi.expression(
-    'Select {{lowerFirst(#label)}}',
-    opts
-  ) as JoiExpression,
-  selectYesNoRequired: '{{#label}} - select yes or no',
-  max: '{{#label}} must be {{#limit}} characters or less',
-  min: '{{#label}} must be {{#limit}} characters or more',
-  minMax: '{{#label}} must be between {{#min}} and {{#max}} characters',
-  pattern: joi.expression(
-    'Enter a valid {{lowerFirst(#label)}}',
-    opts
-  ) as JoiExpression,
-  format: joi.expression(
-    'Enter {{lowerFirst(#label)}} in the correct format',
-    opts
-  ) as JoiExpression,
-  number: '{{#label}} must be a number',
-  numberPrecision: '{{#label}} must have {{#limit}} or fewer decimal places',
-  numberInteger: '{{#label}} must be a whole number',
-  numberMin: '{{#label}} must be {{#limit}} or higher',
-  numberMax: '{{#label}} must be {{#limit}} or lower',
-  maxWords: '{{#label}} must be {{#limit}} words or fewer',
-
-  // Nested fields use component title
-
-  objectRequired: joi.expression('Enter {{#label}}', opts) as JoiExpression,
-  objectMissing: joi.expression(
-    '{{#title}} must include a {{lowerFirst(#label)}}',
-    opts
-  ) as JoiExpression,
-  dateFormat: '{{#title}} must be a real date',
-  dateMin: '{{#title}} must be the same as or after {{#limit}}',
-  dateMax: '{{#title}} must be the same as or before {{#limit}}'
-}
+export const messageTemplate: ValidationMessages = buildValidationMessages(
+  (key) => t(key, 'en-GB')
+)
 
 export const messages: LanguageMessagesExt = {
   'string.base': messageTemplate.required,
