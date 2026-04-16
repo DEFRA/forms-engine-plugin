@@ -14,6 +14,7 @@ import {
   type DatePartsState
 } from '~/src/server/plugins/engine/components/types.js'
 import { parseStrictDate } from '~/src/server/plugins/engine/date-helper.js'
+import { t } from '~/src/server/plugins/engine/i18n/index.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
@@ -41,14 +42,16 @@ export class DatePartsField extends FormComponent {
 
     const isRequired = options.required !== false
 
+    const { validationMessages } = props.model
+    const lang = props.model.language
     const customValidationMessages = convertToLanguageMessages({
-      'any.required': messageTemplate.objectMissing,
-      'number.base': messageTemplate.objectMissing,
-      'number.precision': messageTemplate.dateFormat,
-      'number.integer': messageTemplate.dateFormat,
-      'number.unsafe': messageTemplate.dateFormat,
-      'number.min': messageTemplate.dateFormat,
-      'number.max': messageTemplate.dateFormat
+      'any.required': validationMessages.objectMissing,
+      'number.base': validationMessages.objectMissing,
+      'number.precision': validationMessages.dateFormat,
+      'number.integer': validationMessages.dateFormat,
+      'number.unsafe': validationMessages.dateFormat,
+      'number.min': validationMessages.dateFormat,
+      'number.max': validationMessages.dateFormat
     })
 
     this.collection = new ComponentCollection(
@@ -56,7 +59,7 @@ export class DatePartsField extends FormComponent {
         {
           type: ComponentType.NumberField,
           name: `${name}__day`,
-          title: 'Day',
+          title: t('components.dateField.day', lang),
           schema: { min: 1, max: 31, precision: 0 },
           options: {
             required: isRequired,
@@ -68,7 +71,7 @@ export class DatePartsField extends FormComponent {
         {
           type: ComponentType.NumberField,
           name: `${name}__month`,
-          title: 'Month',
+          title: t('components.dateField.month', lang),
           schema: { min: 1, max: 12, precision: 0 },
           options: {
             required: isRequired,
@@ -80,7 +83,7 @@ export class DatePartsField extends FormComponent {
         {
           type: ComponentType.NumberField,
           name: `${name}__year`,
-          title: 'Year',
+          title: t('components.dateField.year', lang),
           schema: { min: 1000, max: 3000, precision: 0 },
           options: {
             required: isRequired,
