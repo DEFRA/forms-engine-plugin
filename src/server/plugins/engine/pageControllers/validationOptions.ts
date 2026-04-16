@@ -61,7 +61,10 @@ export const messageTemplate: Record<string, JoiExpression> = {
   ) as JoiExpression,
   dateFormat: '{{#title}} must be a real date',
   dateMin: '{{#title}} must be the same as or after {{#limit}}',
-  dateMax: '{{#title}} must be the same as or before {{#limit}}'
+  dateMax: '{{#title}} must be the same as or before {{#limit}}',
+  arrayMax: '{{#label}} must contain less than or equal to {{#limit}} items',
+  arrayMin: '{{#label}} must contain at least {{#limit}} items',
+  arrayLength: '{{#label}} must contain {{#limit}} items'
 }
 
 export const messages: LanguageMessagesExt = {
