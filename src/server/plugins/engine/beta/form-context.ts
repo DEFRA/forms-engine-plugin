@@ -27,7 +27,6 @@ export interface FormModelOptions {
   services?: Services
   controllers?: Record<string, typeof PageController>
   basePath?: string
-  versionNumber?: number
   ordnanceSurveyApiKey?: string
   formId?: string
   routePrefix?: string
@@ -53,8 +52,6 @@ export async function getFormModel(
   const formState = resolveState(state)
 
   const metadata = await formsService.getFormMetadata(slug)
-  const versionNumber =
-    options.versionNumber ?? metadata.versions?.[0]?.versionNumber
 
   const definition = await formsService.getFormDefinition(
     metadata.id,
@@ -73,7 +70,6 @@ export async function getFormModel(
       basePath:
         options.basePath ??
         buildBasePath(options.routePrefix ?? '', slug, formState, isPreview),
-      versionNumber,
       ordnanceSurveyApiKey: options.ordnanceSurveyApiKey,
       formId: options.formId ?? metadata.id
     },
@@ -188,8 +184,6 @@ export async function resolveFormModel(
         basePath:
           options.basePath ??
           buildBasePath(routePrefix, slug, formState, isPreview),
-        versionNumber:
-          options.versionNumber ?? metadata.versions?.[0]?.versionNumber,
         ordnanceSurveyApiKey: options.ordnanceSurveyApiKey,
         formId: options.formId ?? metadata.id
       },

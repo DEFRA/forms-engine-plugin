@@ -16,6 +16,13 @@
   visibility: hidden;
 }
 
+.js-enabled {
+  .js-hidden {
+    display: none;
+    visibility: hidden;
+  }
+}
+
 // Used in postcode lookup
 .govuk-button--link {
   @extend %govuk-link;
@@ -24,6 +31,11 @@
   cursor: pointer;
   background-color: transparent;
   @include govuk-font($size: 19);
+}
+
+// Used in geospatial field
+.govuk-link--disabled {
+  opacity: 0.5;
 }
 
 // Hide urls for hyperlinks when in print mode

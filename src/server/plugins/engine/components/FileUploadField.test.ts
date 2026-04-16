@@ -405,7 +405,7 @@ describe('FileUploadField', () => {
                     actions: {
                       items: [
                         {
-                          href: `/test/file-upload-component/${validState[0].uploadId}/confirm-delete`,
+                          href: `/test/file-upload-component/${validState[0].status.form.file.fileId}/confirm-delete`,
                           text: 'Remove',
                           attributes: { id: 'myComponent__0' },
                           classes: 'govuk-link--no-visited-state',
@@ -424,7 +424,7 @@ describe('FileUploadField', () => {
                     actions: {
                       items: [
                         {
-                          href: `/test/file-upload-component/${validState[1].uploadId}/confirm-delete`,
+                          href: `/test/file-upload-component/${validState[1].status.form.file.fileId}/confirm-delete`,
                           text: 'Remove',
                           attributes: { id: 'myComponent__1' },
                           classes: 'govuk-link--no-visited-state',
@@ -443,7 +443,7 @@ describe('FileUploadField', () => {
                     actions: {
                       items: [
                         {
-                          href: `/test/file-upload-component/${validState[2].uploadId}/confirm-delete`,
+                          href: `/test/file-upload-component/${validState[2].status.form.file.fileId}/confirm-delete`,
                           text: 'Remove',
                           attributes: { id: 'myComponent__2' },
                           classes: 'govuk-link--no-visited-state',
@@ -454,7 +454,8 @@ describe('FileUploadField', () => {
                   }
                 ]
               }
-            }
+            },
+            multiple: true
           })
         )
       })
@@ -543,7 +544,7 @@ describe('FileUploadField', () => {
                     actions: {
                       items: [
                         {
-                          href: `/test/file-upload-component/${validState[2].uploadId}/confirm-delete`,
+                          href: `/test/file-upload-component/${validState[2].status.form.file.fileId}/confirm-delete`,
                           text: 'Remove',
                           attributes: { id: 'myComponent__0' },
                           classes: 'govuk-link--no-visited-state',
@@ -554,7 +555,8 @@ describe('FileUploadField', () => {
                   }
                 ]
               }
-            }
+            },
+            multiple: true
           })
         )
       })
@@ -583,7 +585,7 @@ describe('FileUploadField', () => {
                     actions: {
                       items: [
                         {
-                          href: `/test/file-upload-component/${validState[2].uploadId}/confirm-delete`,
+                          href: `/test/file-upload-component/${validState[2].status.form.file.fileId}/confirm-delete`,
                           text: 'Remove',
                           attributes: { id: 'myComponent__0' },
                           classes: 'govuk-link--no-visited-state',
@@ -594,7 +596,8 @@ describe('FileUploadField', () => {
                   }
                 ]
               }
-            }
+            },
+            multiple: true
           })
         )
       })
@@ -1008,6 +1011,27 @@ describe('FileUploadField', () => {
     it('should throw InvalidComponentStateError when persistFiles throws 410 Gone', async () => {
       const goneError = Boom.resourceGone('File has expired')
       mockPersistFiles.mockRejectedValue(goneError)
+
+      await expect(
+        fileUploadField.onSubmit(mockRequest, mockMetadata, mockContext)
+      ).rejects.toThrow(InvalidComponentStateError)
+
+      const error = await fileUploadField
+        .onSubmit(mockRequest, mockMetadata, mockContext)
+        .catch((e: unknown) => e)
+
+      expect(error).toBeInstanceOf(InvalidComponentStateError)
+      expect((error as InvalidComponentStateError).component).toBe(
+        fileUploadField
+      )
+      expect((error as InvalidComponentStateError).userMessage).toBe(
+        'There was a problem with your uploaded files. Re-upload them before submitting the form again.'
+      )
+    })
+
+    it('should throw InvalidComponentStateError when persistFiles throws 404 Not Found', async () => {
+      const notFoundError = Boom.notFound('File not found')
+      mockPersistFiles.mockRejectedValue(notFoundError)
 
       await expect(
         fileUploadField.onSubmit(mockRequest, mockMetadata, mockContext)

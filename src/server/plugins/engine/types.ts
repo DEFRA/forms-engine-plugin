@@ -130,6 +130,7 @@ export type FormValue =
   | Item['value'][]
   | UploadState
   | RepeatListState
+  | GeospatialState
   | undefined
 
 export type FormState = Partial<Record<string, FormStateValue>>
@@ -196,7 +197,6 @@ export interface FormContext {
   pageMap: Map<string, PageControllerClass>
   componentMap: Map<string, Component>
   referenceNumber: string
-  submittedVersionNumber?: number
 }
 
 export type FormContextRequest = (
@@ -289,6 +289,76 @@ export interface RepeatItemState extends FormPayload {
 }
 
 export type RepeatListState = RepeatItemState[]
+
+/**
+ * A longitude/latitude coordinate pair in WGS84 format
+ * Format: [longitude, latitude]
+ */
+export type Coordinates = [longitude: number, latitude: number]
+
+/**
+ * GeoJSON Point geometry
+ */
+export interface PointGeometry {
+  type: 'Point'
+  coordinates: Coordinates
+}
+
+/**
+ * GeoJSON LineString geometry
+ */
+export interface LineStringGeometry {
+  type: 'LineString'
+  coordinates: Coordinates[]
+}
+
+/**
+ * GeoJSON Polygon geometry
+ */
+export interface PolygonGeometry {
+  type: 'Polygon'
+  coordinates: Coordinates[][]
+}
+
+/**
+ * Supported geometry types
+ */
+export type Geometry = PointGeometry | LineStringGeometry | PolygonGeometry
+
+/**
+ * Feature metadata
+ */
+export interface FeatureProperties {
+  /**
+   * Human-readable description of the feature
+   */
+  description: string
+  /**
+   * The OS grid reference of the first coordinate of the feature
+   */
+  coordinateGridReference?: string
+  /**
+   * The OS grid reference of the centroid of the feature
+   */
+  centroidGridReference?: string
+}
+
+/**
+ * A single GeoJSON Feature
+ */
+export interface Feature {
+  id: string
+  type: 'Feature'
+  properties: FeatureProperties
+  geometry: Geometry
+}
+
+/**
+ * A GeoJSON FeatureCollection
+ */
+export type FeatureCollection = Feature[]
+
+export type GeospatialState = FeatureCollection
 
 export interface CheckAnswers {
   title?: ComponentText
@@ -507,6 +577,7 @@ export type RichFormValue =
   | UkAddressState
   | EastingNorthingState
   | LatLongState
+  | GeospatialState
 
 export interface FormAdapterSubmissionMessageData {
   main: Record<string, RichFormValue | null>

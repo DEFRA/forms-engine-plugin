@@ -44,6 +44,7 @@ export const messageTemplate: Record<string, JoiExpression> = {
     'Enter {{lowerFirst(#label)}} in the correct format',
     opts
   ) as JoiExpression,
+  unicode: '{{#label}} includes invalid characters, for example, long dashes',
   number: '{{#label}} must be a number',
   numberPrecision: '{{#label}} must have {{#limit}} or fewer decimal places',
   numberInteger: '{{#label}} must be a whole number',
@@ -69,6 +70,7 @@ export const messages: LanguageMessagesExt = {
   'string.empty': messageTemplate.required,
   'string.max': messageTemplate.max,
   'string.email': messageTemplate.format,
+  'string.unicode': messageTemplate.unicode,
   'string.pattern.base': messageTemplate.pattern,
   'string.maxWords': messageTemplate.maxWords,
 
@@ -89,7 +91,9 @@ export const messages: LanguageMessagesExt = {
   'date.base': messageTemplate.dateFormat,
   'date.format': messageTemplate.dateFormat,
   'date.min': messageTemplate.dateMin,
-  'date.max': messageTemplate.dateMax
+  'date.max': messageTemplate.dateMax,
+
+  'object.invalidjson': messageTemplate.format
 }
 
 export const messagesPre: LanguageMessages =

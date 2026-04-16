@@ -1,5 +1,4 @@
 import { ControllerType, getHiddenFields } from '@defra/forms-model'
-import { validate as isValidUUID } from 'uuid'
 
 import { getCacheService } from '~/src/server/plugins/engine/helpers.js'
 import {
@@ -16,6 +15,7 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 import { type FormQuery } from '~/src/server/routes/types.js'
 import { type Services } from '~/src/server/types.js'
+import { isValidUUID } from '~/src/server/utils/utils.js'
 
 const GUID_LENGTH = 36
 

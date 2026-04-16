@@ -16,6 +16,7 @@ import { type Schema, type ValidationErrorItem } from 'joi'
 import { Liquid } from 'liquidjs'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+import { FORM_VERSION_METADATA_KEY } from '~/src/server/constants.js'
 import {
   getAnswer,
   type Field
@@ -24,7 +25,6 @@ import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import { stripParam } from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
 import {
-  type AnyFormRequest,
   type FormContext,
   type FormContextRequest,
   type FormSubmissionError
@@ -336,32 +336,6 @@ export function createError(componentName: string, message: string) {
 }
 
 /**
- * A small helper to safely generate a crumb token.
- * Checks that the crumb plugin is available, that crumb
- * is not disabled on the current route, and that cookies/state are present.
- */
-export function safeGenerateCrumb(
-  request: AnyFormRequest | null
-): string | undefined {
-  // no request or no .state
-  if (!request?.state) {
-    return undefined
-  }
-
-  // crumb plugin or its generate method doesn't exist
-  if (!request.server.plugins.crumb.generate) {
-    return undefined
-  }
-
-  // crumb is explicitly disabled for this route
-  if (request.route.settings.plugins?.crumb === false) {
-    return undefined
-  }
-
-  return request.server.plugins.crumb.generate(request)
-}
-
-/**
  * Calculates an exponential backoff delay (in milliseconds) based on the current retry depth,
  * using a base delay of 2000ms (2 seconds) and doubling for each additional depth, while capping the delay at 25,000ms (25 seconds).
  * @param depth - The current retry depth (1, 2, 3, …)
@@ -416,6 +390,22 @@ export function handleLegacyRedirect(h: ResponseToolkit, targetUrl: string) {
  * If the page doesn't have a title, set it from the title of the first form component
  * @param def - the form definition
  */
+export interface FormVersionMetadata {
+  versionNumber: number
+  createdAt: Date
+}
+
+/**
+ * Extracts form version metadata from a form definition
+ */
+export function getFormVersion(
+  definition: Pick<FormDefinition, 'metadata'>
+): FormVersionMetadata | undefined {
+  return definition.metadata?.[FORM_VERSION_METADATA_KEY] as
+    | FormVersionMetadata
+    | undefined
+}
+
 export function setPageTitles(def: FormDefinition) {
   def.pages.forEach((page) => {
     if (!page.title) {

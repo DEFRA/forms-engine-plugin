@@ -795,6 +795,83 @@ describe('FileUploadPageController', () => {
           })
         })
 
+        it('collects all file errors into a single flash when multiple files fail', async () => {
+          const state = {
+            upload: {
+              [controller.path]: {
+                upload: {
+                  uploadId: 'some-id',
+                  uploadUrl: 'some-url',
+                  statusUrl: 'some-status-url'
+                },
+                files: []
+              }
+            }
+          } as unknown as FormSubmissionState
+
+          const errorStatus = {
+            uploadStatus: UploadStatus.ready,
+            form: {
+              file: [
+                {
+                  fileStatus: FileStatus.rejected,
+                  errorMessage: 'File too large'
+                },
+                {
+                  fileStatus: FileStatus.rejected,
+                  errorMessage: 'Invalid file type'
+                }
+              ]
+            }
+          }
+
+          jest
+            .spyOn(uploadService, 'getUploadStatus')
+            .mockResolvedValue(errorStatus as unknown as UploadStatusResponse)
+
+          jest.spyOn(tempItemSchema, 'validate').mockReturnValue({
+            value: {
+              status: errorStatus,
+              uploadId: 'some-id'
+            },
+            error: undefined
+          } as ValidationResult)
+
+          const testController = controller as TestableFileUploadPageController
+
+          const initiateSpy = jest.spyOn(
+            testController,
+            'initiateAndStoreNewUpload'
+          ) as jest.SpyInstance<
+            Promise<FormSubmissionState>,
+            [FormRequest, FormSubmissionState]
+          >
+
+          initiateSpy.mockResolvedValue(state)
+
+          const cacheService = getCacheService(request.server)
+
+          await controller['checkUploadStatus'](request, state, 1)
+
+          expect(cacheService.setFlash).toHaveBeenCalledTimes(1)
+          expect(cacheService.setFlash).toHaveBeenCalledWith(request, {
+            errors: [
+              {
+                path: ['fileUpload'],
+                href: '#fileUpload',
+                name: 'fileUpload',
+                text: 'File too large'
+              },
+              {
+                path: ['fileUpload'],
+                href: '#fileUpload',
+                name: 'fileUpload',
+                text: 'Invalid file type'
+              }
+            ]
+          })
+        })
+
         it('sets default error message when none provided', async () => {
           const state = {
             upload: {
@@ -859,7 +936,16 @@ describe('FileUploadPageController', () => {
 
     describe('file removal', () => {
       it('returns early when no file is removed', async () => {
-        const files = [{ uploadId: 'file1' }, { uploadId: 'file2' }]
+        const files = [
+          {
+            uploadId: 'upload1',
+            status: { form: { file: { fileId: 'file1' } } }
+          },
+          {
+            uploadId: 'upload2',
+            status: { form: { file: { fileId: 'file2' } } }
+          }
+        ]
 
         Object.defineProperty(request, 'params', {
           value: { itemId: 'nonexistent-file' },
@@ -892,7 +978,16 @@ describe('FileUploadPageController', () => {
       })
 
       it('merges state when file is removed', async () => {
-        const files = [{ uploadId: 'file1' }, { uploadId: 'file2' }]
+        const files = [
+          {
+            uploadId: 'upload1',
+            status: { form: { file: { fileId: 'file1' } } }
+          },
+          {
+            uploadId: 'upload2',
+            status: { form: { file: { fileId: 'file2' } } }
+          }
+        ]
 
         Object.defineProperty(request, 'params', {
           value: { itemId: 'file1' },
@@ -924,7 +1019,12 @@ describe('FileUploadPageController', () => {
         expect(mergeStateSpy).toHaveBeenCalledWith(request, state, {
           upload: {
             [controller.path]: {
-              files: [{ uploadId: 'file2' }],
+              files: [
+                {
+                  uploadId: 'upload2',
+                  status: { form: { file: { fileId: 'file2' } } }
+                }
+              ],
               upload: {
                 uploadId: 'upload-123',
                 uploadUrl: 'some-url',
@@ -1121,11 +1221,15 @@ describe('FileUploadPageController', () => {
             files: [
               {
                 uploadId: 'file-1',
-                status: { form: { file: { filename: 'file-1.pdf' } } }
+                status: {
+                  form: { file: { fileId: 'file-1', filename: 'file-1.pdf' } }
+                }
               },
               {
                 uploadId: 'file-2',
-                status: { form: { file: { filename: 'file-2.pdf' } } }
+                status: {
+                  form: { file: { fileId: 'file-2', filename: 'file-2.pdf' } }
+                }
               }
             ]
           }

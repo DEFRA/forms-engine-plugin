@@ -51,7 +51,7 @@ describe('Plugin options - page events', () => {
 
     expect(httpService.postJson).toHaveBeenCalledExactlyOnceWith(
       'http://example.com',
-      { payload: expect.any(String) }
+      { payload: expect.any(String), timeout: 5000 }
     )
   })
 })
@@ -97,7 +97,7 @@ describe('Plugin options - page events with preparePageEventRequestOptions', () 
     })
 
     expect(preparePageEventRequestOptions).toHaveBeenCalledExactlyOnceWith(
-      { payload: expect.any(String) },
+      { payload: expect.any(String), timeout: 5000 },
       {
         type: 'http',
         options: {
@@ -111,7 +111,7 @@ describe('Plugin options - page events with preparePageEventRequestOptions', () 
 
     expect(httpService.postJson).toHaveBeenCalledExactlyOnceWith(
       'http://example.com',
-      { payload: expect.any(String) }
+      { payload: expect.any(String), timeout: 5000 }
     )
   })
 })
