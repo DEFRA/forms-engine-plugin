@@ -1,0 +1,221 @@
+{
+  "_translatorNotes": {
+    "joiPlaceholders": "{{...}} placeholders are processed by the validation engine — preserve exactly as-is",
+    "enginePlaceholders": "[[...]] placeholders are substituted by the forms engine at runtime — preserve exactly as-is",
+    "plurals": "_one keys apply when count = 1, _other keys apply for all other counts — both must be provided"
+  },
+
+  "validation": {
+    "_note": "These strings are used in validation error messages. Preserve all {{...}} placeholders exactly.",
+    "required": "Enter {{lowerFirst(#label)}}",
+    "selectRequired": "Select {{lowerFirst(#label)}}",
+    "selectYesNoRequired": "{{#label}} - select yes or no",
+    "pattern": "Enter a valid {{lowerFirst(#label)}}",
+    "format": "Enter {{lowerFirst(#label)}} in the correct format",
+    "declarationRequired": "You must confirm you understand and agree with the {{lowerFirst(#label)}} to continue",
+    "objectRequired": "Enter {{#label}}",
+    "objectMissing": "{{#title}} must include a {{lowerFirst(#label)}}",
+    "max": "{{#label}} must be {{#limit}} characters or less",
+    "min": "{{#label}} must be {{#limit}} characters or more",
+    "minMax": "{{#label}} must be between {{#min}} and {{#max}} characters",
+    "number": "{{#label}} must be a number",
+    "numberPrecision": "{{#label}} must have {{#limit}} or fewer decimal places",
+    "numberInteger": "{{#label}} must be a whole number",
+    "numberMin": "{{#label}} must be {{#limit}} or higher",
+    "numberMax": "{{#label}} must be {{#limit}} or lower",
+    "maxWords": "{{#label}} must be {{#limit}} words or fewer",
+    "dateFormat": "{{#title}} must be a real date",
+    "dateMin": "{{#title}} must be the same as or after {{#limit}}",
+    "dateMax": "{{#title}} must be the same as or before {{#limit}}"
+  },
+
+  "errors": {
+    "title": "There is a problem"
+  },
+
+  "common": {
+    "optional": " (optional)",
+    "warningIconFallback": "Warning",
+    "back": "Back",
+    "continue": "Continue",
+    "saveAndExit": "Save and exit"
+  },
+
+  "pages": {
+    "question": {
+      "paymentCancelledBannerTitle": "Important",
+      "paymentCancelledTitle": "Your payment has been cancelled",
+      "paymentCancelledBody": "Your payment details were deleted because the form was inactive for 5 days.",
+      "paymentCancelledAction": "Add your payment details again.",
+      "backToAddAnother": "Go back to add another",
+      "backToCheckAnswers": "Go back to check answers",
+      "startNow": "Start now"
+    },
+
+    "summary": {
+      "title": "Check your answers before sending your form",
+      "change": "Change",
+      "notProvided": "Not provided",
+      "declaration": "Declaration",
+      "acceptAndSubmit": "Accept and submit",
+      "submit": "Submit",
+      "saveAndExit": "Save and exit",
+      "paymentSuccessBannerTitle": "Success",
+      "paymentSuccessTitle": "We have your payment details",
+      "paymentSuccessBody": "Your payment is on hold. We will charge you when you submit the form.",
+      "paymentDetailsTitle": "Payment details",
+      "paymentFor": "Payment for",
+      "totalAmount": "Total amount",
+      "reference": "Reference",
+      "dateOfPayment": "Date of payment",
+      "submissionFailed": "There was a problem and your form was not submitted. Try submitting the form again",
+      "submissionFailedContactSuffix": " or you can [[contactUsLink]] and quote your reference number to arrange a refund",
+      "contactUsLinkText": "contact us (opens in new tab)"
+    },
+
+    "repeater": {
+      "removeAnswer": "Are you sure you want to remove this answer?",
+      "remove": "Remove",
+      "cancel": "Cancel",
+      "continue": "Continue",
+      "addAnother": "Add another",
+      "saveAndExit": "Save and exit",
+      "change": "Change",
+      "notProvided": "Not provided",
+      "visuallyHiddenItem": "item [[index]]",
+      "pageTitle_one": "You have added [[count]] answer",
+      "pageTitle_other": "You have added [[count]] answers",
+      "tooMany_one": "You can only add up to [[count]] answer",
+      "tooMany_other": "You can only add up to [[count]] answers",
+      "tooFew_one": "You must add at least [[count]] answer",
+      "tooFew_other": "You must add at least [[count]] answers"
+    },
+
+    "fileUpload": {
+      "upload": "Upload file",
+      "maxFilesReached": "You have reached the maximum number of files. Please remove a file to upload more.",
+      "maxFilesWarningIcon": "Warning"
+    },
+
+    "exit": {
+      "defaultTitle": "Your progress has been saved",
+      "whatHappensNext": "What happens next",
+      "body": "Your form progress has been saved. You can return to complete your application at any time using the link provided.",
+      "returnToApplication": "Return to application"
+    },
+
+    "confirmation": {
+      "whatHappensNext": "What happens next",
+      "referenceNumber": "Your reference number",
+      "feedbackLink": "What do you think of this service? (takes 30 seconds)"
+    },
+
+    "preview": {
+      "warnMissingNotificationEmail": {
+        "body": "If you want to receive a test email, [[link]] you want form submissions to go to.",
+        "linkText": "enter the email address (opens in new tab)"
+      }
+    }
+  },
+
+  "components": {
+    "dateField": {
+      "day": "Day",
+      "month": "Month",
+      "year": "Year"
+    },
+
+    "monthYearField": {
+      "month": "Month",
+      "year": "Year"
+    },
+
+    "addressField": {
+      "uprn": "UPRN",
+      "line1": "Address line 1",
+      "line2": "Address line 2",
+      "town": "Town or city",
+      "county": "County",
+      "postcode": "Postcode",
+      "enterAddress": "Enter [[shortDescription]]",
+      "findAddress": "Find an address",
+      "selectedAddress": "Selected address:",
+      "useDifferentAddress": "Use a different address",
+      "enterManually": "enter address manually"
+    },
+
+    "latLongField": {
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "latitudeRequired": "Enter latitude",
+      "longitudeRequired": "Enter longitude",
+      "precision": "{{#label}} must have no more than 7 decimal places",
+      "notANumber": "{{#label}} must be a valid number",
+      "latitudeBase": "Enter a valid latitude for [[fieldLabel]] like 51.519450",
+      "longitudeBase": "Enter a valid longitude for [[fieldLabel]] like -0.127758",
+      "latitudeRange": "Latitude for [[fieldLabel]] must be between [[min]] and [[max]]",
+      "longitudeRange": "Longitude for [[fieldLabel]] must be between [[min]] and [[max]]"
+    },
+
+    "eastingNorthingField": {
+      "easting": "Easting",
+      "northing": "Northing",
+      "eastingRequired": "Enter easting",
+      "northingRequired": "Enter northing",
+      "eastingDigits": "{{#label}} for [[fieldLabel]] must be between 1 and 6 digits",
+      "northingDigits": "{{#label}} for [[fieldLabel]] must be between 1 and 7 digits",
+      "eastingRange": "{{#label}} for [[fieldLabel]] must be between [[min]] and [[max]]",
+      "northingRange": "{{#label}} for [[fieldLabel]] must be between [[min]] and [[max]]"
+    },
+
+    "nationalGridField": {
+      "required": "Enter {{lowerFirst(#title)}}",
+      "pattern": "Enter a valid National Grid field number for {{lowerFirst(#title)}} like NG 1234 5678",
+      "howToFind": "How to find location details"
+    },
+
+    "osGridRefField": {
+      "required": "Enter {{lowerFirst(#title)}}",
+      "pattern": "Enter a valid OS grid reference for {{lowerFirst(#title)}} like TQ123456",
+      "howToFind": "How to find location details"
+    },
+
+    "locationFieldBase": {
+      "howToFind": "How to find location details"
+    },
+
+    "declarationField": {
+      "defaultLabel": "I understand and agree",
+      "defaultConfirmationLabel": "I confirm that I understand and accept this declaration",
+      "notProvided": "Not provided"
+    },
+
+    "geospatialField": {
+      "added_one": "Added [[count]] location",
+      "added_other": "Added [[count]] locations"
+    },
+
+    "paymentField": {
+      "detailsRequired": "Payment details required",
+      "pendingTransaction": "You may see a pending transaction in your bank account but you will only be charged when you submit the form.",
+      "addPaymentDetails": "Add payment details",
+      "cannotTakePayment": "There is a problem and we cannot take a payment. Contact us (details in the footer of this form) or save your progress and return to the form later.",
+      "testApiKey": "Add a valid test API key before you can preview the payment journey.",
+      "completePayment": "Complete the payment to continue",
+      "paymentExpired": "Your payment authorisation has expired. Please add your payment details again.",
+      "submissionFailed": "There was a problem and your form was not submitted. Try submitting the form again.",
+      "canSubmitAfterPayment": "You can submit the form after you have added your payment details.",
+      "preAuthorisedTitle": "You have already authorised a payment for this form",
+      "preAuthorisedBody": "Continue to submit the form. You will not be charged twice.",
+      "totalAmountLabel": "Total amount:"
+    },
+
+    "fileUploadField": {
+      "uploaded": "Uploaded",
+      "uploadFailed": "There was a problem with your uploaded files. Re-upload them before submitting the form again.",
+      "uploadedFilesHeading": "Uploaded files",
+      "filesCount_one": "[[count]] file uploaded",
+      "filesCount_other": "[[count]] files uploaded"
+    }
+  }
+}
