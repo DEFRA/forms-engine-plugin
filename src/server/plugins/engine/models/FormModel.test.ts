@@ -156,6 +156,29 @@ describe('FormModel', () => {
       expect(model.versionNumber).toBeUndefined()
     })
 
+    it('defaults language to en-GB when metadata.language is absent', () => {
+      const model = new FormModel(definition, { basePath: 'test' })
+      expect(model.language).toBe('en-GB')
+    })
+
+    it('reads language from metadata.language when present', () => {
+      const defWithLanguage = {
+        ...definition,
+        metadata: { language: 'cy' }
+      }
+      const model = new FormModel(defWithLanguage, { basePath: 'test' })
+      expect(model.language).toBe('cy')
+    })
+
+    it('builds validationMessages at construction time', () => {
+      const model = new FormModel(definition, { basePath: 'test' })
+      expect(model.validationMessages).toBeDefined()
+      expect(typeof model.validationMessages.max).toBe('string')
+      expect(model.validationMessages.max).toBe(
+        '{{#label}} must be {{#limit}} characters or less'
+      )
+    })
+
     it.each([
       {
         input: undefined,

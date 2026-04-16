@@ -42,6 +42,11 @@ import {
   getPage,
   setPageTitles
 } from '~/src/server/plugins/engine/helpers.js'
+import {
+  buildValidationMessages,
+  type ValidationMessages
+} from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
+import { t } from '~/src/server/plugins/engine/i18n/index.js'
 import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
@@ -80,6 +85,8 @@ export class FormModel {
   basePath: string
   versionNumber?: number
   ordnanceSurveyApiKey?: string
+  language: string
+  validationMessages: ValidationMessages
   conditions: Partial<Record<string, ExecutableCondition>>
   pages: PageControllerClass[]
   services: Services
@@ -150,6 +157,13 @@ export class FormModel {
     setPageTitles(def)
 
     this.engine = def.engine
+    this.language =
+      typeof def.metadata?.language === 'string'
+        ? def.metadata.language
+        : 'en-GB'
+    this.validationMessages = buildValidationMessages((key) =>
+      t(key, this.language)
+    )
     this.schemaVersion = def.schema ?? SchemaVersion.V1
     this.def = def
     this.lists = def.lists
