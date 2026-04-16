@@ -1,3 +1,10 @@
+// Pre-load @defra/forms-model to ensure Joi internals are initialised before any test
+// file runs. This prevents a Symbol identity mismatch between the ESM-wrapped Joi
+// instance (created by babel-jest) and the CJS Joi instance used by Joi's internal
+// Template.isTemplate() check, which occurs when resetModules: true clears the
+// registry between tests.
+require('@defra/forms-model')
+
 process.env.REDIS_HOST = 'dummy'
 process.env.REDIS_KEY_PREFIX = 'forms-designer'
 process.env.REDIS_PASSWORD = 'dummy'
