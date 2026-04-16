@@ -14,6 +14,7 @@ import {
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
 import { createLowerFirstExpression } from '~/src/server/plugins/engine/components/helpers/index.js'
 import { type LatLongState } from '~/src/server/plugins/engine/components/types.js'
+import { t } from '~/src/server/plugins/engine/i18n/index.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
@@ -51,31 +52,42 @@ export class LatLongField extends FormComponent {
     const longitudeMin = schema?.longitude?.min ?? -13.687
     const longitudeMax = schema?.longitude?.max ?? 1.767
 
-    const latitudeRequired = 'Enter latitude'
-    const longitudeRequired = 'Enter longitude'
+    const lang = props.model.language
+    const fieldLabel = lowerFirst(this.label)
 
     const customValidationMessages: LanguageMessages =
       convertToLanguageMessages({
-        'number.precision':
-          '{{#label}} must have no more than 7 decimal places',
-        'number.unsafe': '{{#label}} must be a valid number'
+        'number.precision': t('components.latLongField.precision', lang),
+        'number.unsafe': t('components.latLongField.notANumber', lang)
       })
 
-    const latitudeRangeMessage = `Latitude for ${lowerFirst(this.label)} must be between ${latitudeMin} and ${latitudeMax}`
-    const longitudeRangeMessage = `Longitude for ${lowerFirst(this.label)} must be between ${longitudeMin} and ${longitudeMax}`
+    const latitudeRangeMessage = t(
+      'components.latLongField.latitudeRange',
+      lang,
+      { fieldLabel, min: latitudeMin, max: latitudeMax }
+    )
+    const longitudeRangeMessage = t(
+      'components.latLongField.longitudeRange',
+      lang,
+      { fieldLabel, min: longitudeMin, max: longitudeMax }
+    )
 
     const latitudeMessages: LanguageMessages = convertToLanguageMessages({
       ...customValidationMessages,
-      'any.required': latitudeRequired,
-      'number.base': `Enter a valid latitude for ${lowerFirst(this.label)} like 51.519450`,
+      'any.required': t('components.latLongField.latitudeRequired', lang),
+      'number.base': t('components.latLongField.latitudeBase', lang, {
+        fieldLabel
+      }),
       'number.min': latitudeRangeMessage,
       'number.max': latitudeRangeMessage
     })
 
     const longitudeMessages: LanguageMessages = convertToLanguageMessages({
       ...customValidationMessages,
-      'any.required': longitudeRequired,
-      'number.base': `Enter a valid longitude for ${lowerFirst(this.label)} like -0.127758`,
+      'any.required': t('components.latLongField.longitudeRequired', lang),
+      'number.base': t('components.latLongField.longitudeBase', lang, {
+        fieldLabel
+      }),
       'number.min': longitudeRangeMessage,
       'number.max': longitudeRangeMessage
     })
@@ -85,7 +97,7 @@ export class LatLongField extends FormComponent {
         {
           type: ComponentType.NumberField,
           name: `${name}__latitude`,
-          title: 'Latitude',
+          title: t('components.latLongField.latitude', lang),
           schema: {
             min: latitudeMin,
             max: latitudeMax,
@@ -102,7 +114,7 @@ export class LatLongField extends FormComponent {
         {
           type: ComponentType.NumberField,
           name: `${name}__longitude`,
-          title: 'Longitude',
+          title: t('components.latLongField.longitude', lang),
           schema: {
             min: longitudeMin,
             max: longitudeMax,

@@ -17,6 +17,7 @@ import {
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
 import { createLowerFirstExpression } from '~/src/server/plugins/engine/components/helpers/index.js'
 import { type EastingNorthingState } from '~/src/server/plugins/engine/components/types.js'
+import { t } from '~/src/server/plugins/engine/i18n/index.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
@@ -55,18 +56,40 @@ export class EastingNorthingField extends FormComponent {
     const northingMin = schema?.northing?.min ?? DEFAULT_NORTHING_MIN
     const northingMax = schema?.northing?.max ?? DEFAULT_NORTHING_MAX
 
-    const eastingRequired = 'Enter easting'
-    const northingRequired = 'Enter northing'
+    const lang = props.model.language
+    const fieldLabel = lowerFirst(this.label)
 
-    const eastingDigitsMessage = `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 6 digits`
-    const northingDigitsMessage = `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 7 digits`
+    const eastingDigitsMessage = t(
+      'components.eastingNorthingField.eastingDigits',
+      lang,
+      { fieldLabel }
+    )
+    const northingDigitsMessage = t(
+      'components.eastingNorthingField.northingDigits',
+      lang,
+      { fieldLabel }
+    )
 
     const customValidationMessages: LanguageMessages =
       convertToLanguageMessages({
-        'any.required': eastingRequired,
-        'number.base': eastingRequired,
-        'number.min': `{{#label}} for ${lowerFirst(this.label)} must be between {{#limit}} and ${eastingMax}`,
-        'number.max': `{{#label}} for ${lowerFirst(this.label)} must be between ${eastingMin} and {{#limit}}`,
+        'any.required': t(
+          'components.eastingNorthingField.eastingRequired',
+          lang
+        ),
+        'number.base': t(
+          'components.eastingNorthingField.eastingRequired',
+          lang
+        ),
+        'number.min': t('components.eastingNorthingField.eastingRange', lang, {
+          fieldLabel,
+          min: eastingMin,
+          max: eastingMax
+        }),
+        'number.max': t('components.eastingNorthingField.eastingRange', lang, {
+          fieldLabel,
+          min: eastingMin,
+          max: eastingMax
+        }),
         'number.precision': eastingDigitsMessage,
         'number.integer': eastingDigitsMessage,
         'number.unsafe': eastingDigitsMessage
@@ -74,10 +97,24 @@ export class EastingNorthingField extends FormComponent {
 
     const northingValidationMessages: LanguageMessages =
       convertToLanguageMessages({
-        'any.required': northingRequired,
-        'number.base': northingRequired,
-        'number.min': `{{#label}} for ${lowerFirst(this.label)} must be between {{#limit}} and ${northingMax}`,
-        'number.max': `{{#label}} for ${lowerFirst(this.label)} must be between ${northingMin} and {{#limit}}`,
+        'any.required': t(
+          'components.eastingNorthingField.northingRequired',
+          lang
+        ),
+        'number.base': t(
+          'components.eastingNorthingField.northingRequired',
+          lang
+        ),
+        'number.min': t('components.eastingNorthingField.northingRange', lang, {
+          fieldLabel,
+          min: northingMin,
+          max: northingMax
+        }),
+        'number.max': t('components.eastingNorthingField.northingRange', lang, {
+          fieldLabel,
+          min: northingMin,
+          max: northingMax
+        }),
         'number.precision': northingDigitsMessage,
         'number.integer': northingDigitsMessage,
         'number.unsafe': northingDigitsMessage
@@ -88,7 +125,7 @@ export class EastingNorthingField extends FormComponent {
         {
           type: ComponentType.NumberField,
           name: `${name}__easting`,
-          title: 'Easting',
+          title: t('components.eastingNorthingField.easting', lang),
           schema: {
             min: eastingMin,
             max: eastingMax,
@@ -104,7 +141,7 @@ export class EastingNorthingField extends FormComponent {
         {
           type: ComponentType.NumberField,
           name: `${name}__northing`,
-          title: 'Northing',
+          title: t('components.eastingNorthingField.northing', lang),
           schema: {
             min: northingMin,
             max: northingMax,
