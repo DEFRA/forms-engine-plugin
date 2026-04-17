@@ -4,9 +4,9 @@
   {% set upload = component.model.upload %}
 
   <div id="uploadedFilesContainer">
-    <h2 class="govuk-heading-m">Uploaded files</h2>
+    <h2 class="govuk-heading-m">{{ t('components.fileUploadField.uploadedFilesHeading') }}</h2>
     {% if upload.count %}
-      <p class="govuk-body" role="alert">{{upload.count}} file{{ "s" if upload.count > 1}} uploaded</p>
+      <p class="govuk-body" role="alert">{{ t('components.fileUploadField.filesCount', { count: upload.count }) }}</p>
       <p class="govuk-body">
       </p>
 
@@ -14,7 +14,7 @@
         {{ govukSummaryList(upload.summaryList) }}
       {% endif %}
     {% else %}
-      <p class="govuk-body">{{upload.count}} files uploaded</p>
+      <p class="govuk-body">{{ t('components.fileUploadField.filesCount', { count: upload.count }) }}</p>
     {% endif %}
   </div>
 {% endmacro %}

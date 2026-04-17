@@ -13,7 +13,7 @@
 
       {% if errors %}
         {{ govukErrorSummary({
-          titleText: "There is a problem",
+          titleText: t('errors.title'),
           errorList: errors
         }) }}
       {% endif %}
@@ -29,14 +29,14 @@
 
         <div class="govuk-button-group">
           {{ govukButton({
-            text: "Continue",
+            text: t('pages.repeater.continue'),
             name: "action",
             value: "continue",
             preventDoubleClick: true
           }) }}
 
           {{ govukButton({
-            text: "Add another",
+            text: t('pages.repeater.addAnother'),
             name: "action",
             value: "add-another",
             classes: "govuk-button--secondary",
@@ -45,7 +45,7 @@
 
           {% if allowSaveAndExit %}
             {{ govukButton({
-              text: "Save and exit",
+              text: t('pages.repeater.saveAndExit'),
               classes: "govuk-button--secondary",
               name: "action",
               value: "save-and-exit",

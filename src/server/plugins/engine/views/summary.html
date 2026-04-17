@@ -17,14 +17,14 @@
       {% if paymentState and paymentState.preAuth and paymentState.preAuth.status == 'success' %}
         {{ govukNotificationBanner({
           type: "success",
-          titleText: "Success",
-          html: "<h3 class=\"govuk-notification-banner__heading\">We have your payment details</h3><p class=\"govuk-body\">Your payment is on hold. We will charge you when you submit the form.</p>"
+          titleText: t('pages.summary.paymentSuccessBannerTitle'),
+          html: "<h3 class=\"govuk-notification-banner__heading\">" + t('pages.summary.paymentSuccessTitle') + "</h3><p class=\"govuk-body\">" + t('pages.summary.paymentSuccessBody') + "</p>"
         }) }}
       {% endif %}
 
       {% if errors %}
         {{ govukErrorSummary({
-          titleText: "There is a problem",
+          titleText: t('errors.title'),
           errorList: checkErrorTemplates(errors)
         }) }}
       {% endif %}
@@ -65,7 +65,7 @@
         {{ componentList(components) }}
 
         {% if declaration %}
-          <h2 class="govuk-heading-m" id="declaration">Declaration</h2>
+          <h2 class="govuk-heading-m" id="declaration">{{ t('pages.summary.declaration') }}</h2>
           <div class="govuk-body">
           {{ declaration | safe }}
           </div>
@@ -75,7 +75,7 @@
           {% set isDeclaration = declaration or components | length %}
 
           {{ govukButton({
-            text: "Accept and submit" if isDeclaration else "Submit",
+            text: t('pages.summary.acceptAndSubmit') if isDeclaration else t('pages.summary.submit'),
             name: "action",
             value: "send",
             preventDoubleClick: true
@@ -83,7 +83,7 @@
 
           {% if allowSaveAndExit %}
             {{ govukButton({
-              text: "Save and exit",
+              text: t('pages.summary.saveAndExit'),
               classes: "govuk-button--secondary",
               name: "action",
               value: "save-and-exit",

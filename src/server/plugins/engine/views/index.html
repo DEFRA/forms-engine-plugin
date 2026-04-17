@@ -13,14 +13,14 @@
 
       {% if showPaymentExpiredNotification %}
         {{ govukNotificationBanner({
-          titleText: "Important",
-          html: '<h3 class="govuk-notification-banner__heading">Your payment has been cancelled</h3><p class="govuk-body">Your payment details were deleted because the form was inactive for 5 days.</p><p class="govuk-body">Add your payment details again.</p>'
+          titleText: t('pages.question.paymentCancelledBannerTitle'),
+          html: '<h3 class="govuk-notification-banner__heading">' + t('pages.question.paymentCancelledTitle') + '</h3><p class="govuk-body">' + t('pages.question.paymentCancelledBody') + '</p><p class="govuk-body">' + t('pages.question.paymentCancelledAction') + '</p>'
         }) }}
       {% endif %}
 
       {% if errors | length and not showPaymentExpiredNotification %}
         {{ govukErrorSummary({
-          titleText: "There is a problem",
+          titleText: t('errors.title'),
           errorList: checkErrorTemplates(errors)
         }) }}
       {% endif %}

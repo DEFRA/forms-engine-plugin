@@ -14,14 +14,14 @@
 
     {% if formAction %}
       {{ govukButton({
-        text: "Upload file",
+        text: t('pages.fileUpload.upload'),
         classes: "govuk-button--secondary upload-file-button",
         preventDoubleClick: true
       }) }}
     {% else %}
       {{ govukWarningText({
-        text: "You have reached the maximum number of files. Please remove a file to upload more.",
-        iconFallbackText: "Warning"
+        text: t('pages.fileUpload.maxFilesReached'),
+        iconFallbackText: t('common.warningIconFallback')
       }) }}
     {% endif %}
   </form>
