@@ -14,6 +14,7 @@ import {
   createError,
   getPluginOptions
 } from '~/src/server/plugins/engine/helpers.js'
+import { t } from '~/src/server/plugins/engine/i18n/index.js'
 import {
   PaymentErrorTypes,
   PaymentPreAuthError,
@@ -239,9 +240,10 @@ export class PaymentField extends FormComponent {
     )
 
     if (!payment) {
+      const lang = model.language
       const message = isLivePayment
-        ? 'There is a problem and we cannot take a payment. Contact us (details in the footer of this form) or save your progress and return to the form later.'
-        : 'Add a valid test API key before you can preview the payment journey.'
+        ? t('components.paymentField.cannotTakePayment', lang)
+        : t('components.paymentField.testApiKey', lang)
       const govukError = createError(componentName, message)
       request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
       return h.redirect(request.url.href).code(StatusCodes.SEE_OTHER)
@@ -277,9 +279,10 @@ export class PaymentField extends FormComponent {
     const paymentState = this.getPaymentStateFromState(context.state)
 
     if (!paymentState) {
+      const lang = this.model.language
       throw new PaymentPreAuthError(
         this,
-        'Complete the payment to continue',
+        t('components.paymentField.completePayment', lang),
         true,
         PaymentErrorTypes.PaymentIncomplete
       )
@@ -319,7 +322,7 @@ export class PaymentField extends FormComponent {
     if (status.state.status !== 'capturable') {
       throw new PaymentPreAuthError(
         this,
-        'Your payment authorisation has expired. Please add your payment details again.',
+        t('components.paymentField.paymentExpired', this.model.language),
         true,
         PaymentErrorTypes.PaymentExpired
       )
@@ -333,7 +336,7 @@ export class PaymentField extends FormComponent {
     if (!captured) {
       throw new PaymentPreAuthError(
         this,
-        'There was a problem and your form was not submitted. Try submitting the form again.',
+        t('components.paymentField.submissionFailed', this.model.language),
         false
       )
     }
