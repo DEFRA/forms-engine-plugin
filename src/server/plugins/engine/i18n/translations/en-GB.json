@@ -93,8 +93,7 @@
 
     "fileUpload": {
       "upload": "Upload file",
-      "maxFilesReached": "You have reached the maximum number of files. Please remove a file to upload more.",
-      "maxFilesWarningIcon": "Warning"
+      "maxFilesReached": "You have reached the maximum number of files. Please remove a file to upload more."
     },
 
     "exit": {

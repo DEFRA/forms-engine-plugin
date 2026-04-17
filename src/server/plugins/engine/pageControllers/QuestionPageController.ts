@@ -498,13 +498,15 @@ export class QuestionPageController extends PageController {
 
     const itemId = this.getItemId(request)
 
+    const lang = this.model.language
+
     // Check answers back link
     if (returnUrl) {
       return {
         text:
           hasRepeater(pageDef) && itemId
-            ? 'Go back to add another'
-            : 'Go back to check answers',
+            ? t('pages.question.backToAddAnother', lang)
+            : t('pages.question.backToCheckAnswers', lang),
         href: returnUrl
       }
     }
@@ -522,7 +524,7 @@ export class QuestionPageController extends PageController {
 
     // Default back link
     return {
-      text: 'Back',
+      text: t('common.back', lang),
       href: this.getHref(backPath)
     }
   }

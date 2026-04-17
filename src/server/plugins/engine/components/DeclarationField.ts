@@ -117,16 +117,19 @@ export class DeclarationField extends FormComponent {
   }
 
   getDisplayStringFromFormValue(value: FormValue | FormPayload): string {
-    return value === 'true' ? this.declarationConfirmationLabel : 'Not provided'
+    return value === 'true'
+      ? this.declarationConfirmationLabel
+      : t('components.declarationField.notProvided', this.model.language)
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
-    const defaultDeclarationConfirmationLabel =
-      'I confirm that I understand and accept this declaration'
     const {
       hint,
       content,
-      declarationConfirmationLabel = defaultDeclarationConfirmationLabel
+      declarationConfirmationLabel = t(
+        'components.declarationField.defaultConfirmationLabel',
+        this.model.language
+      )
     } = this
 
     const viewModel = super.getViewModel(payload, errors)

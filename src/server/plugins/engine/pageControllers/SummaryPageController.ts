@@ -317,12 +317,20 @@ export class SummaryPageController extends QuestionPageController {
     request: FormRequestPayload,
     h: FormResponseToolkit
   ) {
+    const lang = this.model.language
     const helpUrl = error.helpLink ?? DEFAULT_PAYMENT_HELP_URL
-    const helpLinkHtml = ` or you can <a href="${helpUrl}" target="_blank" rel="noopener noreferrer" class="govuk-link">contact us (opens in new tab)</a> and quote your reference number to arrange a refund`
+    const contactUsLink = `<a href="${helpUrl}" target="_blank" rel="noopener noreferrer" class="govuk-link">${t('pages.summary.contactUsLinkText', lang)}</a>`
+    const helpLinkHtml = t(
+      'pages.summary.submissionFailedContactSuffix',
+      lang,
+      {
+        contactUsLink
+      }
+    )
 
     const govukError = createError(
       'submission',
-      `There was a problem and your form was not submitted. Try submitting the form again${helpLinkHtml}.`
+      `${t('pages.summary.submissionFailed', lang)}${helpLinkHtml}.`
     )
 
     request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
