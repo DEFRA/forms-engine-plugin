@@ -170,6 +170,18 @@ describe('FormModel', () => {
       expect(model.language).toBe('cy')
     })
 
+    it('translates a key using the form language', () => {
+      const model = new FormModel(definition, { basePath: '/test' })
+      expect(model.t('errors.title')).toBe('There is a problem')
+    })
+
+    it('passes interpolation options through', () => {
+      const model = new FormModel(definition, { basePath: '/test' })
+      expect(model.t('pages.repeater.pageTitle', { count: 3 })).toBe(
+        'You have added 3 answers'
+      )
+    })
+
     it('builds validationMessages at construction time', () => {
       const model = new FormModel(definition, { basePath: 'test' })
       expect(model.validationMessages).toBeDefined()

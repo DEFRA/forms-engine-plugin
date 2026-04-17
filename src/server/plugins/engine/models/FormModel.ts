@@ -46,7 +46,7 @@ import {
   buildValidationMessages,
   type ValidationMessages
 } from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
-import { t } from '~/src/server/plugins/engine/i18n/index.js'
+import { t as translate } from '~/src/server/plugins/engine/i18n/index.js'
 import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
@@ -147,12 +147,12 @@ export class FormModel {
       items: [
         {
           id: '02900d42-83d1-4c72-a719-c4e8228952fa',
-          text: t('components.yesNoField.yes', language),
+          text: translate('components.yesNoField.yes', language),
           value: true
         },
         {
           id: 'f39000eb-c51b-4019-8f82-bbda0423f04d',
-          text: t('components.yesNoField.no', language),
+          text: translate('components.yesNoField.no', language),
           value: false
         }
       ]
@@ -163,9 +163,7 @@ export class FormModel {
 
     this.engine = def.engine
     this.language = language
-    this.validationMessages = buildValidationMessages((key) =>
-      t(key, this.language)
-    )
+    this.validationMessages = buildValidationMessages((key) => this.t(key))
     this.schemaVersion = def.schema ?? SchemaVersion.V1
     this.def = def
     this.lists = def.lists
@@ -242,6 +240,10 @@ export class FormModel {
         ])
       )
     )
+  }
+
+  t(key: string, opts?: Record<string, unknown>): string {
+    return translate(key, this.language, opts)
   }
 
   /**
