@@ -1,6 +1,7 @@
 import { type PageStatus } from '@defra/forms-model'
 
 import { getCacheService } from '~/src/server/plugins/engine/helpers.js'
+import { t } from '~/src/server/plugins/engine/i18n/index.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import { type FormContext } from '~/src/server/plugins/engine/types.js'
@@ -58,7 +59,9 @@ export class StatusPageController extends QuestionPageController {
         submissionGuidance,
         formName,
         showReferenceNumber: this.showReferenceNumber,
-        referenceNumber: confirmationState.referenceNumber
+        referenceNumber: confirmationState.referenceNumber,
+        t: (key: string, opts?: Record<string, unknown>) =>
+          t(key, this.model.language, opts)
       })
     }
   }

@@ -390,6 +390,7 @@ export interface PageViewModelBase extends Partial<ViewContext> {
   feedbackLink?: string
   serviceUrl: string
   phaseTag?: string
+  t?: (key: string, opts?: Record<string, unknown>) => string
 }
 
 export interface ItemDeletePageViewModel extends PageViewModelBase {

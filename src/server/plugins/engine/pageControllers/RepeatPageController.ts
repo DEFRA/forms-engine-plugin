@@ -196,7 +196,11 @@ export class RepeatPageController extends QuestionPageController {
 
       const viewModel = this.getListSummaryViewModel(request, context, list)
 
-      return h.view(this.listSummaryViewName, viewModel)
+      return h.view(this.listSummaryViewName, {
+        ...viewModel,
+        t: (key: string, opts?: Record<string, unknown>) =>
+          t(key, this.model.language, opts)
+      })
     }
   }
 
@@ -248,7 +252,11 @@ export class RepeatPageController extends QuestionPageController {
 
         const viewModel = this.getListSummaryViewModel(request, context, list)
 
-        return h.view(this.listSummaryViewName, viewModel)
+        return h.view(this.listSummaryViewName, {
+          ...viewModel,
+          t: (key: string, opts?: Record<string, unknown>) =>
+            t(key, this.model.language, opts)
+        })
       }
 
       if (action === FormAction.AddAnother) {
@@ -300,7 +308,9 @@ export class RepeatPageController extends QuestionPageController {
         pageTitle: t('pages.repeater.removeAnswer', lang),
         itemTitle: `${title} ${list.indexOf(item) + 1}`,
         buttonConfirm: { text: t('pages.repeater.remove', lang) },
-        buttonCancel: { text: t('pages.repeater.cancel', lang) }
+        buttonCancel: { text: t('pages.repeater.cancel', lang) },
+        t: (key: string, opts?: Record<string, unknown>) =>
+          t(key, this.model.language, opts)
       } satisfies ItemDeletePageViewModel)
     }
   }

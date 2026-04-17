@@ -29,6 +29,7 @@ import {
   normalisePath,
   proceed
 } from '~/src/server/plugins/engine/helpers.js'
+import { t } from '~/src/server/plugins/engine/i18n/index.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { prefillStateFromQueryParameters } from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
@@ -453,7 +454,11 @@ export class QuestionPageController extends PageController {
       viewModel.hasMissingNotificationEmail =
         await this.hasMissingNotificationEmail(request, context)
 
-      return h.view(viewName, viewModel)
+      return h.view(viewName, {
+        ...viewModel,
+        t: (key: string, opts?: Record<string, unknown>) =>
+          t(key, this.model.language, opts)
+      })
     }
   }
 
@@ -551,7 +556,11 @@ export class QuestionPageController extends PageController {
           evaluationState
         )
 
-        return h.view(viewName, viewModel)
+        return h.view(viewName, {
+          ...viewModel,
+          t: (key: string, opts?: Record<string, unknown>) =>
+            t(key, this.model.language, opts)
+        })
       }
 
       // Save state

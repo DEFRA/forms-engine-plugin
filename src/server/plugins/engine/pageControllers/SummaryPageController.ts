@@ -165,6 +165,9 @@ export class SummaryPageController extends QuestionPageController {
       viewModel.hasMissingNotificationEmail =
         await this.hasMissingNotificationEmail(request, context)
 
+      viewModel.t = (key: string, opts?: Record<string, unknown>) =>
+        t(key, this.model.language, opts)
+
       return h.view(viewName, viewModel)
     }
   }
