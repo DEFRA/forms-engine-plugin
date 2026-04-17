@@ -4,12 +4,14 @@ import { environment } from '~/src/server/plugins/nunjucks/environment.js'
 describe('Nunjucks environment', () => {
   describe('t global function', () => {
     it('has t as a global function', () => {
-      const globals = environment.globals
+       
+      const globals = /** @type {any} */ (environment).globals
       expect(typeof globals.t).toBe('function')
     })
 
     it('t global returns the English string for a known key', () => {
-      const globals = environment.globals
+       
+      const globals = /** @type {any} */ (environment).globals
       expect(globals.t('errors.title')).toBe('There is a problem')
     })
   })

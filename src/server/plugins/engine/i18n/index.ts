@@ -1,6 +1,6 @@
 import i18next from 'i18next'
 
-import enGB from '~/src/server/plugins/engine/i18n/translations/en-GB.json'
+import enGB from '~/src/server/plugins/engine/i18n/translations/en-GB.json' with { type: 'json' }
 
 i18next
   .init({
@@ -12,11 +12,10 @@ i18next
       prefix: '[[',
       suffix: ']]',
       escapeValue: false
-    },
-    initImmediate: false
+    }
   })
   .catch(() => {
-    // Synchronous init (initImmediate: false) — this branch is unreachable
+    // init with inline resources completes synchronously — this branch is unreachable
   })
 
 export function t(
