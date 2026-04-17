@@ -14,7 +14,6 @@ import {
   type DatePartsState
 } from '~/src/server/plugins/engine/components/types.js'
 import { parseStrictDate } from '~/src/server/plugins/engine/date-helper.js'
-import { t } from '~/src/server/plugins/engine/i18n/index.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
@@ -43,7 +42,6 @@ export class DatePartsField extends FormComponent {
     const isRequired = options.required !== false
 
     const { validationMessages } = props.model
-    const lang = props.model.language
     const customValidationMessages = convertToLanguageMessages({
       'any.required': validationMessages.objectMissing,
       'number.base': validationMessages.objectMissing,
@@ -59,7 +57,7 @@ export class DatePartsField extends FormComponent {
         {
           type: ComponentType.NumberField,
           name: `${name}__day`,
-          title: t('components.dateField.day', lang),
+          title: props.model.t('components.dateField.day'),
           schema: { min: 1, max: 31, precision: 0 },
           options: {
             required: isRequired,
@@ -71,7 +69,7 @@ export class DatePartsField extends FormComponent {
         {
           type: ComponentType.NumberField,
           name: `${name}__month`,
-          title: t('components.dateField.month', lang),
+          title: props.model.t('components.dateField.month'),
           schema: { min: 1, max: 12, precision: 0 },
           options: {
             required: isRequired,
@@ -83,7 +81,7 @@ export class DatePartsField extends FormComponent {
         {
           type: ComponentType.NumberField,
           name: `${name}__year`,
-          title: t('components.dateField.year', lang),
+          title: props.model.t('components.dateField.year'),
           schema: { min: 1000, max: 3000, precision: 0 },
           options: {
             required: isRequired,

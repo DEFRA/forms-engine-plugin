@@ -7,7 +7,6 @@ import {
   isGeospatialState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { geospatialSchema } from '~/src/server/plugins/engine/components/helpers/geospatial.js'
-import { t } from '~/src/server/plugins/engine/i18n/index.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
@@ -59,7 +58,7 @@ export class GeospatialField extends FormComponent {
       return ''
     }
 
-    return t('components.geospatialField.added', this.model.language, {
+    return this.model.t('components.geospatialField.added', {
       count: features.length
     })
   }

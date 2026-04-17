@@ -9,7 +9,6 @@ import {
   FormComponent,
   isUploadState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { t } from '~/src/server/plugins/engine/i18n/index.js'
 import { InvalidComponentStateError } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
@@ -216,7 +215,7 @@ export class FileUploadField extends FormComponent {
 
       const tag = {
         classes: 'govuk-tag--green',
-        text: t('components.fileUploadField.uploaded', this.model.language)
+        text: this.model.t('components.fileUploadField.uploaded')
       }
 
       const valueHtml = render
@@ -351,7 +350,7 @@ export class FileUploadField extends FormComponent {
         // Scenarios: file missing from S3, invalid retrieval key (timing problem), etc.
         throw new InvalidComponentStateError(
           this,
-          t('components.fileUploadField.uploadFailed', this.model.language)
+          this.model.t('components.fileUploadField.uploadFailed')
         )
       }
 

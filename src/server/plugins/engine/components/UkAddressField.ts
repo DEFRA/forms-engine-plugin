@@ -12,7 +12,6 @@ import {
   isFormState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
-import { t } from '~/src/server/plugins/engine/i18n/index.js'
 import { type QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
   type FormRequestPayload,
@@ -48,14 +47,12 @@ export class UkAddressField extends FormComponent {
     const isRequired = options.required !== false
     const hideOptional = !!options.optionalText
     const hideTitle = !!options.hideTitle
-    const lang = props.model.language
-
     this.collection = new ComponentCollection(
       [
         {
           type: ComponentType.TextField,
           name: `${name}__uprn`,
-          title: t('components.addressField.uprn', lang),
+          title: props.model.t('components.addressField.uprn'),
           schema: {},
           options: {
             required: false,
@@ -65,7 +62,7 @@ export class UkAddressField extends FormComponent {
         {
           type: ComponentType.TextField,
           name: `${name}__addressLine1`,
-          title: t('components.addressField.line1', lang),
+          title: props.model.t('components.addressField.line1'),
           schema: { max: 100 },
           options: {
             autocomplete: 'address-line1',
@@ -76,7 +73,7 @@ export class UkAddressField extends FormComponent {
         {
           type: ComponentType.TextField,
           name: `${name}__addressLine2`,
-          title: t('components.addressField.line2', lang),
+          title: props.model.t('components.addressField.line2'),
           schema: { max: 100 },
           options: {
             autocomplete: 'address-line2',
@@ -87,7 +84,7 @@ export class UkAddressField extends FormComponent {
         {
           type: ComponentType.TextField,
           name: `${name}__town`,
-          title: t('components.addressField.town', lang),
+          title: props.model.t('components.addressField.town'),
           schema: { max: 100 },
           options: {
             autocomplete: 'address-level2',
@@ -99,7 +96,7 @@ export class UkAddressField extends FormComponent {
         {
           type: ComponentType.TextField,
           name: `${name}__county`,
-          title: t('components.addressField.county', lang),
+          title: props.model.t('components.addressField.county'),
           schema: { max: 100 },
           options: {
             autocomplete: 'address-level1',
@@ -110,7 +107,7 @@ export class UkAddressField extends FormComponent {
         {
           type: ComponentType.TextField,
           name: `${name}__postcode`,
-          title: t('components.addressField.postcode', lang),
+          title: props.model.t('components.addressField.postcode'),
           schema: {
             regex: '^[a-zA-Z]{1,2}\\d[a-zA-Z\\d]?\\s?\\d[a-zA-Z]{2}$'
           },
@@ -183,7 +180,7 @@ export class UkAddressField extends FormComponent {
           name,
           path: [name],
           href: `#${name}`,
-          text: t('components.addressField.enterAddress', this.model.language, {
+          text: this.model.t('components.addressField.enterAddress', {
             shortDescription: lowerFirst(shortDescription)
           })
         }

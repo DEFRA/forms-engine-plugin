@@ -15,7 +15,6 @@ import {
   FormComponent,
   isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { t } from '~/src/server/plugins/engine/i18n/index.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
@@ -72,7 +71,7 @@ export class DeclarationField extends FormComponent {
     this.content = content
     this.declarationConfirmationLabel =
       options.declarationConfirmationLabel ??
-      t('components.declarationField.defaultLabel', props.model.language)
+      props.model.t('components.declarationField.defaultLabel')
     const formComponents = hasFormComponents(props.page?.pageDef)
       ? props.page.pageDef.components
       : []
@@ -119,16 +118,15 @@ export class DeclarationField extends FormComponent {
   getDisplayStringFromFormValue(value: FormValue | FormPayload): string {
     return value === 'true'
       ? this.declarationConfirmationLabel
-      : t('components.declarationField.notProvided', this.model.language)
+      : this.model.t('components.declarationField.notProvided')
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
     const {
       hint,
       content,
-      declarationConfirmationLabel = t(
-        'components.declarationField.defaultConfirmationLabel',
-        this.model.language
+      declarationConfirmationLabel = this.model.t(
+        'components.declarationField.defaultConfirmationLabel'
       )
     } = this
 

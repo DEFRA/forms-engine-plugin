@@ -19,7 +19,6 @@ import {
   type MonthYearState
 } from '~/src/server/plugins/engine/components/types.js'
 import { parseStrictDate } from '~/src/server/plugins/engine/date-helper.js'
-import { t } from '~/src/server/plugins/engine/i18n/index.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
@@ -48,7 +47,6 @@ export class MonthYearField extends FormComponent {
     const isRequired = options.required !== false
 
     const { validationMessages } = props.model
-    const lang = props.model.language
     const customValidationMessages: LanguageMessages =
       convertToLanguageMessages({
         'any.required': validationMessages.objectMissing,
@@ -65,7 +63,7 @@ export class MonthYearField extends FormComponent {
         {
           type: ComponentType.NumberField,
           name: `${name}__month`,
-          title: t('components.monthYearField.month', lang),
+          title: props.model.t('components.monthYearField.month'),
           schema: { min: 1, max: 12, precision: 0 },
           options: {
             required: isRequired,
@@ -77,7 +75,7 @@ export class MonthYearField extends FormComponent {
         {
           type: ComponentType.NumberField,
           name: `${name}__year`,
-          title: t('components.monthYearField.year', lang),
+          title: props.model.t('components.monthYearField.year'),
           schema: { min: 1000, max: 3000, precision: 0 },
           options: {
             required: isRequired,

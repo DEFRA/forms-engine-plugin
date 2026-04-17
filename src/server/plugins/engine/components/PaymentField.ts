@@ -14,7 +14,6 @@ import {
   createError,
   getPluginOptions
 } from '~/src/server/plugins/engine/helpers.js'
-import { t } from '~/src/server/plugins/engine/i18n/index.js'
 import {
   PaymentErrorTypes,
   PaymentPreAuthError,
@@ -240,10 +239,9 @@ export class PaymentField extends FormComponent {
     )
 
     if (!payment) {
-      const lang = model.language
       const message = isLivePayment
-        ? t('components.paymentField.cannotTakePayment', lang)
-        : t('components.paymentField.testApiKey', lang)
+        ? model.t('components.paymentField.cannotTakePayment')
+        : model.t('components.paymentField.testApiKey')
       const govukError = createError(componentName, message)
       request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
       return h.redirect(request.url.href).code(StatusCodes.SEE_OTHER)
@@ -279,10 +277,9 @@ export class PaymentField extends FormComponent {
     const paymentState = this.getPaymentStateFromState(context.state)
 
     if (!paymentState) {
-      const lang = this.model.language
       throw new PaymentPreAuthError(
         this,
-        t('components.paymentField.completePayment', lang),
+        this.model.t('components.paymentField.completePayment'),
         true,
         PaymentErrorTypes.PaymentIncomplete
       )
@@ -322,7 +319,7 @@ export class PaymentField extends FormComponent {
     if (status.state.status !== 'capturable') {
       throw new PaymentPreAuthError(
         this,
-        t('components.paymentField.paymentExpired', this.model.language),
+        this.model.t('components.paymentField.paymentExpired'),
         true,
         PaymentErrorTypes.PaymentExpired
       )
@@ -336,7 +333,7 @@ export class PaymentField extends FormComponent {
     if (!captured) {
       throw new PaymentPreAuthError(
         this,
-        t('components.paymentField.submissionFailed', this.model.language),
+        this.model.t('components.paymentField.submissionFailed'),
         false
       )
     }
