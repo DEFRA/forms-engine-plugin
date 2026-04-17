@@ -244,7 +244,9 @@ export class PaymentField extends FormComponent {
         : 'Add a valid test API key before you can preview the payment journey.'
       const govukError = createError(componentName, message)
       request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
-      return h.redirect(request.url.href).code(StatusCodes.SEE_OTHER)
+      return h
+        .redirect(`${request.url.pathname}${request.url.search}`)
+        .code(StatusCodes.SEE_OTHER)
     }
 
     const sessionData: PaymentSessionData = {
