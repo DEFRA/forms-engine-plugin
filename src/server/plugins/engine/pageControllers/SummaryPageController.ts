@@ -19,6 +19,7 @@ import {
   createError,
   getCacheService
 } from '~/src/server/plugins/engine/helpers.js'
+import { t } from '~/src/server/plugins/engine/i18n/index.js'
 import {
   SummaryViewModel,
   type FormModel
@@ -118,30 +119,32 @@ export class SummaryPageController extends QuestionPageController {
       ReturnType<PaymentField['getPaymentStateFromState']>
     >
   ) {
+    const lang = this.model.language
+
     const rows = [
       {
-        key: { text: 'Payment for' },
+        key: { text: t('pages.summary.paymentFor', lang) },
         value: { text: paymentState.description }
       },
       {
-        key: { text: 'Total amount' },
+        key: { text: t('pages.summary.totalAmount', lang) },
         value: { text: formatCurrency(paymentState.amount) }
       },
       {
-        key: { text: 'Reference' },
+        key: { text: t('pages.summary.reference', lang) },
         value: { text: paymentState.reference }
       }
     ]
 
     if (paymentState.preAuth?.createdAt) {
       rows.push({
-        key: { text: 'Date of payment' },
+        key: { text: t('pages.summary.dateOfPayment', lang) },
         value: { text: formatPaymentDate(paymentState.preAuth.createdAt) }
       })
     }
 
     return {
-      title: { text: 'Payment details' },
+      title: { text: t('pages.summary.paymentDetailsTitle', lang) },
       summaryList: { rows }
     }
   }

@@ -15,6 +15,7 @@ import {
   getError,
   getPageHref
 } from '~/src/server/plugins/engine/helpers.js'
+import { t } from '~/src/server/plugins/engine/i18n/index.js'
 import {
   type Detail,
   type DetailItem,
@@ -66,10 +67,12 @@ export class SummaryViewModel {
     const { basePath, def, sections } = model
     const { isForceAccess } = context
 
+    const lang = model.language
+
     this.page = page
     this.pageTitle = page.title
     if (def.schema === SchemaVersion.V2 && !page.title) {
-      this.pageTitle = 'Check your answers before sending your form'
+      this.pageTitle = t('pages.summary.title', lang)
     }
 
     this.serviceUrl = `/${basePath}`
@@ -96,7 +99,7 @@ export class SummaryViewModel {
         if (!isForceAccess) {
           items.push({
             href: item.href,
-            text: 'Change',
+            text: t('pages.summary.change', lang),
             classes: 'govuk-link--no-visited-state',
             visuallyHiddenText: item.label
           })
@@ -108,7 +111,7 @@ export class SummaryViewModel {
           },
           value: {
             classes: 'app-prose-scope',
-            html: item.value || 'Not provided'
+            html: item.value || t('pages.summary.notProvided', lang)
           },
           actions: {
             items
