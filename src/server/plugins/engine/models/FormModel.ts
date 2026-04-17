@@ -242,6 +242,7 @@ export class FormModel {
     )
   }
 
+  /** Translates a key using this form's configured language. */
   t(key: string, opts?: Record<string, unknown>): string {
     return translate(key, this.language, opts)
   }
