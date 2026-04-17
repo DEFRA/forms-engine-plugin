@@ -184,6 +184,11 @@
       "howToFind": "How to find location details"
     },
 
+    "yesNoField": {
+      "yes": "Yes",
+      "no": "No"
+    },
+
     "declarationField": {
       "defaultLabel": "I understand and agree",
       "defaultConfirmationLabel": "I confirm that I understand and accept this declaration",

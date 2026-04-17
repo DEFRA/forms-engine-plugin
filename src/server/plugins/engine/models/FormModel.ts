@@ -133,6 +133,11 @@ export class FormModel {
     // by joi so as not to change the source data.
     def = structuredClone(result.value)
 
+    const language =
+      typeof def.metadata?.language === 'string'
+        ? def.metadata.language
+        : 'en-GB'
+
     // Add default lists
     def.lists.push({
       id: def.schema === SchemaVersion.V1 ? yesNoListName : yesNoListId,
@@ -142,12 +147,12 @@ export class FormModel {
       items: [
         {
           id: '02900d42-83d1-4c72-a719-c4e8228952fa',
-          text: 'Yes',
+          text: t('components.yesNoField.yes', language),
           value: true
         },
         {
           id: 'f39000eb-c51b-4019-8f82-bbda0423f04d',
-          text: 'No',
+          text: t('components.yesNoField.no', language),
           value: false
         }
       ]
@@ -157,10 +162,7 @@ export class FormModel {
     setPageTitles(def)
 
     this.engine = def.engine
-    this.language =
-      typeof def.metadata?.language === 'string'
-        ? def.metadata.language
-        : 'en-GB'
+    this.language = language
     this.validationMessages = buildValidationMessages((key) =>
       t(key, this.language)
     )
