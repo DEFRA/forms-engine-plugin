@@ -27,7 +27,7 @@ export function buildValidationMessages(t: (key: string) => string) {
     pattern: joi.expression(t('validation.pattern'), opts) as JoiExpression,
     format: joi.expression(t('validation.format'), opts) as JoiExpression,
     declarationRequired: joi.expression(
-      t('validation.declarationRequired'),
+      t('components.declarationField.validation.declarationRequired'),
       opts
     ) as JoiExpression,
     objectRequired: joi.expression(
@@ -40,7 +40,9 @@ export function buildValidationMessages(t: (key: string) => string) {
     ) as JoiExpression,
 
     // Plain Joi template strings — no lowerFirst
-    selectYesNoRequired: t('validation.selectYesNoRequired'),
+    selectYesNoRequired: t(
+      'components.yesNoField.validation.selectYesNoRequired'
+    ),
     max: t('validation.max'),
     min: t('validation.min'),
     minMax: t('validation.minMax'),
@@ -50,9 +52,9 @@ export function buildValidationMessages(t: (key: string) => string) {
     numberMin: t('validation.numberMin'),
     numberMax: t('validation.numberMax'),
     maxWords: t('validation.maxWords'),
-    dateFormat: t('validation.dateFormat'),
-    dateMin: t('validation.dateMin'),
-    dateMax: t('validation.dateMax')
+    dateFormat: t('components.dateField.validation.dateFormat'),
+    dateMin: t('components.dateField.validation.dateMin'),
+    dateMax: t('components.dateField.validation.dateMax')
   }
 }
 

@@ -135,7 +135,7 @@ export class FormComponent extends ComponentBase {
 
     const isRequired = !('required' in options) || options.required !== false
     const hideOptional = 'optionalText' in options && options.optionalText
-    const label = `${title}${!isRequired && !hideOptional ? t('common.optional', this.model.language) : ''}`
+    const label = `${title}${!isRequired && !hideOptional ? ` ${t('common.optional', this.model.language)}` : ''}`
 
     if (hint) {
       viewModel.hint = {
