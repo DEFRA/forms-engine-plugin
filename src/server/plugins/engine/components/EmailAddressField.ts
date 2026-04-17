@@ -1,5 +1,8 @@
-import { type EmailAddressFieldComponent } from '@defra/forms-model'
-import joi from 'joi'
+import {
+  preventUnicodeInEmail,
+  type EmailAddressFieldComponent
+} from '@defra/forms-model'
+import joi, { type CustomHelpers } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
@@ -20,7 +23,15 @@ export class EmailAddressField extends FormComponent {
 
     const { options } = def
 
-    let formSchema = joi.string().email().trim().label(this.label).required()
+    let formSchema = joi
+      .string()
+      .trim()
+      .email()
+      .custom((value, helpers: CustomHelpers<string>) =>
+        preventUnicodeInEmail(value, helpers)
+      )
+      .label(this.label)
+      .required()
 
     if (options.required === false) {
       formSchema = formSchema.allow('')
@@ -69,7 +80,8 @@ export class EmailAddressField extends FormComponent {
     return {
       baseErrors: [
         { type: 'required', template: messageTemplate.required },
-        { type: 'format', template: messageTemplate.format }
+        { type: 'format', template: messageTemplate.format },
+        { type: 'unicode', template: messageTemplate.unicode }
       ],
       advancedSettingsErrors: []
     }

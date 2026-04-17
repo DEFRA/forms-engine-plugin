@@ -173,6 +173,61 @@ describe.each([
         )
       })
 
+      it('is configured with min/max items', () => {
+        const collectionLimited = new ComponentCollection(
+          [{ ...def, schema: { min: 2, max: 4 } }],
+          { model }
+        )
+        const { formSchema } = collectionLimited
+        const { keys } = formSchema.describe()
+
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({
+            items: [
+              {
+                allow: options.allow,
+                flags: {
+                  label: def.shortDescription,
+                  only: true
+                },
+                type: options.list.type
+              }
+            ],
+            rules: [
+              { args: { limit: 2 }, name: 'min' },
+              { args: { limit: 4 }, name: 'max' }
+            ]
+          })
+        )
+      })
+
+      it('is configured with length items', () => {
+        const collectionLimited = new ComponentCollection(
+          [{ ...def, schema: { length: 3 } }],
+          { model }
+        )
+        const { formSchema } = collectionLimited
+        const { keys } = formSchema.describe()
+
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({
+            items: [
+              {
+                allow: options.allow,
+                flags: {
+                  label: def.shortDescription,
+                  only: true
+                },
+                type: options.list.type
+              }
+            ],
+            rules: [{ args: { limit: 3 }, name: 'length' }]
+          })
+        )
+      })
+
       it('adds errors for empty value', () => {
         const result = collection.validate(getFormData())
 
@@ -386,7 +441,7 @@ describe.each([
       it('should return errors', () => {
         const errors = field.getAllPossibleErrors()
         expect(errors.baseErrors).not.toBeEmpty()
-        expect(errors.advancedSettingsErrors).toBeEmpty()
+        expect(errors.advancedSettingsErrors).not.toBeEmpty()
       })
     })
 

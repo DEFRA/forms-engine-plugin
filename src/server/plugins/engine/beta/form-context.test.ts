@@ -183,7 +183,6 @@ describe('getFormModel helper', () => {
       definition,
       {
         basePath: slug,
-        versionNumber: 17,
         ordnanceSurveyApiKey: undefined,
         formId: metadata.id
       },
@@ -288,7 +287,6 @@ describe('resolveFormModel helper', () => {
       definition,
       expect.objectContaining({
         basePath: 'forms/preview/live/tb-origin',
-        versionNumber: 9,
         ordnanceSurveyApiKey: 'os-api-key',
         formId: metadata.id
       }),
