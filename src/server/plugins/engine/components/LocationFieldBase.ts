@@ -43,8 +43,8 @@ export abstract class LocationFieldBase extends FormComponent {
   declare stateSchema: StringSchema
   instructionText?: string
 
-  protected abstract getValidationConfig(lang?: string): ValidationConfig
-  protected abstract getErrorTemplates(lang?: string): {
+  protected abstract getValidationConfig(): ValidationConfig
+  protected abstract getErrorTemplates(): {
     type: string
     template: JoiExpression
   }[]
@@ -61,7 +61,7 @@ export abstract class LocationFieldBase extends FormComponent {
 
     addClassOptionIfNone(locationOptions, 'govuk-input--width-10')
 
-    const config = this.getValidationConfig(this.model.language)
+    const config = this.getValidationConfig()
     const requiredMessage =
       config.requiredMessage ?? this.model.validationMessages.required
 

@@ -3,11 +3,12 @@ import { type OsGridRefFieldComponent } from '@defra/forms-model'
 import { LocationFieldBase } from '~/src/server/plugins/engine/components/LocationFieldBase.js'
 import { createLowerFirstExpression } from '~/src/server/plugins/engine/components/helpers/index.js'
 import { t } from '~/src/server/plugins/engine/i18n/index.js'
+import { type ErrorMessageTemplateList } from '~/src/server/plugins/engine/types.js'
 
 export class OsGridRefField extends LocationFieldBase {
   declare options: OsGridRefFieldComponent['options']
 
-  protected getValidationConfig(lang = 'en-GB') {
+  protected getValidationConfig() {
     // Regex for OS national grid references (NGR)
     // Validates specific valid OS grid letter combinations with:
     // - 2 letters & 6 digits in 2 blocks of 3 e.g. ST 678 678
@@ -20,20 +21,20 @@ export class OsGridRefField extends LocationFieldBase {
     return {
       pattern,
       patternErrorMessage: createLowerFirstExpression(
-        t('components.osGridRefField.pattern', lang)
+        this.model.t('components.osGridRefField.pattern')
       ),
       requiredMessage: createLowerFirstExpression(
-        t('components.osGridRefField.required', lang)
+        this.model.t('components.osGridRefField.required')
       )
     }
   }
 
-  protected getErrorTemplates(lang = 'en-GB') {
+  protected getErrorTemplates() {
     return [
       {
         type: 'pattern',
         template: createLowerFirstExpression(
-          t('components.osGridRefField.pattern', lang)
+          this.model.t('components.osGridRefField.pattern')
         )
       }
     ]
@@ -42,8 +43,23 @@ export class OsGridRefField extends LocationFieldBase {
   /**
    * Static version of getAllPossibleErrors that doesn't require a component instance.
    */
-  static getAllPossibleErrors() {
-    const instance = Object.create(OsGridRefField.prototype) as OsGridRefField
-    return instance.getAllPossibleErrors()
+  static getAllPossibleErrors(): ErrorMessageTemplateList {
+    return {
+      baseErrors: [
+        {
+          type: 'required',
+          template: createLowerFirstExpression(
+            t('components.osGridRefField.required', 'en-GB')
+          )
+        },
+        {
+          type: 'pattern',
+          template: createLowerFirstExpression(
+            t('components.osGridRefField.pattern', 'en-GB')
+          )
+        }
+      ],
+      advancedSettingsErrors: []
+    }
   }
 }
