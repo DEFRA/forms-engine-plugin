@@ -19,7 +19,6 @@ import {
   createError,
   getCacheService
 } from '~/src/server/plugins/engine/helpers.js'
-import { t } from '~/src/server/plugins/engine/i18n/index.js'
 import {
   SummaryViewModel,
   type FormModel
@@ -119,32 +118,30 @@ export class SummaryPageController extends QuestionPageController {
       ReturnType<PaymentField['getPaymentStateFromState']>
     >
   ) {
-    const lang = this.model.language
-
     const rows = [
       {
-        key: { text: t('pages.summary.paymentFor', lang) },
+        key: { text: this.model.t('pages.summary.paymentFor') },
         value: { text: paymentState.description }
       },
       {
-        key: { text: t('pages.summary.totalAmount', lang) },
+        key: { text: this.model.t('pages.summary.totalAmount') },
         value: { text: formatCurrency(paymentState.amount) }
       },
       {
-        key: { text: t('pages.summary.reference', lang) },
+        key: { text: this.model.t('pages.summary.reference') },
         value: { text: paymentState.reference }
       }
     ]
 
     if (paymentState.preAuth?.createdAt) {
       rows.push({
-        key: { text: t('pages.summary.dateOfPayment', lang) },
+        key: { text: this.model.t('pages.summary.dateOfPayment') },
         value: { text: formatPaymentDate(paymentState.preAuth.createdAt) }
       })
     }
 
     return {
-      title: { text: t('pages.summary.paymentDetailsTitle', lang) },
+      title: { text: this.model.t('pages.summary.paymentDetailsTitle') },
       summaryList: { rows }
     }
   }
@@ -166,7 +163,7 @@ export class SummaryPageController extends QuestionPageController {
         await this.hasMissingNotificationEmail(request, context)
 
       viewModel.t = (key: string, opts?: Record<string, unknown>) =>
-        t(key, this.model.language, opts)
+        this.model.t(key, opts)
 
       return h.view(viewName, viewModel)
     }
@@ -317,20 +314,16 @@ export class SummaryPageController extends QuestionPageController {
     request: FormRequestPayload,
     h: FormResponseToolkit
   ) {
-    const lang = this.model.language
     const helpUrl = error.helpLink ?? DEFAULT_PAYMENT_HELP_URL
-    const contactUsLink = `<a href="${helpUrl}" target="_blank" rel="noopener noreferrer" class="govuk-link">${t('pages.summary.contactUsLinkText', lang)}</a>`
-    const helpLinkHtml = t(
+    const contactUsLink = `<a href="${helpUrl}" target="_blank" rel="noopener noreferrer" class="govuk-link">${this.model.t('pages.summary.contactUsLinkText')}</a>`
+    const helpLinkHtml = this.model.t(
       'pages.summary.submissionFailedContactSuffix',
-      lang,
-      {
-        contactUsLink
-      }
+      { contactUsLink }
     )
 
     const govukError = createError(
       'submission',
-      `${t('pages.summary.submissionFailed', lang)}${helpLinkHtml}.`
+      `${this.model.t('pages.summary.submissionFailed')}${helpLinkHtml}.`
     )
 
     request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)

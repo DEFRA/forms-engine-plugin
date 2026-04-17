@@ -6,7 +6,6 @@ import Joi from 'joi'
 
 import { isRepeatState } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { redirectPath } from '~/src/server/plugins/engine/helpers.js'
-import { t } from '~/src/server/plugins/engine/i18n/index.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
@@ -199,7 +198,7 @@ export class RepeatPageController extends QuestionPageController {
       return h.view(this.listSummaryViewName, {
         ...viewModel,
         t: (key: string, opts?: Record<string, unknown>) =>
-          t(key, this.model.language, opts)
+          this.model.t(key, opts)
       })
     }
   }
@@ -237,7 +236,6 @@ export class RepeatPageController extends QuestionPageController {
       // Show error if repeat limits apply
       if (hasErrorMin || hasErrorMax) {
         const count = hasErrorMax ? schema.max : schema.min
-        const lang = this.model.language
 
         context.errors = [
           {
@@ -245,8 +243,8 @@ export class RepeatPageController extends QuestionPageController {
             href: '',
             name: '',
             text: hasErrorMax
-              ? t('pages.repeater.tooMany', lang, { count })
-              : t('pages.repeater.tooFew', lang, { count })
+              ? this.model.t('pages.repeater.tooMany', { count })
+              : this.model.t('pages.repeater.tooFew', { count })
           }
         ]
 
@@ -255,7 +253,7 @@ export class RepeatPageController extends QuestionPageController {
         return h.view(this.listSummaryViewName, {
           ...viewModel,
           t: (key: string, opts?: Record<string, unknown>) =>
-            t(key, this.model.language, opts)
+            this.model.t(key, opts)
         })
       }
 
@@ -299,18 +297,17 @@ export class RepeatPageController extends QuestionPageController {
       }
 
       const { title } = this.repeat.options
-      const lang = this.model.language
 
       return h.view(this.listDeleteViewName, {
         ...viewModel,
         context,
         backLink: this.getBackLink(request, context),
-        pageTitle: t('pages.repeater.removeAnswer', lang),
+        pageTitle: this.model.t('pages.repeater.removeAnswer'),
         itemTitle: `${title} ${list.indexOf(item) + 1}`,
-        buttonConfirm: { text: t('pages.repeater.remove', lang) },
-        buttonCancel: { text: t('pages.repeater.cancel', lang) },
+        buttonConfirm: { text: this.model.t('pages.repeater.remove') },
+        buttonCancel: { text: this.model.t('pages.repeater.cancel') },
         t: (key: string, opts?: Record<string, unknown>) =>
-          t(key, this.model.language, opts)
+          this.model.t(key, opts)
       } satisfies ItemDeletePageViewModel)
     }
   }
@@ -386,7 +383,6 @@ export class RepeatPageController extends QuestionPageController {
     const { isForceAccess, errors } = context
 
     const { title } = repeat.options
-    const lang = this.model.language
 
     const summaryList: SummaryList = {
       classes: 'govuk-summary-list--long-actions',
@@ -409,11 +405,12 @@ export class RepeatPageController extends QuestionPageController {
             href: redirectPath(`${href}/${item.itemId}`, {
               returnUrl: query.returnUrl ?? this.getHref(summaryPath)
             }),
-            text: t('pages.repeater.change', lang),
+            text: this.model.t('pages.repeater.change'),
             classes: 'govuk-link--no-visited-state',
-            visuallyHiddenText: t('pages.repeater.visuallyHiddenItem', lang, {
-              index: index + 1
-            })
+            visuallyHiddenText: this.model.t(
+              'pages.repeater.visuallyHiddenItem',
+              { index: index + 1 }
+            )
           })
 
           if (count > 1) {
@@ -421,11 +418,12 @@ export class RepeatPageController extends QuestionPageController {
               href: redirectPath(`${href}/${item.itemId}/confirm-delete`, {
                 returnUrl: query.returnUrl
               }),
-              text: t('pages.repeater.remove', lang),
+              text: this.model.t('pages.repeater.remove'),
               classes: 'govuk-link--no-visited-state',
-              visuallyHiddenText: t('pages.repeater.visuallyHiddenItem', lang, {
-                index: index + 1
-              })
+              visuallyHiddenText: this.model.t(
+                'pages.repeater.visuallyHiddenItem',
+                { index: index + 1 }
+              )
             })
           }
         }
@@ -439,7 +437,7 @@ export class RepeatPageController extends QuestionPageController {
             text: `${title} ${index + 1}`
           },
           value: {
-            text: itemDisplayText || t('pages.repeater.notProvided', lang)
+            text: itemDisplayText || this.model.t('pages.repeater.notProvided')
           },
           actions: {
             items
@@ -452,7 +450,7 @@ export class RepeatPageController extends QuestionPageController {
       ...this.viewModel,
       backLink: this.getBackLink(request, context),
       repeatTitle: title,
-      pageTitle: t('pages.repeater.pageTitle', lang, { count }),
+      pageTitle: this.model.t('pages.repeater.pageTitle', { count }),
       showTitle: true,
       context,
       errors,

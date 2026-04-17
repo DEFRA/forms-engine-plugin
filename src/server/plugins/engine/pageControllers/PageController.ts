@@ -15,7 +15,6 @@ import {
   getStartPath,
   normalisePath
 } from '~/src/server/plugins/engine/helpers.js'
-import { t } from '~/src/server/plugins/engine/i18n/index.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
 import {
@@ -172,7 +171,7 @@ export class PageController {
       return h.view(viewName, {
         ...viewModel,
         t: (key: string, opts?: Record<string, unknown>) =>
-          t(key, this.model.language, opts)
+          this.model.t(key, opts)
       })
     }
   }
