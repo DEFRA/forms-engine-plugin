@@ -15,6 +15,7 @@ import {
   FormComponent,
   isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { t } from '~/src/server/plugins/engine/i18n/index.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
@@ -27,8 +28,6 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class DeclarationField extends FormComponent {
-  private readonly DEFAULT_DECLARATION_LABEL = 'I understand and agree'
-
   declare options: DeclarationFieldComponent['options']
 
   declare declarationConfirmationLabel: string
@@ -58,10 +57,12 @@ export class DeclarationField extends FormComponent {
       .label(this.label)
       .single()
       .messages({
-        'any.required': messageTemplate.declarationRequired as string,
-        'any.unknown': messageTemplate.declarationRequired as string,
-        'array.includesRequiredUnknowns':
-          messageTemplate.declarationRequired as string
+        'any.required': props.model.validationMessages
+          .declarationRequired as string,
+        'any.unknown': props.model.validationMessages
+          .declarationRequired as string,
+        'array.includesRequiredUnknowns': props.model.validationMessages
+          .declarationRequired as string
       }) as ArraySchema<StringSchema[]>
 
     this.formSchema = formSchema
@@ -70,7 +71,8 @@ export class DeclarationField extends FormComponent {
     this.options = options
     this.content = content
     this.declarationConfirmationLabel =
-      options.declarationConfirmationLabel ?? this.DEFAULT_DECLARATION_LABEL
+      options.declarationConfirmationLabel ??
+      t('components.declarationField.defaultLabel', props.model.language)
     const formComponents = hasFormComponents(props.page?.pageDef)
       ? props.page.pageDef.components
       : []
