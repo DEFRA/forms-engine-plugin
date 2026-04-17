@@ -259,7 +259,10 @@ describe('PaymentField', () => {
 
     const collection = new ComponentCollection([def], { model })
     const paymentField = collection.fields[0] as PaymentField
-    paymentField.model = { services: mockServices } as unknown as FormModel
+    paymentField.model = {
+      services: mockServices,
+      t: (key: string, opts?: Record<string, unknown>) => model.t(key, opts)
+    } as unknown as FormModel
 
     describe('dispatcher', () => {
       it('should create payment and redirect to gov pay', async () => {
@@ -416,7 +419,9 @@ describe('PaymentField', () => {
               formId: 'formid',
               basePath: 'base-path',
               name: 'PaymentModel',
-              services: mockServices
+              services: mockServices,
+              t: (key: string, opts?: Record<string, unknown>) =>
+                model.t(key, opts)
             },
             getState: jest
               .fn()
@@ -477,7 +482,9 @@ describe('PaymentField', () => {
               formId: 'formid',
               basePath: 'base-path',
               name: 'PaymentModel',
-              services: mockServices
+              services: mockServices,
+              t: (key: string, opts?: Record<string, unknown>) =>
+                model.t(key, opts)
             },
             getState: jest
               .fn()
