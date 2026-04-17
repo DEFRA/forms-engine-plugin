@@ -1,0 +1,224 @@
+{
+  "validation": {
+    "required": "Ye must enter {{lowerFirst(#label)}}, ye scallywag",
+    "selectRequired": "Ye must select {{lowerFirst(#label)}}, ye scallywag",
+    "pattern": "Shiver me timbers! Enter a valid {{lowerFirst(#label)}}",
+    "format": "Blimey! Enter {{lowerFirst(#label)}} in the correct format",
+    "objectRequired": "Enter {{#label}}, or walk the plank",
+    "objectMissing": "{{#title}} must include a {{lowerFirst(#label)}}",
+    "max": "{{#label}} must be {{#limit}} characters or fewer, ye blabberin' sea dog",
+    "min": "{{#label}} must be {{#limit}} characters or more",
+    "minMax": "{{#label}} must be between {{#min}} and {{#max}} characters",
+    "number": "{{#label}} must be a number, ye innumerate buccaneer",
+    "numberPrecision": "{{#label}} must have {{#limit}} or fewer decimal places",
+    "numberInteger": "{{#label}} must be a whole number — no fractions on the high seas",
+    "numberMin": "{{#label}} must be {{#limit}} or higher",
+    "numberMax": "{{#label}} must be {{#limit}} or lower",
+    "maxWords": "{{#label}} must be {{#limit}} words or fewer, ye long-winded bilge rat"
+  },
+
+  "errors": {
+    "title": "Blimey! There be a problem"
+  },
+
+  "common": {
+    "optional": "(optional, if ye dare skip it)",
+    "warningIconFallback": "Warnin'!",
+    "back": "Turn the ship around",
+    "continue": "Sail on",
+    "saveAndExit": "Stow yer progress an' abandon ship"
+  },
+
+  "pages": {
+    "question": {
+      "paymentCancelledBannerTitle": "Avast!",
+      "paymentCancelledTitle": "Yer payment has walked the plank",
+      "paymentCancelledBody": "Yer payment details were cast into Davy Jones' locker because the form was idle for 5 days.",
+      "paymentCancelledAction": "Enter yer payment details again, if ye be brave enough.",
+      "backToAddAnother": "Go back to add another",
+      "backToCheckAnswers": "Go back to check yer answers",
+      "startNow": "Weigh anchor!"
+    },
+
+    "summary": {
+      "title": "Check yer answers before sendin' yer form",
+      "change": "Change",
+      "notProvided": "Not provided, ye forgetful landlubber",
+      "declaration": "Declaration",
+      "acceptAndSubmit": "Accept an' submit",
+      "submit": "Submit",
+      "saveAndExit": "Stow yer progress an' abandon ship",
+      "paymentSuccessBannerTitle": "Hoist the colours!",
+      "paymentSuccessTitle": "We have yer plunder details",
+      "paymentSuccessBody": "Yer payment be held in the crow's nest. We'll charge ye when ye submit the form.",
+      "paymentDetailsTitle": "Plunder details",
+      "paymentFor": "Plunder for",
+      "totalAmount": "Total booty",
+      "reference": "Reference",
+      "dateOfPayment": "Date of plunder",
+      "submissionFailed": "There be a problem and yer form was not submitted. Try submittin' the form again",
+      "submissionFailedContactSuffix": " or ye can [[contactUsLink]] and quote yer reference number to arrange a refund",
+      "contactUsLinkText": "contact the crew (opens in new tab)"
+    },
+
+    "repeater": {
+      "removeAnswer": "Are ye sure ye want to remove this answer, arrr?",
+      "remove": "Remove",
+      "cancel": "Cancel",
+      "continue": "Sail on",
+      "addAnother": "Add another",
+      "saveAndExit": "Stow yer progress an' abandon ship",
+      "change": "Change",
+      "notProvided": "Not provided, ye forgetful landlubber",
+      "visuallyHiddenItem": "item [[index]]",
+      "pageTitle_one": "Ye have added [[count]] answer, arrr",
+      "pageTitle_other": "Ye have added [[count]] answers, arrr",
+      "tooMany_one": "Ye can only add up to [[count]] answer, ye greedy pirate",
+      "tooMany_other": "Ye can only add up to [[count]] answers, ye greedy pirate",
+      "tooFew_one": "Ye must add at least [[count]] answer or walk the plank",
+      "tooFew_other": "Ye must add at least [[count]] answers or walk the plank"
+    },
+
+    "fileUpload": {
+      "upload": "Hoist yer file",
+      "maxFilesReached": "Ye have reached the maximum number of files. Remove a file before ye hoist any more."
+    },
+
+    "exit": {
+      "defaultTitle": "Yer progress has been stowed in the hold",
+      "whatHappensNext": "What happens next",
+      "body": "Yer form progress has been stowed. Ye can return to complete yer application at any time using the link provided.",
+      "returnToApplication": "Return to yer voyage"
+    },
+
+    "confirmation": {
+      "whatHappensNext": "What happens next",
+      "referenceNumber": "Yer reference number",
+      "feedbackLink": "What do ye think of this service? (takes 30 seconds)"
+    },
+
+    "preview": {
+      "warnMissingNotificationEmail": {
+        "body": "If ye want to receive a test email, [[link]] ye want form submissions to go to.",
+        "linkText": "enter the email address (opens in new tab)"
+      }
+    }
+  },
+
+  "components": {
+    "dateField": {
+      "day": "Day",
+      "month": "Month",
+      "year": "Year",
+      "validation": {
+        "dateFormat": "{{#title}} must be a real date, not some made-up nonsense",
+        "dateMin": "{{#title}} must be the same as or after {{#limit}}",
+        "dateMax": "{{#title}} must be the same as or before {{#limit}}"
+      }
+    },
+
+    "monthYearField": {
+      "month": "Month",
+      "year": "Year"
+    },
+
+    "addressField": {
+      "uprn": "UPRN",
+      "line1": "Address line 1",
+      "line2": "Address line 2",
+      "town": "Town or port",
+      "county": "County",
+      "postcode": "Postcode",
+      "enterAddress": "Enter [[shortDescription]]",
+      "findAddress": "Find a berth",
+      "selectedAddress": "Selected berth:",
+      "useDifferentAddress": "Use a different berth",
+      "enterManually": "enter address manually"
+    },
+
+    "latLongField": {
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "latitudeRequired": "Enter latitude",
+      "longitudeRequired": "Enter longitude",
+      "precision": "{{#label}} must have no more than 7 decimal places",
+      "notANumber": "{{#label}} must be a valid number",
+      "latitudeBase": "Enter a valid latitude for [[fieldLabel]] like 51.519450",
+      "longitudeBase": "Enter a valid longitude for [[fieldLabel]] like -0.127758",
+      "latitudeRange": "Latitude for [[fieldLabel]] must be between [[min]] and [[max]]",
+      "longitudeRange": "Longitude for [[fieldLabel]] must be between [[min]] and [[max]]"
+    },
+
+    "eastingNorthingField": {
+      "easting": "Easting",
+      "northing": "Northing",
+      "eastingRequired": "Enter easting",
+      "northingRequired": "Enter northing",
+      "eastingDigits": "{{#label}} for [[fieldLabel]] must be between 1 and 6 digits",
+      "northingDigits": "{{#label}} for [[fieldLabel]] must be between 1 and 7 digits",
+      "eastingRange": "{{#label}} for [[fieldLabel]] must be between [[min]] and [[max]]",
+      "northingRange": "{{#label}} for [[fieldLabel]] must be between [[min]] and [[max]]"
+    },
+
+    "nationalGridField": {
+      "required": "Enter {{lowerFirst(#title)}}, ye scallywag",
+      "pattern": "Enter a valid National Grid field number for {{lowerFirst(#title)}} like NG 1234 5678",
+      "howToFind": "How to find yer location, landlubber"
+    },
+
+    "osGridRefField": {
+      "required": "Enter {{lowerFirst(#title)}}, ye scallywag",
+      "pattern": "Enter a valid OS grid reference for {{lowerFirst(#title)}} like TQ123456",
+      "howToFind": "How to find yer location, landlubber"
+    },
+
+    "locationFieldBase": {
+      "howToFind": "How to find yer location, landlubber"
+    },
+
+    "yesNoField": {
+      "yes": "Aye",
+      "no": "Nay",
+      "validation": {
+        "selectYesNoRequired": "{{#label}} - select aye or nay"
+      }
+    },
+
+    "declarationField": {
+      "defaultLabel": "Aye, I understand an' agree",
+      "defaultConfirmationLabel": "I swear on Davy Jones' locker that I understand and accept this declaration",
+      "notProvided": "Not provided, ye forgetful landlubber",
+      "validation": {
+        "declarationRequired": "Ye must confirm ye understand and agree with the {{lowerFirst(#label)}} to continue, or walk the plank"
+      }
+    },
+
+    "geospatialField": {
+      "added_one": "Added [[count]] location",
+      "added_other": "Added [[count]] locations"
+    },
+
+    "paymentField": {
+      "detailsRequired": "Plunder details required",
+      "pendingTransaction": "Ye may see a pending transaction in yer treasure chest but ye'll only be charged when ye submit the form.",
+      "addPaymentDetails": "Add plunder details",
+      "cannotTakePayment": "There be a problem and we cannot take yer plunder. Contact the crew (details in the footer of this form) or stow yer progress and return later.",
+      "testApiKey": "Add a valid test API key before ye can preview the payment journey, ye scallywag.",
+      "completePayment": "Complete the plunder to continue",
+      "paymentExpired": "Yer payment authorisation has expired. Add yer payment details again, ye forgetful buccaneer.",
+      "submissionFailed": "There be a problem and yer form was not submitted. Try submittin' the form again.",
+      "canSubmitAfterPayment": "Ye can submit the form after ye have added yer payment details.",
+      "preAuthorisedTitle": "Ye have already authorised a payment for this form",
+      "preAuthorisedBody": "Continue to submit the form. Ye will not be charged twice, ye have me word.",
+      "totalAmountLabel": "Total booty:"
+    },
+
+    "fileUploadField": {
+      "uploaded": "Hoisted",
+      "uploadFailed": "There be a problem with yer hoisted files. Re-hoist them before submittin' the form again.",
+      "uploadedFilesHeading": "Hoisted files",
+      "filesCount_one": "[[count]] file hoisted",
+      "filesCount_other": "[[count]] files hoisted"
+    }
+  }
+}
