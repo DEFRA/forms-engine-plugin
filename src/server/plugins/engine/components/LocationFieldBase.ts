@@ -10,7 +10,6 @@ import {
   isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers/index.js'
-import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
   type FormPayload,
@@ -44,8 +43,8 @@ export abstract class LocationFieldBase extends FormComponent {
   declare stateSchema: StringSchema
   instructionText?: string
 
-  protected abstract getValidationConfig(): ValidationConfig
-  protected abstract getErrorTemplates(): {
+  protected abstract getValidationConfig(lang?: string): ValidationConfig
+  protected abstract getErrorTemplates(lang?: string): {
     type: string
     template: JoiExpression
   }[]
@@ -62,9 +61,9 @@ export abstract class LocationFieldBase extends FormComponent {
 
     addClassOptionIfNone(locationOptions, 'govuk-input--width-10')
 
-    const config = this.getValidationConfig()
+    const config = this.getValidationConfig(this.model.language)
     const requiredMessage =
-      config.requiredMessage ?? (messageTemplate.required as string)
+      config.requiredMessage ?? this.model.validationMessages.required
 
     const messages = convertToLanguageMessages({
       'any.required': requiredMessage,
@@ -141,7 +140,7 @@ export abstract class LocationFieldBase extends FormComponent {
         {
           type: 'required',
           template:
-            config.requiredMessage ?? (messageTemplate.required as string)
+            config.requiredMessage ?? this.model.validationMessages.required
         },
         ...this.getErrorTemplates()
       ],

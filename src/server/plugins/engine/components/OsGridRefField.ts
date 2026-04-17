@@ -2,11 +2,12 @@ import { type OsGridRefFieldComponent } from '@defra/forms-model'
 
 import { LocationFieldBase } from '~/src/server/plugins/engine/components/LocationFieldBase.js'
 import { createLowerFirstExpression } from '~/src/server/plugins/engine/components/helpers/index.js'
+import { t } from '~/src/server/plugins/engine/i18n/index.js'
 
 export class OsGridRefField extends LocationFieldBase {
   declare options: OsGridRefFieldComponent['options']
 
-  protected getValidationConfig() {
+  protected getValidationConfig(lang = 'en-GB') {
     // Regex for OS national grid references (NGR)
     // Validates specific valid OS grid letter combinations with:
     // - 2 letters & 6 digits in 2 blocks of 3 e.g. ST 678 678
@@ -16,24 +17,23 @@ export class OsGridRefField extends LocationFieldBase {
     const pattern =
       /^((([sS]|[nN])[a-hA-Hj-zJ-Z])|(([tT]|[oO])[abfglmqrvwABFGLMQRVW])|([hH][l-zL-Z])|([jJ][lmqrvwLMQRVW]))\s?(([0-9]{3})\s?([0-9]{3})|([0-9]{4})\s?([0-9]{4})|([0-9]{5})\s?([0-9]{5}))$/
 
-    const patternTemplate =
-      'Enter a valid OS grid reference for {{lowerFirst(#title)}} like TQ123456'
-
     return {
       pattern,
-      patternErrorMessage: createLowerFirstExpression(patternTemplate),
+      patternErrorMessage: createLowerFirstExpression(
+        t('components.osGridRefField.pattern', lang)
+      ),
       requiredMessage: createLowerFirstExpression(
-        'Enter {{lowerFirst(#title)}}'
+        t('components.osGridRefField.required', lang)
       )
     }
   }
 
-  protected getErrorTemplates() {
+  protected getErrorTemplates(lang = 'en-GB') {
     return [
       {
         type: 'pattern',
         template: createLowerFirstExpression(
-          'Enter a valid OS grid reference for {{lowerFirst(#title)}} like TQ123456'
+          t('components.osGridRefField.pattern', lang)
         )
       }
     ]
