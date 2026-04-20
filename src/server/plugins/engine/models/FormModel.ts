@@ -107,7 +107,6 @@ export class FormModel {
     def: typeof this.def,
     options: {
       basePath: string
-      language?: string
       versionNumber?: number
       ordnanceSurveyApiKey?: string
       formId?: string
@@ -134,7 +133,10 @@ export class FormModel {
     // by joi so as not to change the source data.
     def = structuredClone(result.value)
 
-    const language = options.language ?? 'en-GB'
+    const language =
+      typeof def.metadata?.language === 'string'
+        ? def.metadata.language
+        : 'en-GB'
 
     // Add default lists
     def.lists.push({

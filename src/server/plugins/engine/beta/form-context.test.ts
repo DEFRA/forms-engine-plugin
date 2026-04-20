@@ -183,7 +183,6 @@ describe('getFormModel helper', () => {
       definition,
       {
         basePath: slug,
-        language: 'en-GB',
         versionNumber: 17,
         ordnanceSurveyApiKey: undefined,
         formId: metadata.id

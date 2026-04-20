@@ -161,11 +161,12 @@ describe('FormModel', () => {
       expect(model.language).toBe('en-GB')
     })
 
-    it('reads language from options.language when present', () => {
-      const model = new FormModel(definition, {
-        basePath: 'test',
-        language: 'cy'
-      })
+    it('reads language from metadata.language when present', () => {
+      const defWithLanguage = {
+        ...definition,
+        metadata: { language: 'cy' }
+      }
+      const model = new FormModel(defWithLanguage, { basePath: 'test' })
       expect(model.language).toBe('cy')
     })
 
