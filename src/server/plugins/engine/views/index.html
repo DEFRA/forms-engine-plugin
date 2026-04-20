@@ -12,14 +12,9 @@
       {% endif %}
 
       {% if showPaymentExpiredNotification %}
-        {% set paymentCancelledHtml %}
-          <h3 class="govuk-notification-banner__heading">{{ t('pages.question.paymentCancelledTitle') }}</h3>
-          <p class="govuk-body">{{ t('pages.question.paymentCancelledBody') }}</p>
-          <p class="govuk-body">{{ t('pages.question.paymentCancelledAction') }}</p>
-        {% endset %}
         {{ govukNotificationBanner({
           titleText: t('pages.question.paymentCancelledBannerTitle'),
-          html: paymentCancelledHtml
+          html: '<h3 class="govuk-notification-banner__heading">' + t('pages.question.paymentCancelledTitle') + '</h3><p class="govuk-body">' + t('pages.question.paymentCancelledBody') + '</p><p class="govuk-body">' + t('pages.question.paymentCancelledAction') + '</p>'
         }) }}
       {% endif %}
 
