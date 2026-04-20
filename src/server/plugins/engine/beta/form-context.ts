@@ -1,3 +1,4 @@
+import { type FormMetadata } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type Request, type Server } from '@hapi/hapi'
 import { isEqual } from 'date-fns'
@@ -73,6 +74,9 @@ export async function getFormModel(
       basePath:
         options.basePath ??
         buildBasePath(options.routePrefix ?? '', slug, formState, isPreview),
+      // language not yet in FormMetadata type
+      language:
+        (metadata as FormMetadata & { language?: string }).language ?? 'en-GB',
       versionNumber,
       ordnanceSurveyApiKey: options.ordnanceSurveyApiKey,
       formId: options.formId ?? metadata.id
@@ -190,6 +194,10 @@ export async function resolveFormModel(
         basePath:
           options.basePath ??
           buildBasePath(routePrefix, slug, formState, isPreview),
+        // language not yet in FormMetadata type
+        language:
+          (metadata as FormMetadata & { language?: string }).language ??
+          'en-GB',
         versionNumber,
         ordnanceSurveyApiKey: options.ordnanceSurveyApiKey,
         formId: options.formId ?? metadata.id

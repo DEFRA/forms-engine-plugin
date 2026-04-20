@@ -62,7 +62,9 @@ export const formsService = async () => {
     ...metadata,
     id: 'a1b2c3d4-e5f6-7890-abcd-ef0123456790',
     title: 'Simple Form (Pirate)',
-    slug: 'simple-form-pirate'
+    slug: 'simple-form-pirate',
+    // @ts-expect-error - language not yet in FormMetadata type
+    language: 'x-pirate'
   })
 
   await loader.addForm('src/server/forms/payment-test.yaml', {

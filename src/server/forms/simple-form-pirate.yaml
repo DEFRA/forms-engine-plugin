@@ -3,8 +3,6 @@ name: Pirate Form
 engine: V2
 schema: 2
 startPage: '/summary'
-metadata:
-  language: x-pirate
 pages:
   - title: Yer name, landlubber
     path: '/your-name'
