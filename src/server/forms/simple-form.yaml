@@ -37,7 +37,7 @@ pages:
         shortDescription: Upload passport
         hint: ''
         options:
-          required: true
+          required: false
         schema: {}
         id: 987c1234-56d7-89e0-1234-56789abcdef0
     id: 23456789-0abc-def1-2345-67890abcdef1
@@ -51,7 +51,7 @@ pages:
         shortDescription: Upload drivers licence
         hint: ''
         options:
-          required: true
+          required: false
         schema: {}
         id: 987c1234-56d7-89e0-1234-56789abcdef1
     id: 23456789-0abc-def1-2345-67890abcdef2

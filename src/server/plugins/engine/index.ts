@@ -8,7 +8,8 @@ import {
   checkComponentTemplates,
   checkErrorTemplates,
   evaluate,
-  govukRebrand
+  govukRebrand,
+  tGlobal
 } from '~/src/server/plugins/nunjucks/environment.js'
 import * as filters from '~/src/server/plugins/nunjucks/filters/index.js'
 
@@ -25,7 +26,8 @@ const globals = {
   checkComponentTemplates,
   checkErrorTemplates,
   evaluate,
-  govukRebrand
+  govukRebrand,
+  t: tGlobal
 }
 
 export const VIEW_PATH = 'src/server/plugins/engine/views'

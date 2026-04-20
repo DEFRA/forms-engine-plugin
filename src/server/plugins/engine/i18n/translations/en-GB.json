@@ -1,12 +1,5 @@
 {
-  "_translatorNotes": {
-    "joiPlaceholders": "{{...}} placeholders are processed by the validation engine — preserve exactly as-is",
-    "enginePlaceholders": "[[...]] placeholders are substituted by the forms engine at runtime — preserve exactly as-is",
-    "plurals": "_one keys apply when count = 1, _other keys apply for all other counts — both must be provided"
-  },
-
   "validation": {
-    "_note": "These strings are used in validation error messages. Preserve all {{...}} placeholders exactly.",
     "required": "Enter {{lowerFirst(#label)}}",
     "selectRequired": "Select {{lowerFirst(#label)}}",
     "pattern": "Enter a valid {{lowerFirst(#label)}}",
