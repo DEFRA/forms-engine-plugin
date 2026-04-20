@@ -253,6 +253,55 @@ export const transformGeocodeRequest = (request) => {
 }
 
 /**
+ * Gets the map styles for the interactive map style switcher plugin
+ * @param {TileData} data - the tile data config
+ * @param {string} assetPath
+ */
+function getMapStyles(data, assetPath) {
+  const logoAltText = 'Ordnance survey logo'
+
+  return [
+    {
+      id: 'outdoor',
+      label: 'Outdoor',
+      url: data.VTS_OUTDOOR_URL,
+      thumbnail: `${assetPath}/interactive-map/assets/images/outdoor-map-thumb.jpg`,
+      logo: `${assetPath}/interactive-map/assets/images/os-logo.svg`,
+      logoAltText,
+      attribution: `Contains OS data ${String.fromCodePoint(COMPANY_SYMBOL_CODE)} Crown copyright and database rights ${new Date().getFullYear()}`,
+      backgroundColor: '#f5f5f0'
+    },
+    {
+      id: 'dark',
+      label: 'Dark',
+      url: data.VTS_DARK_URL,
+      mapColorScheme: 'dark',
+      appColorScheme: 'dark',
+      thumbnail: `${assetPath}/interactive-map/assets/images/dark-map-thumb.jpg`,
+      logo: `${assetPath}/interactive-map/assets/images/os-logo-white.svg`,
+      logoAltText,
+      attribution: `Contains OS data ${String.fromCodePoint(COMPANY_SYMBOL_CODE)} Crown copyright and database rights ${new Date().getFullYear()}`
+    },
+    {
+      id: 'black-and-white',
+      label: 'Black/White',
+      url: data.VTS_BLACK_AND_WHITE_URL,
+      thumbnail: `${assetPath}/interactive-map/assets/images/black-and-white-map-thumb.jpg`,
+      logo: `${assetPath}/interactive-map/assets/images/os-logo-black.svg`,
+      logoAltText,
+      attribution: `Contains OS data ${String.fromCodePoint(COMPANY_SYMBOL_CODE)} Crown copyright and database rights ${new Date().getFullYear()}`
+    },
+    {
+      id: 'aerial',
+      label: 'Aerial',
+      url: data.VTS_AERIAL_URL,
+      thumbnail: `${assetPath}/interactive-map/assets/images/aerial-map-thumb.jpg`,
+      attribution: `Tiles ${String.fromCodePoint(COMPANY_SYMBOL_CODE)} Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community ${new Date().getFullYear()}`
+    }
+  ]
+}
+
+/**
  * Create a Defra map instance
  * @param {string} mapId - the map id
  * @param {InteractiveMapInitConfig} initConfig - the map initial configuration
@@ -260,7 +309,6 @@ export const transformGeocodeRequest = (request) => {
  */
 export function createMap(mapId, initConfig, mapsConfig) {
   const { assetPath, apiPath, data = defaultData } = mapsConfig
-  const logoAltText = 'Ordnance survey logo'
 
   // @ts-expect-error - Defra namespace currently comes from UMD support files
   const defra = window.defra
@@ -288,45 +336,7 @@ export function createMap(mapId, initConfig, mapsConfig) {
     ...initConfig,
     plugins: [
       defra.mapStylesPlugin({
-        mapStyles: [
-          {
-            id: 'outdoor',
-            label: 'Outdoor',
-            url: data.VTS_OUTDOOR_URL,
-            thumbnail: `${assetPath}/interactive-map/assets/images/outdoor-map-thumb.jpg`,
-            logo: `${assetPath}/interactive-map/assets/images/os-logo.svg`,
-            logoAltText,
-            attribution: `Contains OS data ${String.fromCodePoint(COMPANY_SYMBOL_CODE)} Crown copyright and database rights ${new Date().getFullYear()}`,
-            backgroundColor: '#f5f5f0'
-          },
-          {
-            id: 'dark',
-            label: 'Dark',
-            url: data.VTS_DARK_URL,
-            mapColorScheme: 'dark',
-            appColorScheme: 'dark',
-            thumbnail: `${assetPath}/interactive-map/assets/images/dark-map-thumb.jpg`,
-            logo: `${assetPath}/interactive-map/assets/images/os-logo-white.svg`,
-            logoAltText,
-            attribution: `Contains OS data ${String.fromCodePoint(COMPANY_SYMBOL_CODE)} Crown copyright and database rights ${new Date().getFullYear()}`
-          },
-          {
-            id: 'black-and-white',
-            label: 'Black/White',
-            url: data.VTS_BLACK_AND_WHITE_URL,
-            thumbnail: `${assetPath}/interactive-map/assets/images/black-and-white-map-thumb.jpg`,
-            logo: `${assetPath}/interactive-map/assets/images/os-logo-black.svg`,
-            logoAltText,
-            attribution: `Contains OS data ${String.fromCodePoint(COMPANY_SYMBOL_CODE)} Crown copyright and database rights ${new Date().getFullYear()}`
-          },
-          {
-            id: 'aerial',
-            label: 'Aerial',
-            url: data.VTS_AERIAL_URL,
-            thumbnail: `${assetPath}/interactive-map/assets/images/aerial-map-thumb.jpg`,
-            attribution: `Tiles ${String.fromCodePoint(COMPANY_SYMBOL_CODE)} Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community ${new Date().getFullYear()}`
-          }
-        ]
+        mapStyles: getMapStyles(data, assetPath)
       }),
       interactPlugin,
       defra.searchPlugin({
