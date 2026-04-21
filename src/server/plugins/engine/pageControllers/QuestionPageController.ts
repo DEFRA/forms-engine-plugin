@@ -422,7 +422,7 @@ export class QuestionPageController extends PageController {
       // Copy any URL params into the form state (if not already done so)
       if (await prefillStateFromQueryParameters(request, this)) {
         // Forward to same page without query string
-        return h.redirect(`${request.url.origin}${request.url.pathname}`)
+        return h.redirect(request.url.pathname)
       }
 
       const viewModel = this.getViewModel(request, context)
@@ -625,7 +625,7 @@ export class QuestionPageController extends PageController {
     return await selectedComponent.dispatcher(request, h, {
       component,
       controller: this,
-      sourceUrl: request.url.toString(),
+      sourceUrl: `${request.url.pathname}${request.url.search}`,
       actionArgs: args,
       isLive,
       isPreview
