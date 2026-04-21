@@ -44,7 +44,7 @@ jest.mock('../pageControllers/index.ts', () => {
 })
 
 jest.mock('../helpers.ts', () => ({
-  ...jest.requireActual('../helpers.ts'),
+  ...jest.requireActual<object>('../helpers.ts'),
   getCacheService: (...args: unknown[]): unknown =>
     mockGetCacheService(...args),
   checkEmailAddressForLiveFormSubmission: (...args: unknown[]): unknown =>

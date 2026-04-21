@@ -256,7 +256,9 @@ describe('Submission helpers', () => {
     })
 
     it('should JSON stringify GeospatialField', () => {
-      const mockGeospatialField = Object.create(GeospatialField.prototype)
+      const mockGeospatialField = Object.create(
+        GeospatialField.prototype
+      ) as GeospatialField
       mockGeospatialField.name = 'geospatial'
 
       const items = [
@@ -337,7 +339,9 @@ describe('Submission helpers', () => {
     })
 
     it('should JSON stringify GeospatialField', () => {
-      const mockGeospatialField = Object.create(GeospatialField.prototype)
+      const mockGeospatialField = Object.create(
+        GeospatialField.prototype
+      ) as GeospatialField
       mockGeospatialField.name = 'geospatial'
 
       const items = [

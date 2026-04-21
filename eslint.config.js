@@ -247,7 +247,7 @@ export default tseslint.config(
 
   // Browser client code override
   {
-    files: ['src/client/**/*.js'],
+    files: ['src/client/**/*.js', 'test/client/**/*.js'],
     languageOptions: {
       globals: {
         ...globals.browser
