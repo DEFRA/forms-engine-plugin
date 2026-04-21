@@ -56,6 +56,8 @@ export class SummaryViewModel {
   allowSaveAndExit = false
   paymentState?: PaymentState
   paymentDetails?: CheckAnswers
+  paymentRequired?: boolean
+  paymentPreAuthorized?: boolean
 
   constructor(
     request: FormContextRequest,

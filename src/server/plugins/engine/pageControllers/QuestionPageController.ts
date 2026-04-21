@@ -5,6 +5,7 @@ import {
   hasComponents,
   hasNext,
   hasRepeater,
+  isPaymentPage,
   type Link,
   type Page
 } from '@defra/forms-model'
@@ -19,6 +20,7 @@ import {
   PAYMENT_EXPIRED_NOTIFICATION
 } from '~/src/server/constants.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import { PaymentField } from '~/src/server/plugins/engine/components/PaymentField.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import { type BackLink } from '~/src/server/plugins/engine/components/types.js'
 import {
@@ -44,6 +46,7 @@ import {
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import { getComponentsByType } from '~/src/server/plugins/engine/validationHelpers.js'
+import { formatCurrency } from '~/src/server/plugins/payment/helper.js'
 import {
   FormAction,
   FormStatus,
@@ -182,6 +185,25 @@ export class QuestionPageController extends PageController {
       }
     }
 
+    // Override payment amount display with resolved conditional amount
+    // getViewModel() only has the current page's payload, not full form state.
+    // The full state is available via context.evaluationState.
+    for (const comp of components) {
+      if ('amount' in comp.model && 'paymentState' in comp.model) {
+        const paymentField = this.collection.fields.find(
+          (f): f is PaymentField => f instanceof PaymentField
+        )
+        if (paymentField) {
+          const resolvedAmount = PaymentField.resolveAmount(
+            paymentField.options,
+            this.model,
+            context.evaluationState
+          )
+          comp.model.amount = formatCurrency(resolvedAmount)
+        }
+      }
+    }
+
     const hasIncompletePayment = components.some(({ model }) => {
       if ('paymentState' in model) {
         const paymentState = model.paymentState as
@@ -199,7 +221,9 @@ export class QuestionPageController extends PageController {
       showTitle,
       components,
       errors,
-      allowSaveAndExit: this.shouldShowSaveAndExit(request.server),
+      allowSaveAndExit:
+        this.shouldShowSaveAndExit(request.server) &&
+        !isPaymentPage(this.pageDef),
       showSubmitButton: !hasIncompletePayment
     }
   }
@@ -244,6 +268,13 @@ export class QuestionPageController extends PageController {
             if (!conditionResult) {
               return false
             }
+          }
+
+          // Skip payment pages in the normal page walk.
+          // Users reach the payment page via "Pay and submit" on CYA,
+          // not by navigating forward through the form.
+          if (isPaymentPage(page.pageDef)) {
+            return false
           }
 
           return true

@@ -1,3 +1,4 @@
+import { isPaymentPage } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
   type ResponseObject,
@@ -102,8 +103,14 @@ export async function redirectOrMakeHandler(
     return proceed(request, h, resumeInRepeaterUrl)
   }
 
-  // Return handler for relevant pages or preview URL direct access
-  if (relevantPath.startsWith(page.path) || context.isForceAccess) {
+  // Return handler for relevant pages, payment pages, or preview URL direct access.
+  // Payment pages are skipped in the normal page walk but must render when the user
+  // is redirected there from CYA "Pay and submit".
+  if (
+    relevantPath.startsWith(page.path) ||
+    isPaymentPage(page.pageDef) ||
+    context.isForceAccess
+  ) {
     return makeHandler(page, context)
   }
 
