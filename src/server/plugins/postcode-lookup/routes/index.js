@@ -170,10 +170,14 @@ function postRoute(options) {
  * @param {PostcodeLookupConfiguration} options
  */
 async function detailsPostHandler(request, h, options) {
-  const { payload } = request
   const session = getSessionState(request)
   const { ordnanceSurveyApiKey: apiKey } = options
-  const { value: details, error } = detailsPayloadSchema.validate(payload)
+
+  /** @type {{ value: PostcodeLookupDetailsPayload, error?: import('joi').ValidationError }} */
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const { value: details, error } = detailsPayloadSchema.validate(
+    request.payload
+  )
 
   let model
 
@@ -201,10 +205,12 @@ async function detailsPostHandler(request, h, options) {
  * @param {PostcodeLookupConfiguration} options
  */
 async function selectPostHandler(request, h, options) {
-  const { payload } = request
   const session = getSessionState(request)
   const { ordnanceSurveyApiKey: apiKey } = options
-  const { value: select, error } = selectPayloadSchema.validate(payload)
+
+  /** @type {{ value: PostcodeLookupSelectPayload, error?: import('joi').ValidationError }} */
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const { value: select, error } = selectPayloadSchema.validate(request.payload)
 
   if (error) {
     const model = await selectViewModel({ session, apiKey }, select, error)
@@ -232,12 +238,16 @@ async function selectPostHandler(request, h, options) {
  * @param {ResponseToolkit<PostcodeLookupPostRequestRefs>} h
  */
 function manualPostHandler(request, h) {
-  const { payload } = request
   const session = getSessionState(request)
 
-  const { value: manual, error } = manualPayloadSchema.validate(payload, {
-    abortEarly: false
-  })
+  /** @type {{ value: PostcodeLookupManualPayload, error?: import('joi').ValidationError }} */
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const { value: manual, error } = manualPayloadSchema.validate(
+    request.payload,
+    {
+      abortEarly: false
+    }
+  )
 
   if (error) {
     const model = manualViewModel(session, manual, error)
@@ -254,7 +264,7 @@ function manualPostHandler(request, h) {
 
 /**
  * @import { ResponseToolkit, ServerRoute } from '@hapi/hapi'
- * @import { PostcodeLookupManualPayload, Address, PostcodeLookupGetRequestRefs, PostcodeLookupPostRequestRefs, PostcodeLookupRequest, PostcodeLookupPostRequest, PostcodeLookupConfiguration, PostcodeLookupDispatchData, PostcodeLookupSessionData } from '~/src/server/plugins/postcode-lookup/types.js'
+ * @import { PostcodeLookupManualPayload, PostcodeLookupDetailsPayload, PostcodeLookupSelectPayload, Address, PostcodeLookupGetRequestRefs, PostcodeLookupPostRequestRefs, PostcodeLookupRequest, PostcodeLookupPostRequest, PostcodeLookupConfiguration, PostcodeLookupDispatchData, PostcodeLookupSessionData } from '~/src/server/plugins/postcode-lookup/types.js'
  * @import { FormRequestPayload, FormResponseToolkit } from '~/src/server/routes/types.js'
  * @import { ExternalStateAppendage } from '~/src/server/plugins/engine/types.js'
  */

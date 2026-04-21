@@ -19,7 +19,10 @@ function empty() {
  * @param {string} endpoint - the OS api endpoint
  */
 function logErrorAndReturnEmpty(err, endpoint) {
-  const msg = `${getErrorMessage(err)} ${(Boom.isBoom(err) && err.data?.payload?.error?.message) ?? ''}`
+  /** @type {{ payload?: { error?: { message?: string } } } | false} */
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const boomData = Boom.isBoom(err) && err.data
+  const msg = `${getErrorMessage(err)} ${(boomData && boomData.payload?.error?.message) ?? ''}`
 
   logger.error(err, `Exception occured calling OS places ${endpoint} - ${msg}}`)
 

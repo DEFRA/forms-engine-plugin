@@ -100,6 +100,7 @@ describe('Title and section title', () => {
   // This is likely due to inconsistencies between the form schemas in forms-runner
   // and the latest schema definitions in the plugin repository.
   // Once the schemas are aligned across repositories, this test can be re-enabled.
+  // eslint-disable-next-line jest/no-disabled-tests
   it.skip('does not render the section title if it is the same as the title', async () => {
     jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
 
@@ -122,6 +123,7 @@ describe('Title and section title', () => {
   // This is likely due to inconsistencies between the form schemas in forms-runner
   // and the latest schema definitions in the plugin repository.
   // Once the schemas are aligned across repositories, this test can be re-enabled.
+  // eslint-disable-next-line jest/no-disabled-tests
   it.skip('render warning when notification email is not set', async () => {
     jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
 
@@ -140,6 +142,7 @@ describe('Title and section title', () => {
   // This is likely due to inconsistencies between the form schemas in forms-runner
   // and the latest schema definitions in the plugin repository.
   // Once the schemas are aligned across repositories, this test can be re-enabled.
+  // eslint-disable-next-line jest/no-disabled-tests
   it.skip('does not render the warning when notification email is set', async () => {
     jest.mocked(getFormMetadata).mockResolvedValue({
       ...fixtures.form.metadata,
@@ -161,6 +164,7 @@ describe('Title and section title', () => {
   // This is likely due to inconsistencies between the form schemas in forms-runner
   // and the latest schema definitions in the plugin repository.
   // Once the schemas are aligned across repositories, this test can be re-enabled.
+  // eslint-disable-next-line jest/no-disabled-tests
   it.skip('does render the section title if it is not the same as the title', async () => {
     const { container } = await renderResponse(server, {
       url: `${basePath}/applicant-one-address`,
@@ -188,6 +192,7 @@ describe('Title and section title', () => {
   // This is likely due to inconsistencies between the form schemas in forms-runner
   // and the latest schema definitions in the plugin repository.
   // Once the schemas are aligned across repositories, this test can be re-enabled.
+  // eslint-disable-next-line jest/no-disabled-tests
   it.skip('does not render the section title if hideTitle is set to true', async () => {
     const { container } = await renderResponse(server, {
       url: `${basePath}/applicant-two`,
@@ -209,6 +214,7 @@ describe('Title and section title', () => {
   // This is likely due to inconsistencies between the form schemas in forms-runner
   // and the latest schema definitions in the plugin repository.
   // Once the schemas are aligned across repositories, this test can be re-enabled.
+  // eslint-disable-next-line jest/no-disabled-tests
   it.skip('render title with optional when there is single component in page and is selected as optional', async () => {
     const { container } = await renderResponse(server, {
       url: `${basePath}/applicant-two-address-optional`,
