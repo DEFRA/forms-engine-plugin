@@ -85,7 +85,9 @@ function tileProxyRoute(options) {
 
       const url = `https://api.os.uk/maps/vector/v1/vts/tile/${z}/${y}/${x}.pbf?srs=3857`
 
-      const { payload, res } = await get(url, {
+      const getBuffer = /** @type {typeof get<Buffer>} */ (get)
+
+      const { payload, res } = await getBuffer(url, {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: 'application/x-protobuf'

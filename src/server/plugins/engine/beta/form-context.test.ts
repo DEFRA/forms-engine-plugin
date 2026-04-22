@@ -44,18 +44,24 @@ jest.mock('../pageControllers/index.ts', () => {
 })
 
 jest.mock('../helpers.ts', () => ({
-  ...jest.requireActual('../helpers.ts'),
-  getCacheService: (...args: unknown[]) => mockGetCacheService(...args),
-  checkEmailAddressForLiveFormSubmission: (...args: unknown[]) =>
+  ...jest.requireActual<object>('../helpers.ts'),
+  getCacheService: (...args: unknown[]): unknown =>
+    mockGetCacheService(...args),
+  checkEmailAddressForLiveFormSubmission: (...args: unknown[]): unknown =>
     mockCheckEmailAddressForLiveFormSubmission(...args)
 }))
 
-const mockServices = jest.requireMock(
-  '~/src/server/plugins/engine/services/index.js'
-)
+const mockServices: {
+  formsService: { getFormMetadata: jest.Mock; getFormDefinition: jest.Mock }
+} = jest.requireMock('~/src/server/plugins/engine/services/index.js')
 const mockFormsService = mockServices.formsService
-const { FormModel } = jest.requireMock('../models/index.ts')
-const { TerminalPageController: MockTerminalPageController } = jest.requireMock(
+
+const { FormModel }: { FormModel: jest.Mock } =
+  jest.requireMock('../models/index.ts')
+
+const {
+  TerminalPageController: MockTerminalPageController
+}: { TerminalPageController: new () => { path: string } } = jest.requireMock(
   '../pageControllers/index.ts'
 )
 
@@ -107,7 +113,12 @@ describe('getFormContext helper', () => {
       errors
     })
 
-    const summaryRequest = mockCacheService.getState.mock.calls[0][0]
+    const summaryRequest: {
+      params: Record<string, string>
+      path: string
+      url: URL
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    } = mockCacheService.getState.mock.calls[0][0]
 
     expect(summaryRequest.params).toEqual({
       path: 'summary',

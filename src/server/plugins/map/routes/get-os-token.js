@@ -19,7 +19,9 @@ export async function getAccessToken(options) {
   }
 
   const creds = `${key}:${secret}`
-  const result = await post('https://api.os.uk/oauth2/token/v1', {
+  const postByType = /** @type {typeof post<OsTokenResponse>} */ (post)
+
+  const result = await postByType('https://api.os.uk/oauth2/token/v1', {
     headers: {
       Authorization: `Basic ${btoa(creds)}`,
       'Content-Type': 'application/x-www-form-urlencoded'
@@ -30,11 +32,21 @@ export async function getAccessToken(options) {
 
   const data = result.payload
 
+  if (!data) {
+    throw new Error('Failed to obtain OS API token')
+  }
+
   cachedToken = data.access_token
   tokenExpiry = now + (data.expires_in - 60) * 1000 // refresh early
 
   return cachedToken
 }
+
+/**
+ * @typedef {object} OsTokenResponse
+ * @property {string} access_token - The access token
+ * @property {number} expires_in - The expiry in seconds
+ */
 
 /**
  * @import { MapConfiguration } from '~/src/server/plugins/map/types.js'

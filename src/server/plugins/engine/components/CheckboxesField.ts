@@ -26,8 +26,7 @@ export class CheckboxesField extends SelectionControlField {
     super(def, props)
 
     const { listType: type } = this
-    const { options } = def
-    const schema = 'schema' in def ? def.schema : {}
+    const { options, schema } = def
 
     let formSchema =
       type === 'string' ? joi.array<string>() : joi.array<number>()
