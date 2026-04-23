@@ -13,7 +13,8 @@ const COMPANY_SYMBOL_CODE = 169
 const defaultData = {
   VTS_OUTDOOR_URL: '/api/maps/vts/OS_VTS_3857_Outdoor.json',
   VTS_DARK_URL: '/api/maps/vts/OS_VTS_3857_Dark.json',
-  VTS_BLACK_AND_WHITE_URL: '/api/maps/vts/OS_VTS_3857_Black_and_White.json'
+  VTS_BLACK_AND_WHITE_URL: '/api/maps/vts/OS_VTS_3857_Black_and_White.json',
+  VTS_AERIAL_URL: '/api/maps/vts/esri-aerial.json'
 }
 
 /**
@@ -317,6 +318,13 @@ export function createMap(mapId, initConfig, mapsConfig) {
             logo: `${assetPath}/interactive-map/assets/images/os-logo-black.svg`,
             logoAltText,
             attribution: `Contains OS data ${String.fromCodePoint(COMPANY_SYMBOL_CODE)} Crown copyright and database rights ${new Date().getFullYear()}`
+          },
+          {
+            id: 'aerial',
+            label: 'Aerial',
+            url: data.VTS_AERIAL_URL,
+            thumbnail: `${assetPath}/interactive-map/assets/images/aerial-map-thumb.jpg`,
+            attribution: `Tiles ${String.fromCodePoint(COMPANY_SYMBOL_CODE)} Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community ${new Date().getFullYear()}`
           }
         ]
       }),
@@ -388,6 +396,7 @@ export function centerMap(map, mapProvider, center) {
  * @property {string} VTS_OUTDOOR_URL - the outdoor tile URL
  * @property {string} VTS_DARK_URL - the dark tile URL
  * @property {string} VTS_BLACK_AND_WHITE_URL - the black and white tile URL
+ * @property {string} VTS_AERIAL_URL - the aerial tile URL
  */
 
 /**
