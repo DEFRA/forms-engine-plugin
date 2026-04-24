@@ -41,8 +41,14 @@ describe('Payment routes', () => {
     const sessionKey = 'session-key'
 
     test.each([
-      { status: 'capturable', finalUrl: 'http://host.com/return-url' },
-      { status: 'success', finalUrl: 'http://host.com/return-url' },
+      {
+        status: 'capturable',
+        finalUrl: 'http://host.com/return-url?paymentComplete=true'
+      },
+      {
+        status: 'success',
+        finalUrl: 'http://host.com/return-url?paymentComplete=true'
+      },
       { status: 'cancelled', finalUrl: 'http://host.com/failure-url' },
       { status: 'failed', finalUrl: 'http://host.com/failure-url' },
       { status: 'error', finalUrl: 'http://host.com/failure-url' },
@@ -169,7 +175,9 @@ describe('Payment routes', () => {
       const { response } = await renderResponse(server, options)
 
       expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
-      expect(response.headers.location).toBe('http://host.com/return-url')
+      expect(response.headers.location).toBe(
+        'http://host.com/return-url?paymentComplete=true'
+      )
     })
   })
 })

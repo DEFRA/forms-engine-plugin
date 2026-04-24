@@ -15,6 +15,7 @@ import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { PaymentPreAuthError } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import {
   type FormContext,
+  type FormState,
   type FormValue,
   type PaymentExternalArgs
 } from '~/src/server/plugins/engine/types.js'
@@ -740,6 +741,383 @@ describe('PaymentField', () => {
         }
         expect(paymentField.isState(payment)).toBe(true)
       })
+    })
+  })
+
+  describe('resolveAmount', () => {
+    const baseOptions = {
+      amount: 50,
+      description: 'Test payment'
+    } satisfies PaymentFieldComponent['options']
+
+    const mockState = {} as FormState
+
+    function createMockModel(
+      conditionResults: Record<string, boolean>
+    ): FormModel {
+      const conditions: Record<string, { fn: (s: FormState) => boolean }> = {}
+      for (const [key, value] of Object.entries(conditionResults)) {
+        conditions[key] = { fn: () => value }
+      }
+      return { conditions } as unknown as FormModel
+    }
+
+    it('should return default amount when no conditionalAmounts', () => {
+      const mockModel = createMockModel({})
+      const result = PaymentField.resolveAmount(
+        baseOptions,
+        mockModel,
+        mockState
+      )
+      expect(result).toBe(50)
+    })
+
+    it('should return default amount when conditionalAmounts is empty', () => {
+      const mockModel = createMockModel({})
+      const options = { ...baseOptions, conditionalAmounts: [] }
+      const result = PaymentField.resolveAmount(options, mockModel, mockState)
+      expect(result).toBe(50)
+    })
+
+    it('should return first matching condition amount', () => {
+      const mockModel = createMockModel({ 'cond-a': true, 'cond-b': false })
+      const options = {
+        ...baseOptions,
+        conditionalAmounts: [
+          { condition: 'cond-a', amount: 100 },
+          { condition: 'cond-b', amount: 200 }
+        ]
+      }
+      const result = PaymentField.resolveAmount(options, mockModel, mockState)
+      expect(result).toBe(100)
+    })
+
+    it('should return second condition when first is false', () => {
+      const mockModel = createMockModel({ 'cond-a': true, 'cond-b': false })
+      const options = {
+        ...baseOptions,
+        conditionalAmounts: [
+          { condition: 'cond-b', amount: 200 },
+          { condition: 'cond-a', amount: 100 }
+        ]
+      }
+      const result = PaymentField.resolveAmount(options, mockModel, mockState)
+      expect(result).toBe(100)
+    })
+
+    it('should return default when no conditions match', () => {
+      const mockModel = createMockModel({ 'cond-b': false })
+      const options = {
+        ...baseOptions,
+        conditionalAmounts: [{ condition: 'cond-b', amount: 200 }]
+      }
+      const result = PaymentField.resolveAmount(options, mockModel, mockState)
+      expect(result).toBe(50)
+    })
+
+    it('should skip missing condition IDs gracefully', () => {
+      const mockModel = createMockModel({ 'cond-a': true })
+      const options = {
+        ...baseOptions,
+        conditionalAmounts: [
+          { condition: 'nonexistent', amount: 999 },
+          { condition: 'cond-a', amount: 100 }
+        ]
+      }
+      const result = PaymentField.resolveAmount(options, mockModel, mockState)
+      expect(result).toBe(100)
+    })
+
+    it('should return 0 when condition resolves to zero amount', () => {
+      const mockModel = createMockModel({ 'cond-zero': true })
+      const options = {
+        ...baseOptions,
+        conditionalAmounts: [{ condition: 'cond-zero', amount: 0 }]
+      }
+      const result = PaymentField.resolveAmount(options, mockModel, mockState)
+      expect(result).toBe(0)
+    })
+  })
+
+  describe('dispatcher with conditional amounts', () => {
+    const def = {
+      title: 'Conditional payment',
+      name: 'myPayment',
+      type: ComponentType.PaymentField,
+      options: {
+        amount: 50,
+        description: 'Test payment',
+        conditionalAmounts: [{ condition: 'cond-zero', amount: 0 }]
+      }
+    } satisfies PaymentFieldComponent
+
+    it('should redirect to summary when resolved amount is 0', async () => {
+      const mockRedirectCode = jest.fn().mockReturnValueOnce('redirected')
+      const mockH = {
+        redirect: jest.fn().mockReturnValueOnce({ code: mockRedirectCode })
+      } as unknown as FormResponseToolkit
+      const mockRequest = {
+        server: {
+          plugins: {
+            'forms-engine-plugin': { baseUrl: 'base-url' }
+          }
+        },
+        yar: { set: jest.fn() }
+      } as unknown as FormRequestPayload
+      const args = {
+        controller: {
+          model: {
+            formId: 'formid',
+            basePath: 'base-path',
+            services: mockServices,
+            conditions: {
+              'cond-zero': { fn: () => true }
+            }
+          },
+          getState: jest.fn().mockResolvedValueOnce({
+            $$__referenceNumber: 'ref-123'
+          })
+        },
+        component: def,
+        sourceUrl: 'http://localhost:3009/test',
+        isLive: false,
+        isPreview: true
+      } as unknown as PaymentExternalArgs
+
+      const res = await PaymentField.dispatcher(mockRequest, mockH, args)
+      expect(res).toBe('redirected')
+      expect(mockH.redirect).toHaveBeenCalledWith('base-url/base-path/summary')
+      expect(postJson).not.toHaveBeenCalled()
+    })
+
+    it('should use resolved amount when creating payment', async () => {
+      const mockYarSet = jest.fn()
+      const mockRequest = {
+        server: {
+          plugins: {
+            'forms-engine-plugin': { baseUrl: 'base-url' }
+          }
+        },
+        yar: { set: mockYarSet }
+      } as unknown as FormRequestPayload
+      const mockH = {
+        redirect: jest
+          .fn()
+          .mockReturnValueOnce({ code: jest.fn().mockReturnValueOnce('ok') })
+      } as unknown as FormResponseToolkit
+
+      const condDef = {
+        ...def,
+        options: {
+          ...def.options,
+          conditionalAmounts: [{ condition: 'cond-100', amount: 100 }]
+        }
+      }
+
+      const args = {
+        controller: {
+          model: {
+            formId: 'formid',
+            basePath: 'base-path',
+            services: mockServices,
+            conditions: {
+              'cond-100': { fn: () => true }
+            }
+          },
+          getState: jest.fn().mockResolvedValueOnce({
+            $$__referenceNumber: 'ref-123'
+          })
+        },
+        component: condDef,
+        sourceUrl: 'http://localhost:3009/test',
+        isLive: false,
+        isPreview: true
+      } as unknown as PaymentExternalArgs
+
+      // @ts-expect-error - partial mock
+      jest.mocked(postJson).mockResolvedValueOnce({
+        payload: {
+          state: { status: 'created' },
+          payment_id: 'pay-id',
+          _links: { next_url: { href: '/next' } }
+        }
+      })
+
+      await PaymentField.dispatcher(mockRequest, mockH, args)
+      expect(mockYarSet).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ amount: 100 })
+      )
+    })
+  })
+
+  describe('dispatcher with email prepopulation', () => {
+    it('should pass valid email to createPayment', async () => {
+      const emailDef = {
+        title: 'Payment with email',
+        name: 'myPayment',
+        type: ComponentType.PaymentField,
+        options: {
+          amount: 50,
+          description: 'Test payment',
+          emailField: 'userEmail'
+        }
+      } satisfies PaymentFieldComponent
+
+      const mockYarSet = jest.fn()
+      const mockRequest = {
+        server: {
+          plugins: {
+            'forms-engine-plugin': { baseUrl: 'base-url' }
+          }
+        },
+        yar: { set: mockYarSet }
+      } as unknown as FormRequestPayload
+      const mockH = {
+        redirect: jest
+          .fn()
+          .mockReturnValueOnce({ code: jest.fn().mockReturnValueOnce('ok') })
+      } as unknown as FormResponseToolkit
+      const args = {
+        controller: {
+          model: {
+            formId: 'formid',
+            basePath: 'base-path',
+            services: mockServices,
+            conditions: {}
+          },
+          getState: jest.fn().mockResolvedValueOnce({
+            $$__referenceNumber: 'ref-123',
+            userEmail: 'test@example.com'
+          })
+        },
+        component: emailDef,
+        sourceUrl: 'http://localhost:3009/test',
+        isLive: false,
+        isPreview: true
+      } as unknown as PaymentExternalArgs
+
+      // @ts-expect-error - partial mock
+      jest.mocked(postJson).mockResolvedValueOnce({
+        payload: {
+          state: { status: 'created' },
+          payment_id: 'pay-id',
+          _links: { next_url: { href: '/next' } }
+        }
+      })
+
+      await PaymentField.dispatcher(mockRequest, mockH, args)
+
+      // Verify createPayment was called with the email as the 7th argument
+      expect(postJson).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          payload: expect.objectContaining({
+            email: 'test@example.com'
+          })
+        })
+      )
+    })
+
+    it('should not pass email when emailField value is empty', async () => {
+      const emailDef = {
+        title: 'Payment with empty email',
+        name: 'myPayment',
+        type: ComponentType.PaymentField,
+        options: {
+          amount: 50,
+          description: 'Test payment',
+          emailField: 'userEmail'
+        }
+      } satisfies PaymentFieldComponent
+
+      const mockRequest = {
+        server: {
+          plugins: {
+            'forms-engine-plugin': { baseUrl: 'base-url' }
+          }
+        },
+        yar: { set: jest.fn() }
+      } as unknown as FormRequestPayload
+      const mockH = {
+        redirect: jest
+          .fn()
+          .mockReturnValueOnce({ code: jest.fn().mockReturnValueOnce('ok') })
+      } as unknown as FormResponseToolkit
+      const args = {
+        controller: {
+          model: {
+            formId: 'formid',
+            basePath: 'base-path',
+            services: mockServices,
+            conditions: {}
+          },
+          getState: jest.fn().mockResolvedValueOnce({
+            $$__referenceNumber: 'ref-123',
+            userEmail: ''
+          })
+        },
+        component: emailDef,
+        sourceUrl: 'http://localhost:3009/test',
+        isLive: false,
+        isPreview: true
+      } as unknown as PaymentExternalArgs
+
+      // @ts-expect-error - partial mock
+      jest.mocked(postJson).mockResolvedValueOnce({
+        payload: {
+          state: { status: 'created' },
+          payment_id: 'pay-id',
+          _links: { next_url: { href: '/next' } }
+        }
+      })
+
+      await PaymentField.dispatcher(mockRequest, mockH, args)
+
+      // Verify createPayment was called WITHOUT an email field
+      expect(postJson).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          payload: expect.not.objectContaining({
+            email: expect.anything()
+          })
+        })
+      )
+    })
+  })
+
+  describe('onSubmit with conditional amounts', () => {
+    const def = {
+      title: 'Payment',
+      name: 'myComponent',
+      type: ComponentType.PaymentField,
+      options: {
+        amount: 0,
+        description: 'Test payment',
+        conditionalAmounts: []
+      }
+    } satisfies PaymentFieldComponent
+
+    const collection = new ComponentCollection([def], { model })
+    const paymentField = collection.fields[0] as PaymentField
+    paymentField.model = {
+      services: mockServices,
+      conditions: {}
+    } as unknown as FormModel
+
+    it('should return early when resolved amount is 0', async () => {
+      const mockRequest = {} as unknown as FormRequestPayload
+
+      await paymentField.onSubmit(
+        mockRequest,
+        {} as FormMetadata,
+        {
+          state: {}
+        } as unknown as FormContext
+      )
+
+      expect(get).not.toHaveBeenCalled()
+      expect(post).not.toHaveBeenCalled()
     })
   })
 })
