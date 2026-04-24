@@ -63,7 +63,6 @@ export class PaymentService {
         delayed_capture: true
       }
 
-      // Prepopulate email on GOV.UK Pay if provided
       if (email) {
         payload.email = email
       }

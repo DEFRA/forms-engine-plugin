@@ -185,9 +185,6 @@ export class QuestionPageController extends PageController {
       }
     }
 
-    // Override payment amount display with resolved conditional amount
-    // getViewModel() only has the current page's payload, not full form state.
-    // The full state is available via context.evaluationState.
     for (const comp of components) {
       if ('amount' in comp.model && 'paymentState' in comp.model) {
         const paymentField = this.collection.fields.find(
@@ -270,9 +267,6 @@ export class QuestionPageController extends PageController {
             }
           }
 
-          // Skip payment pages in the normal page walk.
-          // Users reach the payment page via "Pay and submit" on CYA,
-          // not by navigating forward through the form.
           if (isPaymentPage(page.pageDef)) {
             return false
           }

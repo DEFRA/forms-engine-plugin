@@ -113,9 +113,6 @@ export class PaymentField extends FormComponent {
       ? (payload[this.name] as unknown as PaymentState)
       : undefined
 
-    // Use payment state amount if pre-authorized, otherwise use default.
-    // The page controller overrides this with the resolved conditional amount
-    // using the full form state (which getViewModel doesn't have access to).
     const amount = paymentState?.amount ?? this.options.amount
 
     return {
@@ -258,7 +255,6 @@ export class PaymentField extends FormComponent {
     const reference = state.$$__referenceNumber as string
     const resolvedAmount = PaymentField.resolveAmount(options, model, state)
 
-    // Zero-amount safety net (page skip should prevent this, but defensive)
     if (resolvedAmount === 0) {
       return h.redirect(summaryUrl).code(StatusCodes.SEE_OTHER)
     }
@@ -270,9 +266,6 @@ export class PaymentField extends FormComponent {
     const payCallbackUrl = `${baseUrl}/payment-callback?uuid=${uuid}`
     const paymentPageUrl = args.sourceUrl
 
-    // Prepopulate GOV.UK Pay email if emailField is configured.
-    // The referenced EmailAddressField validates with joi.string().email()
-    // at input time, so the value in state is already validated.
     let prefilledEmail: string | undefined
     if (options.emailField) {
       const emailValue = state[options.emailField]
@@ -330,7 +323,6 @@ export class PaymentField extends FormComponent {
     _metadata: FormMetadata,
     context: FormContext
   ): Promise<void> {
-    // Zero-amount bypass — no capture needed
     const resolvedAmount = PaymentField.resolveAmount(
       this.options,
       this.model,

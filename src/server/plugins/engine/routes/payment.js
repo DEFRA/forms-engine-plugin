@@ -104,8 +104,6 @@ function handlePaymentSuccess(request, h, session, sessionKey, paymentStatus) {
   flashComponentState(request, session, paymentStatus)
   request.yar.clear(sessionKey)
 
-  // Append paymentComplete flag so the summary page auto-submits
-  // instead of showing CYA again
   const separator = session.returnUrl.includes('?') ? '&' : '?'
   const returnUrl = `${session.returnUrl}${separator}paymentComplete=true`
 

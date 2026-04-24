@@ -62,14 +62,6 @@ export class SummaryPageController extends QuestionPageController {
   declare pageDef: Page
   allowSaveAndExit = true
 
-  /**
-   * The controller which is used when Page["controller"] is defined as "./pages/summary.js"
-   */
-
-  /**
-   * Finds the PaymentField component across all pages in the model.
-   * Payment pages are skipped in the normal page walk
-   */
   private findPaymentField(): PaymentField | undefined {
     return this.model.pages
       .flatMap((page) => page.collection.fields)
@@ -183,9 +175,11 @@ export class SummaryPageController extends QuestionPageController {
     ) => {
       const { viewName } = this
 
-      // After GOV.UK Pay callback, auto-submit the form instead of
-      // showing CYA again. The payment is already pre-authorized.
       if (request.query.paymentComplete === 'true') {
+        const requestWithPayload = request as unknown as {
+          payload: FormRequestPayload['payload']
+        }
+        requestWithPayload.payload = {} as FormRequestPayload['payload']
         return this.handleFormSubmit(
           request as unknown as FormRequestPayload,
           context,
@@ -204,10 +198,6 @@ export class SummaryPageController extends QuestionPageController {
     }
   }
 
-  /**
-   * Checks if the resolved payment amount has changed since pre-auth
-   * and invalidates stale payment state if so.
-   */
   private async reconcilePaymentState(
     request: FormRequest,
     context: FormContext
@@ -358,9 +348,6 @@ export class SummaryPageController extends QuestionPageController {
       }
     }
 
-    // Payment page is skipped in the page walk, so proceed() would redirect
-    // to an earlier page. For PaymentIncomplete, redirect directly to the
-    // payment page using its href.
     if (
       error.errorType === PaymentErrorTypes.PaymentIncomplete &&
       error.component.page
@@ -502,8 +489,6 @@ async function finaliseComponents(
   context: FormContext,
   model: FormModel
 ) {
-  // Get fields from relevant pages (normal components)
-  // plus PaymentField from all pages (payment page is skipped in the page walk)
   const allFields = new Set([
     ...context.relevantPages.flatMap((page) => page.collection.fields),
     ...model.pages

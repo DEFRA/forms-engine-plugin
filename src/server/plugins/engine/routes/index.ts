@@ -103,9 +103,6 @@ export async function redirectOrMakeHandler(
     return proceed(request, h, resumeInRepeaterUrl)
   }
 
-  // Return handler for relevant pages, payment pages, or preview URL direct access.
-  // Payment pages are skipped in the normal page walk but must render when the user
-  // is redirected there from CYA "Pay and submit".
   if (
     relevantPath.startsWith(page.path) ||
     isPaymentPage(page.pageDef) ||

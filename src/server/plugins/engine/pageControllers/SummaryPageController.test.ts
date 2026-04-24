@@ -153,6 +153,16 @@ describe('SummaryPageController - Payment (DF-832)', () => {
       expect(handleFormSubmitSpy).toHaveBeenCalledTimes(1)
       // The GET handler should short-circuit before rendering the view
       expect(h.view).not.toHaveBeenCalled()
+
+      // GOV.UK Pay callback is a GET so request.payload is undefined.
+      // Downstream submit code (e.g. outputService) reads
+      // request.payload.* fields, so the controller must synthesise an
+      // empty payload before calling handleFormSubmit, otherwise
+      // request.payload.userConfirmationEmailAddress crashes with
+      // "Cannot read properties of undefined".
+      const passedRequest = handleFormSubmitSpy.mock.calls[0][0]
+      expect(passedRequest.payload).toBeDefined()
+      expect(passedRequest.payload).toEqual({})
     })
 
     it('follows the normal CYA render path when paymentComplete is absent', async () => {
