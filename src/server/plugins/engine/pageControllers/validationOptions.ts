@@ -55,6 +55,37 @@ export const messages: LanguageMessagesExt = {
 export const messagesPre: LanguageMessages =
   messages as unknown as LanguageMessages
 
+export function buildLanguageMessages(
+  t: (key: string) => string
+): LanguageMessages {
+  const vm = buildValidationMessages(t)
+  return {
+    'string.base': vm.required,
+    'string.min': vm.min,
+    'string.empty': vm.required,
+    'string.max': vm.max,
+    'string.email': vm.format,
+    'string.pattern.base': vm.pattern,
+    'string.maxWords': vm.maxWords,
+    'number.base': vm.number,
+    'number.precision': vm.numberPrecision,
+    'number.integer': vm.numberInteger,
+    'number.unsafe': vm.format,
+    'number.min': vm.numberMin,
+    'number.max': vm.numberMax,
+    'object.required': vm.objectRequired,
+    'object.and': vm.objectMissing,
+    'any.only': vm.selectRequired,
+    'any.required': vm.selectRequired,
+    'any.empty': vm.required,
+    'date.base': vm.dateFormat,
+    'date.format': vm.dateFormat,
+    'date.min': vm.dateMin,
+    'date.max': vm.dateMax,
+    'object.invalidjson': vm.format
+  } as unknown as LanguageMessages
+}
+
 export const validationOptions: ValidationOptions = {
   abortEarly: false,
   messages: messagesPre,

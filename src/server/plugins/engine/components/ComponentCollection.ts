@@ -21,7 +21,10 @@ import { getErrors } from '~/src/server/plugins/engine/helpers.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
-import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
+import {
+  buildLanguageMessages,
+  validationOptions as opts
+} from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type FormPayload,
   type FormState,
@@ -255,8 +258,18 @@ export class ComponentCollection {
   /**
    * Validate form payload
    */
-  validate(value: FormPayload = {}): FormValidationResult<FormPayload> {
-    const result = this.formSchema.validate(value, opts)
+  validate(
+    value: FormPayload = {},
+    translator?: Translator
+  ): FormValidationResult<FormPayload> {
+    const messages = translator
+      ? buildLanguageMessages(translator.t)
+      : undefined
+
+    const result = this.formSchema.validate(value, {
+      ...opts,
+      ...(messages && { messages })
+    })
 
     const details = result.error?.details
 
