@@ -18,6 +18,7 @@ import {
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { type ComponentViewModel } from '~/src/server/plugins/engine/components/types.js'
 import { getErrors } from '~/src/server/plugins/engine/helpers.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
@@ -233,7 +234,7 @@ export class ComponentCollection {
   getViewModel(
     payload: FormPayload,
     errors?: FormSubmissionError[],
-    query: FormQuery = {}
+    translatorOrQuery: Translator | FormQuery = {}
   ) {
     const { components } = this
 
@@ -242,7 +243,7 @@ export class ComponentCollection {
 
       const model =
         component instanceof FormComponent
-          ? component.getViewModel(payload, errors, query)
+          ? component.getViewModel(payload, errors, translatorOrQuery)
           : component.getViewModel()
 
       return { type, isFormComponent, model }

@@ -7,8 +7,10 @@ import joi, { type ArraySchema } from 'joi'
 
 import {
   FormComponent,
+  isTranslator,
   isUploadState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { InvalidComponentStateError } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
@@ -192,11 +194,14 @@ export class FileUploadField extends FormComponent {
   getViewModel(
     payload: FormPayload,
     errors?: FormSubmissionError[],
-    query: FormQuery = {}
+    translatorOrQuery?: Translator | FormQuery
   ) {
     const { options, page, schema } = this
 
-    // Allow preview URL direct access
+    // Allow preview URL direct access (query is passed when called via ComponentCollection)
+    const query = !isTranslator(translatorOrQuery)
+      ? (translatorOrQuery ?? {})
+      : {}
     const isForceAccess = 'force' in query
 
     const viewModel = super.getViewModel(payload, errors)

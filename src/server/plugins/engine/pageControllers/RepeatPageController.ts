@@ -291,8 +291,8 @@ export class RepeatPageController extends QuestionPageController {
       if (!item || list.length === 1) {
         throw Boom.notFound(
           item
-            ? 'Last list item cannot be removed'
-            : 'List item to remove not found'
+            ? this.model.t('pages.repeater.lastItemCannotBeRemoved')
+            : this.model.t('pages.repeater.itemToRemoveNotFound')
         )
       }
 
@@ -330,8 +330,8 @@ export class RepeatPageController extends QuestionPageController {
       if (!item || list.length === 1) {
         throw Boom.notFound(
           item
-            ? 'Last list item cannot be removed'
-            : 'List item to remove not found'
+            ? this.model.t('pages.repeater.lastItemCannotBeRemoved')
+            : this.model.t('pages.repeater.itemToRemoveNotFound')
         )
       }
 

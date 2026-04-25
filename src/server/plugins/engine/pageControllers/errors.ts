@@ -70,7 +70,7 @@ export class PaymentSubmissionError extends Error {
     if (stateAmount / 100 !== definitionAmount) {
       throw new PaymentPreAuthError(
         component,
-        'The pre-authorised payment amount is somehow different from that requested. Try adding payment details again.',
+        component.model.t('components.paymentField.paymentAmountMismatch'),
         true,
         PaymentErrorTypes.PaymentIncomplete
       )

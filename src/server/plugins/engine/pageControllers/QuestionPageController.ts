@@ -19,7 +19,6 @@ import {
   PAYMENT_EXPIRED_NOTIFICATION
 } from '~/src/server/constants.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import { type BackLink } from '~/src/server/plugins/engine/components/types.js'
 import {
   checkFormStatus,
@@ -160,7 +159,7 @@ export class QuestionPageController extends PageController {
 
           if (pageTitle) {
             labelOrLegend.text = isOptional
-              ? `${pageTitle}${optionalText}`
+              ? `${pageTitle} ${this.model.t('common.optional')}`
               : pageTitle
           }
 

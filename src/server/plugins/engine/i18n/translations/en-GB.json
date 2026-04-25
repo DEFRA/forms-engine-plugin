@@ -18,7 +18,8 @@
   },
 
   "errors": {
-    "title": "There is a problem"
+    "title": "There is a problem",
+    "optionsMismatch": "Options are different because you changed a previous answer"
   },
 
   "common": {
@@ -65,6 +66,8 @@
       "removeAnswer": "Are you sure you want to remove this answer?",
       "remove": "Remove",
       "cancel": "Cancel",
+      "lastItemCannotBeRemoved": "Last list item cannot be removed",
+      "itemToRemoveNotFound": "List item to remove not found",
       "continue": "Continue",
       "addAnother": "Add another",
       "saveAndExit": "Save and exit",
@@ -102,6 +105,36 @@
         "body": "If you want to receive a test email, [[link]] you want form submissions to go to.",
         "linkText": "enter the email address (opens in new tab)"
       }
+    }
+  },
+
+  "postcodeLookup": {
+    "postcodeLabel": "Postcode",
+    "postcodeHint": "For example, AA3 1AB",
+    "buildingNameLabel": "Building name or number (optional)",
+    "buildingNameHint": "For example, 15 or Prospect Cottage",
+    "selectAddress": "Select an address",
+    "addressLine1Label": "Address line 1",
+    "addressLine2Label": "Address line 2 (optional)",
+    "townLabel": "Town or city",
+    "countyLabel": "County (optional)",
+    "findAddress": "Find address",
+    "enterManually": "enter address manually",
+    "searchAgain": "Search again",
+    "useThisAddress": "Use this address",
+    "findAnAddressInstead": "find an address instead",
+    "noAddressFoundTitle": "No address found",
+    "noAddressFoundBody": "We could not find an address that matches",
+    "addressFound_one": "[[count]] address found for",
+    "addressFound_other": "[[count]] addresses found for",
+    "validation": {
+      "invalidPostcode": "Enter a valid postcode or enter an address manually",
+      "requiredPostcode": "Enter a postcode",
+      "selectAddress": "Select an address",
+      "requiredAddressLine1": "Enter address line 1",
+      "requiredTown": "Enter town or city",
+      "invalidManualPostcode": "Enter a valid postcode",
+      "requiredManualPostcode": "Enter postcode"
     }
   },
 
@@ -210,7 +243,8 @@
       "canSubmitAfterPayment": "You can submit the form after you have added your payment details.",
       "preAuthorisedTitle": "You have already authorised a payment for this form",
       "preAuthorisedBody": "Continue to submit the form. You will not be charged twice.",
-      "totalAmountLabel": "Total amount:"
+      "totalAmountLabel": "Total amount:",
+      "paymentAmountMismatch": "The pre-authorised payment amount is somehow different from that requested. Try adding payment details again."
     },
 
     "fileUploadField": {
