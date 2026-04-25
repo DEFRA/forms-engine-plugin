@@ -288,8 +288,7 @@ export class FormModel {
       const key = `${entityType}.${entity.id}.${prop}`
       const result = i18nInstance.t(key, {
         lng: language,
-        ns: 'form',
-        fallbackLng: 'en-GB'
+        ns: 'form'
       })
       if (result === key) {
         const raw = (entity as Record<string, unknown>)[prop]

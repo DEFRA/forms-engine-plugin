@@ -840,10 +840,10 @@ describe('FormModel - Joined Conditions', () => {
       expect(t('common.continue')).toBe('Continue')
     })
 
-    it('does not return "Continue" for t("common.continue") with x-pirate language', () => {
+    it('returns x-pirate string for t("common.continue") with x-pirate language', () => {
       const model = new FormModel(definitionV2, { basePath: 'test' })
       const { t } = model.createTranslator('x-pirate')
-      expect(t('common.continue')).not.toBe('Continue')
+      expect(t('common.continue')).toBe('Sail on')
     })
 
     it('returns the component title for tContent with en-GB language (falls back to base en-GB form string)', () => {
