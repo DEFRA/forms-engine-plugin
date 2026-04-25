@@ -197,6 +197,42 @@ describe('TextField', () => {
       })
     })
 
+    describe('getViewModel with Translator', () => {
+      it('calls tContent for the field title', () => {
+        const tContent = jest.fn().mockReturnValue('Translated title')
+        const t = jest.fn().mockReturnValue('(optional)')
+        const viewModel = field.getViewModel({}, undefined, { t, tContent })
+        expect(tContent).toHaveBeenCalledWith(field, 'title')
+        expect(viewModel.label.text).toBe('Translated title')
+      })
+
+      it('calls tContent for the hint when hint is set', () => {
+        const hintDef = { ...def, hint: 'Enter your name' }
+        const hintCollection = new ComponentCollection([hintDef], { model })
+        const hintField = hintCollection.fields[0]
+        const tContent = jest.fn().mockReturnValue('Translated hint')
+        const t = jest.fn().mockReturnValue('')
+        const viewModel = hintField.getViewModel({}, undefined, { t, tContent })
+        expect(tContent).toHaveBeenCalledWith(hintField, 'hint')
+        expect(viewModel.hint?.text).toBe('Translated hint')
+      })
+
+      it('calls t for common.optional when field is optional', () => {
+        const optDef = { ...def, options: { required: false } }
+        const optCollection = new ComponentCollection([optDef], { model })
+        const optField = optCollection.fields[0]
+        const tContent = jest.fn().mockReturnValue('Title')
+        const t = jest.fn().mockReturnValue('(optional)')
+        optField.getViewModel({}, undefined, { t, tContent })
+        expect(t).toHaveBeenCalledWith('common.optional')
+      })
+
+      it('falls back to English when no translator supplied', () => {
+        const viewModel = field.getViewModel({})
+        expect(viewModel.label.text).toBe('Example text field')
+      })
+    })
+
     describe('AllPossibleErrors', () => {
       it('should return errors', () => {
         const errors = field.getAllPossibleErrors()

@@ -283,7 +283,9 @@ export class FormModel {
     ): string => {
       if (!entity.id) {
         const raw = (entity as Record<string, unknown>)[prop]
-        return typeof raw === 'string' ? raw : ''
+        if (typeof raw !== 'string') return ''
+        // t() resolves i18next key constants (sub-field labels); returns raw string unchanged if not a key
+        return t(raw)
       }
       const key = `${entityType}.${entity.id}.${prop}`
       const result = i18nInstance.t(key, {

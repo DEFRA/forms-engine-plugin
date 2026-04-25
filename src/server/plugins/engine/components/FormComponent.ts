@@ -1,10 +1,12 @@
 import {
+  type ComponentDef,
   type FormComponentsDef,
   type FormMetadata,
   type Item
 } from '@defra/forms-model'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import {
   type FormContext,
   type FormRequestPayload
@@ -24,6 +26,7 @@ import {
   type RepeatListState,
   type UploadState
 } from '~/src/server/plugins/engine/types.js'
+import { type FormQuery } from '~/src/server/routes/types.js'
 
 export class FormComponent extends ComponentBase {
   type: FormComponentsDef['type']
@@ -129,16 +132,33 @@ export class FormComponent extends ComponentBase {
     return firstError && [firstError]
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
+  getViewModel(
+    payload: FormPayload,
+    errors?: FormSubmissionError[],
+    translatorOrQuery?: Translator | FormQuery
+  ) {
     const { hint, name, options = {}, title, viewModel } = this
+
+    const translator = isTranslator(translatorOrQuery)
+      ? translatorOrQuery
+      : undefined
+
+    const t = translator?.t ?? ((key: string) => this.model.t(key))
+    const tContent = translator?.tContent
 
     const isRequired = !('required' in options) || options.required !== false
     const hideOptional = 'optionalText' in options && options.optionalText
-    const label = `${title}${!isRequired && !hideOptional ? ` ${this.model.t('common.optional')}` : ''}`
+
+    const resolvedTitle = tContent
+      ? tContent(this as unknown as ComponentDef, 'title')
+      : title
+    const label = `${resolvedTitle}${!isRequired && !hideOptional ? ` ${t('common.optional')}` : ''}`
 
     if (hint) {
       viewModel.hint = {
-        text: hint
+        text: tContent
+          ? tContent(this as unknown as ComponentDef, 'hint')
+          : hint
       }
     }
 
@@ -237,6 +257,19 @@ export class FormComponent extends ComponentBase {
   ): Promise<void> {
     return Promise.resolve()
   }
+}
+
+/**
+ * Type guard — returns true when the value is a Translator (has t and tContent functions),
+ * as opposed to a FormQuery (plain string-keyed record).
+ */
+export function isTranslator(value: unknown): value is Translator {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    typeof (value as Record<string, unknown>).t === 'function' &&
+    typeof (value as Record<string, unknown>).tContent === 'function'
+  )
 }
 
 /**
