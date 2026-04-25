@@ -26,6 +26,7 @@ import {
 } from '@defra/forms-model'
 import { add, format } from 'date-fns'
 import { Parser, type Value } from 'expr-eval-fork'
+import { type i18n } from 'i18next'
 import joi from 'joi'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
@@ -46,7 +47,16 @@ import {
   buildValidationMessages,
   type ValidationMessages
 } from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
-import { t as translate } from '~/src/server/plugins/engine/i18n/index.js'
+import { extractBaseTranslations } from '~/src/server/plugins/engine/i18n/extractBaseTranslations.js'
+import {
+  createFormI18nInstance,
+  t as translate
+} from '~/src/server/plugins/engine/i18n/index.js'
+import {
+  type FormDefinitionTranslations,
+  type TContentFunction,
+  type Translator
+} from '~/src/server/plugins/engine/i18n/types.js'
 import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
@@ -90,6 +100,7 @@ export class FormModel {
   conditions: Partial<Record<string, ExecutableCondition>>
   pages: PageControllerClass[]
   services: Services
+  private i18nInstance: i18n
 
   controllers?: Record<string, typeof PageController>
   pageDefMap: Map<string, Page>
@@ -132,6 +143,17 @@ export class FormModel {
     // Make a clone of the shallow copy returned
     // by joi so as not to change the source data.
     def = structuredClone(result.value)
+
+    const baseTranslations = extractBaseTranslations(def)
+    this.i18nInstance = createFormI18nInstance(baseTranslations)
+    const formTranslations = def.metadata?.translations as
+      | FormDefinitionTranslations
+      | undefined
+    if (formTranslations) {
+      for (const [lng, resources] of Object.entries(formTranslations)) {
+        this.i18nInstance.addResourceBundle(lng, 'form', resources, true, true)
+      }
+    }
 
     const language =
       typeof def.metadata?.language === 'string'
@@ -245,6 +267,49 @@ export class FormModel {
   /** Translates a key using this form's configured language. */
   t(key: string, opts?: Record<string, unknown>): string {
     return translate(key, this.language, opts)
+  }
+
+  /** Returns a scoped translator pair for the given language. */
+  createTranslator(language: string): Translator {
+    const { i18nInstance } = this
+
+    const t = (key: string, opts?: Record<string, unknown>): string =>
+      i18nInstance.t(key, { lng: language, ns: 'plugin', ...opts })
+
+    const resolveContent = (
+      entity: { id?: string },
+      entityType: string,
+      prop: string
+    ): string => {
+      if (!entity.id) {
+        const raw = (entity as Record<string, unknown>)[prop]
+        return typeof raw === 'string' ? raw : ''
+      }
+      const key = `${entityType}.${entity.id}.${prop}`
+      const result = i18nInstance.t(key, {
+        lng: language,
+        ns: 'form',
+        fallbackLng: 'en-GB'
+      })
+      if (result === key) {
+        const raw = (entity as Record<string, unknown>)[prop]
+        return typeof raw === 'string' ? raw : ''
+      }
+      return result
+    }
+
+    const tContent = ((entity: unknown, prop: string): string => {
+      const e = entity as Record<string, unknown>
+      if ('path' in e)
+        return resolveContent(e as { id?: string }, 'pages', prop)
+      if ('value' in e && 'text' in e)
+        return resolveContent(e as { id?: string }, 'listItems', prop)
+      if ('type' in e)
+        return resolveContent(e as { id?: string }, 'components', prop)
+      return resolveContent(e as { id?: string }, 'sections', prop)
+    }) as TContentFunction
+
+    return { t, tContent }
   }
 
   /**
@@ -520,8 +585,7 @@ export class FormModel {
       if (isInvalid) {
         context.errors ??= []
 
-        const text =
-          'Options are different because you changed a previous answer'
+        const text = this.t('errors.optionsMismatch')
 
         context.errors.push({
           text,

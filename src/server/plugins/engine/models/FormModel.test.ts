@@ -821,4 +821,48 @@ describe('FormModel - Joined Conditions', () => {
       expect(model.getSection('nonexistent')).toBeUndefined()
     })
   })
+
+  describe('FormModel.createTranslator', () => {
+    beforeEach(() => {
+      jest.spyOn(formDefinitionV2Schema, 'validate').mockReturnValue({
+        value: definitionV2,
+        error: undefined
+      })
+    })
+
+    afterEach(() => {
+      jest.restoreAllMocks()
+    })
+
+    it('returns "Continue" for t("common.continue") with en-GB language', () => {
+      const model = new FormModel(definitionV2, { basePath: 'test' })
+      const { t } = model.createTranslator('en-GB')
+      expect(t('common.continue')).toBe('Continue')
+    })
+
+    it('does not return "Continue" for t("common.continue") with x-pirate language', () => {
+      const model = new FormModel(definitionV2, { basePath: 'test' })
+      const { t } = model.createTranslator('x-pirate')
+      expect(t('common.continue')).not.toBe('Continue')
+    })
+
+    it('returns the component title for tContent with en-GB language (falls back to base en-GB form string)', () => {
+      const model = new FormModel(definitionV2, { basePath: 'test' })
+      const { tContent } = model.createTranslator('en-GB')
+      // pages[0].components[0] has id '717eb213-4e4b-4a2d-9cfd-2780f5e1e3e5'
+      // and title 'Have you previously been married?'
+      expect(tContent(definitionV2.pages[0].components[0], 'title')).toBe(
+        'Have you previously been married?'
+      )
+    })
+
+    it('returns the component title for tContent with cy language (no Welsh translation registered → en-GB fallback)', () => {
+      const model = new FormModel(definitionV2, { basePath: 'test' })
+      const { tContent } = model.createTranslator('cy')
+      // No Welsh translations registered → falls back to en-GB base form string
+      expect(tContent(definitionV2.pages[0].components[0], 'title')).toBe(
+        'Have you previously been married?'
+      )
+    })
+  })
 })
