@@ -49,14 +49,20 @@ describe('EastingNorthingField', () => {
         expect(keys).toHaveProperty(
           'myComponent__easting',
           expect.objectContaining({
-            flags: expect.objectContaining({ label: 'Easting' })
+            flags: expect.objectContaining({
+              label: 'components.eastingNorthingField.easting'
+            })
+            // Sub-field title is a key constant; resolved at request time (Task 8/9).
           })
         )
 
         expect(keys).toHaveProperty(
           'myComponent__northing',
           expect.objectContaining({
-            flags: expect.objectContaining({ label: 'Northing' })
+            flags: expect.objectContaining({
+              label: 'components.eastingNorthingField.northing'
+            })
+            // Sub-field title is a key constant; resolved at request time (Task 8/9).
           })
         )
       })
@@ -298,13 +304,19 @@ describe('EastingNorthingField', () => {
             },
             items: [
               expect.objectContaining({
-                label: expect.objectContaining({ text: 'Easting' }),
+                label: expect.objectContaining({
+                  text: 'components.eastingNorthingField.easting'
+                }),
+                // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 name: 'myComponent__easting',
                 id: 'myComponent__easting',
                 value: 12345
               }),
               expect.objectContaining({
-                label: expect.objectContaining({ text: 'Northing' }),
+                label: expect.objectContaining({
+                  text: 'components.eastingNorthingField.northing'
+                }),
+                // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 name: 'myComponent__northing',
                 id: 'myComponent__northing',
                 value: 1234567
@@ -448,6 +460,20 @@ describe('EastingNorthingField', () => {
         )
       })
     })
+
+    describe('sub-field title key constants', () => {
+      it('stores sub-field titles as i18next key constants', () => {
+        const locationField = collection.fields[0] as EastingNorthingField
+        const subFields = locationField.collection.fields
+
+        expect(subFields[0].title).toBe(
+          'components.eastingNorthingField.easting'
+        )
+        expect(subFields[1].title).toBe(
+          'components.eastingNorthingField.northing'
+        )
+      })
+    })
   })
 
   describe('Validation', () => {
@@ -516,7 +542,8 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /Easting for .* must be between 1000 and 60000/
+                    /components\.eastingNorthingField\.easting for .* must be between 1000 and 60000/
+                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   )
                 })
               ]
@@ -535,7 +562,8 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /Easting for .* must be between 1000 and 60000/
+                    /components\.eastingNorthingField\.easting for .* must be between 1000 and 60000/
+                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   )
                 })
               ]
@@ -571,7 +599,8 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /Northing for .* must be between 1000 and 1200000/
+                    /components\.eastingNorthingField\.northing for .* must be between 1000 and 1200000/
+                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   )
                 })
               ]
@@ -590,7 +619,8 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /Northing for .* must be between 1000 and 1200000/
+                    /components\.eastingNorthingField\.northing for .* must be between 1000 and 1200000/
+                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   )
                 })
               ]
@@ -621,7 +651,8 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /Easting for .* must be between 1 and 6 digits/
+                    /components\.eastingNorthingField\.easting for .* must be between 1 and 6 digits/
+                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   )
                 })
               ]
@@ -640,7 +671,8 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /Northing for .* must be between 1 and 7 digits/
+                    /components\.eastingNorthingField\.northing for .* must be between 1 and 7 digits/
+                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   )
                 })
               ]

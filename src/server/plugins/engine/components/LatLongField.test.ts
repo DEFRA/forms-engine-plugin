@@ -46,14 +46,20 @@ describe('LatLongField', () => {
         expect(keys).toHaveProperty(
           'myComponent__latitude',
           expect.objectContaining({
-            flags: expect.objectContaining({ label: 'Latitude' })
+            flags: expect.objectContaining({
+              label: 'components.latLongField.latitude'
+            })
+            // Sub-field title is a key constant; resolved at request time (Task 8/9).
           })
         )
 
         expect(keys).toHaveProperty(
           'myComponent__longitude',
           expect.objectContaining({
-            flags: expect.objectContaining({ label: 'Longitude' })
+            flags: expect.objectContaining({
+              label: 'components.latLongField.longitude'
+            })
+            // Sub-field title is a key constant; resolved at request time (Task 8/9).
           })
         )
       })
@@ -287,13 +293,19 @@ describe('LatLongField', () => {
             },
             items: [
               expect.objectContaining({
-                label: expect.objectContaining({ text: 'Latitude' }),
+                label: expect.objectContaining({
+                  text: 'components.latLongField.latitude'
+                }),
+                // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 name: 'myComponent__latitude',
                 id: 'myComponent__latitude',
                 value: 51.51945
               }),
               expect.objectContaining({
-                label: expect.objectContaining({ text: 'Longitude' }),
+                label: expect.objectContaining({
+                  text: 'components.latLongField.longitude'
+                }),
+                // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 name: 'myComponent__longitude',
                 id: 'myComponent__longitude',
                 value: -0.127758
@@ -434,6 +446,16 @@ describe('LatLongField', () => {
               : e.template
           )
         )
+      })
+    })
+
+    describe('sub-field title key constants', () => {
+      it('stores sub-field titles as i18next key constants', () => {
+        const locationField = collection.fields[0] as LatLongField
+        const subFields = locationField.collection.fields
+
+        expect(subFields[0].title).toBe('components.latLongField.latitude')
+        expect(subFields[1].title).toBe('components.latLongField.longitude')
       })
     })
   })
@@ -602,7 +624,8 @@ describe('LatLongField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'Latitude must have no more than 7 decimal places'
+                  text: 'components.latLongField.latitude must have no more than 7 decimal places'
+                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 })
               ]
             }
@@ -619,7 +642,8 @@ describe('LatLongField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'Longitude must have no more than 7 decimal places'
+                  text: 'components.latLongField.longitude must have no more than 7 decimal places'
+                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 })
               ]
             }
@@ -697,7 +721,8 @@ describe('LatLongField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'Latitude must have no more than 7 decimal places'
+                  text: 'components.latLongField.latitude must have no more than 7 decimal places'
+                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 })
               ]
             }
@@ -727,7 +752,8 @@ describe('LatLongField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'Longitude must have no more than 7 decimal places'
+                  text: 'components.latLongField.longitude must have no more than 7 decimal places'
+                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 })
               ]
             }

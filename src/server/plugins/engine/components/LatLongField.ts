@@ -95,7 +95,7 @@ export class LatLongField extends FormComponent {
         {
           type: ComponentType.NumberField,
           name: `${name}__latitude`,
-          title: props.model.t('components.latLongField.latitude'),
+          title: 'components.latLongField.latitude',
           schema: {
             min: latitudeMin,
             max: latitudeMax,
@@ -112,7 +112,7 @@ export class LatLongField extends FormComponent {
         {
           type: ComponentType.NumberField,
           name: `${name}__longitude`,
-          title: props.model.t('components.latLongField.longitude'),
+          title: 'components.latLongField.longitude',
           schema: {
             min: longitudeMin,
             max: longitudeMax,

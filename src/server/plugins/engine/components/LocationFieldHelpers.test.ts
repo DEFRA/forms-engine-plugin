@@ -573,13 +573,15 @@ describe('LocationFieldHelpers', () => {
 
       const label = viewModel.items[0].label
       expect(label).toBeDefined()
-      expect(label?.text).toBe('Latitude')
+      expect(label?.text).toBe('components.latLongField.latitude')
+      // Sub-field title is a key constant; resolved at request time (Task 8/9).
 
       const labelString =
         label && 'toString' in label && typeof label.toString === 'function'
           ? (label as { toString: () => string }).toString()
           : ''
-      expect(labelString).toBe('Latitude')
+      expect(labelString).toBe('components.latLongField.latitude')
+      // Sub-field title is a key constant; resolved at request time (Task 8/9).
     })
 
     it('should use existing fieldset if provided', () => {

@@ -52,7 +52,7 @@ export class UkAddressField extends FormComponent {
         {
           type: ComponentType.TextField,
           name: `${name}__uprn`,
-          title: props.model.t('components.addressField.uprn'),
+          title: 'components.addressField.uprn',
           schema: {},
           options: {
             required: false,
@@ -62,7 +62,7 @@ export class UkAddressField extends FormComponent {
         {
           type: ComponentType.TextField,
           name: `${name}__addressLine1`,
-          title: props.model.t('components.addressField.line1'),
+          title: 'components.addressField.line1',
           schema: { max: 100 },
           options: {
             autocomplete: 'address-line1',
@@ -73,7 +73,7 @@ export class UkAddressField extends FormComponent {
         {
           type: ComponentType.TextField,
           name: `${name}__addressLine2`,
-          title: props.model.t('components.addressField.line2'),
+          title: 'components.addressField.line2',
           schema: { max: 100 },
           options: {
             autocomplete: 'address-line2',
@@ -84,7 +84,7 @@ export class UkAddressField extends FormComponent {
         {
           type: ComponentType.TextField,
           name: `${name}__town`,
-          title: props.model.t('components.addressField.town'),
+          title: 'components.addressField.town',
           schema: { max: 100 },
           options: {
             autocomplete: 'address-level2',
@@ -96,7 +96,7 @@ export class UkAddressField extends FormComponent {
         {
           type: ComponentType.TextField,
           name: `${name}__county`,
-          title: props.model.t('components.addressField.county'),
+          title: 'components.addressField.county',
           schema: { max: 100 },
           options: {
             autocomplete: 'address-level1',
@@ -107,7 +107,7 @@ export class UkAddressField extends FormComponent {
         {
           type: ComponentType.TextField,
           name: `${name}__postcode`,
-          title: props.model.t('components.addressField.postcode'),
+          title: 'components.addressField.postcode',
           schema: {
             regex: '^[a-zA-Z]{1,2}\\d[a-zA-Z\\d]?\\s?\\d[a-zA-Z]{2}$'
           },
@@ -299,7 +299,8 @@ export class UkAddressField extends FormComponent {
       componentHint: component.hint,
       componentTitle: component.title || controller.title,
       step: args.actionArgs.step,
-      sourceUrl: args.sourceUrl
+      sourceUrl: args.sourceUrl,
+      language: controller.model.language
     })
   }
 }

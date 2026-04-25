@@ -129,7 +129,7 @@ export class EastingNorthingField extends FormComponent {
         {
           type: ComponentType.NumberField,
           name: `${name}__easting`,
-          title: props.model.t('components.eastingNorthingField.easting'),
+          title: 'components.eastingNorthingField.easting',
           schema: {
             min: eastingMin,
             max: eastingMax,
@@ -145,7 +145,7 @@ export class EastingNorthingField extends FormComponent {
         {
           type: ComponentType.NumberField,
           name: `${name}__northing`,
-          title: props.model.t('components.eastingNorthingField.northing'),
+          title: 'components.eastingNorthingField.northing',
           schema: {
             min: northingMin,
             max: northingMax,
