@@ -126,6 +126,28 @@ describe('Schema validation', () => {
       )
       expect(error).toBeDefined()
     })
+
+    it('should validate meta with optional language', () => {
+      const { error } = formAdapterSubmissionMessageMetaSchema.validate({
+        ...validMeta,
+        language: 'cy'
+      })
+      expect(error).toBeUndefined()
+    })
+
+    it('should validate meta without language', () => {
+      const { error } =
+        formAdapterSubmissionMessageMetaSchema.validate(validMeta)
+      expect(error).toBeUndefined()
+    })
+
+    it('should reject non-string language', () => {
+      const { error } = formAdapterSubmissionMessageMetaSchema.validate({
+        ...validMeta,
+        language: 123
+      })
+      expect(error).toBeDefined()
+    })
   })
 
   describe('formAdapterSubmissionMessageDataSchema', () => {
