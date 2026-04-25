@@ -299,8 +299,7 @@ export class UkAddressField extends FormComponent {
       componentHint: component.hint,
       componentTitle: component.title || controller.title,
       step: args.actionArgs.step,
-      sourceUrl: args.sourceUrl,
-      language: controller.model.language
+      sourceUrl: args.sourceUrl
     })
   }
 }
