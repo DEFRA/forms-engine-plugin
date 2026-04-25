@@ -1,5 +1,6 @@
 import Joi from 'joi'
 
+import { t as i18nT } from '~/src/server/plugins/engine/i18n/index.js'
 import * as service from '~/src/server/plugins/postcode-lookup/service.js'
 import { crumbSchema } from '~/src/server/schemas/index.js'
 
@@ -13,8 +14,6 @@ const line2FieldName = 'addressLine2'
 const townFieldName = 'town'
 const countyFieldName = 'county'
 const postcodeFieldName = 'postcode'
-
-const selectLabelText = 'Select an address'
 
 const GOVUK_MARGIN_RIGHT_1 = 'govuk-!-margin-right-1'
 
@@ -129,17 +128,23 @@ async function getAddresses(postcodeQuery, buildingNameQuery, apiKey) {
  * @param {PostcodeLookupDetailsData | undefined} details
  * @param {OptionalValidationErrorItem} postcodeQueryError
  * @param {OptionalValidationErrorItem} buildingNameQueryError
+ * @param {string} language
  */
-function getDetailsFields(details, postcodeQueryError, buildingNameQueryError) {
+function getDetailsFields(
+  details,
+  postcodeQueryError,
+  buildingNameQueryError,
+  language
+) {
   return {
     [postcodeQueryFieldName]: {
       id: postcodeQueryFieldName,
       name: postcodeQueryFieldName,
       label: {
-        text: 'Postcode'
+        text: i18nT('postcodeLookup.postcodeLabel', language)
       },
       hint: {
-        text: 'For example, AA3 1AB'
+        text: i18nT('postcodeLookup.postcodeHint', language)
       },
       value: details?.postcodeQuery,
       errorMessage: postcodeQueryError && { text: postcodeQueryError.message }
@@ -148,10 +153,10 @@ function getDetailsFields(details, postcodeQueryError, buildingNameQueryError) {
       id: buildingNameQueryFieldName,
       name: buildingNameQueryFieldName,
       label: {
-        text: 'Building name or number (optional)'
+        text: i18nT('postcodeLookup.buildingNameLabel', language)
       },
       hint: {
-        text: 'For example, 15 or Prospect Cottage'
+        text: i18nT('postcodeLookup.buildingNameHint', language)
       },
       value: details?.buildingNameQuery,
       errorMessage: buildingNameQueryError && {
@@ -169,6 +174,7 @@ function getDetailsFields(details, postcodeQueryError, buildingNameQueryError) {
  * @param {PostcodeLookupSelectPayload | undefined} payload
  * @param {OptionalValidationErrorItem} uprnError
  * @param {Address[]} addresses
+ * @param {string} language
  */
 function getSelectFields(
   details,
@@ -176,8 +182,11 @@ function getSelectFields(
   singleAddress,
   payload,
   uprnError,
-  addresses
+  addresses,
+  language
 ) {
+  const selectAddressText = i18nT('postcodeLookup.selectAddress', language)
+
   return {
     [postcodeQueryFieldName]: {
       id: postcodeQueryFieldName,
@@ -196,13 +205,13 @@ function getSelectFields(
       name: uprnFieldName,
       label: hasMultipleAddresses
         ? {
-            text: selectLabelText
+            text: selectAddressText
           }
         : undefined,
       value: singleAddress ? singleAddress.uprn : payload?.uprn,
       errorMessage: uprnError && { text: uprnError.message },
       items: hasMultipleAddresses
-        ? [{ text: selectLabelText, value: '' }].concat(
+        ? [{ text: selectAddressText, value: '' }].concat(
             addresses.map((item) => ({
               text: item.formatted,
               value: item.uprn
@@ -222,6 +231,7 @@ function getSelectFields(
  * @param {OptionalValidationErrorItem} townError
  * @param {OptionalValidationErrorItem} countyError
  * @param {OptionalValidationErrorItem} postcodeError
+ * @param {string} language
  */
 function getManualFields(
   payload,
@@ -229,14 +239,15 @@ function getManualFields(
   line2Error,
   townError,
   countyError,
-  postcodeError
+  postcodeError,
+  language
 ) {
   return {
     [line1FieldName]: {
       id: line1FieldName,
       name: line1FieldName,
       label: {
-        text: 'Address line 1'
+        text: i18nT('postcodeLookup.addressLine1Label', language)
       },
       value: payload?.addressLine1,
       errorMessage: line1Error && { text: line1Error.message }
@@ -245,7 +256,7 @@ function getManualFields(
       id: line2FieldName,
       name: line2FieldName,
       label: {
-        text: 'Address line 2 (optional)'
+        text: i18nT('postcodeLookup.addressLine2Label', language)
       },
       value: payload?.addressLine2,
       errorMessage: line2Error && { text: line2Error.message }
@@ -254,7 +265,7 @@ function getManualFields(
       id: townFieldName,
       name: townFieldName,
       label: {
-        text: 'Town or city'
+        text: i18nT('postcodeLookup.townLabel', language)
       },
       classes: 'govuk-!-width-two-thirds',
       value: payload?.town,
@@ -264,7 +275,7 @@ function getManualFields(
       id: countyFieldName,
       name: countyFieldName,
       label: {
-        text: 'County (optional)'
+        text: i18nT('postcodeLookup.countyLabel', language)
       },
       value: payload?.county,
       errorMessage: countyError && { text: countyError.message }
@@ -273,7 +284,7 @@ function getManualFields(
       id: postcodeFieldName,
       name: postcodeFieldName,
       label: {
-        text: 'Postcode'
+        text: i18nT('postcodeLookup.postcodeLabel', language)
       },
       classes: 'govuk-input--width-10',
       value: payload?.postcode,
@@ -293,66 +304,91 @@ const sharedPayloadSchemaKeys = {
 
 /**
  * Postcode lookup details form payload schema
- * @type {ObjectSchema<PostcodeLookupDetailsPayload>}
+ * @param {string} [language]
+ * @returns {ObjectSchema<PostcodeLookupDetailsPayload>}
  */
-export const detailsPayloadSchema = Joi.object()
-  .keys({
-    ...sharedPayloadSchemaKeys,
-    [postcodeQueryFieldName]: Joi.string()
-      .pattern(/^[a-zA-Z]{1,2}\d[a-zA-Z\d]?\s?\d[a-zA-Z]{2}$/)
-      .trim()
-      .required()
-      .messages({
-        'string.pattern.base':
-          'Enter a valid postcode or enter an address manually',
-        '*': 'Enter a postcode'
-      }),
-    [buildingNameQueryFieldName]: Joi.string()
-      .trim()
-      .required()
-      .allow('')
-      .trim()
-  })
-  .required()
+export function createDetailsPayloadSchema(language = 'en-GB') {
+  return Joi.object()
+    .keys({
+      ...sharedPayloadSchemaKeys,
+      [postcodeQueryFieldName]: Joi.string()
+        .pattern(/^[a-zA-Z]{1,2}\d[a-zA-Z\d]?\s?\d[a-zA-Z]{2}$/)
+        .trim()
+        .required()
+        .messages({
+          'string.pattern.base': i18nT(
+            'postcodeLookup.validation.invalidPostcode',
+            language
+          ),
+          '*': i18nT('postcodeLookup.validation.requiredPostcode', language)
+        }),
+      [buildingNameQueryFieldName]: Joi.string()
+        .trim()
+        .required()
+        .allow('')
+        .trim()
+    })
+    .required()
+}
 
 /**
  * Postcode lookup select form payload schema
- * @type {ObjectSchema<PostcodeLookupSelectPayload>}
+ * @param {string} [language]
+ * @returns {ObjectSchema<PostcodeLookupSelectPayload>}
  */
-export const selectPayloadSchema = Joi.object()
-  .keys({
-    ...sharedPayloadSchemaKeys,
-    [uprnFieldName]: Joi.string().required().messages({
-      '*': selectLabelText
+export function createSelectPayloadSchema(language = 'en-GB') {
+  return Joi.object()
+    .keys({
+      ...sharedPayloadSchemaKeys,
+      [uprnFieldName]: Joi.string()
+        .required()
+        .messages({
+          '*': i18nT('postcodeLookup.validation.selectAddress', language)
+        })
     })
-  })
-  .required()
+    .required()
+}
 
 /**
  * Postcode lookup manual form payload schema
- * @type {ObjectSchema<PostcodeLookupManualPayload>}
+ * @param {string} [language]
+ * @returns {ObjectSchema<PostcodeLookupManualPayload>}
  */
-export const manualPayloadSchema = Joi.object()
-  .keys({
-    ...sharedPayloadSchemaKeys,
-    [line1FieldName]: Joi.string().trim().required().messages({
-      '*': 'Enter address line 1'
-    }),
-    [line2FieldName]: Joi.string().trim().allow('').required(),
-    [townFieldName]: Joi.string().trim().required().messages({
-      '*': 'Enter town or city'
-    }),
-    [countyFieldName]: Joi.string().trim().allow('').required(),
-    [postcodeFieldName]: Joi.string()
-      .pattern(/^[a-zA-Z]{1,2}\d[a-zA-Z\d]?\s?\d[a-zA-Z]{2}$/)
-      .trim()
-      .required()
-      .messages({
-        'string.pattern.base': 'Enter a valid postcode',
-        '*': 'Enter postcode'
-      })
-  })
-  .required()
+export function createManualPayloadSchema(language = 'en-GB') {
+  return Joi.object()
+    .keys({
+      ...sharedPayloadSchemaKeys,
+      [line1FieldName]: Joi.string()
+        .trim()
+        .required()
+        .messages({
+          '*': i18nT('postcodeLookup.validation.requiredAddressLine1', language)
+        }),
+      [line2FieldName]: Joi.string().trim().allow('').required(),
+      [townFieldName]: Joi.string()
+        .trim()
+        .required()
+        .messages({
+          '*': i18nT('postcodeLookup.validation.requiredTown', language)
+        }),
+      [countyFieldName]: Joi.string().trim().allow('').required(),
+      [postcodeFieldName]: Joi.string()
+        .pattern(/^[a-zA-Z]{1,2}\d[a-zA-Z\d]?\s?\d[a-zA-Z]{2}$/)
+        .trim()
+        .required()
+        .messages({
+          'string.pattern.base': i18nT(
+            'postcodeLookup.validation.invalidManualPostcode',
+            language
+          ),
+          '*': i18nT(
+            'postcodeLookup.validation.requiredManualPostcode',
+            language
+          )
+        })
+    })
+    .required()
+}
 
 /**
  * Get the postcode lookup href
@@ -371,7 +407,12 @@ function getHref(step) {
  * @param {Error} [err]
  */
 export function detailsViewModel(data, payload, err) {
-  const { componentTitle: pageTitle, formName, sourceUrl } = data.initial
+  const {
+    componentTitle: pageTitle,
+    formName,
+    sourceUrl,
+    language = 'en-GB'
+  } = data.initial
 
   const backLink = {
     href: sourceUrl
@@ -380,20 +421,19 @@ export function detailsViewModel(data, payload, err) {
   const { errors, postcodeQueryError, buildingNameQueryError } =
     buildErrors(err)
 
-  // Model fields
   const fields = getDetailsFields(
     payload ?? data.details,
     postcodeQueryError,
-    buildingNameQueryError
+    buildingNameQueryError,
+    language
   )
 
-  // Model buttons
   const continueButton = {
-    text: 'Find address',
+    text: i18nT('postcodeLookup.findAddress', language),
     classes: GOVUK_MARGIN_RIGHT_1
   }
   const manualLink = {
-    text: 'enter address manually',
+    text: i18nT('postcodeLookup.enterManually', language),
     href: getHref(steps.manual)
   }
 
@@ -420,8 +460,8 @@ export async function selectViewModel(data, payload, err) {
   const { session, apiKey } = data
   const { details, initial } = session
   const { postcodeQuery, buildingNameQuery } = details
+  const language = initial.language ?? 'en-GB'
 
-  // Search for addresses
   const {
     hasAddresses,
     hasMultipleAddresses,
@@ -430,7 +470,9 @@ export async function selectViewModel(data, payload, err) {
     addressCount
   } = await getAddresses(postcodeQuery, buildingNameQuery, apiKey)
 
-  const title = hasAddresses ? initial.componentTitle : 'No address found'
+  const title = hasAddresses
+    ? initial.componentTitle
+    : i18nT('postcodeLookup.noAddressFoundTitle', language)
   const formPath = initial.sourceUrl
   const href = getHref()
 
@@ -438,31 +480,41 @@ export async function selectViewModel(data, payload, err) {
 
   const { errors, uprnError } = buildErrors(err)
 
-  // Model fields
   const fields = getSelectFields(
     details,
     hasMultipleAddresses,
     singleAddress,
     payload,
     uprnError,
-    addresses
+    addresses,
+    language
   )
 
+  const searchAgainText = i18nT('postcodeLookup.searchAgain', language)
+
   const searchAgainLink = {
-    text: 'Search again',
+    text: searchAgainText,
     href
   }
 
-  // Model buttons
   const continueButton = {
     href: hasAddresses ? undefined : href,
-    text: hasAddresses ? 'Use this address' : 'Search again',
+    text: hasAddresses
+      ? i18nT('postcodeLookup.useThisAddress', language)
+      : searchAgainText,
     classes: GOVUK_MARGIN_RIGHT_1
   }
   const manualLink = {
-    text: 'enter address manually',
+    text: i18nT('postcodeLookup.enterManually', language),
     href: `${href}?step=${steps.manual}`
   }
+
+  const addressesFoundText = hasAddresses
+    ? i18nT('postcodeLookup.addressFound', language, { count: addressCount })
+    : undefined
+  const noAddressFoundText = !hasAddresses
+    ? i18nT('postcodeLookup.noAddressFoundBody', language)
+    : undefined
 
   return {
     step: steps.select,
@@ -479,6 +531,8 @@ export async function selectViewModel(data, payload, err) {
     singleAddress,
     hasAddresses,
     hasMultipleAddresses,
+    addressesFoundText,
+    noAddressFoundText,
     buttons: { continueButton, manualLink }
   }
 }
@@ -490,7 +544,12 @@ export async function selectViewModel(data, payload, err) {
  * @param {Error} [err]
  */
 export function manualViewModel(data, payload, err) {
-  const { componentTitle, sourceUrl, componentHint } = data.initial
+  const {
+    componentTitle,
+    sourceUrl,
+    componentHint,
+    language = 'en-GB'
+  } = data.initial
   const formPath = sourceUrl
   const href = getHref()
 
@@ -507,28 +566,26 @@ export function manualViewModel(data, payload, err) {
     postcodeError
   } = buildErrors(err)
 
-  // Model hint
   const hint = componentHint && {
     text: componentHint
   }
 
-  // Model fields
   const fields = getManualFields(
     payload,
     line1Error,
     line2Error,
     townError,
     countyError,
-    postcodeError
+    postcodeError,
+    language
   )
 
-  // Model buttons
   const continueButton = {
-    text: 'Use this address',
+    text: i18nT('postcodeLookup.useThisAddress', language),
     classes: GOVUK_MARGIN_RIGHT_1
   }
   const detailsLink = {
-    text: 'find an address instead',
+    text: i18nT('postcodeLookup.findAnAddressInstead', language),
     href
   }
 

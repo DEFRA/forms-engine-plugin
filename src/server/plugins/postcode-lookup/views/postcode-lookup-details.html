@@ -38,7 +38,7 @@
 
             {% if hasAddresses %}
               <p class="govuk-body">
-                {{addressCount}} address{{ "es" if hasMultipleAddresses }} found for {{ detailsHtml | safe }}. <a href="{{ searchAgainLink.href }}" class="govuk-link govuk-link--no-visited-state">{{ searchAgainLink.text }}</a>
+                {{ addressesFoundText }} {{ detailsHtml | safe }}. <a href="{{ searchAgainLink.href }}" class="govuk-link govuk-link--no-visited-state">{{ searchAgainLink.text }}</a>
               </p>
             {% endif %}
 
@@ -53,7 +53,7 @@
               }) }}
             {% else %}
               <!-- No addresses found - show try again -->
-              <p class="govuk-body">We could not find an address that matches {{ detailsHtml | safe }}.</p>
+              <p class="govuk-body">{{ noAddressFoundText }} {{ detailsHtml | safe }}.</p>
             {% endif %}
           {% case "manual" %}
             <!-- Postcode lookup manual entry -->

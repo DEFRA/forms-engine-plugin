@@ -5,11 +5,11 @@ import Joi from 'joi'
 import { EXTERNAL_STATE_APPENDAGE } from '~/src/server/constants.js'
 import {
   JOURNEY_BASE_URL,
-  detailsPayloadSchema,
+  createDetailsPayloadSchema,
+  createManualPayloadSchema,
+  createSelectPayloadSchema,
   detailsViewModel,
-  manualPayloadSchema,
   manualViewModel,
-  selectPayloadSchema,
   selectViewModel,
   stepSchema,
   steps
@@ -173,7 +173,9 @@ async function detailsPostHandler(request, h, options) {
   const { payload } = request
   const session = getSessionState(request)
   const { ordnanceSurveyApiKey: apiKey } = options
-  const { value: details, error } = detailsPayloadSchema.validate(payload)
+  const language = session.initial.language ?? 'en-GB'
+  const { value: details, error } =
+    createDetailsPayloadSchema(language).validate(payload)
 
   let model
 
@@ -204,7 +206,9 @@ async function selectPostHandler(request, h, options) {
   const { payload } = request
   const session = getSessionState(request)
   const { ordnanceSurveyApiKey: apiKey } = options
-  const { value: select, error } = selectPayloadSchema.validate(payload)
+  const language = session.initial.language ?? 'en-GB'
+  const { value: select, error } =
+    createSelectPayloadSchema(language).validate(payload)
 
   if (error) {
     const model = await selectViewModel({ session, apiKey }, select, error)
@@ -234,10 +238,14 @@ async function selectPostHandler(request, h, options) {
 function manualPostHandler(request, h) {
   const { payload } = request
   const session = getSessionState(request)
+  const language = session.initial.language ?? 'en-GB'
 
-  const { value: manual, error } = manualPayloadSchema.validate(payload, {
-    abortEarly: false
-  })
+  const { value: manual, error } = createManualPayloadSchema(language).validate(
+    payload,
+    {
+      abortEarly: false
+    }
+  )
 
   if (error) {
     const model = manualViewModel(session, manual, error)

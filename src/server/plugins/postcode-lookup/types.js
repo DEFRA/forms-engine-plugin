@@ -19,6 +19,7 @@
  *   componentTitle: string,
  *   componentHint?: string
  *   step?: string
+ *   language?: string
  * }} PostcodeLookupDispatchData
  */
 
