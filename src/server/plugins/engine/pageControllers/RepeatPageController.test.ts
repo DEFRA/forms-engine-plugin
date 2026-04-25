@@ -1,3 +1,4 @@
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
@@ -274,6 +275,98 @@ describe('RepeatPageController', () => {
   describe('shouldShowSaveAndExit', () => {
     it('should return true when save and exit is enabled', () => {
       expect(controller.shouldShowSaveAndExit(serverWithSaveAndExit)).toBe(true)
+    })
+  })
+
+  describe('getViewModel with Translator', () => {
+    it('passes translator through to super.getViewModel without throwing', () => {
+      const mockT = jest.fn((key: string) => `translated:${key}`)
+      const mockTContent = jest.fn((_entity: object, _prop: string) => '')
+      const translator: Translator = {
+        t: mockT,
+        tContent: mockTContent as Translator['tContent']
+      }
+
+      const context = model.getFormContext(requestPageItem, {
+        $$__referenceNumber: 'foobar'
+      })
+
+      const viewModel = controller.getViewModel(
+        requestPageItem,
+        context,
+        translator
+      )
+
+      // RepeatPageController.getViewModel extends super — result must still have sectionTitle
+      expect(viewModel).toHaveProperty('sectionTitle')
+    })
+
+    it('does not call model.t when translator is supplied', () => {
+      const spy = jest.spyOn(model, 't')
+      const mockT = jest.fn((key: string) => `translated:${key}`)
+      const mockTContent = jest.fn((_entity: object, _prop: string) => '')
+      const translator: Translator = {
+        t: mockT,
+        tContent: mockTContent as Translator['tContent']
+      }
+
+      const context = model.getFormContext(requestPageItem, {
+        $$__referenceNumber: 'foobar'
+      })
+
+      controller.getViewModel(requestPageItem, context, translator)
+
+      // model.t should NOT have been called — translator.t was used instead
+      expect(spy).not.toHaveBeenCalled()
+      spy.mockRestore()
+    })
+  })
+
+  describe('getListSummaryViewModel with Translator', () => {
+    const list: RepeatListState = [
+      { itemId: 'abc-123', toppings: 'Ham', quantity: 2 }
+    ]
+
+    it('calls the supplied translator t for plugin strings', () => {
+      const mockT = jest.fn((key: string) => `translated:${key}`)
+      const mockTContent = jest.fn((_entity: object, _prop: string) => '')
+      const translator: Translator = {
+        t: mockT,
+        tContent: mockTContent as Translator['tContent']
+      }
+
+      const context = model.getFormContext(requestPageSummary, {
+        $$__referenceNumber: 'foobar'
+      })
+
+      const viewModel = controller.getListSummaryViewModel(
+        requestPageSummary,
+        context,
+        list,
+        translator
+      )
+
+      expect(mockT).toHaveBeenCalledWith(
+        'pages.repeater.pageTitle',
+        expect.anything()
+      )
+      expect(viewModel.pageTitle).toBe('translated:pages.repeater.pageTitle')
+    })
+
+    it('falls back to model.t when no translator is supplied', () => {
+      const spy = jest.spyOn(model, 't')
+
+      const context = model.getFormContext(requestPageSummary, {
+        $$__referenceNumber: 'foobar'
+      })
+
+      controller.getListSummaryViewModel(requestPageSummary, context, list)
+
+      expect(spy).toHaveBeenCalledWith(
+        'pages.repeater.pageTitle',
+        expect.anything()
+      )
+      spy.mockRestore()
     })
   })
 })

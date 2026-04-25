@@ -5,7 +5,11 @@ import Boom from '@hapi/boom'
 import Joi from 'joi'
 
 import { isRepeatState } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { redirectPath } from '~/src/server/plugins/engine/helpers.js'
+import {
+  getPluginOptions,
+  redirectPath
+} from '~/src/server/plugins/engine/helpers.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
@@ -193,12 +197,21 @@ export class RepeatPageController extends QuestionPageController {
         return super.proceed(request, h, nextPath)
       }
 
-      const viewModel = this.getListSummaryViewModel(request, context, list)
+      const { getLanguage } = getPluginOptions(request.server)
+      const language = getLanguage?.(request) ?? 'en-GB'
+      const translator = this.model.createTranslator(language)
+      const { t } = translator
+
+      const viewModel = this.getListSummaryViewModel(
+        request,
+        context,
+        list,
+        translator
+      )
 
       return h.view(this.listSummaryViewName, {
         ...viewModel,
-        t: (key: string, opts?: Record<string, unknown>) =>
-          this.model.t(key, opts)
+        t
       })
     }
   }
@@ -224,6 +237,11 @@ export class RepeatPageController extends QuestionPageController {
         return super.proceed(request, h, nextPath)
       }
 
+      const { getLanguage } = getPluginOptions(request.server)
+      const language = getLanguage?.(request) ?? 'en-GB'
+      const translator = this.model.createTranslator(language)
+      const { t } = translator
+
       const { action } = this.getFormParams(request)
 
       const hasErrorMin =
@@ -243,17 +261,21 @@ export class RepeatPageController extends QuestionPageController {
             href: '',
             name: '',
             text: hasErrorMax
-              ? this.model.t('pages.repeater.tooMany', { count })
-              : this.model.t('pages.repeater.tooFew', { count })
+              ? t('pages.repeater.tooMany', { count })
+              : t('pages.repeater.tooFew', { count })
           }
         ]
 
-        const viewModel = this.getListSummaryViewModel(request, context, list)
+        const viewModel = this.getListSummaryViewModel(
+          request,
+          context,
+          list,
+          translator
+        )
 
         return h.view(this.listSummaryViewName, {
           ...viewModel,
-          t: (key: string, opts?: Record<string, unknown>) =>
-            this.model.t(key, opts)
+          t
         })
       }
 
@@ -288,11 +310,16 @@ export class RepeatPageController extends QuestionPageController {
       const itemId = this.getItemId(request)
       const item = this.getItemFromList(list, itemId)
 
+      const { getLanguage } = getPluginOptions(request.server)
+      const language = getLanguage?.(request) ?? 'en-GB'
+      const translator = this.model.createTranslator(language)
+      const { t } = translator
+
       if (!item || list.length === 1) {
         throw Boom.notFound(
           item
-            ? this.model.t('pages.repeater.lastItemCannotBeRemoved')
-            : this.model.t('pages.repeater.itemToRemoveNotFound')
+            ? t('pages.repeater.lastItemCannotBeRemoved')
+            : t('pages.repeater.itemToRemoveNotFound')
         )
       }
 
@@ -302,12 +329,11 @@ export class RepeatPageController extends QuestionPageController {
         ...viewModel,
         context,
         backLink: this.getBackLink(request, context),
-        pageTitle: this.model.t('pages.repeater.removeAnswer'),
+        pageTitle: t('pages.repeater.removeAnswer'),
         itemTitle: `${title} ${list.indexOf(item) + 1}`,
-        buttonConfirm: { text: this.model.t('pages.repeater.remove') },
-        buttonCancel: { text: this.model.t('pages.repeater.cancel') },
-        t: (key: string, opts?: Record<string, unknown>) =>
-          this.model.t(key, opts)
+        buttonConfirm: { text: t('pages.repeater.remove') },
+        buttonCancel: { text: t('pages.repeater.cancel') },
+        t
       } satisfies ItemDeletePageViewModel)
     }
   }
@@ -327,11 +353,15 @@ export class RepeatPageController extends QuestionPageController {
       const itemId = this.getItemId(request)
       const item = this.getItemFromList(list, itemId)
 
+      const { getLanguage } = getPluginOptions(request.server)
+      const language = getLanguage?.(request) ?? 'en-GB'
+      const { t } = this.model.createTranslator(language)
+
       if (!item || list.length === 1) {
         throw Boom.notFound(
           item
-            ? this.model.t('pages.repeater.lastItemCannotBeRemoved')
-            : this.model.t('pages.repeater.itemToRemoveNotFound')
+            ? t('pages.repeater.lastItemCannotBeRemoved')
+            : t('pages.repeater.itemToRemoveNotFound')
         )
       }
 
@@ -352,7 +382,8 @@ export class RepeatPageController extends QuestionPageController {
 
   getViewModel(
     request: FormContextRequest,
-    context: FormContext
+    context: FormContext,
+    translator?: Translator
   ): FormPageViewModel {
     const { state } = context
 
@@ -360,7 +391,7 @@ export class RepeatPageController extends QuestionPageController {
     const itemId = this.getItemId(request)
     const item = this.getItemFromList(list, itemId)
 
-    const viewModel = super.getViewModel(request, context)
+    const viewModel = super.getViewModel(request, context, translator)
     const itemNumber = item ? list.indexOf(item) + 1 : list.length + 1
     const repeatCaption = `${this.repeat.options.title} ${itemNumber}`
 
@@ -376,11 +407,16 @@ export class RepeatPageController extends QuestionPageController {
   getListSummaryViewModel(
     request: FormContextRequest,
     context: FormContext,
-    list: RepeatListState
+    list: RepeatListState,
+    translator?: Translator
   ): RepeaterSummaryPageViewModel {
     const { collection, href, repeat } = this
     const { query } = request
     const { isForceAccess, errors } = context
+
+    const t =
+      translator?.t ??
+      ((key: string, opts?: Record<string, unknown>) => this.model.t(key, opts))
 
     const { title } = repeat.options
 
@@ -405,12 +441,11 @@ export class RepeatPageController extends QuestionPageController {
             href: redirectPath(`${href}/${item.itemId}`, {
               returnUrl: query.returnUrl ?? this.getHref(summaryPath)
             }),
-            text: this.model.t('pages.repeater.change'),
+            text: t('pages.repeater.change'),
             classes: 'govuk-link--no-visited-state',
-            visuallyHiddenText: this.model.t(
-              'pages.repeater.visuallyHiddenItem',
-              { index: index + 1 }
-            )
+            visuallyHiddenText: t('pages.repeater.visuallyHiddenItem', {
+              index: index + 1
+            })
           })
 
           if (count > 1) {
@@ -418,12 +453,11 @@ export class RepeatPageController extends QuestionPageController {
               href: redirectPath(`${href}/${item.itemId}/confirm-delete`, {
                 returnUrl: query.returnUrl
               }),
-              text: this.model.t('pages.repeater.remove'),
+              text: t('pages.repeater.remove'),
               classes: 'govuk-link--no-visited-state',
-              visuallyHiddenText: this.model.t(
-                'pages.repeater.visuallyHiddenItem',
-                { index: index + 1 }
-              )
+              visuallyHiddenText: t('pages.repeater.visuallyHiddenItem', {
+                index: index + 1
+              })
             })
           }
         }
@@ -437,7 +471,7 @@ export class RepeatPageController extends QuestionPageController {
             text: `${title} ${index + 1}`
           },
           value: {
-            text: itemDisplayText || this.model.t('pages.repeater.notProvided')
+            text: itemDisplayText || t('pages.repeater.notProvided')
           },
           actions: {
             items
@@ -450,7 +484,7 @@ export class RepeatPageController extends QuestionPageController {
       ...this.viewModel,
       backLink: this.getBackLink(request, context),
       repeatTitle: title,
-      pageTitle: this.model.t('pages.repeater.pageTitle', { count }),
+      pageTitle: t('pages.repeater.pageTitle', { count }),
       showTitle: true,
       context,
       errors,
