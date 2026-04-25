@@ -57,7 +57,7 @@ export class DatePartsField extends FormComponent {
         {
           type: ComponentType.NumberField,
           name: `${name}__day`,
-          title: props.model.t('components.dateField.day'),
+          title: 'components.dateField.day',
           schema: { min: 1, max: 31, precision: 0 },
           options: {
             required: isRequired,
@@ -69,7 +69,7 @@ export class DatePartsField extends FormComponent {
         {
           type: ComponentType.NumberField,
           name: `${name}__month`,
-          title: props.model.t('components.dateField.month'),
+          title: 'components.dateField.month',
           schema: { min: 1, max: 12, precision: 0 },
           options: {
             required: isRequired,
@@ -81,7 +81,7 @@ export class DatePartsField extends FormComponent {
         {
           type: ComponentType.NumberField,
           name: `${name}__year`,
-          title: props.model.t('components.dateField.year'),
+          title: 'components.dateField.year',
           schema: { min: 1000, max: 3000, precision: 0 },
           options: {
             required: isRequired,

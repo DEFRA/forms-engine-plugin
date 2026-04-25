@@ -2,6 +2,7 @@ import { ComponentType, type DatePartsFieldComponent } from '@defra/forms-model'
 import { addDays, format, startOfDay } from 'date-fns'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import { type DatePartsField } from '~/src/server/plugins/engine/components/DatePartsField.js'
 import {
   getAnswer,
   type Field
@@ -50,21 +51,27 @@ describe('DatePartsField', () => {
         expect(keys).toHaveProperty(
           'myComponent__day',
           expect.objectContaining({
-            flags: expect.objectContaining({ label: 'Day' })
+            flags: expect.objectContaining({
+              label: 'components.dateField.day'
+            })
           })
         )
 
         expect(keys).toHaveProperty(
           'myComponent__month',
           expect.objectContaining({
-            flags: expect.objectContaining({ label: 'Month' })
+            flags: expect.objectContaining({
+              label: 'components.dateField.month'
+            })
           })
         )
 
         expect(keys).toHaveProperty(
           'myComponent__year',
           expect.objectContaining({
-            flags: expect.objectContaining({ label: 'Year' })
+            flags: expect.objectContaining({
+              label: 'components.dateField.year'
+            })
           })
         )
       })
@@ -165,7 +172,7 @@ describe('DatePartsField', () => {
         expect(result1.errors).toBeUndefined()
         expect(result2.errors).toEqual([
           expect.objectContaining({
-            text: 'Example date parts field must include a month'
+            text: 'Example date parts field must include a components.dateField.month'
           })
         ])
       })
@@ -212,13 +219,13 @@ describe('DatePartsField', () => {
 
         expect(result.errors).toEqual([
           expect.objectContaining({
-            text: 'Example date parts must include a day'
+            text: 'Example date parts must include a components.dateField.day'
           }),
           expect.objectContaining({
-            text: 'Example date parts must include a month'
+            text: 'Example date parts must include a components.dateField.month'
           }),
           expect.objectContaining({
-            text: 'Example date parts must include a year'
+            text: 'Example date parts must include a components.dateField.year'
           })
         ])
       })
@@ -362,7 +369,7 @@ describe('DatePartsField', () => {
             items: [
               expect.objectContaining(
                 getViewModel(date, 'day', {
-                  label: { text: 'Day' },
+                  label: { text: 'components.dateField.day' },
                   classes: 'govuk-input--width-2',
                   value: 31
                 })
@@ -370,7 +377,7 @@ describe('DatePartsField', () => {
 
               expect.objectContaining(
                 getViewModel(date, 'month', {
-                  label: { text: 'Month' },
+                  label: { text: 'components.dateField.month' },
                   classes: 'govuk-input--width-2',
                   value: 12
                 })
@@ -378,7 +385,7 @@ describe('DatePartsField', () => {
 
               expect.objectContaining(
                 getViewModel(date, 'year', {
-                  label: { text: 'Year' },
+                  label: { text: 'components.dateField.year' },
                   classes: 'govuk-input--width-4',
                   value: 2024
                 })
@@ -862,6 +869,39 @@ describe('DatePartsField', () => {
           const result = collection.validate(input)
           expect(result).toEqual(output)
         }
+      )
+    })
+  })
+
+  describe('sub-field title key constants', () => {
+    let dateParts: DatePartsField
+
+    beforeEach(() => {
+      const def: DatePartsFieldComponent = {
+        title: 'Date of birth',
+        name: 'dob',
+        type: ComponentType.DatePartsField,
+        options: {}
+      }
+      const coll = new ComponentCollection([def], { model })
+      dateParts = coll.fields[0] as DatePartsField
+    })
+
+    it('stores day sub-field title as i18next key constant', () => {
+      expect(dateParts.collection.fields[0].title).toBe(
+        'components.dateField.day'
+      )
+    })
+
+    it('stores month sub-field title as i18next key constant', () => {
+      expect(dateParts.collection.fields[1].title).toBe(
+        'components.dateField.month'
+      )
+    })
+
+    it('stores year sub-field title as i18next key constant', () => {
+      expect(dateParts.collection.fields[2].title).toBe(
+        'components.dateField.year'
       )
     })
   })

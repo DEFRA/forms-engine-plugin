@@ -63,7 +63,7 @@ export class MonthYearField extends FormComponent {
         {
           type: ComponentType.NumberField,
           name: `${name}__month`,
-          title: props.model.t('components.monthYearField.month'),
+          title: 'components.monthYearField.month',
           schema: { min: 1, max: 12, precision: 0 },
           options: {
             required: isRequired,
@@ -75,7 +75,7 @@ export class MonthYearField extends FormComponent {
         {
           type: ComponentType.NumberField,
           name: `${name}__year`,
-          title: props.model.t('components.monthYearField.year'),
+          title: 'components.monthYearField.year',
           schema: { min: 1000, max: 3000, precision: 0 },
           options: {
             required: isRequired,

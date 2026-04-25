@@ -2,6 +2,7 @@ import { ComponentType, type MonthYearFieldComponent } from '@defra/forms-model'
 import { startOfDay } from 'date-fns'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import { type MonthYearField } from '~/src/server/plugins/engine/components/MonthYearField.js'
 import {
   getAnswer,
   type Field
@@ -49,10 +50,14 @@ describe('MonthYearField', () => {
         expect(keys).toEqual(
           expect.objectContaining({
             myComponent__month: expect.objectContaining({
-              flags: expect.objectContaining({ label: 'Month' })
+              flags: expect.objectContaining({
+                label: 'components.monthYearField.month'
+              })
             }),
             myComponent__year: expect.objectContaining({
-              flags: expect.objectContaining({ label: 'Year' })
+              flags: expect.objectContaining({
+                label: 'components.monthYearField.year'
+              })
             })
           })
         )
@@ -137,7 +142,7 @@ describe('MonthYearField', () => {
         expect(result1.errors).toBeUndefined()
         expect(result2.errors).toEqual([
           expect.objectContaining({
-            text: 'Example month/year field must include a year'
+            text: 'Example month/year field must include a components.monthYearField.year'
           })
         ])
       })
@@ -171,10 +176,10 @@ describe('MonthYearField', () => {
 
         expect(result.errors).toEqual([
           expect.objectContaining({
-            text: 'Example month/year must include a month'
+            text: 'Example month/year must include a components.monthYearField.month'
           }),
           expect.objectContaining({
-            text: 'Example month/year must include a year'
+            text: 'Example month/year must include a components.monthYearField.year'
           })
         ])
       })
@@ -197,10 +202,10 @@ describe('MonthYearField', () => {
 
         expect(result.errors).toEqual([
           expect.objectContaining({
-            text: 'Example month/year field must include a month'
+            text: 'Example month/year field must include a components.monthYearField.month'
           }),
           expect.objectContaining({
-            text: 'Example month/year field must include a year'
+            text: 'Example month/year field must include a components.monthYearField.year'
           })
         ])
       })
@@ -336,7 +341,7 @@ describe('MonthYearField', () => {
             items: [
               expect.objectContaining(
                 getViewModel(date, 'month', {
-                  label: { text: 'Month' },
+                  label: { text: 'components.monthYearField.month' },
                   classes: 'govuk-input--width-2',
                   value: 12
                 })
@@ -344,7 +349,7 @@ describe('MonthYearField', () => {
 
               expect.objectContaining(
                 getViewModel(date, 'year', {
-                  label: { text: 'Year' },
+                  label: { text: 'components.monthYearField.year' },
                   classes: 'govuk-input--width-4',
                   value: 2024
                 })
@@ -555,6 +560,33 @@ describe('MonthYearField', () => {
           const result = collection.validate(input)
           expect(result).toEqual(output)
         }
+      )
+    })
+  })
+
+  describe('sub-field title key constants', () => {
+    let monthYear: MonthYearField
+
+    beforeEach(() => {
+      const def: MonthYearFieldComponent = {
+        title: 'Date of issue',
+        name: 'issueDate',
+        type: ComponentType.MonthYearField,
+        options: {}
+      }
+      const coll = new ComponentCollection([def], { model })
+      monthYear = coll.fields[0] as MonthYearField
+    })
+
+    it('stores month sub-field title as i18next key constant', () => {
+      expect(monthYear.collection.fields[0].title).toBe(
+        'components.monthYearField.month'
+      )
+    })
+
+    it('stores year sub-field title as i18next key constant', () => {
+      expect(monthYear.collection.fields[1].title).toBe(
+        'components.monthYearField.year'
       )
     })
   })
