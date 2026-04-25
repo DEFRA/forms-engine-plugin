@@ -1,6 +1,7 @@
 import { type PageQuestion } from '@defra/forms-model'
 
 import { getForm } from '~/src/server/plugins/engine/configureEnginePlugin.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
@@ -1681,6 +1682,130 @@ describe('Save and Exit functionality', () => {
       await postHandler(request, context, mockH)
 
       expect(controller1.handleSaveAndExit).not.toHaveBeenCalled()
+    })
+  })
+})
+
+describe('QuestionPageController translator support', () => {
+  let page1: PageQuestion
+  let page1Url: URL
+
+  let model: FormModel
+  let controller1: QuestionPageController
+  let requestPage1: FormRequest
+
+  beforeEach(() => {
+    const { pages } = definitionConditionsBasic
+
+    page1 = pages[0]
+    page1Url = new URL('http://example.com/test/first-page')
+
+    model = new FormModel(definitionConditionsBasic, {
+      basePath: 'test'
+    })
+
+    controller1 = new QuestionPageController(model, page1)
+
+    requestPage1 = buildFormRequest({
+      method: 'get',
+      url: page1Url,
+      path: page1Url.pathname,
+      params: {
+        path: 'first-page',
+        slug: 'test'
+      },
+      query: {},
+      app: { model }
+    } as FormRequest)
+  })
+
+  describe('getViewModel with translator', () => {
+    it('uses mock t from translator for plugin strings', () => {
+      const mockT = jest.fn((key: string) => `translated:${key}`)
+      const mockTContent = jest.fn(
+        (entity: unknown, prop: string) => `content:${prop}`
+      )
+
+      const translator: Translator = {
+        t: mockT,
+        tContent: mockTContent as Translator['tContent']
+      }
+
+      // Use a request with returnUrl so that getBackLink calls t() for back link text
+      const requestWithReturn = buildFormRequest({
+        method: 'get',
+        url: page1Url,
+        path: page1Url.pathname,
+        params: {
+          path: 'first-page',
+          slug: 'test'
+        },
+        query: { returnUrl: '/test/summary' },
+        app: { model }
+      } as FormRequest)
+
+      const context = model.getFormContext(requestWithReturn, {
+        $$__referenceNumber: 'foobar'
+      })
+
+      controller1.getViewModel(requestWithReturn, context, translator)
+
+      // The translator's t should have been called for back link text
+      expect(mockT).toHaveBeenCalledWith('pages.question.backToCheckAnswers')
+    })
+
+    it('uses mock tContent from translator for page entity', () => {
+      const mockT = jest.fn((key: string) => key)
+      const mockTContent = jest.fn(
+        (entity: unknown, prop: string) => `content:${prop}`
+      )
+
+      const translator: Translator = {
+        t: mockT,
+        tContent: mockTContent as Translator['tContent']
+      }
+
+      const context = model.getFormContext(requestPage1, {
+        $$__referenceNumber: 'foobar'
+      })
+
+      controller1.getViewModel(requestPage1, context, translator)
+
+      // tContent should have been called with the page entity
+      expect(mockTContent).toHaveBeenCalledWith(
+        expect.objectContaining({ path: page1.path }),
+        'title'
+      )
+    })
+
+    it('falls back to model.t when no translator is supplied', () => {
+      jest.spyOn(model, 't')
+
+      // Use a request with returnUrl so that getBackLink calls model.t() for back link text
+      const requestWithReturn = buildFormRequest({
+        method: 'get',
+        url: page1Url,
+        path: page1Url.pathname,
+        params: {
+          path: 'first-page',
+          slug: 'test'
+        },
+        query: { returnUrl: '/test/summary' },
+        app: { model }
+      } as FormRequest)
+
+      const context = model.getFormContext(requestWithReturn, {
+        $$__referenceNumber: 'foobar'
+      })
+
+      // Call without translator (backward compat)
+      controller1.getViewModel(requestWithReturn, context)
+
+      // model.t should have been called for back link text (opts may be undefined)
+      expect(model.t).toHaveBeenCalledWith(
+        'pages.question.backToCheckAnswers',
+        undefined
+      )
     })
   })
 })

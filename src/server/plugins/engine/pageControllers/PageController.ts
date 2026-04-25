@@ -11,6 +11,7 @@ import { type Lifecycle, type RouteOptions, type Server } from '@hapi/hapi'
 import { type ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { type FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import {
+  getPluginOptions,
   getSaveAndExitHelpers,
   getStartPath,
   normalisePath
@@ -168,10 +169,12 @@ export class PageController {
   ) => ReturnType<Lifecycle.Method<FormRequestRefs>> {
     return (request, context, h) => {
       const { viewModel, viewName } = this
+      const { getLanguage } = getPluginOptions(request.server)
+      const language = getLanguage?.(request) ?? 'en-GB'
+      const { t } = this.model.createTranslator(language)
       return h.view(viewName, {
         ...viewModel,
-        t: (key: string, opts?: Record<string, unknown>) =>
-          this.model.t(key, opts)
+        t
       })
     }
   }

@@ -35,6 +35,7 @@ export const plugin = {
       model,
       cache,
       saveAndExit,
+      getLanguage,
       nunjucks: nunjucksOptions,
       viewContext,
       preparePageEventRequestOptions,
@@ -77,6 +78,7 @@ export const plugin = {
     server.expose('viewContext', viewContext)
     server.expose('cacheService', cacheService)
     server.expose('saveAndExit', saveAndExit)
+    server.expose('getLanguage', getLanguage)
     server.expose('baseUrl', baseUrl)
     server.expose('services', services)
 
