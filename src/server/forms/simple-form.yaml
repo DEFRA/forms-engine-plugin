@@ -3,6 +3,37 @@ name: Page events
 engine: V2
 schema: 2
 startPage: '/summary'
+metadata:
+  language: en-GB
+  translations:
+    cy:
+      components:
+        1fb8e182-c709-4792-8f83-e01d8b1fee1a:
+          title: Beth yw eich enw cyntaf?
+          shortDescription: Eich enw cyntaf
+        b68df7f1-d4f4-4c17-83c8-402f584906c9:
+          title: Beth yw eich enw olaf?
+          shortDescription: Eich enw olaf
+        987c1234-56d7-89e0-1234-56789abcdef0:
+          title: Llwytho copi o'ch pasbort
+          shortDescription: Llwytho pasbort
+        987c1234-56d7-89e0-1234-56789abcdef1:
+          title: Llwytho copi o'ch trwydded yrru
+          shortDescription: Llwytho trwydded yrru
+        00738799-3489-4ab2-a57b-542eecb31bfa:
+          title: Pryd yw pen-blwydd {{ applicantFirstName }} {{ applicantLastName }}?
+          shortDescription: Eich pen-blwydd
+      pages:
+        622a35ec-3795-418a-81f3-a45746959045:
+          title: Eich enw
+        23456789-0abc-def1-2345-67890abcdef1:
+          title: Llwytho copi o'ch pasbort
+        23456789-0abc-def1-2345-67890abcdef2:
+          title: Llwytho copi o'ch trwydded yrru
+        da0fbdb4-a2de-4650-be16-9ba552af135f:
+          title: Dyddiad geni
+        449a45f6-4541-4a46-91bd-8b8931b07b50:
+          title: Crynodeb      
 pages:
   - title: Your name
     path: '/your-name'

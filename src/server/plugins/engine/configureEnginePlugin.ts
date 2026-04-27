@@ -67,7 +67,10 @@ export const configureEnginePlugin = async (
       baseUrl: 'http://localhost:3009', // always runs locally
       saveAndExit,
       ordnanceSurveyApiKey,
-      ordnanceSurveyApiSecret
+      ordnanceSurveyApiSecret,
+      getLanguage: (_request) => {
+        return 'cy'
+      }
     }
   }
 }
