@@ -65,5 +65,12 @@ export const formsService = async () => {
     slug: 'payment-test'
   })
 
+  await loader.addForm('src/server/forms/payment-v2-test.yaml', {
+    ...metadata,
+    id: 'c3d4e5f6-a7b8-9012-cdef-012345678901',
+    title: 'Apply for a lock and weir fishing permit (v2 payment test)',
+    slug: 'payment-v2-test'
+  })
+
   return loader.toFormsService()
 }

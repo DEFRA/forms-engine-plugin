@@ -73,9 +73,10 @@
 
         <div class="govuk-button-group">
           {% set isDeclaration = declaration or components | length %}
+          {% set paymentPending = paymentRequired and not paymentState %}
 
           {{ govukButton({
-            text: "Accept and submit" if isDeclaration else "Submit",
+            text: "Pay and submit" if paymentPending else ("Accept and submit" if isDeclaration else "Submit"),
             name: "action",
             value: "send",
             preventDoubleClick: true

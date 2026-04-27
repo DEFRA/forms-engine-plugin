@@ -1,0 +1,341 @@
+---
+# Based on "Apply for a lock and weir fishing permit" production form.
+# Extended with duration and site access to demonstrate complex compound conditions.
+# Pricing matrix: duration x permit type x site access
+schema: 2
+name: Apply for a lock and weir fishing permit (v2 payment test)
+engine: V2
+declaration: I apply for permission to fish at the sites listed on this application for the duration of the permit, subject to the normal closed seasons.
+startPage: '/fishing-sites'
+options:
+  showReferenceNumber: true
+pages:
+  - title: Fishing sites
+    path: '/fishing-sites'
+    components:
+      - id: '1fb84634-86f2-477b-affa-c7ace61aec26'
+        type: Markdown
+        content: "The fishing sites include:\n\n* Buscot\n* Grafton\n* Rushey\n* Sandford\n* Abingdon\n* Benson\n* Goring\n* Hurley\n* Bell Weir\n* Molesey"
+        options: {}
+        schema: {}
+        name: fishingSites
+    next: []
+  - title: Contact details
+    path: '/contact-details'
+    components:
+      - id: '3598ed25-1b9a-4ce6-8432-5676063b96ec'
+        type: TextField
+        title: What is your full name?
+        name: fullName
+        shortDescription: Full name
+        options:
+          required: true
+        schema: {}
+      - id: '9c4f0158-8f87-4cbd-a3a1-960166f015e4'
+        type: TelephoneNumberField
+        title: What is your phone number?
+        name: phoneNumber
+        shortDescription: Phone number
+        options:
+          required: true
+        schema: {}
+      - id: '9b83dc1e-e385-4cd3-b642-dcc247f3fc89'
+        type: EmailAddressField
+        title: What is your email address?
+        name: emailAddress
+        shortDescription: Email address
+        options:
+          required: true
+    next: []
+  - title: ''
+    path: '/rod-licence-number'
+    components:
+      - id: '22405838-becd-48ab-b984-c3c886822412'
+        type: TextField
+        title: What is your rod licence number (current or previous)?
+        name: rodLicenceNumber
+        shortDescription: Rod licence number
+        hint: The permit must be used in conjunction with a valid rod licence.
+        options:
+          required: true
+        schema: {}
+    next: []
+  - title: ''
+    path: '/permit-duration'
+    components:
+      - id: 'a1a1a1a1-1111-4aaa-aaaa-000000000001'
+        type: RadiosField
+        title: What duration of permit do you need?
+        name: permitDuration
+        shortDescription: Permit duration
+        options:
+          required: true
+        list: 'b1b1b1b1-1111-4bbb-bbbb-000000000001'
+    next: []
+  - title: ''
+    path: '/what-kind-of-permit-do-you-require'
+    components:
+      - id: 'f7663ac4-61e7-4b64-a157-70f002818493'
+        type: RadiosField
+        title: What kind of permit do you require?
+        name: permitType
+        shortDescription: Permit type
+        options:
+          required: true
+        list: 'aac4ee00-fb82-4a37-88ad-b9e10ded92e9'
+    next: []
+  - title: ''
+    path: '/site-access'
+    condition: 'c1c1c1c1-6666-4ccc-cccc-000000000005'
+    components:
+      - id: 'a1a1a1a1-1111-4aaa-aaaa-000000000003'
+        type: RadiosField
+        title: Which site access do you need?
+        name: siteAccess
+        shortDescription: Site access
+        hint: Single site permits are valid for one named site only.
+        options:
+          required: true
+        list: 'b1b1b1b1-1111-4bbb-bbbb-000000000002'
+    next: []
+  - title: ''
+    path: '/payment-required'
+    components:
+      - id: '6522e3f7-f414-42e5-9dbf-84e5868fbbd3'
+        type: PaymentField
+        title: Payment required
+        name: fishingPermitPayment
+        options:
+          required: true
+          amount: 0
+          description: Lock and weir fishing permit
+          emailField: emailAddress
+          conditionalAmounts:
+            # === 3-way: 12-month + type + site (most specific first) ===
+            - condition: 'd1d1d1d1-8888-4ddd-dddd-000000000001'
+              amount: 38
+            - condition: 'd1d1d1d1-8888-4ddd-dddd-000000000002'
+              amount: 25
+            - condition: 'd1d1d1d1-8888-4ddd-dddd-000000000003'
+              amount: 24
+            - condition: 'd1d1d1d1-8888-4ddd-dddd-000000000004'
+              amount: 16
+            # === 2-way: 8-day + type (site doesn't matter) ===
+            - condition: 'd1d1d1d1-8888-4ddd-dddd-000000000005'
+              amount: 12
+            - condition: 'd1d1d1d1-8888-4ddd-dddd-000000000006'
+              amount: 8
+            # === Simple: 1-day flat rate ===
+            - condition: 'c1c1c1c1-6666-4ccc-cccc-000000000003'
+              amount: 5
+            # === Simple: Junior free ===
+            - condition: 'c1c1c1c1-6666-4ccc-cccc-000000000004'
+              amount: 0
+    next: []
+  - title: ''
+    path: '/summary'
+    controller: SummaryPageController
+conditions:
+  # =================================================================
+  # Simple atomic conditions
+  # =================================================================
+  - id: 'c1c1c1c1-6666-4ccc-cccc-000000000001'
+    displayName: Is 12-month permit
+    items:
+      - id: 'e1e1e1e1-7777-4eee-eeee-000000000001'
+        componentId: 'a1a1a1a1-1111-4aaa-aaaa-000000000001'
+        operator: is
+        type: ListItemRef
+        value:
+          itemId: 'f1f1f1f1-1111-4fff-ffff-000000000001'
+          listId: 'b1b1b1b1-1111-4bbb-bbbb-000000000001'
+  - id: 'c1c1c1c1-6666-4ccc-cccc-000000000002'
+    displayName: Is 8-day permit
+    items:
+      - id: 'e1e1e1e1-7777-4eee-eeee-000000000002'
+        componentId: 'a1a1a1a1-1111-4aaa-aaaa-000000000001'
+        operator: is
+        type: ListItemRef
+        value:
+          itemId: 'f1f1f1f1-1111-4fff-ffff-000000000002'
+          listId: 'b1b1b1b1-1111-4bbb-bbbb-000000000001'
+  - id: 'c1c1c1c1-6666-4ccc-cccc-000000000003'
+    displayName: Is 1-day permit
+    items:
+      - id: 'e1e1e1e1-7777-4eee-eeee-000000000003'
+        componentId: 'a1a1a1a1-1111-4aaa-aaaa-000000000001'
+        operator: is
+        type: ListItemRef
+        value:
+          itemId: 'f1f1f1f1-1111-4fff-ffff-000000000003'
+          listId: 'b1b1b1b1-1111-4bbb-bbbb-000000000001'
+  - id: 'c1c1c1c1-6666-4ccc-cccc-000000000004'
+    displayName: Is Junior permit type
+    items:
+      - id: 'e1e1e1e1-7777-4eee-eeee-000000000004'
+        componentId: 'f7663ac4-61e7-4b64-a157-70f002818493'
+        operator: is
+        type: ListItemRef
+        value:
+          itemId: 'f1f1f1f1-2222-4fff-ffff-000000000003'
+          listId: 'aac4ee00-fb82-4a37-88ad-b9e10ded92e9'
+  - id: 'dcaa3b3d-5cbc-4be9-b5ce-b2be5c72ccd1'
+    displayName: Is Adult permit type
+    items:
+      - id: '13b5e86b-2eb5-4a6c-8ab6-9fdc35907f18'
+        componentId: 'f7663ac4-61e7-4b64-a157-70f002818493'
+        operator: is
+        type: ListItemRef
+        value:
+          itemId: 'b6034236-63cf-44af-bb6c-d5d4d3825973'
+          listId: 'aac4ee00-fb82-4a37-88ad-b9e10ded92e9'
+  - id: 'c5177318-61ec-44ec-b5c2-18c1be1f1e42'
+    displayName: Is Concession permit type
+    items:
+      - id: 'fb75f1be-d471-4020-ac13-f7a2246078bb'
+        componentId: 'f7663ac4-61e7-4b64-a157-70f002818493'
+        operator: is
+        type: ListItemRef
+        value:
+          itemId: '86baf02e-0db7-4fad-8fce-fa9a30c1b7f0'
+          listId: 'aac4ee00-fb82-4a37-88ad-b9e10ded92e9'
+  - id: 'c1c1c1c1-6666-4ccc-cccc-000000000007'
+    displayName: Is all sites access
+    items:
+      - id: 'e1e1e1e1-7777-4eee-eeee-000000000007'
+        componentId: 'a1a1a1a1-1111-4aaa-aaaa-000000000003'
+        operator: is
+        type: ListItemRef
+        value:
+          itemId: 'f1f1f1f1-3333-4fff-ffff-000000000001'
+          listId: 'b1b1b1b1-1111-4bbb-bbbb-000000000002'
+  - id: 'c1c1c1c1-6666-4ccc-cccc-000000000008'
+    displayName: Is single site access
+    items:
+      - id: 'e1e1e1e1-7777-4eee-eeee-000000000008'
+        componentId: 'a1a1a1a1-1111-4aaa-aaaa-000000000003'
+        operator: is
+        type: ListItemRef
+        value:
+          itemId: 'f1f1f1f1-3333-4fff-ffff-000000000002'
+          listId: 'b1b1b1b1-1111-4bbb-bbbb-000000000002'
+  # =================================================================
+  # Page visibility: site access only shown for 12-month permits
+  # =================================================================
+  - id: 'c1c1c1c1-6666-4ccc-cccc-000000000005'
+    displayName: Is 12-month (show site access page)
+    items:
+      - id: 'e1e1e1e1-7777-4eee-eeee-000000000005'
+        conditionId: 'c1c1c1c1-6666-4ccc-cccc-000000000001'
+  # =================================================================
+  # 2-way compound AND: duration + type
+  # =================================================================
+  - id: 'c1c1c1c1-6666-4ccc-cccc-000000000010'
+    displayName: 12-month AND Adult
+    coordinator: and
+    items:
+      - id: 'e1e1e1e1-7777-4eee-eeee-000000000010'
+        conditionId: 'c1c1c1c1-6666-4ccc-cccc-000000000001'
+      - id: 'e1e1e1e1-7777-4eee-eeee-000000000011'
+        conditionId: 'dcaa3b3d-5cbc-4be9-b5ce-b2be5c72ccd1'
+  - id: 'c1c1c1c1-6666-4ccc-cccc-000000000011'
+    displayName: 12-month AND Concession
+    coordinator: and
+    items:
+      - id: 'e1e1e1e1-7777-4eee-eeee-000000000012'
+        conditionId: 'c1c1c1c1-6666-4ccc-cccc-000000000001'
+      - id: 'e1e1e1e1-7777-4eee-eeee-000000000013'
+        conditionId: 'c5177318-61ec-44ec-b5c2-18c1be1f1e42'
+  - id: 'd1d1d1d1-8888-4ddd-dddd-000000000005'
+    displayName: 8-day AND Adult
+    coordinator: and
+    items:
+      - id: 'e1e1e1e1-7777-4eee-eeee-000000000014'
+        conditionId: 'c1c1c1c1-6666-4ccc-cccc-000000000002'
+      - id: 'e1e1e1e1-7777-4eee-eeee-000000000015'
+        conditionId: 'dcaa3b3d-5cbc-4be9-b5ce-b2be5c72ccd1'
+  - id: 'd1d1d1d1-8888-4ddd-dddd-000000000006'
+    displayName: 8-day AND Concession
+    coordinator: and
+    items:
+      - id: 'e1e1e1e1-7777-4eee-eeee-000000000016'
+        conditionId: 'c1c1c1c1-6666-4ccc-cccc-000000000002'
+      - id: 'e1e1e1e1-7777-4eee-eeee-000000000017'
+        conditionId: 'c5177318-61ec-44ec-b5c2-18c1be1f1e42'
+  # =================================================================
+  # 3-way compound AND: duration + type + site (chains 2-way refs)
+  # Same pattern as "Bats chargeable use" in protected species form
+  # =================================================================
+  - id: 'd1d1d1d1-8888-4ddd-dddd-000000000001'
+    displayName: 12-month AND Adult AND All sites
+    coordinator: and
+    items:
+      - id: 'e1e1e1e1-7777-4eee-eeee-000000000020'
+        conditionId: 'c1c1c1c1-6666-4ccc-cccc-000000000010'
+      - id: 'e1e1e1e1-7777-4eee-eeee-000000000021'
+        conditionId: 'c1c1c1c1-6666-4ccc-cccc-000000000007'
+  - id: 'd1d1d1d1-8888-4ddd-dddd-000000000002'
+    displayName: 12-month AND Adult AND Single site
+    coordinator: and
+    items:
+      - id: 'e1e1e1e1-7777-4eee-eeee-000000000022'
+        conditionId: 'c1c1c1c1-6666-4ccc-cccc-000000000010'
+      - id: 'e1e1e1e1-7777-4eee-eeee-000000000023'
+        conditionId: 'c1c1c1c1-6666-4ccc-cccc-000000000008'
+  - id: 'd1d1d1d1-8888-4ddd-dddd-000000000003'
+    displayName: 12-month AND Concession AND All sites
+    coordinator: and
+    items:
+      - id: 'e1e1e1e1-7777-4eee-eeee-000000000024'
+        conditionId: 'c1c1c1c1-6666-4ccc-cccc-000000000011'
+      - id: 'e1e1e1e1-7777-4eee-eeee-000000000025'
+        conditionId: 'c1c1c1c1-6666-4ccc-cccc-000000000007'
+  - id: 'd1d1d1d1-8888-4ddd-dddd-000000000004'
+    displayName: 12-month AND Concession AND Single site
+    coordinator: and
+    items:
+      - id: 'e1e1e1e1-7777-4eee-eeee-000000000026'
+        conditionId: 'c1c1c1c1-6666-4ccc-cccc-000000000011'
+      - id: 'e1e1e1e1-7777-4eee-eeee-000000000027'
+        conditionId: 'c1c1c1c1-6666-4ccc-cccc-000000000008'
+sections: []
+lists:
+  - id: 'b1b1b1b1-1111-4bbb-bbbb-000000000001'
+    title: Permit durations
+    name: permitDurations
+    type: string
+    items:
+      - id: 'f1f1f1f1-1111-4fff-ffff-000000000001'
+        text: 12-month permit
+        value: 12-month
+      - id: 'f1f1f1f1-1111-4fff-ffff-000000000002'
+        text: 8-day permit
+        value: 8-day
+      - id: 'f1f1f1f1-1111-4fff-ffff-000000000003'
+        text: 1-day permit
+        value: 1-day
+  - id: 'aac4ee00-fb82-4a37-88ad-b9e10ded92e9'
+    title: Permit types
+    name: permitTypes
+    type: string
+    items:
+      - id: 'b6034236-63cf-44af-bb6c-d5d4d3825973'
+        text: Adult
+        value: Adult
+      - id: '86baf02e-0db7-4fad-8fce-fa9a30c1b7f0'
+        text: Concession (65+ or disabled)
+        value: Concession
+      - id: 'f1f1f1f1-2222-4fff-ffff-000000000003'
+        text: Junior (13-16 years)
+        value: Junior
+  - id: 'b1b1b1b1-1111-4bbb-bbbb-000000000002'
+    title: Site access
+    name: siteAccess
+    type: string
+    items:
+      - id: 'f1f1f1f1-3333-4fff-ffff-000000000001'
+        text: All sites
+        value: all-sites
+      - id: 'f1f1f1f1-3333-4fff-ffff-000000000002'
+        text: Single site
+        value: single-site

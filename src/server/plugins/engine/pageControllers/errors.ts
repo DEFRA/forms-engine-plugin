@@ -64,10 +64,10 @@ export class PaymentSubmissionError extends Error {
 
   static checkPaymentAmount(
     stateAmount: number,
-    definitionAmount: number | undefined,
+    expectedAmount: number | undefined,
     component: FormComponent
   ) {
-    if (stateAmount / 100 !== definitionAmount) {
+    if (stateAmount / 100 !== expectedAmount) {
       throw new PaymentPreAuthError(
         component,
         'The pre-authorised payment amount is somehow different from that requested. Try adding payment details again.',

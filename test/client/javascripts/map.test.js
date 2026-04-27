@@ -206,7 +206,6 @@ describe('Maps Client JS', () => {
         expect(addMarkerMock).toHaveBeenCalledTimes(1)
         expect(flyToMock).toHaveBeenCalledTimes(1)
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         const onInteractMarkerChange = onMock.mock.calls[1][1]
         expect(typeof onInteractMarkerChange).toBe('function')
         onInteractMarkerChange({ coords: [-2.1478238, 54.155676] })
@@ -371,7 +370,6 @@ describe('Maps Client JS', () => {
         expect(addMarkerMock).toHaveBeenCalledTimes(1)
         expect(flyToMock).toHaveBeenCalledTimes(1)
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         const onInteractMarkerChange = onMock.mock.calls[1][1]
         expect(typeof onInteractMarkerChange).toBe('function')
         onInteractMarkerChange({
@@ -519,7 +517,6 @@ describe('Maps Client JS', () => {
         expect(addMarkerMock).toHaveBeenCalledTimes(1)
         expect(flyToMock).toHaveBeenCalledTimes(1)
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         const onInteractMarkerChange = onMock.mock.calls[1][1]
         expect(typeof onInteractMarkerChange).toBe('function')
         onInteractMarkerChange({

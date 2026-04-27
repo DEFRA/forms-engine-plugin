@@ -103,7 +103,13 @@ function logPaymentFailure(session, paymentStatus) {
 function handlePaymentSuccess(request, h, session, sessionKey, paymentStatus) {
   flashComponentState(request, session, paymentStatus)
   request.yar.clear(sessionKey)
-  return h.redirect(session.returnUrl).code(StatusCodes.SEE_OTHER)
+
+  // Append paymentComplete flag so the summary page auto-submits
+  // instead of showing CYA again
+  const separator = session.returnUrl.includes('?') ? '&' : '?'
+  const returnUrl = `${session.returnUrl}${separator}paymentComplete=true`
+
+  return h.redirect(returnUrl).code(StatusCodes.SEE_OTHER)
 }
 
 /**
