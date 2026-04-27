@@ -8,6 +8,7 @@ import {
   getFormSubmissionData
 } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 import { FormStatus } from '~/src/server/routes/types.js'
 import definition from '~/test/form/definitions/payment.js'
@@ -75,7 +76,11 @@ const pageDef = definition.pages[2]
 
 const controller = new SummaryPageController(model, pageDef)
 
-const summaryViewModel = controller.getSummaryViewModel(request, context)
+const summaryViewModel = controller.getSummaryViewModel(
+  request,
+  context,
+  stubTranslator
+)
 
 const items = getFormSubmissionData(
   summaryViewModel.context,

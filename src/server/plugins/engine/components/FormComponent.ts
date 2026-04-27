@@ -6,6 +6,7 @@ import {
 } from '@defra/forms-model'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
+import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import {
   type FormContext,
@@ -139,12 +140,12 @@ export class FormComponent extends ComponentBase {
   ) {
     const { hint, name, options = {}, title, viewModel } = this
 
-    const translator = isTranslator(translatorOrQuery)
-      ? translatorOrQuery
-      : undefined
-
-    const t = translator?.t ?? ((key: string) => this.model.t(key))
-    const tContent = translator?.tContent
+    const isT = isTranslator(translatorOrQuery)
+    const t = isT
+      ? translatorOrQuery.t
+      : (key: string, opts?: Record<string, unknown>) =>
+          tPlugin(key, 'en-GB', opts)
+    const tContent = isT ? translatorOrQuery.tContent : undefined
 
     const isRequired = !('required' in options) || options.required !== false
     const hideOptional = 'optionalText' in options && options.optionalText

@@ -328,7 +328,7 @@ export class RepeatPageController extends QuestionPageController {
       return h.view(this.listDeleteViewName, {
         ...viewModel,
         context,
-        backLink: this.getBackLink(request, context),
+        backLink: this.getBackLink(request, context, t),
         pageTitle: t('pages.repeater.removeAnswer'),
         itemTitle: `${title} ${list.indexOf(item) + 1}`,
         buttonConfirm: { text: t('pages.repeater.remove') },
@@ -383,7 +383,7 @@ export class RepeatPageController extends QuestionPageController {
   getViewModel(
     request: FormContextRequest,
     context: FormContext,
-    translator?: Translator
+    translator: Translator
   ): FormPageViewModel {
     const { state } = context
 
@@ -408,15 +408,13 @@ export class RepeatPageController extends QuestionPageController {
     request: FormContextRequest,
     context: FormContext,
     list: RepeatListState,
-    translator?: Translator
+    translator: Translator
   ): RepeaterSummaryPageViewModel {
     const { collection, href, repeat } = this
     const { query } = request
     const { isForceAccess, errors } = context
 
-    const t =
-      translator?.t ??
-      ((key: string, opts?: Record<string, unknown>) => this.model.t(key, opts))
+    const { t } = translator
 
     const { title } = repeat.options
 
@@ -482,7 +480,7 @@ export class RepeatPageController extends QuestionPageController {
 
     return {
       ...this.viewModel,
-      backLink: this.getBackLink(request, context),
+      backLink: this.getBackLink(request, context, t),
       repeatTitle: title,
       pageTitle: t('pages.repeater.pageTitle', { count }),
       showTitle: true,

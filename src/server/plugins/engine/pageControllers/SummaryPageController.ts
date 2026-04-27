@@ -81,15 +81,12 @@ export class SummaryPageController extends QuestionPageController {
   getSummaryViewModel(
     request: FormContextRequest,
     context: FormContext,
-    translator?: Translator
+    translator: Translator
   ): SummaryViewModel {
-    const t =
-      translator?.t ??
-      ((key: string, opts?: Record<string, unknown>) => this.model.t(key, opts))
+    const { t } = translator
 
     const viewModel = new SummaryViewModel(request, this, context, translator)
 
-    const { query } = request
     const { payload, errors, state } = context
 
     const paymentField = context.relevantPages
@@ -108,7 +105,7 @@ export class SummaryPageController extends QuestionPageController {
       }
     }
 
-    const components = this.collection.getViewModel(payload, errors, query)
+    const components = this.collection.getViewModel(payload, errors, translator)
 
     viewModel.backLink = this.getBackLink(request, context, t)
     viewModel.feedbackLink = this.feedbackLink
@@ -125,8 +122,7 @@ export class SummaryPageController extends QuestionPageController {
     paymentState: NonNullable<
       ReturnType<PaymentField['getPaymentStateFromState']>
     >,
-    t: (key: string, opts?: Record<string, unknown>) => string = (key, opts) =>
-      this.model.t(key, opts)
+    t: (key: string, opts?: Record<string, unknown>) => string
   ) {
     const rows = [
       {
@@ -221,7 +217,10 @@ export class SummaryPageController extends QuestionPageController {
     checkEmailAddressForLiveFormSubmission(notificationEmail, isPreview)
 
     if (notificationEmail) {
-      const viewModel = this.getSummaryViewModel(request, context)
+      const { getLanguage } = getPluginOptions(request.server)
+      const language = getLanguage?.(request) ?? 'en-GB'
+      const translator = this.model.createTranslator(language)
+      const viewModel = this.getSummaryViewModel(request, context, translator)
 
       try {
         await submitForm(

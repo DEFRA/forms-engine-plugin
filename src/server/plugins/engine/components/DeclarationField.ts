@@ -16,6 +16,7 @@ import {
   isFormValue,
   isTranslator
 } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
@@ -72,7 +73,7 @@ export class DeclarationField extends FormComponent {
     this.content = content
     this.declarationConfirmationLabel =
       options.declarationConfirmationLabel ??
-      props.model.t('components.declarationField.defaultLabel')
+      tPlugin('components.declarationField.defaultLabel', 'en-GB')
     const formComponents = hasFormComponents(props.page?.pageDef)
       ? props.page.pageDef.components
       : []
@@ -119,7 +120,7 @@ export class DeclarationField extends FormComponent {
   getDisplayStringFromFormValue(value: FormValue | FormPayload): string {
     return value === 'true'
       ? this.declarationConfirmationLabel
-      : this.model.t('components.declarationField.notProvided')
+      : tPlugin('components.declarationField.notProvided', 'en-GB')
   }
 
   getViewModel(
@@ -127,12 +128,11 @@ export class DeclarationField extends FormComponent {
     errors?: FormSubmissionError[],
     translatorOrQuery?: Translator | FormQuery
   ) {
-    const translator = isTranslator(translatorOrQuery)
-      ? translatorOrQuery
-      : undefined
-    const t =
-      translator?.t ??
-      ((key: string, opts?: Record<string, unknown>) => this.model.t(key, opts))
+    const isT = isTranslator(translatorOrQuery)
+    const t = isT
+      ? translatorOrQuery.t
+      : (key: string, opts?: Record<string, unknown>) =>
+          tPlugin(key, 'en-GB', opts)
 
     const {
       hint,
@@ -142,7 +142,7 @@ export class DeclarationField extends FormComponent {
       )
     } = this
 
-    const viewModel = super.getViewModel(payload, errors, translator)
+    const viewModel = super.getViewModel(payload, errors, translatorOrQuery)
     let { fieldset, label } = viewModel
 
     fieldset ??= {

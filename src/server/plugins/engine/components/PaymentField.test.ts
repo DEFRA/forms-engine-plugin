@@ -261,7 +261,6 @@ describe('PaymentField', () => {
     const paymentField = collection.fields[0] as PaymentField
     paymentField.model = {
       services: mockServices,
-      t: (key: string, opts?: Record<string, unknown>) => model.t(key, opts),
       createTranslator: (lang: string) => model.createTranslator(lang)
     } as unknown as FormModel
 
@@ -423,8 +422,6 @@ describe('PaymentField', () => {
               basePath: 'base-path',
               name: 'PaymentModel',
               services: mockServices,
-              t: (key: string, opts?: Record<string, unknown>) =>
-                model.t(key, opts),
               createTranslator: (lang: string) => model.createTranslator(lang)
             },
             getState: jest
@@ -487,8 +484,6 @@ describe('PaymentField', () => {
               basePath: 'base-path',
               name: 'PaymentModel',
               services: mockServices,
-              t: (key: string, opts?: Record<string, unknown>) =>
-                model.t(key, opts),
               createTranslator: (lang: string) => model.createTranslator(lang)
             },
             getState: jest

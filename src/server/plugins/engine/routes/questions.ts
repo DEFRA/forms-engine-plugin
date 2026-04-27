@@ -58,7 +58,8 @@ async function handleHttpEvent(
 
   // TODO: Update structured data POST payload with when helper
   // is updated to removing the dependency on `SummaryViewModel` etc.
-  const viewModel = new SummaryViewModel(request, page, context)
+  const translator = model.createTranslator('en-GB')
+  const viewModel = new SummaryViewModel(request, page, context, translator)
   const items = getFormSubmissionData(viewModel.context, viewModel.details)
 
   // @ts-expect-error - function signature will be refactored in the next iteration of the formatter

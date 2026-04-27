@@ -57,21 +57,20 @@ export class SummaryViewModel {
   allowSaveAndExit = false
   paymentState?: PaymentState
   paymentDetails?: CheckAnswers
-  t?: (key: string, opts?: Record<string, unknown>) => string
+  t: (key: string, opts?: Record<string, unknown>) => string
 
   constructor(
     request: FormContextRequest,
     page: PageControllerClass,
     context: FormContext,
-    translator?: Translator
+    translator: Translator
   ) {
     const { model } = page
     const { basePath, def, sections } = model
     const { isForceAccess } = context
 
-    const t =
-      translator?.t ??
-      ((key: string, opts?: Record<string, unknown>) => model.t(key, opts))
+    const { t } = translator
+    this.t = t
 
     this.page = page
     this.pageTitle = page.title

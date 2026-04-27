@@ -121,33 +121,26 @@ export class QuestionPageController extends PageController {
   getViewModel(
     request: FormContextRequest,
     context: FormContext,
-    translator?: Translator
+    translator: Translator
   ): FormPageViewModel {
     const { collection, viewModel } = this
-    const { query } = request
     const { payload, errors } = context
 
-    const t =
-      translator?.t ??
-      ((key: string, opts?: Record<string, unknown>) => this.model.t(key, opts))
-    const tContent = translator?.tContent
+    const { t, tContent } = translator
 
     let { showTitle } = viewModel
 
-    // Resolve page title via tContent if available, otherwise fall back to viewModel.pageTitle
-    let pageTitle = tContent
-      ? tContent(this.pageDef, 'title')
-      : viewModel.pageTitle
+    // Resolve page title via tContent
+    let pageTitle = tContent(this.pageDef, 'title') || viewModel.pageTitle
 
-    // Resolve section title via tContent if available, otherwise fall back to viewModel.sectionTitle
-    const sectionTitle =
-      this.section && tContent
-        ? this.section.hideTitle !== true
-          ? tContent(this.section, 'title')
-          : ''
-        : viewModel.sectionTitle
+    // Resolve section title via tContent
+    const sectionTitle = this.section
+      ? this.section.hideTitle !== true
+        ? tContent(this.section, 'title')
+        : ''
+      : viewModel.sectionTitle
 
-    const components = collection.getViewModel(payload, errors, query)
+    const components = collection.getViewModel(payload, errors, translator)
     const formComponents = components.filter(
       ({ isFormComponent }) => isFormComponent
     )
@@ -516,8 +509,7 @@ export class QuestionPageController extends PageController {
   protected getBackLink(
     request: FormContextRequest,
     context: FormContext,
-    t: (key: string, opts?: Record<string, unknown>) => string = (key, opts) =>
-      this.model.t(key, opts)
+    t: (key: string, opts?: Record<string, unknown>) => string
   ): BackLink | undefined {
     const { pageDef } = this
     const { path, query } = request

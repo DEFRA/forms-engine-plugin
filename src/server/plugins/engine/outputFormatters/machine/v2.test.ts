@@ -14,6 +14,7 @@ import {
   getFormSubmissionData
 } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import {
   FileStatus,
   UploadStatus,
@@ -276,7 +277,11 @@ describe('getPersonalisation', () => {
     const pageDef = definition.pages[2]
     const controller = new SummaryPageController(model, pageDef)
 
-    const summaryViewModel = controller.getSummaryViewModel(request, context)
+    const summaryViewModel = controller.getSummaryViewModel(
+      request,
+      context,
+      stubTranslator
+    )
 
     const items = getFormSubmissionData(
       summaryViewModel.context,

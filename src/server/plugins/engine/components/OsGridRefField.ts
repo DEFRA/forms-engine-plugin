@@ -21,10 +21,10 @@ export class OsGridRefField extends LocationFieldBase {
     return {
       pattern,
       patternErrorMessage: createLowerFirstExpression(
-        this.model.t('components.osGridRefField.pattern')
+        t('components.osGridRefField.pattern', 'en-GB')
       ),
       requiredMessage: createLowerFirstExpression(
-        this.model.t('components.osGridRefField.required')
+        t('components.osGridRefField.required', 'en-GB')
       )
     }
   }
@@ -34,7 +34,7 @@ export class OsGridRefField extends LocationFieldBase {
       {
         type: 'pattern',
         template: createLowerFirstExpression(
-          this.model.t('components.osGridRefField.pattern')
+          t('components.osGridRefField.pattern', 'en-GB')
         )
       }
     ]

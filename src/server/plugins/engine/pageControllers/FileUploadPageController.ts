@@ -12,8 +12,10 @@ import { type FormComponent } from '~/src/server/plugins/engine/components/FormC
 import {
   getCacheService,
   getError,
-  getExponentialBackoffDelay
+  getExponentialBackoffDelay,
+  getPluginOptions
 } from '~/src/server/plugins/engine/helpers.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import { getProxyUrlForLocalDevelopment } from '~/src/server/plugins/engine/pageControllers/helpers/index.js'
@@ -187,10 +189,14 @@ export class FileUploadPageController extends QuestionPageController {
 
       const { filename } = fileToRemove.status.form.file
 
+      const { getLanguage } = getPluginOptions(request.server)
+      const language = getLanguage?.(request) ?? 'en-GB'
+      const { t } = this.model.createTranslator(language)
+
       return h.view(this.fileDeleteViewName, {
         ...viewModel,
         context,
-        backLink: this.getBackLink(request, context),
+        backLink: this.getBackLink(request, context, t),
         pageTitle: `Are you sure you want to remove this file?`,
         itemTitle: filename,
         confirmation: { text: 'You cannot recover removed files.' },
@@ -258,14 +264,15 @@ export class FileUploadPageController extends QuestionPageController {
 
   getViewModel(
     request: FormContextRequest,
-    context: FormContext
+    context: FormContext,
+    translator: Translator
   ): FeaturedFormPageViewModel {
     const { fileUpload } = this
     const { state } = context
 
     const upload = this.getUploadFromState(state)
 
-    const viewModel = super.getViewModel(request, context)
+    const viewModel = super.getViewModel(request, context, translator)
     const { components } = viewModel
 
     // Featured form component

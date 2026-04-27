@@ -6,6 +6,7 @@ import {
   server,
   serverWithSaveAndExit
 } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import {
   type FormContextRequest,
   type FormPageViewModel,
@@ -136,7 +137,10 @@ describe('RepeatPageController', () => {
     beforeEach(() => {
       viewModel = controller.getViewModel(
         requestPageItem,
-        model.getFormContext(requestPageItem, { $$__referenceNumber: 'foobar' })
+        model.getFormContext(requestPageItem, {
+          $$__referenceNumber: 'foobar'
+        }),
+        stubTranslator
       )
     })
 
@@ -201,7 +205,8 @@ describe('RepeatPageController', () => {
           model.getFormContext(requestPageSummary, {
             $$__referenceNumber: 'foobar'
           }),
-          list
+          list,
+          stubTranslator
         )
       })
 
@@ -301,10 +306,11 @@ describe('RepeatPageController', () => {
       expect(viewModel).toHaveProperty('sectionTitle')
     })
 
-    it('does not call model.t when translator is supplied', () => {
-      const spy = jest.spyOn(model, 't')
+    it('uses translator.tContent for page title when translator is supplied', () => {
       const mockT = jest.fn((key: string) => `translated:${key}`)
-      const mockTContent = jest.fn((_entity: object, _prop: string) => '')
+      const mockTContent = jest.fn(
+        (_entity: object, _prop: string) => 'translated-title'
+      )
       const translator: Translator = {
         t: mockT,
         tContent: mockTContent as Translator['tContent']
@@ -314,11 +320,14 @@ describe('RepeatPageController', () => {
         $$__referenceNumber: 'foobar'
       })
 
-      controller.getViewModel(requestPageItem, context, translator)
+      const viewModel = controller.getViewModel(
+        requestPageItem,
+        context,
+        translator
+      )
 
-      // model.t should NOT have been called — translator.t was used instead
-      expect(spy).not.toHaveBeenCalled()
-      spy.mockRestore()
+      expect(mockTContent).toHaveBeenCalled()
+      expect(viewModel).toHaveProperty('pageTitle', 'translated-title')
     })
   })
 
@@ -353,20 +362,19 @@ describe('RepeatPageController', () => {
       expect(viewModel.pageTitle).toBe('translated:pages.repeater.pageTitle')
     })
 
-    it('falls back to model.t when no translator is supplied', () => {
-      const spy = jest.spyOn(model, 't')
-
+    it('uses stubTranslator when no specific translation assertions needed', () => {
       const context = model.getFormContext(requestPageSummary, {
         $$__referenceNumber: 'foobar'
       })
 
-      controller.getListSummaryViewModel(requestPageSummary, context, list)
-
-      expect(spy).toHaveBeenCalledWith(
-        'pages.repeater.pageTitle',
-        expect.anything()
+      const viewModel = controller.getListSummaryViewModel(
+        requestPageSummary,
+        context,
+        list,
+        stubTranslator
       )
-      spy.mockRestore()
+
+      expect(viewModel).toHaveProperty('pageTitle')
     })
   })
 })

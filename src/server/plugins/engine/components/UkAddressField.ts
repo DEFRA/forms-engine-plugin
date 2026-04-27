@@ -12,6 +12,7 @@ import {
   isFormState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
+import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
@@ -168,9 +169,10 @@ export class UkAddressField extends FormComponent {
     errors?: FormSubmissionError[],
     translator?: Translator
   ): FormSubmissionError[] | undefined {
-    const t =
-      translator?.t ??
-      ((key: string, opts?: Record<string, unknown>) => this.model.t(key, opts))
+    const t = translator
+      ? translator.t
+      : (key: string, opts?: Record<string, unknown>) =>
+          tPlugin(key, 'en-GB', opts)
 
     const uniqueErrors = this.getErrors(errors)?.filter(
       (error, index, self) =>

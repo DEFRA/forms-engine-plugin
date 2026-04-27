@@ -18,10 +18,10 @@ export class NationalGridFieldNumberField extends LocationFieldBase {
     return {
       pattern,
       patternErrorMessage: createLowerFirstExpression(
-        this.model.t('components.nationalGridField.pattern')
+        t('components.nationalGridField.pattern', 'en-GB')
       ),
       requiredMessage: createLowerFirstExpression(
-        this.model.t('components.nationalGridField.required')
+        t('components.nationalGridField.required', 'en-GB')
       )
     }
   }
@@ -31,7 +31,7 @@ export class NationalGridFieldNumberField extends LocationFieldBase {
       {
         type: 'pattern',
         template: createLowerFirstExpression(
-          this.model.t('components.nationalGridField.pattern')
+          t('components.nationalGridField.pattern', 'en-GB')
         )
       }
     ]

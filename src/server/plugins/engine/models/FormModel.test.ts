@@ -156,39 +156,30 @@ describe('FormModel', () => {
       expect(model.versionNumber).toBeUndefined()
     })
 
-    it('defaults language to en-GB when metadata.language is absent', () => {
+    it('defaults translator to en-GB when metadata.language is absent', () => {
       const model = new FormModel(definition, { basePath: 'test' })
-      expect(model.language).toBe('en-GB')
+      const { t } = model.createTranslator('en-GB')
+      expect(t('errors.title')).toBe('There is a problem')
     })
 
-    it('reads language from metadata.language when present', () => {
-      const defWithLanguage = {
-        ...definition,
-        metadata: { language: 'cy' }
-      }
-      const model = new FormModel(defWithLanguage, { basePath: 'test' })
-      expect(model.language).toBe('cy')
-    })
-
-    it('translates a key using the form language', () => {
+    it('translates a key using createTranslator', () => {
       const model = new FormModel(definition, { basePath: '/test' })
-      expect(model.t('errors.title')).toBe('There is a problem')
+      const { t } = model.createTranslator('en-GB')
+      expect(t('errors.title')).toBe('There is a problem')
     })
 
-    it('passes interpolation options through', () => {
+    it('passes interpolation options through createTranslator', () => {
       const model = new FormModel(definition, { basePath: '/test' })
-      expect(model.t('pages.repeater.pageTitle', { count: 3 })).toBe(
+      const { t } = model.createTranslator('en-GB')
+      expect(t('pages.repeater.pageTitle', { count: 3 })).toBe(
         'You have added 3 answers'
       )
     })
 
-    it('builds validationMessages at construction time', () => {
+    it('creates translator that resolves plugin namespace keys', () => {
       const model = new FormModel(definition, { basePath: 'test' })
-      expect(model.validationMessages).toBeDefined()
-      expect(typeof model.validationMessages.max).toBe('string')
-      expect(model.validationMessages.max).toBe(
-        '{{#label}} must be {{#limit}} characters or less'
-      )
+      const { t } = model.createTranslator('en-GB')
+      expect(t('common.continue')).toBe('Continue')
     })
 
     it.each([

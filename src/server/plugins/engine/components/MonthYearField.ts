@@ -46,16 +46,15 @@ export class MonthYearField extends FormComponent {
 
     const isRequired = options.required !== false
 
-    const { validationMessages } = props.model
     const customValidationMessages: LanguageMessages =
       convertToLanguageMessages({
-        'any.required': validationMessages.objectMissing,
-        'number.base': validationMessages.objectMissing,
-        'number.precision': validationMessages.dateFormat,
-        'number.integer': validationMessages.dateFormat,
-        'number.unsafe': validationMessages.dateFormat,
-        'number.min': validationMessages.dateFormat,
-        'number.max': validationMessages.dateFormat
+        'any.required': messageTemplate.objectMissing,
+        'number.base': messageTemplate.objectMissing,
+        'number.precision': messageTemplate.dateFormat,
+        'number.integer': messageTemplate.dateFormat,
+        'number.unsafe': messageTemplate.dateFormat,
+        'number.min': messageTemplate.dateFormat,
+        'number.max': messageTemplate.dateFormat
       })
 
     this.collection = new ComponentCollection(

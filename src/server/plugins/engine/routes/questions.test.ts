@@ -65,8 +65,11 @@ describe('makeGetHandler', () => {
 
     const modelMock = {
       basePath: 'some-base-path',
-      def: { name: 'Hello world' }
-    } as FormModel
+      def: { name: 'Hello world' },
+      createTranslator: jest
+        .fn()
+        .mockReturnValue({ t: jest.fn(), tContent: jest.fn() })
+    } as unknown as FormModel
 
     const pageMock = createMockPageController(
       modelMock,
@@ -106,8 +109,11 @@ describe('makeGetHandler', () => {
 
     const modelMock = {
       basePath: 'some-base-path',
-      def: { name: 'Hello world' }
-    } as FormModel
+      def: { name: 'Hello world' },
+      createTranslator: jest
+        .fn()
+        .mockReturnValue({ t: jest.fn(), tContent: jest.fn() })
+    } as unknown as FormModel
 
     const pageMock = createMockPageController(
       modelMock,
@@ -147,8 +153,11 @@ describe('makeGetHandler', () => {
 
     const modelMock = {
       basePath: 'some-base-path',
-      def: { name: 'Hello world' }
-    } as FormModel
+      def: { name: 'Hello world' },
+      createTranslator: jest
+        .fn()
+        .mockReturnValue({ t: jest.fn(), tContent: jest.fn() })
+    } as unknown as FormModel
 
     const pageMock = createMockPageController(
       modelMock,
@@ -196,8 +205,11 @@ describe('makeGetHandler', () => {
     const onRequestCallback = jest.fn().mockResolvedValue(undefined)
     const modelMock = {
       basePath: 'some-base-path',
-      def: { name: 'Hello world' }
-    } as FormModel
+      def: { name: 'Hello world' },
+      createTranslator: jest
+        .fn()
+        .mockReturnValue({ t: jest.fn(), tContent: jest.fn() })
+    } as unknown as FormModel
 
     const pageMock = createMockPageController(
       modelMock,
@@ -262,8 +274,11 @@ describe('makePostHandler', () => {
 
     const modelMock = {
       basePath: 'some-base-path',
-      def: { name: 'Hello world' }
-    } as FormModel
+      def: { name: 'Hello world' },
+      createTranslator: jest
+        .fn()
+        .mockReturnValue({ t: jest.fn(), tContent: jest.fn() })
+    } as unknown as FormModel
 
     const pageMock = createMockPageController(
       modelMock,
@@ -301,8 +316,11 @@ describe('makePostHandler', () => {
   it('does not call the callback when the events.onSave.type is not http', async () => {
     const modelMock = {
       basePath: 'some-base-path',
-      def: { name: 'Hello world' }
-    } as FormModel
+      def: { name: 'Hello world' },
+      createTranslator: jest
+        .fn()
+        .mockReturnValue({ t: jest.fn(), tContent: jest.fn() })
+    } as unknown as FormModel
 
     const pageMock = createMockPageController(
       modelMock,
@@ -344,8 +362,11 @@ describe('makePostHandler', () => {
 
     const modelMock = {
       basePath: 'some-base-path',
-      def: { name: 'Hello world' }
-    } as FormModel
+      def: { name: 'Hello world' },
+      createTranslator: jest
+        .fn()
+        .mockReturnValue({ t: jest.fn(), tContent: jest.fn() })
+    } as unknown as FormModel
 
     const pageMock = createMockPageController(
       modelMock,
@@ -384,8 +405,11 @@ describe('makePostHandler', () => {
 
     const modelMock = {
       basePath: 'some-base-path',
-      def: { name: 'Hello world' }
-    } as FormModel
+      def: { name: 'Hello world' },
+      createTranslator: jest
+        .fn()
+        .mockReturnValue({ t: jest.fn(), tContent: jest.fn() })
+    } as unknown as FormModel
 
     const pageMock = createMockPageController(
       modelMock,
@@ -434,8 +458,11 @@ describe('makePostHandler', () => {
     const onRequestCallback = jest.fn().mockResolvedValue(undefined)
     const modelMock = {
       basePath: 'some-base-path',
-      def: { name: 'Hello world' }
-    } as FormModel
+      def: { name: 'Hello world' },
+      createTranslator: jest
+        .fn()
+        .mockReturnValue({ t: jest.fn(), tContent: jest.fn() })
+    } as unknown as FormModel
 
     const pageMock = createMockPageController(
       modelMock,

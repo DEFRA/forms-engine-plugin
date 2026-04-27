@@ -10,6 +10,7 @@ import {
   isTranslator,
   isUploadState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { InvalidComponentStateError } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
@@ -198,20 +199,18 @@ export class FileUploadField extends FormComponent {
   ) {
     const { options, page, schema } = this
 
+    const isT = isTranslator(translatorOrQuery)
+
     // Allow preview URL direct access (query is passed when called via ComponentCollection)
-    const query = !isTranslator(translatorOrQuery)
-      ? (translatorOrQuery ?? {})
-      : {}
+    const query = isT ? {} : (translatorOrQuery ?? {})
     const isForceAccess = 'force' in query
 
-    const translator = isTranslator(translatorOrQuery)
-      ? translatorOrQuery
-      : undefined
-    const t =
-      translator?.t ??
-      ((key: string, opts?: Record<string, unknown>) => this.model.t(key, opts))
+    const t = isT
+      ? translatorOrQuery.t
+      : (key: string, opts?: Record<string, unknown>) =>
+          tPlugin(key, 'en-GB', opts)
 
-    const viewModel = super.getViewModel(payload, errors, translator)
+    const viewModel = super.getViewModel(payload, errors, translatorOrQuery)
     const { attributes, id, value } = viewModel
 
     const files = this.getFormValue(value) ?? []
@@ -362,7 +361,7 @@ export class FileUploadField extends FormComponent {
         // Scenarios: file missing from S3, invalid retrieval key (timing problem), etc.
         throw new InvalidComponentStateError(
           this,
-          this.model.t('components.fileUploadField.uploadFailed')
+          tPlugin('components.fileUploadField.uploadFailed', 'en-GB')
         )
       }
 

@@ -43,10 +43,6 @@ import {
   getPage,
   setPageTitles
 } from '~/src/server/plugins/engine/helpers.js'
-import {
-  buildValidationMessages,
-  type ValidationMessages
-} from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
 import { extractBaseTranslations } from '~/src/server/plugins/engine/i18n/extractBaseTranslations.js'
 import {
   createFormI18nInstance,
@@ -95,8 +91,6 @@ export class FormModel {
   basePath: string
   versionNumber?: number
   ordnanceSurveyApiKey?: string
-  language: string
-  validationMessages: ValidationMessages
   conditions: Partial<Record<string, ExecutableCondition>>
   pages: PageControllerClass[]
   services: Services
@@ -184,8 +178,6 @@ export class FormModel {
     setPageTitles(def)
 
     this.engine = def.engine
-    this.language = language
-    this.validationMessages = buildValidationMessages((key) => this.t(key))
     this.schemaVersion = def.schema ?? SchemaVersion.V1
     this.def = def
     this.lists = def.lists
@@ -262,11 +254,6 @@ export class FormModel {
         ])
       )
     )
-  }
-
-  /** Translates a key using this form's configured language. */
-  t(key: string, opts?: Record<string, unknown>): string {
-    return translate(key, this.language, opts)
   }
 
   /** Returns a scoped translator pair for the given language. */
@@ -592,9 +579,9 @@ export class FormModel {
       if (isInvalid) {
         context.errors ??= []
 
-        const text =
-          translator?.t('errors.optionsMismatch') ??
-          this.t('errors.optionsMismatch')
+        const text = translator
+          ? translator.t('errors.optionsMismatch')
+          : translate('errors.optionsMismatch', 'en-GB')
 
         context.errors.push({
           text,

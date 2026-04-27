@@ -9,6 +9,7 @@ import {
   buildFormRequest
 } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { serverWithSaveAndExit } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import {
   FileStatus,
   UploadStatus,
@@ -189,12 +190,14 @@ describe('QuestionPageController', () => {
     beforeEach(() => {
       viewModel1 = controller1.getViewModel(
         requestPage1,
-        model.getFormContext(requestPage1, { $$__referenceNumber: 'foobar' })
+        model.getFormContext(requestPage1, { $$__referenceNumber: 'foobar' }),
+        stubTranslator
       )
 
       viewModel2 = controller2.getViewModel(
         requestPage2,
-        model.getFormContext(requestPage2, { $$__referenceNumber: 'foobar' })
+        model.getFormContext(requestPage2, { $$__referenceNumber: 'foobar' }),
+        stubTranslator
       )
     })
 
@@ -448,7 +451,11 @@ describe('QuestionPageController', () => {
       const context = controller.model.getFormContext(request, state)
       const evaluationState = { animalType: 'Barn owl' }
 
-      const viewModel = controller.getViewModel(request, context)
+      const viewModel = controller.getViewModel(
+        request,
+        context,
+        stubTranslator
+      )
 
       const filtered = controller.filterConditionalComponents(
         viewModel,
@@ -504,7 +511,11 @@ describe('QuestionPageController', () => {
       const context = controller.model.getFormContext(request, state)
       const evaluationState = { animalType: 'Swan' }
 
-      const viewModel = controller.getViewModel(request, context)
+      const viewModel = controller.getViewModel(
+        request,
+        context,
+        stubTranslator
+      )
 
       const filtered = controller.filterConditionalComponents(
         viewModel,
@@ -1088,12 +1099,14 @@ describe('QuestionPageController V2', () => {
     beforeEach(() => {
       viewModel1 = controller1.getViewModel(
         requestPage1,
-        model.getFormContext(requestPage1, { $$__referenceNumber: 'foobar' })
+        model.getFormContext(requestPage1, { $$__referenceNumber: 'foobar' }),
+        stubTranslator
       )
 
       viewModel2 = controller2.getViewModel(
         requestPage2,
-        model.getFormContext(requestPage2, { $$__referenceNumber: 'foobar' })
+        model.getFormContext(requestPage2, { $$__referenceNumber: 'foobar' }),
+        stubTranslator
       )
     })
 
@@ -1778,10 +1791,14 @@ describe('QuestionPageController translator support', () => {
       )
     })
 
-    it('falls back to model.t when no translator is supplied', () => {
-      jest.spyOn(model, 't')
+    it('uses translator.t for back link text when translator is supplied', () => {
+      const mockT = jest.fn().mockReturnValue('Back to check answers')
+      const mockTranslatorLocal: Translator = {
+        t: mockT,
+        tContent: stubTranslator.tContent
+      }
 
-      // Use a request with returnUrl so that getBackLink calls model.t() for back link text
+      // Use a request with returnUrl so that getBackLink calls translator.t for back link text
       const requestWithReturn = buildFormRequest({
         method: 'get',
         url: page1Url,
@@ -1798,14 +1815,9 @@ describe('QuestionPageController translator support', () => {
         $$__referenceNumber: 'foobar'
       })
 
-      // Call without translator (backward compat)
-      controller1.getViewModel(requestWithReturn, context)
+      controller1.getViewModel(requestWithReturn, context, mockTranslatorLocal)
 
-      // model.t should have been called for back link text (opts may be undefined)
-      expect(model.t).toHaveBeenCalledWith(
-        'pages.question.backToCheckAnswers',
-        undefined
-      )
+      expect(mockT).toHaveBeenCalledWith('pages.question.backToCheckAnswers')
     })
   })
 })
