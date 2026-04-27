@@ -59,12 +59,10 @@ export class DeclarationField extends FormComponent {
       .label(this.label)
       .single()
       .messages({
-        'any.required': props.model.validationMessages
-          .declarationRequired as string,
-        'any.unknown': props.model.validationMessages
-          .declarationRequired as string,
-        'array.includesRequiredUnknowns': props.model.validationMessages
-          .declarationRequired as string
+        'any.required': messageTemplate.declarationRequired as string,
+        'any.unknown': messageTemplate.declarationRequired as string,
+        'array.includesRequiredUnknowns':
+          messageTemplate.declarationRequired as string
       }) as ArraySchema<StringSchema[]>
 
     this.formSchema = formSchema
