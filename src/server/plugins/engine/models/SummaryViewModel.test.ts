@@ -5,6 +5,7 @@ import {
 } from '@defra/forms-model'
 
 import { FORM_PREFIX } from '~/src/server/constants.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import {
   FormModel,
   SummaryViewModel
@@ -337,6 +338,87 @@ describe('SummaryViewModel', () => {
       title: 'How you would like to receive your pizza (optional)',
       label: 'How would you like to receive your pizza?'
     })
+  })
+})
+
+describe('SummaryViewModel with per-request Translator', () => {
+  let model: FormModel
+  let page: PageControllerClass
+  let request: FormContextRequest
+  let context: FormContext
+  let mockTranslator: Translator
+
+  beforeEach(() => {
+    model = new FormModel(definition, {
+      basePath: `${FORM_PREFIX}/test`
+    })
+
+    page = createPage(model, definition.pages[2])
+    const pageUrl = new URL('http://example.com/repeat/pizza-order/summary')
+
+    request = buildFormContextRequest({
+      method: 'get',
+      url: pageUrl,
+      path: pageUrl.pathname,
+      params: {
+        path: 'pizza-order',
+        slug: 'repeat'
+      },
+      query: {},
+      app: { model }
+    })
+
+    mockTranslator = {
+      t: jest.fn().mockReturnValue('mocked'),
+      tContent: jest
+        .fn()
+        .mockReturnValue('mocked-content') as Translator['tContent']
+    }
+  })
+
+  it('should use the provided translator t function for plugin keys like pages.summary.change', () => {
+    const state: FormState = {
+      $$__referenceNumber: 'foobar',
+      orderType: 'collection',
+      pizza: []
+    }
+
+    context = model.getFormContext(request, state)
+    expect(
+      new SummaryViewModel(request, page, context, mockTranslator)
+    ).toBeDefined()
+
+    expect(mockTranslator.t).toHaveBeenCalledWith('pages.summary.change')
+  })
+
+  it('should use the provided translator t function for pages.summary.notProvided', () => {
+    const state: FormState = {
+      $$__referenceNumber: 'foobar',
+      orderType: 'collection',
+      pizza: []
+    }
+
+    context = model.getFormContext(request, state)
+    expect(
+      new SummaryViewModel(request, page, context, mockTranslator)
+    ).toBeDefined()
+
+    expect(mockTranslator.t).toHaveBeenCalledWith('pages.summary.notProvided')
+  })
+
+  it('should fall back to model.t when no translator is provided', () => {
+    const tSpy = jest.spyOn(model, 't')
+    const state: FormState = {
+      $$__referenceNumber: 'foobar',
+      orderType: 'collection',
+      pizza: []
+    }
+
+    context = model.getFormContext(request, state)
+    expect(new SummaryViewModel(request, page, context)).toBeDefined()
+
+    const calledKeys = tSpy.mock.calls.map(([key]) => key)
+    expect(calledKeys).toContain('pages.summary.change')
   })
 })
 

@@ -17,8 +17,10 @@ import {
   checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
   createError,
-  getCacheService
+  getCacheService,
+  getPluginOptions
 } from '~/src/server/plugins/engine/helpers.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import {
   SummaryViewModel,
   type FormModel
@@ -78,9 +80,14 @@ export class SummaryPageController extends QuestionPageController {
 
   getSummaryViewModel(
     request: FormContextRequest,
-    context: FormContext
+    context: FormContext,
+    translator?: Translator
   ): SummaryViewModel {
-    const viewModel = new SummaryViewModel(request, this, context)
+    const t =
+      translator?.t ??
+      ((key: string, opts?: Record<string, unknown>) => this.model.t(key, opts))
+
+    const viewModel = new SummaryViewModel(request, this, context, translator)
 
     const { query } = request
     const { payload, errors, state } = context
@@ -95,14 +102,15 @@ export class SummaryPageController extends QuestionPageController {
         viewModel.paymentState = paymentState
         viewModel.paymentDetails = this.buildPaymentDetails(
           paymentField,
-          paymentState
+          paymentState,
+          t
         )
       }
     }
 
     const components = this.collection.getViewModel(payload, errors, query)
 
-    viewModel.backLink = this.getBackLink(request, context)
+    viewModel.backLink = this.getBackLink(request, context, t)
     viewModel.feedbackLink = this.feedbackLink
     viewModel.phaseTag = this.phaseTag
     viewModel.components = components
@@ -116,32 +124,34 @@ export class SummaryPageController extends QuestionPageController {
     paymentField: PaymentField,
     paymentState: NonNullable<
       ReturnType<PaymentField['getPaymentStateFromState']>
-    >
+    >,
+    t: (key: string, opts?: Record<string, unknown>) => string = (key, opts) =>
+      this.model.t(key, opts)
   ) {
     const rows = [
       {
-        key: { text: this.model.t('pages.summary.paymentFor') },
+        key: { text: t('pages.summary.paymentFor') },
         value: { text: paymentState.description }
       },
       {
-        key: { text: this.model.t('pages.summary.totalAmount') },
+        key: { text: t('pages.summary.totalAmount') },
         value: { text: formatCurrency(paymentState.amount) }
       },
       {
-        key: { text: this.model.t('pages.summary.reference') },
+        key: { text: t('pages.summary.reference') },
         value: { text: paymentState.reference }
       }
     ]
 
     if (paymentState.preAuth?.createdAt) {
       rows.push({
-        key: { text: this.model.t('pages.summary.dateOfPayment') },
+        key: { text: t('pages.summary.dateOfPayment') },
         value: { text: formatPaymentDate(paymentState.preAuth.createdAt) }
       })
     }
 
     return {
-      title: { text: this.model.t('pages.summary.paymentDetailsTitle') },
+      title: { text: t('pages.summary.paymentDetailsTitle') },
       summaryList: { rows }
     }
   }
@@ -157,14 +167,17 @@ export class SummaryPageController extends QuestionPageController {
     ) => {
       const { viewName } = this
 
-      const viewModel = this.getSummaryViewModel(request, context)
+      const { getLanguage } = getPluginOptions(request.server)
+      const language = getLanguage?.(request) ?? 'en-GB'
+      const translator = this.model.createTranslator(language)
+      const { t } = translator
+
+      const viewModel = this.getSummaryViewModel(request, context, translator)
 
       viewModel.hasMissingNotificationEmail =
         await this.hasMissingNotificationEmail(request, context)
 
-      viewModel.t = (key: string, opts?: Record<string, unknown>) =>
-        this.model.t(key, opts)
-
+      viewModel.t = t
       return h.view(viewName, viewModel)
     }
   }
@@ -314,16 +327,19 @@ export class SummaryPageController extends QuestionPageController {
     request: FormRequestPayload,
     h: FormResponseToolkit
   ) {
+    const { getLanguage } = getPluginOptions(request.server)
+    const language = getLanguage?.(request) ?? 'en-GB'
+    const { t } = this.model.createTranslator(language)
+
     const helpUrl = error.helpLink ?? DEFAULT_PAYMENT_HELP_URL
-    const contactUsLink = `<a href="${helpUrl}" target="_blank" rel="noopener noreferrer" class="govuk-link">${this.model.t('pages.summary.contactUsLinkText')}</a>`
-    const helpLinkHtml = this.model.t(
-      'pages.summary.submissionFailedContactSuffix',
-      { contactUsLink }
-    )
+    const contactUsLink = `<a href="${helpUrl}" target="_blank" rel="noopener noreferrer" class="govuk-link">${t('pages.summary.contactUsLinkText')}</a>`
+    const helpLinkHtml = t('pages.summary.submissionFailedContactSuffix', {
+      contactUsLink
+    })
 
     const govukError = createError(
       'submission',
-      `${this.model.t('pages.summary.submissionFailed')}${helpLinkHtml}.`
+      `${t('pages.summary.submissionFailed')}${helpLinkHtml}.`
     )
 
     request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
