@@ -1,11 +1,13 @@
 import { ComponentType, type TextFieldComponent } from '@defra/forms-model'
 
+
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import {
   getAnswer,
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
@@ -184,7 +186,11 @@ describe('TextField', () => {
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = field.getViewModel(getFormData('Text field'))
+        const viewModel = field.getViewModel(
+          getFormData('Text field'),
+          undefined,
+          stubTranslator
+        )
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -228,7 +234,7 @@ describe('TextField', () => {
       })
 
       it('falls back to English when no translator supplied', () => {
-        const viewModel = field.getViewModel({})
+        const viewModel = field.getViewModel({}, undefined, stubTranslator)
         expect(viewModel.label.text).toBe('Example text field')
       })
     })

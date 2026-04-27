@@ -12,6 +12,7 @@ import {
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import { PaymentPreAuthError } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import {
   type FormContext,
@@ -198,7 +199,11 @@ describe('PaymentField', () => {
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = field.getViewModel(getFormData(undefined))
+        const viewModel = field.getViewModel(
+          getFormData(undefined),
+          undefined,
+          stubTranslator
+        )
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -222,7 +227,11 @@ describe('PaymentField', () => {
           description: 'Test payment description',
           isLivePayment: false
         } as unknown as FormValue
-        const viewModel = field.getViewModel(getFormData(paymentForViewModel))
+        const viewModel = field.getViewModel(
+          getFormData(paymentForViewModel),
+          undefined,
+          stubTranslator
+        )
 
         expect(viewModel).toEqual(
           expect.objectContaining({

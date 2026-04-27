@@ -8,6 +8,7 @@ import {
   type Label,
   type ViewModel
 } from '~/src/server/plugins/engine/components/types.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import {
   type FormPayload,
   type FormSubmissionError,
@@ -95,12 +96,19 @@ export function getLocationFieldViewModel(
     value: FormValue
   },
   payload: FormPayload,
-  errors?: FormSubmissionError[]
+  errors: FormSubmissionError[] | undefined,
+  translator: Translator,
+  isForceAccess = false
 ) {
   const { collection } = component
   const { fieldset: existingFieldset, label } = viewModel
 
-  const subViewModels = collection.getViewModel(payload, errors)
+  const subViewModels = collection.getViewModel(
+    payload,
+    errors,
+    translator,
+    isForceAccess
+  )
 
   const fieldErrors: string[] = []
   subViewModels.forEach(({ model }) => {

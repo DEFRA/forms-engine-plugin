@@ -1,5 +1,6 @@
 import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
 import { type ListItem } from '~/src/server/plugins/engine/components/types.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
@@ -11,10 +12,20 @@ import {
  * "Selection controls" are checkboxes and radios (and switches), as per Material UI nomenclature.
  */
 export class SelectionControlField extends ListFormComponent {
-  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
+  getViewModel(
+    payload: FormPayload,
+    errors: FormSubmissionError[] | undefined,
+    translator: Translator,
+    isForceAccess = false
+  ) {
     const { options } = this
 
-    const viewModel = super.getViewModel(payload, errors)
+    const viewModel = super.getViewModel(
+      payload,
+      errors,
+      translator,
+      isForceAccess
+    )
     let { fieldset, items, label } = viewModel
 
     fieldset ??= {

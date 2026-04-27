@@ -15,6 +15,7 @@ import { NumberField } from '~/src/server/plugins/engine/components/NumberField.
 import { createLowerFirstExpression } from '~/src/server/plugins/engine/components/helpers/index.js'
 import { type LatLongState } from '~/src/server/plugins/engine/components/types.js'
 import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
@@ -183,9 +184,26 @@ export class LatLongField extends FormComponent {
     return this.getContextValueFromFormValue(value)
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
-    const viewModel = super.getViewModel(payload, errors)
-    return getLocationFieldViewModel(this, viewModel, payload, errors)
+  getViewModel(
+    payload: FormPayload,
+    errors: FormSubmissionError[] | undefined,
+    translator: Translator,
+    isForceAccess = false
+  ) {
+    const viewModel = super.getViewModel(
+      payload,
+      errors,
+      translator,
+      isForceAccess
+    )
+    return getLocationFieldViewModel(
+      this,
+      viewModel,
+      payload,
+      errors,
+      translator,
+      isForceAccess
+    )
   }
 
   getViewErrors(

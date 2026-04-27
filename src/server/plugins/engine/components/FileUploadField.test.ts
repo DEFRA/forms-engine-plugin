@@ -15,6 +15,7 @@ import {
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import { InvalidComponentStateError } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import {
   createPage,
@@ -382,7 +383,11 @@ describe('FileUploadField', () => {
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = field.getViewModel(getFormData(validState))
+        const viewModel = field.getViewModel(
+          getFormData(validState),
+          undefined,
+          stubTranslator
+        )
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -464,9 +469,8 @@ describe('FileUploadField', () => {
         const viewModel = field.getViewModel(
           getFormData(validState),
           undefined,
-
-          // Preview URL '?force'
-          { force: '' }
+          stubTranslator,
+          true
         )
 
         expect(viewModel).toEqual(
@@ -521,7 +525,11 @@ describe('FileUploadField', () => {
       })
 
       it('sets Nunjucks component defaults with temp valid state', () => {
-        const viewModel = field.getViewModel(getFormData(validTempState))
+        const viewModel = field.getViewModel(
+          getFormData(validTempState),
+          undefined,
+          stubTranslator
+        )
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -562,7 +570,11 @@ describe('FileUploadField', () => {
       })
 
       it('sets Nunjucks component defaults with temp valid state with errors (on POST)', () => {
-        const viewModel = field.getViewModel(getFormData(validTempState), [])
+        const viewModel = field.getViewModel(
+          getFormData(validTempState),
+          [],
+          stubTranslator
+        )
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -892,13 +904,18 @@ describe('FileUploadField', () => {
 
       // Mock request
       mockRequest = {
+        server: { plugins: { 'forms-engine-plugin': {} } },
         app: {
           model: {
             services: {
               formSubmissionService: {
                 persistFiles: mockPersistFiles
               }
-            }
+            },
+            createTranslator: () => ({
+              t: jest.fn((k: string) => k),
+              tContent: jest.fn()
+            })
           }
         }
       } as unknown as FormRequestPayload

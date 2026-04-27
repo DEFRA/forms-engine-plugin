@@ -68,8 +68,8 @@ export const configureEnginePlugin = async (
       saveAndExit,
       ordnanceSurveyApiKey,
       ordnanceSurveyApiSecret,
-      getLanguage: (_request) => {
-        return 'cy'
+      getLanguage: (request) => {
+        return 'lang' in request.query ? request.query.lang : 'en-GB'
       }
     }
   }

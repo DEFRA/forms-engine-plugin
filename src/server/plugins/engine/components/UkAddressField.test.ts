@@ -4,6 +4,7 @@ import {
   type UkAddressFieldComponent
 } from '@defra/forms-model'
 
+
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { UkAddressField } from '~/src/server/plugins/engine/components/UkAddressField.js'
 import {
@@ -12,6 +13,7 @@ import {
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { type ViewModel } from '~/src/server/plugins/engine/components/types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import {
   type FormPayload,
   type FormState
@@ -423,7 +425,7 @@ describe('UkAddressField', () => {
 
       it('sets Nunjucks component defaults', () => {
         const payload = getFormData(address)
-        const viewModel = field.getViewModel(payload)
+        const viewModel = field.getViewModel(payload, undefined, stubTranslator)
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -484,7 +486,7 @@ describe('UkAddressField', () => {
 
       it('sets Nunjucks component fieldset', () => {
         const payload = getFormData(address)
-        const viewModel = field.getViewModel(payload)
+        const viewModel = field.getViewModel(payload, undefined, stubTranslator)
 
         expect(viewModel.fieldset).toEqual({
           legend: {

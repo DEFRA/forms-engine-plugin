@@ -6,7 +6,6 @@ import {
 } from '@defra/forms-model'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
-import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import {
   type FormContext,
@@ -27,7 +26,6 @@ import {
   type RepeatListState,
   type UploadState
 } from '~/src/server/plugins/engine/types.js'
-import { type FormQuery } from '~/src/server/routes/types.js'
 
 export class FormComponent extends ComponentBase {
   type: FormComponentsDef['type']
@@ -135,31 +133,24 @@ export class FormComponent extends ComponentBase {
 
   getViewModel(
     payload: FormPayload,
-    errors?: FormSubmissionError[],
-    translatorOrQuery?: Translator | FormQuery
+    errors: FormSubmissionError[] | undefined,
+    translator: Translator,
+    _isForceAccess = false
   ) {
     const { hint, name, options = {}, title, viewModel } = this
 
-    const isT = isTranslator(translatorOrQuery)
-    const t = isT
-      ? translatorOrQuery.t
-      : (key: string, opts?: Record<string, unknown>) =>
-          tPlugin(key, 'en-GB', opts)
-    const tContent = isT ? translatorOrQuery.tContent : undefined
+    const { t, tContent } = translator
 
     const isRequired = !('required' in options) || options.required !== false
     const hideOptional = 'optionalText' in options && options.optionalText
 
-    const resolvedTitle = tContent
-      ? tContent(this as unknown as ComponentDef, 'title')
-      : title
+    const resolvedTitle =
+      tContent(this as unknown as ComponentDef, 'title') || title
     const label = `${resolvedTitle}${!isRequired && !hideOptional ? ` ${t('common.optional')}` : ''}`
 
     if (hint) {
       viewModel.hint = {
-        text: tContent
-          ? tContent(this as unknown as ComponentDef, 'hint')
-          : hint
+        text: tContent(this as unknown as ComponentDef, 'hint') || hint
       }
     }
 
@@ -188,15 +179,21 @@ export class FormComponent extends ComponentBase {
     }
   }
 
-  getDisplayStringFromFormValue(value: FormValue | FormPayload): string {
+  getDisplayStringFromFormValue(
+    value: FormValue | FormPayload,
+    _translator?: Translator
+  ): string {
     // Map selected values to text
     // eslint-disable-next-line @typescript-eslint/no-base-to-string
     return this.isValue(value) ? value.toString() : ''
   }
 
-  getDisplayStringFromState(state: FormSubmissionState): string {
+  getDisplayStringFromState(
+    state: FormSubmissionState,
+    translator?: Translator
+  ): string {
     const value = this.getFormValueFromState(state)
-    return this.getDisplayStringFromFormValue(value)
+    return this.getDisplayStringFromFormValue(value, translator)
   }
 
   getContextValueFromFormValue(

@@ -32,7 +32,6 @@ import {
   type FormSubmissionState,
   type FormValidationResult
 } from '~/src/server/plugins/engine/types.js'
-import { type FormQuery } from '~/src/server/routes/types.js'
 
 export class ComponentCollection {
   page?: PageControllerClass
@@ -229,15 +228,20 @@ export class ComponentCollection {
    * Composite fields like UKAddress can choose to return more than one error.
    */
   getViewErrors(
-    errors?: FormSubmissionError[]
+    errors?: FormSubmissionError[],
+    translator?: Translator
   ): FormSubmissionError[] | undefined {
-    return this.getFieldErrors((field) => field.getViewErrors(errors), errors)
+    return this.getFieldErrors(
+      (field) => field.getViewErrors(errors, translator),
+      errors
+    )
   }
 
   getViewModel(
     payload: FormPayload,
-    errors?: FormSubmissionError[],
-    translatorOrQuery: Translator | FormQuery = {}
+    errors: FormSubmissionError[] | undefined,
+    translator: Translator,
+    isForceAccess = false
   ) {
     const { components } = this
 
@@ -246,7 +250,7 @@ export class ComponentCollection {
 
       const model =
         component instanceof FormComponent
-          ? component.getViewModel(payload, errors, translatorOrQuery)
+          ? component.getViewModel(payload, errors, translator, isForceAccess)
           : component.getViewModel()
 
       return { type, isFormComponent, model }

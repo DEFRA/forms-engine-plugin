@@ -14,6 +14,7 @@ import {
   createError,
   getPluginOptions
 } from '~/src/server/plugins/engine/helpers.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import {
   PaymentErrorTypes,
   PaymentPreAuthError,
@@ -101,8 +102,18 @@ export class PaymentField extends FormComponent {
     return `${formatCurrency(value.amount)} - ${value.description}`
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
-    const viewModel = super.getViewModel(payload, errors)
+  getViewModel(
+    payload: FormPayload,
+    errors: FormSubmissionError[] | undefined,
+    translator: Translator,
+    isForceAccess = false
+  ) {
+    const viewModel = super.getViewModel(
+      payload,
+      errors,
+      translator,
+      isForceAccess
+    )
 
     // Payload is pre-populated from state if a payment has already been made
     const paymentState = this.isPaymentState(payload[this.name] as unknown)

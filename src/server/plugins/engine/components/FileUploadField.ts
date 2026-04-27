@@ -7,10 +7,9 @@ import joi, { type ArraySchema } from 'joi'
 
 import {
   FormComponent,
-  isTranslator,
   isUploadState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
+import { getPluginOptions } from '~/src/server/plugins/engine/helpers.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { InvalidComponentStateError } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
@@ -35,10 +34,7 @@ import {
   type UploadStatusResponse
 } from '~/src/server/plugins/engine/types.js'
 import { render } from '~/src/server/plugins/nunjucks/index.js'
-import {
-  type FormQuery,
-  type FormRequestPayload
-} from '~/src/server/routes/types.js'
+import { type FormRequestPayload } from '~/src/server/routes/types.js'
 
 export const uploadIdSchema = joi.string().uuid().required()
 
@@ -194,23 +190,15 @@ export class FileUploadField extends FormComponent {
 
   getViewModel(
     payload: FormPayload,
-    errors?: FormSubmissionError[],
-    translatorOrQuery?: Translator | FormQuery
+    errors: FormSubmissionError[] | undefined,
+    translator: Translator,
+    isForceAccess = false
   ) {
     const { options, page, schema } = this
 
-    const isT = isTranslator(translatorOrQuery)
+    const { t } = translator
 
-    // Allow preview URL direct access (query is passed when called via ComponentCollection)
-    const query = isT ? {} : (translatorOrQuery ?? {})
-    const isForceAccess = 'force' in query
-
-    const t = isT
-      ? translatorOrQuery.t
-      : (key: string, opts?: Record<string, unknown>) =>
-          tPlugin(key, 'en-GB', opts)
-
-    const viewModel = super.getViewModel(payload, errors, translatorOrQuery)
+    const viewModel = super.getViewModel(payload, errors, translator)
     const { attributes, id, value } = viewModel
 
     const files = this.getFormValue(value) ?? []
@@ -323,6 +311,10 @@ export class FileUploadField extends FormComponent {
     metadata: FormMetadata,
     context: FormContext
   ) {
+    const { getLanguage } = getPluginOptions(request.server)
+    const language = getLanguage?.(request) ?? 'en-GB'
+    const { t } = this.model.createTranslator(language)
+
     const notificationEmail = metadata.notificationEmail
 
     if (!notificationEmail) {
@@ -361,7 +353,7 @@ export class FileUploadField extends FormComponent {
         // Scenarios: file missing from S3, invalid retrieval key (timing problem), etc.
         throw new InvalidComponentStateError(
           this,
-          tPlugin('components.fileUploadField.uploadFailed', 'en-GB')
+          t('components.fileUploadField.uploadFailed')
         )
       }
 

@@ -1,5 +1,6 @@
 import { ComponentType, type LatLongFieldComponent } from '@defra/forms-model'
 
+
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { type LatLongField } from '~/src/server/plugins/engine/components/LatLongField.js'
 import {
@@ -9,6 +10,7 @@ import {
   mergeCssClasses
 } from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
 
@@ -276,7 +278,7 @@ describe('LocationFieldHelpers', () => {
         myComponent__longitude: -0.1
       }
 
-      const viewModel = field.getViewModel(payload)
+      const viewModel = field.getViewModel(payload, undefined, stubTranslator)
 
       expect(viewModel.fieldset).toEqual({
         legend: {
@@ -307,7 +309,7 @@ describe('LocationFieldHelpers', () => {
         myComponent__longitude: -0.1
       }
 
-      const viewModel = field.getViewModel(payload)
+      const viewModel = field.getViewModel(payload, undefined, stubTranslator)
 
       const instructionText =
         'instructionText' in viewModel ? viewModel.instructionText : undefined
@@ -341,7 +343,7 @@ describe('LocationFieldHelpers', () => {
         }
       ]
 
-      const viewModel = field.getViewModel(payload, errors)
+      const viewModel = field.getViewModel(payload, errors, stubTranslator)
 
       // Check that errors are passed to the viewModel
       expect(viewModel.errors).toEqual(errors)
@@ -389,7 +391,7 @@ describe('LocationFieldHelpers', () => {
         }
       ]
 
-      const viewModel = field.getViewModel(payload, errors)
+      const viewModel = field.getViewModel(payload, errors, stubTranslator)
 
       // Single errors should be displayed at fieldset level
       expect(viewModel.items[0].errorMessage).toBeUndefined()
@@ -437,7 +439,7 @@ describe('LocationFieldHelpers', () => {
         }
       ]
 
-      const viewModel = field.getViewModel(payload, errors)
+      const viewModel = field.getViewModel(payload, errors, stubTranslator)
 
       expect(viewModel.items[0].errorMessage).toBeUndefined()
       expect(viewModel.items[1].errorMessage).toBeUndefined()
@@ -469,7 +471,7 @@ describe('LocationFieldHelpers', () => {
       }
 
       // No errors passed in, but the subViewModels might have errors from elsewhere
-      const viewModel = field.getViewModel(payload, [])
+      const viewModel = field.getViewModel(payload, [], stubTranslator)
 
       // When no field errors, items should not have error messages
       expect(viewModel.items[0].errorMessage).toBeUndefined()
@@ -511,7 +513,7 @@ describe('LocationFieldHelpers', () => {
         }
       ]
 
-      const viewModel = field.getViewModel(payload, errors)
+      const viewModel = field.getViewModel(payload, errors, stubTranslator)
 
       // No individual field errors
       expect(viewModel.items[0].errorMessage).toBeUndefined()
@@ -545,7 +547,7 @@ describe('LocationFieldHelpers', () => {
         myComponent__longitude: '-0.1'
       }
 
-      const viewModel = field.getViewModel(payload)
+      const viewModel = field.getViewModel(payload, undefined, stubTranslator)
 
       // When no errors and no additional classes, classes should not include govuk-input--error
       expect(viewModel.items[0].classes).not.toContain('govuk-input--error')
@@ -569,7 +571,7 @@ describe('LocationFieldHelpers', () => {
         myComponent__longitude: '-0.1'
       }
 
-      const viewModel = field.getViewModel(payload)
+      const viewModel = field.getViewModel(payload, undefined, stubTranslator)
 
       const label = viewModel.items[0].label
       expect(label).toBeDefined()
@@ -601,7 +603,7 @@ describe('LocationFieldHelpers', () => {
         myComponent__longitude: -0.1
       }
 
-      const viewModel = field.getViewModel(payload)
+      const viewModel = field.getViewModel(payload, undefined, stubTranslator)
 
       expect(viewModel.fieldset).toBeDefined()
     })

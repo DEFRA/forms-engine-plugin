@@ -19,6 +19,7 @@ import {
   type MonthYearState
 } from '~/src/server/plugins/engine/components/types.js'
 import { parseStrictDate } from '~/src/server/plugins/engine/date-helper.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
@@ -145,10 +146,20 @@ export class MonthYearField extends FormComponent {
     return this.getContextValueFromFormValue(value)
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
+  getViewModel(
+    payload: FormPayload,
+    errors: FormSubmissionError[] | undefined,
+    translator: Translator,
+    isForceAccess = false
+  ) {
     const { collection, name } = this
 
-    const viewModel = super.getViewModel(payload, errors)
+    const viewModel = super.getViewModel(
+      payload,
+      errors,
+      translator,
+      isForceAccess
+    )
     let { fieldset, label } = viewModel
 
     // Check for component errors only
@@ -156,7 +167,7 @@ export class MonthYearField extends FormComponent {
 
     // Use the component collection to generate the subitems
     const items: DateInputItem[] = collection
-      .getViewModel(payload, errors)
+      .getViewModel(payload, errors, translator, isForceAccess)
       .map(({ model }) => {
         let { label, type, value, classes, errorMessage } = model
 

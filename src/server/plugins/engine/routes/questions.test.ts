@@ -86,6 +86,7 @@ describe('makeGetHandler', () => {
     const contextMock = { data: {}, model: {} } as unknown as FormContext
 
     const requestMock = {
+      server: { plugins: { 'forms-engine-plugin': {} } },
       params: { path: 'some-path' },
       app: { model: modelMock }
     } as FormRequest
@@ -132,6 +133,7 @@ describe('makeGetHandler', () => {
     const contextMock = { data: {}, model: {} } as unknown as FormContext
 
     const requestMock = {
+      server: { plugins: { 'forms-engine-plugin': {} } },
       params: { path: 'some-path' },
       app: { model: modelMock }
     } as FormRequest
@@ -173,6 +175,7 @@ describe('makeGetHandler', () => {
     const contextMock = { data: {}, model: {} } as unknown as FormContext
 
     const requestMock = {
+      server: { plugins: { 'forms-engine-plugin': {} } },
       params: { path: 'some-path' },
       app: {}
     } as FormRequest
@@ -225,6 +228,7 @@ describe('makeGetHandler', () => {
     const contextMock = { data: {}, model: {} } as unknown as FormContext
 
     const requestMock = {
+      server: { plugins: { 'forms-engine-plugin': {} } },
       params: { path: 'some-path' },
       app: { model: modelMock }
     } as FormRequest
@@ -295,6 +299,7 @@ describe('makePostHandler', () => {
     const contextMock = { data: {}, model: {} } as unknown as FormContext
 
     const requestMock = {
+      server: { plugins: { 'forms-engine-plugin': {} } },
       params: { path: 'some-path' },
       app: { model: modelMock },
       payload: { some: 'payload' }
@@ -338,6 +343,7 @@ describe('makePostHandler', () => {
     const contextMock = { data: {}, model: {} } as unknown as FormContext
 
     const requestMock = {
+      server: { plugins: { 'forms-engine-plugin': {} } },
       params: { path: 'some-path' },
       app: { model: modelMock },
       payload: { some: 'payload' }
@@ -383,6 +389,7 @@ describe('makePostHandler', () => {
     const contextMock = { data: {}, model: {} } as unknown as FormContext
 
     const requestMock = {
+      server: { plugins: { 'forms-engine-plugin': {} } },
       params: { path: 'some-path' },
       app: { model: modelMock },
       payload: { some: 'payload' }
@@ -425,6 +432,7 @@ describe('makePostHandler', () => {
     const contextMock = { data: {}, model: {} } as unknown as FormContext
 
     const requestMock = {
+      server: { plugins: { 'forms-engine-plugin': {} } },
       params: { path: 'some-path' },
       app: {},
       payload: { some: 'payload' }
@@ -478,6 +486,7 @@ describe('makePostHandler', () => {
     const contextMock = { data: {}, model: {} } as unknown as FormContext
 
     const requestMock = {
+      server: { plugins: { 'forms-engine-plugin': {} } },
       params: { path: 'some-path' },
       app: { model: modelMock },
       payload: { some: 'payload' }

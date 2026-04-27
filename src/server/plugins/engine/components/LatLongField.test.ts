@@ -1,5 +1,6 @@
 import { ComponentType, type LatLongFieldComponent } from '@defra/forms-model'
 
+
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { LatLongField } from '~/src/server/plugins/engine/components/LatLongField.js'
 import {
@@ -7,6 +8,7 @@ import {
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
 
@@ -281,7 +283,7 @@ describe('LatLongField', () => {
           latitude: 51.51945,
           longitude: -0.127758
         })
-        const viewModel = field.getViewModel(payload)
+        const viewModel = field.getViewModel(payload, undefined, stubTranslator)
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -328,7 +330,9 @@ describe('LatLongField', () => {
           getFormData({
             latitude: 51.51945,
             longitude: -0.127758
-          })
+          }),
+          undefined,
+          stubTranslator
         )
 
         const instructionText =
@@ -352,7 +356,7 @@ describe('LatLongField', () => {
           }
         ]
 
-        const viewModel = field.getViewModel(payload, errors)
+        const viewModel = field.getViewModel(payload, errors, stubTranslator)
 
         // Check that error is passed to the viewModel
         expect(viewModel.errors).toEqual(errors)

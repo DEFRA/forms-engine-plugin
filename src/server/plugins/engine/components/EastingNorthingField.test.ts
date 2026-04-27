@@ -3,6 +3,7 @@ import {
   type EastingNorthingFieldComponent
 } from '@defra/forms-model'
 
+
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { EastingNorthingField } from '~/src/server/plugins/engine/components/EastingNorthingField.js'
 import {
@@ -10,6 +11,7 @@ import {
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
 
@@ -292,7 +294,7 @@ describe('EastingNorthingField', () => {
           easting: 12345,
           northing: 1234567
         })
-        const viewModel = field.getViewModel(payload)
+        const viewModel = field.getViewModel(payload, undefined, stubTranslator)
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -339,7 +341,9 @@ describe('EastingNorthingField', () => {
           getFormData({
             easting: 12345,
             northing: 1234567
-          })
+          }),
+          undefined,
+          stubTranslator
         )
 
         const instructionText =
@@ -363,7 +367,7 @@ describe('EastingNorthingField', () => {
           }
         ]
 
-        const viewModel = field.getViewModel(payload, errors)
+        const viewModel = field.getViewModel(payload, errors, stubTranslator)
 
         // Check that error is passed to the viewModel
         expect(viewModel.errors).toEqual(errors)

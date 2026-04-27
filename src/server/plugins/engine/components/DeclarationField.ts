@@ -13,8 +13,7 @@ import joi, {
 
 import {
   FormComponent,
-  isFormValue,
-  isTranslator
+  isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
@@ -28,7 +27,6 @@ import {
   type FormSubmissionState,
   type FormValue
 } from '~/src/server/plugins/engine/types.js'
-import { type FormQuery } from '~/src/server/routes/types.js'
 
 export class DeclarationField extends FormComponent {
   declare options: DeclarationFieldComponent['options']
@@ -117,22 +115,26 @@ export class DeclarationField extends FormComponent {
     return this.isValue(value) ? value : undefined
   }
 
-  getDisplayStringFromFormValue(value: FormValue | FormPayload): string {
+  getDisplayStringFromFormValue(
+    value: FormValue | FormPayload,
+    translator?: Translator
+  ): string {
+    const t =
+      translator?.t ??
+      ((key: string, opts?: Record<string, unknown>) =>
+        tPlugin(key, 'en-GB', opts))
     return value === 'true'
       ? this.declarationConfirmationLabel
-      : tPlugin('components.declarationField.notProvided', 'en-GB')
+      : t('components.declarationField.notProvided')
   }
 
   getViewModel(
     payload: FormPayload,
-    errors?: FormSubmissionError[],
-    translatorOrQuery?: Translator | FormQuery
+    errors: FormSubmissionError[] | undefined,
+    translator: Translator,
+    isForceAccess = false
   ) {
-    const isT = isTranslator(translatorOrQuery)
-    const t = isT
-      ? translatorOrQuery.t
-      : (key: string, opts?: Record<string, unknown>) =>
-          tPlugin(key, 'en-GB', opts)
+    const { t } = translator
 
     const {
       hint,
@@ -142,7 +144,12 @@ export class DeclarationField extends FormComponent {
       )
     } = this
 
-    const viewModel = super.getViewModel(payload, errors, translatorOrQuery)
+    const viewModel = super.getViewModel(
+      payload,
+      errors,
+      translator,
+      isForceAccess
+    )
     let { fieldset, label } = viewModel
 
     fieldset ??= {

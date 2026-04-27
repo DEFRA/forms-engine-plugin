@@ -8,6 +8,7 @@ import {
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import {
   listNumber,
   listNumberExamples,
@@ -233,7 +234,11 @@ describe.each([
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
         const item = options.examples[0]
-        const viewModel = field.getViewModel(getFormData(item.value))
+        const viewModel = field.getViewModel(
+          getFormData(item.value),
+          undefined,
+          stubTranslator
+        )
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -248,7 +253,11 @@ describe.each([
       it.each([...options.examples])(
         'sets Nunjucks component select options',
         (item) => {
-          const viewModel = field.getViewModel(getFormData(item.value))
+          const viewModel = field.getViewModel(
+            getFormData(item.value),
+            undefined,
+            stubTranslator
+          )
 
           expect(viewModel.items?.[0]).toMatchObject({
             value: '' // First item is always empty

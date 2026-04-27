@@ -14,6 +14,7 @@ import joi, {
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type ListItem } from '~/src/server/plugins/engine/components/types.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
@@ -119,10 +120,20 @@ export class ListFormComponent extends FormComponent {
     return this.getDisplayStringFromFormValue(value)
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
+  getViewModel(
+    payload: FormPayload,
+    errors: FormSubmissionError[] | undefined,
+    translator: Translator,
+    isForceAccess = false
+  ) {
     const { items: listItems } = this
 
-    const viewModel = super.getViewModel(payload, errors)
+    const viewModel = super.getViewModel(
+      payload,
+      errors,
+      translator,
+      isForceAccess
+    )
     const { value } = viewModel
 
     // Support multiple values for checkboxes

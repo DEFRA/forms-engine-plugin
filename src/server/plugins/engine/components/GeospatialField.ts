@@ -8,6 +8,7 @@ import {
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { geospatialSchema } from '~/src/server/plugins/engine/components/helpers/geospatial.js'
 import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
@@ -54,20 +55,28 @@ export class GeospatialField extends FormComponent {
     return this.isValue(value) ? value : undefined
   }
 
-  getDisplayStringFromFormValue(features: GeospatialState | undefined): string {
+  getDisplayStringFromFormValue(
+    features: GeospatialState | undefined,
+    translator?: Translator
+  ): string {
     if (!features?.length) {
       return ''
     }
 
-    return tPlugin('components.geospatialField.added', 'en-GB', {
-      count: features.length
-    })
+    const t =
+      translator?.t ??
+      ((key: string, opts?: Record<string, unknown>) =>
+        tPlugin(key, 'en-GB', opts))
+    return t('components.geospatialField.added', { count: features.length })
   }
 
-  getDisplayStringFromState(state: FormSubmissionState) {
+  getDisplayStringFromState(
+    state: FormSubmissionState,
+    translator?: Translator
+  ) {
     const features = this.getFormValueFromState(state)
 
-    return this.getDisplayStringFromFormValue(features)
+    return this.getDisplayStringFromFormValue(features, translator)
   }
 
   getContextValueFromFormValue(
@@ -82,8 +91,18 @@ export class GeospatialField extends FormComponent {
     return this.getContextValueFromFormValue(features)
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
-    const viewModel = super.getViewModel(payload, errors)
+  getViewModel(
+    payload: FormPayload,
+    errors: FormSubmissionError[] | undefined,
+    translator: Translator,
+    isForceAccess = false
+  ) {
+    const viewModel = super.getViewModel(
+      payload,
+      errors,
+      translator,
+      isForceAccess
+    )
     const value =
       typeof viewModel.value === 'string'
         ? viewModel.value

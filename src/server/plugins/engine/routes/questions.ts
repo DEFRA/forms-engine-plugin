@@ -8,6 +8,7 @@ import {
 import Joi from 'joi'
 
 import {
+  getPluginOptions,
   normalisePath,
   proceed,
   redirectPath
@@ -58,7 +59,9 @@ async function handleHttpEvent(
 
   // TODO: Update structured data POST payload with when helper
   // is updated to removing the dependency on `SummaryViewModel` etc.
-  const translator = model.createTranslator('en-GB')
+  const { getLanguage } = getPluginOptions(request.server)
+  const language = getLanguage?.(request) ?? 'en-GB'
+  const translator = model.createTranslator(language)
   const viewModel = new SummaryViewModel(request, page, context, translator)
   const items = getFormSubmissionData(viewModel.context, viewModel.details)
 

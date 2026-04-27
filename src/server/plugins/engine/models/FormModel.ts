@@ -581,7 +581,12 @@ export class FormModel {
 
         const text = translator
           ? translator.t('errors.optionsMismatch')
-          : translate('errors.optionsMismatch', 'en-GB')
+          : translate(
+              'errors.optionsMismatch',
+              typeof this.def.metadata?.language === 'string'
+                ? this.def.metadata.language
+                : 'en-GB'
+            )
 
         context.errors.push({
           text,

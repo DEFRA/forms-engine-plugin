@@ -6,6 +6,7 @@ import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFo
 import { escapeMarkdown } from '~/src/server/plugins/engine/components/helpers/index.js'
 import * as Components from '~/src/server/plugins/engine/components/index.js'
 import { markdown } from '~/src/server/plugins/engine/components/markdownParser.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type FormState } from '~/src/server/plugins/engine/types.js'
 
 // All component instances
@@ -221,7 +222,8 @@ export function getAnswer(
       | 'data' // Submission data
       | 'email' // GOV.UK Notify emails
       | 'summary' // Check answers summary
-  } = { format: 'summary' }
+  } = { format: 'summary' },
+  translator?: Translator
 ) {
   // Use escaped display text for GOV.UK Notify emails
   if (options.format === 'email') {
@@ -248,7 +250,7 @@ export function getAnswer(
   }
 
   // Use display text for check answers summary (single line)
-  return field.getDisplayStringFromState(state)
+  return field.getDisplayStringFromState(state, translator)
 }
 
 /**

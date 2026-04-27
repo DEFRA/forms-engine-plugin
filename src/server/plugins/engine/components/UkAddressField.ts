@@ -29,7 +29,6 @@ import {
   type PostcodeLookupExternalArgs
 } from '~/src/server/plugins/engine/types.js'
 import { dispatch } from '~/src/server/plugins/postcode-lookup/routes/index.js'
-import { type FormQuery } from '~/src/server/routes/types.js'
 
 export class UkAddressField extends FormComponent {
   declare options: UkAddressFieldComponent['options']
@@ -201,12 +200,18 @@ export class UkAddressField extends FormComponent {
 
   getViewModel(
     payload: FormPayload,
-    errors?: FormSubmissionError[],
-    translatorOrQuery?: Translator | FormQuery
+    errors: FormSubmissionError[] | undefined,
+    translator: Translator,
+    isForceAccess = false
   ) {
     const { collection, name, options } = this
 
-    const viewModel = super.getViewModel(payload, errors, translatorOrQuery)
+    const viewModel = super.getViewModel(
+      payload,
+      errors,
+      translator,
+      isForceAccess
+    )
     let { fieldset, hint, label } = viewModel
 
     fieldset ??= {
@@ -230,11 +235,7 @@ export class UkAddressField extends FormComponent {
       }
     }
 
-    const components = collection.getViewModel(
-      payload,
-      errors,
-      translatorOrQuery
-    )
+    const components = collection.getViewModel(payload, errors, translator)
 
     // Hide UPRN
     const uprn = components.at(0)

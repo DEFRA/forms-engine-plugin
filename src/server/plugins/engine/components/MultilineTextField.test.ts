@@ -10,6 +10,7 @@ import {
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
@@ -219,7 +220,11 @@ describe('MultilineTextField', () => {
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = field.getViewModel(getFormData('Textarea'))
+        const viewModel = field.getViewModel(
+          getFormData('Textarea'),
+          undefined,
+          stubTranslator
+        )
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -242,14 +247,22 @@ describe('MultilineTextField', () => {
           { model }
         )
 
-        const viewModel = field.getViewModel(getFormData('Textarea'))
+        const viewModel = field.getViewModel(
+          getFormData('Textarea'),
+          undefined,
+          stubTranslator
+        )
 
         const viewModel1 = componentCustom1.getViewModel(
-          getFormData('Textarea custom #1')
+          getFormData('Textarea custom #1'),
+          undefined,
+          stubTranslator
         )
 
         const viewModel2 = componentCustom2.getViewModel(
-          getFormData('Textarea custom #2')
+          getFormData('Textarea custom #2'),
+          undefined,
+          stubTranslator
         )
 
         expect(viewModel).toEqual(

@@ -9,6 +9,7 @@ import {
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { type DateInputItem } from '~/src/server/plugins/engine/components/types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import {
   type ErrorMessageTemplateList,
   type FormPayload,
@@ -361,7 +362,7 @@ describe('DatePartsField', () => {
 
       it('sets Nunjucks component defaults', () => {
         const payload = getFormData(date)
-        const viewModel = field.getViewModel(payload)
+        const viewModel = field.getViewModel(payload, undefined, stubTranslator)
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -405,7 +406,7 @@ describe('DatePartsField', () => {
           year: 'YYYY'
         })
 
-        const viewModel = field.getViewModel(payload)
+        const viewModel = field.getViewModel(payload, undefined, stubTranslator)
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -428,7 +429,7 @@ describe('DatePartsField', () => {
 
       it('sets Nunjucks component fieldset', () => {
         const payload = getFormData(date)
-        const viewModel = field.getViewModel(payload)
+        const viewModel = field.getViewModel(payload, undefined, stubTranslator)
 
         expect(viewModel.fieldset).toEqual({
           legend: {

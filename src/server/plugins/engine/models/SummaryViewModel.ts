@@ -58,6 +58,7 @@ export class SummaryViewModel {
   paymentState?: PaymentState
   paymentDetails?: CheckAnswers
   t: (key: string, opts?: Record<string, unknown>) => string
+  private _translator!: Translator
 
   constructor(
     request: FormContextRequest,
@@ -71,6 +72,7 @@ export class SummaryViewModel {
 
     const { t } = translator
     this.t = t
+    this._translator = translator
 
     this.page = page
     this.pageTitle = page.title
@@ -89,7 +91,7 @@ export class SummaryViewModel {
 
     // Format errors
     this.errors = result.error?.details.map(getError)
-    this.details = this.summaryDetails(request, sections)
+    this.details = this.summaryDetails(request, sections, translator)
 
     // Format check answers
     this.checkAnswers = this.details.map((detail): CheckAnswers => {
@@ -129,7 +131,11 @@ export class SummaryViewModel {
     })
   }
 
-  private summaryDetails(request: FormContextRequest, sections: Section[]) {
+  private summaryDetails(
+    request: FormContextRequest,
+    sections: Section[],
+    translator: Translator
+  ) {
     const { context, errors } = this
     const { relevantPages, state } = context
 
@@ -158,7 +164,9 @@ export class SummaryViewModel {
             if (field instanceof PaymentField) {
               continue
             }
-            items.push(ItemField(page, state, field, { path, errors }))
+            items.push(
+              ItemField(page, state, field, { path, errors }, translator)
+            )
           }
         }
       })
@@ -225,7 +233,8 @@ export function ItemField(
   options: {
     path: string
     errors?: FormSubmissionError[]
-  }
+  },
+  translator?: Translator
 ): DetailItemField {
   return {
     name: field.name,
@@ -235,7 +244,7 @@ export function ItemField(
         ? `${field.label} (optional)`
         : field.label,
     error: field.getFirstError(options.errors),
-    value: getAnswer(field, state),
+    value: getAnswer(field, state, { format: 'summary' }, translator),
     href: getPageHref(page, options.path, {
       returnUrl: getPageHref(page, page.getSummaryPath())
     }),
