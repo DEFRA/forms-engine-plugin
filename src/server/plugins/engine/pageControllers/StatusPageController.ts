@@ -1,6 +1,9 @@
 import { type PageStatus } from '@defra/forms-model'
 
-import { getCacheService } from '~/src/server/plugins/engine/helpers.js'
+import {
+  getCacheService,
+  getPluginOptions
+} from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import { type FormContext } from '~/src/server/plugins/engine/types.js'
@@ -32,6 +35,11 @@ export class StatusPageController extends QuestionPageController {
     ) => {
       const { viewModel, viewName } = this
 
+      const { getLanguage } = getPluginOptions(request.server)
+      const language = getLanguage?.(request) ?? 'en-GB'
+      const translator = this.model.createTranslator(language)
+      const { t } = translator
+
       const cacheService = getCacheService(request.server)
       const confirmationState = await cacheService.getConfirmationState(request)
 
@@ -59,8 +67,7 @@ export class StatusPageController extends QuestionPageController {
         formName,
         showReferenceNumber: this.showReferenceNumber,
         referenceNumber: confirmationState.referenceNumber,
-        t: (key: string, opts?: Record<string, unknown>) =>
-          this.model.t(key, opts)
+        t
       })
     }
   }

@@ -13,8 +13,10 @@ import joi, {
 
 import {
   FormComponent,
-  isFormValue
+  isFormValue,
+  isTranslator
 } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
@@ -25,6 +27,7 @@ import {
   type FormSubmissionState,
   type FormValue
 } from '~/src/server/plugins/engine/types.js'
+import { type FormQuery } from '~/src/server/routes/types.js'
 
 export class DeclarationField extends FormComponent {
   declare options: DeclarationFieldComponent['options']
@@ -121,16 +124,27 @@ export class DeclarationField extends FormComponent {
       : this.model.t('components.declarationField.notProvided')
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
+  getViewModel(
+    payload: FormPayload,
+    errors?: FormSubmissionError[],
+    translatorOrQuery?: Translator | FormQuery
+  ) {
+    const translator = isTranslator(translatorOrQuery)
+      ? translatorOrQuery
+      : undefined
+    const t =
+      translator?.t ??
+      ((key: string, opts?: Record<string, unknown>) => this.model.t(key, opts))
+
     const {
       hint,
       content,
-      declarationConfirmationLabel = this.model.t(
+      declarationConfirmationLabel = t(
         'components.declarationField.defaultConfirmationLabel'
       )
     } = this
 
-    const viewModel = super.getViewModel(payload, errors)
+    const viewModel = super.getViewModel(payload, errors, translator)
     let { fieldset, label } = viewModel
 
     fieldset ??= {

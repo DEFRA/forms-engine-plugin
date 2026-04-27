@@ -204,7 +204,14 @@ export class FileUploadField extends FormComponent {
       : {}
     const isForceAccess = 'force' in query
 
-    const viewModel = super.getViewModel(payload, errors)
+    const translator = isTranslator(translatorOrQuery)
+      ? translatorOrQuery
+      : undefined
+    const t =
+      translator?.t ??
+      ((key: string, opts?: Record<string, unknown>) => this.model.t(key, opts))
+
+    const viewModel = super.getViewModel(payload, errors, translator)
     const { attributes, id, value } = viewModel
 
     const files = this.getFormValue(value) ?? []
@@ -220,7 +227,7 @@ export class FileUploadField extends FormComponent {
 
       const tag = {
         classes: 'govuk-tag--green',
-        text: this.model.t('components.fileUploadField.uploaded')
+        text: t('components.fileUploadField.uploaded')
       }
 
       const valueHtml = render
