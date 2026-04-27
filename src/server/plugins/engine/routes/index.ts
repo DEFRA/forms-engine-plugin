@@ -19,6 +19,7 @@ import {
   findPage,
   getCacheService,
   getPage,
+  getPluginOptions,
   getStartPath,
   proceed
 } from '~/src/server/plugins/engine/helpers.js'
@@ -81,7 +82,15 @@ export async function redirectOrMakeHandler(
   state = await importExternalComponentState(request, page, state)
 
   const flash = cacheService.getFlash(request)
-  const context = model.getFormContext(request, state, flash?.errors)
+  const { getLanguage } = getPluginOptions(request.server)
+  const language = getLanguage?.(request) ?? 'en-GB'
+  const translator = model.createTranslator(language)
+  const context = model.getFormContext(
+    request,
+    state,
+    flash?.errors,
+    translator
+  )
 
   await copyNotYetValidatedState(request, context)
 

@@ -6,6 +6,7 @@ import {
   findPage,
   getCacheService,
   getPage,
+  getPluginOptions,
   proceed
 } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
@@ -36,15 +37,18 @@ function buildMockModel(
       isForceAccess: false,
       data: {}
     }),
+    createTranslator: jest
+      .fn()
+      .mockReturnValue({ t: jest.fn(), tContent: jest.fn() }),
     pages: pagesControllerOverride,
     services: servicesOverride
   } as unknown as FormModel
 }
 
 describe('redirectOrMakeHandler', () => {
-  const mockServer = {} as unknown as Parameters<
-    typeof redirectOrMakeHandler
-  >[0]['server']
+  const mockServer = {
+    plugins: { 'forms-engine-plugin': {} }
+  } as unknown as Parameters<typeof redirectOrMakeHandler>[0]['server']
   const mockRequest: AnyFormRequest = {
     server: mockServer,
     app: {},
@@ -94,6 +98,7 @@ describe('redirectOrMakeHandler', () => {
     ;(getCacheService as jest.Mock).mockReturnValue({
       getFlash: jest.fn().mockReturnValue({ errors: [] })
     })
+    ;(getPluginOptions as jest.Mock).mockReturnValue({})
     ;(getPage as jest.Mock).mockReturnValue(mockPage)
     ;(findPage as jest.Mock).mockReturnValue({ next: [] })
     ;(proceed as jest.Mock).mockReturnValue({ statusCode: 302 })

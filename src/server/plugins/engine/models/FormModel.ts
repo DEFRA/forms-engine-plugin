@@ -419,7 +419,8 @@ export class FormModel {
   getFormContext(
     request: FormContextRequest,
     state: FormSubmissionState,
-    errors?: FormSubmissionError[]
+    errors?: FormSubmissionError[],
+    translator?: Translator
   ): FormContext {
     const { query } = request
 
@@ -452,7 +453,7 @@ export class FormModel {
     }
 
     // Validate current page
-    context = validateFormPayload(request, page, context)
+    context = validateFormPayload(request, page, context, translator)
 
     // Find start page
     let nextPage = findPage(this, startPath)
@@ -470,7 +471,7 @@ export class FormModel {
 
       // Stop at current page
       if (
-        this.pageStateIsInvalid(context, nextPage) ||
+        this.pageStateIsInvalid(context, nextPage, translator) ||
         nextPage.path === currentPath
       ) {
         break
@@ -531,7 +532,11 @@ export class FormModel {
     }
   }
 
-  private pageStateIsInvalid(context: FormContext, page: PageControllerClass) {
+  private pageStateIsInvalid(
+    context: FormContext,
+    page: PageControllerClass,
+    translator?: Translator
+  ) {
     // Get any list-bound fields on the page
     const listFields = page.collection.fields.filter(hasListFormField)
 
@@ -547,7 +552,7 @@ export class FormModel {
           list.items.filter((item) => item.condition).length > 0
 
         if (hasOptionalItems) {
-          return this.fieldStateIsInvalid(context, field, list)
+          return this.fieldStateIsInvalid(context, field, list, translator)
         }
       }
     }
@@ -556,7 +561,8 @@ export class FormModel {
   private fieldStateIsInvalid(
     context: FormContext,
     field: ListFormComponent,
-    list: List
+    list: List,
+    translator?: Translator
   ) {
     const { evaluationState, state } = context
 
@@ -586,7 +592,9 @@ export class FormModel {
       if (isInvalid) {
         context.errors ??= []
 
-        const text = this.t('errors.optionsMismatch')
+        const text =
+          translator?.t('errors.optionsMismatch') ??
+          this.t('errors.optionsMismatch')
 
         context.errors.push({
           text,
@@ -641,7 +649,8 @@ export class FormModel {
 function validateFormPayload(
   request: FormContextRequest,
   page: PageControllerClass,
-  context: FormContext
+  context: FormContext,
+  translator?: Translator
 ): FormContext {
   const { collection } = page
   const { payload, state } = context
@@ -671,10 +680,10 @@ function validateFormPayload(
     }
   })
 
-  const { value, errors } = collection.validate({
-    ...payload,
-    ...update
-  })
+  const { value, errors } = collection.validate(
+    { ...payload, ...update },
+    translator
+  )
 
   // Add sanitised payload (ready to save)
   const formState = page.getStateFromValidForm(request, state, value)
