@@ -324,6 +324,8 @@ export function createMap(mapId, initConfig, mapsConfig) {
             label: 'Aerial',
             url: data.VTS_AERIAL_URL,
             thumbnail: `${assetPath}/interactive-map/assets/images/aerial-map-thumb.jpg`,
+            logo: `${assetPath}/interactive-map/assets/images/esri-logo.png`,
+            logoAltText: 'Powered by Esri',
             attribution: `Tiles ${String.fromCodePoint(COMPANY_SYMBOL_CODE)} Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community ${new Date().getFullYear()}`
           }
         ]
