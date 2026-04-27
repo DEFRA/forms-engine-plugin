@@ -65,12 +65,16 @@ export class PaymentSubmissionError extends Error {
   static checkPaymentAmount(
     stateAmount: number,
     definitionAmount: number | undefined,
-    component: FormComponent
+    component: FormComponent,
+    t?: (key: string) => string
   ) {
     if (stateAmount / 100 !== definitionAmount) {
+      const message =
+        t?.('components.paymentField.paymentAmountMismatch') ??
+        component.model.t('components.paymentField.paymentAmountMismatch')
       throw new PaymentPreAuthError(
         component,
-        component.model.t('components.paymentField.paymentAmountMismatch'),
+        message,
         true,
         PaymentErrorTypes.PaymentIncomplete
       )

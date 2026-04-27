@@ -194,6 +194,9 @@ export class PaymentField extends FormComponent {
   ): Promise<unknown> {
     const { options, name: componentName } = args.component
     const { model } = args.controller
+    const { getLanguage } = getPluginOptions(request.server)
+    const language = getLanguage?.(request) ?? 'en-GB'
+    const { t } = model.createTranslator(language)
 
     const state = await args.controller.getState(request)
     const { baseUrl } = getPluginOptions(request.server)
@@ -240,8 +243,8 @@ export class PaymentField extends FormComponent {
 
     if (!payment) {
       const message = isLivePayment
-        ? model.t('components.paymentField.cannotTakePayment')
-        : model.t('components.paymentField.testApiKey')
+        ? t('components.paymentField.cannotTakePayment')
+        : t('components.paymentField.testApiKey')
       const govukError = createError(componentName, message)
       request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
       return h.redirect(request.url.href).code(StatusCodes.SEE_OTHER)
@@ -274,12 +277,16 @@ export class PaymentField extends FormComponent {
     _metadata: FormMetadata,
     context: FormContext
   ): Promise<void> {
+    const { getLanguage } = getPluginOptions(request.server)
+    const language = getLanguage?.(request) ?? 'en-GB'
+    const { t } = this.model.createTranslator(language)
+
     const paymentState = this.getPaymentStateFromState(context.state)
 
     if (!paymentState) {
       throw new PaymentPreAuthError(
         this,
-        this.model.t('components.paymentField.completePayment'),
+        t('components.paymentField.completePayment'),
         true,
         PaymentErrorTypes.PaymentIncomplete
       )
@@ -308,7 +315,8 @@ export class PaymentField extends FormComponent {
     PaymentSubmissionError.checkPaymentAmount(
       status.amount,
       this.options.amount,
-      this
+      this,
+      t
     )
 
     if (status.state.status === 'success') {
@@ -319,7 +327,7 @@ export class PaymentField extends FormComponent {
     if (status.state.status !== 'capturable') {
       throw new PaymentPreAuthError(
         this,
-        this.model.t('components.paymentField.paymentExpired'),
+        t('components.paymentField.paymentExpired'),
         true,
         PaymentErrorTypes.PaymentExpired
       )
@@ -333,7 +341,7 @@ export class PaymentField extends FormComponent {
     if (!captured) {
       throw new PaymentPreAuthError(
         this,
-        this.model.t('components.paymentField.submissionFailed'),
+        t('components.paymentField.submissionFailed'),
         false
       )
     }
