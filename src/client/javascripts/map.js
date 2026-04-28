@@ -267,7 +267,7 @@ export function createMap(mapId, initConfig, mapsConfig) {
 
   const interactPlugin = defra.interactPlugin({
     markerColor: { outdoor: '#ff0000', dark: '#00ff00' },
-    interactionMode: 'marker',
+    interactionModes: ['placeMarker'],
     multiSelect: false
   })
 
@@ -324,6 +324,8 @@ export function createMap(mapId, initConfig, mapsConfig) {
             label: 'Aerial',
             url: data.VTS_AERIAL_URL,
             thumbnail: `${assetPath}/interactive-map/assets/images/aerial-map-thumb.jpg`,
+            logo: `${assetPath}/interactive-map/assets/images/os-logo-black.svg`,
+            logoAltText,
             attribution: `Tiles ${String.fromCodePoint(COMPANY_SYMBOL_CODE)} Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community ${new Date().getFullYear()}`
           }
         ]
