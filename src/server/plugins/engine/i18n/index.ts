@@ -1,5 +1,6 @@
 import i18next, { createInstance, type i18n } from 'i18next'
 
+import cy from '~/src/server/plugins/engine/i18n/translations/cy.json' with { type: 'json' }
 import enGB from '~/src/server/plugins/engine/i18n/translations/en-GB.json' with { type: 'json' }
 import xPirate from '~/src/server/plugins/engine/i18n/translations/x-pirate.json' with { type: 'json' }
 import { type FormDefinitionTranslations } from '~/src/server/plugins/engine/i18n/types.js'
@@ -10,6 +11,7 @@ i18next
   .init({
     resources: {
       'en-GB': { translation: enGB },
+      cy: { translation: cy },
       'x-pirate': { translation: xPirate }
     },
     fallbackLng: 'en-GB',
@@ -40,6 +42,9 @@ export function createFormI18nInstance(formEnGb: BaseTranslations): i18n {
         'en-GB': {
           plugin: enGB,
           form: formEnGb
+        },
+        cy: {
+          plugin: cy
         },
         'x-pirate': {
           plugin: xPirate

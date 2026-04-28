@@ -9,7 +9,11 @@ describe('i18n t()', () => {
   })
 
   it('falls back to en-GB for an unknown language', () => {
-    expect(t('errors.title', 'cy')).toBe('There is a problem')
+    expect(t('errors.title', 'fr')).toBe('There is a problem')
+  })
+
+  it('returns the Welsh string for cy locale', () => {
+    expect(t('errors.title', 'cy')).toBe('Mae problem')
   })
 
   it('returns the key string itself when the key does not exist', () => {
