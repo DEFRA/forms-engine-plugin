@@ -270,7 +270,29 @@ export class ComponentCollection {
       ? buildLanguageMessages(translator.t)
       : undefined
 
-    const result = this.formSchema.validate(value, {
+    // When translating, override each non-composite field's Joi label with the
+    // translated shortDescription (or title) so #label in message templates
+    // resolves to the correct language rather than the English construction-time value.
+    let schema = this.formSchema
+    if (translator) {
+      const labelOverrides: Record<string, joi.Schema> = {}
+      for (const field of this.fields) {
+        if (field.collection) continue // composite fields use #title, handled differently
+        const translatedLabel =
+          translator.tContent(
+            field as unknown as ComponentDef,
+            'shortDescription'
+          ) || translator.tContent(field as unknown as ComponentDef, 'title')
+        if (translatedLabel && translatedLabel !== field.label) {
+          labelOverrides[field.name] = field.formSchema.label(translatedLabel)
+        }
+      }
+      if (Object.keys(labelOverrides).length) {
+        schema = schema.keys(labelOverrides)
+      }
+    }
+
+    const result = schema.validate(value, {
       ...opts,
       ...(messages && { messages })
     })

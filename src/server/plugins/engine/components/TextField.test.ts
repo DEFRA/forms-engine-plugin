@@ -1,6 +1,5 @@
 import { ComponentType, type TextFieldComponent } from '@defra/forms-model'
 
-
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import {
   getAnswer,
@@ -124,6 +123,55 @@ describe('TextField', () => {
 
         expect(result1.errors).toBeTruthy()
         expect(result2.errors).toBeTruthy()
+      })
+
+      it('uses translated shortDescription as #label in validation error when translator provided', () => {
+        const componentId = 'b68df7f1-d4f4-4c17-83c8-402f584906c9'
+        const cyModel = new FormModel(
+          {
+            ...definition,
+            metadata: {
+              language: 'en-GB',
+              translations: {
+                cy: {
+                  components: {
+                    [componentId]: {
+                      title: 'Beth yw eich enw olaf?',
+                      shortDescription: 'Eich enw olaf'
+                    }
+                  },
+                  pages: {},
+                  sections: {},
+                  listItems: {}
+                }
+              }
+            }
+          },
+          { basePath: 'test' }
+        )
+
+        const cyDef: TextFieldComponent = {
+          id: componentId,
+          title: 'What is your last name?',
+          name: 'applicantLastName',
+          shortDescription: 'Your last name',
+          type: ComponentType.TextField,
+          options: { required: true },
+          schema: {}
+        }
+
+        const cyCollection = new ComponentCollection([cyDef], {
+          model: cyModel
+        })
+        const translator = cyModel.createTranslator('cy')
+        const result = cyCollection.validate(
+          { applicantLastName: '' },
+          translator
+        )
+
+        expect(result.errors).toEqual([
+          expect.objectContaining({ text: 'Nodwch eich enw olaf' })
+        ])
       })
     })
 
