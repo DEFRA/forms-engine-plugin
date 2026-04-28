@@ -952,82 +952,14 @@ describe('PaymentField', () => {
   })
 
   describe('dispatcher with email prepopulation', () => {
-    it('should pass valid email to createPayment', async () => {
-      const emailDef = {
-        title: 'Payment with email',
+    it('should pass state.userConfirmationEmailAddress to createPayment', async () => {
+      const def = {
+        title: 'Payment',
         name: 'myPayment',
         type: ComponentType.PaymentField,
         options: {
           amount: 50,
-          description: 'Test payment',
-          emailField: 'userEmail'
-        }
-      } satisfies PaymentFieldComponent
-
-      const mockYarSet = jest.fn()
-      const mockRequest = {
-        server: {
-          plugins: {
-            'forms-engine-plugin': { baseUrl: 'base-url' }
-          }
-        },
-        yar: { set: mockYarSet }
-      } as unknown as FormRequestPayload
-      const mockH = {
-        redirect: jest
-          .fn()
-          .mockReturnValueOnce({ code: jest.fn().mockReturnValueOnce('ok') })
-      } as unknown as FormResponseToolkit
-      const args = {
-        controller: {
-          model: {
-            formId: 'formid',
-            basePath: 'base-path',
-            services: mockServices,
-            conditions: {}
-          },
-          getState: jest.fn().mockResolvedValueOnce({
-            $$__referenceNumber: 'ref-123',
-            userEmail: 'test@example.com'
-          })
-        },
-        component: emailDef,
-        sourceUrl: 'http://localhost:3009/test',
-        isLive: false,
-        isPreview: true
-      } as unknown as PaymentExternalArgs
-
-      // @ts-expect-error - partial mock
-      jest.mocked(postJson).mockResolvedValueOnce({
-        payload: {
-          state: { status: 'created' },
-          payment_id: 'pay-id',
-          _links: { next_url: { href: '/next' } }
-        }
-      })
-
-      await PaymentField.dispatcher(mockRequest, mockH, args)
-
-      // Verify createPayment was called with the email as the 7th argument
-      expect(postJson).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.objectContaining({
-          payload: expect.objectContaining({
-            email: 'test@example.com'
-          })
-        })
-      )
-    })
-
-    it('should not pass email when emailField value is empty', async () => {
-      const emailDef = {
-        title: 'Payment with empty email',
-        name: 'myPayment',
-        type: ComponentType.PaymentField,
-        options: {
-          amount: 50,
-          description: 'Test payment',
-          emailField: 'userEmail'
+          description: 'Test payment'
         }
       } satisfies PaymentFieldComponent
 
@@ -1054,10 +986,10 @@ describe('PaymentField', () => {
           },
           getState: jest.fn().mockResolvedValueOnce({
             $$__referenceNumber: 'ref-123',
-            userEmail: ''
+            userConfirmationEmailAddress: 'cya@example.com'
           })
         },
-        component: emailDef,
+        component: def,
         sourceUrl: 'http://localhost:3009/test',
         isLive: false,
         isPreview: true
@@ -1074,7 +1006,133 @@ describe('PaymentField', () => {
 
       await PaymentField.dispatcher(mockRequest, mockH, args)
 
-      // Verify createPayment was called WITHOUT an email field
+      expect(postJson).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          payload: expect.objectContaining({
+            email: 'cya@example.com'
+          })
+        })
+      )
+    })
+
+    it('should not pass email when state.userConfirmationEmailAddress is missing', async () => {
+      const def = {
+        title: 'Payment',
+        name: 'myPayment',
+        type: ComponentType.PaymentField,
+        options: {
+          amount: 50,
+          description: 'Test payment'
+        }
+      } satisfies PaymentFieldComponent
+
+      const mockRequest = {
+        server: {
+          plugins: {
+            'forms-engine-plugin': { baseUrl: 'base-url' }
+          }
+        },
+        yar: { set: jest.fn() }
+      } as unknown as FormRequestPayload
+      const mockH = {
+        redirect: jest
+          .fn()
+          .mockReturnValueOnce({ code: jest.fn().mockReturnValueOnce('ok') })
+      } as unknown as FormResponseToolkit
+      const args = {
+        controller: {
+          model: {
+            formId: 'formid',
+            basePath: 'base-path',
+            services: mockServices,
+            conditions: {}
+          },
+          getState: jest.fn().mockResolvedValueOnce({
+            $$__referenceNumber: 'ref-123'
+          })
+        },
+        component: def,
+        sourceUrl: 'http://localhost:3009/test',
+        isLive: false,
+        isPreview: true
+      } as unknown as PaymentExternalArgs
+
+      // @ts-expect-error - partial mock
+      jest.mocked(postJson).mockResolvedValueOnce({
+        payload: {
+          state: { status: 'created' },
+          payment_id: 'pay-id',
+          _links: { next_url: { href: '/next' } }
+        }
+      })
+
+      await PaymentField.dispatcher(mockRequest, mockH, args)
+
+      expect(postJson).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          payload: expect.not.objectContaining({
+            email: expect.anything()
+          })
+        })
+      )
+    })
+
+    it('should not pass email when state.userConfirmationEmailAddress is not a string', async () => {
+      const def = {
+        title: 'Payment',
+        name: 'myPayment',
+        type: ComponentType.PaymentField,
+        options: {
+          amount: 50,
+          description: 'Test payment'
+        }
+      } satisfies PaymentFieldComponent
+
+      const mockRequest = {
+        server: {
+          plugins: {
+            'forms-engine-plugin': { baseUrl: 'base-url' }
+          }
+        },
+        yar: { set: jest.fn() }
+      } as unknown as FormRequestPayload
+      const mockH = {
+        redirect: jest
+          .fn()
+          .mockReturnValueOnce({ code: jest.fn().mockReturnValueOnce('ok') })
+      } as unknown as FormResponseToolkit
+      const args = {
+        controller: {
+          model: {
+            formId: 'formid',
+            basePath: 'base-path',
+            services: mockServices,
+            conditions: {}
+          },
+          getState: jest.fn().mockResolvedValueOnce({
+            $$__referenceNumber: 'ref-123',
+            userConfirmationEmailAddress: { not: 'a string' }
+          })
+        },
+        component: def,
+        sourceUrl: 'http://localhost:3009/test',
+        isLive: false,
+        isPreview: true
+      } as unknown as PaymentExternalArgs
+
+      // @ts-expect-error - partial mock
+      jest.mocked(postJson).mockResolvedValueOnce({
+        payload: {
+          state: { status: 'created' },
+          payment_id: 'pay-id',
+          _links: { next_url: { href: '/next' } }
+        }
+      })
+
+      await PaymentField.dispatcher(mockRequest, mockH, args)
+
       expect(postJson).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining({
