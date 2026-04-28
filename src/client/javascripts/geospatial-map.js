@@ -1,3 +1,5 @@
+// @ts-expect-error - no types for maplibre layer adapter
+import { maplibreLayerAdapter } from '@defra/interactive-map/plugins/datasets/adapters/maplibre'
 import { bbox } from '@turf/bbox'
 
 import {
@@ -111,11 +113,48 @@ export function processGeospatial(config, geospatial, index) {
   const geojson = getGeoJSON(geospatialInput)
   const bounds = geojson.features.length ? getBoundingBox(geojson) : undefined
   const drawPlugin = defra.drawMLPlugin()
+  const plugins = [drawPlugin]
+  const country = geospatial.dataset.country
+
+  if (country) {
+    // Add the country bounds as a dataset plugin to show the valid area on the map
+    // and provide feedback to the user when they add features outside of the bounds.
+    const datasetsPlugin = defra.datasetsPlugin({
+      layerAdapter: maplibreLayerAdapter,
+      datasets: [
+        {
+          id: 'invalid-area',
+          label: 'Invalid areas',
+          geojson: `${config.apiPath}/maps/countries.geojson?omit=${country}`,
+          showInKey: false,
+          showInMenu: false,
+          style: {
+            stroke: '#d4351c',
+            strokeWidth: 2,
+            fill: '#d4351c'
+          }
+        },
+        {
+          id: 'valid-area',
+          label: 'Valid areas',
+          geojson: `${config.apiPath}/maps/countries.geojson?only=${country}`,
+          showInKey: false,
+          showInMenu: false,
+          style: {
+            stroke: '#00ff22',
+            strokeWidth: 2
+          }
+        }
+      ]
+    })
+
+    plugins.push(datasetsPlugin)
+  }
 
   const initConfig = {
     ...defaultConfig,
     bounds,
-    plugins: [drawPlugin]
+    plugins
   }
 
   const { map, interactPlugin } = createMap(mapId, initConfig, config)

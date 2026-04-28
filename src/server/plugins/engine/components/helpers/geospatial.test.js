@@ -1,5 +1,9 @@
+import { GeospatialFieldOptionsCountryEnum } from '@defra/forms-model'
+
 import { validState } from '~/src/server/plugins/engine/components/helpers/__stubs__/geospatial.js'
-import { geospatialSchema } from '~/src/server/plugins/engine/components/helpers/geospatial.js'
+import { getGeospatialSchema } from '~/src/server/plugins/engine/components/helpers/geospatial.js'
+
+const geospatialSchema = getGeospatialSchema()
 
 describe('Geospatial validation helpers', () => {
   test('it should not have errors for valid geojson object', () => {
@@ -51,5 +55,33 @@ describe('Geospatial validation helpers', () => {
 
     expect(result.error).toBeDefined()
     expect(result.value).toBeUndefined()
+  })
+
+  test('it should be valid inside country bounds', () => {
+    const schema = getGeospatialSchema(
+      GeospatialFieldOptionsCountryEnum.England
+    )
+
+    expect(schema.validate(validState).error).toBeUndefined()
+    expect(schema.validate(validState.slice(1)).error).toBeUndefined()
+    expect(schema.validate(validState.slice(2)).error).toBeUndefined()
+    expect(schema.validate(validState.slice(3)).error).toBeUndefined()
+  })
+
+  test('it should be invalid outside country bounds', () => {
+    const schema = getGeospatialSchema(
+      GeospatialFieldOptionsCountryEnum.Scotland
+    )
+
+    expect(schema.validate(validState).error).toBeDefined()
+    expect(schema.validate(validState.slice(1)).error).toBeDefined()
+    expect(schema.validate(validState.slice(2)).error).toBeDefined()
+    expect(schema.validate(validState.slice(3)).error).toBeDefined()
+  })
+
+  test('it should be valid with no country bounds', () => {
+    const schema = getGeospatialSchema()
+
+    expect(schema.validate(validState).error).toBeUndefined()
   })
 })
