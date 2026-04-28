@@ -270,15 +270,10 @@ export class PaymentField extends FormComponent {
     const payCallbackUrl = `${baseUrl}/payment-callback?uuid=${uuid}`
     const paymentPageUrl = args.sourceUrl
 
-    // Prepopulate GOV.UK Pay email if emailField is configured.
-    // The referenced EmailAddressField validates with joi.string().email()
-    // at input time, so the value in state is already validated.
     let prefilledEmail: string | undefined
-    if (options.emailField) {
-      const emailValue = state[options.emailField]
-      if (typeof emailValue === 'string' && emailValue) {
-        prefilledEmail = emailValue
-      }
+    const userConfirmationEmail = state.userConfirmationEmailAddress
+    if (typeof userConfirmationEmail === 'string' && userConfirmationEmail) {
+      prefilledEmail = userConfirmationEmail
     }
 
     const amountInPence = Math.round(resolvedAmount * 100)
