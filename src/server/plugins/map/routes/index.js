@@ -19,7 +19,7 @@ const filePath = resolve(import.meta.dirname, './vts/countries.geojson')
  */
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 export const countries = JSON.parse(fs.readFileSync(filePath, 'utf8'))
- 
+
 export const countrySchema = Joi.string().valid(
   ...Object.values(GeospatialFieldOptionsCountryEnum)
 )
