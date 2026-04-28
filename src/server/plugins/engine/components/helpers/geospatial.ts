@@ -116,7 +116,6 @@ export function getGeospatialSchema(country?: GeospatialFieldOptionsCountry) {
       return value
     }
 
-     
     const result = booleanWithin(value, countryFeature)
 
     if (!result) {
@@ -128,6 +127,7 @@ export function getGeospatialSchema(country?: GeospatialFieldOptionsCountry) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return value
   }
+
   return Joi.array<Feature[]>()
     .items(featureSchema.custom(validateCountryBounds))
     .unique('id')
