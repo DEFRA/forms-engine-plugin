@@ -1,5 +1,3 @@
-// @ts-expect-error - no types for maplibre layer adapter
-import { maplibreLayerAdapter } from '@defra/interactive-map/plugins/datasets/adapters/maplibre'
 import { bbox } from '@turf/bbox'
 
 import {
@@ -119,8 +117,7 @@ export function processGeospatial(config, geospatial, index) {
   if (country) {
     // Add the country bounds as a dataset plugin to show the valid area on the map
     // and provide feedback to the user when they add features outside of the bounds.
-    const datasetsPlugin = defra.datasetsPlugin({
-      layerAdapter: maplibreLayerAdapter,
+    const datasetsPlugin = defra.datasetsMaplibrePlugin({
       datasets: [
         {
           id: 'invalid-area',
