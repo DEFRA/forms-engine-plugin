@@ -7,7 +7,7 @@ import {
 import { StatusCodes } from 'http-status-codes'
 import joi, { type ObjectSchema } from 'joi'
 
-import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { COMPONENT_STATE_ERROR } from '~/src/server/constants.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
@@ -39,8 +39,6 @@ import {
   createPaymentService,
   formatCurrency
 } from '~/src/server/plugins/payment/helper.js'
-
-const logger = createLogger()
 
 export class PaymentField extends FormComponent {
   declare options: PaymentFieldComponent['options']

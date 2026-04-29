@@ -28,7 +28,7 @@ import { add, format } from 'date-fns'
 import { Parser, type Value } from 'expr-eval-fork'
 import joi from 'joi'
 
-import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { type ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
 import {} from '~/src/server/plugins/engine/components/YesNoField.js'
 import {
@@ -60,8 +60,6 @@ import {
 import { FormAction } from '~/src/server/routes/types.js'
 import { merge } from '~/src/server/services/cacheService.js'
 import { type Services } from '~/src/server/types.js'
-
-const logger = createLogger()
 
 export class FormModel {
   /** The runtime engine that should be used */

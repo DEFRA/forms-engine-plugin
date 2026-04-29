@@ -2,7 +2,7 @@ import Boom from '@hapi/boom'
 import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
-import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { EXTERNAL_STATE_APPENDAGE } from '~/src/server/constants.js'
 import { getPluginOptions } from '~/src/server/plugins/engine/helpers.js'
 import {
@@ -13,8 +13,6 @@ import {
 
 export const PAYMENT_RETURN_PATH = '/payment-callback'
 export const PAYMENT_SESSION_PREFIX = 'payment-'
-
-const logger = createLogger()
 
 /**
  * Flash form component state after successful payment
