@@ -1,4 +1,8 @@
-import { SchemaVersion, type Section } from '@defra/forms-model'
+import {
+  SchemaVersion,
+  type ComponentDef,
+  type Section
+} from '@defra/forms-model'
 
 import { PaymentField } from '~/src/server/plugins/engine/components/PaymentField.js'
 import { type PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
@@ -153,10 +157,15 @@ export class SummaryViewModel {
 
         if (page instanceof RepeatPageController) {
           items.push(
-            ItemRepeat(page, state, {
-              path: page.getSummaryPath(request),
-              errors
-            })
+            ItemRepeat(
+              page,
+              state,
+              {
+                path: page.getSummaryPath(request),
+                errors
+              },
+              translator
+            )
           )
         } else {
           for (const field of collection.fields) {
@@ -194,19 +203,24 @@ function ItemRepeat(
   options: {
     path: string
     errors?: FormSubmissionError[]
-  }
+  },
+  translator?: Translator
 ): DetailItemRepeat {
   const { collection, repeat } = page
   const { name, title } = repeat.options
 
   const values = page.getListFromState(state)
-  const unit = values.length === 1 ? 'answer' : 'answers'
+  const count = values.length
+  const value = count
+    ? (translator?.t('pages.repeater.pageTitle', { count }) ??
+      `You have added ${count} ${count === 1 ? 'answer' : 'answers'}`)
+    : ''
 
   return {
     name,
     label: title,
     title,
-    value: values.length ? `You have added ${values.length} ${unit}` : '',
+    value,
     href: getPageHref(page, options.path, {
       returnUrl: getPageHref(page, page.getSummaryPath())
     }),
@@ -216,7 +230,7 @@ function ItemRepeat(
     // Repeater field detail items
     subItems: values.map((repeatState) =>
       collection.fields.map((field) =>
-        ItemField(page, repeatState, field, options)
+        ItemField(page, repeatState, field, options, translator)
       )
     )
   }
@@ -236,13 +250,28 @@ export function ItemField(
   },
   translator?: Translator
 ): DetailItemField {
+  const tContent = translator?.tContent
+  // FormComponent doesn't expose shortDescription/title as raw def properties,
+  // so build a lookup object with English values to let tContent's GUID lookup fire.
+  // `type` is required so tContent routes to the 'components' namespace (not 'sections').
+  const fieldDef = {
+    id: field.id,
+    type: field.type,
+    shortDescription: field.label,
+    title: field.title
+  } as unknown as ComponentDef
+  const rawLabel = tContent ? tContent(fieldDef, 'shortDescription') : ''
+  const translatedLabel = rawLabel !== '' ? rawLabel : field.label
+  const rawTitle = tContent ? tContent(fieldDef, 'title') : ''
+  const translatedTitle = rawTitle !== '' ? rawTitle : field.title
+  const optional =
+    field.options.required === false
+      ? ` ${translator?.t('common.optional') ?? '(optional)'}`
+      : ''
   return {
     name: field.name,
-    label: field.title,
-    title:
-      field.options.required === false
-        ? `${field.label} (optional)`
-        : field.label,
+    label: translatedTitle,
+    title: `${translatedLabel}${optional}`,
     error: field.getFirstError(options.errors),
     value: getAnswer(field, state, { format: 'summary' }, translator),
     href: getPageHref(page, options.path, {
