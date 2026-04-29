@@ -270,23 +270,40 @@ export class ComponentCollection {
       ? buildLanguageMessages(translator.t)
       : undefined
 
-    // When translating, override each non-composite field's Joi label with the
-    // translated shortDescription (or title) so #label in message templates
-    // resolves to the correct language rather than the English construction-time value.
+    // When translating, override Joi labels (and custom schema messages where
+    // needed) so #label/#title in message templates resolve in the correct language.
     let schema = this.formSchema
     if (translator) {
+      const { t } = translator
       const labelOverrides: Record<string, joi.Schema> = {}
+
       for (const field of this.fields) {
-        if (field.collection) continue // composite fields use #title, handled differently
-        const translatedLabel =
-          translator.tContent(
-            field as unknown as ComponentDef,
-            'shortDescription'
-          ) || translator.tContent(field as unknown as ComponentDef, 'title')
-        if (translatedLabel && translatedLabel !== field.label) {
-          labelOverrides[field.name] = field.formSchema.label(translatedLabel)
+        if (field.collection) {
+          // Composite field: translate each sub-field's label using the key constant
+          // (e.g. 'components.addressField.line1' → "Llinell cyfeiriad 1") and apply
+          // any field-type-specific message overrides (e.g. objectMissing for dates).
+          const messagesOverride =
+            field.getValidationMessagesOverride(translator)
+          for (const subField of field.collection.fields) {
+            const translatedSubLabel = t(subField.title) || subField.label
+            let patchedSchema = subField.formSchema.label(translatedSubLabel)
+            if (messagesOverride) {
+              patchedSchema = patchedSchema.messages(messagesOverride)
+            }
+            labelOverrides[subField.name] = patchedSchema
+          }
+        } else {
+          const translatedLabel =
+            translator.tContent(
+              field as unknown as ComponentDef,
+              'shortDescription'
+            ) || translator.tContent(field as unknown as ComponentDef, 'title')
+          if (translatedLabel && translatedLabel !== field.label) {
+            labelOverrides[field.name] = field.formSchema.label(translatedLabel)
+          }
         }
       }
+
       if (Object.keys(labelOverrides).length) {
         schema = schema.keys(labelOverrides)
       }

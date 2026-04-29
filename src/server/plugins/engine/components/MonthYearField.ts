@@ -19,6 +19,7 @@ import {
   type MonthYearState
 } from '~/src/server/plugins/engine/components/types.js'
 import { parseStrictDate } from '~/src/server/plugins/engine/date-helper.js'
+import { buildValidationMessages } from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
@@ -144,6 +145,19 @@ export class MonthYearField extends FormComponent {
     const value = this.getFormValueFromState(state)
 
     return this.getContextValueFromFormValue(value)
+  }
+
+  getValidationMessagesOverride(translator: Translator) {
+    const { t } = translator
+    return convertToLanguageMessages({
+      'any.required': buildValidationMessages(t).objectMissing,
+      'number.base': buildValidationMessages(t).objectMissing,
+      'number.precision': buildValidationMessages(t).dateFormat,
+      'number.integer': buildValidationMessages(t).dateFormat,
+      'number.unsafe': buildValidationMessages(t).dateFormat,
+      'number.min': buildValidationMessages(t).dateFormat,
+      'number.max': buildValidationMessages(t).dateFormat
+    })
   }
 
   getViewModel(

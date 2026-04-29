@@ -4,6 +4,7 @@ import {
   type FormMetadata,
   type Item
 } from '@defra/forms-model'
+import { type LanguageMessages } from 'joi'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
@@ -129,6 +130,17 @@ export class FormComponent extends ComponentBase {
   ): FormSubmissionError[] | undefined {
     const firstError = this.getFirstError(errors)
     return firstError && [firstError]
+  }
+
+  /**
+   * Override in composite fields to return translated Joi message overrides for
+   * their sub-fields, applied at validation time so schema-level English messages
+   * are replaced with the correct language. Return null to skip message patching.
+   */
+  getValidationMessagesOverride(
+    _translator: Translator
+  ): LanguageMessages | null {
+    return null
   }
 
   getViewModel(

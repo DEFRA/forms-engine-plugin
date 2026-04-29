@@ -31,7 +31,7 @@ import {
 export class DeclarationField extends FormComponent {
   declare options: DeclarationFieldComponent['options']
 
-  declare declarationConfirmationLabel: string
+  declare declarationConfirmationLabel: string | undefined
 
   declare formSchema: ArraySchema<StringSchema[]>
   declare stateSchema: BooleanSchema
@@ -69,9 +69,9 @@ export class DeclarationField extends FormComponent {
 
     this.options = options
     this.content = content
-    this.declarationConfirmationLabel =
-      options.declarationConfirmationLabel ??
-      tPlugin('components.declarationField.defaultLabel', 'en-GB')
+    // Store only the form-authored label (if provided). If absent, getViewModel
+    // resolves the default via t() at render time so the correct language is used.
+    this.declarationConfirmationLabel = options.declarationConfirmationLabel
     const formComponents = hasFormComponents(props.page?.pageDef)
       ? props.page.pageDef.components
       : []
@@ -124,7 +124,8 @@ export class DeclarationField extends FormComponent {
       ((key: string, opts?: Record<string, unknown>) =>
         tPlugin(key, 'en-GB', opts))
     return value === 'true'
-      ? this.declarationConfirmationLabel
+      ? (this.declarationConfirmationLabel ??
+          t('components.declarationField.defaultLabel'))
       : t('components.declarationField.notProvided')
   }
 
@@ -140,7 +141,7 @@ export class DeclarationField extends FormComponent {
       hint,
       content,
       declarationConfirmationLabel = t(
-        'components.declarationField.defaultConfirmationLabel'
+        'components.declarationField.defaultLabel'
       )
     } = this
 
