@@ -69,7 +69,11 @@ export const configureEnginePlugin = async (
       ordnanceSurveyApiKey,
       ordnanceSurveyApiSecret,
       getLanguage: (request) => {
-        return 'lang' in request.query ? request.query.lang : 'en-GB'
+        if ('language' in request.query) {
+          request.yar.set('language', request.query.language)
+        }
+
+        return request.yar.get('language') ?? 'en-GB'
       }
     }
   }
