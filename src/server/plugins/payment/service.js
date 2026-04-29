@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes'
 
-import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import {
   buildPaymentInfo,
   convertPenceToPounds
@@ -9,8 +9,6 @@ import { get, post, postJson } from '~/src/server/services/httpService.js'
 
 const PAYMENT_BASE_URL = 'https://publicapi.payments.service.gov.uk'
 const PAYMENT_ENDPOINT = '/v1/payments'
-
-const logger = createLogger()
 
 /**
  * @param {string} apiKey

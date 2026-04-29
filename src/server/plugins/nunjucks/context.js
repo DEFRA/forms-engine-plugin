@@ -5,13 +5,11 @@ import Boom from '@hapi/boom'
 import { StatusCodes } from 'http-status-codes'
 
 import { config } from '~/src/config/index.js'
-import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import {
   checkFormStatus,
   encodeUrl
 } from '~/src/server/plugins/engine/helpers.js'
-
-const logger = createLogger()
 
 /** @type {Record<string, string> | undefined} */
 let webpackManifest
