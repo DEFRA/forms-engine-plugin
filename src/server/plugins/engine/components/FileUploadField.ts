@@ -162,19 +162,28 @@ export class FileUploadField extends FormComponent {
     return this.isValue(value) ? value : undefined
   }
 
-  getDisplayStringFromFormValue(files: FileState[] | undefined): string {
+  getDisplayStringFromFormValue(
+    files: FileState[] | undefined,
+    translator?: Translator
+  ): string {
     if (!files?.length) {
       return ''
     }
 
-    const unit = files.length === 1 ? 'file' : 'files'
-    return `Uploaded ${files.length} ${unit}`
+    return (
+      translator?.t('components.fileUploadField.filesCount', {
+        count: files.length
+      }) ?? `Uploaded ${files.length} ${files.length === 1 ? 'file' : 'files'}`
+    )
   }
 
-  getDisplayStringFromState(state: FormSubmissionState) {
+  getDisplayStringFromState(
+    state: FormSubmissionState,
+    translator?: Translator
+  ) {
     const files = this.getFormValueFromState(state)
 
-    return this.getDisplayStringFromFormValue(files)
+    return this.getDisplayStringFromFormValue(files, translator)
   }
 
   getContextValueFromFormValue(
