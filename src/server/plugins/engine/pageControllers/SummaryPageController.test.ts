@@ -92,7 +92,16 @@ describe('SummaryPageController', () => {
     it('should create a per-request translator and pass t to the view', async () => {
       const mockTranslator: Translator = {
         t: jest.fn().mockReturnValue('translated'),
-        tContent: jest.fn().mockReturnValue('content') as Translator['tContent']
+        tPage: jest.fn().mockReturnValue('content') as Translator['tPage'],
+        tComponent: jest
+          .fn()
+          .mockReturnValue('content') as Translator['tComponent'],
+        tSection: jest
+          .fn()
+          .mockReturnValue('content') as Translator['tSection'],
+        tListItem: jest
+          .fn()
+          .mockReturnValue('content') as Translator['tListItem']
       }
 
       const createTranslatorSpy = jest

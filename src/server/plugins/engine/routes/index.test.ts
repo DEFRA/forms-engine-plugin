@@ -39,7 +39,13 @@ function buildMockModel(
     }),
     createTranslator: jest
       .fn()
-      .mockReturnValue({ t: jest.fn(), tContent: jest.fn() }),
+      .mockReturnValue({
+        t: jest.fn(),
+        tPage: jest.fn(),
+        tComponent: jest.fn(),
+        tSection: jest.fn(),
+        tListItem: jest.fn()
+      }),
     pages: pagesControllerOverride,
     services: servicesOverride
   } as unknown as FormModel

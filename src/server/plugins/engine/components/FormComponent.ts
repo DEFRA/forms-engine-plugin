@@ -152,18 +152,18 @@ export class FormComponent extends ComponentBase {
   }: RenderContext) {
     const { hint, name, options = {}, title, viewModel } = this
 
-    const { t, tContent } = translator
+    const { t, tComponent } = translator
 
     const isRequired = !('required' in options) || options.required !== false
     const hideOptional = 'optionalText' in options && options.optionalText
 
     const resolvedTitle =
-      tContent(this as unknown as ComponentDef, 'title') || title
+      tComponent(this as unknown as ComponentDef, 'title') || title
     const label = `${resolvedTitle}${!isRequired && !hideOptional ? ` ${t('common.optional')}` : ''}`
 
     if (hint) {
       viewModel.hint = {
-        text: tContent(this as unknown as ComponentDef, 'hint') || hint
+        text: tComponent(this as unknown as ComponentDef, 'hint') || hint
       }
     }
 
@@ -271,7 +271,7 @@ export class FormComponent extends ComponentBase {
 }
 
 /**
- * Type guard — returns true when the value is a Translator (has t and tContent functions),
+ * Type guard — returns true when the value is a Translator (has t and tComponent functions),
  * as opposed to a FormQuery (plain string-keyed record).
  */
 export function isTranslator(value: unknown): value is Translator {
@@ -279,7 +279,7 @@ export function isTranslator(value: unknown): value is Translator {
     typeof value === 'object' &&
     value !== null &&
     typeof (value as Record<string, unknown>).t === 'function' &&
-    typeof (value as Record<string, unknown>).tContent === 'function'
+    typeof (value as Record<string, unknown>).tComponent === 'function'
   )
 }
 

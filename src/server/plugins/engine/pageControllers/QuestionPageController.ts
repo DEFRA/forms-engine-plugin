@@ -125,17 +125,15 @@ export class QuestionPageController extends PageController {
     const { collection, viewModel } = this
     const { payload, errors } = context
 
-    const { t, tContent } = translator
+    const { t, tPage, tSection } = translator
 
     let { showTitle } = viewModel
 
-    // Resolve page title via tContent
-    let pageTitle = tContent(this.pageDef, 'title') || viewModel.pageTitle
+    let pageTitle = tPage(this.pageDef, 'title') || viewModel.pageTitle
 
-    // Resolve section title via tContent
     const sectionTitle = this.section
       ? this.section.hideTitle !== true
-        ? tContent(this.section, 'title')
+        ? tSection(this.section, 'title')
         : ''
       : viewModel.sectionTitle
 

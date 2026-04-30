@@ -286,10 +286,12 @@ describe('RepeatPageController', () => {
   describe('getViewModel with Translator', () => {
     it('passes translator through to super.getViewModel without throwing', () => {
       const mockT = jest.fn((key: string) => `translated:${key}`)
-      const mockTContent = jest.fn((_entity: object, _prop: string) => '')
       const translator: Translator = {
         t: mockT,
-        tContent: mockTContent as Translator['tContent']
+        tPage: jest.fn(() => ''),
+        tComponent: jest.fn(() => ''),
+        tSection: jest.fn(() => ''),
+        tListItem: jest.fn(() => '')
       }
 
       const context = model.getFormContext(requestPageItem, {
@@ -306,14 +308,15 @@ describe('RepeatPageController', () => {
       expect(viewModel).toHaveProperty('sectionTitle')
     })
 
-    it('uses translator.tContent for page title when translator is supplied', () => {
+    it('uses translator.tPage for page title when translator is supplied', () => {
       const mockT = jest.fn((key: string) => `translated:${key}`)
-      const mockTContent = jest.fn(
-        (_entity: object, _prop: string) => 'translated-title'
-      )
+      const mockTPage = jest.fn(() => 'translated-title')
       const translator: Translator = {
         t: mockT,
-        tContent: mockTContent as Translator['tContent']
+        tPage: mockTPage as Translator['tPage'],
+        tComponent: jest.fn(() => ''),
+        tSection: jest.fn(() => ''),
+        tListItem: jest.fn(() => '')
       }
 
       const context = model.getFormContext(requestPageItem, {
@@ -326,7 +329,7 @@ describe('RepeatPageController', () => {
         translator
       )
 
-      expect(mockTContent).toHaveBeenCalled()
+      expect(mockTPage).toHaveBeenCalled()
       expect(viewModel).toHaveProperty('pageTitle', 'translated-title')
     })
   })
@@ -338,10 +341,12 @@ describe('RepeatPageController', () => {
 
     it('calls the supplied translator t for plugin strings', () => {
       const mockT = jest.fn((key: string) => `translated:${key}`)
-      const mockTContent = jest.fn((_entity: object, _prop: string) => '')
       const translator: Translator = {
         t: mockT,
-        tContent: mockTContent as Translator['tContent']
+        tPage: jest.fn(() => ''),
+        tComponent: jest.fn(() => ''),
+        tSection: jest.fn(() => ''),
+        tListItem: jest.fn(() => '')
       }
 
       const context = model.getFormContext(requestPageSummary, {

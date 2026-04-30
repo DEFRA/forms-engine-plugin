@@ -252,30 +252,42 @@ describe('TextField', () => {
     })
 
     describe('getViewModel with Translator', () => {
-      it('calls tContent for the field title', () => {
-        const tContent = jest.fn().mockReturnValue('Translated title')
+      it('calls tComponent for the field title', () => {
+        const tComponent = jest.fn().mockReturnValue('Translated title')
         const t = jest.fn().mockReturnValue('(optional)')
         const viewModel = field.getViewModel({
           payload: {},
           errors: undefined,
-          translator: { t, tContent }
+          translator: {
+            t,
+            tComponent,
+            tPage: jest.fn(),
+            tSection: jest.fn(),
+            tListItem: jest.fn()
+          }
         })
-        expect(tContent).toHaveBeenCalledWith(field, 'title')
+        expect(tComponent).toHaveBeenCalledWith(field, 'title')
         expect(viewModel.label.text).toBe('Translated title')
       })
 
-      it('calls tContent for the hint when hint is set', () => {
+      it('calls tComponent for the hint when hint is set', () => {
         const hintDef = { ...def, hint: 'Enter your name' }
         const hintCollection = new ComponentCollection([hintDef], { model })
         const hintField = hintCollection.fields[0]
-        const tContent = jest.fn().mockReturnValue('Translated hint')
+        const tComponent = jest.fn().mockReturnValue('Translated hint')
         const t = jest.fn().mockReturnValue('')
         const viewModel = hintField.getViewModel({
           payload: {},
           errors: undefined,
-          translator: { t, tContent }
+          translator: {
+            t,
+            tComponent,
+            tPage: jest.fn(),
+            tSection: jest.fn(),
+            tListItem: jest.fn()
+          }
         })
-        expect(tContent).toHaveBeenCalledWith(hintField, 'hint')
+        expect(tComponent).toHaveBeenCalledWith(hintField, 'hint')
         expect(viewModel.hint?.text).toBe('Translated hint')
       })
 
@@ -283,12 +295,18 @@ describe('TextField', () => {
         const optDef = { ...def, options: { required: false } }
         const optCollection = new ComponentCollection([optDef], { model })
         const optField = optCollection.fields[0]
-        const tContent = jest.fn().mockReturnValue('Title')
+        const tComponent = jest.fn().mockReturnValue('Title')
         const t = jest.fn().mockReturnValue('(optional)')
         optField.getViewModel({
           payload: {},
           errors: undefined,
-          translator: { t, tContent }
+          translator: {
+            t,
+            tComponent,
+            tPage: jest.fn(),
+            tSection: jest.fn(),
+            tListItem: jest.fn()
+          }
         })
         expect(t).toHaveBeenCalledWith('common.optional')
       })

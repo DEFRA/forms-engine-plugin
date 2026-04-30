@@ -914,7 +914,10 @@ describe('FileUploadField', () => {
             },
             createTranslator: () => ({
               t: jest.fn((k: string) => k),
-              tContent: jest.fn()
+              tPage: jest.fn(),
+              tComponent: jest.fn(),
+              tSection: jest.fn(),
+              tListItem: jest.fn()
             })
           }
         }

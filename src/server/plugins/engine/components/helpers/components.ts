@@ -308,7 +308,7 @@ export function getAnswerMarkdown(
     answerEscaped += items
       .map((item) => {
         const resolvedText = translator
-          ? translator.tContent(item, 'text') || item.text
+          ? translator.tListItem(item, 'text') || item.text
           : tPlugin(item.text, 'en-GB') || item.text
         const label = escapeMarkdown(resolvedText)
         const value = escapeMarkdown(`(${item.value})`)

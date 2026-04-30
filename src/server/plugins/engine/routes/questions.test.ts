@@ -68,7 +68,13 @@ describe('makeGetHandler', () => {
       def: { name: 'Hello world' },
       createTranslator: jest
         .fn()
-        .mockReturnValue({ t: jest.fn(), tContent: jest.fn() })
+        .mockReturnValue({
+          t: jest.fn(),
+          tPage: jest.fn(),
+          tComponent: jest.fn(),
+          tSection: jest.fn(),
+          tListItem: jest.fn()
+        })
     } as unknown as FormModel
 
     const pageMock = createMockPageController(
@@ -113,7 +119,13 @@ describe('makeGetHandler', () => {
       def: { name: 'Hello world' },
       createTranslator: jest
         .fn()
-        .mockReturnValue({ t: jest.fn(), tContent: jest.fn() })
+        .mockReturnValue({
+          t: jest.fn(),
+          tPage: jest.fn(),
+          tComponent: jest.fn(),
+          tSection: jest.fn(),
+          tListItem: jest.fn()
+        })
     } as unknown as FormModel
 
     const pageMock = createMockPageController(
@@ -158,7 +170,13 @@ describe('makeGetHandler', () => {
       def: { name: 'Hello world' },
       createTranslator: jest
         .fn()
-        .mockReturnValue({ t: jest.fn(), tContent: jest.fn() })
+        .mockReturnValue({
+          t: jest.fn(),
+          tPage: jest.fn(),
+          tComponent: jest.fn(),
+          tSection: jest.fn(),
+          tListItem: jest.fn()
+        })
     } as unknown as FormModel
 
     const pageMock = createMockPageController(
@@ -211,7 +229,13 @@ describe('makeGetHandler', () => {
       def: { name: 'Hello world' },
       createTranslator: jest
         .fn()
-        .mockReturnValue({ t: jest.fn(), tContent: jest.fn() })
+        .mockReturnValue({
+          t: jest.fn(),
+          tPage: jest.fn(),
+          tComponent: jest.fn(),
+          tSection: jest.fn(),
+          tListItem: jest.fn()
+        })
     } as unknown as FormModel
 
     const pageMock = createMockPageController(
@@ -281,7 +305,13 @@ describe('makePostHandler', () => {
       def: { name: 'Hello world' },
       createTranslator: jest
         .fn()
-        .mockReturnValue({ t: jest.fn(), tContent: jest.fn() })
+        .mockReturnValue({
+          t: jest.fn(),
+          tPage: jest.fn(),
+          tComponent: jest.fn(),
+          tSection: jest.fn(),
+          tListItem: jest.fn()
+        })
     } as unknown as FormModel
 
     const pageMock = createMockPageController(
@@ -324,7 +354,13 @@ describe('makePostHandler', () => {
       def: { name: 'Hello world' },
       createTranslator: jest
         .fn()
-        .mockReturnValue({ t: jest.fn(), tContent: jest.fn() })
+        .mockReturnValue({
+          t: jest.fn(),
+          tPage: jest.fn(),
+          tComponent: jest.fn(),
+          tSection: jest.fn(),
+          tListItem: jest.fn()
+        })
     } as unknown as FormModel
 
     const pageMock = createMockPageController(
@@ -371,7 +407,13 @@ describe('makePostHandler', () => {
       def: { name: 'Hello world' },
       createTranslator: jest
         .fn()
-        .mockReturnValue({ t: jest.fn(), tContent: jest.fn() })
+        .mockReturnValue({
+          t: jest.fn(),
+          tPage: jest.fn(),
+          tComponent: jest.fn(),
+          tSection: jest.fn(),
+          tListItem: jest.fn()
+        })
     } as unknown as FormModel
 
     const pageMock = createMockPageController(
@@ -415,7 +457,13 @@ describe('makePostHandler', () => {
       def: { name: 'Hello world' },
       createTranslator: jest
         .fn()
-        .mockReturnValue({ t: jest.fn(), tContent: jest.fn() })
+        .mockReturnValue({
+          t: jest.fn(),
+          tPage: jest.fn(),
+          tComponent: jest.fn(),
+          tSection: jest.fn(),
+          tListItem: jest.fn()
+        })
     } as unknown as FormModel
 
     const pageMock = createMockPageController(
@@ -469,7 +517,13 @@ describe('makePostHandler', () => {
       def: { name: 'Hello world' },
       createTranslator: jest
         .fn()
-        .mockReturnValue({ t: jest.fn(), tContent: jest.fn() })
+        .mockReturnValue({
+          t: jest.fn(),
+          tPage: jest.fn(),
+          tComponent: jest.fn(),
+          tSection: jest.fn(),
+          tListItem: jest.fn()
+        })
     } as unknown as FormModel
 
     const pageMock = createMockPageController(

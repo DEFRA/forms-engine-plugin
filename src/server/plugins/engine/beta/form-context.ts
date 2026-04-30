@@ -36,6 +36,7 @@ export interface FormModelOptions {
 
 export interface FormContextOptions extends FormModelOptions {
   errors?: FormSubmissionError[]
+  language?: string
 }
 
 type SummaryRequest = FormContextRequest & {
@@ -121,10 +122,13 @@ export async function getFormContext(
     $$__referenceNumber: cachedState.$$__referenceNumber
   } as unknown as FormSubmissionState
 
+  const translator = formModel.createTranslator(options.language ?? 'en-GB')
+
   return formModel.getFormContext(
     summaryRequest,
     formState,
-    options.errors ?? []
+    options.errors ?? [],
+    translator
   )
 }
 

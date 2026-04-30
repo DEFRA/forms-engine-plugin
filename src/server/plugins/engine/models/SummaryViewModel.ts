@@ -182,7 +182,7 @@ export class SummaryViewModel {
 
       if (items.length) {
         const sectionTitle = section
-          ? translator.tContent(section, 'title') || section.title
+          ? translator.tSection(section, 'title') || section.title
           : undefined
         details.push({
           name: section?.name,
@@ -253,19 +253,19 @@ export function ItemField(
   },
   translator?: Translator
 ): DetailItemField {
-  const tContent = translator?.tContent
   // FormComponent doesn't expose shortDescription/title as raw def properties,
-  // so build a lookup object with English values to let tContent's GUID lookup fire.
-  // `type` is required so tContent routes to the 'components' namespace (not 'sections').
+  // so build a lookup object with English values to let tComponent's GUID lookup fire.
   const fieldDef = {
     id: field.id,
     type: field.type,
     shortDescription: field.label,
     title: field.title
   } as unknown as ComponentDef
-  const rawLabel = tContent ? tContent(fieldDef, 'shortDescription') : ''
+  const rawLabel = translator
+    ? translator.tComponent(fieldDef, 'shortDescription')
+    : ''
   const translatedLabel = rawLabel !== '' ? rawLabel : field.label
-  const rawTitle = tContent ? tContent(fieldDef, 'title') : ''
+  const rawTitle = translator ? translator.tComponent(fieldDef, 'title') : ''
   const translatedTitle = rawTitle !== '' ? rawTitle : field.title
   const optional =
     field.options.required === false

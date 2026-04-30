@@ -3,6 +3,7 @@ import joi, { type ArraySchema } from 'joi'
 
 import { isFormValue } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { SelectionControlField } from '~/src/server/plugins/engine/components/SelectionControlField.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
@@ -66,7 +67,8 @@ export class CheckboxesField extends SelectionControlField {
   }
 
   getDisplayStringFromFormValue(
-    selected: (string | number | boolean)[] | undefined
+    selected: (string | number | boolean)[] | undefined,
+    translator?: Translator
   ) {
     const { items } = this
 
@@ -74,10 +76,11 @@ export class CheckboxesField extends SelectionControlField {
       return ''
     }
 
-    // Map selected values to text
     return items
       .filter((item) => selected.includes(item.value))
-      .map((item) => item.text)
+      .map((item) =>
+        translator ? translator.tListItem(item, 'text') || item.text : item.text
+      )
       .join(', ')
   }
 
@@ -98,12 +101,12 @@ export class CheckboxesField extends SelectionControlField {
     return values ?? []
   }
 
-  getDisplayStringFromState(state: FormSubmissionState) {
-    // Selected checkbox values
+  getDisplayStringFromState(
+    state: FormSubmissionState,
+    translator?: Translator
+  ) {
     const selected = this.getFormValueFromState(state) ?? []
-
-    // Map selected values to text
-    return this.getDisplayStringFromFormValue(selected)
+    return this.getDisplayStringFromFormValue(selected, translator)
   }
 
   getContextValueFromState(state: FormSubmissionState) {

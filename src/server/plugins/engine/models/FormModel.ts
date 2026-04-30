@@ -44,13 +44,9 @@ import {
   setPageTitles
 } from '~/src/server/plugins/engine/helpers.js'
 import { extractBaseTranslations } from '~/src/server/plugins/engine/i18n/extractBaseTranslations.js'
-import {
-  createFormI18nInstance,
-  t as translate
-} from '~/src/server/plugins/engine/i18n/index.js'
+import { createFormI18nInstance } from '~/src/server/plugins/engine/i18n/index.js'
 import {
   type FormDefinitionTranslations,
-  type TContentFunction,
   type Translator
 } from '~/src/server/plugins/engine/i18n/types.js'
 import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
@@ -285,18 +281,16 @@ export class FormModel {
       return result
     }
 
-    const tContent = ((entity: unknown, prop: string): string => {
-      const e = entity as Record<string, unknown>
-      if ('path' in e)
-        return resolveContent(e as { id?: string }, 'pages', prop)
-      if ('value' in e && 'text' in e)
-        return resolveContent(e as { id?: string }, 'listItems', prop)
-      if ('type' in e)
-        return resolveContent(e as { id?: string }, 'components', prop)
-      return resolveContent(e as { id?: string }, 'sections', prop)
-    }) as TContentFunction
-
-    return { t, tContent }
+    return {
+      t,
+      tPage: (entity, prop) => resolveContent(entity, 'pages', prop as string),
+      tComponent: (entity, prop) =>
+        resolveContent(entity, 'components', prop as string),
+      tSection: (entity, prop) =>
+        resolveContent(entity, 'sections', prop as string),
+      tListItem: (entity, prop) =>
+        resolveContent(entity, 'listItems', prop as string)
+    }
   }
 
   /**
@@ -578,14 +572,9 @@ export class FormModel {
       if (isInvalid) {
         context.errors ??= []
 
-        const text = translator
-          ? translator.t('errors.optionsMismatch')
-          : translate(
-              'errors.optionsMismatch',
-              typeof this.def.metadata?.language === 'string'
-                ? this.def.metadata.language
-                : 'en-GB'
-            )
+        const text = (translator ?? this.createTranslator('en-GB')).t(
+          'errors.optionsMismatch'
+        )
 
         context.errors.push({
           text,

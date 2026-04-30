@@ -78,11 +78,14 @@ describe('getFormContext helper', () => {
     notificationEmail: 'test@example.com'
   }
   const definition = { pages: [] }
-  let formModel: { getFormContext: jest.Mock }
+  let formModel: { getFormContext: jest.Mock; createTranslator: jest.Mock }
 
   beforeEach(() => {
     jest.clearAllMocks()
-    formModel = { getFormContext: jest.fn().mockResolvedValue(returnedContext) }
+    formModel = {
+      getFormContext: jest.fn().mockResolvedValue(returnedContext),
+      createTranslator: jest.fn().mockReturnValue({})
+    }
     FormModel.mockImplementation(
       (_definition: unknown, modelOptions: FormModelOptions) =>
         Object.assign(formModel, { basePath: modelOptions.basePath })
@@ -119,10 +122,14 @@ describe('getFormContext helper', () => {
       'https://form-context.local/preview/live/tb-origin/summary'
     )
 
+    const translator = formModel.createTranslator.mock.results[0].value
+
+    expect(formModel.createTranslator).toHaveBeenCalledWith('en-GB')
     expect(formModel.getFormContext).toHaveBeenCalledWith(
       summaryRequest,
       expect.objectContaining({ $$__referenceNumber: 'CACHED-REF' }),
-      errors
+      errors,
+      translator
     )
     expect(context).toBe(returnedContext)
   })

@@ -450,7 +450,7 @@ export class RepeatPageController extends QuestionPageController {
         }
 
         const itemDisplayText = collection.fields.length
-          ? collection.fields[0].getDisplayStringFromState(item)
+          ? collection.fields[0].getDisplayStringFromState(item, translator)
           : ''
 
         summaryList.rows.push({

@@ -1735,13 +1735,12 @@ describe('QuestionPageController translator support', () => {
   describe('getViewModel with translator', () => {
     it('uses mock t from translator for plugin strings', () => {
       const mockT = jest.fn((key: string) => `translated:${key}`)
-      const mockTContent = jest.fn(
-        (entity: unknown, prop: string) => `content:${prop}`
-      )
-
       const translator: Translator = {
         t: mockT,
-        tContent: mockTContent as Translator['tContent']
+        tPage: jest.fn((_, prop) => `content:${prop}`),
+        tComponent: jest.fn((_, prop) => `content:${prop}`),
+        tSection: jest.fn((_, prop) => `content:${prop}`),
+        tListItem: jest.fn((_, prop) => `content:${prop}`)
       }
 
       // Use a request with returnUrl so that getBackLink calls t() for back link text
@@ -1767,15 +1766,18 @@ describe('QuestionPageController translator support', () => {
       expect(mockT).toHaveBeenCalledWith('pages.question.backToCheckAnswers')
     })
 
-    it('uses mock tContent from translator for page entity', () => {
+    it('uses mock tPage from translator for page entity', () => {
       const mockT = jest.fn((key: string) => key)
-      const mockTContent = jest.fn(
-        (entity: unknown, prop: string) => `content:${prop}`
+      const mockTPage = jest.fn(
+        (_entity: unknown, prop: string) => `content:${prop}`
       )
 
       const translator: Translator = {
         t: mockT,
-        tContent: mockTContent as Translator['tContent']
+        tPage: mockTPage as Translator['tPage'],
+        tComponent: jest.fn(() => ''),
+        tSection: jest.fn(() => ''),
+        tListItem: jest.fn(() => '')
       }
 
       const context = model.getFormContext(requestPage1, {
@@ -1784,8 +1786,7 @@ describe('QuestionPageController translator support', () => {
 
       controller1.getViewModel(requestPage1, context, translator)
 
-      // tContent should have been called with the page entity
-      expect(mockTContent).toHaveBeenCalledWith(
+      expect(mockTPage).toHaveBeenCalledWith(
         expect.objectContaining({ path: page1.path }),
         'title'
       )
@@ -1795,7 +1796,10 @@ describe('QuestionPageController translator support', () => {
       const mockT = jest.fn().mockReturnValue('Back to check answers')
       const mockTranslatorLocal: Translator = {
         t: mockT,
-        tContent: stubTranslator.tContent
+        tPage: stubTranslator.tPage,
+        tComponent: stubTranslator.tComponent,
+        tSection: stubTranslator.tSection,
+        tListItem: stubTranslator.tListItem
       }
 
       // Use a request with returnUrl so that getBackLink calls translator.t for back link text

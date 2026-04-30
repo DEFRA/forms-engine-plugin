@@ -292,10 +292,11 @@ export class ComponentCollection {
           }
         } else {
           const translatedLabel =
-            translator.tContent(
+            translator.tComponent(
               field as unknown as ComponentDef,
               'shortDescription'
-            ) || translator.tContent(field as unknown as ComponentDef, 'title')
+            ) ||
+            translator.tComponent(field as unknown as ComponentDef, 'title')
           const messagesOverride =
             field.getValidationMessagesOverride(translator)
           let patchedSchema = field.formSchema

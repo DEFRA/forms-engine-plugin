@@ -114,7 +114,7 @@ export class ListFormComponent extends FormComponent {
       .filter((item) => values.includes(item.value))
       .map((item) =>
         translator
-          ? translator.tContent(item, 'text') || item.text
+          ? translator.tListItem(item, 'text') || item.text
           : tPlugin(item.text, 'en-GB') || item.text
       )
       .join(', ')
@@ -139,11 +139,11 @@ export class ListFormComponent extends FormComponent {
     // Support multiple values for checkboxes
     const values = this.isValue(value) ? [value].flat() : []
 
-    const { tContent } = context.translator
+    const { tListItem } = context.translator
 
     const items = listItems.map((item) => {
       const selected = values.includes(item.value)
-      const resolvedText = tContent(item, 'text') || item.text
+      const resolvedText = tListItem(item, 'text') || item.text
       const itemModel: ListItem = { ...item, text: resolvedText, selected }
 
       if ('id' in itemModel) {
