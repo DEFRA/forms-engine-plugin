@@ -276,8 +276,11 @@ export class FormModel {
         ns: 'form'
       })
       if (result === key) {
+        // No form translation found — fall through to t(raw) so plugin i18n
+        // key constants (e.g. 'components.yesNoField.yes') are still resolved.
         const raw = (entity as Record<string, unknown>)[prop]
-        return typeof raw === 'string' ? raw : ''
+        if (typeof raw !== 'string') return ''
+        return t(raw)
       }
       return result
     }
