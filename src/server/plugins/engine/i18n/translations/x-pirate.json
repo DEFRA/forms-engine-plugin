@@ -195,7 +195,10 @@
 
     "geospatialField": {
       "added_one": "Ye've marked [[count]] location on the treasure map",
-      "added_other": "Ye've marked [[count]] locations on the treasure map"
+      "added_other": "Ye've marked [[count]] locations on the treasure map",
+      "validation": {
+        "descriptionRequired": "Mark yer description for location [[count]] on the map, ye scallywag"
+      }
     },
 
     "paymentField": {

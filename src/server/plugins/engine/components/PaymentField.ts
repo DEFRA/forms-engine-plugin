@@ -15,6 +15,7 @@ import {
   createError,
   getPluginOptions
 } from '~/src/server/plugins/engine/helpers.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import {
   PaymentErrorTypes,
   PaymentPreAuthError,
@@ -90,7 +91,10 @@ export class PaymentField extends FormComponent {
     return this.isPaymentState(value) ? value : undefined
   }
 
-  getDisplayStringFromState(state: FormSubmissionState): string {
+  getDisplayStringFromState(
+    state: FormSubmissionState,
+    _translator?: Translator
+  ): string {
     const value = this.getPaymentStateFromState(state)
 
     if (!value) {

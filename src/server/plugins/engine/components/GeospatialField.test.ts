@@ -381,5 +381,53 @@ describe('GeospatialField', () => {
         })
       ])
     })
+
+    it('getViewErrors uses translator for description error text', () => {
+      const component = {
+        title: 'Example geospatial field',
+        name: 'myComponent',
+        type: ComponentType.GeospatialField,
+        options: { required: true }
+      } satisfies GeospatialFieldComponent
+
+      const collection = new ComponentCollection([component], { model })
+      const invalidSingleState: GeospatialState = [
+        {
+          type: 'Feature',
+          properties: {
+            coordinateGridReference: 'ST 00001',
+            centroidGridReference: 'ST 00001',
+            description: ''
+          },
+          geometry: {
+            coordinates: [-2.5723699109417737, 53.2380485215034],
+            type: 'Point'
+          },
+          id: 'a'
+        }
+      ]
+
+      const mockT = jest.fn().mockReturnValue('translated description error')
+      const mockTranslator = { ...stubTranslator, t: mockT }
+
+      const result = collection.validate(getFormData(invalidSingleState))
+      const geospatialField = collection.components.at(0) as GeospatialField
+
+      const viewErrors = geospatialField.getViewErrors(
+        result.errors,
+        mockTranslator
+      )
+
+      expect(mockT).toHaveBeenCalledWith(
+        'components.geospatialField.validation.descriptionRequired',
+        { count: 1 }
+      )
+      expect(viewErrors).toEqual([
+        expect.objectContaining({
+          href: '#description_0',
+          text: 'translated description error'
+        })
+      ])
+    })
   })
 })

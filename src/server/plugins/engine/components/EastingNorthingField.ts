@@ -21,6 +21,7 @@ import {
   type RenderContext
 } from '~/src/server/plugins/engine/components/types.js'
 import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
@@ -190,7 +191,8 @@ export class EastingNorthingField extends FormComponent {
   }
 
   getDisplayStringFromFormValue(
-    value: EastingNorthingState | undefined
+    value: EastingNorthingState | undefined,
+    _translator?: Translator
   ): string {
     if (!value) {
       return ''
@@ -200,10 +202,13 @@ export class EastingNorthingField extends FormComponent {
     return `${value.easting}, ${value.northing}`
   }
 
-  getDisplayStringFromState(state: FormSubmissionState) {
+  getDisplayStringFromState(
+    state: FormSubmissionState,
+    translator?: Translator
+  ) {
     const value = this.getFormValueFromState(state)
 
-    return this.getDisplayStringFromFormValue(value)
+    return this.getDisplayStringFromFormValue(value, translator)
   }
 
   getContextValueFromFormValue(
@@ -228,7 +233,8 @@ export class EastingNorthingField extends FormComponent {
   }
 
   getViewErrors(
-    errors?: FormSubmissionError[]
+    errors?: FormSubmissionError[],
+    _translator?: Translator
   ): FormSubmissionError[] | undefined {
     const allErrors = this.getErrors(errors)
     return deduplicateErrorsByHref(allErrors)

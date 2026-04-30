@@ -102,7 +102,10 @@ export class FormComponent extends ComponentBase {
     }
   }
 
-  getErrors(errors?: FormSubmissionError[]): FormSubmissionError[] | undefined {
+  getErrors(
+    errors?: FormSubmissionError[],
+    _translator?: Translator
+  ): FormSubmissionError[] | undefined {
     const { name } = this
 
     // Filter component and child errors only
@@ -127,7 +130,8 @@ export class FormComponent extends ComponentBase {
   }
 
   getViewErrors(
-    errors?: FormSubmissionError[]
+    errors?: FormSubmissionError[],
+    _translator?: Translator
   ): FormSubmissionError[] | undefined {
     const firstError = this.getFirstError(errors)
     return firstError && [firstError]

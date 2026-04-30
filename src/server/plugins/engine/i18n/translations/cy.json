@@ -228,7 +228,10 @@
 
     "geospatialField": {
       "added_one": "Ychwanegwyd [[count]] lleoliad",
-      "added_other": "Ychwanegwyd [[count]] lleoliad"
+      "added_other": "Ychwanegwyd [[count]] lleoliad",
+      "validation": {
+        "descriptionRequired": "Rhowch ddisgrifiad ar gyfer lleoliad [[count]]"
+      }
     },
 
     "paymentField": {

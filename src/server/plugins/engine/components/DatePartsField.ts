@@ -109,7 +109,10 @@ export class DatePartsField extends FormComponent {
     return this.isState(value) ? value : undefined
   }
 
-  getDisplayStringFromFormValue(formValue: DatePartsState | undefined) {
+  getDisplayStringFromFormValue(
+    formValue: DatePartsState | undefined,
+    _translator?: Translator
+  ) {
     if (!formValue) {
       return ''
     }
@@ -120,10 +123,13 @@ export class DatePartsField extends FormComponent {
     )
   }
 
-  getDisplayStringFromState(state: FormSubmissionState) {
+  getDisplayStringFromState(
+    state: FormSubmissionState,
+    translator?: Translator
+  ) {
     const value = this.getFormValueFromState(state)
 
-    return this.getDisplayStringFromFormValue(value)
+    return this.getDisplayStringFromFormValue(value, translator)
   }
 
   getContextValueFromFormValue(value: DatePartsState | undefined) {

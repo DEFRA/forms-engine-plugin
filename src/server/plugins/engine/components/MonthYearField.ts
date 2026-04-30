@@ -103,7 +103,10 @@ export class MonthYearField extends FormComponent {
     return MonthYearField.isMonthYear(value) ? value : undefined
   }
 
-  getDisplayStringFromFormValue(value: MonthYearState | undefined): string {
+  getDisplayStringFromFormValue(
+    value: MonthYearState | undefined,
+    _translator?: Translator
+  ): string {
     if (!value) {
       return ''
     }
@@ -115,10 +118,13 @@ export class MonthYearField extends FormComponent {
     return `${monthString} ${value.year}`
   }
 
-  getDisplayStringFromState(state: FormSubmissionState) {
+  getDisplayStringFromState(
+    state: FormSubmissionState,
+    translator?: Translator
+  ) {
     const value = this.getFormValueFromState(state)
 
-    return this.getDisplayStringFromFormValue(value)
+    return this.getDisplayStringFromFormValue(value, translator)
   }
 
   getContextValueFromFormValue(

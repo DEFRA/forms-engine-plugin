@@ -221,8 +221,14 @@ export class ComponentCollection {
   /**
    * Get all errors for all fields in this collection
    */
-  getErrors(errors?: FormSubmissionError[]): FormSubmissionError[] | undefined {
-    return this.getFieldErrors((field) => field.getErrors(errors), errors)
+  getErrors(
+    errors?: FormSubmissionError[],
+    translator?: Translator
+  ): FormSubmissionError[] | undefined {
+    return this.getFieldErrors(
+      (field) => field.getErrors(errors, translator),
+      errors
+    )
   }
 
   /**

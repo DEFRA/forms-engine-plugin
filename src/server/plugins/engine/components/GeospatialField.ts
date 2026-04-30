@@ -104,13 +104,24 @@ export class GeospatialField extends FormComponent {
     }
   }
 
-  getErrors(errors?: FormSubmissionError[]): FormSubmissionError[] | undefined {
+  getErrors(
+    errors?: FormSubmissionError[],
+    translator?: Translator
+  ): FormSubmissionError[] | undefined {
     const fieldErrors = super.getErrors(errors)
+
+    const t =
+      translator?.t ??
+      ((key: string, opts?: Record<string, unknown>) =>
+        tPlugin(key, 'en-GB', opts))
 
     fieldErrors?.forEach((err) => {
       if (err.name === 'description') {
         err.href = `#description_${err.path[1]}`
-        err.text = `Enter description for location ${Number(err.path[1]) + 1}`
+        err.text = t(
+          'components.geospatialField.validation.descriptionRequired',
+          { count: Number(err.path[1]) + 1 }
+        )
       }
     })
 
@@ -118,9 +129,10 @@ export class GeospatialField extends FormComponent {
   }
 
   getViewErrors(
-    errors?: FormSubmissionError[]
+    errors?: FormSubmissionError[],
+    translator?: Translator
   ): FormSubmissionError[] | undefined {
-    return this.getErrors(errors)
+    return this.getErrors(errors, translator)
   }
 
   isValue(value?: FormStateValue | FormState): value is GeospatialState {

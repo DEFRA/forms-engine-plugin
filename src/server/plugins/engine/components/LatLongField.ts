@@ -18,6 +18,7 @@ import {
   type RenderContext
 } from '~/src/server/plugins/engine/components/types.js'
 import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
@@ -156,7 +157,10 @@ export class LatLongField extends FormComponent {
     return LatLongField.isLatLong(value) ? value : undefined
   }
 
-  getDisplayStringFromFormValue(value: LatLongState | undefined): string {
+  getDisplayStringFromFormValue(
+    value: LatLongState | undefined,
+    _translator?: Translator
+  ): string {
     if (!value) {
       return ''
     }
@@ -165,10 +169,13 @@ export class LatLongField extends FormComponent {
     return `${value.latitude}, ${value.longitude}`
   }
 
-  getDisplayStringFromState(state: FormSubmissionState) {
+  getDisplayStringFromState(
+    state: FormSubmissionState,
+    translator?: Translator
+  ) {
     const value = this.getFormValueFromState(state)
 
-    return this.getDisplayStringFromFormValue(value)
+    return this.getDisplayStringFromFormValue(value, translator)
   }
 
   getContextValueFromFormValue(value: LatLongState | undefined): string | null {
@@ -192,7 +199,8 @@ export class LatLongField extends FormComponent {
   }
 
   getViewErrors(
-    errors?: FormSubmissionError[]
+    errors?: FormSubmissionError[],
+    _translator?: Translator
   ): FormSubmissionError[] | undefined {
     const allErrors = this.getErrors(errors)
     return deduplicateErrorsByHref(allErrors)

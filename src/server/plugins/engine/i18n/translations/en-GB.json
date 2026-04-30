@@ -228,7 +228,10 @@
 
     "geospatialField": {
       "added_one": "Added [[count]] location",
-      "added_other": "Added [[count]] locations"
+      "added_other": "Added [[count]] locations",
+      "validation": {
+        "descriptionRequired": "Enter description for location [[count]]"
+      }
     },
 
     "paymentField": {
