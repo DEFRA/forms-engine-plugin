@@ -31,7 +31,7 @@ export class GeospatialField extends FormComponent {
 
     const { options } = def
 
-    let formSchema = getGeospatialSchema(options.country)
+    let formSchema = getGeospatialSchema(options.countries?.at(0))
       .label(this.label)
       .required()
 
@@ -92,7 +92,7 @@ export class GeospatialField extends FormComponent {
 
     return {
       ...viewModel,
-      country: this.options.country,
+      country: this.options.countries?.at(0),
       value
     }
   }

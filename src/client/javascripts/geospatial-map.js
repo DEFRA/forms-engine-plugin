@@ -39,8 +39,8 @@ const lineFeatureProperties = {
 }
 
 const polygonFeatureProperties = {
-  stroke: 'rgba(0,112,60,1)',
-  fill: 'rgba(0,112,60,0.2)',
+  stroke: 'rgb(0, 0, 0)',
+  fill: 'rgba(255, 221, 0, 0.2)',
   strokeWidth: 2
 }
 
@@ -126,9 +126,9 @@ export function processGeospatial(config, geospatial, index) {
           showInKey: false,
           showInMenu: false,
           style: {
-            stroke: '#d4351c',
-            strokeWidth: 2,
-            fill: '#d4351c'
+            stroke: 'gray',
+            strokeWidth: 1,
+            fill: 'rgba(211,211,211,0.8)'
           }
         },
         {
@@ -138,8 +138,8 @@ export function processGeospatial(config, geospatial, index) {
           showInKey: false,
           showInMenu: false,
           style: {
-            stroke: '#00ff22',
-            strokeWidth: 2
+            stroke: 'rgba(0,112,60,1)',
+            strokeWidth: 1
           }
         }
       ]

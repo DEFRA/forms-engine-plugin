@@ -383,7 +383,7 @@ describe('GeospatialField', () => {
         name: 'myComponent',
         type: ComponentType.GeospatialField,
         options: {
-          country: 'scotland',
+          countries: ['scotland'],
           required: true
         }
       } satisfies GeospatialFieldComponent
