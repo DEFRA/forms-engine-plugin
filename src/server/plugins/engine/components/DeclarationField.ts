@@ -8,6 +8,7 @@ import {
 import joi, {
   type ArraySchema,
   type BooleanSchema,
+  type LanguageMessages,
   type StringSchema
 } from 'joi'
 
@@ -15,6 +16,7 @@ import {
   FormComponent,
   isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { buildValidationMessages } from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
 import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
@@ -113,6 +115,16 @@ export class DeclarationField extends FormComponent {
 
   getFormValue(value?: FormStateValue | FormState) {
     return this.isValue(value) ? value : undefined
+  }
+
+  getValidationMessagesOverride(translator: Translator) {
+    const { declarationRequired } = buildValidationMessages(translator.t)
+    const msg = declarationRequired as unknown as string
+    return {
+      'any.required': msg,
+      'any.unknown': msg,
+      'array.includesRequiredUnknowns': msg
+    } as unknown as LanguageMessages
   }
 
   getDisplayStringFromFormValue(

@@ -345,7 +345,7 @@ describe('MonthYearField', () => {
             items: [
               expect.objectContaining(
                 getViewModel(date, 'month', {
-                  label: { text: 'components.monthYearField.month' },
+                  label: { text: 'Month' },
                   classes: 'govuk-input--width-2',
                   value: 12
                 })
@@ -353,7 +353,7 @@ describe('MonthYearField', () => {
 
               expect.objectContaining(
                 getViewModel(date, 'year', {
-                  label: { text: 'components.monthYearField.year' },
+                  label: { text: 'Year' },
                   classes: 'govuk-input--width-4',
                   value: 2024
                 })

@@ -1,6 +1,5 @@
 import { ComponentType, type LatLongFieldComponent } from '@defra/forms-model'
 
-
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { LatLongField } from '~/src/server/plugins/engine/components/LatLongField.js'
 import {
@@ -296,7 +295,7 @@ describe('LatLongField', () => {
             items: [
               expect.objectContaining({
                 label: expect.objectContaining({
-                  text: 'components.latLongField.latitude'
+                  text: 'Latitude'
                 }),
                 // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 name: 'myComponent__latitude',
@@ -305,7 +304,7 @@ describe('LatLongField', () => {
               }),
               expect.objectContaining({
                 label: expect.objectContaining({
-                  text: 'components.latLongField.longitude'
+                  text: 'Longitude'
                 }),
                 // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 name: 'myComponent__longitude',

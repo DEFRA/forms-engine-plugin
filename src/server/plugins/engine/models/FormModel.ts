@@ -149,12 +149,8 @@ export class FormModel {
       }
     }
 
-    const language =
-      typeof def.metadata?.language === 'string'
-        ? def.metadata.language
-        : 'en-GB'
-
-    // Add default lists
+    // Add default lists. Yes/No text stored as i18n key constants so they
+    // resolve to the user's language at render time via the translator.
     def.lists.push({
       id: def.schema === SchemaVersion.V1 ? yesNoListName : yesNoListId,
       name: '__yesNo',
@@ -163,12 +159,12 @@ export class FormModel {
       items: [
         {
           id: '02900d42-83d1-4c72-a719-c4e8228952fa',
-          text: translate('components.yesNoField.yes', language),
+          text: 'components.yesNoField.yes',
           value: true
         },
         {
           id: 'f39000eb-c51b-4019-8f82-bbda0423f04d',
-          text: translate('components.yesNoField.no', language),
+          text: 'components.yesNoField.no',
           value: false
         }
       ]

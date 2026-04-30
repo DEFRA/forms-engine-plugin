@@ -14,6 +14,7 @@ import joi, {
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type ListItem } from '~/src/server/plugins/engine/components/types.js'
+import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
@@ -101,7 +102,8 @@ export class ListFormComponent extends FormComponent {
   }
 
   getDisplayStringFromFormValue(
-    value: string | number | boolean | Item['value'][] | undefined
+    value: string | number | boolean | Item['value'][] | undefined,
+    translator?: Translator
   ): string {
     const { items } = this
 
@@ -109,15 +111,22 @@ export class ListFormComponent extends FormComponent {
 
     return items
       .filter((item) => values.includes(item.value))
-      .map((item) => item.text)
+      .map((item) =>
+        translator
+          ? translator.tContent(item, 'text') || item.text
+          : tPlugin(item.text, 'en-GB') || item.text
+      )
       .join(', ')
   }
 
-  getDisplayStringFromState(state: FormSubmissionState) {
+  getDisplayStringFromState(
+    state: FormSubmissionState,
+    translator?: Translator
+  ) {
     // Allow for array values via subclass
     const value = this.getFormValueFromState(state)
 
-    return this.getDisplayStringFromFormValue(value)
+    return this.getDisplayStringFromFormValue(value, translator)
   }
 
   getViewModel(
@@ -139,9 +148,12 @@ export class ListFormComponent extends FormComponent {
     // Support multiple values for checkboxes
     const values = this.isValue(value) ? [value].flat() : []
 
+    const { tContent } = translator
+
     const items = listItems.map((item) => {
       const selected = values.includes(item.value)
-      const itemModel: ListItem = { ...item, selected }
+      const resolvedText = tContent(item, 'text') || item.text
+      const itemModel: ListItem = { ...item, text: resolvedText, selected }
 
       if ('id' in itemModel) {
         delete itemModel.id

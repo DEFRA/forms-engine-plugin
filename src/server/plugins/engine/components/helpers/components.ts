@@ -6,6 +6,7 @@ import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFo
 import { escapeMarkdown } from '~/src/server/plugins/engine/components/helpers/index.js'
 import * as Components from '~/src/server/plugins/engine/components/index.js'
 import { markdown } from '~/src/server/plugins/engine/components/markdownParser.js'
+import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type FormState } from '~/src/server/plugins/engine/types.js'
 
@@ -227,7 +228,7 @@ export function getAnswer(
 ) {
   // Use escaped display text for GOV.UK Notify emails
   if (options.format === 'email') {
-    return getAnswerMarkdown(field, state, { format: 'email' })
+    return getAnswerMarkdown(field, state, { format: 'email' }, translator)
   }
 
   // Use context value for submission data
@@ -245,7 +246,10 @@ export function getAnswer(
     field instanceof Components.LatLongField
   ) {
     return markdown
-      .parse(getAnswerMarkdown(field, state), { async: false })
+      .parse(
+        getAnswerMarkdown(field, state, { format: 'summary' }, translator),
+        { async: false }
+      )
       .trim()
   }
 
@@ -263,9 +267,10 @@ export function getAnswerMarkdown(
     format:
       | 'email' // GOV.UK Notify emails
       | 'summary' // Check answers summary
-  } = { format: 'summary' }
+  } = { format: 'summary' },
+  translator?: Translator
 ) {
-  const answer = field.getDisplayStringFromState(state)
+  const answer = field.getDisplayStringFromState(state, translator)
 
   // Use escaped display text
   let answerEscaped = `${escapeMarkdown(answer)}\n`
@@ -302,7 +307,10 @@ export function getAnswerMarkdown(
     // Append bullet points
     answerEscaped += items
       .map((item) => {
-        const label = escapeMarkdown(item.text)
+        const resolvedText = translator
+          ? translator.tContent(item, 'text') || item.text
+          : tPlugin(item.text, 'en-GB') || item.text
+        const label = escapeMarkdown(resolvedText)
         const value = escapeMarkdown(`(${item.value})`)
 
         let line = label

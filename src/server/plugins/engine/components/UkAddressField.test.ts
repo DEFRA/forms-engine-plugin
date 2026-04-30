@@ -4,7 +4,6 @@ import {
   type UkAddressFieldComponent
 } from '@defra/forms-model'
 
-
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { UkAddressField } from '~/src/server/plugins/engine/components/UkAddressField.js'
 import {
@@ -436,7 +435,7 @@ describe('UkAddressField', () => {
             components: expect.arrayContaining([
               expect.objectContaining({
                 model: getViewModel(address, 'addressLine1', {
-                  label: { text: 'components.addressField.line1' },
+                  label: { text: 'Address line 1' },
                   // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   attributes: { autocomplete: 'address-line1' }
                 })
@@ -444,7 +443,7 @@ describe('UkAddressField', () => {
 
               expect.objectContaining({
                 model: getViewModel(address, 'addressLine2', {
-                  label: { text: 'components.addressField.line2 (optional)' },
+                  label: { text: 'Address line 2 (optional)' },
                   // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   attributes: { autocomplete: 'address-line2' },
                   value: address.addressLine2
@@ -453,7 +452,7 @@ describe('UkAddressField', () => {
 
               expect.objectContaining({
                 model: getViewModel(address, 'town', {
-                  label: { text: 'components.addressField.town' },
+                  label: { text: 'Town or city' },
                   // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   classes: 'govuk-!-width-two-thirds',
                   attributes: { autocomplete: 'address-level2' },
@@ -463,7 +462,7 @@ describe('UkAddressField', () => {
 
               expect.objectContaining({
                 model: getViewModel(address, 'county', {
-                  label: { text: 'components.addressField.county (optional)' },
+                  label: { text: 'County (optional)' },
                   // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   attributes: { autocomplete: 'address-level1' },
                   value: address.county
@@ -472,7 +471,7 @@ describe('UkAddressField', () => {
 
               expect.objectContaining({
                 model: getViewModel(address, 'postcode', {
-                  label: { text: 'components.addressField.postcode' },
+                  label: { text: 'Postcode' },
                   // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   classes: 'govuk-input--width-10',
                   attributes: { autocomplete: 'postal-code' },

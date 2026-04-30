@@ -3,7 +3,6 @@ import {
   type EastingNorthingFieldComponent
 } from '@defra/forms-model'
 
-
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { EastingNorthingField } from '~/src/server/plugins/engine/components/EastingNorthingField.js'
 import {
@@ -307,7 +306,7 @@ describe('EastingNorthingField', () => {
             items: [
               expect.objectContaining({
                 label: expect.objectContaining({
-                  text: 'components.eastingNorthingField.easting'
+                  text: 'Easting'
                 }),
                 // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 name: 'myComponent__easting',
@@ -316,7 +315,7 @@ describe('EastingNorthingField', () => {
               }),
               expect.objectContaining({
                 label: expect.objectContaining({
-                  text: 'components.eastingNorthingField.northing'
+                  text: 'Northing'
                 }),
                 // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 name: 'myComponent__northing',

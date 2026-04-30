@@ -1,6 +1,5 @@
 import { ComponentType, type LatLongFieldComponent } from '@defra/forms-model'
 
-
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { type LatLongField } from '~/src/server/plugins/engine/components/LatLongField.js'
 import {
@@ -575,15 +574,13 @@ describe('LocationFieldHelpers', () => {
 
       const label = viewModel.items[0].label
       expect(label).toBeDefined()
-      expect(label?.text).toBe('components.latLongField.latitude')
-      // Sub-field title is a key constant; resolved at request time (Task 8/9).
+      expect(label?.text).toBe('Latitude')
 
       const labelString =
         label && 'toString' in label && typeof label.toString === 'function'
           ? (label as { toString: () => string }).toString()
           : ''
-      expect(labelString).toBe('components.latLongField.latitude')
-      // Sub-field title is a key constant; resolved at request time (Task 8/9).
+      expect(labelString).toBe('Latitude')
     })
 
     it('should use existing fieldset if provided', () => {

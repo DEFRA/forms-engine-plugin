@@ -181,9 +181,12 @@ export class SummaryViewModel {
       })
 
       if (items.length) {
+        const sectionTitle = section
+          ? translator.tContent(section, 'title') || section.title
+          : undefined
         details.push({
           name: section?.name,
-          title: section?.title,
+          title: sectionTitle,
           items
         })
       }

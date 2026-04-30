@@ -298,8 +298,17 @@ export class ComponentCollection {
               field as unknown as ComponentDef,
               'shortDescription'
             ) || translator.tContent(field as unknown as ComponentDef, 'title')
+          const messagesOverride =
+            field.getValidationMessagesOverride(translator)
+          let patchedSchema = field.formSchema
           if (translatedLabel && translatedLabel !== field.label) {
-            labelOverrides[field.name] = field.formSchema.label(translatedLabel)
+            patchedSchema = patchedSchema.label(translatedLabel)
+          }
+          if (messagesOverride) {
+            patchedSchema = patchedSchema.messages(messagesOverride)
+          }
+          if (patchedSchema !== field.formSchema) {
+            labelOverrides[field.name] = patchedSchema
           }
         }
       }
