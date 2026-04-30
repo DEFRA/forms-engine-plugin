@@ -221,11 +221,11 @@ describe('OsGridRefField', () => {
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = field.getViewModel(
-          getFormData('TQ12345678'),
-          undefined,
-          stubTranslator
-        )
+        const viewModel = field.getViewModel({
+          payload: getFormData('TQ12345678'),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -246,11 +246,11 @@ describe('OsGridRefField', () => {
           { model }
         )
 
-        const viewModel = componentWithInstruction.getViewModel(
-          getFormData('TQ12345678'),
-          undefined,
-          stubTranslator
-        )
+        const viewModel = componentWithInstruction.getViewModel({
+          payload: getFormData('TQ12345678'),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         const instructionText =
           'instructionText' in viewModel ? viewModel.instructionText : undefined

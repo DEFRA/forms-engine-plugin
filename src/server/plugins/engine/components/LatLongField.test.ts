@@ -282,7 +282,11 @@ describe('LatLongField', () => {
           latitude: 51.51945,
           longitude: -0.127758
         })
-        const viewModel = field.getViewModel(payload, undefined, stubTranslator)
+        const viewModel = field.getViewModel({
+          payload,
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -325,14 +329,14 @@ describe('LatLongField', () => {
           { model }
         )
 
-        const viewModel = componentWithInstruction.getViewModel(
-          getFormData({
+        const viewModel = componentWithInstruction.getViewModel({
+          payload: getFormData({
             latitude: 51.51945,
             longitude: -0.127758
           }),
-          undefined,
-          stubTranslator
-        )
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         const instructionText =
           'instructionText' in viewModel ? viewModel.instructionText : undefined
@@ -355,7 +359,11 @@ describe('LatLongField', () => {
           }
         ]
 
-        const viewModel = field.getViewModel(payload, errors, stubTranslator)
+        const viewModel = field.getViewModel({
+          payload,
+          errors,
+          translator: stubTranslator
+        })
 
         // Check that error is passed to the viewModel
         expect(viewModel.errors).toEqual(errors)

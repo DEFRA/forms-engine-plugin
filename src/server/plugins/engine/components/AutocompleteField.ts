@@ -1,12 +1,8 @@
 import { type AutocompleteFieldComponent } from '@defra/forms-model'
 
 import { SelectField } from '~/src/server/plugins/engine/components/SelectField.js'
-import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
+import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
-import {
-  type FormPayload,
-  type FormSubmissionError
-} from '~/src/server/plugins/engine/types.js'
 
 export class AutocompleteField extends SelectField {
   declare options: AutocompleteFieldComponent['options']
@@ -35,18 +31,8 @@ export class AutocompleteField extends SelectField {
     this.formSchema = formSchema
   }
 
-  getViewModel(
-    payload: FormPayload,
-    errors: FormSubmissionError[] | undefined,
-    translator: Translator,
-    isForceAccess = false
-  ) {
-    const viewModel = super.getViewModel(
-      payload,
-      errors,
-      translator,
-      isForceAccess
-    )
+  getViewModel(context: RenderContext) {
+    const viewModel = super.getViewModel(context)
     let { formGroup } = viewModel
 
     formGroup ??= {}

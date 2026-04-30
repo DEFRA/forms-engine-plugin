@@ -12,6 +12,7 @@ import {
   isFormState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
+import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { getPluginOptions } from '~/src/server/plugins/engine/helpers.js'
 import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
@@ -199,20 +200,11 @@ export class UkAddressField extends FormComponent {
     return uniqueErrors
   }
 
-  getViewModel(
-    payload: FormPayload,
-    errors: FormSubmissionError[] | undefined,
-    translator: Translator,
-    isForceAccess = false
-  ) {
+  getViewModel(context: RenderContext) {
+    const { payload } = context
     const { collection, name, options } = this
 
-    const viewModel = super.getViewModel(
-      payload,
-      errors,
-      translator,
-      isForceAccess
-    )
+    const viewModel = super.getViewModel(context)
     let { fieldset, hint, label } = viewModel
 
     fieldset ??= {
@@ -236,7 +228,7 @@ export class UkAddressField extends FormComponent {
       }
     }
 
-    const components = collection.getViewModel(payload, errors, translator)
+    const components = collection.getViewModel(context)
 
     // Hide UPRN
     const uprn = components.at(0)

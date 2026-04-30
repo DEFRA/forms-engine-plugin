@@ -199,11 +199,11 @@ describe('PaymentField', () => {
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = field.getViewModel(
-          getFormData(undefined),
-          undefined,
-          stubTranslator
-        )
+        const viewModel = field.getViewModel({
+          payload: getFormData(undefined),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -227,11 +227,11 @@ describe('PaymentField', () => {
           description: 'Test payment description',
           isLivePayment: false
         } as unknown as FormValue
-        const viewModel = field.getViewModel(
-          getFormData(paymentForViewModel),
-          undefined,
-          stubTranslator
-        )
+        const viewModel = field.getViewModel({
+          payload: getFormData(paymentForViewModel),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({

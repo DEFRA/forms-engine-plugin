@@ -13,14 +13,15 @@ import joi, {
 } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { type ListItem } from '~/src/server/plugins/engine/components/types.js'
+import {
+  type ListItem,
+  type RenderContext
+} from '~/src/server/plugins/engine/components/types.js'
 import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
-  type FormPayload,
-  type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 
@@ -129,26 +130,16 @@ export class ListFormComponent extends FormComponent {
     return this.getDisplayStringFromFormValue(value, translator)
   }
 
-  getViewModel(
-    payload: FormPayload,
-    errors: FormSubmissionError[] | undefined,
-    translator: Translator,
-    isForceAccess = false
-  ) {
+  getViewModel(context: RenderContext) {
     const { items: listItems } = this
 
-    const viewModel = super.getViewModel(
-      payload,
-      errors,
-      translator,
-      isForceAccess
-    )
+    const viewModel = super.getViewModel(context)
     const { value } = viewModel
 
     // Support multiple values for checkboxes
     const values = this.isValue(value) ? [value].flat() : []
 
-    const { tContent } = translator
+    const { tContent } = context.translator
 
     const items = listItems.map((item) => {
       const selected = values.includes(item.value)

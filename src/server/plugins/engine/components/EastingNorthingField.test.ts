@@ -293,7 +293,11 @@ describe('EastingNorthingField', () => {
           easting: 12345,
           northing: 1234567
         })
-        const viewModel = field.getViewModel(payload, undefined, stubTranslator)
+        const viewModel = field.getViewModel({
+          payload,
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -336,14 +340,14 @@ describe('EastingNorthingField', () => {
           { model }
         )
 
-        const viewModel = componentWithInstruction.getViewModel(
-          getFormData({
+        const viewModel = componentWithInstruction.getViewModel({
+          payload: getFormData({
             easting: 12345,
             northing: 1234567
           }),
-          undefined,
-          stubTranslator
-        )
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         const instructionText =
           'instructionText' in viewModel ? viewModel.instructionText : undefined
@@ -366,7 +370,11 @@ describe('EastingNorthingField', () => {
           }
         ]
 
-        const viewModel = field.getViewModel(payload, errors, stubTranslator)
+        const viewModel = field.getViewModel({
+          payload,
+          errors,
+          translator: stubTranslator
+        })
 
         // Check that error is passed to the viewModel
         expect(viewModel.errors).toEqual(errors)

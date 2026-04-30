@@ -17,8 +17,7 @@ import {
   checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
   createError,
-  getCacheService,
-  getPluginOptions
+  getCacheService
 } from '~/src/server/plugins/engine/helpers.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import {
@@ -105,7 +104,11 @@ export class SummaryPageController extends QuestionPageController {
       }
     }
 
-    const components = this.collection.getViewModel(payload, errors, translator)
+    const components = this.collection.getViewModel({
+      payload,
+      errors,
+      translator
+    })
 
     viewModel.backLink = this.getBackLink(request, context, t)
     viewModel.feedbackLink = this.feedbackLink
@@ -163,9 +166,7 @@ export class SummaryPageController extends QuestionPageController {
     ) => {
       const { viewName } = this
 
-      const { getLanguage } = getPluginOptions(request.server)
-      const language = getLanguage?.(request) ?? 'en-GB'
-      const translator = this.model.createTranslator(language)
+      const translator = this.getTranslator(request)
       const { t } = translator
 
       const viewModel = this.getSummaryViewModel(request, context, translator)
@@ -217,9 +218,7 @@ export class SummaryPageController extends QuestionPageController {
     checkEmailAddressForLiveFormSubmission(notificationEmail, isPreview)
 
     if (notificationEmail) {
-      const { getLanguage } = getPluginOptions(request.server)
-      const language = getLanguage?.(request) ?? 'en-GB'
-      const translator = this.model.createTranslator(language)
+      const translator = this.getTranslator(request)
       const viewModel = this.getSummaryViewModel(request, context, translator)
 
       try {
@@ -326,9 +325,7 @@ export class SummaryPageController extends QuestionPageController {
     request: FormRequestPayload,
     h: FormResponseToolkit
   ) {
-    const { getLanguage } = getPluginOptions(request.server)
-    const language = getLanguage?.(request) ?? 'en-GB'
-    const { t } = this.model.createTranslator(language)
+    const { t } = this.getTranslator(request)
 
     const helpUrl = error.helpLink ?? DEFAULT_PAYMENT_HELP_URL
     const contactUsLink = `<a href="${helpUrl}" target="_blank" rel="noopener noreferrer" class="govuk-link">${t('pages.summary.contactUsLinkText')}</a>`

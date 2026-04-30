@@ -334,7 +334,11 @@ describe('MonthYearField', () => {
 
       it('sets Nunjucks component defaults', () => {
         const payload = getFormData(date)
-        const viewModel = field.getViewModel(payload, undefined, stubTranslator)
+        const viewModel = field.getViewModel({
+          payload,
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -369,7 +373,11 @@ describe('MonthYearField', () => {
           year: 'YYYY'
         })
 
-        const viewModel = field.getViewModel(payload, undefined, stubTranslator)
+        const viewModel = field.getViewModel({
+          payload,
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -388,7 +396,11 @@ describe('MonthYearField', () => {
 
       it('sets Nunjucks component fieldset', () => {
         const payload = getFormData(date)
-        const viewModel = field.getViewModel(payload, undefined, stubTranslator)
+        const viewModel = field.getViewModel({
+          payload,
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel.fieldset).toEqual({
           legend: {

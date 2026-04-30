@@ -12,8 +12,7 @@ import { type FormComponent } from '~/src/server/plugins/engine/components/FormC
 import {
   getCacheService,
   getError,
-  getExponentialBackoffDelay,
-  getPluginOptions
+  getExponentialBackoffDelay
 } from '~/src/server/plugins/engine/helpers.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
@@ -189,9 +188,7 @@ export class FileUploadPageController extends QuestionPageController {
 
       const { filename } = fileToRemove.status.form.file
 
-      const { getLanguage } = getPluginOptions(request.server)
-      const language = getLanguage?.(request) ?? 'en-GB'
-      const { t } = this.model.createTranslator(language)
+      const { t } = this.getTranslator(request)
 
       return h.view(this.fileDeleteViewName, {
         ...viewModel,

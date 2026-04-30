@@ -234,11 +234,11 @@ describe.each([
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
         const item = options.examples[0]
-        const viewModel = field.getViewModel(
-          getFormData(item.value),
-          undefined,
-          stubTranslator
-        )
+        const viewModel = field.getViewModel({
+          payload: getFormData(item.value),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -253,11 +253,11 @@ describe.each([
       it.each([...options.examples])(
         'sets Nunjucks component select options',
         (item) => {
-          const viewModel = field.getViewModel(
-            getFormData(item.value),
-            undefined,
-            stubTranslator
-          )
+          const viewModel = field.getViewModel({
+            payload: getFormData(item.value),
+            errors: undefined,
+            translator: stubTranslator
+          })
 
           expect(viewModel.items?.[0]).toMatchObject({
             value: '' // First item is always empty

@@ -7,12 +7,12 @@ import {
   isGeospatialState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { geospatialSchema } from '~/src/server/plugins/engine/components/helpers/geospatial.js'
+import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
-  type FormPayload,
   type FormState,
   type FormStateValue,
   type FormSubmissionError,
@@ -91,18 +91,8 @@ export class GeospatialField extends FormComponent {
     return this.getContextValueFromFormValue(features)
   }
 
-  getViewModel(
-    payload: FormPayload,
-    errors: FormSubmissionError[] | undefined,
-    translator: Translator,
-    isForceAccess = false
-  ) {
-    const viewModel = super.getViewModel(
-      payload,
-      errors,
-      translator,
-      isForceAccess
-    )
+  getViewModel(context: RenderContext) {
+    const viewModel = super.getViewModel(context)
     const value =
       typeof viewModel.value === 'string'
         ? viewModel.value

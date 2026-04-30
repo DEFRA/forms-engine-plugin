@@ -242,11 +242,11 @@ describe('DeclarationField', () => {
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = field.getViewModel(
-          getFormData(undefined),
-          undefined,
-          stubTranslator
-        )
+        const viewModel = field.getViewModel({
+          payload: getFormData(undefined),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -280,11 +280,11 @@ describe('DeclarationField', () => {
 
         collection = new ComponentCollection([def], { model })
         field = collection.fields[0]
-        const viewModel = field.getViewModel(
-          getFormData('unchecked'),
-          undefined,
-          stubTranslator
-        )
+        const viewModel = field.getViewModel({
+          payload: getFormData('unchecked'),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -310,11 +310,11 @@ describe('DeclarationField', () => {
 
         collection = new ComponentCollection([def], { model })
         field = collection.fields[0]
-        const viewModel = field.getViewModel(
-          getFormData(['true', 'unchecked']),
-          undefined,
-          stubTranslator
-        )
+        const viewModel = field.getViewModel({
+          payload: getFormData(['true', 'unchecked']),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -340,11 +340,11 @@ describe('DeclarationField', () => {
 
         collection = new ComponentCollection([def], { model })
         field = collection.fields[0]
-        const viewModel = field.getViewModel(
-          getFormData(['unchecked']),
-          undefined,
-          stubTranslator
-        )
+        const viewModel = field.getViewModel({
+          payload: getFormData(['unchecked']),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -370,11 +370,11 @@ describe('DeclarationField', () => {
 
         collection = new ComponentCollection([def], { model })
         field = collection.fields[0]
-        const viewModel = field.getViewModel(
-          getFormData('true'),
-          undefined,
-          stubTranslator
-        )
+        const viewModel = field.getViewModel({
+          payload: getFormData('true'),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -409,11 +409,11 @@ describe('DeclarationField', () => {
         collection = new ComponentCollection([def], { model })
         field = collection.fields[0]
 
-        const viewModel = field.getViewModel(
-          getFormData('true'),
-          undefined,
-          stubTranslator
-        )
+        const viewModel = field.getViewModel({
+          payload: getFormData('true'),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -437,11 +437,11 @@ describe('DeclarationField', () => {
         collection = new ComponentCollection([def], { model })
         field = collection.fields[0]
 
-        const viewModel = field.getViewModel(
-          getFormData(undefined),
-          undefined,
-          stubTranslator
-        )
+        const viewModel = field.getViewModel({
+          payload: getFormData(undefined),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({

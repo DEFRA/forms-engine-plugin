@@ -16,6 +16,7 @@ import {
   FormComponent,
   isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { buildValidationMessages } from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
 import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
@@ -25,7 +26,6 @@ import {
   type FormPayload,
   type FormState,
   type FormStateValue,
-  type FormSubmissionError,
   type FormSubmissionState,
   type FormValue
 } from '~/src/server/plugins/engine/types.js'
@@ -141,13 +141,9 @@ export class DeclarationField extends FormComponent {
       : t('components.declarationField.notProvided')
   }
 
-  getViewModel(
-    payload: FormPayload,
-    errors: FormSubmissionError[] | undefined,
-    translator: Translator,
-    isForceAccess = false
-  ) {
-    const { t } = translator
+  getViewModel(context: RenderContext) {
+    const { payload } = context
+    const { t } = context.translator
 
     const {
       hint,
@@ -157,12 +153,7 @@ export class DeclarationField extends FormComponent {
       )
     } = this
 
-    const viewModel = super.getViewModel(
-      payload,
-      errors,
-      translator,
-      isForceAccess
-    )
+    const viewModel = super.getViewModel(context)
     let { fieldset, label } = viewModel
 
     fieldset ??= {

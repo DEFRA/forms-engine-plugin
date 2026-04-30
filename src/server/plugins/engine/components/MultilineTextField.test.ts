@@ -220,11 +220,11 @@ describe('MultilineTextField', () => {
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = field.getViewModel(
-          getFormData('Textarea'),
-          undefined,
-          stubTranslator
-        )
+        const viewModel = field.getViewModel({
+          payload: getFormData('Textarea'),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -247,23 +247,23 @@ describe('MultilineTextField', () => {
           { model }
         )
 
-        const viewModel = field.getViewModel(
-          getFormData('Textarea'),
-          undefined,
-          stubTranslator
-        )
+        const viewModel = field.getViewModel({
+          payload: getFormData('Textarea'),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
-        const viewModel1 = componentCustom1.getViewModel(
-          getFormData('Textarea custom #1'),
-          undefined,
-          stubTranslator
-        )
+        const viewModel1 = componentCustom1.getViewModel({
+          payload: getFormData('Textarea custom #1'),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
-        const viewModel2 = componentCustom2.getViewModel(
-          getFormData('Textarea custom #2'),
-          undefined,
-          stubTranslator
-        )
+        const viewModel2 = componentCustom2.getViewModel({
+          payload: getFormData('Textarea custom #2'),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({ isCharacterOrWordCount: false })

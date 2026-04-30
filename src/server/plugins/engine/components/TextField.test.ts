@@ -234,11 +234,11 @@ describe('TextField', () => {
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = field.getViewModel(
-          getFormData('Text field'),
-          undefined,
-          stubTranslator
-        )
+        const viewModel = field.getViewModel({
+          payload: getFormData('Text field'),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -255,7 +255,11 @@ describe('TextField', () => {
       it('calls tContent for the field title', () => {
         const tContent = jest.fn().mockReturnValue('Translated title')
         const t = jest.fn().mockReturnValue('(optional)')
-        const viewModel = field.getViewModel({}, undefined, { t, tContent })
+        const viewModel = field.getViewModel({
+          payload: {},
+          errors: undefined,
+          translator: { t, tContent }
+        })
         expect(tContent).toHaveBeenCalledWith(field, 'title')
         expect(viewModel.label.text).toBe('Translated title')
       })
@@ -266,7 +270,11 @@ describe('TextField', () => {
         const hintField = hintCollection.fields[0]
         const tContent = jest.fn().mockReturnValue('Translated hint')
         const t = jest.fn().mockReturnValue('')
-        const viewModel = hintField.getViewModel({}, undefined, { t, tContent })
+        const viewModel = hintField.getViewModel({
+          payload: {},
+          errors: undefined,
+          translator: { t, tContent }
+        })
         expect(tContent).toHaveBeenCalledWith(hintField, 'hint')
         expect(viewModel.hint?.text).toBe('Translated hint')
       })
@@ -277,12 +285,20 @@ describe('TextField', () => {
         const optField = optCollection.fields[0]
         const tContent = jest.fn().mockReturnValue('Title')
         const t = jest.fn().mockReturnValue('(optional)')
-        optField.getViewModel({}, undefined, { t, tContent })
+        optField.getViewModel({
+          payload: {},
+          errors: undefined,
+          translator: { t, tContent }
+        })
         expect(t).toHaveBeenCalledWith('common.optional')
       })
 
       it('falls back to English when no translator supplied', () => {
-        const viewModel = field.getViewModel({}, undefined, stubTranslator)
+        const viewModel = field.getViewModel({
+          payload: {},
+          errors: undefined,
+          translator: stubTranslator
+        })
         expect(viewModel.label.text).toBe('Example text field')
       })
     })

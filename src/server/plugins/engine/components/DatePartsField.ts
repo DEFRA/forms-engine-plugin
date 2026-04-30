@@ -11,7 +11,8 @@ import {
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
 import {
   type DateInputItem,
-  type DatePartsState
+  type DatePartsState,
+  type RenderContext
 } from '~/src/server/plugins/engine/components/types.js'
 import { parseStrictDate } from '~/src/server/plugins/engine/date-helper.js'
 import { buildValidationMessages } from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
@@ -22,7 +23,6 @@ import {
   type FormPayload,
   type FormState,
   type FormStateValue,
-  type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
@@ -163,20 +163,11 @@ export class DatePartsField extends FormComponent {
     })
   }
 
-  getViewModel(
-    payload: FormPayload,
-    errors: FormSubmissionError[] | undefined,
-    translator: Translator,
-    isForceAccess = false
-  ) {
+  getViewModel(context: RenderContext) {
+    const { errors } = context
     const { collection, name } = this
 
-    const viewModel = super.getViewModel(
-      payload,
-      errors,
-      translator,
-      isForceAccess
-    )
+    const viewModel = super.getViewModel(context)
     let { fieldset, label } = viewModel
 
     // Check for component errors only
@@ -184,7 +175,7 @@ export class DatePartsField extends FormComponent {
 
     // Use the component collection to generate the subitems
     const items: DateInputItem[] = collection
-      .getViewModel(payload, errors, translator, isForceAccess)
+      .getViewModel(context)
       .map(({ model }) => {
         let { label, type, value, classes, errorMessage } = model
 

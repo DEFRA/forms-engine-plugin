@@ -9,6 +9,7 @@ import {
   FormComponent,
   isUploadState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { getPluginOptions } from '~/src/server/plugins/engine/helpers.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { InvalidComponentStateError } from '~/src/server/plugins/engine/pageControllers/errors.js'
@@ -21,10 +22,8 @@ import {
   type FileUpload,
   type FileUploadMetadata,
   type FormContext,
-  type FormPayload,
   type FormState,
   type FormStateValue,
-  type FormSubmissionError,
   type FormSubmissionState,
   type SummaryList,
   type SummaryListAction,
@@ -197,17 +196,12 @@ export class FileUploadField extends FormComponent {
     return this.getContextValueFromFormValue(files)
   }
 
-  getViewModel(
-    payload: FormPayload,
-    errors: FormSubmissionError[] | undefined,
-    translator: Translator,
-    isForceAccess = false
-  ) {
+  getViewModel(context: RenderContext) {
+    const { errors, isForceAccess = false } = context
+    const { t } = context.translator
     const { options, page, schema } = this
 
-    const { t } = translator
-
-    const viewModel = super.getViewModel(payload, errors, translator)
+    const viewModel = super.getViewModel(context)
     const { attributes, id, value } = viewModel
 
     const files = this.getFormValue(value) ?? []

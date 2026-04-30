@@ -7,6 +7,7 @@ import {
 import { type LanguageMessages } from 'joi'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
+import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import {
   type FormContext,
@@ -143,12 +144,12 @@ export class FormComponent extends ComponentBase {
     return null
   }
 
-  getViewModel(
-    payload: FormPayload,
-    errors: FormSubmissionError[] | undefined,
-    translator: Translator,
-    _isForceAccess = false
-  ) {
+  getViewModel({
+    payload,
+    errors,
+    translator,
+    isForceAccess: _isForceAccess = false
+  }: RenderContext) {
     const { hint, name, options = {}, title, viewModel } = this
 
     const { t, tContent } = translator

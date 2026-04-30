@@ -5,10 +5,7 @@ import Boom from '@hapi/boom'
 import Joi from 'joi'
 
 import { isRepeatState } from '~/src/server/plugins/engine/components/FormComponent.js'
-import {
-  getPluginOptions,
-  redirectPath
-} from '~/src/server/plugins/engine/helpers.js'
+import { redirectPath } from '~/src/server/plugins/engine/helpers.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
@@ -197,9 +194,7 @@ export class RepeatPageController extends QuestionPageController {
         return super.proceed(request, h, nextPath)
       }
 
-      const { getLanguage } = getPluginOptions(request.server)
-      const language = getLanguage?.(request) ?? 'en-GB'
-      const translator = this.model.createTranslator(language)
+      const translator = this.getTranslator(request)
       const { t } = translator
 
       const viewModel = this.getListSummaryViewModel(
@@ -237,9 +232,7 @@ export class RepeatPageController extends QuestionPageController {
         return super.proceed(request, h, nextPath)
       }
 
-      const { getLanguage } = getPluginOptions(request.server)
-      const language = getLanguage?.(request) ?? 'en-GB'
-      const translator = this.model.createTranslator(language)
+      const translator = this.getTranslator(request)
       const { t } = translator
 
       const { action } = this.getFormParams(request)
@@ -310,9 +303,7 @@ export class RepeatPageController extends QuestionPageController {
       const itemId = this.getItemId(request)
       const item = this.getItemFromList(list, itemId)
 
-      const { getLanguage } = getPluginOptions(request.server)
-      const language = getLanguage?.(request) ?? 'en-GB'
-      const translator = this.model.createTranslator(language)
+      const translator = this.getTranslator(request)
       const { t } = translator
 
       if (!item || list.length === 1) {
@@ -353,9 +344,7 @@ export class RepeatPageController extends QuestionPageController {
       const itemId = this.getItemId(request)
       const item = this.getItemFromList(list, itemId)
 
-      const { getLanguage } = getPluginOptions(request.server)
-      const language = getLanguage?.(request) ?? 'en-GB'
-      const { t } = this.model.createTranslator(language)
+      const { t } = this.getTranslator(request)
 
       if (!item || list.length === 1) {
         throw Boom.notFound(

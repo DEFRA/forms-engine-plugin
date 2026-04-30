@@ -10,11 +10,11 @@ import joi, { type ObjectSchema } from 'joi'
 import { COMPONENT_STATE_ERROR } from '~/src/server/constants.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
+import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import {
   createError,
   getPluginOptions
 } from '~/src/server/plugins/engine/helpers.js'
-import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import {
   PaymentErrorTypes,
   PaymentPreAuthError,
@@ -27,10 +27,8 @@ import {
 } from '~/src/server/plugins/engine/types/index.js'
 import {
   type ErrorMessageTemplateList,
-  type FormPayload,
   type FormState,
   type FormStateValue,
-  type FormSubmissionError,
   type FormSubmissionState,
   type PaymentExternalArgs
 } from '~/src/server/plugins/engine/types.js'
@@ -102,18 +100,9 @@ export class PaymentField extends FormComponent {
     return `${formatCurrency(value.amount)} - ${value.description}`
   }
 
-  getViewModel(
-    payload: FormPayload,
-    errors: FormSubmissionError[] | undefined,
-    translator: Translator,
-    isForceAccess = false
-  ) {
-    const viewModel = super.getViewModel(
-      payload,
-      errors,
-      translator,
-      isForceAccess
-    )
+  getViewModel(context: RenderContext) {
+    const { payload } = context
+    const viewModel = super.getViewModel(context)
 
     // Payload is pre-populated from state if a payment has already been made
     const paymentState = this.isPaymentState(payload[this.name] as unknown)

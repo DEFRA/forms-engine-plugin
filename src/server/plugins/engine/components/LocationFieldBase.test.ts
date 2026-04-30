@@ -84,11 +84,11 @@ describe('LocationFieldBase', () => {
       } as ConstructorParameters<typeof TestLocationField>[0]
 
       const field = new TestLocationField(def, { model })
-      const viewModel = field.getViewModel(
-        getFormData('TEST1234'),
-        undefined,
-        stubTranslator
-      )
+      const viewModel = field.getViewModel({
+        payload: getFormData('TEST1234'),
+        errors: undefined,
+        translator: stubTranslator
+      })
 
       const instructionText =
         'instructionText' in viewModel ? viewModel.instructionText : undefined
@@ -106,11 +106,11 @@ describe('LocationFieldBase', () => {
       } as ConstructorParameters<typeof TestLocationField>[0]
 
       const field = new TestLocationField(def, { model })
-      const viewModel = field.getViewModel(
-        getFormData('TEST1234'),
-        undefined,
-        stubTranslator
-      )
+      const viewModel = field.getViewModel({
+        payload: getFormData('TEST1234'),
+        errors: undefined,
+        translator: stubTranslator
+      })
 
       expect(
         'instructionText' in viewModel ? viewModel.instructionText : undefined

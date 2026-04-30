@@ -383,11 +383,11 @@ describe('FileUploadField', () => {
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = field.getViewModel(
-          getFormData(validState),
-          undefined,
-          stubTranslator
-        )
+        const viewModel = field.getViewModel({
+          payload: getFormData(validState),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -466,12 +466,12 @@ describe('FileUploadField', () => {
       })
 
       it('sets Nunjucks component defaults (preview URL direct access)', () => {
-        const viewModel = field.getViewModel(
-          getFormData(validState),
-          undefined,
-          stubTranslator,
-          true
-        )
+        const viewModel = field.getViewModel({
+          payload: getFormData(validState),
+          errors: undefined,
+          translator: stubTranslator,
+          isForceAccess: true
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -525,11 +525,11 @@ describe('FileUploadField', () => {
       })
 
       it('sets Nunjucks component defaults with temp valid state', () => {
-        const viewModel = field.getViewModel(
-          getFormData(validTempState),
-          undefined,
-          stubTranslator
-        )
+        const viewModel = field.getViewModel({
+          payload: getFormData(validTempState),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -570,11 +570,11 @@ describe('FileUploadField', () => {
       })
 
       it('sets Nunjucks component defaults with temp valid state with errors (on POST)', () => {
-        const viewModel = field.getViewModel(
-          getFormData(validTempState),
-          [],
-          stubTranslator
-        )
+        const viewModel = field.getViewModel({
+          payload: getFormData(validTempState),
+          errors: [],
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({

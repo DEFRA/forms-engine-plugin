@@ -24,7 +24,6 @@ import {
   checkFormStatus,
   getCacheService,
   getErrors,
-  getPluginOptions,
   getSaveAndExitHelpers,
   normalisePath,
   proceed
@@ -140,7 +139,7 @@ export class QuestionPageController extends PageController {
         : ''
       : viewModel.sectionTitle
 
-    const components = collection.getViewModel(payload, errors, translator)
+    const components = collection.getViewModel({ payload, errors, translator })
     const formComponents = components.filter(
       ({ isFormComponent }) => isFormComponent
     )
@@ -435,9 +434,7 @@ export class QuestionPageController extends PageController {
       const { collection, model, viewName } = this
       const { evaluationState } = context
 
-      const { getLanguage } = getPluginOptions(request.server)
-      const language = getLanguage?.(request) ?? 'en-GB'
-      const translator = this.model.createTranslator(language)
+      const translator = this.getTranslator(request)
       const { t } = translator
 
       // Copy any URL params into the form state (if not already done so)
@@ -557,9 +554,7 @@ export class QuestionPageController extends PageController {
       const { isForceAccess, state, evaluationState } = context
       const action = request.payload.action
 
-      const { getLanguage } = getPluginOptions(request.server)
-      const language = getLanguage?.(request) ?? 'en-GB'
-      const translator = this.model.createTranslator(language)
+      const translator = this.getTranslator(request)
       const { t } = translator
 
       if (action?.startsWith(FormAction.External)) {
