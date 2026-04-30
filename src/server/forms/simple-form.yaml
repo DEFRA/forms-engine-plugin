@@ -26,6 +26,19 @@ metadata:
         123e4567-e89b-12d3-a456-426614174000:
           title: Beth yw eich cyfeiriad?
           shortDescription: Eich cyfeiriad
+        aabbccdd-1122-3344-5566-778899001123:
+          title: Oes gennych chi drwydded yrru?
+          shortDescription: Trwydded yrru
+        aabbccdd-1122-3344-5566-778899001124:
+          title: Sut rydych chi fel arfer yn teithio?
+          shortDescription: Eich ffordd o deithio
+      listItems:
+        aabbccdd-1122-3344-5566-778899001126:
+          text: Car
+        aabbccdd-1122-3344-5566-778899001127:
+          text: Bws
+        aabbccdd-1122-3344-5566-778899001128:
+          text: Trên
       pages:
         622a35ec-3795-418a-81f3-a45746959045:
           title: Eich enw
@@ -39,6 +52,8 @@ metadata:
           title: Crynodeb
         123e4567-e89b-12d3-a456-426614174001:
           title: Ble rydych chi'n byw?
+        aabbccdd-1122-3344-5566-778899001122:
+          title: Amdanoch chi
 pages:
   - title: Your name
     path: '/your-name'
@@ -120,10 +135,47 @@ pages:
         id: '00738799-3489-4ab2-a57b-542eecb31bfa'
     next: []
     id: da0fbdb4-a2de-4650-be16-9ba552af135f
+  - title: About you
+    path: '/about-you'
+    components:
+      - type: YesNoField
+        title: Do you have a driving licence?
+        name: hasDrivingLicence
+        shortDescription: Driving licence
+        hint: ''
+        options: {}
+        schema: {}
+        id: aabbccdd-1122-3344-5566-778899001123
+      - type: RadiosField
+        title: How do you usually travel?
+        name: travelMethod
+        shortDescription: Your travel method
+        hint: ''
+        options:
+          required: true
+        schema: {}
+        list: aabbccdd-1122-3344-5566-778899001125
+        id: aabbccdd-1122-3344-5566-778899001124
+    next: []
+    id: aabbccdd-1122-3344-5566-778899001122
   - id: 449a45f6-4541-4a46-91bd-8b8931b07b50
     title: ''
     path: '/summary'
     controller: SummaryPageController
 conditions: []
 sections: []
-lists: []
+lists:
+  - id: aabbccdd-1122-3344-5566-778899001125
+    name: travelMethods
+    title: Travel methods
+    type: string
+    items:
+      - id: aabbccdd-1122-3344-5566-778899001126
+        text: Car
+        value: car
+      - id: aabbccdd-1122-3344-5566-778899001127
+        text: Bus
+        value: bus
+      - id: aabbccdd-1122-3344-5566-778899001128
+        text: Train
+        value: train
