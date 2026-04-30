@@ -131,7 +131,7 @@ export class FormComponent extends ComponentBase {
 
   getViewErrors(
     errors?: FormSubmissionError[],
-    _translator?: Translator
+    _translator: Translator
   ): FormSubmissionError[] | undefined {
     const firstError = this.getFirstError(errors)
     return firstError && [firstError]
@@ -198,7 +198,7 @@ export class FormComponent extends ComponentBase {
 
   getDisplayStringFromFormValue(
     value: FormValue | FormPayload,
-    _translator?: Translator
+    _translator: Translator
   ): string {
     // Map selected values to text
     // eslint-disable-next-line @typescript-eslint/no-base-to-string
@@ -207,7 +207,7 @@ export class FormComponent extends ComponentBase {
 
   getDisplayStringFromState(
     state: FormSubmissionState,
-    translator?: Translator
+    translator: Translator
   ): string {
     const value = this.getFormValueFromState(state)
     return this.getDisplayStringFromFormValue(value, translator)

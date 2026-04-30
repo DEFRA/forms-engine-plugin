@@ -163,22 +163,20 @@ export class FileUploadField extends FormComponent {
 
   getDisplayStringFromFormValue(
     files: FileState[] | undefined,
-    translator?: Translator
+    translator: Translator
   ): string {
     if (!files?.length) {
       return ''
     }
 
-    return (
-      translator?.t('components.fileUploadField.filesCount', {
-        count: files.length
-      }) ?? `Uploaded ${files.length} ${files.length === 1 ? 'file' : 'files'}`
-    )
+    return translator.t('components.fileUploadField.filesCount', {
+      count: files.length
+    })
   }
 
   getDisplayStringFromState(
     state: FormSubmissionState,
-    translator?: Translator
+    translator: Translator
   ) {
     const files = this.getFormValueFromState(state)
 

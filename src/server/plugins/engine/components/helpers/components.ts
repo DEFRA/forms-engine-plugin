@@ -6,7 +6,6 @@ import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFo
 import { escapeMarkdown } from '~/src/server/plugins/engine/components/helpers/index.js'
 import * as Components from '~/src/server/plugins/engine/components/index.js'
 import { markdown } from '~/src/server/plugins/engine/components/markdownParser.js'
-import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type FormState } from '~/src/server/plugins/engine/types.js'
 
@@ -224,7 +223,7 @@ export function getAnswer(
       | 'email' // GOV.UK Notify emails
       | 'summary' // Check answers summary
   } = { format: 'summary' },
-  translator?: Translator
+  translator: Translator
 ) {
   // Use escaped display text for GOV.UK Notify emails
   if (options.format === 'email') {
@@ -268,7 +267,7 @@ export function getAnswerMarkdown(
       | 'email' // GOV.UK Notify emails
       | 'summary' // Check answers summary
   } = { format: 'summary' },
-  translator?: Translator
+  translator: Translator
 ) {
   const answer = field.getDisplayStringFromState(state, translator)
 
@@ -307,9 +306,7 @@ export function getAnswerMarkdown(
     // Append bullet points
     answerEscaped += items
       .map((item) => {
-        const resolvedText = translator
-          ? translator.tListItem(item, 'text') || item.text
-          : tPlugin(item.text, 'en-GB') || item.text
+        const resolvedText = translator.tListItem(item, 'text') || item.text
         const label = escapeMarkdown(resolvedText)
         const value = escapeMarkdown(`(${item.value})`)
 
@@ -349,7 +346,7 @@ export function getAnswerMarkdown(
     answerEscaped = contextValue ? `${contextValue}\n` : ''
   } else if (field instanceof Components.GeospatialField) {
     const features = field.getFormValueFromState(state)
-    const value = field.getDisplayStringFromFormValue(features)
+    const value = field.getDisplayStringFromFormValue(features, translator)
 
     answerEscaped = value ? `${value}\n` : ''
   }

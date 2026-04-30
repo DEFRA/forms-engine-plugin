@@ -3,6 +3,7 @@ import { type SubmitPayload } from '@defra/forms-model'
 import { GeospatialField } from '~/src/server/plugins/engine/components/GeospatialField.js'
 import { PaymentField } from '~/src/server/plugins/engine/components/PaymentField.js'
 import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import {
   type DetailItem,
   type DetailItemField
@@ -23,7 +24,10 @@ export interface SubmitRecord {
  * Regular fields are converted to single records, while PaymentField
  * components are expanded into four separate records.
  */
-export function buildMainRecords(items: DetailItem[]): SubmitRecord[] {
+export function buildMainRecords(
+  items: DetailItem[],
+  translator: Translator
+): SubmitRecord[] {
   const fieldItems = items.filter(
     (item): item is DetailItemField => 'field' in item
   )
@@ -45,7 +49,7 @@ export function buildMainRecords(items: DetailItem[]): SubmitRecord[] {
       records.push({
         name: item.name,
         title: item.label,
-        value: getAnswer(item.field, item.state, { format: 'data' })
+        value: getAnswer(item.field, item.state, { format: 'data' }, translator)
       })
     }
   }
@@ -101,7 +105,8 @@ export function buildPaymentRecords(item: DetailItemField): SubmitRecord[] {
  * Builds the repeater submission records from repeater items.
  */
 export function buildRepeaterRecords(
-  items: DetailItem[]
+  items: DetailItem[],
+  translator: Translator
 ): SubmitPayload['repeaters'] {
   return items
     .filter((item) => 'subItems' in item)
@@ -119,7 +124,12 @@ export function buildRepeaterRecords(
               ? JSON.stringify(
                   subItem.field.getFormValueFromState(subItem.state)
                 )
-              : getAnswer(subItem.field, subItem.state, { format: 'data' })
+              : getAnswer(
+                  subItem.field,
+                  subItem.state,
+                  { format: 'data' },
+                  translator
+                )
         }))
       )
     }))

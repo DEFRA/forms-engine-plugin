@@ -111,7 +111,7 @@ export class DatePartsField extends FormComponent {
 
   getDisplayStringFromFormValue(
     formValue: DatePartsState | undefined,
-    _translator?: Translator
+    _translator: Translator
   ) {
     if (!formValue) {
       return ''
@@ -125,7 +125,7 @@ export class DatePartsField extends FormComponent {
 
   getDisplayStringFromState(
     state: FormSubmissionState,
-    translator?: Translator
+    translator: Translator
   ) {
     const value = this.getFormValueFromState(state)
 

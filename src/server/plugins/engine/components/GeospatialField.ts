@@ -57,22 +57,20 @@ export class GeospatialField extends FormComponent {
 
   getDisplayStringFromFormValue(
     features: GeospatialState | undefined,
-    translator?: Translator
+    translator: Translator
   ): string {
     if (!features?.length) {
       return ''
     }
 
-    const t =
-      translator?.t ??
-      ((key: string, opts?: Record<string, unknown>) =>
-        tPlugin(key, 'en-GB', opts))
-    return t('components.geospatialField.added', { count: features.length })
+    return translator.t('components.geospatialField.added', {
+      count: features.length
+    })
   }
 
   getDisplayStringFromState(
     state: FormSubmissionState,
-    translator?: Translator
+    translator: Translator
   ) {
     const features = this.getFormValueFromState(state)
 
@@ -130,7 +128,7 @@ export class GeospatialField extends FormComponent {
 
   getViewErrors(
     errors?: FormSubmissionError[],
-    translator?: Translator
+    translator: Translator
   ): FormSubmissionError[] | undefined {
     return this.getErrors(errors, translator)
   }

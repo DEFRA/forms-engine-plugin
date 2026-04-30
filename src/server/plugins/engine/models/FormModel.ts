@@ -249,7 +249,7 @@ export class FormModel {
   }
 
   /** Returns a scoped translator pair for the given language. */
-  createTranslator(language: string): Translator {
+  createTranslator(language = 'en-GB'): Translator {
     const { i18nInstance } = this
 
     const t = (key: string, opts?: Record<string, unknown>): string =>

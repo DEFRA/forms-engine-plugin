@@ -17,7 +17,6 @@ import {
   type ListItem,
   type RenderContext
 } from '~/src/server/plugins/engine/components/types.js'
-import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
@@ -104,7 +103,7 @@ export class ListFormComponent extends FormComponent {
 
   getDisplayStringFromFormValue(
     value: string | number | boolean | Item['value'][] | undefined,
-    translator?: Translator
+    translator: Translator
   ): string {
     const { items } = this
 
@@ -112,17 +111,13 @@ export class ListFormComponent extends FormComponent {
 
     return items
       .filter((item) => values.includes(item.value))
-      .map((item) =>
-        translator
-          ? translator.tListItem(item, 'text') || item.text
-          : tPlugin(item.text, 'en-GB') || item.text
-      )
+      .map((item) => translator.tListItem(item, 'text') || item.text)
       .join(', ')
   }
 
   getDisplayStringFromState(
     state: FormSubmissionState,
-    translator?: Translator
+    translator: Translator
   ) {
     // Allow for array values via subclass
     const value = this.getFormValueFromState(state)

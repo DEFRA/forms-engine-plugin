@@ -93,7 +93,7 @@ export class PaymentField extends FormComponent {
 
   getDisplayStringFromState(
     state: FormSubmissionState,
-    _translator?: Translator
+    _translator: Translator
   ): string {
     const value = this.getPaymentStateFromState(state)
 

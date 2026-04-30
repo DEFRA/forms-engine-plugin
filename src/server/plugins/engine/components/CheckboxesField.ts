@@ -68,7 +68,7 @@ export class CheckboxesField extends SelectionControlField {
 
   getDisplayStringFromFormValue(
     selected: (string | number | boolean)[] | undefined,
-    translator?: Translator
+    translator: Translator
   ) {
     const { items } = this
 
@@ -78,9 +78,7 @@ export class CheckboxesField extends SelectionControlField {
 
     return items
       .filter((item) => selected.includes(item.value))
-      .map((item) =>
-        translator ? translator.tListItem(item, 'text') || item.text : item.text
-      )
+      .map((item) => translator.tListItem(item, 'text') || item.text)
       .join(', ')
   }
 
@@ -103,7 +101,7 @@ export class CheckboxesField extends SelectionControlField {
 
   getDisplayStringFromState(
     state: FormSubmissionState,
-    translator?: Translator
+    translator: Translator
   ) {
     const selected = this.getFormValueFromState(state) ?? []
     return this.getDisplayStringFromFormValue(selected, translator)

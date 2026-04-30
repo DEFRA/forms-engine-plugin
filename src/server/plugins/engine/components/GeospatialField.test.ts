@@ -151,8 +151,18 @@ describe('GeospatialField', () => {
         const state1 = getFormState(validSingleState)
         const state2 = getFormState(null)
 
-        const answer1 = getAnswer(field, state1)
-        const answer2 = getAnswer(field, state2)
+        const answer1 = getAnswer(
+          field,
+          state1,
+          { format: 'summary' },
+          stubTranslator
+        )
+        const answer2 = getAnswer(
+          field,
+          state2,
+          { format: 'summary' },
+          stubTranslator
+        )
 
         expect(answer1).toBe('Added 1 location')
         expect(answer2).toBe('')
@@ -162,8 +172,18 @@ describe('GeospatialField', () => {
         const state1 = getFormState(validState)
         const state2 = getFormState(null)
 
-        const answer1 = getAnswer(field, state1)
-        const answer2 = getAnswer(field, state2)
+        const answer1 = getAnswer(
+          field,
+          state1,
+          { format: 'summary' },
+          stubTranslator
+        )
+        const answer2 = getAnswer(
+          field,
+          state2,
+          { format: 'summary' },
+          stubTranslator
+        )
 
         expect(answer1).toBe('Added 4 locations')
         expect(answer2).toBe('')

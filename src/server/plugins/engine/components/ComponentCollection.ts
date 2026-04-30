@@ -238,7 +238,7 @@ export class ComponentCollection {
    */
   getViewErrors(
     errors?: FormSubmissionError[],
-    translator?: Translator
+    translator: Translator
   ): FormSubmissionError[] | undefined {
     return this.getFieldErrors(
       (field) => field.getViewErrors(errors, translator),

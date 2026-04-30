@@ -105,7 +105,7 @@ export class MonthYearField extends FormComponent {
 
   getDisplayStringFromFormValue(
     value: MonthYearState | undefined,
-    _translator?: Translator
+    _translator: Translator
   ): string {
     if (!value) {
       return ''
@@ -120,7 +120,7 @@ export class MonthYearField extends FormComponent {
 
   getDisplayStringFromState(
     state: FormSubmissionState,
-    translator?: Translator
+    translator: Translator
   ) {
     const value = this.getFormValueFromState(state)
 

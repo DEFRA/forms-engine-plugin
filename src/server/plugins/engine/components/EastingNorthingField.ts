@@ -192,7 +192,7 @@ export class EastingNorthingField extends FormComponent {
 
   getDisplayStringFromFormValue(
     value: EastingNorthingState | undefined,
-    _translator?: Translator
+    _translator: Translator
   ): string {
     if (!value) {
       return ''
@@ -204,7 +204,7 @@ export class EastingNorthingField extends FormComponent {
 
   getDisplayStringFromState(
     state: FormSubmissionState,
-    translator?: Translator
+    translator: Translator
   ) {
     const value = this.getFormValueFromState(state)
 
@@ -234,7 +234,7 @@ export class EastingNorthingField extends FormComponent {
 
   getViewErrors(
     errors?: FormSubmissionError[],
-    _translator?: Translator
+    _translator: Translator
   ): FormSubmissionError[] | undefined {
     const allErrors = this.getErrors(errors)
     return deduplicateErrorsByHref(allErrors)

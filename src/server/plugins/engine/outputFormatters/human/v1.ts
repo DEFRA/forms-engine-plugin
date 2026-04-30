@@ -30,6 +30,7 @@ export function format(
   formStatus: ReturnType<typeof checkFormStatus>,
   _formMetadata?: FormMetadata
 ) {
+  const translator = model.createTranslator()
   const { files } = submitResponse.result
 
   const formName = escapeMarkdown(model.name)
@@ -72,9 +73,7 @@ export function format(
       lines.push(`[${filename}](${designerUrl}/file-download/${fileId})\n`)
     } else {
       lines.push(
-        getAnswer(item.field, item.state, {
-          format: 'email'
-        })
+        getAnswer(item.field, item.state, { format: 'email' }, translator)
       )
     }
 

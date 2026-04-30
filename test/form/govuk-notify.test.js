@@ -235,7 +235,7 @@ describe('Submission journey test', () => {
 
           ## Upload your methodology statement
 
-          Uploaded 1 file:
+          1 file uploaded:
 
           * [test\\.pdf](https://forms-designer/file-download/5a76a1a3-bc8a-4bc0-859a-116d775c7f15)
 

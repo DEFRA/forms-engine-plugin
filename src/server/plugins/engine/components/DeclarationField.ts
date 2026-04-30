@@ -18,7 +18,6 @@ import {
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { buildValidationMessages } from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
-import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
@@ -129,12 +128,9 @@ export class DeclarationField extends FormComponent {
 
   getDisplayStringFromFormValue(
     value: FormValue | FormPayload,
-    translator?: Translator
+    translator: Translator
   ): string {
-    const t =
-      translator?.t ??
-      ((key: string, opts?: Record<string, unknown>) =>
-        tPlugin(key, 'en-GB', opts))
+    const { t } = translator
     return value === 'true'
       ? (this.declarationConfirmationLabel ??
           t('components.declarationField.defaultLabel'))

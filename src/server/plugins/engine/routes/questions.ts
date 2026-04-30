@@ -63,7 +63,11 @@ async function handleHttpEvent(
   const language = getLanguage?.(request) ?? 'en-GB'
   const translator = model.createTranslator(language)
   const viewModel = new SummaryViewModel(request, page, context, translator)
-  const items = getFormSubmissionData(viewModel.context, viewModel.details)
+  const items = getFormSubmissionData(
+    viewModel.context,
+    viewModel.details,
+    translator
+  )
 
   // @ts-expect-error - function signature will be refactored in the next iteration of the formatter
   const payload = format(context, items, model, undefined, undefined)

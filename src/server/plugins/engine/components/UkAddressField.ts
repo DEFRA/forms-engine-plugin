@@ -14,7 +14,6 @@ import {
 import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
 import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { getPluginOptions } from '~/src/server/plugins/engine/helpers.js'
-import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
@@ -155,14 +154,14 @@ export class UkAddressField extends FormComponent {
 
   getDisplayStringFromFormValue(
     value: UkAddressState | undefined,
-    _translator?: Translator
+    _translator: Translator
   ): string {
     return this.getContextValueFromFormValue(value)?.join(', ') ?? ''
   }
 
   getDisplayStringFromState(
     state: FormSubmissionState,
-    translator?: Translator
+    translator: Translator
   ) {
     const value = this.getFormValueFromState(state)
 
@@ -174,12 +173,9 @@ export class UkAddressField extends FormComponent {
    */
   getViewErrors(
     errors?: FormSubmissionError[],
-    translator?: Translator
+    translator: Translator
   ): FormSubmissionError[] | undefined {
-    const t = translator
-      ? translator.t
-      : (key: string, opts?: Record<string, unknown>) =>
-          tPlugin(key, 'en-GB', opts)
+    const { t } = translator
 
     const uniqueErrors = this.getErrors(errors)?.filter(
       (error, index, self) =>

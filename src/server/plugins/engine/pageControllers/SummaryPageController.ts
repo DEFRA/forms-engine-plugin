@@ -228,7 +228,8 @@ export class SummaryPageController extends QuestionPageController {
           request,
           viewModel,
           model,
-          notificationEmail
+          notificationEmail,
+          translator
         )
       } catch (error) {
         return this.handleSubmissionError(error, request, h)
@@ -362,7 +363,8 @@ export async function submitForm(
   request: FormRequestPayload,
   summaryViewModel: SummaryViewModel,
   model: FormModel,
-  emailAddress: string
+  emailAddress: string,
+  translator: Translator
 ) {
   await finaliseComponents(request, formMetadata, context)
 
@@ -375,7 +377,8 @@ export async function submitForm(
 
   const items = getFormSubmissionData(
     summaryViewModel.context,
-    summaryViewModel.details
+    summaryViewModel.details,
+    translator
   )
 
   try {
@@ -384,7 +387,8 @@ export async function submitForm(
       model,
       items,
       emailAddress,
-      request.yar.id
+      request.yar.id,
+      translator
     )
 
     if (submitResponse === undefined) {
@@ -457,7 +461,8 @@ function submitData(
   model: FormModel,
   items: DetailItem[],
   retrievalKey: string,
-  sessionId: string
+  sessionId: string,
+  translator: Translator
 ) {
   const { formSubmissionService } = model.services
   const { submit } = formSubmissionService
@@ -465,14 +470,18 @@ function submitData(
   const payload: SubmitPayload = {
     sessionId,
     retrievalKey,
-    main: buildMainRecords(items),
-    repeaters: buildRepeaterRecords(items)
+    main: buildMainRecords(items, translator),
+    repeaters: buildRepeaterRecords(items, translator)
   }
 
   return submit(payload)
 }
 
-export function getFormSubmissionData(context: FormContext, details: Detail[]) {
+export function getFormSubmissionData(
+  context: FormContext,
+  details: Detail[],
+  translator: Translator
+) {
   const items = context.relevantPages
     .map(({ href }) =>
       details.flatMap(({ items }) =>
@@ -481,7 +490,7 @@ export function getFormSubmissionData(context: FormContext, details: Detail[]) {
     )
     .flat()
 
-  const paymentItems = getPaymentFieldItems(context)
+  const paymentItems = getPaymentFieldItems(context, translator)
 
   return [...items, ...paymentItems]
 }
@@ -490,7 +499,10 @@ export function getFormSubmissionData(context: FormContext, details: Detail[]) {
  * Gets DetailItems for PaymentField components
  * PaymentField is excluded from summaryDetails for UI but needs to be in submission data
  */
-function getPaymentFieldItems(context: FormContext): DetailItemField[] {
+function getPaymentFieldItems(
+  context: FormContext,
+  translator: Translator
+): DetailItemField[] {
   const items: DetailItemField[] = []
 
   for (const page of context.relevantPages) {
@@ -504,7 +516,7 @@ function getPaymentFieldItems(context: FormContext): DetailItemField[] {
           field,
           state: context.state,
           href: page.href,
-          value: field.getDisplayStringFromState(context.state)
+          value: field.getDisplayStringFromState(context.state, translator)
         })
       }
     }

@@ -325,10 +325,20 @@ describe('FileUploadField', () => {
         const state1 = getFormState(validState)
         const state2 = getFormState(null)
 
-        const answer1 = getAnswer(field, state1)
-        const answer2 = getAnswer(field, state2)
+        const answer1 = getAnswer(
+          field,
+          state1,
+          { format: 'summary' },
+          stubTranslator
+        )
+        const answer2 = getAnswer(
+          field,
+          state2,
+          { format: 'summary' },
+          stubTranslator
+        )
 
-        expect(answer1).toBe('Uploaded 3 files')
+        expect(answer1).toBe('3 files uploaded')
         expect(answer2).toBe('')
       })
 

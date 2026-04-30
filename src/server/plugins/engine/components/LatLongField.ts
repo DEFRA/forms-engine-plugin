@@ -159,7 +159,7 @@ export class LatLongField extends FormComponent {
 
   getDisplayStringFromFormValue(
     value: LatLongState | undefined,
-    _translator?: Translator
+    _translator: Translator
   ): string {
     if (!value) {
       return ''
@@ -171,7 +171,7 @@ export class LatLongField extends FormComponent {
 
   getDisplayStringFromState(
     state: FormSubmissionState,
-    translator?: Translator
+    translator: Translator
   ) {
     const value = this.getFormValueFromState(state)
 
@@ -200,7 +200,7 @@ export class LatLongField extends FormComponent {
 
   getViewErrors(
     errors?: FormSubmissionError[],
-    _translator?: Translator
+    _translator: Translator
   ): FormSubmissionError[] | undefined {
     const allErrors = this.getErrors(errors)
     return deduplicateErrorsByHref(allErrors)
