@@ -1,10 +1,8 @@
 import { getErrorMessage } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 
-import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { getJson } from '~/src/server/services/httpService.js'
-
-const logger = createLogger()
 
 /**
  * Returns an empty result set
