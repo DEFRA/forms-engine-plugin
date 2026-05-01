@@ -6,7 +6,7 @@ The forms plugin is configured with [registration options](https://hapi.dev/api/
 
 | Option                           | Required | Description                                                                                                                                                                          |
 | -------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `nunjucks`                       | Yes      | Template engine configuration. See [nunjucks configuration](#nunjucks-configuration)                                                                                                 |
+| `nunjucks`                       | Yes      | Template engine configuration. See [Nunjucks configuration](#nunjucks-configuration)                                                                                                 |
 | `viewContext`                    | Yes      | A function that provides global context to all templates. See [viewContext](#viewcontext)                                                                                            |
 | `baseUrl`                        | Yes      | Base URL of the application (protocol and hostname, e.g. `"https://myservice.gov.uk"`). Used for generating absolute URLs in markdown rendering and other contexts                   |
 | `model`                          | No       | Pre-built `FormModel` instance. When provided, the plugin serves a single static form definition. When omitted, forms are loaded dynamically via `formsService`. See [model](#model) |
@@ -73,7 +73,7 @@ In your form definition, set the `controller` property of any page to the same k
 
 When the engine instantiates pages, it first checks for a matching built-in controller, then falls back to the `controllers` map. If no match is found the default `PageController` is used.
 
-### nunjucks configuration
+### Nunjucks configuration
 
 The `nunjucks` option is required and configures the template engine paths and layout.
 
