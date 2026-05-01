@@ -151,6 +151,7 @@
       }
     },
     "UkAddressField": {
+      "label": "UK Address Field",
       "description": "Structured address input for collecting UK postal addresses.",
       "category": "input",
       "sidebarPosition": 13,
@@ -281,6 +282,7 @@
       }
     },
     "OsGridRefField": {
+      "label": "OS Grid Ref Field",
       "description": "Text input for collecting an Ordnance Survey grid reference.",
       "category": "geospatial",
       "sidebarPosition": 24,

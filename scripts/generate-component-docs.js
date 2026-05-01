@@ -261,8 +261,8 @@ function generateComponentsIndex(componentNames) {
     input: { label: 'Input fields', items: [] },
     selection: { label: 'Selection fields', items: [] },
     content: { label: 'Content components', items: [] },
-    payment: { label: 'Payment', items: [] },
-    geospatial: { label: 'Geospatial fields', items: [] }
+    payment: { label: 'Payment', items: [], subheading: true },
+    geospatial: { label: 'Geospatial fields', items: [], subheading: true }
   }
 
   for (const name of componentNames) {
@@ -291,7 +291,29 @@ function generateComponentsIndex(componentNames) {
     ``
   ]
 
-  for (const [, cat] of Object.entries(categories)) {
+  // Render input fields first, then payment and geospatial as subheadings within it
+  const subheadings = ['payment', 'geospatial']
+
+  lines.push(`## ${categories.input.label}`, ``)
+  for (const item of categories.input.items) {
+    lines.push(`- [**${item.label}**](./${item.slug}.md) — ${item.description}`)
+  }
+  lines.push(``)
+
+  for (const key of subheadings) {
+    const cat = categories[key]
+    if (cat.items.length === 0) continue
+    lines.push(`### ${cat.label}`, ``)
+    for (const item of cat.items) {
+      lines.push(
+        `- [**${item.label}**](./${item.slug}.md) — ${item.description}`
+      )
+    }
+    lines.push(``)
+  }
+
+  for (const key of ['selection', 'content']) {
+    const cat = categories[key]
     if (cat.items.length === 0) continue
     lines.push(`## ${cat.label}`, ``)
     for (const item of cat.items) {
