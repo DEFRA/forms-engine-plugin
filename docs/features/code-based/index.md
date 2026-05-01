@@ -1,9 +1,5 @@
 # Code-based Features
 
-:::note Advanced
-Code-based features require writing JavaScript. Use these when configuration-based features and built-in components do not meet your requirements.
-:::
-
 Code-based features let you extend forms-engine-plugin with custom TypeScript or JavaScript. Use them when configuration-based options aren't sufficient for your requirements — for example, to build a bespoke component, override a service, or add highly specialised page logic.
 
 > Only introduce code-based customisations where there is genuine business need. Custom code becomes your team's responsibility to test, maintain and keep accessible.
