@@ -79,40 +79,15 @@ const config = {
             { text: 'Components', href: '/features/components' },
             { text: 'Page Types', href: '/features/pages' },
             {
-              text: 'Configuration-based (Advanced)',
-              href: '/features/configuration-based',
+              text: 'Advanced',
               items: [
                 {
-                  text: 'Page Events',
-                  href: '/features/configuration-based/page-events'
+                  text: 'Configuration-based',
+                  href: '/features/configuration-based'
                 },
                 {
-                  text: 'Page Templates',
-                  href: '/features/configuration-based/page-templates'
-                }
-              ]
-            },
-            {
-              text: 'Code-based (Advanced)',
-              href: '/features/code-based',
-              items: [
-                { text: 'Components', href: '/features/code-based/components' },
-                {
-                  text: 'Custom Services',
-                  href: '/features/code-based/custom-services'
-                },
-                {
-                  text: 'File Upload',
-                  href: '/features/code-based/file-upload'
-                },
-                { text: 'Page Views', href: '/features/code-based/page-views' },
-                {
-                  text: 'Pre-populate State',
-                  href: '/features/code-based/pre-populate-state'
-                },
-                {
-                  text: 'Save and Exit',
-                  href: '/features/code-based/save-and-exit'
+                  text: 'Code-based',
+                  href: '/features/code-based'
                 }
               ]
             }
