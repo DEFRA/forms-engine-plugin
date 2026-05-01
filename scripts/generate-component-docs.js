@@ -77,14 +77,14 @@ const GEOSPATIAL_NAMES = [
   'Geospatial'
 ]
 
-function toKebabCase(str) {
+export function toKebabCase(str) {
   return str.replace(
     /([A-Z])/g,
     (match, letter, offset) => (offset > 0 ? '-' : '') + letter.toLowerCase()
   )
 }
 
-function toLabel(name) {
+export function toLabel(name) {
   const words = name
     .replace(/([A-Z])/g, ' $1')
     .trim()
@@ -92,7 +92,7 @@ function toLabel(name) {
   return words.map((w) => ACRONYMS[w] ?? w).join(' ')
 }
 
-function simplifyType(rawType) {
+export function simplifyType(rawType) {
   if (!rawType) return 'unknown'
   const t = rawType.replace(/\s+/g, ' ').trim()
   if (t.startsWith('{')) return 'object'
@@ -431,7 +431,7 @@ function parseCategories(typesDtsPath) {
   return categories
 }
 
-function deriveCategory(name, parsedCategories) {
+export function deriveCategory(name, parsedCategories) {
   if (parsedCategories[name]) return parsedCategories[name]
   if (GEOSPATIAL_NAMES.some((p) => name.includes(p))) return 'geospatial'
   if (name.includes('Payment')) return 'payment'
@@ -442,7 +442,7 @@ function deriveCategory(name, parsedCategories) {
  * Return a placeholder value for a given type string.
  * Used to populate required fields in generated examples.
  */
-function placeholderForType(type) {
+export function placeholderForType(type) {
   if (type === 'number') return 0
   if (type === 'boolean') return true
   if (type === 'string') return ''
@@ -455,7 +455,7 @@ function placeholderForType(type) {
  * Required options/schema fields are shown with placeholder values.
  * Optional fields are omitted — the tables below the example document them.
  */
-function generateExample(componentName, interfaceData) {
+export function generateExample(componentName, interfaceData) {
   const { options = [], schema = [], hasContent, hasList } = interfaceData
 
   const example = {
@@ -544,7 +544,7 @@ function generateComponentMd(componentName, interfaceData, sidebarPosition) {
  * @param {string} dotPath
  * @param {unknown} value
  */
-function setNestedValue(obj, dotPath, value) {
+export function setNestedValue(obj, dotPath, value) {
   const parts = dotPath.split('.')
   let current = obj
   for (let i = 0; i < parts.length - 1; i++) {
@@ -562,7 +562,7 @@ function setNestedValue(obj, dotPath, value) {
  * @param {string} controllerKey
  * @returns {string}
  */
-function controllerLabel(controllerKey) {
+export function controllerLabel(controllerKey) {
   return toLabel(controllerKey.replace(/Controller$/, ''))
 }
 
@@ -572,7 +572,7 @@ function controllerLabel(controllerKey) {
  * @param {string} controllerKey
  * @returns {string}
  */
-function controllerSlug(controllerKey) {
+export function controllerSlug(controllerKey) {
   return toKebabCase(controllerKey.replace(/Controller$/, ''))
 }
 
@@ -582,7 +582,7 @@ function controllerSlug(controllerKey) {
  * @param {Array<{name: string, type: string, optional: boolean}>} uniqueProps
  * @returns {Record<string, unknown>}
  */
-function generatePageExample(controllerKey, uniqueProps) {
+export function generatePageExample(controllerKey, uniqueProps) {
   const controllerValue =
     controllerKey === 'PageController' ? null : controllerKey
   const path = CONTROLLER_PATH_HINTS[controllerKey] ?? '/page-path'
@@ -762,6 +762,20 @@ function main() {
     process.exit(1)
   }
 
+  if (!fs.existsSync(enumsDtsPath)) {
+    console.error(
+      `Error: cannot find @defra/forms-model enums at:\n  ${enumsDtsPath}\nIs the package installed?`
+    )
+    process.exit(1)
+  }
+
+  if (!fs.existsSync(formDefinitionDtsPath)) {
+    console.error(
+      `Error: cannot find @defra/forms-model form-definition types at:\n  ${formDefinitionDtsPath}\nIs the package installed?`
+    )
+    process.exit(1)
+  }
+
   // Set up output directories
   if (fs.existsSync(componentsOutputDir)) {
     fs.rmSync(componentsOutputDir, { recursive: true, force: true })
@@ -817,6 +831,11 @@ function main() {
   // Generate page type pages
   for (const [i, key] of Object.keys(metadata.pages).entries()) {
     const slug = controllerSlug(key)
+    if (pageInterfaces[key] === undefined) {
+      console.warn(
+        `Warning: no interface data found for page type ${key} — check CONTROLLER_INTERFACE_MAP`
+      )
+    }
     const uniqueProps = pageInterfaces[key] ?? []
     const content = generatePageMd(key, uniqueProps, i + 1)
     if (content) {
@@ -831,4 +850,7 @@ function main() {
   )
 }
 
-main()
+// Only run when executed directly, not when imported as a module
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main()
+}
