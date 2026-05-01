@@ -689,6 +689,7 @@ function generatePageMd(
 
   const label = controllerLabel(controllerKey)
   const isDefault = controllerKey === 'PageController'
+  const links = metadata.pageLinks?.[controllerKey] ?? []
 
   const lines = [
     `---`,
@@ -701,6 +702,10 @@ function generatePageMd(
     description,
     ``
   ]
+
+  for (const text of links) {
+    lines.push(text, ``)
+  }
 
   if (isDefault) {
     lines.push(

@@ -75,7 +75,15 @@
     "longitude": "Longitude constraints (`min`, `max`).",
     "content": "HTML or Markdown content to display."
   },
+  "pageLinks": {
+    "FileUploadPageController": [
+      "This controller works in conjunction with the CDP file upload service. See the [File Upload guide](../code-based/file-upload.md) for setup instructions, including the required `formSubmissionService` interface."
+    ]
+  },
   "componentLinks": {
+    "FileUploadField": [
+      "This component is specifically designed to work with the CDP file upload service via the [File Upload Page](../pages/file-upload-page.md) controller — it must be used on a page using `FileUploadPageController`."
+    ],
     "HiddenField": [
       "Hidden fields can be pre-populated from query string parameters — see [Pre-populating state](../code-based/pre-populate-state.md) for details."
     ],
