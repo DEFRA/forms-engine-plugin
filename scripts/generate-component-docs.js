@@ -149,11 +149,12 @@ function generateComponentMd(componentName, interfaceData) {
     options: {}
   }
   const label = meta.label || toLabel(componentName)
-  const { options = [], schema = [] } = interfaceData || {}
+  const { options: parsedOptions = [], schema = [] } = interfaceData || {}
+  const options = [...parsedOptions, ...(meta.extraOptions ?? [])]
 
   const lines = [
     `---`,
-    `sidebar_label: ${label}`,
+    `sidebar_label: "${label}"`,
     `sidebar_position: ${meta.sidebarPosition ?? 99}`,
     `---`,
     ``,
@@ -209,7 +210,7 @@ function generatePageMd(controllerKey) {
 
   const lines = [
     `---`,
-    `sidebar_label: ${label}`,
+    `sidebar_label: "${label}"`,
     `sidebar_position: ${meta.sidebarPosition ?? 99}`,
     `---`,
     ``,
@@ -343,6 +344,12 @@ function main() {
     formsModelTypesDir,
     'components/types.d.ts'
   )
+  if (!fs.existsSync(componentDtsPath)) {
+    console.error(
+      `Error: cannot find @defra/forms-model types at:\n  ${componentDtsPath}\nIs the package installed?`
+    )
+    process.exit(1)
+  }
   const interfaces = parseComponentInterfaces(componentDtsPath)
 
   // Generate component pages
@@ -351,6 +358,12 @@ function main() {
     const slug = toKebabCase(name)
     // Interface names in types.d.ts use a "Component" suffix (e.g. TextFieldComponent)
     const interfaceData = interfaces[`${name}Component`] ?? interfaces[name]
+    const meta = metadata.components[name]
+    if (!interfaceData && meta?.category !== 'content') {
+      console.warn(
+        `Warning: no interface data found for ${name} (tried ${name}Component and ${name})`
+      )
+    }
     const content = generateComponentMd(name, interfaceData)
     fs.writeFileSync(path.join(componentsOutputDir, `${slug}.md`), content)
   }

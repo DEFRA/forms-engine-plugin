@@ -63,6 +63,10 @@
       "description": "Three separate inputs (day, month, year) for collecting full dates.",
       "category": "input",
       "sidebarPosition": 6,
+      "extraOptions": [
+        { "name": "maxDaysInPast", "optional": true, "type": "number" },
+        { "name": "maxDaysInFuture", "optional": true, "type": "number" }
+      ],
       "example": {
         "type": "DatePartsField",
         "name": "dob",
@@ -75,6 +79,10 @@
       "description": "Two inputs (month, year) for collecting partial dates.",
       "category": "input",
       "sidebarPosition": 7,
+      "extraOptions": [
+        { "name": "maxDaysInPast", "optional": true, "type": "number" },
+        { "name": "maxDaysInFuture", "optional": true, "type": "number" }
+      ],
       "example": {
         "type": "MonthYearField",
         "name": "startDate",
