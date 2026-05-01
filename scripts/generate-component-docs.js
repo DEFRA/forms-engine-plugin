@@ -125,6 +125,43 @@ function collectProps(
 }
 
 /**
+ * Collect all property signatures for an interface including inherited ones.
+ * Returns a Map keyed by property name; derived declarations take priority over base.
+ * @param {import('typescript').InterfaceDeclaration} iface
+ * @param {Record<string, import('typescript').InterfaceDeclaration>} allInterfaces
+ * @param {import('typescript').SourceFile} sourceFile
+ * @returns {Map<string, import('typescript').PropertySignature>}
+ */
+function resolveInterfaceMembers(iface, allInterfaces, sourceFile) {
+  // Base members first so derived declarations overwrite them
+  const members = new Map()
+
+  for (const clause of iface.heritageClauses ?? []) {
+    for (const type of clause.types) {
+      const baseName = type.expression.getText(sourceFile)
+      const baseIface = allInterfaces[baseName]
+      if (baseIface) {
+        for (const [name, member] of resolveInterfaceMembers(
+          baseIface,
+          allInterfaces,
+          sourceFile
+        )) {
+          members.set(name, member)
+        }
+      }
+    }
+  }
+
+  for (const member of iface.members) {
+    if (ts.isPropertySignature(member)) {
+      members.set(member.name.getText(sourceFile), member)
+    }
+  }
+
+  return members
+}
+
+/**
  * Parse all exported component interfaces from types.d.ts.
  * Returns a map: interfaceName -> { options, schema, hasContent, hasList }
  *
@@ -165,10 +202,11 @@ function parseComponentInterfaces(dtsPath) {
     let hasContent = false
     let hasList = false
 
-    for (const member of node.members) {
-      if (!ts.isPropertySignature(member)) continue
-      const propName = member.name.getText(sourceFile)
-
+    for (const [propName, member] of resolveInterfaceMembers(
+      node,
+      allInterfaces,
+      sourceFile
+    )) {
       if (propName === 'options' && member.type) {
         rawOptions = collectProps(
           member.type,
@@ -182,24 +220,6 @@ function parseComponentInterfaces(dtsPath) {
       }
       if (propName === 'content') hasContent = true
       if (propName === 'list') hasList = true
-    }
-
-    // Also check inherited members — e.g. `list` lives on ListFieldBase, not on the
-    // concrete exported interface that extends it.
-    if (!hasContent || !hasList) {
-      for (const clause of node.heritageClauses ?? []) {
-        for (const type of clause.types) {
-          const baseName = type.expression.getText(sourceFile)
-          const baseIface = allInterfaces[baseName]
-          if (!baseIface) continue
-          for (const member of baseIface.members) {
-            if (!ts.isPropertySignature(member)) continue
-            const propName = member.name.getText(sourceFile)
-            if (propName === 'content') hasContent = true
-            if (propName === 'list') hasList = true
-          }
-        }
-      }
     }
 
     // Props typed as `undefined` are explicitly excluded for this component (e.g.
