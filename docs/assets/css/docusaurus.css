@@ -1,0 +1,51 @@
+.app-section {
+  padding: 40px 0;
+  background-color: #ffffff;
+}
+
+.app-section--features {
+  background-color: #f4f8fb;
+  border-bottom: 1px solid #8eb8dc;
+}
+
+.app-prose-scope .app-section--features p:not(.app-no-prose *) {
+  margin-bottom: 0;
+}
+
+.app-section--features .govuk-grid-column-one-third:not(:first-child) {
+  margin-top: 30px;
+}
+
+@media (min-width: 48.125em) {
+  .app-section--features .govuk-grid-column-one-third:not(:first-child) {
+    margin-top: 0;
+  }
+}
+
+.govuk-template--rebranded .govuk-header__link--homepage:not(:focus),
+.govuk-template--rebranded .govuk-header,
+.govuk-template--rebranded .govuk-service-navigation.govuk-service-navigation--inverse,
+.govuk-template--rebranded .app-masthead {
+  background-color: #008531 !important;
+}
+
+.govuk-template--rebranded .app-homepage .govuk-service-navigation--inverse .govuk-width-container {
+  border-color: #66B683 !important;
+}
+
+.govuk-template__body.app-homepage .govuk-template__body-inner {
+  background-color: #f4f8fb;
+}
+
+@media (min-width: 48.125em) {
+  .govuk-template--rebranded .app-masthead .govuk-grid-row {
+    display: flex;
+  }
+
+  .govuk-template--rebranded .app-masthead .govuk-grid-column-one-third-from-desktop {
+    background-image: url('../../../static/assets/images/form-input-screenshot.png');
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    background-size: 220px;
+  }
+}

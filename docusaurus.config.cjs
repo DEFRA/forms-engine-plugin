@@ -37,6 +37,14 @@ const config = {
   ],
 
   plugins: [
+    function customCssPlugin() {
+      return {
+        name: 'custom-css',
+        getClientModules() {
+          return [require.resolve('./docs/assets/css/docusaurus.css')]
+        }
+      }
+    },
     [
       '@docusaurus/plugin-content-docs',
       {
@@ -144,7 +152,7 @@ const config = {
       homepage: {
         getStartedHref: '/getting-started',
         description:
-          'Schema-driven and extensible, built on Hapi.js foundations. Handles routing, validation, state management, and GOV.UK Frontend rendering — so teams can focus on form design, not plumbing.'
+          'Configuration-driven and extensible, built on Hapi.js. Handles routing, validation, state management, and GOV.UK Frontend rendering — so teams can focus on form design, not plumbing.'
       }
     }
   }
