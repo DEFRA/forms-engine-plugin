@@ -177,8 +177,7 @@ describe('Component Documentation Generator', () => {
       const result = generateExample('TextField', {
         options: [],
         schema: [],
-        hasContent: false,
-        hasList: false
+        props: []
       })
       expect(result).toMatchObject({
         type: 'TextField',
@@ -191,8 +190,7 @@ describe('Component Documentation Generator', () => {
       const result = generateExample('TextField', {
         options: [{ name: 'rows', optional: true, type: 'number' }],
         schema: [],
-        hasContent: false,
-        hasList: false
+        props: []
       })
       expect(result.options).toEqual({})
     })
@@ -204,8 +202,7 @@ describe('Component Documentation Generator', () => {
           { name: 'classes', optional: true, type: 'string' }
         ],
         schema: [],
-        hasContent: false,
-        hasList: false
+        props: []
       })
       expect(result.options).toEqual({ rows: 0 })
     })
@@ -217,38 +214,34 @@ describe('Component Documentation Generator', () => {
           { name: 'min', optional: false, type: 'number' },
           { name: 'max', optional: true, type: 'number' }
         ],
-        hasContent: false,
-        hasList: false
+        props: []
       })
       expect(result.schema).toEqual({ min: 0 })
     })
 
-    it('includes content field when hasContent is true', () => {
+    it('includes top-level props in the example using placeholders', () => {
       const result = generateExample('Html', {
         options: [],
         schema: [],
-        hasContent: true,
-        hasList: false
+        props: [{ name: 'content', optional: false, type: 'string' }]
       })
       expect(result).toHaveProperty('content', '')
     })
 
-    it('includes list field when hasList is true', () => {
+    it('includes list as a top-level prop', () => {
       const result = generateExample('RadiosField', {
         options: [],
         schema: [],
-        hasContent: false,
-        hasList: true
+        props: [{ name: 'list', optional: false, type: 'string' }]
       })
-      expect(result).toHaveProperty('list', 'listName')
+      expect(result).toHaveProperty('list', '')
     })
 
     it('omits options and schema keys when both are empty', () => {
       const result = generateExample('HiddenField', {
         options: [],
         schema: [],
-        hasContent: false,
-        hasList: false
+        props: []
       })
       expect(result).not.toHaveProperty('options')
       expect(result).not.toHaveProperty('schema')

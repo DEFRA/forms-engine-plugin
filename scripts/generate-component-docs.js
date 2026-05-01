@@ -199,8 +199,18 @@ function parseComponentInterfaces(dtsPath) {
     const name = node.name.text
     let rawOptions = []
     let schema = []
-    let hasContent = false
-    let hasList = false
+    const rawProps = []
+
+    // Universal props present on every component — shown in the JSON example as
+    // fixed placeholders, so not worth documenting in a per-component table.
+    const UNIVERSAL = new Set([
+      'type',
+      'name',
+      'title',
+      'id',
+      'options',
+      'schema'
+    ])
 
     for (const [propName, member] of resolveInterfaceMembers(
       node,
@@ -214,12 +224,15 @@ function parseComponentInterfaces(dtsPath) {
           allInterfaces,
           'options'
         )
-      }
-      if (propName === 'schema' && member.type) {
+      } else if (propName === 'schema' && member.type) {
         schema = collectProps(member.type, sourceFile, allInterfaces, 'schema')
+      } else if (!UNIVERSAL.has(propName)) {
+        const optional = !!member.questionToken
+        const rawType = member.type
+          ? member.type.getText(sourceFile)
+          : 'unknown'
+        rawProps.push({ name: propName, type: simplifyType(rawType), optional })
       }
-      if (propName === 'content') hasContent = true
-      if (propName === 'list') hasList = true
     }
 
     // Props typed as `undefined` are explicitly excluded for this component (e.g.
@@ -228,7 +241,11 @@ function parseComponentInterfaces(dtsPath) {
       .filter((p) => p.type !== 'undefined')
       .sort((a, b) => a.name.localeCompare(b.name))
 
-    result[name] = { options, schema, hasContent, hasList }
+    const props = rawProps
+      .filter((p) => p.type !== 'undefined')
+      .sort((a, b) => a.name.localeCompare(b.name))
+
+    result[name] = { options, schema, props }
   })
 
   return result
@@ -545,7 +562,7 @@ export function placeholderForType(type) {
  * Optional fields are omitted — the tables below the example document them.
  */
 export function generateExample(componentName, interfaceData) {
-  const { options = [], schema = [], hasContent, hasList } = interfaceData
+  const { options = [], schema = [], props = [] } = interfaceData
 
   const example = {
     type: componentName,
@@ -553,8 +570,9 @@ export function generateExample(componentName, interfaceData) {
     title: 'Question title'
   }
 
-  if (hasContent) example.content = ''
-  if (hasList) example.list = 'listName'
+  for (const prop of props) {
+    example[prop.name] = placeholderForType(prop.type)
+  }
 
   const requiredOptions = options.filter((p) => !p.optional)
   if (requiredOptions.length > 0) {
@@ -580,7 +598,7 @@ export function generateExample(componentName, interfaceData) {
 function generateComponentMd(componentName, interfaceData, sidebarPosition) {
   const description = metadata.components[componentName] ?? ''
   const label = toLabel(componentName)
-  const { options = [], schema = [] } = interfaceData
+  const { options = [], schema = [], props = [] } = interfaceData
 
   const links = metadata.componentLinks?.[componentName] ?? []
 
@@ -608,6 +626,19 @@ function generateComponentMd(componentName, interfaceData, sidebarPosition) {
     '```',
     ``
   )
+
+  if (props.length > 0) {
+    lines.push(`## Properties`, ``)
+    lines.push(`| Property | Type | Required | Description |`)
+    lines.push(`|----------|------|----------|-------------|`)
+    for (const prop of props) {
+      const desc = metadata.properties[prop.name] ?? ''
+      lines.push(
+        `| \`${prop.name}\` | \`${prop.type}\` | ${prop.optional ? 'No' : 'Yes'} | ${desc} |`
+      )
+    }
+    lines.push(``)
+  }
 
   if (options.length > 0) {
     lines.push(`## Options`, ``)

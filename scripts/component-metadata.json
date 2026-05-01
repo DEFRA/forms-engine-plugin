@@ -73,6 +73,9 @@
     "northing": "Northing coordinate constraints (`min`, `max`).",
     "latitude": "Latitude constraints (`min`, `max`).",
     "longitude": "Longitude constraints (`min`, `max`).",
+    "hint": "Hint text displayed below the field label to help the user answer the question.",
+    "list": "Name of a list definition that provides the options to display.",
+    "shortDescription": "A short description of the field used in the check-your-answers summary.",
     "content": "HTML or Markdown content to display."
   },
   "pageLinks": {
