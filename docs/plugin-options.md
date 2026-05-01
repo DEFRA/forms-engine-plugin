@@ -2,31 +2,25 @@
 
 The forms plugin is configured with [registration options](https://hapi.dev/api/?v=21.4.0#plugins)
 
-## Required options
+## Options
 
-- `nunjucks` (required) - Template engine configuration. See [nunjucks configuration](#nunjucks-configuration)
-- `viewContext` (required) - A function that provides global context to all templates. See [viewContext](#viewcontext)
-- `baseUrl` (required) - Base URL of the application (protocol and hostname, e.g., `"https://myservice.gov.uk"`). Used for generating absolute URLs in markdown rendering and other contexts
-
-## Optional options
-
-- `model` (optional) - Pre-built `FormModel` instance. When provided, the plugin serves a single static form definition. When omitted, forms are loaded dynamically via `formsService`. See [model](#model)
-- `services` (optional) - object containing `formsService`, `formSubmissionService` and `outputService`
-  - `formsService` - used to load `formMetadata` and `formDefinition`
-  - `formSubmissionService` - used prepare the form during submission (ignore - subject to change)
-  - `outputService` - used to save the submission
-- `controllers` (optional) - Object map of custom page controllers used to override the default. See [custom controllers](#custom-controllers)
-- `globals` (optional) - A map of custom template globals to include. See [custom globals](#custom-globals)
-- `filters` (optional) - A map of custom template filters to include. See [custom filters](#custom-filters)
-- `cache` (optional) - Caching options. Recommended for production. This can be either:
-  - a string representing the cache name to use (e.g. hapi's default server cache). See [custom cache](#custom-cache) for more details.
-  - a custom `CacheService` instance implementing your own caching logic
-- `pluginPath` (optional) - The location of the plugin (defaults to `node_modules/@defra/forms-engine-plugin`)
-- `preparePageEventRequestOptions` (optional) - A function that will be invoked for http-based [page events](./features/configuration-based/page-events). See [here](./features/configuration-based/page-events#authenticating-a-http-page-event-request-from-forms-engine-plugin-in-your-api) for details
-- `saveAndExit` (optional) - Configuration for custom session management including key generation, session hydration, and persistence. See [save and exit documentation](./features/code-based/save-and-exit) for details
-- `onRequest` (optional) - A function that will be invoked on each request to any form route e.g `/{slug}/{path}`. See [onRequest](#onrequest) for more details
-- `ordnanceSurveyApiKey` (optional) - Ordnance Survey API key. Required to enable the inline map on geospatial components. See [geospatial map](#geospatial-map) for details
-- `ordnanceSurveyApiSecret` (optional) - Ordnance Survey API secret. Required alongside `ordnanceSurveyApiKey` to enable the inline map on geospatial components
+| Option                           | Required | Description                                                                                                                                                                          |
+| -------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `nunjucks`                       | Yes      | Template engine configuration. See [nunjucks configuration](#nunjucks-configuration)                                                                                                 |
+| `viewContext`                    | Yes      | A function that provides global context to all templates. See [viewContext](#viewcontext)                                                                                            |
+| `baseUrl`                        | Yes      | Base URL of the application (protocol and hostname, e.g. `"https://myservice.gov.uk"`). Used for generating absolute URLs in markdown rendering and other contexts                   |
+| `model`                          | No       | Pre-built `FormModel` instance. When provided, the plugin serves a single static form definition. When omitted, forms are loaded dynamically via `formsService`. See [model](#model) |
+| `services`                       | No       | Object containing `formsService`, `formSubmissionService`, and `outputService`. See [services](#services)                                                                            |
+| `controllers`                    | No       | Object map of custom page controllers used to override the default. See [custom controllers](#custom-controllers)                                                                    |
+| `globals`                        | No       | A map of custom template globals to include. See [custom globals](#custom-globals)                                                                                                   |
+| `filters`                        | No       | A map of custom template filters to include. See [custom filters](#custom-filters)                                                                                                   |
+| `cache`                          | No       | Caching options. Recommended for production — either a cache name string or a custom `CacheService` instance. See [custom cache](#custom-cache)                                      |
+| `pluginPath`                     | No       | The location of the plugin. Defaults to `node_modules/@defra/forms-engine-plugin`                                                                                                    |
+| `preparePageEventRequestOptions` | No       | A function invoked for HTTP-based [page events](./features/configuration-based/page-events) to customise outbound request options                                                    |
+| `saveAndExit`                    | No       | Configuration for custom session management. See [save and exit](./features/code-based/save-and-exit)                                                                                |
+| `onRequest`                      | No       | A function invoked on each request to any form route (e.g. `/{slug}/{path}`). See [onRequest](#onrequest)                                                                            |
+| `ordnanceSurveyApiKey`           | No       | Ordnance Survey API key. Required to enable the inline map on geospatial components. See [geospatial map](#geospatial-map)                                                           |
+| `ordnanceSurveyApiSecret`        | No       | Ordnance Survey API secret. Required alongside `ordnanceSurveyApiKey` to enable the inline map on geospatial components                                                              |
 
 ## Option details
 
