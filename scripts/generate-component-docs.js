@@ -38,6 +38,8 @@ export function toLabel(name) {
   return words.map((w) => ACRONYMS[w] ?? w).join(' ')
 }
 
+const UNIVERSAL = new Set(['type', 'name', 'title', 'id', 'options', 'schema'])
+
 /**
  * Type strings from `.d.ts` files are verbose and use internal model names
  * that mean nothing in user-facing docs. This function cleans them up:
@@ -187,6 +189,21 @@ function resolveInterfaceMembers(iface, allInterfaces, sourceFile) {
   return members
 }
 
+function parseSourceFile(dtsPath) {
+  const content = fs.readFileSync(dtsPath, 'utf-8')
+  const sourceFile = ts.createSourceFile(
+    dtsPath,
+    content,
+    ts.ScriptTarget.Latest,
+    true
+  )
+  const allInterfaces = {}
+  ts.forEachChild(sourceFile, (node) => {
+    if (ts.isInterfaceDeclaration(node)) allInterfaces[node.name.text] = node
+  })
+  return { sourceFile, allInterfaces }
+}
+
 /**
  * Reads every exported component interface from the forms-model types file and
  * extracts the information needed to generate each component's doc page: the
@@ -196,21 +213,7 @@ function resolveInterfaceMembers(iface, allInterfaces, sourceFile) {
  * `hint` and `shortDescription` for all field types).
  */
 function parseComponentInterfaces(dtsPath) {
-  const content = fs.readFileSync(dtsPath, 'utf-8')
-  const sourceFile = ts.createSourceFile(
-    dtsPath,
-    content,
-    ts.ScriptTarget.Latest,
-    true
-  )
-
-  // Collect all interfaces for cross-reference resolution
-  const allInterfaces = {}
-  ts.forEachChild(sourceFile, (node) => {
-    if (ts.isInterfaceDeclaration(node)) {
-      allInterfaces[node.name.text] = node
-    }
-  })
+  const { sourceFile, allInterfaces } = parseSourceFile(dtsPath)
 
   const result = {}
 
@@ -225,17 +228,6 @@ function parseComponentInterfaces(dtsPath) {
     let rawOptions = []
     let schema = []
     const rawProps = []
-
-    // Universal props present on every component — shown in the JSON example as
-    // fixed placeholders, so not worth documenting in a per-component table.
-    const UNIVERSAL = new Set([
-      'type',
-      'name',
-      'title',
-      'id',
-      'options',
-      'schema'
-    ])
 
     for (const [propName, member] of resolveInterfaceMembers(
       node,
@@ -414,20 +406,7 @@ function parseControllerMap(formDefinitionDtsPath, pagesEnumsDtsPath) {
  * @returns {Record<string, { props: {name: string, type: string, optional: boolean}[], examplePath: string }>}
  */
 function parsePageInterfaces(dtsPath, controllerMap, pathHints) {
-  const content = fs.readFileSync(dtsPath, 'utf-8')
-  const sourceFile = ts.createSourceFile(
-    dtsPath,
-    content,
-    ts.ScriptTarget.Latest,
-    true
-  )
-
-  const allInterfaces = {}
-  ts.forEachChild(sourceFile, (node) => {
-    if (ts.isInterfaceDeclaration(node)) {
-      allInterfaces[node.name.text] = node
-    }
-  })
+  const { sourceFile, allInterfaces } = parseSourceFile(dtsPath)
 
   // Collect PageBase members once — merged into every page type below
   const pageBaseProps = []
@@ -499,7 +478,7 @@ function parsePageInterfaces(dtsPath, controllerMap, pathHints) {
     // (e.g. `section?: undefined` on PageSummary). Sort alphabetically.
     result[controllerKey] = {
       props: props
-        .filter((p) => p.type !== 'undefined')
+        .filter((p) => p.type !== 'undefined' && p.name !== 'next') // v2 engine derives routing from pages[] order and condition
         .sort((a, b) => a.name.localeCompare(b.name)),
       examplePath: pathHints[controllerKey] ?? '/page-path'
     }
@@ -768,11 +747,6 @@ export function generatePageExample(
     (p) => !p.optional && !hardcoded.has(p.name)
   )) {
     setNestedValue(example, prop.name, placeholderForType(prop.type))
-  }
-
-  // Give next a meaningful routing example rather than the empty array placeholder
-  if (uniqueProps.some((p) => p.name === 'next' && !p.optional)) {
-    example.next = [{ path: '/next-page' }]
   }
 
   return example

@@ -269,24 +269,6 @@ describe('Component Documentation Generator', () => {
       expect(result.path).toBe('/page-path')
     })
 
-    it('gives next a meaningful example value when it is a required prop', () => {
-      const result = generatePageExample('PageController', [
-        { name: 'next', optional: false, type: 'Link[]' },
-        { name: 'components', optional: false, type: 'ComponentDef[]' }
-      ])
-      expect(result.next).toEqual([{ path: '/next-page' }])
-      expect(result.components).toEqual([])
-    })
-
-    it('omits next when not present in uniqueProps', () => {
-      const result = generatePageExample(
-        'SummaryPageController',
-        [],
-        '/summary'
-      )
-      expect(result).not.toHaveProperty('next')
-    })
-
     it('populates required unique props with placeholders using setNestedValue', () => {
       const result = generatePageExample('RepeatPageController', [
         { name: 'repeat.options.name', optional: false, type: 'string' },
