@@ -38,6 +38,15 @@ export function toLabel(name) {
   return words.map((w) => ACRONYMS[w] ?? w).join(' ')
 }
 
+/**
+ * Type strings from `.d.ts` files are verbose and use internal model names
+ * that mean nothing in user-facing docs. This function cleans them up:
+ * `string | undefined` becomes `string`, inline `{ ... }` shapes become
+ * `object`, and internal list types like `ListTypeContent` become `string`.
+ * Array notation is preserved, e.g. `ComponentDef[] | undefined` → `ComponentDef[]`.
+ * @param {string} rawType
+ * @returns {string}
+ */
 export function simplifyType(rawType) {
   if (!rawType) return 'unknown'
   const t = rawType.replace(/\s+/g, ' ').trim()
@@ -52,6 +61,15 @@ export function simplifyType(rawType) {
   return withoutUndefined
 }
 
+/**
+ * Some component option types are written as inline object shapes, e.g.
+ * `options: { required?: boolean; classes?: string }`. This reads those
+ * inline shapes and returns each property as a plain `{ name, type, optional }`
+ * object that can be rendered as a table row.
+ * @param {import('typescript').TypeNode} typeNode
+ * @param {import('typescript').SourceFile} sourceFile
+ * @returns {{name: string, type: string, optional: boolean}[]}
+ */
 function extractTypeLiteralProps(typeNode, sourceFile) {
   const props = []
   if (!ts.isTypeLiteralNode(typeNode)) return props
@@ -66,13 +84,18 @@ function extractTypeLiteralProps(typeNode, sourceFile) {
 }
 
 /**
- * Traverse a type node recursively, resolving IndexedAccessTypes by looking up
- * the referenced interface in allInterfaces. Collects all TypeLiteralNode properties.
- *
- * This handles patterns like:
- *   DateFieldBase['options'] & { condition?: string }
- * by resolving DateFieldBase.options → FormFieldBase['options'] & { maxDaysInPast?, maxDaysInFuture? }
- * and continuing to collect all literal members.
+ * Component options in forms-model are built up in layers. A date field's options type
+ * might be `DateFieldBase['options'] & { condition?: string }`, where `DateFieldBase['options']`
+ * itself resolves to `FormFieldBase['options'] & { maxDaysInPast?: number; maxDaysInFuture?: number }`.
+ * Simply reading the type string gives us nothing useful — we need to follow each reference
+ * and intersection until we reach the actual properties. This function does that recursively,
+ * returning a flat list of every property the user can set.
+ * @param {import('typescript').TypeNode} typeNode
+ * @param {import('typescript').SourceFile} sourceFile
+ * @param {Record<string, import('typescript').InterfaceDeclaration>} allInterfaces
+ * @param {string} accessKey - The property key being resolved, e.g. `'options'` or `'schema'`
+ * @param {number} [depth]
+ * @returns {{name: string, type: string, optional: boolean}[]}
  */
 function collectProps(
   typeNode,
@@ -125,8 +148,11 @@ function collectProps(
 }
 
 /**
- * Collect all property signatures for an interface including inherited ones.
- * Returns a Map keyed by property name; derived declarations take priority over base.
+ * TypeScript interfaces only list their own directly-declared members, not the ones
+ * they inherit. `RadiosFieldComponent extends ListFieldBase`, so iterating its members
+ * directly would miss `list: string` which lives on `ListFieldBase`. This function
+ * walks the full `extends` chain and merges everything into a single map, with
+ * the most-derived declaration winning when the same property appears at multiple levels.
  * @param {import('typescript').InterfaceDeclaration} iface
  * @param {Record<string, import('typescript').InterfaceDeclaration>} allInterfaces
  * @param {import('typescript').SourceFile} sourceFile
@@ -162,13 +188,12 @@ function resolveInterfaceMembers(iface, allInterfaces, sourceFile) {
 }
 
 /**
- * Parse all exported component interfaces from types.d.ts.
- * Returns a map: interfaceName -> { options, schema, hasContent, hasList }
- *
- * - options: component-specific and group-specific options (base props filtered out)
- * - schema: schema constraint properties
- * - hasContent: whether the component has a 'content' property
- * - hasList: whether the component has a 'list' property
+ * Reads every exported component interface from the forms-model types file and
+ * extracts the information needed to generate each component's doc page: the
+ * configurable options (the `options` sub-object properties), any schema
+ * constraints (the `schema` sub-object properties), and any other top-level
+ * properties specific to that component (e.g. `list` for selection components,
+ * `hint` and `shortDescription` for all field types).
  */
 function parseComponentInterfaces(dtsPath) {
   const content = fs.readFileSync(dtsPath, 'utf-8')
@@ -252,14 +277,17 @@ function parseComponentInterfaces(dtsPath) {
 }
 
 /**
- * Recursively flatten an interface into dotted-path prop descriptors.
- * Resolves type references to other interfaces rather than leaving them as opaque types.
+ * Some page-level properties are typed as named interfaces rather than inline shapes.
+ * For example, `PageRepeat` has `repeat: Repeat`, where `Repeat` is `{ options: RepeatOptions; schema: RepeatSchema }`.
+ * Rather than showing a single opaque `repeat: Repeat` row, this function expands the
+ * referenced interface into dotted paths — `repeat.options.name`, `repeat.schema.min` —
+ * so the docs table shows the actual structure the user needs to write.
  * @param {import('typescript').InterfaceDeclaration} iface
  * @param {Record<string, import('typescript').InterfaceDeclaration>} allInterfaces
  * @param {import('typescript').SourceFile} sourceFile
- * @param {string} prefix - Dotted prefix accumulated so far
+ * @param {string} prefix - Dotted path accumulated so far, e.g. `'repeat.options'`
  * @param {number} [depth]
- * @returns {Array<{name: string, type: string, optional: boolean}>}
+ * @returns {{name: string, type: string, optional: boolean}[]}
  */
 function flattenInterface(iface, allInterfaces, sourceFile, prefix, depth = 0) {
   if (depth > 4) return []
@@ -295,8 +323,13 @@ function flattenInterface(iface, allInterfaces, sourceFile, prefix, depth = 0) {
 }
 
 /**
- * Derive the controller → interface map and per-controller example path hints from types.
- * Reads ControllerType and ControllerPath enums plus the PageX interfaces in one pass.
+ * The string used to reference a page controller in a form definition (`StartPageController`)
+ * has a different name from the TypeScript interface that describes it (`PageStart`). The
+ * only place that mapping exists is in the `ControllerType` enum. This function reads that
+ * enum alongside the page interfaces to build the map automatically — so we never have to
+ * maintain a hardcoded lookup table. It also reads the `ControllerPath` enum to determine
+ * the canonical example path for page types whose path is constrained to a fixed value
+ * (e.g. the start page must use `/start`).
  * @param {string} formDefinitionDtsPath
  * @param {string} pagesEnumsDtsPath
  * @returns {{ controllerMap: Record<string, string>, pathHints: Record<string, string> }}
@@ -369,12 +402,16 @@ function parseControllerMap(formDefinitionDtsPath, pagesEnumsDtsPath) {
 }
 
 /**
- * Parse page interfaces from form-definition types.d.ts.
- * Returns a map: controllerKey -> { props, examplePath }.
+ * Extracts the documented properties for each page type. For each controller key
+ * (e.g. `RepeatPageController`), this finds the corresponding TypeScript interface,
+ * collects all its properties including ones inherited from `PageBase`, drops any
+ * explicitly typed as `undefined` (which means "not applicable to this page type"),
+ * and expands any named sub-interfaces into dotted paths (e.g. `repeat.options.name`).
+ * The result also carries the example path to use in the JSON snippet for each page type.
  * @param {string} dtsPath
  * @param {Record<string, string>} controllerMap
  * @param {Record<string, string>} pathHints
- * @returns {Record<string, { props: Array<{name: string, type: string, optional: boolean}>, examplePath: string }>}
+ * @returns {Record<string, { props: {name: string, type: string, optional: boolean}[], examplePath: string }>}
  */
 function parsePageInterfaces(dtsPath, controllerMap, pathHints) {
   const content = fs.readFileSync(dtsPath, 'utf-8')
