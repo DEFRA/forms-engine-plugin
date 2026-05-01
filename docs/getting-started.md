@@ -67,11 +67,14 @@ await server.register({
 Full example:
 
 ```javascript
+import { join } from 'node:path'
 import hapi from '@hapi/hapi'
+import vision from '@hapi/vision'
 import yar from '@hapi/yar'
 import crumb from '@hapi/crumb'
 import inert from '@hapi/inert'
 import pino from 'hapi-pino'
+import nunjucks from 'nunjucks'
 import plugin from '@defra/forms-engine-plugin'
 
 const server = hapi.server({
@@ -92,6 +95,23 @@ await server.register({
 })
 
 const paths = [join(config.get('appDir'), 'views')]
+
+await server.register({
+  plugin: vision,
+  options: {
+    engines: {
+      html: {
+        compile(path, { environment }) {
+          return (context) => nunjucks.compile(path, environment).render(context)
+        }
+      }
+    },
+    path: paths,
+    compileOptions: {
+      environment: nunjucks.configure(paths)
+    }
+  }
+})
 
 // Register the `forms-engine-plugin`
 await server.register({
@@ -120,8 +140,8 @@ await server.register({
       const user = await userService.getUser(request.auth.credentials)
 
       return {
-        "greeting": "Hello" // available to render on a nunjucks page as {{ greeting }}
-        "username": user.username // available to render on a nunjucks page as {{ username }}
+        greeting: 'Hello', // available to render on a nunjucks page as {{ greeting }}
+        username: user.username // available to render on a nunjucks page as {{ username }}
       }
     }
   }
@@ -155,6 +175,12 @@ initAll()
 Example: https://github.com/DEFRA/forms-runner/blob/24c5623946cdfddca593bcba8a688f24bc0cb0e6/src/client/javascripts/application.js
 
 ## Step 5: Environment variables
+
+The following variable is always required:
+
+```shell
+SESSION_COOKIE_PASSWORD=your-secret-password-at-least-32-chars
+```
 
 Blocks marked with `# FEATURE: <name>` are optional and can be omitted if the feature is not used.
 
