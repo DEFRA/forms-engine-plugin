@@ -184,6 +184,24 @@ function parseComponentInterfaces(dtsPath) {
       if (propName === 'list') hasList = true
     }
 
+    // Also check inherited members — e.g. `list` lives on ListFieldBase, not on the
+    // concrete exported interface that extends it.
+    if (!hasContent || !hasList) {
+      for (const clause of node.heritageClauses ?? []) {
+        for (const type of clause.types) {
+          const baseName = type.expression.getText(sourceFile)
+          const baseIface = allInterfaces[baseName]
+          if (!baseIface) continue
+          for (const member of baseIface.members) {
+            if (!ts.isPropertySignature(member)) continue
+            const propName = member.name.getText(sourceFile)
+            if (propName === 'content') hasContent = true
+            if (propName === 'list') hasList = true
+          }
+        }
+      }
+    }
+
     // Props typed as `undefined` are explicitly excluded for this component (e.g.
     // `required?: undefined` on ContentFieldBase). Sort alphabetically for stable output.
     const options = rawOptions
