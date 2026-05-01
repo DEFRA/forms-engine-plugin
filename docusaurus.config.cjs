@@ -80,6 +80,7 @@ const config = {
             { text: 'Page Types', href: '/features/pages' },
             {
               text: 'Advanced',
+              href: '/features',
               items: [
                 {
                   text: 'Configuration-based',
