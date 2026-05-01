@@ -44,6 +44,7 @@
     "dev:debug": "concurrently \"npm run client:watch\" \"npm run server:watch:debug\" --kill-others --names \"client,server\" --prefix-colors \"red.dim,blue.dim\"",
     "format": "npm run format:check -- --write",
     "format:check": "prettier --cache --cache-location .cache/prettier --cache-strategy content --check \"**/*.{cjs,js,json,md,mjs,scss,ts}\"",
+    "predocs:dev": "node scripts/generate-component-docs.js",
     "docs:dev": "BROWSERSLIST_ENV=javascripts docusaurus start --host 0.0.0.0",
     "docs:build": "BROWSERSLIST_ENV=javascripts docusaurus build",
     "docs:build:all": "node scripts/generate-schema-docs.js && node scripts/generate-component-docs.js && npm run docs:build",
