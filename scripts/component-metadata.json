@@ -75,7 +75,37 @@
     "longitude": "Longitude constraints (`min`, `max`).",
     "content": "HTML or Markdown content to display."
   },
+  "componentLinks": {
+    "HiddenField": [
+      "Hidden fields can be pre-populated from query string parameters — see [Pre-populating state](../code-based/pre-populate-state.md) for details."
+    ],
+    "EastingNorthingField": [
+      "This component renders an inline Ordnance Survey map that lets users click a location to auto-populate the coordinate inputs. The map requires the `ordnanceSurveyApiKey` and `ordnanceSurveyApiSecret` [plugin options](../../plugin-options.md#geospatial-map) to be set — without them the component falls back to plain text inputs."
+    ],
+    "OsGridRefField": [
+      "This component renders an inline Ordnance Survey map that lets users click a location to auto-populate the grid reference input. The map requires the `ordnanceSurveyApiKey` and `ordnanceSurveyApiSecret` [plugin options](../../plugin-options.md#geospatial-map) to be set — without them the component falls back to a plain text input."
+    ],
+    "NationalGridFieldNumberField": [
+      "This component renders an inline Ordnance Survey map that lets users click a location to auto-populate the coordinate input. The map requires the `ordnanceSurveyApiKey` and `ordnanceSurveyApiSecret` [plugin options](../../plugin-options.md#geospatial-map) to be set — without them the component falls back to a plain text input."
+    ],
+    "LatLongField": [
+      "This component renders an inline Ordnance Survey map that lets users click a location to auto-populate the latitude and longitude inputs. The map requires the `ordnanceSurveyApiKey` and `ordnanceSurveyApiSecret` [plugin options](../../plugin-options.md#geospatial-map) to be set — without them the component falls back to plain text inputs."
+    ],
+    "GeospatialField": [
+      "This component renders an inline Ordnance Survey map that lets users click a location to auto-populate the coordinate inputs across multiple coordinate formats. The map requires the `ordnanceSurveyApiKey` and `ordnanceSurveyApiSecret` [plugin options](../../plugin-options.md#geospatial-map) to be set — without them the component falls back to plain text inputs."
+    ]
+  },
   "pageProperties": {
+    "components": "Array of component definitions rendered on the page.",
+    "condition": "Name of a condition that controls whether this page is shown.",
+    "controller": "The page controller class name. Omit or use `\"PageController\"` for the default question page.",
+    "events": "Lifecycle hooks that fire when the page is loaded or saved.",
+    "id": "Stable identifier for the page, used internally by the form engine.",
+    "next": "Array of routing links that define where the form goes after this page.",
+    "path": "URL path segment for the page (e.g. `/details`).",
+    "section": "Name of a section that groups this page in the form.",
+    "title": "Heading displayed to the user at the top of the page.",
+    "view": "Name of an alternative view template to render for this page.",
     "repeat.options.name": "Identifier for the repeatable section, used as the key in form state.",
     "repeat.options.title": "Label displayed per repeated item in the list summary.",
     "repeat.schema.min": "Minimum number of items the user must add.",

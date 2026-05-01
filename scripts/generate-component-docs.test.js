@@ -1,5 +1,5 @@
 // @ts-nocheck
- 
+
 import { jest } from '@jest/globals'
 
 // Prevent TypeScript from initialising its node system adapter (which uses
@@ -266,31 +266,32 @@ describe('Component Documentation Generator', () => {
       expect(result.controller).toBe('RepeatPageController')
     })
 
-    it('uses fixed path hint for StartPageController', () => {
-      const result = generatePageExample('StartPageController', [])
+    it('uses the supplied examplePath', () => {
+      const result = generatePageExample('StartPageController', [], '/start')
       expect(result.path).toBe('/start')
     })
 
-    it('uses fixed path hint for SummaryPageController', () => {
-      const result = generatePageExample('SummaryPageController', [])
-      expect(result.path).toBe('/summary')
-    })
-
-    it('uses generic path for controllers without a hint', () => {
+    it('defaults to /page-path when examplePath is omitted', () => {
       const result = generatePageExample('PageController', [])
       expect(result.path).toBe('/page-path')
     })
 
-    it('includes next and components for standard page types', () => {
-      const result = generatePageExample('PageController', [])
+    it('gives next a meaningful example value when it is a required prop', () => {
+      const result = generatePageExample('PageController', [
+        { name: 'next', optional: false, type: 'Link[]' },
+        { name: 'components', optional: false, type: 'ComponentDef[]' }
+      ])
       expect(result.next).toEqual([{ path: '/next-page' }])
       expect(result.components).toEqual([])
     })
 
-    it('omits next and components for SummaryPageController', () => {
-      const result = generatePageExample('SummaryPageController', [])
+    it('omits next when not present in uniqueProps', () => {
+      const result = generatePageExample(
+        'SummaryPageController',
+        [],
+        '/summary'
+      )
       expect(result).not.toHaveProperty('next')
-      expect(result).not.toHaveProperty('components')
     })
 
     it('populates required unique props with placeholders using setNestedValue', () => {
@@ -332,19 +333,10 @@ describe('Component Documentation Generator', () => {
       )
     })
 
-    it('returns "geospatial" for known geospatial name fragments', () => {
-      expect(deriveCategory('EastingNorthingField', {})).toBe('geospatial')
-      expect(deriveCategory('OsGridRefField', {})).toBe('geospatial')
-      expect(deriveCategory('LatLongField', {})).toBe('geospatial')
-    })
-
-    it('returns "payment" for payment component names', () => {
-      expect(deriveCategory('PaymentField', {})).toBe('payment')
-    })
-
     it('returns "input" as the default category', () => {
       expect(deriveCategory('TextField', {})).toBe('input')
-      expect(deriveCategory('NumberField', {})).toBe('input')
+      expect(deriveCategory('PaymentField', {})).toBe('input')
+      expect(deriveCategory('EastingNorthingField', {})).toBe('input')
     })
   })
 })

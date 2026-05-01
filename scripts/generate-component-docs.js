@@ -20,62 +20,8 @@ const metadata = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, 'component-metadata.json'), 'utf-8')
 )
 
-// Properties from FormFieldBase['options'] that apply to every form component.
-// These are excluded from per-component option tables since they're universal.
-const BASE_OPTION_PROPS = new Set([
-  'required',
-  'optionalText',
-  'classes',
-  'customValidationMessages',
-  'instructionText'
-])
-
-// Properties shared by all page types — excluded from unique prop derivation
-const BASE_PAGE_PROPS = new Set([
-  // PageBase
-  'id',
-  'title',
-  'path',
-  'condition',
-  'events',
-  'view',
-  // Universal across concrete page types
-  'controller',
-  'section',
-  'next',
-  'components'
-])
-
-// Maps each controllerKey (from metadata.pages) to its TypeScript interface name
-const CONTROLLER_INTERFACE_MAP = {
-  PageController: 'PageQuestion',
-  StartPageController: 'PageStart',
-  TerminalPageController: 'PageTerminal',
-  RepeatPageController: 'PageRepeat',
-  FileUploadPageController: 'PageFileUpload',
-  SummaryPageController: 'PageSummary'
-}
-
-// Fixed paths required by certain controller types
-const CONTROLLER_PATH_HINTS = {
-  StartPageController: '/start',
-  SummaryPageController: '/summary'
-}
-
-// Page types that omit next/components from their JSON structure
-const PAGES_WITHOUT_NEXT = new Set(['SummaryPageController'])
-
 // Known acronyms for label generation
 const ACRONYMS = { Uk: 'UK', Os: 'OS', Html: 'HTML' }
-
-// Name fragments that identify geospatial components
-const GEOSPATIAL_NAMES = [
-  'EastingNorthing',
-  'OsGridRef',
-  'NationalGrid',
-  'LatLong',
-  'Geospatial'
-]
 
 export function toKebabCase(str) {
   return str.replace(
@@ -238,8 +184,11 @@ function parseComponentInterfaces(dtsPath) {
       if (propName === 'list') hasList = true
     }
 
-    // Remove props that exist on every form component (from FormFieldBase['options'])
-    const options = rawOptions.filter((p) => !BASE_OPTION_PROPS.has(p.name))
+    // Props typed as `undefined` are explicitly excluded for this component (e.g.
+    // `required?: undefined` on ContentFieldBase). Sort alphabetically for stable output.
+    const options = rawOptions
+      .filter((p) => p.type !== 'undefined')
+      .sort((a, b) => a.name.localeCompare(b.name))
 
     result[name] = { options, schema, hasContent, hasList }
   })
@@ -291,12 +240,88 @@ function flattenInterface(iface, allInterfaces, sourceFile, prefix, depth = 0) {
 }
 
 /**
- * Parse page interfaces from form-definition types.d.ts.
- * Returns a map: controllerKey -> array of unique props (those not shared by all page types).
- * @param {string} dtsPath
- * @returns {Record<string, Array<{name: string, type: string, optional: boolean}>>}
+ * Derive the controller → interface map and per-controller example path hints from types.
+ * Reads ControllerType and ControllerPath enums plus the PageX interfaces in one pass.
+ * @param {string} formDefinitionDtsPath
+ * @param {string} pagesEnumsDtsPath
+ * @returns {{ controllerMap: Record<string, string>, pathHints: Record<string, string> }}
  */
-function parsePageInterfaces(dtsPath) {
+function parseControllerMap(formDefinitionDtsPath, pagesEnumsDtsPath) {
+  // Collect both ControllerType and ControllerPath enum variant → string value maps
+  const enumContent = fs.readFileSync(pagesEnumsDtsPath, 'utf-8')
+  const enumSourceFile = ts.createSourceFile(
+    pagesEnumsDtsPath,
+    enumContent,
+    ts.ScriptTarget.Latest,
+    true
+  )
+
+  const controllerTypeValues = {}
+  const controllerPathValues = {}
+  ts.forEachChild(enumSourceFile, (node) => {
+    if (!ts.isEnumDeclaration(node)) return
+    const isType = node.name.text === 'ControllerType'
+    const isPath = node.name.text === 'ControllerPath'
+    if (!isType && !isPath) return
+    for (const member of node.members) {
+      if (!ts.isEnumMember(member) || !member.initializer) continue
+      const variant = member.name.getText(enumSourceFile)
+      const value = member.initializer
+        .getText(enumSourceFile)
+        .replace(/['"]/g, '')
+      if (isType) controllerTypeValues[variant] = value
+      else controllerPathValues[variant] = value
+    }
+  })
+
+  // For each PageX interface, derive the controller key (from `controller` type) and
+  // the canonical example path (from `path` type when it starts with ControllerPath.X)
+  const defContent = fs.readFileSync(formDefinitionDtsPath, 'utf-8')
+  const defSourceFile = ts.createSourceFile(
+    formDefinitionDtsPath,
+    defContent,
+    ts.ScriptTarget.Latest,
+    true
+  )
+
+  const controllerMap = {}
+  const pathHints = {}
+  ts.forEachChild(defSourceFile, (node) => {
+    if (!ts.isInterfaceDeclaration(node)) return
+    const interfaceName = node.name.text
+    let controllerKey = null
+    let pathHint = null
+    for (const member of node.members) {
+      if (!ts.isPropertySignature(member) || !member.type) continue
+      const propName = member.name.getText(defSourceFile)
+      const rawType = member.type.getText(defSourceFile)
+      if (propName === 'controller') {
+        const m = rawType.match(/^ControllerType\.(\w+)$/)
+        if (m) controllerKey = controllerTypeValues[m[1]] ?? null
+      }
+      if (propName === 'path') {
+        const m = rawType.match(/^ControllerPath\.(\w+)/)
+        if (m) pathHint = controllerPathValues[m[1]] ?? null
+      }
+    }
+    if (controllerKey) {
+      controllerMap[controllerKey] = interfaceName
+      if (pathHint) pathHints[controllerKey] = pathHint
+    }
+  })
+
+  return { controllerMap, pathHints }
+}
+
+/**
+ * Parse page interfaces from form-definition types.d.ts.
+ * Returns a map: controllerKey -> { props, examplePath }.
+ * @param {string} dtsPath
+ * @param {Record<string, string>} controllerMap
+ * @param {Record<string, string>} pathHints
+ * @returns {Record<string, { props: Array<{name: string, type: string, optional: boolean}>, examplePath: string }>}
+ */
+function parsePageInterfaces(dtsPath, controllerMap, pathHints) {
   const content = fs.readFileSync(dtsPath, 'utf-8')
   const sourceFile = ts.createSourceFile(
     dtsPath,
@@ -312,30 +337,46 @@ function parsePageInterfaces(dtsPath) {
     }
   })
 
+  // Collect PageBase members once — merged into every page type below
+  const pageBaseProps = []
+  const pageBaseIface = allInterfaces['PageBase']
+  if (pageBaseIface) {
+    for (const member of pageBaseIface.members) {
+      if (!ts.isPropertySignature(member)) continue
+      const propName = member.name.getText(sourceFile)
+      const optional = !!member.questionToken
+      const rawType = member.type ? member.type.getText(sourceFile) : 'unknown'
+      pageBaseProps.push({
+        name: propName,
+        type: simplifyType(rawType),
+        optional
+      })
+    }
+  }
+
   const result = {}
 
-  for (const [controllerKey, interfaceName] of Object.entries(
-    CONTROLLER_INTERFACE_MAP
-  )) {
+  for (const [controllerKey, interfaceName] of Object.entries(controllerMap)) {
     const iface = allInterfaces[interfaceName]
     if (!iface) {
-      result[controllerKey] = []
+      result[controllerKey] = {
+        props: [],
+        examplePath: pathHints[controllerKey] ?? '/page-path'
+      }
       continue
     }
 
-    const uniqueProps = []
+    const props = []
 
     for (const member of iface.members) {
       if (!ts.isPropertySignature(member)) continue
       const propName = member.name.getText(sourceFile)
-      if (BASE_PAGE_PROPS.has(propName)) continue
-
       const optional = !!member.questionToken
 
       if (member.type && ts.isTypeReferenceNode(member.type)) {
         const refName = member.type.typeName.getText(sourceFile)
         if (allInterfaces[refName]) {
-          uniqueProps.push(
+          props.push(
             ...flattenInterface(
               allInterfaces[refName],
               allInterfaces,
@@ -349,14 +390,27 @@ function parsePageInterfaces(dtsPath) {
       }
 
       const rawType = member.type ? member.type.getText(sourceFile) : 'unknown'
-      uniqueProps.push({
+      props.push({
         name: propName,
         type: simplifyType(rawType),
         optional
       })
     }
 
-    result[controllerKey] = uniqueProps
+    // Merge PageBase props for any name not already declared on this page type
+    const seenNames = new Set(props.map((p) => p.name))
+    for (const p of pageBaseProps) {
+      if (!seenNames.has(p.name)) props.push(p)
+    }
+
+    // Props typed as `undefined` are explicitly excluded for this page type
+    // (e.g. `section?: undefined` on PageSummary). Sort alphabetically.
+    result[controllerKey] = {
+      props: props
+        .filter((p) => p.type !== 'undefined')
+        .sort((a, b) => a.name.localeCompare(b.name)),
+      examplePath: pathHints[controllerKey] ?? '/page-path'
+    }
   }
 
   return result
@@ -432,10 +486,7 @@ function parseCategories(typesDtsPath) {
 }
 
 export function deriveCategory(name, parsedCategories) {
-  if (parsedCategories[name]) return parsedCategories[name]
-  if (GEOSPATIAL_NAMES.some((p) => name.includes(p))) return 'geospatial'
-  if (name.includes('Payment')) return 'payment'
-  return 'input'
+  return parsedCategories[name] ?? 'input'
 }
 
 /**
@@ -493,6 +544,8 @@ function generateComponentMd(componentName, interfaceData, sidebarPosition) {
   const label = toLabel(componentName)
   const { options = [], schema = [] } = interfaceData
 
+  const links = metadata.componentLinks?.[componentName] ?? []
+
   const lines = [
     `---`,
     `sidebar_label: "${label}"`,
@@ -502,14 +555,21 @@ function generateComponentMd(componentName, interfaceData, sidebarPosition) {
     `# ${label}`,
     ``,
     description,
-    ``,
+    ``
+  ]
+
+  for (const text of links) {
+    lines.push(text, ``)
+  }
+
+  lines.push(
     `## JSON definition`,
     ``,
     '```json',
     JSON.stringify(generateExample(componentName, interfaceData), null, 2),
     '```',
     ``
-  ]
+  )
 
   if (options.length > 0) {
     lines.push(`## Options`, ``)
@@ -580,24 +640,33 @@ export function controllerSlug(controllerKey) {
  * Generate a JSON example for a page type from its parsed unique properties.
  * @param {string} controllerKey
  * @param {Array<{name: string, type: string, optional: boolean}>} uniqueProps
+ * @param {string} [examplePath]
  * @returns {Record<string, unknown>}
  */
-export function generatePageExample(controllerKey, uniqueProps) {
+export function generatePageExample(
+  controllerKey,
+  uniqueProps,
+  examplePath = '/page-path'
+) {
   const controllerValue =
     controllerKey === 'PageController' ? null : controllerKey
-  const path = CONTROLLER_PATH_HINTS[controllerKey] ?? '/page-path'
+  const path = examplePath
 
   const example = /** @type {Record<string, unknown>} */ ({ path })
   if (controllerValue) example.controller = controllerValue
   example.title = 'Page title'
 
-  for (const prop of uniqueProps.filter((p) => !p.optional)) {
+  // Skip props already set explicitly above so placeholders don't overwrite them
+  const hardcoded = new Set(['path', 'title', 'controller'])
+  for (const prop of uniqueProps.filter(
+    (p) => !p.optional && !hardcoded.has(p.name)
+  )) {
     setNestedValue(example, prop.name, placeholderForType(prop.type))
   }
 
-  if (!PAGES_WITHOUT_NEXT.has(controllerKey)) {
+  // Give next a meaningful routing example rather than the empty array placeholder
+  if (uniqueProps.some((p) => p.name === 'next' && !p.optional)) {
     example.next = [{ path: '/next-page' }]
-    example.components = []
   }
 
   return example
@@ -606,9 +675,15 @@ export function generatePageExample(controllerKey, uniqueProps) {
 /**
  * @param {string} controllerKey
  * @param {Array<{name: string, type: string, optional: boolean}>} uniqueProps
+ * @param {string} examplePath
  * @param {number} sidebarPosition
  */
-function generatePageMd(controllerKey, uniqueProps, sidebarPosition) {
+function generatePageMd(
+  controllerKey,
+  uniqueProps,
+  examplePath,
+  sidebarPosition
+) {
   const description = metadata.pages[controllerKey]
   if (!description) return null
 
@@ -640,7 +715,11 @@ function generatePageMd(controllerKey, uniqueProps, sidebarPosition) {
     `## JSON definition`,
     ``,
     '```json',
-    JSON.stringify(generatePageExample(controllerKey, uniqueProps), null, 2),
+    JSON.stringify(
+      generatePageExample(controllerKey, uniqueProps, examplePath),
+      null,
+      2
+    ),
     '```',
     ``
   )
@@ -665,9 +744,7 @@ function generateComponentsIndex(componentNames, categories) {
   const groups = {
     input: { label: 'Input fields', items: [] },
     selection: { label: 'Selection fields', items: [] },
-    content: { label: 'Content components', items: [] },
-    payment: { label: 'Payment', items: [] },
-    geospatial: { label: 'Geospatial fields', items: [] }
+    content: { label: 'Content components', items: [] }
   }
 
   for (const name of componentNames) {
@@ -694,18 +771,6 @@ function generateComponentsIndex(componentNames, categories) {
     lines.push(`- [**${item.label}**](./${item.slug}.md) — ${item.description}`)
   }
   lines.push(``)
-
-  for (const key of ['payment', 'geospatial']) {
-    const group = groups[key]
-    if (group.items.length === 0) continue
-    lines.push(`### ${group.label}`, ``)
-    for (const item of group.items) {
-      lines.push(
-        `- [**${item.label}**](./${item.slug}.md) — ${item.description}`
-      )
-    }
-    lines.push(``)
-  }
 
   for (const key of ['selection', 'content']) {
     const group = groups[key]
@@ -754,6 +819,7 @@ function main() {
     formsModelTypesDir,
     'form/form-definition/types.d.ts'
   )
+  const pagesEnumsDtsPath = path.join(formsModelTypesDir, 'pages/enums.d.ts')
 
   if (!fs.existsSync(componentsDtsPath)) {
     console.error(
@@ -776,6 +842,13 @@ function main() {
     process.exit(1)
   }
 
+  if (!fs.existsSync(pagesEnumsDtsPath)) {
+    console.error(
+      `Error: cannot find @defra/forms-model pages enums at:\n  ${pagesEnumsDtsPath}\nIs the package installed?`
+    )
+    process.exit(1)
+  }
+
   // Set up output directories
   if (fs.existsSync(componentsOutputDir)) {
     fs.rmSync(componentsOutputDir, { recursive: true, force: true })
@@ -791,7 +864,15 @@ function main() {
   const interfaces = parseComponentInterfaces(componentsDtsPath)
   const componentOrder = parseComponentOrder(enumsDtsPath)
   const parsedCategories = parseCategories(componentsDtsPath)
-  const pageInterfaces = parsePageInterfaces(formDefinitionDtsPath)
+  const { controllerMap, pathHints } = parseControllerMap(
+    formDefinitionDtsPath,
+    pagesEnumsDtsPath
+  )
+  const pageInterfaces = parsePageInterfaces(
+    formDefinitionDtsPath,
+    controllerMap,
+    pathHints
+  )
 
   // Build full category map
   const categories = {}
@@ -833,11 +914,12 @@ function main() {
     const slug = controllerSlug(key)
     if (pageInterfaces[key] === undefined) {
       console.warn(
-        `Warning: no interface data found for page type ${key} — check CONTROLLER_INTERFACE_MAP`
+        `Warning: no interface data found for page type ${key} — is it in the ControllerType enum?`
       )
     }
-    const uniqueProps = pageInterfaces[key] ?? []
-    const content = generatePageMd(key, uniqueProps, i + 1)
+    const { props: uniqueProps = [], examplePath = '/page-path' } =
+      pageInterfaces[key] ?? {}
+    const content = generatePageMd(key, uniqueProps, examplePath, i + 1)
     if (content) {
       fs.writeFileSync(path.join(pagesOutputDir, `${slug}.md`), content)
     }

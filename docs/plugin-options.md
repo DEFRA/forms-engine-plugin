@@ -25,6 +25,8 @@ The forms plugin is configured with [registration options](https://hapi.dev/api/
 - `preparePageEventRequestOptions` (optional) - A function that will be invoked for http-based [page events](./features/configuration-based/page-events). See [here](./features/configuration-based/page-events#authenticating-a-http-page-event-request-from-forms-engine-plugin-in-your-api) for details
 - `saveAndExit` (optional) - Configuration for custom session management including key generation, session hydration, and persistence. See [save and exit documentation](./features/code-based/save-and-exit) for details
 - `onRequest` (optional) - A function that will be invoked on each request to any form route e.g `/{slug}/{path}`. See [onRequest](#onrequest) for more details
+- `ordnanceSurveyApiKey` (optional) - Ordnance Survey API key. Required to enable the inline map on geospatial components. See [geospatial map](#geospatial-map) for details
+- `ordnanceSurveyApiSecret` (optional) - Ordnance Survey API secret. Required alongside `ordnanceSurveyApiKey` to enable the inline map on geospatial components
 
 ## Option details
 
@@ -288,3 +290,20 @@ await server.register({
 ```
 
 For detailed documentation and examples, see [Save and Exit](./features/code-based/save-and-exit).
+
+### Geospatial map
+
+Geospatial components ([Easting Northing](./features/components/easting-northing-field.md), [OS Grid Ref](./features/components/os-grid-ref-field.md), [National Grid Field Number](./features/components/national-grid-field-number-field.md), [Lat Long](./features/components/lat-long-field.md), [Geospatial](./features/components/geospatial-field.md)) render an inline Ordnance Survey map alongside their input fields. The map lets users click a location to auto-populate the coordinate inputs, rather than typing values manually.
+
+The map is only activated when both `ordnanceSurveyApiKey` and `ordnanceSurveyApiSecret` are provided at plugin registration. Without them the components still function as plain text inputs.
+
+```js
+await server.register({
+  plugin,
+  options: {
+    ordnanceSurveyApiKey: process.env.ORDNANCE_SURVEY_API_KEY,
+    ordnanceSurveyApiSecret: process.env.ORDNANCE_SURVEY_API_SECRET,
+    // ... other options
+  }
+})
+```
