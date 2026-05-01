@@ -295,7 +295,9 @@ function generateComponentsIndex(componentNames) {
     if (cat.items.length === 0) continue
     lines.push(`## ${cat.label}`, ``)
     for (const item of cat.items) {
-      lines.push(`- [**${item.label}**](./${item.slug}) — ${item.description}`)
+      lines.push(
+        `- [**${item.label}**](./${item.slug}.md) — ${item.description}`
+      )
     }
     lines.push(``)
   }
@@ -320,7 +322,7 @@ function generatePagesIndex() {
 
   for (const [, meta] of Object.entries(metadata.pages)) {
     const slug = meta.label.toLowerCase().replace(/\s+/g, '-')
-    lines.push(`- [**${meta.label}**](./${slug}) — ${meta.description}`)
+    lines.push(`- [**${meta.label}**](./${slug}.md) — ${meta.description}`)
   }
 
   lines.push(``)
