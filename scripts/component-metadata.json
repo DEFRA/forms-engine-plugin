@@ -74,9 +74,12 @@
     "latitude": "Latitude constraints (`min`, `max`).",
     "longitude": "Longitude constraints (`min`, `max`).",
     "hint": "Hint text displayed below the field label to help the user answer the question.",
-    "list": "Name of a list definition that provides the options to display.",
+    "list": "Name of a list definition that provides the options to display. See [list schema](../../schemas/index.md#list-schema) for the list definition format.",
     "shortDescription": "A short description of the field used in the check-your-answers summary.",
     "content": "HTML or Markdown content to display."
+  },
+  "propertyExamples": {
+    "list": "myListName"
   },
   "pageLinks": {
     "FileUploadPageController": [
