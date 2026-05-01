@@ -77,7 +77,131 @@ const config = {
           sidebar: [
             { text: 'Overview', href: '/features' },
             {
-              text: 'Configuration-based',
+              text: 'Components',
+              href: '/features/components',
+              items: [
+                { text: 'Overview', href: '/features/components' },
+                { text: 'Text Field', href: '/features/components/text-field' },
+                {
+                  text: 'Multiline Text Field',
+                  href: '/features/components/multiline-text-field'
+                },
+                {
+                  text: 'Number Field',
+                  href: '/features/components/number-field'
+                },
+                {
+                  text: 'Email Address Field',
+                  href: '/features/components/email-address-field'
+                },
+                {
+                  text: 'Telephone Number Field',
+                  href: '/features/components/telephone-number-field'
+                },
+                {
+                  text: 'Date Parts Field',
+                  href: '/features/components/date-parts-field'
+                },
+                {
+                  text: 'Month Year Field',
+                  href: '/features/components/month-year-field'
+                },
+                {
+                  text: 'Yes No Field',
+                  href: '/features/components/yes-no-field'
+                },
+                {
+                  text: 'Radios Field',
+                  href: '/features/components/radios-field'
+                },
+                {
+                  text: 'Checkboxes Field',
+                  href: '/features/components/checkboxes-field'
+                },
+                {
+                  text: 'Select Field',
+                  href: '/features/components/select-field'
+                },
+                {
+                  text: 'Autocomplete Field',
+                  href: '/features/components/autocomplete-field'
+                },
+                {
+                  text: 'UK Address Field',
+                  href: '/features/components/uk-address-field'
+                },
+                {
+                  text: 'File Upload Field',
+                  href: '/features/components/file-upload-field'
+                },
+                {
+                  text: 'Declaration Field',
+                  href: '/features/components/declaration-field'
+                },
+                {
+                  text: 'Hidden Field',
+                  href: '/features/components/hidden-field'
+                },
+                {
+                  text: 'Payment Field',
+                  href: '/features/components/payment-field'
+                },
+                { text: 'HTML', href: '/features/components/html' },
+                { text: 'Markdown', href: '/features/components/markdown' },
+                { text: 'Inset Text', href: '/features/components/inset-text' },
+                { text: 'Details', href: '/features/components/details' },
+                { text: 'List', href: '/features/components/list' },
+                {
+                  text: 'Easting Northing Field',
+                  href: '/features/components/easting-northing-field'
+                },
+                {
+                  text: 'OS Grid Ref Field',
+                  href: '/features/components/os-grid-ref-field'
+                },
+                {
+                  text: 'National Grid Field Number Field',
+                  href: '/features/components/national-grid-field-number-field'
+                },
+                {
+                  text: 'Lat Long Field',
+                  href: '/features/components/lat-long-field'
+                },
+                {
+                  text: 'Geospatial Field',
+                  href: '/features/components/geospatial-field'
+                }
+              ]
+            },
+            {
+              text: 'Page Types',
+              href: '/features/pages',
+              items: [
+                { text: 'Overview', href: '/features/pages' },
+                {
+                  text: 'Question Page',
+                  href: '/features/pages/question-page'
+                },
+                { text: 'Start Page', href: '/features/pages/start-page' },
+                {
+                  text: 'Terminal Page',
+                  href: '/features/pages/terminal-page'
+                },
+                { text: 'Repeat Page', href: '/features/pages/repeat-page' },
+                {
+                  text: 'File Upload Page',
+                  href: '/features/pages/file-upload-page'
+                },
+                { text: 'Summary Page', href: '/features/pages/summary-page' },
+                {
+                  text: 'Summary Page with Confirmation Email',
+                  href: '/features/pages/summary-page-with-confirmation-email'
+                },
+                { text: 'Status Page', href: '/features/pages/status-page' }
+              ]
+            },
+            {
+              text: 'Configuration-based (Advanced)',
               href: '/features/configuration-based',
               items: [
                 {
@@ -91,7 +215,7 @@ const config = {
               ]
             },
             {
-              text: 'Code-based',
+              text: 'Code-based (Advanced)',
               href: '/features/code-based',
               items: [
                 { text: 'Components', href: '/features/code-based/components' },
