@@ -442,30 +442,6 @@
         "controller": "SummaryPageController",
         "title": "Check your answers"
       }
-    },
-    "SummaryPageWithConfirmationEmailController": {
-      "label": "Summary Page with Confirmation Email",
-      "description": "Summary page that sends a confirmation email to an address collected in the form. Requires an `EmailAddressField` in the form and `emailField` configured on the `PaymentField` or via plugin options.",
-      "controllerValue": "SummaryPageWithConfirmationEmailController",
-      "sidebarPosition": 7,
-      "uniqueProperties": [],
-      "example": {
-        "path": "/summary",
-        "controller": "SummaryPageWithConfirmationEmailController",
-        "title": "Check your answers"
-      }
-    },
-    "StatusPageController": {
-      "label": "Status Page",
-      "description": "The confirmation page shown after successful form submission. Must use the path `/status`.",
-      "controllerValue": "StatusPageController",
-      "sidebarPosition": 8,
-      "uniqueProperties": [],
-      "example": {
-        "path": "/status",
-        "controller": "StatusPageController",
-        "title": "Application submitted"
-      }
     }
   },
   "properties": {
