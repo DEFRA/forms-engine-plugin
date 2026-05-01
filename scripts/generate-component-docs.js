@@ -20,9 +20,18 @@ const metadata = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, 'component-metadata.json'), 'utf-8')
 )
 
-// Known acronyms for label generation
+/**
+ * @typedef {{ name: string, type: string, optional: boolean }} PropEntry
+ * @typedef {{ options: PropEntry[], schema: PropEntry[], props: PropEntry[] }} ComponentData
+ */
+
+/** @type {Record<string, string>} */
 const ACRONYMS = { Uk: 'UK', Os: 'OS', Html: 'HTML' }
 
+/**
+ * @param {string} str
+ * @returns {string}
+ */
 export function toKebabCase(str) {
   return str.replace(
     /([A-Z])/g,
@@ -30,6 +39,10 @@ export function toKebabCase(str) {
   )
 }
 
+/**
+ * @param {string} name
+ * @returns {string}
+ */
 export function toLabel(name) {
   const words = name
     .replace(/([A-Z])/g, ' $1')
@@ -73,6 +86,7 @@ export function simplifyType(rawType) {
  * @returns {{name: string, type: string, optional: boolean}[]}
  */
 function extractTypeLiteralProps(typeNode, sourceFile) {
+  /** @type {PropEntry[]} */
   const props = []
   if (!ts.isTypeLiteralNode(typeNode)) return props
   for (const member of typeNode.members) {
@@ -189,6 +203,10 @@ function resolveInterfaceMembers(iface, allInterfaces, sourceFile) {
   return members
 }
 
+/**
+ * @param {string} dtsPath
+ * @returns {{ sourceFile: import('typescript').SourceFile, allInterfaces: Record<string, import('typescript').InterfaceDeclaration> }}
+ */
 function parseSourceFile(dtsPath) {
   const content = fs.readFileSync(dtsPath, 'utf-8')
   const sourceFile = ts.createSourceFile(
@@ -197,6 +215,7 @@ function parseSourceFile(dtsPath) {
     ts.ScriptTarget.Latest,
     true
   )
+  /** @type {Record<string, import('typescript').InterfaceDeclaration>} */
   const allInterfaces = {}
   ts.forEachChild(sourceFile, (node) => {
     if (ts.isInterfaceDeclaration(node)) allInterfaces[node.name.text] = node
@@ -211,10 +230,13 @@ function parseSourceFile(dtsPath) {
  * constraints (the `schema` sub-object properties), and any other top-level
  * properties specific to that component (e.g. `list` for selection components,
  * `hint` and `shortDescription` for all field types).
+ * @param {string} dtsPath
+ * @returns {Record<string, ComponentData>}
  */
 function parseComponentInterfaces(dtsPath) {
   const { sourceFile, allInterfaces } = parseSourceFile(dtsPath)
 
+  /** @type {Record<string, ComponentData>} */
   const result = {}
 
   ts.forEachChild(sourceFile, (node) => {
@@ -225,8 +247,11 @@ function parseComponentInterfaces(dtsPath) {
       return
 
     const name = node.name.text
+    /** @type {PropEntry[]} */
     let rawOptions = []
+    /** @type {PropEntry[]} */
     let schema = []
+    /** @type {PropEntry[]} */
     const rawProps = []
 
     for (const [propName, member] of resolveInterfaceMembers(
@@ -336,7 +361,9 @@ function parseControllerMap(formDefinitionDtsPath, pagesEnumsDtsPath) {
     true
   )
 
+  /** @type {Record<string, string>} */
   const controllerTypeValues = {}
+  /** @type {Record<string, string>} */
   const controllerPathValues = {}
   ts.forEachChild(enumSourceFile, (node) => {
     if (!ts.isEnumDeclaration(node)) return
@@ -364,7 +391,9 @@ function parseControllerMap(formDefinitionDtsPath, pagesEnumsDtsPath) {
     true
   )
 
+  /** @type {Record<string, string>} */
   const controllerMap = {}
+  /** @type {Record<string, string>} */
   const pathHints = {}
   ts.forEachChild(defSourceFile, (node) => {
     if (!ts.isInterfaceDeclaration(node)) return
@@ -425,6 +454,7 @@ function parsePageInterfaces(dtsPath, controllerMap, pathHints) {
     }
   }
 
+  /** @type {Record<string, {props: PropEntry[], examplePath: string}>} */
   const result = {}
 
   for (const [controllerKey, interfaceName] of Object.entries(controllerMap)) {
@@ -489,6 +519,8 @@ function parsePageInterfaces(dtsPath, controllerMap, pathHints) {
 
 /**
  * Parse the ComponentType enum to get an ordered list of component names.
+ * @param {string} enumsDtsPath
+ * @returns {string[]}
  */
 function parseComponentOrder(enumsDtsPath) {
   const content = fs.readFileSync(enumsDtsPath, 'utf-8')
@@ -498,6 +530,7 @@ function parseComponentOrder(enumsDtsPath) {
     ts.ScriptTarget.Latest,
     true
   )
+  /** @type {string[]} */
   const order = []
 
   ts.forEachChild(sourceFile, (node) => {
@@ -516,6 +549,8 @@ function parseComponentOrder(enumsDtsPath) {
 /**
  * Parse ContentComponentsDef and SelectionComponentsDef type aliases to derive categories.
  * Returns a map: componentName -> 'content' | 'selection'
+ * @param {string} typesDtsPath
+ * @returns {Record<string, string>}
  */
 function parseCategories(typesDtsPath) {
   const content = fs.readFileSync(typesDtsPath, 'utf-8')
@@ -526,8 +561,13 @@ function parseCategories(typesDtsPath) {
     true
   )
 
+  /** @type {Record<string, string>} */
   const categories = {}
 
+  /**
+   * @param {import('typescript').TypeNode} typeNode
+   * @returns {string[]}
+   */
   function namesFromUnion(typeNode) {
     if (ts.isUnionTypeNode(typeNode)) {
       return typeNode.types.flatMap(namesFromUnion)
@@ -556,6 +596,11 @@ function parseCategories(typesDtsPath) {
   return categories
 }
 
+/**
+ * @param {string} name
+ * @param {Record<string, string>} parsedCategories
+ * @returns {string}
+ */
 export function deriveCategory(name, parsedCategories) {
   return parsedCategories[name] ?? 'input'
 }
@@ -563,6 +608,8 @@ export function deriveCategory(name, parsedCategories) {
 /**
  * Return a placeholder value for a given type string.
  * Used to populate required fields in generated examples.
+ * @param {string} type
+ * @returns {unknown}
  */
 export function placeholderForType(type) {
   if (type === 'number') return 0
@@ -576,10 +623,14 @@ export function placeholderForType(type) {
  * Generate an example JSON for a component based on its structure.
  * Required options/schema fields are shown with placeholder values.
  * Optional fields are omitted — the tables below the example document them.
+ * @param {string} componentName
+ * @param {ComponentData} interfaceData
+ * @returns {Record<string, unknown>}
  */
 export function generateExample(componentName, interfaceData) {
   const { options = [], schema = [], props = [] } = interfaceData
 
+  /** @type {Record<string, unknown>} */
   const example = {
     type: componentName,
     name: 'fieldName',
@@ -611,6 +662,12 @@ export function generateExample(componentName, interfaceData) {
   return example
 }
 
+/**
+ * @param {string} componentName
+ * @param {ComponentData} interfaceData
+ * @param {number} sidebarPosition
+ * @returns {string}
+ */
 function generateComponentMd(componentName, interfaceData, sidebarPosition) {
   const description = metadata.components[componentName] ?? ''
   const label = toLabel(componentName)
@@ -825,7 +882,13 @@ function generatePageMd(
   return lines.join('\n')
 }
 
+/**
+ * @param {string[]} componentNames
+ * @param {Record<string, string>} categories
+ * @returns {string}
+ */
 function generateComponentsIndex(componentNames, categories) {
+  /** @type {Record<string, {label: string, items: {label: string, slug: string, description: string}[]}>} */
   const groups = {
     input: { label: 'Input fields', items: [] },
     selection: { label: 'Selection fields', items: [] },
@@ -960,6 +1023,7 @@ function main() {
   )
 
   // Build full category map
+  /** @type {Record<string, string>} */
   const categories = {}
   for (const name of componentOrder) {
     categories[name] = deriveCategory(name, parsedCategories)

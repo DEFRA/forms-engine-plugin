@@ -54,19 +54,10 @@ export function getSchemaFiles() {
 }
 
 /**
- * Recursively simplifies titles in nested schemas by stripping redundant parent
- * prefixes. For example, if parent title is "Components (array)" and child title
- * is "Components (array) Item", the child title is simplified to "Item".
- *
- * This prevents jsonschema2md from generating excessively long filenames that
- * exceed the OS 255-byte filename limit when Docusaurus renders them as .html.
- *
- * The original (pre-simplification) title is passed to child schemas for
- * matching, so the chain of prefix-stripping works correctly across all levels.
- * @param {JsonSchema} schema - The schema to simplify in place
- * @param {string} [originalParentTitle] - Original title of the parent schema
+ * @param {JsonSchema} schema
+ * @param {string} parentTitle
  */
-function recurseSchemaChildren(schema, parentTitle) {
+function recurseComposedTypes(schema, parentTitle) {
   for (const keyword of /** @type {const} */ (['anyOf', 'oneOf', 'allOf'])) {
     if (Array.isArray(schema[keyword])) {
       for (const sub of schema[keyword]) {
@@ -74,6 +65,14 @@ function recurseSchemaChildren(schema, parentTitle) {
       }
     }
   }
+}
+
+/**
+ * @param {JsonSchema} schema
+ * @param {string} parentTitle
+ */
+function recurseSchemaChildren(schema, parentTitle) {
+  recurseComposedTypes(schema, parentTitle)
 
   if (schema.items) {
     if (Array.isArray(schema.items)) {
@@ -92,6 +91,19 @@ function recurseSchemaChildren(schema, parentTitle) {
   }
 }
 
+/**
+ * Recursively simplifies titles in nested schemas by stripping redundant parent
+ * prefixes. For example, if parent title is "Components (array)" and child title
+ * is "Components (array) Item", the child title is simplified to "Item".
+ *
+ * This prevents jsonschema2md from generating excessively long filenames that
+ * exceed the OS 255-byte filename limit when Docusaurus renders them as .html.
+ *
+ * The original (pre-simplification) title is passed to child schemas for
+ * matching, so the chain of prefix-stripping works correctly across all levels.
+ * @param {JsonSchema} schema - The schema to simplify in place
+ * @param {string} [originalParentTitle] - Original title of the parent schema
+ */
 export function simplifyNestedTitles(schema, originalParentTitle = '') {
   if (!schema || typeof schema !== 'object') {
     return
