@@ -1,5 +1,9 @@
 # Configuration-based Features
 
+:::note Advanced
+Configuration-based features require familiarity with the form definition format. Most use cases are covered by the built-in [components](../components) and [page types](../pages).
+:::
+
 Configuration-based features let you drive advanced behaviour entirely through your form definition — no custom code required. They are implemented in the JSON/YAML form definition and processed by forms-engine-plugin at runtime.
 
 When developing with forms-engine-plugin, prefer configuration-based features over code-based ones wherever possible. They require less effort to maintain and benefit from the same testing and accessibility assurance as core forms-engine-plugin.
