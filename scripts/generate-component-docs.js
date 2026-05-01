@@ -15,14 +15,33 @@ const componentsOutputDir = path.resolve(
   '../docs/features/components'
 )
 const pagesOutputDir = path.resolve(__dirname, '../docs/features/pages')
+
 const metadata = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, 'component-metadata.json'), 'utf-8')
 )
 
-/**
- * Convert PascalCase to kebab-case.
- * "TextField" -> "text-field", "Html" -> "html"
- */
+// Properties from FormFieldBase['options'] that apply to every form component.
+// These are excluded from per-component option tables since they're universal.
+const BASE_OPTION_PROPS = new Set([
+  'required',
+  'optionalText',
+  'classes',
+  'customValidationMessages',
+  'instructionText'
+])
+
+// Known acronyms for label generation
+const ACRONYMS = { Uk: 'UK', Os: 'OS', Html: 'HTML' }
+
+// Name fragments that identify geospatial components
+const GEOSPATIAL_NAMES = [
+  'EastingNorthing',
+  'OsGridRef',
+  'NationalGrid',
+  'LatLong',
+  'Geospatial'
+]
+
 function toKebabCase(str) {
   return str.replace(
     /([A-Z])/g,
@@ -30,35 +49,28 @@ function toKebabCase(str) {
   )
 }
 
-/**
- * Convert PascalCase to Title Case with spaces.
- * "TextField" -> "Text Field"
- */
 function toLabel(name) {
-  return name
-    .replace(
-      /([A-Z])/g,
-      (match, letter, offset) => (offset > 0 ? ' ' : '') + letter
-    )
+  const words = name
+    .replace(/([A-Z])/g, ' $1')
     .trim()
+    .split(' ')
+  return words.map((w) => ACRONYMS[w] ?? w).join(' ')
 }
 
-/**
- * Simplify complex TypeScript type strings for display in docs tables.
- */
 function simplifyType(rawType) {
   if (!rawType) return 'unknown'
   const t = rawType.replace(/\s+/g, ' ').trim()
-  if (t.startsWith('{') || t.includes('LanguageMessages')) return 'object'
+  if (t.startsWith('{')) return 'object'
+  if (t.includes('LanguageMessages')) return 'object'
   if (t.includes('ListTypeContent') || t.includes('ListTypeOption'))
     return 'string'
-  if (t.endsWith('[]')) return simplifyType(t.slice(0, -2)) + '[]'
-  return t
+  const withoutUndefined = t.replace(/\s*\|\s*undefined/g, '').trim()
+  if (withoutUndefined.endsWith('[]')) {
+    return simplifyType(withoutUndefined.slice(0, -2)) + '[]'
+  }
+  return withoutUndefined
 }
 
-/**
- * Extract properties from a TypeLiteralNode.
- */
 function extractTypeLiteralProps(typeNode, sourceFile) {
   const props = []
   if (!ts.isTypeLiteralNode(typeNode)) return props
@@ -73,25 +85,72 @@ function extractTypeLiteralProps(typeNode, sourceFile) {
 }
 
 /**
- * Extract component-specific options properties.
- * options type is: BaseOptions & { specific?: type } — we want the & { } part.
+ * Traverse a type node recursively, resolving IndexedAccessTypes by looking up
+ * the referenced interface in allInterfaces. Collects all TypeLiteralNode properties.
+ *
+ * This handles patterns like:
+ *   DateFieldBase['options'] & { condition?: string }
+ * by resolving DateFieldBase.options → FormFieldBase['options'] & { maxDaysInPast?, maxDaysInFuture? }
+ * and continuing to collect all literal members.
  */
-function extractOptionsProps(typeNode, sourceFile) {
+function collectProps(
+  typeNode,
+  sourceFile,
+  allInterfaces,
+  accessKey,
+  depth = 0
+) {
+  if (depth > 6) return []
+  const props = []
+
   if (ts.isIntersectionTypeNode(typeNode)) {
-    const lastType = typeNode.types[typeNode.types.length - 1]
-    if (ts.isTypeLiteralNode(lastType)) {
-      return extractTypeLiteralProps(lastType, sourceFile)
+    for (const member of typeNode.types) {
+      props.push(
+        ...collectProps(member, sourceFile, allInterfaces, accessKey, depth)
+      )
+    }
+  } else if (ts.isTypeLiteralNode(typeNode)) {
+    props.push(...extractTypeLiteralProps(typeNode, sourceFile))
+  } else if (ts.isIndexedAccessTypeNode(typeNode)) {
+    // Resolve SomeInterface['accessKey'] by looking up the interface
+    const { objectType, indexType } = typeNode
+    if (ts.isTypeReferenceNode(objectType) && ts.isLiteralTypeNode(indexType)) {
+      const ifaceName = objectType.typeName.getText(sourceFile)
+      const key = indexType.literal.getText(sourceFile).replace(/['"]/g, '')
+      const iface = allInterfaces[ifaceName]
+      if (iface && key === accessKey) {
+        for (const member of iface.members) {
+          if (
+            ts.isPropertySignature(member) &&
+            member.name.getText(sourceFile) === accessKey &&
+            member.type
+          ) {
+            props.push(
+              ...collectProps(
+                member.type,
+                sourceFile,
+                allInterfaces,
+                accessKey,
+                depth + 1
+              )
+            )
+          }
+        }
+      }
     }
   }
-  if (ts.isTypeLiteralNode(typeNode)) {
-    return extractTypeLiteralProps(typeNode, sourceFile)
-  }
-  return []
+
+  return props
 }
 
 /**
- * Parse all exported interfaces from a .d.ts file.
- * Returns a map of interface name -> { options: [], schema: [] }.
+ * Parse all exported component interfaces from types.d.ts.
+ * Returns a map: interfaceName -> { options, schema, hasContent, hasList }
+ *
+ * - options: component-specific and group-specific options (base props filtered out)
+ * - schema: schema constraint properties
+ * - hasContent: whether the component has a 'content' property
+ * - hasList: whether the component has a 'list' property
  */
 function parseComponentInterfaces(dtsPath) {
   const content = fs.readFileSync(dtsPath, 'utf-8')
@@ -102,60 +161,159 @@ function parseComponentInterfaces(dtsPath) {
     true
   )
 
+  // Collect all interfaces for cross-reference resolution
+  const allInterfaces = {}
+  ts.forEachChild(sourceFile, (node) => {
+    if (ts.isInterfaceDeclaration(node)) {
+      allInterfaces[node.name.text] = node
+    }
+  })
+
   const result = {}
 
-  function visit(node) {
+  ts.forEachChild(sourceFile, (node) => {
     if (
-      ts.isInterfaceDeclaration(node) &&
-      node.modifiers?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword)
-    ) {
-      const name = node.name.text
-      const options = []
-      const schema = []
+      !ts.isInterfaceDeclaration(node) ||
+      !node.modifiers?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword)
+    )
+      return
 
-      for (const member of node.members) {
-        if (!ts.isPropertySignature(member)) continue
-        const propName = member.name.getText(sourceFile)
+    const name = node.name.text
+    let rawOptions = []
+    let schema = []
+    let hasContent = false
+    let hasList = false
 
-        if (propName === 'options' && member.type) {
-          options.push(...extractOptionsProps(member.type, sourceFile))
-        }
-        if (propName === 'schema' && member.type) {
-          schema.push(...extractTypeLiteralProps(member.type, sourceFile))
-        }
+    for (const member of node.members) {
+      if (!ts.isPropertySignature(member)) continue
+      const propName = member.name.getText(sourceFile)
+
+      if (propName === 'options' && member.type) {
+        rawOptions = collectProps(
+          member.type,
+          sourceFile,
+          allInterfaces,
+          'options'
+        )
       }
-
-      if (options.length > 0 || schema.length > 0) {
-        result[name] = { options, schema }
+      if (propName === 'schema' && member.type) {
+        schema = collectProps(member.type, sourceFile, allInterfaces, 'schema')
       }
+      if (propName === 'content') hasContent = true
+      if (propName === 'list') hasList = true
     }
-    ts.forEachChild(node, visit)
-  }
 
-  visit(sourceFile)
+    // Remove props that exist on every form component (from FormFieldBase['options'])
+    const options = rawOptions.filter((p) => !BASE_OPTION_PROPS.has(p.name))
+
+    result[name] = { options, schema, hasContent, hasList }
+  })
+
   return result
 }
 
 /**
- * Generate markdown content for a single component page.
+ * Parse the ComponentType enum to get an ordered list of component names.
  */
-function generateComponentMd(componentName, interfaceData) {
-  const meta = metadata.components[componentName] || {}
-  const description = meta.description || ''
-  const example = meta.example || {
+function parseComponentOrder(enumsDtsPath) {
+  const content = fs.readFileSync(enumsDtsPath, 'utf-8')
+  const sourceFile = ts.createSourceFile(
+    enumsDtsPath,
+    content,
+    ts.ScriptTarget.Latest,
+    true
+  )
+  const order = []
+
+  ts.forEachChild(sourceFile, (node) => {
+    if (!ts.isEnumDeclaration(node) || node.name.text !== 'ComponentType')
+      return
+    for (const member of node.members) {
+      if (ts.isEnumMember(member) && member.initializer) {
+        order.push(member.initializer.getText(sourceFile).replace(/['"]/g, ''))
+      }
+    }
+  })
+
+  return order
+}
+
+/**
+ * Parse ContentComponentsDef and SelectionComponentsDef type aliases to derive categories.
+ * Returns a map: componentName -> 'content' | 'selection'
+ */
+function parseCategories(typesDtsPath) {
+  const content = fs.readFileSync(typesDtsPath, 'utf-8')
+  const sourceFile = ts.createSourceFile(
+    typesDtsPath,
+    content,
+    ts.ScriptTarget.Latest,
+    true
+  )
+
+  const categories = {}
+
+  function namesFromUnion(typeNode) {
+    if (ts.isUnionTypeNode(typeNode)) {
+      return typeNode.types.flatMap(namesFromUnion)
+    }
+    if (ts.isTypeReferenceNode(typeNode)) {
+      return [typeNode.typeName.getText(sourceFile)]
+    }
+    return []
+  }
+
+  ts.forEachChild(sourceFile, (node) => {
+    if (!ts.isTypeAliasDeclaration(node)) return
+    const aliasName = node.name.text
+
+    if (aliasName === 'ContentComponentsDef') {
+      for (const name of namesFromUnion(node.type)) {
+        categories[name.replace(/Component$/, '')] = 'content'
+      }
+    } else if (aliasName === 'SelectionComponentsDef') {
+      for (const name of namesFromUnion(node.type)) {
+        categories[name.replace(/Component$/, '')] = 'selection'
+      }
+    }
+  })
+
+  return categories
+}
+
+function deriveCategory(name, parsedCategories) {
+  if (parsedCategories[name]) return parsedCategories[name]
+  if (GEOSPATIAL_NAMES.some((p) => name.includes(p))) return 'geospatial'
+  if (name.includes('Payment')) return 'payment'
+  return 'input'
+}
+
+/**
+ * Generate a minimal example JSON for a component based on its structure.
+ */
+function generateExample(componentName, interfaceData) {
+  const example = {
     type: componentName,
     name: 'fieldName',
-    title: 'Field title',
-    options: {}
+    title: 'Question title'
   }
-  const label = meta.label || toLabel(componentName)
-  const { options: parsedOptions = [], schema = [] } = interfaceData || {}
-  const options = [...parsedOptions, ...(meta.extraOptions ?? [])]
+  if (interfaceData.hasContent) example.content = ''
+  if (interfaceData.hasList) example.list = 'listName'
+  if (componentName === 'PaymentField') {
+    example.options = { amount: 2000, description: 'Application fee' }
+  }
+  return example
+}
+
+function generateComponentMd(componentName, interfaceData, sidebarPosition) {
+  const description = metadata.components[componentName] ?? ''
+  const label = toLabel(componentName)
+  const { options = [], schema = [] } = interfaceData
 
   const lines = [
     `---`,
     `sidebar_label: "${label}"`,
-    `sidebar_position: ${meta.sidebarPosition ?? 99}`,
+    `sidebar_position: ${sidebarPosition}`,
     `---`,
     ``,
     `# ${label}`,
@@ -165,7 +323,7 @@ function generateComponentMd(componentName, interfaceData) {
     `## JSON definition`,
     ``,
     '```json',
-    JSON.stringify(example, null, 2),
+    JSON.stringify(generateExample(componentName, interfaceData), null, 2),
     '```',
     ``
   ]
@@ -176,9 +334,8 @@ function generateComponentMd(componentName, interfaceData) {
     lines.push(`|----------|------|----------|-------------|`)
     for (const prop of options) {
       const desc = metadata.properties[prop.name] ?? ''
-      const required = prop.optional ? 'No' : 'Yes'
       lines.push(
-        `| \`${prop.name}\` | \`${prop.type}\` | ${required} | ${desc} |`
+        `| \`${prop.name}\` | \`${prop.type}\` | ${prop.optional ? 'No' : 'Yes'} | ${desc} |`
       )
     }
     lines.push(``)
@@ -198,9 +355,6 @@ function generateComponentMd(componentName, interfaceData) {
   return lines.join('\n')
 }
 
-/**
- * Generate markdown content for a single page controller page.
- */
 function generatePageMd(controllerKey) {
   const meta = metadata.pages[controllerKey]
   if (!meta) return null
@@ -238,7 +392,7 @@ function generatePageMd(controllerKey) {
     ``
   )
 
-  if (uniqueProperties && uniqueProperties.length > 0) {
+  if (uniqueProperties?.length > 0) {
     lines.push(`## Configuration`, ``)
     lines.push(`| Property | Type | Required | Description |`)
     lines.push(`|----------|------|----------|-------------|`)
@@ -253,31 +407,21 @@ function generatePageMd(controllerKey) {
   return lines.join('\n')
 }
 
-/**
- * Generate the components index page listing all components by category.
- */
-function generateComponentsIndex(componentNames) {
-  const categories = {
+function generateComponentsIndex(componentNames, categories) {
+  const groups = {
     input: { label: 'Input fields', items: [] },
     selection: { label: 'Selection fields', items: [] },
     content: { label: 'Content components', items: [] },
-    payment: { label: 'Payment', items: [], subheading: true },
-    geospatial: { label: 'Geospatial fields', items: [], subheading: true }
+    payment: { label: 'Payment', items: [] },
+    geospatial: { label: 'Geospatial fields', items: [] }
   }
 
   for (const name of componentNames) {
-    const meta = metadata.components[name]
-    if (!meta) continue
-    const category = meta.category || 'input'
-    const label = meta.label || toLabel(name)
+    const category = categories[name] ?? 'input'
+    const label = toLabel(name)
     const slug = toKebabCase(name)
-    if (categories[category]) {
-      categories[category].items.push({
-        label,
-        slug,
-        description: meta.description
-      })
-    }
+    const description = metadata.components[name] ?? ''
+    groups[category]?.items.push({ label, slug, description })
   }
 
   const lines = [
@@ -291,20 +435,17 @@ function generateComponentsIndex(componentNames) {
     ``
   ]
 
-  // Render input fields first, then payment and geospatial as subheadings within it
-  const subheadings = ['payment', 'geospatial']
-
-  lines.push(`## ${categories.input.label}`, ``)
-  for (const item of categories.input.items) {
+  lines.push(`## ${groups.input.label}`, ``)
+  for (const item of groups.input.items) {
     lines.push(`- [**${item.label}**](./${item.slug}.md) — ${item.description}`)
   }
   lines.push(``)
 
-  for (const key of subheadings) {
-    const cat = categories[key]
-    if (cat.items.length === 0) continue
-    lines.push(`### ${cat.label}`, ``)
-    for (const item of cat.items) {
+  for (const key of ['payment', 'geospatial']) {
+    const group = groups[key]
+    if (group.items.length === 0) continue
+    lines.push(`### ${group.label}`, ``)
+    for (const item of group.items) {
       lines.push(
         `- [**${item.label}**](./${item.slug}.md) — ${item.description}`
       )
@@ -313,10 +454,10 @@ function generateComponentsIndex(componentNames) {
   }
 
   for (const key of ['selection', 'content']) {
-    const cat = categories[key]
-    if (cat.items.length === 0) continue
-    lines.push(`## ${cat.label}`, ``)
-    for (const item of cat.items) {
+    const group = groups[key]
+    if (group.items.length === 0) continue
+    lines.push(`## ${group.label}`, ``)
+    for (const item of group.items) {
       lines.push(
         `- [**${item.label}**](./${item.slug}.md) — ${item.description}`
       )
@@ -327,9 +468,6 @@ function generateComponentsIndex(componentNames) {
   return lines.join('\n')
 }
 
-/**
- * Generate the pages index page listing all page types.
- */
 function generatePagesIndex() {
   const lines = [
     `---`,
@@ -352,6 +490,19 @@ function generatePagesIndex() {
 }
 
 function main() {
+  const componentsDtsPath = path.join(
+    formsModelTypesDir,
+    'components/types.d.ts'
+  )
+  const enumsDtsPath = path.join(formsModelTypesDir, 'components/enums.d.ts')
+
+  if (!fs.existsSync(componentsDtsPath)) {
+    console.error(
+      `Error: cannot find @defra/forms-model types at:\n  ${componentsDtsPath}\nIs the package installed?`
+    )
+    process.exit(1)
+  }
+
   // Set up output directories
   if (fs.existsSync(componentsOutputDir)) {
     fs.rmSync(componentsOutputDir, { recursive: true, force: true })
@@ -363,39 +514,44 @@ function main() {
   }
   fs.mkdirSync(pagesOutputDir, { recursive: true })
 
-  // Parse component interfaces
-  const componentDtsPath = path.join(
-    formsModelTypesDir,
-    'components/types.d.ts'
-  )
-  if (!fs.existsSync(componentDtsPath)) {
-    console.error(
-      `Error: cannot find @defra/forms-model types at:\n  ${componentDtsPath}\nIs the package installed?`
-    )
-    process.exit(1)
-  }
-  const interfaces = parseComponentInterfaces(componentDtsPath)
+  // Parse sources
+  const interfaces = parseComponentInterfaces(componentsDtsPath)
+  const componentOrder = parseComponentOrder(enumsDtsPath)
+  const parsedCategories = parseCategories(componentsDtsPath)
 
-  // Generate component pages
-  const componentNames = Object.keys(metadata.components)
-  for (const name of componentNames) {
-    const slug = toKebabCase(name)
-    // Interface names in types.d.ts use a "Component" suffix (e.g. TextFieldComponent)
-    const interfaceData = interfaces[`${name}Component`] ?? interfaces[name]
-    const meta = metadata.components[name]
-    if (!interfaceData && meta?.category !== 'content') {
-      console.warn(
-        `Warning: no interface data found for ${name} (tried ${name}Component and ${name})`
-      )
+  // Build full category map
+  const categories = {}
+  for (const name of componentOrder) {
+    categories[name] = deriveCategory(name, parsedCategories)
+  }
+
+  // Generate component pages in enum order
+  for (const [i, name] of componentOrder.entries()) {
+    const interfaceData = interfaces[`${name}Component`] ??
+      interfaces[name] ?? {
+        options: [],
+        schema: [],
+        hasContent: false,
+        hasList: false
+      }
+
+    if (
+      !interfaces[`${name}Component`] &&
+      !interfaces[name] &&
+      categories[name] !== 'content'
+    ) {
+      console.warn(`Warning: no interface data found for ${name}`)
     }
-    const content = generateComponentMd(name, interfaceData)
+
+    const slug = toKebabCase(name)
+    const content = generateComponentMd(name, interfaceData, i + 1)
     fs.writeFileSync(path.join(componentsOutputDir, `${slug}.md`), content)
   }
 
   // Generate components index
   fs.writeFileSync(
     path.join(componentsOutputDir, 'index.md'),
-    generateComponentsIndex(componentNames)
+    generateComponentsIndex(componentOrder, categories)
   )
 
   // Generate page type pages
@@ -408,13 +564,10 @@ function main() {
     }
   }
 
-  // Generate pages index
   fs.writeFileSync(path.join(pagesOutputDir, 'index.md'), generatePagesIndex())
 
-  const componentCount = componentNames.length
-  const pageCount = Object.keys(metadata.pages).length
   console.log(
-    `Generated ${componentCount} component pages and ${pageCount} page type pages.`
+    `Generated ${componentOrder.length} component pages and ${Object.keys(metadata.pages).length} page type pages.`
   )
 }
 
