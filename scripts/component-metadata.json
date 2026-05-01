@@ -29,123 +29,12 @@
     "GeospatialField": "Composite location picker supporting multiple geospatial coordinate formats."
   },
   "pages": {
-    "PageController": {
-      "label": "Question Page",
-      "description": "The default page type. Displays a set of components and advances to the next page on submission. Omit the `controller` property to use this page type.",
-      "controllerValue": null,
-      "sidebarPosition": 1,
-      "uniqueProperties": [],
-      "example": {
-        "path": "/your-name",
-        "title": "Your name",
-        "next": [{ "path": "/next-page" }],
-        "components": []
-      }
-    },
-    "StartPageController": {
-      "label": "Start Page",
-      "description": "The entry page of the form. Initialises the session and redirects to the first question. Must use the path `/start`.",
-      "controllerValue": "StartPageController",
-      "sidebarPosition": 2,
-      "uniqueProperties": [],
-      "example": {
-        "path": "/start",
-        "controller": "StartPageController",
-        "title": "Apply for something",
-        "next": [{ "path": "/first-question" }],
-        "components": []
-      }
-    },
-    "TerminalPageController": {
-      "label": "Terminal Page",
-      "description": "A dead-end page that does not route the user to another page. Use this for outcomes where the journey ends without proceeding to the summary — for example, an ineligibility screen.",
-      "controllerValue": "TerminalPageController",
-      "sidebarPosition": 3,
-      "uniqueProperties": [],
-      "example": {
-        "path": "/ineligible",
-        "controller": "TerminalPageController",
-        "title": "You are not eligible",
-        "components": []
-      }
-    },
-    "RepeatPageController": {
-      "label": "Repeat Page",
-      "description": "Allows the user to add multiple sets of answers to the same group of questions. Answers are stored as an array under the key defined by `repeat.options.name`.",
-      "controllerValue": "RepeatPageController",
-      "sidebarPosition": 4,
-      "uniqueProperties": [
-        {
-          "name": "repeat.options.name",
-          "type": "string",
-          "required": true,
-          "description": "Identifier for the repeatable section, used as the key in form state."
-        },
-        {
-          "name": "repeat.options.title",
-          "type": "string",
-          "required": true,
-          "description": "Label displayed per repeated item in the list summary."
-        },
-        {
-          "name": "repeat.schema.min",
-          "type": "number",
-          "required": true,
-          "description": "Minimum number of items the user must add."
-        },
-        {
-          "name": "repeat.schema.max",
-          "type": "number",
-          "required": true,
-          "description": "Maximum number of items the user can add. Cannot exceed 200."
-        }
-      ],
-      "example": {
-        "path": "/people",
-        "controller": "RepeatPageController",
-        "title": "Add a person",
-        "repeat": {
-          "options": { "name": "person", "title": "Person" },
-          "schema": { "min": 1, "max": 25 }
-        },
-        "next": [{ "path": "/summary" }],
-        "components": []
-      }
-    },
-    "FileUploadPageController": {
-      "label": "File Upload Page",
-      "description": "A question page that handles file upload via the CDP file upload service. Must contain a `FileUploadField` component.",
-      "controllerValue": "FileUploadPageController",
-      "sidebarPosition": 5,
-      "uniqueProperties": [],
-      "example": {
-        "path": "/upload-evidence",
-        "controller": "FileUploadPageController",
-        "title": "Upload your evidence",
-        "next": [{ "path": "/next-page" }],
-        "components": [
-          {
-            "type": "FileUploadField",
-            "name": "evidence",
-            "title": "Upload a file",
-            "options": {},
-            "schema": {}
-          }
-        ]
-      }
-    },
-    "SummaryPageController": {
-      "label": "Summary Page",
-      "description": "Displays a check-your-answers summary of all form responses before submission. Must use the path `/summary`.",
-      "controllerValue": "SummaryPageController",
-      "sidebarPosition": 6,
-      "uniqueProperties": [],
-      "example": {
-        "path": "/summary",
-        "controller": "SummaryPageController",
-        "title": "Check your answers"
-      }
-    }
+    "PageController": "The default page type. Displays a set of components and advances to the next page on submission. Omit the `controller` property to use this page type.",
+    "StartPageController": "The entry page of the form. Initialises the session and redirects to the first question. Must use the path `/start`.",
+    "TerminalPageController": "A dead-end page that does not route the user to another page. Use this for outcomes where the journey ends without proceeding to the summary — for example, an ineligibility screen.",
+    "RepeatPageController": "Allows the user to add multiple sets of answers to the same group of questions. Answers are stored as an array under the key defined by `repeat.options.name`.",
+    "FileUploadPageController": "A question page that handles file upload via the CDP file upload service. Must contain a `FileUploadField` component.",
+    "SummaryPageController": "Displays a check-your-answers summary of all form responses before submission. Must use the path `/summary`."
   },
   "properties": {
     "required": "Whether the field must be filled in. Defaults to `true`.",
@@ -185,5 +74,11 @@
     "latitude": "Latitude constraints (`min`, `max`).",
     "longitude": "Longitude constraints (`min`, `max`).",
     "content": "HTML or Markdown content to display."
+  },
+  "pageProperties": {
+    "repeat.options.name": "Identifier for the repeatable section, used as the key in form state.",
+    "repeat.options.title": "Label displayed per repeated item in the list summary.",
+    "repeat.schema.min": "Minimum number of items the user must add.",
+    "repeat.schema.max": "Maximum number of items the user can add. Cannot exceed 200."
   }
 }
