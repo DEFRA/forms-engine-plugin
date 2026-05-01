@@ -66,14 +66,42 @@ export function getSchemaFiles() {
  * @param {JsonSchema} schema - The schema to simplify in place
  * @param {string} [originalParentTitle] - Original title of the parent schema
  */
+function recurseSchemaChildren(schema, parentTitle) {
+  for (const keyword of /** @type {const} */ (['anyOf', 'oneOf', 'allOf'])) {
+    if (Array.isArray(schema[keyword])) {
+      for (const sub of schema[keyword]) {
+        simplifyNestedTitles(/** @type {JsonSchema} */ (sub), parentTitle)
+      }
+    }
+  }
+
+  if (schema.items) {
+    if (Array.isArray(schema.items)) {
+      for (const item of schema.items) {
+        simplifyNestedTitles(/** @type {JsonSchema} */ (item), parentTitle)
+      }
+    } else {
+      simplifyNestedTitles(schema.items, parentTitle)
+    }
+  }
+
+  if (schema.properties) {
+    for (const propSchema of Object.values(schema.properties)) {
+      simplifyNestedTitles(/** @type {JsonSchema} */ (propSchema), parentTitle)
+    }
+  }
+}
+
 export function simplifyNestedTitles(schema, originalParentTitle = '') {
-  if (!schema || typeof schema !== 'object') return
+  if (!schema || typeof schema !== 'object') {
+    return
+  }
 
   const originalTitle = schema.title ?? ''
 
   if (originalTitle && originalParentTitle) {
-    const normalizedTitle = originalTitle.replace(/\s+/g, ' ').trim()
-    const normalizedParent = originalParentTitle.replace(/\s+/g, ' ').trim()
+    const normalizedTitle = originalTitle.replaceAll(/\s+/g, ' ').trim()
+    const normalizedParent = originalParentTitle.replaceAll(/\s+/g, ' ').trim()
 
     if (normalizedTitle.startsWith(normalizedParent)) {
       const stripped = normalizedTitle.slice(normalizedParent.length).trim()
@@ -84,31 +112,7 @@ export function simplifyNestedTitles(schema, originalParentTitle = '') {
   }
 
   // Pass the ORIGINAL title to children so multi-level stripping works correctly
-  const nextParent = originalTitle || originalParentTitle
-
-  for (const keyword of /** @type {const} */ (['anyOf', 'oneOf', 'allOf'])) {
-    if (Array.isArray(schema[keyword])) {
-      for (const sub of schema[keyword]) {
-        simplifyNestedTitles(/** @type {JsonSchema} */ (sub), nextParent)
-      }
-    }
-  }
-
-  if (schema.items) {
-    if (Array.isArray(schema.items)) {
-      for (const item of schema.items) {
-        simplifyNestedTitles(/** @type {JsonSchema} */ (item), nextParent)
-      }
-    } else {
-      simplifyNestedTitles(schema.items, nextParent)
-    }
-  }
-
-  if (schema.properties) {
-    for (const propSchema of Object.values(schema.properties)) {
-      simplifyNestedTitles(/** @type {JsonSchema} */ (propSchema), nextParent)
-    }
-  }
+  recurseSchemaChildren(schema, originalTitle || originalParentTitle)
 }
 
 /**
