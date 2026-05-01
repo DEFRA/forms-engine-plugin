@@ -289,19 +289,52 @@ function deriveCategory(name, parsedCategories) {
 }
 
 /**
- * Generate a minimal example JSON for a component based on its structure.
+ * Return a placeholder value for a given type string.
+ * Used to populate required fields in generated examples.
+ */
+function placeholderForType(type) {
+  if (type === 'number') return 0
+  if (type === 'boolean') return true
+  if (type === 'string') return ''
+  if (type.endsWith('[]')) return []
+  return {}
+}
+
+/**
+ * Generate an example JSON for a component based on its structure.
+ * Required options/schema fields are shown with placeholder values.
+ * Optional fields are omitted — the tables below the example document them.
  */
 function generateExample(componentName, interfaceData) {
+  const { options = [], schema = [], hasContent, hasList } = interfaceData
+
   const example = {
     type: componentName,
     name: 'fieldName',
     title: 'Question title'
   }
-  if (interfaceData.hasContent) example.content = ''
-  if (interfaceData.hasList) example.list = 'listName'
-  if (componentName === 'PaymentField') {
-    example.options = { amount: 2000, description: 'Application fee' }
+
+  if (hasContent) example.content = ''
+  if (hasList) example.list = 'listName'
+
+  const requiredOptions = options.filter((p) => !p.optional)
+  if (requiredOptions.length > 0) {
+    example.options = Object.fromEntries(
+      requiredOptions.map((p) => [p.name, placeholderForType(p.type)])
+    )
+  } else if (options.length > 0) {
+    example.options = {}
   }
+
+  const requiredSchema = schema.filter((p) => !p.optional)
+  if (requiredSchema.length > 0) {
+    example.schema = Object.fromEntries(
+      requiredSchema.map((p) => [p.name, placeholderForType(p.type)])
+    )
+  } else if (schema.length > 0) {
+    example.schema = {}
+  }
+
   return example
 }
 
