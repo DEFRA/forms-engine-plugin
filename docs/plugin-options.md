@@ -221,7 +221,7 @@ In your templates:
 Use the `filter` plugin option to provide custom template filters.
 Filters are available in both [nunjucks](https://mozilla.github.io/nunjucks/templating.html#filters) and [liquid](https://liquidjs.com/filters/overview.html) templates.
 
-```
+```js
 const formatter = new Intl.NumberFormat('en-GB')
 
 await server.register({
@@ -244,7 +244,7 @@ In production you should create a custom cache one of the available `@hapi/catbo
 
 E.g. [Redis](https://github.com/hapijs/catbox-redis)
 
-```
+```js
 import { Engine as CatboxRedis } from '@hapi/catbox-redis'
 
 const server = new Hapi.Server({
