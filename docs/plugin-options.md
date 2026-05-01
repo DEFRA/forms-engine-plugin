@@ -30,7 +30,48 @@ See [our services documentation](./features/code-based/custom-services).
 
 ### Custom controllers
 
-TODO
+The `controllers` option lets you register custom page controller classes that extend the built-in `PageController`. A custom controller is tied to a page in your form definition by setting the page's `controller` property to the key you register it under.
+
+```ts
+import { PageController } from '@defra/forms-engine-plugin/controllers/PageController.js'
+import { type FormModel } from '@defra/forms-engine-plugin/types'
+import { type Page } from '@defra/forms-model'
+
+class ConfirmationPageController extends PageController {
+  constructor(model: FormModel, pageDef: Page) {
+    super(model, pageDef)
+  }
+
+  makeGetRouteHandler() {
+    return async (request, h) => {
+      // custom logic before rendering
+      return h.view(this.viewName, { ...await this.getViewModel(request) })
+    }
+  }
+}
+
+await server.register({
+  plugin,
+  options: {
+    controllers: {
+      ConfirmationPageController
+    }
+  }
+})
+```
+
+In your form definition, set the `controller` property of any page to the same key:
+
+```json
+{
+  "path": "/confirmation",
+  "title": "Confirmation",
+  "controller": "ConfirmationPageController",
+  "components": []
+}
+```
+
+When the engine instantiates pages, it first checks for a matching built-in controller, then falls back to the `controllers` map. If no match is found the default `PageController` is used.
 
 ### nunjucks configuration
 
