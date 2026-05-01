@@ -12,17 +12,17 @@ When developing with forms-engine-plugin, you should favour development using th
 2. Use configuration-driven advanced functionality to integrate with backends and dynamically change page content (page events, page templates)
 3. Use custom views, custom components and page controllers to implement highly tailored and niche logic (custom Nunjucks, custom Javascript)
 
-### Contributing back to forms-engine-plugin
+### Contributing back to forms-engine-plugin <!-- no-sidebar -->
 
 When you build custom components and page controllers, they might be useful for other teams in Defra to utilise. For example, many teams collect CPH numbers but have no way to validate it's correct. Rather than creating a new CPH number component and letting it sit in your codebase for just your team, see our [contribution guide](./contributing) to learn how to contribute this back to forms-engine-plugin for everyone to benefit from.
 
 ## Step 1: Add forms-engine-plugin as a dependency
 
-### Installation
+### Installation <!-- no-sidebar -->
 
 `npm install @defra/forms-engine-plugin --save`
 
-### Dependencies
+### Dependencies <!-- no-sidebar -->
 
 The following are [plugin dependencies](<https://hapi.dev/api/?v=21.4.0#server.dependency()>) that are required to be registered with hapi:
 
@@ -197,7 +197,7 @@ The configuration defines several top-level elements:
 
 To understand the full set of options available to you, consult our [schema documentation](https://defra.github.io/forms-engine-plugin/schemas/). Specifically, the [form definition schema](https://defra.github.io/forms-engine-plugin/schemas/form-definition-v2-payload-schema).
 
-### Config
+### Config <!-- no-sidebar -->
 
 #### Pages
 
