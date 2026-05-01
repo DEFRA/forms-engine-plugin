@@ -78,9 +78,6 @@
     "shortDescription": "A short description of the field used in the check-your-answers summary.",
     "content": "HTML or Markdown content to display."
   },
-  "propertyExamples": {
-    "list": "myListName"
-  },
   "pageLinks": {
     "FileUploadPageController": [
       "This controller works in conjunction with the CDP file upload service. See the [File Upload guide](../code-based/file-upload.md) for setup instructions, including the required `formSubmissionService` interface."

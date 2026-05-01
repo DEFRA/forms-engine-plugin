@@ -571,8 +571,7 @@ export function generateExample(componentName, interfaceData) {
   }
 
   for (const prop of props) {
-    example[prop.name] =
-      metadata.propertyExamples?.[prop.name] ?? placeholderForType(prop.type)
+    example[prop.name] = placeholderForType(prop.type)
   }
 
   const requiredOptions = options.filter((p) => !p.optional)
