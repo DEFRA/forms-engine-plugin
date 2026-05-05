@@ -398,7 +398,7 @@ describe('GeospatialField', () => {
             description: 'Desc'
           },
           geometry: {
-            coordinates: [-2.5723699109417737, 53.2380485215034], // Point is outsode Scotland should trigger error with href to description field and custom text
+            coordinates: [-2.5723699109417737, 53.2380485215034], // Point is outside Scotland should trigger error with href to description field and custom text
             type: 'Point'
           },
           id: 'a'
