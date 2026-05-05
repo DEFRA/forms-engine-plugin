@@ -376,5 +376,46 @@ describe('GeospatialField', () => {
         })
       ])
     })
+
+    it('getErrors formats country boundary errors', () => {
+      const component = {
+        title: 'Example bounded geospatial field',
+        name: 'myComponent',
+        type: ComponentType.GeospatialField,
+        options: {
+          countries: ['scotland'],
+          required: true
+        }
+      } satisfies GeospatialFieldComponent
+
+      const collection = new ComponentCollection([component], { model })
+      const invalidSingleState: GeospatialState = [
+        {
+          type: 'Feature',
+          properties: {
+            coordinateGridReference: 'ST 00001',
+            centroidGridReference: 'ST 00001',
+            description: 'Desc'
+          },
+          geometry: {
+            coordinates: [-2.5723699109417737, 53.2380485215034], // Point is outside Scotland should trigger error with href to description field and custom text
+            type: 'Point'
+          },
+          id: 'a'
+        }
+      ]
+
+      const result = collection.validate(getFormData(invalidSingleState))
+      const geospatialField = collection.components.at(0) as GeospatialField
+
+      const errors = geospatialField.getErrors(result.errors)
+      expect(errors).toEqual([
+        expect.objectContaining({
+          name: 0,
+          href: '#description_0',
+          text: 'Location 1 must be in Scotland'
+        })
+      ])
+    })
   })
 })

@@ -1,5 +1,10 @@
+import {
+  GeospatialFieldOptionsCountryEnum,
+  type GeospatialFieldOptionsCountry
+} from '@defra/forms-model'
 import Bourne from '@hapi/bourne'
-import JoiBase from 'joi'
+import { booleanWithin } from '@turf/boolean-within'
+import JoiBase, { type CustomValidator } from 'joi'
 
 import {
   type Coordinates,
@@ -7,6 +12,14 @@ import {
   type FeatureProperties,
   type Geometry
 } from '~/src/server/plugins/engine/types.js'
+import { countries } from '~/src/server/plugins/map/routes/index.js'
+
+const countriesDesc: Record<GeospatialFieldOptionsCountryEnum, string> = {
+  [GeospatialFieldOptionsCountryEnum.England]: 'England',
+  [GeospatialFieldOptionsCountryEnum.NorthernIreland]: 'Northern Ireland',
+  [GeospatialFieldOptionsCountryEnum.Scotland]: 'Scotland',
+  [GeospatialFieldOptionsCountryEnum.Wales]: 'Wales'
+}
 
 const Joi = JoiBase.extend({
   type: 'array',
@@ -83,10 +96,43 @@ const featureSchema = Joi.object<Feature>().keys({
   geometry: featureGeometrySchema
 })
 
-export const geospatialSchema = Joi.array<Feature[]>()
+const geospatialSchema = Joi.array<Feature[]>()
   .items(featureSchema)
   .unique('id')
   .required()
+
+export function getGeospatialSchema(country?: GeospatialFieldOptionsCountry) {
+  if (!country) {
+    return geospatialSchema
+  }
+
+  const validateCountryBounds: CustomValidator = (value, helpers) => {
+    const countryFeature = countries.features.find(
+      (feature) => feature.id === country
+    )
+
+    if (!countryFeature) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return value
+    }
+
+    const result = booleanWithin(value, countryFeature)
+
+    if (!result) {
+      return helpers.error('any.custom', {
+        country: countriesDesc[country as GeospatialFieldOptionsCountryEnum]
+      })
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return value
+  }
+
+  return Joi.array<Feature[]>()
+    .items(featureSchema.custom(validateCountryBounds))
+    .unique('id')
+    .required()
+}
 
 /**
  * @import { CustomHelpers } from 'joi'

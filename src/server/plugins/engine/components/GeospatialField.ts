@@ -6,7 +6,7 @@ import {
   FormComponent,
   isGeospatialState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { geospatialSchema } from '~/src/server/plugins/engine/components/helpers/geospatial.js'
+import { getGeospatialSchema } from '~/src/server/plugins/engine/components/helpers/geospatial.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
@@ -31,7 +31,9 @@ export class GeospatialField extends FormComponent {
 
     const { options } = def
 
-    let formSchema = geospatialSchema.label(this.label).required()
+    let formSchema = getGeospatialSchema(options.countries?.at(0))
+      .label(this.label)
+      .required()
 
     formSchema = formSchema.max(50)
 
@@ -90,6 +92,7 @@ export class GeospatialField extends FormComponent {
 
     return {
       ...viewModel,
+      country: this.options.countries?.at(0),
       value
     }
   }
@@ -101,6 +104,9 @@ export class GeospatialField extends FormComponent {
       if (err.name === 'description') {
         err.href = `#description_${err.path[1]}`
         err.text = `Enter description for location ${Number(err.path[1]) + 1}`
+      } else if (typeof err.name === 'number' && err.context?.country) {
+        err.href = `#description_${err.path[1]}`
+        err.text = `Location ${Number(err.path[1]) + 1} must be in ${err.context.country}`
       }
     })
 

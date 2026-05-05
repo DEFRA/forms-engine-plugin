@@ -29,6 +29,13 @@
  */
 
 /**
+ * Geospatial countries query params
+ * @typedef {object} GeospatialCountriesQuery
+ * @property {string} omit - the country to omit
+ * @property {string} only - the country to include
+ */
+
+/**
  * Map geocode get request
  * @typedef {object} MapProxyGetRequestRefs
  * @property {MapProxyQuery} Query - Request query
@@ -41,9 +48,15 @@
  */
 
 /**
- * Map reverst geocode get request
+ * Map reverse geocode get request
  * @typedef {object} MapReverseGeocodeGetRequestRefs
  * @property {MapReverseGeocodeQuery} Query - Request query
+ */
+
+/**
+ * Map countries geojson get request
+ * @typedef {object} GeospatialCountriesGetRequestRefs
+ * @property {GeospatialCountriesQuery} Query - Request query
  */
 
 /**
