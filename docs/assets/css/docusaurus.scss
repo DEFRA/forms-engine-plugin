@@ -22,6 +22,13 @@
   }
 }
 
+/* Override prose-scope h2 size to govuk-heading-l for homepage sections. */
+@import "govuk-frontend/dist/govuk/base";
+
+.govuk-template .app-prose-scope .app-section h2 {
+  @include govuk-font($size: 36, $weight: bold);
+  @include govuk-responsive-margin(6, "bottom");
+}
 
 .govuk-template--rebranded .govuk-header__link--homepage:not(:focus),
 .govuk-template--rebranded .govuk-header,
@@ -31,7 +38,7 @@
 }
 
 .govuk-template--rebranded .app-homepage .govuk-service-navigation--inverse .govuk-width-container {
-  border-color: #66B683 !important;
+  border-color: #66b683 !important;
 }
 
 .govuk-template__body.app-homepage .govuk-template__body-inner {
@@ -48,7 +55,7 @@
   }
 
   .govuk-template--rebranded .app-masthead .govuk-grid-column-one-third-from-desktop {
-    background-image: url('../../../static/assets/images/form-input-screenshot.png');
+    background-image: url("../../../static/assets/images/form-input-screenshot.png");
     background-repeat: no-repeat;
     background-position: center bottom;
     background-size: 220px;
