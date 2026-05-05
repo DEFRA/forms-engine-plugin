@@ -25,7 +25,8 @@ import {
   processStandardMarkdownFiles,
   readSchemaFile,
   runJsonSchema2Md,
-  setupDirectories
+  setupDirectories,
+  simplifyNestedTitles
 } from './generate-schema-docs.js'
 
 jest.mock('fs', () => ({
@@ -588,6 +589,101 @@ describe('Schema Documentation Generator', () => {
         '/mock/docs/dir/conditions-item.md',
         expect.stringContaining('## Condition Items Type')
       )
+    })
+  })
+
+  describe('simplifyNestedTitles', () => {
+    it('strips parent prefix from child title', () => {
+      const schema = {
+        title: 'Components',
+        anyOf: [{ title: 'Components (array)' }]
+      }
+      simplifyNestedTitles(schema)
+      expect(schema.anyOf[0].title).toBe('(array)')
+    })
+
+    it('strips prefix through multiple nesting levels using original titles', () => {
+      const schema = {
+        title: 'Components',
+        anyOf: [
+          {
+            title: 'Components (array)',
+            items: {
+              title: 'Components (array) Item',
+              anyOf: [{ title: 'Components (array)  Item (object)' }]
+            }
+          }
+        ]
+      }
+      simplifyNestedTitles(schema)
+      expect(schema.anyOf[0].title).toBe('(array)')
+      expect(schema.anyOf[0].items.title).toBe('Item')
+      expect(schema.anyOf[0].items.anyOf[0].title).toBe('(object)')
+    })
+
+    it('normalizes extra whitespace when comparing', () => {
+      const schema = {
+        title: 'Foo Bar',
+        items: { title: 'Foo  Bar  Baz' }
+      }
+      simplifyNestedTitles(schema)
+      expect(schema.items.title).toBe('Baz')
+    })
+
+    it('does not strip when title does not start with parent prefix', () => {
+      const schema = {
+        title: 'Pages',
+        properties: {
+          components: { title: 'Components' }
+        }
+      }
+      simplifyNestedTitles(schema)
+      expect(schema.properties.components.title).toBe('Components')
+    })
+
+    it('does not blank a title when stripped result would be empty', () => {
+      const schema = {
+        title: 'Item',
+        items: { title: 'Item' }
+      }
+      simplifyNestedTitles(schema)
+      expect(schema.items.title).toBe('Item')
+    })
+
+    it('leaves top-level title unchanged when no parent provided', () => {
+      const schema = { title: 'Top Level' }
+      simplifyNestedTitles(schema)
+      expect(schema.title).toBe('Top Level')
+    })
+
+    it('handles oneOf and allOf in addition to anyOf', () => {
+      const schema = {
+        title: 'Regex',
+        oneOf: [{ title: 'Regex (string)' }, { title: 'Regex (string)' }]
+      }
+      simplifyNestedTitles(schema)
+      expect(schema.oneOf[0].title).toBe('(string)')
+      expect(schema.oneOf[1].title).toBe('(string)')
+    })
+
+    it('handles array items', () => {
+      const schema = {
+        title: 'Conditional Amounts',
+        items: { title: 'Conditional Amounts Item' }
+      }
+      simplifyNestedTitles(schema)
+      expect(schema.items.title).toBe('Item')
+    })
+
+    it('handles schemas without titles gracefully', () => {
+      const schema = {
+        title: 'Parent',
+        properties: {
+          noTitle: { type: 'string' }
+        }
+      }
+      expect(() => simplifyNestedTitles(schema)).not.toThrow()
+      expect(schema.properties.noTitle.title).toBeUndefined()
     })
   })
 

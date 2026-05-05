@@ -2,27 +2,27 @@
 
 ## Foundational knowledge
 
-forms-engine-plugin is a hapi plugin for a frontend service, which allows development teams to construct forms using configuration and minimal code. Forms are closely based on the knowledge, components and patterns from the GDS Design System. Forms should remain as lightweight as possible, with business logic being implemented in a backend/BFF API and forms-engine-plugin used as a simple presentation layer.
+forms-engine-plugin is a hapi plugin that lets teams build GOV.UK forms using configuration and minimal code, based on GDS Design System patterns. Keep business logic in a backend/BFF API and treat the plugin as a thin presentation layer.
 
-You should aim, wherever possible, to utilise the existing behaviours of forms-engine-plugin. Our team puts a lot of effort into development, user testing and accessibility testing to ensure the forms created with forms-engine-plugin will be of a consistently high quality. Where your team introduces custom behaviour, such as custom components or custom pages, this work will now need to be done by your team. Where possible, favour fixing something upstream in the plugin so many teams can benefit from the work we do. Then, if you still need custom behaviour - go for it! forms-engine-plugin is designed to be extended, just be wise with how you spend your efforts.
+Prefer built-in behaviour wherever possible — it's been developed, user-tested, and accessibility-tested to a consistent standard. If you need something the plugin doesn't support, consider fixing it upstream so all teams benefit. When custom code is genuinely the right call, the plugin is designed to be extended.
 
-When developing with forms-engine-plugin, you should favour development using the below priority order. This will ensure your team is writing the minimum amount of code, focusing your efforts on custom code where the requirements are niche and there is value.
+Favour this priority order:
 
-1. Use out-of-the box forms-engine-plugin components and page types (components, controllers)
-2. Use configuration-driven advanced functionality to integrate with backends and dynamically change page content (page events, page templates)
-3. Use custom views, custom components and page controllers to implement highly tailored and niche logic (custom Nunjucks, custom Javascript)
+1. Built-in components and page types
+2. Configuration-driven features (page events, templates) to integrate with backends
+3. Custom views, components, and controllers for niche requirements
 
-### Contributing back to forms-engine-plugin
+### Contributing back to forms-engine-plugin <!-- no-sidebar -->
 
-When you build custom components and page controllers, they might be useful for other teams in Defra to utilise. For example, many teams collect CPH numbers but have no way to validate it's correct. Rather than creating a new CPH number component and letting it sit in your codebase for just your team, see our [contribution guide](./contributing) to learn how to contribute this back to forms-engine-plugin for everyone to benefit from.
+Custom components you build may be useful to other Defra teams. See the [contribution guide](./contributing) to share them upstream rather than keeping them in your own codebase.
 
 ## Step 1: Add forms-engine-plugin as a dependency
 
-### Installation
+### Installation <!-- no-sidebar -->
 
 `npm install @defra/forms-engine-plugin --save`
 
-### Dependencies
+### Dependencies <!-- no-sidebar -->
 
 The following are [plugin dependencies](<https://hapi.dev/api/?v=21.4.0#server.dependency()>) that are required to be registered with hapi:
 
@@ -40,7 +40,7 @@ Additional npm dependencies that you will need are:
 - [nunjucks](https://www.npmjs.com/package/nunjucks) - [templating engine](https://mozilla.github.io/nunjucks/) used by GOV.UK design system
 - [govuk-frontend](https://www.npmjs.com/package/govuk-frontend) - [code](https://github.com/alphagov/govuk-frontend) you need to build a user interface for government platforms and services
 
-Optional dependencies
+### Optional dependencies <!-- no-sidebar -->
 
 `npm install @hapi/inert --save`
 
@@ -67,11 +67,14 @@ await server.register({
 Full example:
 
 ```javascript
+import { join } from 'node:path'
 import hapi from '@hapi/hapi'
+import vision from '@hapi/vision'
 import yar from '@hapi/yar'
 import crumb from '@hapi/crumb'
 import inert from '@hapi/inert'
 import pino from 'hapi-pino'
+import nunjucks from 'nunjucks'
 import plugin from '@defra/forms-engine-plugin'
 
 const server = hapi.server({
@@ -92,6 +95,23 @@ await server.register({
 })
 
 const paths = [join(config.get('appDir'), 'views')]
+
+await server.register({
+  plugin: vision,
+  options: {
+    engines: {
+      html: {
+        compile(path, { environment }) {
+          return (context) => nunjucks.compile(path, environment).render(context)
+        }
+      }
+    },
+    path: paths,
+    compileOptions: {
+      environment: nunjucks.configure(paths)
+    }
+  }
+})
 
 // Register the `forms-engine-plugin`
 await server.register({
@@ -120,8 +140,8 @@ await server.register({
       const user = await userService.getUser(request.auth.credentials)
 
       return {
-        "greeting": "Hello" // available to render on a nunjucks page as {{ greeting }}
-        "username": user.username // available to render on a nunjucks page as {{ username }}
+        greeting: 'Hello', // available to render on a nunjucks page as {{ greeting }}
+        username: user.username // available to render on a nunjucks page as {{ username }}
       }
     }
   }
@@ -134,7 +154,7 @@ await server.start()
 
 1. Import forms-engine-plugin's styling
 
-If you are using the CDP templates, you just need to ensure your `src/client/stylesheets/application.scss` file contains:
+If you are on CDP, ensure your `src/client/stylesheets/application.scss` file contains:
 
 ```sass
 @use "pkg:@defra/forms-engine-plugin";
@@ -155,6 +175,12 @@ initAll()
 Example: https://github.com/DEFRA/forms-runner/blob/24c5623946cdfddca593bcba8a688f24bc0cb0e6/src/client/javascripts/application.js
 
 ## Step 5: Environment variables
+
+The following variable is always required:
+
+```shell
+SESSION_COOKIE_PASSWORD=your-secret-password-at-least-32-chars
+```
 
 Blocks marked with `# FEATURE: <name>` are optional and can be omitted if the feature is not used.
 
@@ -184,20 +210,20 @@ GOOGLE_ANALYTICS_TRACKING_ID='12345'
 
 ## Step 6: Creating and loading a form
 
-Forms in forms-engine-plugin are represented by a configuration object called a "form definition". The form definition can be stored in a location and format of your choosing by providing a `formsService` as a registration option. If you are using our 'loader' pattern as recommended in step 2, you will likely be writing YAML or JSON files in your repository as files.
+Forms in forms-engine-plugin are represented by a configuration object called a "form definition". The form definition can be stored in a location and format of your choosing by providing a `formsService` as a registration option. If you are using our 'loader' pattern as recommended in step 2, you will likely be writing YAML or JSON files in your repository.
 
 Our examples primarily use JSON. If you are using YAML, simply convert the data structure from JSON to YAML and the examples will still work.
 
 The configuration defines several top-level elements:
 
-- `pages` - includes a `path`, `title`
+- `pages` - the form journey, each representing a single web page with a path, title, and components
 - `components` - one or more questions on a page
-- `conditions` - used to conditionally show and hide pages and
-- `lists` - data used to in selection fields like [Select](https://design-system.service.gov.uk/components/select/), [Checkboxes](https://design-system.service.gov.uk/components/checkboxes/) and [Radios](https://design-system.service.gov.uk/components/radios/)
+- `conditions` - used to conditionally show and hide pages
+- `lists` - data used in selection fields like [Select](https://design-system.service.gov.uk/components/select/), [Checkboxes](https://design-system.service.gov.uk/components/checkboxes/) and [Radios](https://design-system.service.gov.uk/components/radios/)
 
 To understand the full set of options available to you, consult our [schema documentation](https://defra.github.io/forms-engine-plugin/schemas/). Specifically, the [form definition schema](https://defra.github.io/forms-engine-plugin/schemas/form-definition-v2-payload-schema).
 
-### Config
+### Config <!-- no-sidebar -->
 
 #### Pages
 

@@ -14,6 +14,8 @@ package
 .env
 tsconfig.tsbuildinfo
 docs/schemas
+docs/features/components
+docs/features/pages
 temp-schemas
 
 # Docusaurus
