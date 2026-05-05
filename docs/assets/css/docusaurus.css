@@ -22,6 +22,7 @@
   }
 }
 
+
 .govuk-template--rebranded .govuk-header__link--homepage:not(:focus),
 .govuk-template--rebranded .govuk-header,
 .govuk-template--rebranded .govuk-service-navigation.govuk-service-navigation--inverse,
@@ -35,6 +36,10 @@
 
 .govuk-template__body.app-homepage .govuk-template__body-inner {
   background-color: #f4f8fb;
+}
+
+.govuk-template__body.app-homepage #main-content {
+  background-color: #ffffff;
 }
 
 @media (min-width: 48.125em) {
