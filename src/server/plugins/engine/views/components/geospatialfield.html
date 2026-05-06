@@ -1,7 +1,7 @@
 {% from "govuk/components/textarea/macro.njk" import govukTextarea %}
 
 {% macro GeospatialField(component) %}
-  <div class="app-geospatial-field">
+  <div class="app-geospatial-field" data-country="{{component.model.country}}">
     {{ govukTextarea(component.model) }}
   </div>
 {% endmacro %}

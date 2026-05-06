@@ -7,8 +7,7 @@ import {
   getCentroidGridRef,
   getCoordinateGridRef,
   initMaps,
-  makeTileRequestTransformer,
-  transformGeocodeRequest
+  makeTileRequestTransformer
 } from '~/src/client/javascripts/map.js'
 
 describe('Maps Client JS', () => {
@@ -60,6 +59,9 @@ describe('Maps Client JS', () => {
   /** @type {jest.Mock} */
   let toggleButtonStateMock
 
+  /** @type {jest.Mock} */
+  let datasetsMaplibrePlugin
+
   beforeEach(() => {
     jest.resetAllMocks()
 
@@ -91,6 +93,7 @@ describe('Maps Client JS', () => {
       newPolygon: drawPluginNewPolygon,
       newLine: drawPluginNewLine
     }))
+    datasetsMaplibrePlugin = jest.fn()
 
     class MockInteractiveMap {
       on = onMock
@@ -111,7 +114,8 @@ describe('Maps Client JS', () => {
       searchPlugin: noop,
       zoomControlsPlugin: noop,
       scaleBarPlugin: noop,
-      drawMLPlugin
+      drawMLPlugin,
+      datasetsMaplibrePlugin
     }
   })
 
@@ -852,8 +856,30 @@ describe('Maps Client JS', () => {
       })
 
       test('initMaps with no initial value', () => {
-        initialiseGeospatialMaps(false)
+        // Reset the document body with an initial value for the country boundary
+        document.body.innerHTML = `
+          <form method="post" novalidate="">
+            <div class="app-geospatial-field" data-country="scotland">
+              <div class="govuk-form-group">
+                <h1 class="govuk-label-wrapper">
+                  <label class="govuk-label govuk-label--l" for="DzDkCy">
+                    Add site geospatial features
+                  </label>
+                </h1>
+                <textarea class="govuk-textarea" id="DzDkCy" name="DzDkCy" rows="5"></textarea>
+              </div>
+            </div>
+            <div class="govuk-button-group">
+              <button type="submit" data-prevent-double-click="true" class="govuk-button" data-module="govuk-button" data-govuk-button-init="">Continue</button>
+            </div>
+          </form>
+        `
 
+        initialiseGeospatialMaps()
+
+        expect(datasetsMaplibrePlugin).toHaveBeenCalledWith({
+          datasets: Array(2).fill(expect.any(Object))
+        })
         expect(interactPlugin).toHaveBeenCalledWith(expect.any(Object))
         expect(addPanelMock).toHaveBeenCalledWith('info', expect.any(Object))
         expect(addButtonMock).toHaveBeenCalledTimes(3)
@@ -1301,6 +1327,15 @@ describe('Maps Client JS', () => {
         expect(html).not.toContain('govuk-link--disabled')
         expect(html).not.toContain('data-action="focus"')
       })
+
+      test('initMaps with no country boundaries', () => {
+        initialiseGeospatialMaps(false)
+
+        expect(interactPlugin).toHaveBeenCalledWith(expect.any(Object))
+        expect(addPanelMock).toHaveBeenCalledWith('info', expect.any(Object))
+        expect(addButtonMock).toHaveBeenCalledTimes(3)
+        expect(interactPluginEnable).not.toHaveBeenCalled()
+      })
     })
   })
 
@@ -1569,19 +1604,6 @@ describe('Maps Client JS', () => {
       })
 
       expect(result).toBe('TQ 29472 80890')
-    })
-  })
-
-  describe('Geocode request transformer - temporarily needed until v0.0.18', () => {
-    test('it should return centroid gridref for a point feature', () => {
-      const result = transformGeocodeRequest({
-        url: '/a/b/c',
-        options: {
-          method: 'get'
-        }
-      })
-
-      expect(result instanceof Request).toBe(true)
     })
   })
 })

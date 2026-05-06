@@ -39,8 +39,8 @@ const lineFeatureProperties = {
 }
 
 const polygonFeatureProperties = {
-  stroke: 'rgba(0,112,60,1)',
-  fill: 'rgba(0,112,60,0.2)',
+  stroke: 'rgb(0, 0, 0)',
+  fill: 'rgba(255, 221, 0, 0.2)',
   strokeWidth: 2
 }
 
@@ -111,11 +111,47 @@ export function processGeospatial(config, geospatial, index) {
   const geojson = getGeoJSON(geospatialInput)
   const bounds = geojson.features.length ? getBoundingBox(geojson) : undefined
   const drawPlugin = defra.drawMLPlugin()
+  const plugins = [drawPlugin]
+  const country = geospatial.dataset.country
+
+  if (country) {
+    // Add the country bounds as a dataset plugin to show the valid area on the map
+    // and provide feedback to the user when they add features outside of the bounds.
+    const datasetsPlugin = defra.datasetsMaplibrePlugin({
+      datasets: [
+        {
+          id: 'invalid-area',
+          label: 'Invalid areas',
+          geojson: `${config.apiPath}/maps/countries.geojson?omit=${country}`,
+          showInKey: false,
+          showInMenu: false,
+          style: {
+            stroke: 'gray',
+            strokeWidth: 1,
+            fill: 'rgba(211,211,211,0.8)'
+          }
+        },
+        {
+          id: 'valid-area',
+          label: 'Valid areas',
+          geojson: `${config.apiPath}/maps/countries.geojson?only=${country}`,
+          showInKey: false,
+          showInMenu: false,
+          style: {
+            stroke: 'rgba(0,112,60,1)',
+            strokeWidth: 1
+          }
+        }
+      ]
+    })
+
+    plugins.push(datasetsPlugin)
+  }
 
   const initConfig = {
     ...defaultConfig,
     bounds,
-    plugins: [drawPlugin]
+    plugins
   }
 
   const { map, interactPlugin } = createMap(mapId, initConfig, config)

@@ -241,18 +241,6 @@ export function makeTileRequestTransformer(apiPath) {
 }
 
 /**
- * Temporary transform request function to transform geocode requests. Fixed in v0.0.18 of interactive map so this is not needed when we upgrade.
- * @param {object} request
- * @param {string} request.url
- * @param {{ method: 'get' }} request.options
- * @returns {Request}
- */
-export const transformGeocodeRequest = (request) => {
-  const url = new URL(request.url, window.location.origin)
-  return new Request(url.toString(), request.options)
-}
-
-/**
  * Create a Defra map instance
  * @param {string} mapId - the map id
  * @param {InteractiveMapInitConfig} initConfig - the map initial configuration
@@ -267,7 +255,7 @@ export function createMap(mapId, initConfig, mapsConfig) {
 
   const interactPlugin = defra.interactPlugin({
     markerColor: { outdoor: '#ff0000', dark: '#00ff00' },
-    interactionMode: 'marker',
+    interactionModes: ['placeMarker'],
     multiSelect: false
   })
 
@@ -332,7 +320,6 @@ export function createMap(mapId, initConfig, mapsConfig) {
       }),
       interactPlugin,
       defra.searchPlugin({
-        transformRequest: transformGeocodeRequest,
         osNamesURL: `${apiPath}/geocode-proxy?query={query}`,
         width: '300px',
         showMarker: false

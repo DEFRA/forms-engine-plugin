@@ -1,5 +1,7 @@
+import fs from 'node:fs'
 import { resolve } from 'node:path'
 
+import { GeospatialFieldOptionsCountryEnum } from '@defra/forms-model'
 import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
@@ -9,6 +11,18 @@ import {
   get,
   request as httpRequest
 } from '~/src/server/services/httpService.js'
+
+const filePath = resolve(import.meta.dirname, './vts/countries.geojson')
+
+/**
+ * @type {FeatureCollection}
+ */
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+export const countries = JSON.parse(fs.readFileSync(filePath, 'utf8'))
+
+export const countrySchema = Joi.string().valid(
+  ...Object.values(GeospatialFieldOptionsCountryEnum)
+)
 
 /**
  * Gets the map support routes
@@ -20,7 +34,8 @@ export function getRoutes(options) {
     mapProxyRoute(options),
     tileProxyRoute(options),
     geocodeProxyRoute(options),
-    reverseGeocodeProxyRoute(options)
+    reverseGeocodeProxyRoute(options),
+    getGeospatialCountries()
   ]
 }
 
@@ -189,6 +204,47 @@ function mapStyleResourceRoutes() {
 }
 
 /**
+ * Resource routes to return sprites and glyphs
+ * @returns {ServerRoute<GeospatialCountriesGetRequestRefs>}
+ */
+function getGeospatialCountries() {
+  return {
+    method: 'GET',
+    path: '/api/maps/countries.geojson',
+    handler: (request) => {
+      const { omit, only } = request.query
+
+      if (omit) {
+        return {
+          ...countries,
+          features: countries.features.filter((feature) => feature.id !== omit)
+        }
+      }
+
+      if (only) {
+        return {
+          ...countries,
+          features: countries.features.filter((feature) => feature.id === only)
+        }
+      }
+
+      return countries
+    },
+    options: {
+      validate: {
+        query: Joi.object()
+          .keys({
+            omit: countrySchema.optional(),
+            only: countrySchema.optional()
+          })
+          .optional()
+      }
+    }
+  }
+}
+
+/**
  * @import { ServerRoute } from '@hapi/hapi'
- * @import { MapConfiguration, MapProxyGetRequestRefs, MapGeocodeGetRequestRefs, MapReverseGeocodeGetRequestRefs } from '~/src/server/plugins/map/types.js'
+ * @import { FeatureCollection } from 'geojson'
+ * @import { MapConfiguration, MapProxyGetRequestRefs, MapGeocodeGetRequestRefs, MapReverseGeocodeGetRequestRefs, GeospatialCountriesGetRequestRefs } from '~/src/server/plugins/map/types.js'
  */
