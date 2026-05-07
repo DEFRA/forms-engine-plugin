@@ -23,6 +23,18 @@ const COMPONENT_LIST_TEMPLATE = `{% from "partials/components.html" import compo
 export function renderComponent(fixture) {
   const component = createComponent(fixture.def, { model: fixture.model })
   const viewModel = component.getViewModel(fixture.payload, [])
+
+  // QuestionPageController applies large label/legend styling and isPageHeading
+  // when there is a single component on a page. Replicate that here so previews
+  // match what users see in a real form.
+  const labelOrLegend = viewModel.fieldset?.legend ?? viewModel.label
+  if (labelOrLegend) {
+    labelOrLegend.classes = viewModel.fieldset?.legend
+      ? 'govuk-fieldset__legend--l'
+      : 'govuk-label--l'
+    labelOrLegend.isPageHeading = true
+  }
+
   return environment.renderString(COMPONENT_LIST_TEMPLATE, {
     components: [{ type: fixture.def.type, model: viewModel }]
   })
