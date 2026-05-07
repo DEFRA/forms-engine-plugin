@@ -58,17 +58,11 @@
 .component-preview {
   border: 1px solid #b1b4b6;
   border-radius: 4px;
-  padding: 24px 28px;
+  // GOV.UK components have margin-bottom: 20px. padding-bottom: 4px means
+  // 4 + 20 = 24px of visual space at the bottom, matching the top padding.
+  padding: 24px 28px 4px;
   margin-bottom: 16px;
   background: #fff;
-
-  // GOV.UK components add their own bottom margin; cancel it on the last child
-  // so it doesn't double up with the wrapper's padding.
-  > div > *:last-child,
-  > div > .govuk-form-group:last-child,
-  > div > .app-payment-field:last-child {
-    margin-bottom: 0;
-  }
 }
 
 .app-map-placeholder {
