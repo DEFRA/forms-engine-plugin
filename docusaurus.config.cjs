@@ -41,7 +41,10 @@ const config = {
       return {
         name: 'custom-css',
         getClientModules() {
-          return [require.resolve('./docs/assets/css/docusaurus.scss')]
+          return [
+            require.resolve('./docs/assets/css/docusaurus.scss'),
+            require.resolve('./docs/assets/js/preview-enhancements.js')
+          ]
         }
       }
     },
