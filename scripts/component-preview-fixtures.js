@@ -330,10 +330,16 @@ export const fixtures = {
         payload: {
           payment: {
             paymentId: 'pi_example123',
+            reference: 'REF-001',
             amount: 2300,
             description: 'Application fee',
-            preAuth: { status: 'success' },
-            state: { status: 'success', finished: true }
+            uuid: '00000000-0000-0000-0000-000000000001',
+            formId: 'example-form',
+            isLivePayment: false,
+            preAuth: {
+              status: 'success',
+              createdAt: '2025-01-01T00:00:00.000Z'
+            }
           }
         }
       }
