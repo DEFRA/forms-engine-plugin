@@ -642,6 +642,10 @@ describe('Postcode lookup form pages', () => {
 
     expect(response.statusCode).toBe(StatusCodes.OK)
   })
+
+  afterAll(async () => {
+    await server.stop()
+  })
 })
 
 /**

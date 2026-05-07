@@ -15,7 +15,7 @@ describe('Postcode lookup plugin', () => {
     jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
   })
 
-  afterAll(async () => {
+  afterEach(async () => {
     await server.stop()
   })
 
