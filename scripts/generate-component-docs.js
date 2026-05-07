@@ -946,7 +946,7 @@ function generateComponentsIndex(componentNames, categories) {
     lines.push(`## ${group.label}`, ``)
     for (const item of group.items) {
       lines.push(
-        `- [**${item.label}**](./${item.slug}.md) — ${item.description}`
+        `- [**${item.label}**](./${item.slug}.mdx) — ${item.description}`
       )
     }
     lines.push(``)
@@ -1071,10 +1071,15 @@ function main() {
     }
 
     const slug = toKebabCase(name)
-    const content = generateComponentMd(name, interfaceData, i + 1, slug)
+    const fixture = fixtures[name]
+    const content = generateComponentMd(
+      name,
+      interfaceData,
+      i + 1,
+      fixture ? slug : null
+    )
     fs.writeFileSync(path.join(componentsOutputDir, `${slug}.mdx`), content)
 
-    const fixture = fixtures[name]
     if (fixture) {
       writePreviewPartial(previewsOutputDir, slug, fixture)
     } else {
