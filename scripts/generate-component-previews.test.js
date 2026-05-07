@@ -6,6 +6,7 @@ import { jest } from '@jest/globals'
 // resolved relative to this test file (both in scripts/).
 jest.mock('../.server/server/plugins/nunjucks/environment.js', () => ({
   environment: {
+    addFilter: jest.fn(),
     renderString: jest
       .fn()
       .mockReturnValue('<div class="govuk-form-group"></div>')
