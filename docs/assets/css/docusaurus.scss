@@ -1,3 +1,5 @@
+@import "govuk-frontend/dist/govuk/govuk-frontend.min.css";
+
 .app-section {
   padding: 40px 0;
   background-color: #ffffff;
@@ -50,6 +52,23 @@
 
 .govuk-template__body.app-homepage main {
   background-color: #ffffff;
+}
+
+.component-preview {
+  border: 1px solid #b1b4b6;
+  border-radius: 4px;
+  padding: 24px 28px;
+  margin-bottom: 16px;
+  background: #fff;
+}
+
+.component-preview__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #505a5f;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 16px;
 }
 
 @media (min-width: 48.125em) {
