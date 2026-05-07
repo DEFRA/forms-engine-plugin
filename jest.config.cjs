@@ -5,6 +5,8 @@ const { CI } = process.env
  * @type {import('@jest/types').Config.InitialOptions}
  */
 module.exports = {
+  maxWorkers: '50%',
+  workerIdleMemoryLimit: '512MB',
   resetMocks: true,
   resetModules: true,
   restoreMocks: true,

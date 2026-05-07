@@ -180,6 +180,10 @@ describe('Payment routes', () => {
       )
     })
   })
+
+  afterAll(async () => {
+    await server.stop()
+  })
 })
 
 /**

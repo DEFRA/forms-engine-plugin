@@ -213,6 +213,10 @@ describe('Map API routes', () => {
     expect(response.result).toBeDefined()
     expect(response.result?.features).toHaveLength(3)
   })
+
+  afterAll(async () => {
+    await server.stop()
+  })
 })
 
 /**
