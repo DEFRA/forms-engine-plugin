@@ -59,17 +59,25 @@ export function buildPartialMdx(renders) {
  * @param {string} slug - e.g. 'text-field'
  * @param {object} fixture - from component-preview-fixtures.js
  */
+const MAP_PLACEHOLDER =
+  `<div class="app-map-placeholder">` +
+  `<p class="govuk-body govuk-!-margin-bottom-0">` +
+  `Map appears here with JavaScript enabled` +
+  `</p></div>`
+
 export function writePreviewPartial(previewsDir, slug, fixture) {
   fs.mkdirSync(previewsDir, { recursive: true })
+
+  const appendHtml = fixture.mapPlaceholder ? `\n${MAP_PLACEHOLDER}` : ''
 
   let renders
   if (fixture.variants) {
     renders = fixture.variants.map((variant) => ({
       label: variant.label,
-      html: renderComponent(variant)
+      html: renderComponent(variant) + appendHtml
     }))
   } else {
-    renders = [{ html: renderComponent(fixture) }]
+    renders = [{ html: renderComponent(fixture) + appendHtml }]
   }
 
   const content = buildPartialMdx(renders)
