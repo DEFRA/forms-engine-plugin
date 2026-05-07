@@ -92,9 +92,9 @@ describe('Title and section title', () => {
     }
   })
 
-  // afterAll(async () => {
-  //   await server.stop()
-  // })
+  afterAll(async () => {
+    await server.stop()
+  })
 
   // This test is currently skipped because schema validation is failing.
   // This is likely due to inconsistencies between the form schemas in forms-runner
