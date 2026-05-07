@@ -26,6 +26,10 @@ jest.mock('./generate-component-previews.js', () => ({
   writePreviewPartial: jest.fn()
 }))
 
+jest.mock('./component-preview-fixtures.js', () => ({
+  fixtures: {}
+}))
+
 // jest.mock factories are hoisted before variable declarations, so the
 // component-metadata.json payload must be inlined rather than referenced.
 jest.mock('fs', () => ({

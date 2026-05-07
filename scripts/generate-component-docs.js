@@ -934,7 +934,9 @@ function generateComponentsIndex(componentNames, categories) {
 
   lines.push(`## ${groups.input.label}`, ``)
   for (const item of groups.input.items) {
-    lines.push(`- [**${item.label}**](./${item.slug}.md) — ${item.description}`)
+    lines.push(
+      `- [**${item.label}**](./${item.slug}.mdx) — ${item.description}`
+    )
   }
   lines.push(``)
 
@@ -1022,6 +1024,7 @@ function main() {
     fs.rmSync(componentsOutputDir, { recursive: true, force: true })
   }
   fs.mkdirSync(componentsOutputDir, { recursive: true })
+  fs.mkdirSync(previewsOutputDir, { recursive: true })
 
   if (fs.existsSync(pagesOutputDir)) {
     fs.rmSync(pagesOutputDir, { recursive: true, force: true })
