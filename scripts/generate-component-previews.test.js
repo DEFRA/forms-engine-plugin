@@ -30,7 +30,8 @@ describe('component-preview-fixtures', () => {
       'RadiosField',
       'CheckboxesField',
       'SelectField',
-      'AutocompleteField'
+      'AutocompleteField',
+      'YesNoField'
     ]
     for (const type of listTypes) {
       expect(fixtures[type]).toBeDefined()
