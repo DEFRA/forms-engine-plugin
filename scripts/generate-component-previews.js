@@ -46,9 +46,9 @@ export function buildPartialMdx(renders) {
             .replace(/\}/g, '&#125;')
         : ''
       const labelLine = safeLabel
-        ? `  <h3 className="component-preview__label">${safeLabel}</h3>\n`
+        ? `<h3 className="component-preview__label">${safeLabel}</h3>\n`
         : ''
-      return `<div className="component-preview">\n${labelLine}  <div dangerouslySetInnerHTML={{ __html: \`${escaped}\` }} />\n</div>`
+      return `${labelLine}<div className="component-preview">\n  <div dangerouslySetInnerHTML={{ __html: \`${escaped}\` }} />\n</div>`
     })
     .join('\n\n')
 }
