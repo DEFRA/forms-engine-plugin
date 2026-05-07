@@ -15,16 +15,15 @@ Add a rendered visual preview of each component to its Docusaurus documentation 
 
 ## Architecture
 
-Two scripts run in sequence as part of the docs build:
+One script runs as part of the docs build:
 
 ```
-npm run generate:docs      # existing — TypeScript AST analysis → .mdx files
-npm run generate:previews  # new — runtime rendering → _previews/*.mdx partials
+npm run generate:docs   # orchestrates both docs and preview generation
 ```
 
-The existing `generate-component-docs.js` changes only in one way: it outputs `.mdx` instead of `.md` to enable MDX `import` syntax in the generated files. It does not add any preview-related content.
+`generate-component-docs.js` is the orchestrator. It imports and calls exported functions from `generate-component-previews.js` as part of its existing loop over component types — producing the docs content, the preview partial, and the import/`<Preview />` section in a single pass. No post-hoc file amendment.
 
-The new `generate-component-previews.js` script handles everything else: rendering the HTML, writing the `_previews/*.mdx` partials, and amending the generated component `.mdx` files to insert the import statement and `<Preview />` section.
+`generate-component-previews.js` is a pure module: it exports functions and has no top-level side effects. It can also be run standalone if needed.
 
 ## Preview Generation Pipeline
 
@@ -181,13 +180,11 @@ GOV.UK Frontend uses `.govuk-` prefixed classes throughout, so clash risk with D
 ### npm scripts
 
 ```json
-"generate:docs":     "node scripts/generate-component-docs.js",
-"generate:previews": "node scripts/generate-component-previews.js",
-"generate":          "npm run generate:docs && npm run generate:previews",
-"docs":              "npm run generate && docusaurus build"
+"generate:docs": "node scripts/generate-component-docs.js",
+"docs":          "npm run generate:docs && docusaurus build"
 ```
 
-Previews run after docs so the `.mdx` component files already exist and can be amended with the import and `<Preview />` placement.
+Preview generation is orchestrated from within `generate-component-docs.js`, so no separate script entry is needed.
 
 ## New files
 
@@ -198,10 +195,10 @@ Previews run after docs so the `.mdx` component files already exist and can be a
 
 ## Modified files
 
-| File                                 | Change                                                                 |
-| ------------------------------------ | ---------------------------------------------------------------------- |
-| `scripts/generate-component-docs.js` | Output `.mdx` instead of `.md`; prepend import + `<Preview />` section |
-| `docusaurus.config.cjs`              | Add GOV.UK Frontend CSS import                                         |
+| File                                 | Change                                                                                                                                |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `scripts/generate-component-docs.js` | Output `.mdx` instead of `.md`; import and call preview functions per component; write `<Preview />` section into each generated page |
+| `docusaurus.config.cjs`              | Add GOV.UK Frontend CSS import                                                                                                        |
 
 ## Out of scope
 
