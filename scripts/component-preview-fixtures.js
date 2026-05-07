@@ -259,7 +259,8 @@ export const fixtures = {
       schema: {}
     },
     model: null,
-    payload: {}
+    payload: {},
+    mapPlaceholder: true
   },
   EastingNorthingField: {
     def: {
@@ -270,7 +271,8 @@ export const fixtures = {
       schema: {}
     },
     model: null,
-    payload: {}
+    payload: {},
+    mapPlaceholder: true
   },
   OsGridRefField: {
     def: {
@@ -281,7 +283,8 @@ export const fixtures = {
       schema: {}
     },
     model: null,
-    payload: {}
+    payload: {},
+    mapPlaceholder: true
   },
   NationalGridFieldNumberField: {
     def: {
@@ -292,7 +295,8 @@ export const fixtures = {
       schema: {}
     },
     model: null,
-    payload: {}
+    payload: {},
+    mapPlaceholder: true
   },
   GeospatialField: {
     def: {
@@ -303,7 +307,8 @@ export const fixtures = {
       schema: {}
     },
     model: null,
-    payload: {}
+    payload: {},
+    mapPlaceholder: true
   },
   PaymentField: {
     variants: [
