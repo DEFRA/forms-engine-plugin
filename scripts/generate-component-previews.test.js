@@ -1,38 +1,33 @@
 // @ts-nocheck
 
-import { jest } from '@jest/globals'
-
-// These paths match the static imports in generate-component-previews.js,
-// resolved relative to this test file (both in scripts/).
-jest.mock('../.server/server/plugins/nunjucks/environment.js', () => ({
-  environment: {
-    addFilter: jest.fn(),
-    renderString: jest
-      .fn()
-      .mockReturnValue('<div class="govuk-form-group"></div>')
-  }
-}))
-
-jest.mock(
-  '../.server/server/plugins/engine/components/helpers/components.js',
-  () => ({
-    createComponent: jest.fn().mockReturnValue({
-      getViewModel: jest.fn().mockReturnValue({
-        type: 'TextField',
-        isFormComponent: true,
-        model: { label: { text: 'Question' }, name: 'field', id: 'field' }
-      })
-    })
-  })
-)
-
+// jest.mock() is hoisted by Babel before imports — these run first.
+// resetMocks: true in jest.config.cjs resets implementations between tests,
+// so rendering tests re-establish return values in beforeEach.
 jest.mock('fs', () => ({
   mkdirSync: jest.fn(),
   writeFileSync: jest.fn()
 }))
 
+jest.mock('../.server/server/plugins/nunjucks/environment.js', () => ({
+  environment: { addFilter: jest.fn(), renderString: jest.fn() }
+}))
+
+jest.mock(
+  '../.server/server/plugins/engine/components/helpers/components.js',
+  () => ({ createComponent: jest.fn() })
+)
+
+import { mkdirSync, writeFileSync } from 'fs'
+
+import { createComponent } from '../.server/server/plugins/engine/components/helpers/components.js'
+import { environment } from '../.server/server/plugins/nunjucks/environment.js'
+
 import { fixtures } from './component-preview-fixtures.js'
-import { buildPartialMdx } from './generate-component-previews.js'
+import {
+  buildPartialMdx,
+  renderComponent,
+  writePreviewPartial
+} from './generate-component-previews.js'
 
 describe('component-preview-fixtures', () => {
   it('variant fixtures have a def with type and name, and a label', () => {
@@ -99,5 +94,80 @@ describe('buildPartialMdx', () => {
     ])
     expect(result).toContain('\\`backtick\\`')
     expect(result).toContain('\\' + dollarBrace + 'expr}')
+  })
+})
+
+describe('renderComponent', () => {
+  let mockGetViewModel
+
+  beforeEach(() => {
+    mockGetViewModel = jest.fn().mockReturnValue({
+      type: 'TextField',
+      isFormComponent: true,
+      model: { label: { text: 'Question' }, name: 'field', id: 'field' }
+    })
+    createComponent.mockReturnValue({ getViewModel: mockGetViewModel })
+    environment.renderString.mockReturnValue(
+      '<div class="govuk-form-group"></div>'
+    )
+  })
+
+  it('calls createComponent with def and model from fixture', () => {
+    renderComponent(fixtures.TextField)
+    expect(createComponent).toHaveBeenCalledWith(fixtures.TextField.def, {
+      model: fixtures.TextField.model
+    })
+  })
+
+  it('calls getViewModel with payload and empty errors array', () => {
+    renderComponent(fixtures.TextField)
+    expect(mockGetViewModel).toHaveBeenCalledWith(
+      fixtures.TextField.payload,
+      []
+    )
+  })
+
+  it('passes viewModel wrapped as { type, model } to renderString', () => {
+    renderComponent(fixtures.TextField)
+    expect(environment.renderString).toHaveBeenCalledWith(
+      expect.stringContaining('componentList'),
+      expect.objectContaining({
+        components: expect.arrayContaining([
+          expect.objectContaining({ type: 'TextField' })
+        ])
+      })
+    )
+  })
+})
+
+describe('writePreviewPartial', () => {
+  beforeEach(() => {
+    const mockGetViewModel = jest
+      .fn()
+      .mockReturnValue({ type: 'TextField', model: {} })
+    createComponent.mockReturnValue({ getViewModel: mockGetViewModel })
+    environment.renderString.mockReturnValue('<div class="govuk-input"></div>')
+  })
+
+  it('writes the partial file to the correct path', () => {
+    writePreviewPartial('/out/_previews', 'text-field', fixtures.TextField)
+    expect(mkdirSync).toHaveBeenCalledWith('/out/_previews', {
+      recursive: true
+    })
+    expect(writeFileSync).toHaveBeenCalledWith(
+      '/out/_previews/text-field.mdx',
+      expect.stringContaining('component-preview')
+    )
+  })
+
+  it('renders once per variant for multi-variant fixtures', () => {
+    writePreviewPartial(
+      '/out/_previews',
+      'payment-field',
+      fixtures.PaymentField
+    )
+    const written = writeFileSync.mock.calls[0][1]
+    const matches = written.match(/className="component-preview"/g)
+    expect(matches).toHaveLength(2)
   })
 })
