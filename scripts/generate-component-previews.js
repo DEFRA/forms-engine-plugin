@@ -1,10 +1,17 @@
 import fs from 'fs'
 import path from 'path'
 
+import { markdownToHtml } from '@defra/forms-model'
+
 // Static imports so Jest can mock them (dynamic computed-path imports cannot be mocked).
 // Requires `npm run build` to have produced `.server/` before running this script.
 import { createComponent } from '../.server/server/plugins/engine/components/helpers/components.js'
 import { environment } from '../.server/server/plugins/nunjucks/environment.js'
+
+// Register the markdown filter that the engine plugin normally adds at server init.
+environment.addFilter('markdown', (text, startingHeaderLevel) =>
+  markdownToHtml(text, { startingHeaderLevel })
+)
 
 const COMPONENT_LIST_TEMPLATE = `{% from "partials/components.html" import componentList %}{{ componentList(components) }}`
 
@@ -17,7 +24,7 @@ export function renderComponent(fixture) {
   const component = createComponent(fixture.def, { model: fixture.model })
   const viewModel = component.getViewModel(fixture.payload, [])
   return environment.renderString(COMPONENT_LIST_TEMPLATE, {
-    components: [viewModel]
+    components: [{ type: fixture.def.type, model: viewModel }]
   })
 }
 

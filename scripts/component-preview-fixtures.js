@@ -233,10 +233,10 @@ export const fixtures = {
       type: 'List',
       name: 'steps',
       title: 'What you need to do',
-      content: '- Step one\n- Step two\n- Step three',
+      list: 'options',
       options: {}
     },
-    model: null,
+    model: sampleList,
     payload: {}
   },
   HiddenField: {
