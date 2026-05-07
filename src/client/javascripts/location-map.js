@@ -464,7 +464,7 @@ export function processLocation(config, location, index) {
           dismissible: true,
           modal: false
         },
-        html: 'If using a map click on a point to update the location.<br><br>If using a keyboard, navigate to the point, centering the crosshair at the location and press enter.'
+        html: '<ul><li>Search for a place or postcode</li><li>Use the + and - icons to zoom in and out</li><li>Use a mouse or keyboard to centre the point at the location</li><li>Click to add the location to the map</li></ul>'
       })
 
       // Enable the interact plugin
