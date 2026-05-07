@@ -1119,4 +1119,7 @@ function main() {
 // Only run when executed directly, not when imported as a module
 if (import.meta.url === `file://${process.argv[1]}`) {
   main()
+  // The nunjucks environment starts a file watcher in development mode.
+  // Force exit so the generation script doesn't hang as a background watcher.
+  process.exit(0)
 }
