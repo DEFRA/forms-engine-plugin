@@ -21,7 +21,7 @@ export const fixtures = {
       type: 'TextField',
       name: 'full-name',
       title: 'What is your full name?',
-      hint: { text: 'As shown on your passport' },
+      hint: 'As shown on your passport',
       options: {},
       schema: {}
     },
@@ -44,7 +44,7 @@ export const fixtures = {
       type: 'MultilineTextField',
       name: 'description',
       title: 'Describe your issue',
-      hint: { text: 'Include as much detail as you can' },
+      hint: 'Include as much detail as you can',
       options: { rows: 5 },
       schema: {}
     },
@@ -78,7 +78,7 @@ export const fixtures = {
       type: 'MonthYearField',
       name: 'start-date',
       title: 'When did this start?',
-      hint: { text: 'For example, 3 2025' },
+      hint: 'For example, 3 2025',
       options: {},
       schema: {}
     },
@@ -90,7 +90,7 @@ export const fixtures = {
       type: 'DatePartsField',
       name: 'dob',
       title: 'What is your date of birth?',
-      hint: { text: 'For example, 27 3 2007' },
+      hint: 'For example, 27 3 2007',
       options: {},
       schema: {}
     },

@@ -60,15 +60,24 @@
   padding: 24px 28px;
   margin-bottom: 16px;
   background: #fff;
+
+  // GOV.UK components add their own bottom margin; cancel it on the last child
+  // so it doesn't double up with the wrapper's padding.
+  > div > *:last-child,
+  > div > .govuk-form-group:last-child,
+  > div > .app-payment-field:last-child {
+    margin-bottom: 0;
+  }
 }
 
-.component-preview__label {
-  font-size: 12px;
+h3.component-preview__label {
+  font-size: 1rem;
   font-weight: 600;
   color: #505a5f;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
   margin-bottom: 16px;
+  margin-top: 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #ededf0;
 }
 
 @media (min-width: 48.125em) {
