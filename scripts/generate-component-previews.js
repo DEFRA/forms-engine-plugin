@@ -24,15 +24,15 @@ export function renderComponent(fixture) {
   const component = createComponent(fixture.def, { model: fixture.model })
   const viewModel = component.getViewModel(fixture.payload, [])
 
-  // QuestionPageController applies large label/legend styling and isPageHeading
-  // when there is a single component on a page. Replicate that here so previews
-  // match what users see in a real form.
+  // Apply large label/legend sizing to match how QuestionPageController styles
+  // a single-component page. isPageHeading is intentionally omitted — setting it
+  // causes GOV.UK Frontend to render an <h1>, which breaks heading hierarchy
+  // inside the docs page where the preview sits under a <h2>.
   const labelOrLegend = viewModel.fieldset?.legend ?? viewModel.label
   if (labelOrLegend) {
     labelOrLegend.classes = viewModel.fieldset?.legend
       ? 'govuk-fieldset__legend--l'
       : 'govuk-label--l'
-    labelOrLegend.isPageHeading = true
   }
 
   return environment.renderString(COMPONENT_LIST_TEMPLATE, {
