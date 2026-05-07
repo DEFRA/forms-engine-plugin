@@ -98,15 +98,32 @@ export const fixtures = {
     payload: {}
   },
   UkAddressField: {
-    def: {
-      type: 'UkAddressField',
-      name: 'address',
-      title: 'What is your address?',
-      options: {},
-      schema: {}
-    },
-    model: null,
-    payload: {}
+    variants: [
+      {
+        label: 'With postcode lookup',
+        def: {
+          type: 'UkAddressField',
+          name: 'address',
+          title: 'What is your address?',
+          options: { usePostcodeLookup: true },
+          schema: {}
+        },
+        model: { ordnanceSurveyApiKey: 'preview' },
+        payload: {}
+      },
+      {
+        label: 'Without postcode lookup',
+        def: {
+          type: 'UkAddressField',
+          name: 'address',
+          title: 'What is your address?',
+          options: {},
+          schema: {}
+        },
+        model: null,
+        payload: {}
+      }
+    ]
   },
   YesNoField: {
     def: {
