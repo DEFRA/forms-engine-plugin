@@ -4,6 +4,9 @@ import { fileURLToPath } from 'url'
 
 import ts from 'typescript'
 
+import { fixtures } from './component-preview-fixtures.js'
+import { writePreviewPartial } from './generate-component-previews.js'
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const formsModelTypesDir = path.resolve(
@@ -666,20 +669,31 @@ export function generateExample(componentName, interfaceData) {
  * @param {string} componentName
  * @param {ComponentData} interfaceData
  * @param {number} sidebarPosition
+ * @param {string|null} [slug]
  * @returns {string}
  */
-function generateComponentMd(componentName, interfaceData, sidebarPosition) {
+export function generateComponentMd(
+  componentName,
+  interfaceData,
+  sidebarPosition,
+  slug = null
+) {
   const description = metadata.components[componentName] ?? ''
   const label = toLabel(componentName)
   const { options = [], schema = [], props = [] } = interfaceData
 
   const links = metadata.componentLinks?.[componentName] ?? []
 
+  const previewImport = slug
+    ? [``, `import Preview from './_previews/${slug}.mdx'`]
+    : []
+
   const lines = [
     `---`,
     `sidebar_label: "${label}"`,
     `sidebar_position: ${sidebarPosition}`,
     `---`,
+    ...previewImport,
     ``,
     `# ${label}`,
     ``,
@@ -689,6 +703,10 @@ function generateComponentMd(componentName, interfaceData, sidebarPosition) {
 
   for (const text of links) {
     lines.push(text, ``)
+  }
+
+  if (slug) {
+    lines.push(`## Preview`, ``, `<Preview />`, ``)
   }
 
   lines.push(
@@ -997,6 +1015,8 @@ function main() {
     process.exit(1)
   }
 
+  const previewsOutputDir = path.resolve(componentsOutputDir, '_previews')
+
   // Set up output directories
   if (fs.existsSync(componentsOutputDir)) {
     fs.rmSync(componentsOutputDir, { recursive: true, force: true })
@@ -1048,13 +1068,20 @@ function main() {
     }
 
     const slug = toKebabCase(name)
-    const content = generateComponentMd(name, interfaceData, i + 1)
-    fs.writeFileSync(path.join(componentsOutputDir, `${slug}.md`), content)
+    const content = generateComponentMd(name, interfaceData, i + 1, slug)
+    fs.writeFileSync(path.join(componentsOutputDir, `${slug}.mdx`), content)
+
+    const fixture = fixtures[name]
+    if (fixture) {
+      writePreviewPartial(previewsOutputDir, slug, fixture)
+    } else {
+      console.warn(`Warning: no preview fixture for ${name}`)
+    }
   }
 
   // Generate components index
   fs.writeFileSync(
-    path.join(componentsOutputDir, 'index.md'),
+    path.join(componentsOutputDir, 'index.mdx'),
     generateComponentsIndex(componentOrder, categories)
   )
 
