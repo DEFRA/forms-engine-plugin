@@ -1,23 +1,9 @@
 // Docusaurus client module — runs on every page navigation.
-// Enhances accessible autocomplete selects rendered in component previews.
+// Re-uses the application's own autocomplete initialisation rather than duplicating it.
 
-export async function onRouteDidUpdate() {
-  const elements = document.querySelectorAll(
-    '[data-module="govuk-accessible-autocomplete"]:not([data-enhanced="true"])'
-  )
-  if (!elements.length) return
+// eslint-disable-next-line no-restricted-imports
+import { initAllAutocomplete } from '../../src/client/javascripts/autocomplete.js'
 
-  const { default: accessibleAutocomplete } =
-    await import('accessible-autocomplete')
-
-  for (const container of elements) {
-    const select = container.querySelector('select')
-    if (select) {
-      accessibleAutocomplete.enhanceSelectElement({
-        selectElement: select,
-        showAllValues: true
-      })
-      container.setAttribute('data-enhanced', 'true')
-    }
-  }
+export function onRouteDidUpdate() {
+  initAllAutocomplete()
 }
