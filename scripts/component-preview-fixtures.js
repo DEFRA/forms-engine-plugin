@@ -3,6 +3,12 @@
 // List-based components include a model stub with getList() so the constructor can resolve items.
 // PaymentField uses variants to show unpaid and paid states.
 
+import { getYesNoList, yesNoListId } from '@defra/forms-model'
+
+const yesNoModel = {
+  getList: (id) => (id === yesNoListId ? getYesNoList() : undefined)
+}
+
 const sampleList = {
   getList: () => ({
     name: 'options',
@@ -132,7 +138,7 @@ export const fixtures = {
       title: 'Do you agree?',
       options: {}
     },
-    model: sampleList,
+    model: yesNoModel,
     payload: {}
   },
   RadiosField: {
