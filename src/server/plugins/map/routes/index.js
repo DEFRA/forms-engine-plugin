@@ -73,6 +73,7 @@ function mapProxyRoute(options) {
       return response
     },
     options: {
+      auth: false,
       validate: {
         query: Joi.object()
           .keys({
@@ -119,6 +120,9 @@ function tileProxyRoute(options) {
         .response(payload)
         .type('application/x-protobuf')
         .header('Cache-Control', 'public, max-age=86400')
+    },
+    options: {
+      auth: false
     }
   }
 }
@@ -140,6 +144,7 @@ function geocodeProxyRoute(options) {
       return data
     },
     options: {
+      auth: false,
       validate: {
         query: Joi.object()
           .keys({
@@ -173,6 +178,7 @@ function reverseGeocodeProxyRoute(options) {
       return data
     },
     options: {
+      auth: false,
       validate: {
         query: Joi.object()
           .keys({
@@ -194,6 +200,7 @@ function mapStyleResourceRoutes() {
     method: 'GET',
     path: '/api/maps/vts/{path*}',
     options: {
+      auth: false,
       handler: {
         directory: {
           path: resolve(import.meta.dirname, './vts')
@@ -231,6 +238,7 @@ function getGeospatialCountries() {
       return countries
     },
     options: {
+      auth: false,
       validate: {
         query: Joi.object()
           .keys({
