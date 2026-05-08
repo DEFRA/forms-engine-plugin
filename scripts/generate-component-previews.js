@@ -31,8 +31,8 @@ export function renderComponent(fixture) {
   const labelOrLegend = viewModel.fieldset?.legend ?? viewModel.label
   if (labelOrLegend) {
     labelOrLegend.classes = viewModel.fieldset?.legend
-      ? 'govuk-fieldset__legend--l'
-      : 'govuk-label--l'
+      ? 'govuk-fieldset__legend--s'
+      : 'govuk-label--s'
   }
 
   return environment.renderString(COMPONENT_LIST_TEMPLATE, {
