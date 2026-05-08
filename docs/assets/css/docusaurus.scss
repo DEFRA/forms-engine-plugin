@@ -58,11 +58,15 @@
 .component-preview {
   border: 1px solid #b1b4b6;
   border-radius: 4px;
-  // GOV.UK components have margin-bottom: 20px. padding-bottom: 4px means
-  // 4 + 20 = 24px of visual space at the bottom, matching the top padding.
-  padding: 24px 28px 4px;
+  padding: 24px 28px;
   margin-bottom: 16px;
   background: #fff;
+}
+
+// govuk-form-group uses govuk-responsive-margin(6, "bottom"): 20px mobile, 30px tablet+.
+// Zeroing it here lets the preview's uniform padding provide the visual spacing instead.
+.component-preview > div > .govuk-form-group {
+  margin-bottom: 0;
 }
 
 .app-map-placeholder {
