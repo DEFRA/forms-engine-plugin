@@ -41,9 +41,9 @@ export class CheckboxesField extends SelectionControlField {
       .label(this.label)
       .required()
       .messages({
-        'array.min': 'Select at least {{#limit}} options from the list',
-        'array.max': 'Only {{#limit}} can be selected from the list',
-        'array.length': 'Select only {{#limit}} options from the list'
+        'array.min': messageTemplate.arrayMin as string,
+        'array.max': messageTemplate.arrayMax as string,
+        'array.length': messageTemplate.arrayLength as string
       })
 
     if (options.required === false) {
