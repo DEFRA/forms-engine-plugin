@@ -30,7 +30,7 @@ const sampleList = {
   })
 }
 
-/** @type {Record<string, Fixture>} */
+/** @type {Record<ComponentDef['type'], Fixture>} */
 export const fixtures = {
   TextField: {
     def: {
