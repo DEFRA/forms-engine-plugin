@@ -80,13 +80,12 @@
   },
   "pageLinks": {
     "FileUploadPageController": [
-      "This controller works in conjunction with the CDP file upload service. See the [File Upload guide](../code-based/file-upload.md) for setup instructions, including the required `formSubmissionService` interface."
+      "This controller manages the CDP file upload lifecycle: it initiates an upload session with `cdp-uploader` on each page load, sets the CDP upload URL as the form action so the browser posts files directly to CDP, polls CDP for the upload status on return, and populates session state with completed `FileState` entries. It is tightly coupled to the CDP file upload service and is the provided implementation for Defra teams. See the [File Upload guide](../code-based/file-upload.md) for setup instructions, including the required `formSubmissionService` interface."
     ]
   },
   "componentLinks": {
     "FileUploadField": [
-      "`FileUploadField` is a **file manager**: it renders the list of files already in session state, allows the user to remove individual files, enforces min/max file count constraints, and on final submission calls `persistFiles()` to move files to permanent storage. It does not handle uploading itself — a page controller is expected to manage the upload lifecycle and populate session state with a `FileState[]` array.",
-      "[`FileUploadPageController`](../pages/file-upload-page.md) is the provided implementation for Defra teams, and is tightly coupled to the CDP file upload service. Teams not using CDP would need to provide their own page controller that populates session state with the same `UploadState` shape (`FileState[]`). On final form submission, a `formSubmissionService` with a `persistFiles` method must also be registered via the plugin options — see the [File Upload guide](../code-based/file-upload.md) for details."
+      "This component renders the list of files already in session state, allows the user to remove individual files, and enforces min/max file count constraints. On final form submission it calls `persistFiles()` to move files to permanent storage. It does not handle uploading — that is the responsibility of the page controller. See [`FileUploadPageController`](../pages/file-upload-page.md) for the provided Defra implementation."
     ],
     "HiddenField": [
       "Hidden fields can be pre-populated from query string parameters — see [Pre-populating state](../code-based/pre-populate-state.md) for details."
