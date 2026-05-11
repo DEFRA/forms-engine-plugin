@@ -669,14 +669,14 @@ export function generateExample(componentName, interfaceData) {
  * @param {string} componentName
  * @param {ComponentData} interfaceData
  * @param {number} sidebarPosition
- * @param {string|null} [slug]
+ * @param {string|null} [previewSlug]
  * @returns {string}
  */
 export function generateComponentMd(
   componentName,
   interfaceData,
   sidebarPosition,
-  slug = null
+  previewSlug = null
 ) {
   const description = metadata.components[componentName] ?? ''
   const label = toLabel(componentName)
@@ -684,8 +684,9 @@ export function generateComponentMd(
 
   const links = metadata.componentLinks?.[componentName] ?? []
 
-  const previewImport = slug
-    ? [``, `import Preview from './_previews/${slug}.mdx'`]
+  // leading '' ensures a blank line between frontmatter and the import
+  const previewImport = previewSlug
+    ? [``, `import Preview from './_previews/${previewSlug}.mdx'`]
     : []
 
   const lines = [
@@ -705,7 +706,7 @@ export function generateComponentMd(
     lines.push(text, ``)
   }
 
-  if (slug) {
+  if (previewSlug) {
     lines.push(`## Preview`, ``, `<Preview />`, ``)
   }
 
@@ -1072,10 +1073,11 @@ function main() {
 
     const slug = toKebabCase(name)
     const fixture = fixtures[name]
+    const sidebarPosition = i + 1
     const content = generateComponentMd(
       name,
       interfaceData,
-      i + 1,
+      sidebarPosition,
       fixture ? slug : null
     )
     fs.writeFileSync(path.join(componentsOutputDir, `${slug}.mdx`), content)

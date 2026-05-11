@@ -17,7 +17,7 @@ const COMPONENT_LIST_TEMPLATE = `{% from "partials/components.html" import compo
 
 /**
  * Render a single component fixture to an HTML string.
- * @param {{ def: object, model: object|null, payload: object }} fixture
+ * @param {import('./component-preview-fixtures.js').FixtureRender} fixture
  * @returns {string}
  */
 export function renderComponent(fixture) {
@@ -58,7 +58,7 @@ export function buildPartialMdx(renders) {
             .replace(/\}/g, '&#125;')
         : ''
       const labelLine = safeLabel
-        ? `<h3 className="component-preview__label">${safeLabel}</h3>\n`
+        ? `<h3 className="govuk-heading-s">${safeLabel}</h3>\n`
         : ''
       return `${labelLine}<div className="component-preview">\n  <div dangerouslySetInnerHTML={{ __html: \`${escaped}\` }} />\n</div>`
     })
@@ -69,7 +69,7 @@ export function buildPartialMdx(renders) {
  * Renders all variants for a component and writes the MDX partial to _previews/<slug>.mdx.
  * @param {string} previewsDir - absolute path to the _previews/ directory
  * @param {string} slug - e.g. 'text-field'
- * @param {object} fixture - from component-preview-fixtures.js
+ * @param {import('./component-preview-fixtures.js').Fixture} fixture
  */
 const MAP_PLACEHOLDER =
   `<div class="app-map-placeholder">` +

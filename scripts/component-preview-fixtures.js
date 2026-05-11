@@ -3,6 +3,15 @@
 // List-based components include a model stub with getList() so the constructor can resolve items.
 // PaymentField uses variants to show unpaid and paid states.
 
+/**
+ * @typedef {import('@defra/forms-model').ComponentDef} ComponentDef
+ * @typedef {import('../src/server/plugins/engine/models/FormModel.js').FormModel} FormModel
+ * @typedef {import('../src/server/plugins/engine/types.js').FormPayload} FormPayload
+ * @typedef {{ def: ComponentDef, model: Partial<FormModel>|null, payload: FormPayload }} FixtureRender
+ * @typedef {{ label: string } & FixtureRender} FixtureVariant
+ * @typedef {{ mapPlaceholder?: boolean } & (FixtureRender | { variants: FixtureVariant[] })} Fixture
+ */
+
 import { getYesNoList, yesNoListId } from '@defra/forms-model'
 
 const yesNoModel = {
@@ -21,6 +30,7 @@ const sampleList = {
   })
 }
 
+/** @type {Record<string, Fixture>} */
 export const fixtures = {
   TextField: {
     def: {
