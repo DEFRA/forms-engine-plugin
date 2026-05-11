@@ -88,6 +88,8 @@ const MAP_PLACEHOLDER =
 export function writePreviewPartial(previewsDir, slug, fixture) {
   fs.mkdirSync(previewsDir, { recursive: true })
 
+  // rendering the real map component is too hard as it has server-side dependencies, so we
+  // just put a placeholder in the documentation
   const appendHtml = fixture.mapPlaceholder ? `\n${MAP_PLACEHOLDER}` : ''
 
   let renders
