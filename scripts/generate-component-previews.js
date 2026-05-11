@@ -4,9 +4,8 @@ import path from 'path'
 import { markdownToHtml } from '@defra/forms-model'
 
 // Static imports so Jest can mock them (dynamic computed-path imports cannot be mocked).
-// Requires `npm run build` to have produced `.server/` before running this script.
-import { createComponent } from '../.server/server/plugins/engine/components/helpers/components.js'
-import { environment } from '../.server/server/plugins/nunjucks/environment.js'
+import { createComponent } from '~/src/server/plugins/engine/components/helpers/components.js'
+import { environment } from '~/src/server/plugins/nunjucks/environment.js'
 
 // Register the markdown filter that the engine plugin normally adds at server init.
 environment.addFilter('markdown', (text, startingHeaderLevel) =>
@@ -107,7 +106,7 @@ export function writePreviewPartial(previewsDir, slug, fixture) {
 }
 
 /**
- * @typedef {import('../.server/server/plugins/engine/models/FormModel.js').FormModel} FormModel
+ * @typedef {import('~/src/server/plugins/engine/models/FormModel.js').FormModel} FormModel
  * @typedef {import('./component-preview-fixtures.js').FixtureRender} FixtureRender
  * @typedef {import('./component-preview-fixtures.js').Fixture} Fixture
  */
