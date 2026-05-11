@@ -37,11 +37,14 @@ export function renderComponent(fixture) {
   // a single-component page. isPageHeading is intentionally omitted — setting it
   // causes GOV.UK Frontend to render an <h1>, which breaks heading hierarchy
   // inside the docs page where the preview sits under a <h2>.
-  const labelOrLegend = viewModel.fieldset?.legend ?? viewModel.label
-  if (labelOrLegend) {
-    labelOrLegend.classes = viewModel.fieldset?.legend
-      ? 'govuk-fieldset__legend--s'
-      : 'govuk-label--s'
+  if (viewModel.fieldset?.legend) {
+    viewModel.fieldset.legend.classes = 'govuk-fieldset__legend--s'
+  } else if (viewModel.label) {
+    // classes is a valid GOV.UK Frontend label property, absent from the view model return type
+    const label = /** @type {{ text: string; classes?: string }} */ (
+      viewModel.label
+    )
+    label.classes = 'govuk-label--s'
   }
 
   return environment.renderString(COMPONENT_LIST_TEMPLATE, {
