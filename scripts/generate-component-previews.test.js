@@ -8,19 +8,16 @@ jest.mock('fs', () => ({
   writeFileSync: jest.fn()
 }))
 
-jest.mock('../.server/server/plugins/nunjucks/environment.js', () => ({
+jest.mock('~/src/server/plugins/nunjucks/environment.js', () => ({
   environment: { addFilter: jest.fn(), renderString: jest.fn() }
 }))
 
 jest.mock(
-  '../.server/server/plugins/engine/components/helpers/components.js',
+  '~/src/server/plugins/engine/components/helpers/components.ts',
   () => ({ createComponent: jest.fn() })
 )
 
 import { mkdirSync, writeFileSync } from 'fs'
-
-import { createComponent } from '../.server/server/plugins/engine/components/helpers/components.js'
-import { environment } from '../.server/server/plugins/nunjucks/environment.js'
 
 import { fixtures } from './component-preview-fixtures.js'
 import {
@@ -28,6 +25,10 @@ import {
   renderComponent,
   writePreviewPartial
 } from './generate-component-previews.js'
+
+import { createComponent } from '~/src/server/plugins/engine/components/helpers/components.ts'
+import { environment } from '~/src/server/plugins/nunjucks/environment.js'
+
 
 describe('component-preview-fixtures', () => {
   it('variant fixtures have a def with type and name, and a label', () => {
