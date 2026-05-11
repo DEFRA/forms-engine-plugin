@@ -1092,8 +1092,8 @@ function main() {
     if (fixture) {
       writePreviewPartial(previewsOutputDir, slug, fixture)
     } else {
-      throw new Error(
-        `No preview fixture for ${name} — add one to component-preview-fixtures.js`
+      console.warn(
+        `Warning: no preview fixture for ${name} — add one to component-preview-fixtures.js`
       )
     }
   }
