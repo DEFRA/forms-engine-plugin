@@ -348,7 +348,7 @@ export const fixtures = {
           options: { amount: 2300, description: 'Application fee' }
         },
         model: null,
-        // PaymentState is not part of FormValue — PaymentField.getViewModel casts payload[name] to unknown and uses a type guard
+        // PaymentState is not in FormValue, so this object can't be directly assigned to FormPayload
         payload: /** @type {FormPayload} */ (
           /** @type {unknown} */ ({
             payment: {
