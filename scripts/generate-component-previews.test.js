@@ -29,7 +29,6 @@ import {
 import { createComponent } from '~/src/server/plugins/engine/components/helpers/components.ts'
 import { environment } from '~/src/server/plugins/nunjucks/environment.js'
 
-
 describe('component-preview-fixtures', () => {
   it('variant fixtures have a def with type and name, and a label', () => {
     const variantFixtures = Object.values(fixtures).filter((f) => f.variants)
