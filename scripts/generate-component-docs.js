@@ -2,7 +2,9 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
+import { ComponentType } from '@defra/forms-model'
 import ts from 'typescript'
+
 
 import { fixtures } from './component-preview-fixtures.js'
 import { writePreviewPartial } from './generate-component-previews.js'
@@ -523,7 +525,7 @@ function parsePageInterfaces(dtsPath, controllerMap, pathHints) {
 /**
  * Parse the ComponentType enum to get an ordered list of component names.
  * @param {string} enumsDtsPath
- * @returns {string[]}
+ * @returns {import('@defra/forms-model').ComponentType[]}
  */
 function parseComponentOrder(enumsDtsPath) {
   const content = fs.readFileSync(enumsDtsPath, 'utf-8')
@@ -533,7 +535,7 @@ function parseComponentOrder(enumsDtsPath) {
     ts.ScriptTarget.Latest,
     true
   )
-  /** @type {string[]} */
+  /** @type {import('@defra/forms-model').ComponentType[]} */
   const order = []
 
   ts.forEachChild(sourceFile, (node) => {
@@ -541,7 +543,20 @@ function parseComponentOrder(enumsDtsPath) {
       return
     for (const member of node.members) {
       if (ts.isEnumMember(member) && member.initializer) {
-        order.push(member.initializer.getText(sourceFile).replace(/['"]/g, ''))
+        // getText() returns the raw source token including quotes, e.g. '"TextField"' — strip them to get 'TextField'
+        const raw = member.initializer.getText(sourceFile).replace(/['"]/g, '')
+        if (
+          !Object.values(ComponentType).includes(
+            /** @type {ComponentType} */ (raw)
+          )
+        ) {
+          throw new Error(
+            `Unexpected ComponentType value parsed from .d.ts: '${raw}'`
+          )
+        }
+        order.push(
+          /** @type {import('@defra/forms-model').ComponentType} */ (raw)
+        )
       }
     }
   })

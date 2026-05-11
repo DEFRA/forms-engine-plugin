@@ -32,9 +32,9 @@ const sampleList = {
   })
 }
 
-/** @type {Record<string, Fixture>} */
+/** @type {Partial<Record<import('@defra/forms-model').ComponentType, Fixture>>} */
 export const fixtures = {
-  TextField: {
+  [ComponentType.TextField]: {
     def: {
       type: ComponentType.TextField,
       name: 'full-name',
@@ -46,7 +46,7 @@ export const fixtures = {
     model: null,
     payload: {}
   },
-  EmailAddressField: {
+  [ComponentType.EmailAddressField]: {
     def: {
       type: ComponentType.EmailAddressField,
       name: 'email',
@@ -56,7 +56,7 @@ export const fixtures = {
     model: null,
     payload: {}
   },
-  MultilineTextField: {
+  [ComponentType.MultilineTextField]: {
     def: {
       type: ComponentType.MultilineTextField,
       name: 'description',
@@ -68,7 +68,7 @@ export const fixtures = {
     model: null,
     payload: {}
   },
-  NumberField: {
+  [ComponentType.NumberField]: {
     def: {
       type: ComponentType.NumberField,
       name: 'age',
@@ -79,7 +79,7 @@ export const fixtures = {
     model: null,
     payload: {}
   },
-  TelephoneNumberField: {
+  [ComponentType.TelephoneNumberField]: {
     def: {
       type: ComponentType.TelephoneNumberField,
       name: 'phone',
@@ -89,7 +89,7 @@ export const fixtures = {
     model: null,
     payload: {}
   },
-  MonthYearField: {
+  [ComponentType.MonthYearField]: {
     def: {
       type: ComponentType.MonthYearField,
       name: 'start-date',
@@ -100,7 +100,7 @@ export const fixtures = {
     model: null,
     payload: {}
   },
-  DatePartsField: {
+  [ComponentType.DatePartsField]: {
     def: {
       type: ComponentType.DatePartsField,
       name: 'dob',
@@ -111,7 +111,7 @@ export const fixtures = {
     model: null,
     payload: {}
   },
-  UkAddressField: {
+  [ComponentType.UkAddressField]: {
     variants: [
       {
         label: 'With postcode lookup',
@@ -137,7 +137,7 @@ export const fixtures = {
       }
     ]
   },
-  YesNoField: {
+  [ComponentType.YesNoField]: {
     def: {
       type: ComponentType.YesNoField,
       name: 'agree',
@@ -147,7 +147,7 @@ export const fixtures = {
     model: yesNoModel,
     payload: {}
   },
-  RadiosField: {
+  [ComponentType.RadiosField]: {
     def: {
       type: ComponentType.RadiosField,
       name: 'colour',
@@ -158,7 +158,7 @@ export const fixtures = {
     model: sampleList,
     payload: {}
   },
-  CheckboxesField: {
+  [ComponentType.CheckboxesField]: {
     def: {
       type: ComponentType.CheckboxesField,
       name: 'colours',
@@ -169,7 +169,7 @@ export const fixtures = {
     model: sampleList,
     payload: {}
   },
-  SelectField: {
+  [ComponentType.SelectField]: {
     def: {
       type: ComponentType.SelectField,
       name: 'country',
@@ -180,7 +180,7 @@ export const fixtures = {
     model: sampleList,
     payload: {}
   },
-  AutocompleteField: {
+  [ComponentType.AutocompleteField]: {
     def: {
       type: ComponentType.AutocompleteField,
       name: 'country',
@@ -191,7 +191,7 @@ export const fixtures = {
     model: sampleList,
     payload: {}
   },
-  DeclarationField: {
+  [ComponentType.DeclarationField]: {
     def: {
       type: ComponentType.DeclarationField,
       name: 'declaration',
@@ -202,7 +202,7 @@ export const fixtures = {
     model: null,
     payload: {}
   },
-  FileUploadField: {
+  [ComponentType.FileUploadField]: {
     def: {
       type: ComponentType.FileUploadField,
       name: 'upload',
@@ -213,7 +213,7 @@ export const fixtures = {
     model: null,
     payload: {}
   },
-  Html: {
+  [ComponentType.Html]: {
     def: {
       type: ComponentType.Html,
       name: 'info',
@@ -224,7 +224,7 @@ export const fixtures = {
     model: null,
     payload: {}
   },
-  InsetText: {
+  [ComponentType.InsetText]: {
     def: {
       type: ComponentType.InsetText,
       name: 'notice',
@@ -235,7 +235,7 @@ export const fixtures = {
     model: null,
     payload: {}
   },
-  Details: {
+  [ComponentType.Details]: {
     def: {
       type: ComponentType.Details,
       name: 'help',
@@ -246,7 +246,7 @@ export const fixtures = {
     model: null,
     payload: {}
   },
-  Markdown: {
+  [ComponentType.Markdown]: {
     def: {
       type: ComponentType.Markdown,
       name: 'guidance',
@@ -257,7 +257,7 @@ export const fixtures = {
     model: null,
     payload: {}
   },
-  List: {
+  [ComponentType.List]: {
     def: {
       type: ComponentType.List,
       name: 'steps',
@@ -268,7 +268,7 @@ export const fixtures = {
     model: sampleList,
     payload: {}
   },
-  HiddenField: {
+  [ComponentType.HiddenField]: {
     def: {
       type: ComponentType.HiddenField,
       name: 'ref',
@@ -278,7 +278,7 @@ export const fixtures = {
     model: null,
     payload: {}
   },
-  LatLongField: {
+  [ComponentType.LatLongField]: {
     def: {
       type: ComponentType.LatLongField,
       name: 'location',
@@ -290,7 +290,7 @@ export const fixtures = {
     payload: {},
     mapPlaceholder: true
   },
-  EastingNorthingField: {
+  [ComponentType.EastingNorthingField]: {
     def: {
       type: ComponentType.EastingNorthingField,
       name: 'location',
@@ -302,7 +302,7 @@ export const fixtures = {
     payload: {},
     mapPlaceholder: true
   },
-  OsGridRefField: {
+  [ComponentType.OsGridRefField]: {
     def: {
       type: ComponentType.OsGridRefField,
       name: 'location',
@@ -313,7 +313,7 @@ export const fixtures = {
     payload: {},
     mapPlaceholder: true
   },
-  NationalGridFieldNumberField: {
+  [ComponentType.NationalGridFieldNumberField]: {
     def: {
       type: ComponentType.NationalGridFieldNumberField,
       name: 'location',
@@ -324,7 +324,7 @@ export const fixtures = {
     payload: {},
     mapPlaceholder: true
   },
-  GeospatialField: {
+  [ComponentType.GeospatialField]: {
     def: {
       type: ComponentType.GeospatialField,
       name: 'location',
@@ -335,7 +335,7 @@ export const fixtures = {
     payload: {},
     mapPlaceholder: true
   },
-  PaymentField: {
+  [ComponentType.PaymentField]: {
     variants: [
       {
         label: 'Before payment',
