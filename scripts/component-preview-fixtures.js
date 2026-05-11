@@ -3,15 +3,6 @@
 // List-based components include a model stub with getList() so the constructor can resolve items.
 // PaymentField uses variants to show unpaid and paid states.
 
-/**
- * @typedef {import('@defra/forms-model').ComponentDef} ComponentDef
- * @typedef {import('../src/server/plugins/engine/models/FormModel.js').FormModel} FormModel
- * @typedef {import('../src/server/plugins/engine/types.js').FormPayload} FormPayload
- * @typedef {{ def: ComponentDef, model: object|null, payload: FormPayload }} FixtureRender
- * @typedef {{ label: string } & FixtureRender} FixtureVariant
- * @typedef {{ mapPlaceholder?: boolean } & (FixtureRender | { variants: FixtureVariant[] })} Fixture
- */
-
 import { ComponentType, getYesNoList, yesNoListId } from '@defra/forms-model'
 
 const yesNoModel = {
@@ -32,7 +23,7 @@ const sampleList = {
   })
 }
 
-/** @type {Partial<Record<import('@defra/forms-model').ComponentType, Fixture>>} */
+/** @type {Partial<Record<ComponentType, Fixture>>} */
 export const fixtures = {
   [ComponentType.TextField]: {
     def: {
@@ -379,3 +370,12 @@ export const fixtures = {
     ]
   }
 }
+
+/**
+ * @typedef {import('@defra/forms-model').ComponentDef} ComponentDef
+ * @typedef {import('../src/server/plugins/engine/models/FormModel.js').FormModel} FormModel
+ * @typedef {import('../src/server/plugins/engine/types.js').FormPayload} FormPayload
+ * @typedef {{ def: ComponentDef, model: object|null, payload: FormPayload }} FixtureRender
+ * @typedef {{ label: string } & FixtureRender} FixtureVariant
+ * @typedef {{ mapPlaceholder?: boolean } & (FixtureRender | { variants: FixtureVariant[] })} Fixture
+ */

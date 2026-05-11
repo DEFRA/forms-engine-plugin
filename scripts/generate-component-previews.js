@@ -1,7 +1,3 @@
-/**
- * @typedef {import('../.server/server/plugins/engine/models/FormModel.js').FormModel} FormModel
- */
-
 import fs from 'fs'
 import path from 'path'
 
@@ -21,7 +17,7 @@ const COMPONENT_LIST_TEMPLATE = `{% from "partials/components.html" import compo
 
 /**
  * Render a single component fixture to an HTML string.
- * @param {import('./component-preview-fixtures.js').FixtureRender} fixture
+ * @param {FixtureRender} fixture
  * @returns {string}
  */
 export function renderComponent(fixture) {
@@ -87,7 +83,7 @@ const MAP_PLACEHOLDER =
  * Renders all variants for a component and writes the MDX partial to _previews/<slug>.mdx.
  * @param {string} previewsDir - absolute path to the _previews/ directory
  * @param {string} slug - e.g. 'text-field'
- * @param {import('./component-preview-fixtures.js').Fixture} fixture
+ * @param {Fixture} fixture
  */
 export function writePreviewPartial(previewsDir, slug, fixture) {
   fs.mkdirSync(previewsDir, { recursive: true })
@@ -107,3 +103,9 @@ export function writePreviewPartial(previewsDir, slug, fixture) {
   const content = buildPartialMdx(renders)
   fs.writeFileSync(path.join(previewsDir, `${slug}.mdx`), content)
 }
+
+/**
+ * @typedef {import('../.server/server/plugins/engine/models/FormModel.js').FormModel} FormModel
+ * @typedef {import('./component-preview-fixtures.js').FixtureRender} FixtureRender
+ * @typedef {import('./component-preview-fixtures.js').Fixture} Fixture
+ */

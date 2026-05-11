@@ -5,7 +5,6 @@ import { fileURLToPath } from 'url'
 import { ComponentType } from '@defra/forms-model'
 import ts from 'typescript'
 
-
 import { fixtures } from './component-preview-fixtures.js'
 import { writePreviewPartial } from './generate-component-previews.js'
 
@@ -24,11 +23,6 @@ const pagesOutputDir = path.resolve(__dirname, '../docs/features/pages')
 const metadata = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, 'component-metadata.json'), 'utf-8')
 )
-
-/**
- * @typedef {{ name: string, type: string, optional: boolean }} PropEntry
- * @typedef {{ options: PropEntry[], schema: PropEntry[], props: PropEntry[] }} ComponentData
- */
 
 /** @type {Record<string, string>} */
 const ACRONYMS = { Uk: 'UK', Os: 'OS', Html: 'HTML' }
@@ -86,8 +80,8 @@ export function simplifyType(rawType) {
  * `options: { required?: boolean; classes?: string }`. This reads those
  * inline shapes and returns each property as a plain `{ name, type, optional }`
  * object that can be rendered as a table row.
- * @param {import('typescript').TypeNode} typeNode
- * @param {import('typescript').SourceFile} sourceFile
+ * @param {TSTypeNode} typeNode
+ * @param {TSSourceFile} sourceFile
  * @returns {{name: string, type: string, optional: boolean}[]}
  */
 function extractTypeLiteralProps(typeNode, sourceFile) {
@@ -111,9 +105,9 @@ function extractTypeLiteralProps(typeNode, sourceFile) {
  * Simply reading the type string gives us nothing useful — we need to follow each reference
  * and intersection until we reach the actual properties. This function does that recursively,
  * returning a flat list of every property the user can set.
- * @param {import('typescript').TypeNode} typeNode
- * @param {import('typescript').SourceFile} sourceFile
- * @param {Record<string, import('typescript').InterfaceDeclaration>} allInterfaces
+ * @param {TSTypeNode} typeNode
+ * @param {TSSourceFile} sourceFile
+ * @param {Record<string, TSInterfaceDeclaration>} allInterfaces
  * @param {string} accessKey - The property key being resolved, e.g. `'options'` or `'schema'`
  * @param {number} [depth]
  * @returns {{name: string, type: string, optional: boolean}[]}
@@ -174,10 +168,10 @@ function collectProps(
  * directly would miss `list: string` which lives on `ListFieldBase`. This function
  * walks the full `extends` chain and merges everything into a single map, with
  * the most-derived declaration winning when the same property appears at multiple levels.
- * @param {import('typescript').InterfaceDeclaration} iface
- * @param {Record<string, import('typescript').InterfaceDeclaration>} allInterfaces
- * @param {import('typescript').SourceFile} sourceFile
- * @returns {Map<string, import('typescript').PropertySignature>}
+ * @param {TSInterfaceDeclaration} iface
+ * @param {Record<string, TSInterfaceDeclaration>} allInterfaces
+ * @param {TSSourceFile} sourceFile
+ * @returns {Map<string, TSPropertySignature>}
  */
 function resolveInterfaceMembers(iface, allInterfaces, sourceFile) {
   // Base members first so derived declarations overwrite them
@@ -210,7 +204,7 @@ function resolveInterfaceMembers(iface, allInterfaces, sourceFile) {
 
 /**
  * @param {string} dtsPath
- * @returns {{ sourceFile: import('typescript').SourceFile, allInterfaces: Record<string, import('typescript').InterfaceDeclaration> }}
+ * @returns {{ sourceFile: TSSourceFile, allInterfaces: Record<string, TSInterfaceDeclaration> }}
  */
 function parseSourceFile(dtsPath) {
   const content = fs.readFileSync(dtsPath, 'utf-8')
@@ -220,7 +214,7 @@ function parseSourceFile(dtsPath) {
     ts.ScriptTarget.Latest,
     true
   )
-  /** @type {Record<string, import('typescript').InterfaceDeclaration>} */
+  /** @type {Record<string, TSInterfaceDeclaration>} */
   const allInterfaces = {}
   ts.forEachChild(sourceFile, (node) => {
     if (ts.isInterfaceDeclaration(node)) allInterfaces[node.name.text] = node
@@ -304,9 +298,9 @@ function parseComponentInterfaces(dtsPath) {
  * Rather than showing a single opaque `repeat: Repeat` row, this function expands the
  * referenced interface into dotted paths — `repeat.options.name`, `repeat.schema.min` —
  * so the docs table shows the actual structure the user needs to write.
- * @param {import('typescript').InterfaceDeclaration} iface
- * @param {Record<string, import('typescript').InterfaceDeclaration>} allInterfaces
- * @param {import('typescript').SourceFile} sourceFile
+ * @param {TSInterfaceDeclaration} iface
+ * @param {Record<string, TSInterfaceDeclaration>} allInterfaces
+ * @param {TSSourceFile} sourceFile
  * @param {string} prefix - Dotted path accumulated so far, e.g. `'repeat.options'`
  * @param {number} [depth]
  * @returns {{name: string, type: string, optional: boolean}[]}
@@ -525,7 +519,7 @@ function parsePageInterfaces(dtsPath, controllerMap, pathHints) {
 /**
  * Parse the ComponentType enum to get an ordered list of component names.
  * @param {string} enumsDtsPath
- * @returns {import('@defra/forms-model').ComponentType[]}
+ * @returns {ComponentType[]}
  */
 function parseComponentOrder(enumsDtsPath) {
   const content = fs.readFileSync(enumsDtsPath, 'utf-8')
@@ -535,7 +529,7 @@ function parseComponentOrder(enumsDtsPath) {
     ts.ScriptTarget.Latest,
     true
   )
-  /** @type {import('@defra/forms-model').ComponentType[]} */
+  /** @type {ComponentType[]} */
   const order = []
 
   ts.forEachChild(sourceFile, (node) => {
@@ -554,9 +548,7 @@ function parseComponentOrder(enumsDtsPath) {
             `Unexpected ComponentType value parsed from .d.ts: '${raw}'`
           )
         }
-        order.push(
-          /** @type {import('@defra/forms-model').ComponentType} */ (raw)
-        )
+        order.push(/** @type {ComponentType} */ (raw))
       }
     }
   })
@@ -583,7 +575,7 @@ function parseCategories(typesDtsPath) {
   const categories = {}
 
   /**
-   * @param {import('typescript').TypeNode} typeNode
+   * @param {TSTypeNode} typeNode
    * @returns {string[]}
    */
   function namesFromUnion(typeNode) {
@@ -1142,3 +1134,12 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   // Force exit so the generation script doesn't hang as a background watcher.
   process.exit(0)
 }
+
+/**
+ * @typedef {{ name: string, type: string, optional: boolean }} PropEntry
+ * @typedef {{ options: PropEntry[], schema: PropEntry[], props: PropEntry[] }} ComponentData
+ * @typedef {import('typescript').TypeNode} TSTypeNode
+ * @typedef {import('typescript').SourceFile} TSSourceFile
+ * @typedef {import('typescript').InterfaceDeclaration} TSInterfaceDeclaration
+ * @typedef {import('typescript').PropertySignature} TSPropertySignature
+ */
