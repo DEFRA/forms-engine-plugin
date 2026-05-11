@@ -64,7 +64,7 @@
 }
 
 // govuk-form-group uses govuk-responsive-margin(6, "bottom"): 20px mobile, 30px tablet+.
-// Zeroing it here lets the preview's uniform padding provide the visual spacing instead.
+// this just tightens up the margins so the documentation looks good in the component preview.
 .component-preview > div > .govuk-form-group {
   margin-bottom: 0;
 }
