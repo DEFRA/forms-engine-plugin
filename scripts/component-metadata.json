@@ -13,7 +13,7 @@
     "SelectField": "A dropdown select element for choosing one option from a named list.",
     "AutocompleteField": "Text input with autocomplete suggestions sourced from a named list.",
     "UkAddressField": "Structured address input for collecting UK postal addresses.",
-    "FileUploadField": "File upload control integrated with the CDP file upload service.",
+    "FileUploadField": "File manager component that displays uploaded files from session state.",
     "DeclarationField": "A checkbox the user must tick to confirm a declaration before proceeding.",
     "HiddenField": "A non-visible field that stores a fixed value in form state without user input.",
     "PaymentField": "Redirects the user to GOV.UK Pay to collect a payment before proceeding.",
