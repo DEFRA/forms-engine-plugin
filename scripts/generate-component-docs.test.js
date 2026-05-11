@@ -22,6 +22,14 @@ jest.mock('typescript', () => ({
   isUnionTypeNode: jest.fn(() => false)
 }))
 
+jest.mock('./generate-component-previews.js', () => ({
+  writePreviewPartial: jest.fn()
+}))
+
+jest.mock('./component-preview-fixtures.js', () => ({
+  fixtures: {}
+}))
+
 // jest.mock factories are hoisted before variable declarations, so the
 // component-metadata.json payload must be inlined rather than referenced.
 jest.mock('fs', () => ({
@@ -43,6 +51,7 @@ import {
   controllerLabel,
   controllerSlug,
   deriveCategory,
+  generateComponentMd,
   generateExample,
   generatePageExample,
   placeholderForType,
@@ -312,6 +321,30 @@ describe('Component Documentation Generator', () => {
       expect(deriveCategory('TextField', {})).toBe('input')
       expect(deriveCategory('PaymentField', {})).toBe('input')
       expect(deriveCategory('EastingNorthingField', {})).toBe('input')
+    })
+  })
+
+  describe('generateComponentMd with preview', () => {
+    const interfaceData = { options: [], schema: [], props: [] }
+
+    it('includes preview import when slug is provided', () => {
+      const result = generateComponentMd(
+        'TextField',
+        interfaceData,
+        1,
+        'text-field'
+      )
+      expect(result).toContain(
+        "import Preview from './_previews/text-field.mdx'"
+      )
+      expect(result).toContain('## Preview')
+      expect(result).toContain('<Preview />')
+    })
+
+    it('omits preview section when no slug is provided', () => {
+      const result = generateComponentMd('TextField', interfaceData, 1)
+      expect(result).not.toContain('import Preview')
+      expect(result).not.toContain('## Preview')
     })
   })
 })

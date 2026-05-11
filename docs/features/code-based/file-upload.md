@@ -26,7 +26,7 @@ When JavaScript is disabled, the HTML `<form>` is posted on directly to CDP thro
 
 ### Form Integration Requirements
 
-For file uploads to work correctly, both `FileUploadPageController` and `FileUploadField` must be present in your form definition. The `FileUploadField` must be the first form component in the page definition, and the page must use `"controller": "FileUploadPageController"`.
+For the Defra/CDP implementation, both `FileUploadPageController` and `FileUploadField` must be present in your form definition. The `FileUploadField` must be the first form component in the page definition, and the page must use `"controller": "FileUploadPageController"`. Teams using a different upload backend would provide their own page controller that populates session state with the same `UploadState` shape.
 
 ## Configuration
 

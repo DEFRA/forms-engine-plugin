@@ -1,3 +1,6 @@
+@import "govuk-frontend/dist/govuk/all";
+@import "accessible-autocomplete/dist/accessible-autocomplete.min.css";
+
 .app-section {
   padding: 40px 0;
   background-color: #ffffff;
@@ -50,6 +53,31 @@
 
 .govuk-template__body.app-homepage main {
   background-color: #ffffff;
+}
+
+.component-preview {
+  border: 1px solid #b1b4b6;
+  border-radius: 4px;
+  padding: 24px 28px;
+  margin-bottom: 16px;
+  background: #ffffff;
+}
+
+// govuk-form-group uses govuk-responsive-margin(6, "bottom"): 20px mobile, 30px tablet+.
+// this just tightens up the margins so the documentation looks good in the component preview.
+.component-preview > div > .govuk-form-group {
+  margin-bottom: 0;
+}
+
+.app-map-placeholder {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 40px 20px;
+  background: #f3f2f1;
+  border: 2px dashed #b1b4b6;
+  border-radius: 4px;
+  text-align: center;
+  color: #505a5f;
 }
 
 @media (min-width: 48.125em) {
