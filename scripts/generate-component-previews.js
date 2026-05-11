@@ -25,9 +25,12 @@ const COMPONENT_LIST_TEMPLATE = `{% from "partials/components.html" import compo
  * @returns {string}
  */
 export function renderComponent(fixture) {
-  const component = createComponent(fixture.def, {
-    model: /** @type {FormModel} */ (/** @type {unknown} */ (fixture.model))
-  })
+  // Fixtures use FixtureModel stubs (partial) — FormModel is required by the constructor
+  // but components only access the properties each stub provides at render time.
+  const model = /** @type {FormModel} */ (
+    /** @type {unknown} */ (fixture.model)
+  )
+  const component = createComponent(fixture.def, { model })
   const viewModel = component.getViewModel(fixture.payload, [])
 
   // Apply large label/legend sizing to match how QuestionPageController styles

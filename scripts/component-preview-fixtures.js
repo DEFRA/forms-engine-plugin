@@ -7,31 +7,30 @@
  * @typedef {import('@defra/forms-model').ComponentDef} ComponentDef
  * @typedef {import('../src/server/plugins/engine/models/FormModel.js').FormModel} FormModel
  * @typedef {import('../src/server/plugins/engine/types.js').FormPayload} FormPayload
- * @typedef {{ def: ComponentDef, model: FormModel|null, payload: FormPayload }} FixtureRender
+ * @typedef {{ def: ComponentDef, model: object|null, payload: FormPayload }} FixtureRender
  * @typedef {{ label: string } & FixtureRender} FixtureVariant
  * @typedef {{ mapPlaceholder?: boolean } & (FixtureRender | { variants: FixtureVariant[] })} Fixture
  */
 
 import { ComponentType, getYesNoList, yesNoListId } from '@defra/forms-model'
 
-/** @type {FormModel} */
-const yesNoModel = /** @type {any} */ ({
+const yesNoModel = {
   getList: (/** @type {string} */ id) =>
     id === yesNoListId ? getYesNoList() : undefined
-})
+}
 
-/** @type {FormModel} */
-const sampleList = /** @type {any} */ ({
+const sampleList = {
   getList: () => ({
     name: 'options',
-    type: 'string',
+    title: 'Options',
+    type: /** @type {'string'} */ ('string'),
     items: [
       { text: 'Option 1', value: 'option-1' },
       { text: 'Option 2', value: 'option-2' },
       { text: 'Option 3', value: 'option-3' }
     ]
   })
-})
+}
 
 /** @type {Record<string, Fixture>} */
 export const fixtures = {
@@ -122,7 +121,7 @@ export const fixtures = {
           title: 'What is your address?',
           options: { usePostcodeLookup: true }
         },
-        model: /** @type {any} */ ({ ordnanceSurveyApiKey: 'preview' }),
+        model: { ordnanceSurveyApiKey: 'preview' },
         payload: {}
       },
       {
@@ -358,21 +357,24 @@ export const fixtures = {
           options: { amount: 2300, description: 'Application fee' }
         },
         model: null,
-        payload: {
-          payment: /** @type {any} */ ({
-            paymentId: 'pi_example123',
-            reference: 'REF-001',
-            amount: 2300,
-            description: 'Application fee',
-            uuid: '00000000-0000-0000-0000-000000000001',
-            formId: 'example-form',
-            isLivePayment: false,
-            preAuth: {
-              status: 'success',
-              createdAt: '2025-01-01T00:00:00.000Z'
+        // PaymentState is not part of FormValue — PaymentField.getViewModel casts payload[name] to unknown and uses a type guard
+        payload: /** @type {FormPayload} */ (
+          /** @type {unknown} */ ({
+            payment: {
+              paymentId: 'pi_example123',
+              reference: 'REF-001',
+              amount: 2300,
+              description: 'Application fee',
+              uuid: '00000000-0000-0000-0000-000000000001',
+              formId: 'example-form',
+              isLivePayment: false,
+              preAuth: {
+                status: 'success',
+                createdAt: '2025-01-01T00:00:00.000Z'
+              }
             }
           })
-        }
+        )
       }
     ]
   }
