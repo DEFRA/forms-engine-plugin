@@ -193,16 +193,71 @@ export const fixtures = {
     model: null,
     payload: {}
   },
+  // FileUploadField acts as a file manager for files already in session state.
+  // Actual uploading is handled by CDP via FileUploadPageController.
   [ComponentType.FileUploadField]: {
-    def: {
-      type: ComponentType.FileUploadField,
-      name: 'upload',
-      title: 'Upload a document',
-      options: {},
-      schema: {}
-    },
-    model: null,
-    payload: {}
+    variants: [
+      {
+        label: 'No files uploaded',
+        def: {
+          type: ComponentType.FileUploadField,
+          name: 'upload',
+          title: 'Upload a document',
+          options: {},
+          schema: {}
+        },
+        model: null,
+        payload: {}
+      },
+      {
+        label: 'With files uploaded',
+        def: {
+          type: ComponentType.FileUploadField,
+          name: 'upload',
+          title: 'Upload a document',
+          options: {},
+          schema: {}
+        },
+        model: null,
+        payload: {
+          upload:
+            /** @type {import('~/src/server/plugins/engine/types.js').UploadState} */ ([
+              {
+                uploadId: '00000000-0000-0000-0000-000000000001',
+                status: {
+                  uploadStatus: 'ready',
+                  metadata: { retrievalKey: 'preview-key' },
+                  form: {
+                    file: {
+                      fileId: '00000000-0000-0000-0000-000000000002',
+                      filename: 'annual-report.pdf',
+                      contentLength: 204800,
+                      fileStatus: 'complete'
+                    }
+                  },
+                  numberOfRejectedFiles: 0
+                }
+              },
+              {
+                uploadId: '00000000-0000-0000-0000-000000000003',
+                status: {
+                  uploadStatus: 'ready',
+                  metadata: { retrievalKey: 'preview-key' },
+                  form: {
+                    file: {
+                      fileId: '00000000-0000-0000-0000-000000000004',
+                      filename: 'supporting-evidence.docx',
+                      contentLength: 98304,
+                      fileStatus: 'complete'
+                    }
+                  },
+                  numberOfRejectedFiles: 0
+                }
+              }
+            ])
+        }
+      }
+    ]
   },
   [ComponentType.Html]: {
     def: {

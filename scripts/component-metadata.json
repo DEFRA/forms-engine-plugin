@@ -85,7 +85,8 @@
   },
   "componentLinks": {
     "FileUploadField": [
-      "This component is specifically designed to work with the CDP file upload service via the [File Upload Page](../pages/file-upload-page.md) controller — it must be used on a page using `FileUploadPageController`."
+      "`FileUploadField` is a **file manager**: it renders the list of files already in session state, allows the user to remove individual files, enforces min/max file count constraints, and on final submission calls `persistFiles()` to move files to permanent storage. It does not handle uploading itself — a page controller is expected to manage the upload lifecycle and populate session state with a `FileState[]` array.",
+      "[`FileUploadPageController`](../pages/file-upload-page.md) is the provided implementation for Defra teams, and is tightly coupled to the CDP file upload service. Teams not using CDP would need to provide their own page controller that populates session state with the same `UploadState` shape (`FileState[]`). On final form submission, a `formSubmissionService` with a `persistFiles` method must also be registered via the plugin options — see the [File Upload guide](../code-based/file-upload.md) for details."
     ],
     "HiddenField": [
       "Hidden fields can be pre-populated from query string parameters — see [Pre-populating state](../code-based/pre-populate-state.md) for details."
