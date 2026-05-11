@@ -428,8 +428,8 @@ export const fixtures = {
 
 /**
  * @typedef {import('@defra/forms-model').ComponentDef} ComponentDef
- * @typedef {import('../src/server/plugins/engine/models/FormModel.js').FormModel} FormModel
- * @typedef {import('../src/server/plugins/engine/types.js').FormPayload} FormPayload
+ * @typedef {import('~/src/server/plugins/engine/models/FormModel.js').FormModel} FormModel
+ * @typedef {import('~/src/server/plugins/engine/types.js').FormPayload} FormPayload
  * @typedef {{ def: ComponentDef, model: Partial<FormModel>|null, payload: FormPayload }} FixtureRender
  * @typedef {{ label: string } & FixtureRender} FixtureVariant
  * @typedef {{ mapPlaceholder?: boolean } & (FixtureRender | { variants: FixtureVariant[] })} Fixture
