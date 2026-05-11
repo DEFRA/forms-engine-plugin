@@ -1,3 +1,7 @@
+/**
+ * @typedef {import('../.server/server/plugins/engine/models/FormModel.js').FormModel} FormModel
+ */
+
 import fs from 'fs'
 import path from 'path'
 
@@ -21,7 +25,9 @@ const COMPONENT_LIST_TEMPLATE = `{% from "partials/components.html" import compo
  * @returns {string}
  */
 export function renderComponent(fixture) {
-  const component = createComponent(fixture.def, { model: fixture.model })
+  const component = createComponent(fixture.def, {
+    model: /** @type {FormModel} */ (/** @type {unknown} */ (fixture.model))
+  })
   const viewModel = component.getViewModel(fixture.payload, [])
 
   // Apply large label/legend sizing to match how QuestionPageController styles
@@ -65,25 +71,25 @@ export function buildPartialMdx(renders) {
     .join('\n\n')
 }
 
-/**
- * Renders all variants for a component and writes the MDX partial to _previews/<slug>.mdx.
- * @param {string} previewsDir - absolute path to the _previews/ directory
- * @param {string} slug - e.g. 'text-field'
- * @param {import('./component-preview-fixtures.js').Fixture} fixture
- */
 const MAP_PLACEHOLDER =
   `<div class="app-map-placeholder">` +
   `<p class="govuk-body govuk-!-margin-bottom-0">` +
   `Map appears here with JavaScript enabled` +
   `</p></div>`
 
+/**
+ * Renders all variants for a component and writes the MDX partial to _previews/<slug>.mdx.
+ * @param {string} previewsDir - absolute path to the _previews/ directory
+ * @param {string} slug - e.g. 'text-field'
+ * @param {import('./component-preview-fixtures.js').Fixture} fixture
+ */
 export function writePreviewPartial(previewsDir, slug, fixture) {
   fs.mkdirSync(previewsDir, { recursive: true })
 
   const appendHtml = fixture.mapPlaceholder ? `\n${MAP_PLACEHOLDER}` : ''
 
   let renders
-  if (fixture.variants) {
+  if ('variants' in fixture) {
     renders = fixture.variants.map((variant) => ({
       label: variant.label,
       html: renderComponent(variant) + appendHtml

@@ -7,18 +7,21 @@
  * @typedef {import('@defra/forms-model').ComponentDef} ComponentDef
  * @typedef {import('../src/server/plugins/engine/models/FormModel.js').FormModel} FormModel
  * @typedef {import('../src/server/plugins/engine/types.js').FormPayload} FormPayload
- * @typedef {{ def: ComponentDef, model: Partial<FormModel>|null, payload: FormPayload }} FixtureRender
+ * @typedef {{ def: ComponentDef, model: FormModel|null, payload: FormPayload }} FixtureRender
  * @typedef {{ label: string } & FixtureRender} FixtureVariant
  * @typedef {{ mapPlaceholder?: boolean } & (FixtureRender | { variants: FixtureVariant[] })} Fixture
  */
 
-import { getYesNoList, yesNoListId } from '@defra/forms-model'
+import { ComponentType, getYesNoList, yesNoListId } from '@defra/forms-model'
 
-const yesNoModel = {
-  getList: (id) => (id === yesNoListId ? getYesNoList() : undefined)
-}
+/** @type {FormModel} */
+const yesNoModel = /** @type {any} */ ({
+  getList: (/** @type {string} */ id) =>
+    id === yesNoListId ? getYesNoList() : undefined
+})
 
-const sampleList = {
+/** @type {FormModel} */
+const sampleList = /** @type {any} */ ({
   getList: () => ({
     name: 'options',
     type: 'string',
@@ -28,13 +31,13 @@ const sampleList = {
       { text: 'Option 3', value: 'option-3' }
     ]
   })
-}
+})
 
-/** @type {Record<ComponentDef['type'], Fixture>} */
+/** @type {Record<string, Fixture>} */
 export const fixtures = {
   TextField: {
     def: {
-      type: 'TextField',
+      type: ComponentType.TextField,
       name: 'full-name',
       title: 'What is your full name?',
       hint: 'As shown on your passport',
@@ -46,18 +49,17 @@ export const fixtures = {
   },
   EmailAddressField: {
     def: {
-      type: 'EmailAddressField',
+      type: ComponentType.EmailAddressField,
       name: 'email',
       title: 'What is your email address?',
-      options: {},
-      schema: {}
+      options: {}
     },
     model: null,
     payload: {}
   },
   MultilineTextField: {
     def: {
-      type: 'MultilineTextField',
+      type: ComponentType.MultilineTextField,
       name: 'description',
       title: 'Describe your issue',
       hint: 'Include as much detail as you can',
@@ -69,7 +71,7 @@ export const fixtures = {
   },
   NumberField: {
     def: {
-      type: 'NumberField',
+      type: ComponentType.NumberField,
       name: 'age',
       title: 'What is your age?',
       options: {},
@@ -80,35 +82,32 @@ export const fixtures = {
   },
   TelephoneNumberField: {
     def: {
-      type: 'TelephoneNumberField',
+      type: ComponentType.TelephoneNumberField,
       name: 'phone',
       title: 'What is your telephone number?',
-      options: {},
-      schema: {}
+      options: {}
     },
     model: null,
     payload: {}
   },
   MonthYearField: {
     def: {
-      type: 'MonthYearField',
+      type: ComponentType.MonthYearField,
       name: 'start-date',
       title: 'When did this start?',
       hint: 'For example, 3 2025',
-      options: {},
-      schema: {}
+      options: {}
     },
     model: null,
     payload: {}
   },
   DatePartsField: {
     def: {
-      type: 'DatePartsField',
+      type: ComponentType.DatePartsField,
       name: 'dob',
       title: 'What is your date of birth?',
       hint: 'For example, 27 3 2007',
-      options: {},
-      schema: {}
+      options: {}
     },
     model: null,
     payload: {}
@@ -118,23 +117,21 @@ export const fixtures = {
       {
         label: 'With postcode lookup',
         def: {
-          type: 'UkAddressField',
+          type: ComponentType.UkAddressField,
           name: 'address',
           title: 'What is your address?',
-          options: { usePostcodeLookup: true },
-          schema: {}
+          options: { usePostcodeLookup: true }
         },
-        model: { ordnanceSurveyApiKey: 'preview' },
+        model: /** @type {any} */ ({ ordnanceSurveyApiKey: 'preview' }),
         payload: {}
       },
       {
         label: 'Without postcode lookup',
         def: {
-          type: 'UkAddressField',
+          type: ComponentType.UkAddressField,
           name: 'address',
           title: 'What is your address?',
-          options: {},
-          schema: {}
+          options: {}
         },
         model: null,
         payload: {}
@@ -143,7 +140,7 @@ export const fixtures = {
   },
   YesNoField: {
     def: {
-      type: 'YesNoField',
+      type: ComponentType.YesNoField,
       name: 'agree',
       title: 'Do you agree?',
       options: {}
@@ -153,7 +150,7 @@ export const fixtures = {
   },
   RadiosField: {
     def: {
-      type: 'RadiosField',
+      type: ComponentType.RadiosField,
       name: 'colour',
       title: 'What is your favourite colour?',
       list: 'options',
@@ -164,7 +161,7 @@ export const fixtures = {
   },
   CheckboxesField: {
     def: {
-      type: 'CheckboxesField',
+      type: ComponentType.CheckboxesField,
       name: 'colours',
       title: 'Which colours do you like?',
       list: 'options',
@@ -175,7 +172,7 @@ export const fixtures = {
   },
   SelectField: {
     def: {
-      type: 'SelectField',
+      type: ComponentType.SelectField,
       name: 'country',
       title: 'Select a country',
       list: 'options',
@@ -186,7 +183,7 @@ export const fixtures = {
   },
   AutocompleteField: {
     def: {
-      type: 'AutocompleteField',
+      type: ComponentType.AutocompleteField,
       name: 'country',
       title: 'Select a country',
       list: 'options',
@@ -197,7 +194,7 @@ export const fixtures = {
   },
   DeclarationField: {
     def: {
-      type: 'DeclarationField',
+      type: ComponentType.DeclarationField,
       name: 'declaration',
       title: 'Declaration',
       content: 'I confirm that the information I have provided is correct.',
@@ -208,7 +205,7 @@ export const fixtures = {
   },
   FileUploadField: {
     def: {
-      type: 'FileUploadField',
+      type: ComponentType.FileUploadField,
       name: 'upload',
       title: 'Upload a document',
       options: {},
@@ -219,7 +216,7 @@ export const fixtures = {
   },
   Html: {
     def: {
-      type: 'Html',
+      type: ComponentType.Html,
       name: 'info',
       title: 'HTML content',
       content: '<p>This is an <strong>HTML</strong> content component.</p>',
@@ -230,7 +227,7 @@ export const fixtures = {
   },
   InsetText: {
     def: {
-      type: 'InsetText',
+      type: ComponentType.InsetText,
       name: 'notice',
       title: 'Important notice',
       content: 'You can only apply once every 12 months.',
@@ -241,7 +238,7 @@ export const fixtures = {
   },
   Details: {
     def: {
-      type: 'Details',
+      type: ComponentType.Details,
       name: 'help',
       title: 'Help with this question',
       content: 'This information is needed to process your application.',
@@ -252,7 +249,7 @@ export const fixtures = {
   },
   Markdown: {
     def: {
-      type: 'Markdown',
+      type: ComponentType.Markdown,
       name: 'guidance',
       title: 'Guidance',
       content: '## Guidance\n\nPlease read this carefully before continuing.',
@@ -263,7 +260,7 @@ export const fixtures = {
   },
   List: {
     def: {
-      type: 'List',
+      type: ComponentType.List,
       name: 'steps',
       title: 'What you need to do',
       list: 'options',
@@ -274,18 +271,17 @@ export const fixtures = {
   },
   HiddenField: {
     def: {
-      type: 'HiddenField',
+      type: ComponentType.HiddenField,
       name: 'ref',
       title: 'Hidden reference',
-      options: {},
-      schema: {}
+      options: {}
     },
     model: null,
     payload: {}
   },
   LatLongField: {
     def: {
-      type: 'LatLongField',
+      type: ComponentType.LatLongField,
       name: 'location',
       title: 'Enter a latitude and longitude',
       options: {},
@@ -297,7 +293,7 @@ export const fixtures = {
   },
   EastingNorthingField: {
     def: {
-      type: 'EastingNorthingField',
+      type: ComponentType.EastingNorthingField,
       name: 'location',
       title: 'Enter an easting and northing',
       options: {},
@@ -309,11 +305,10 @@ export const fixtures = {
   },
   OsGridRefField: {
     def: {
-      type: 'OsGridRefField',
+      type: ComponentType.OsGridRefField,
       name: 'location',
       title: 'Enter an OS grid reference',
-      options: {},
-      schema: {}
+      options: {}
     },
     model: null,
     payload: {},
@@ -321,11 +316,10 @@ export const fixtures = {
   },
   NationalGridFieldNumberField: {
     def: {
-      type: 'NationalGridFieldNumberField',
+      type: ComponentType.NationalGridFieldNumberField,
       name: 'location',
       title: 'Enter a national grid reference',
-      options: {},
-      schema: {}
+      options: {}
     },
     model: null,
     payload: {},
@@ -333,11 +327,10 @@ export const fixtures = {
   },
   GeospatialField: {
     def: {
-      type: 'GeospatialField',
+      type: ComponentType.GeospatialField,
       name: 'location',
       title: 'Enter a location',
-      options: {},
-      schema: {}
+      options: {}
     },
     model: null,
     payload: {},
@@ -348,7 +341,7 @@ export const fixtures = {
       {
         label: 'Before payment',
         def: {
-          type: 'PaymentField',
+          type: ComponentType.PaymentField,
           name: 'payment',
           title: 'Pay for your application',
           options: { amount: 2300, description: 'Application fee' }
@@ -359,14 +352,14 @@ export const fixtures = {
       {
         label: 'After payment',
         def: {
-          type: 'PaymentField',
+          type: ComponentType.PaymentField,
           name: 'payment',
           title: 'Pay for your application',
           options: { amount: 2300, description: 'Application fee' }
         },
         model: null,
         payload: {
-          payment: {
+          payment: /** @type {any} */ ({
             paymentId: 'pi_example123',
             reference: 'REF-001',
             amount: 2300,
@@ -378,7 +371,7 @@ export const fixtures = {
               status: 'success',
               createdAt: '2025-01-01T00:00:00.000Z'
             }
-          }
+          })
         }
       }
     ]
