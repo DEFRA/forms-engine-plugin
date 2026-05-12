@@ -27,6 +27,50 @@ const metadata = JSON.parse(
 /** @type {Record<string, string>} */
 const ACRONYMS = { Uk: 'UK', Os: 'OS', Html: 'HTML' }
 
+const DEMO_FORM_URL =
+  'https://submit-form-to-defra.service.gov.uk/form/components-preview'
+
+/**
+ * Build a GOV.UK notification banner JSX string for Level 1 or Level 2 components.
+ * The jsNotice text is HTML-escaped before emission.
+ * @param {1|2} jsLevel
+ * @param {string} jsNotice
+ * @returns {string}
+ */
+export function buildJsBanner(jsLevel, jsNotice) {
+  const escaped = jsNotice
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+
+  if (jsLevel === 1) {
+    return [
+      `<div className="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">`,
+      `  <div className="govuk-notification-banner__header">`,
+      `    <h2 className="govuk-notification-banner__title" id="govuk-notification-banner-title">Requires client-side JavaScript</h2>`,
+      `  </div>`,
+      `  <div className="govuk-notification-banner__content">`,
+      `    <p className="govuk-body">This component cannot be previewed here — it requires Ordnance Survey API credentials and a running map service that aren't available in the documentation environment.</p>`,
+      `    <p className="govuk-body">${escaped}</p>`,
+      `    <p className="govuk-body"><a className="govuk-link" href="${DEMO_FORM_URL}">View the components demo</a> to see it working.</p>`,
+      `  </div>`,
+      `</div>`
+    ].join('\n')
+  }
+
+  return [
+    `<div className="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">`,
+    `  <div className="govuk-notification-banner__header">`,
+    `    <h2 className="govuk-notification-banner__title" id="govuk-notification-banner-title">JavaScript enhances this component</h2>`,
+    `  </div>`,
+    `  <div className="govuk-notification-banner__content">`,
+    `    <p className="govuk-body">${escaped}</p>`,
+    `    <p className="govuk-body">If the full experience isn't available, <a className="govuk-link" href="${DEMO_FORM_URL}">view the components demo</a>.</p>`,
+    `  </div>`,
+    `</div>`
+  ].join('\n')
+}
+
 /**
  * @param {string} str
  * @returns {string}
@@ -677,13 +721,15 @@ export function generateExample(componentName, interfaceData) {
  * @param {ComponentData} interfaceData
  * @param {number} sidebarPosition
  * @param {string|null} [previewSlug]
+ * @param {object|null} [fixture]
  * @returns {string}
  */
 export function generateComponentMd(
   componentName,
   interfaceData,
   sidebarPosition,
-  previewSlug = null
+  previewSlug = null,
+  fixture = null
 ) {
   const description = metadata.components[componentName] ?? ''
   const label = toLabel(componentName)
@@ -692,7 +738,8 @@ export function generateComponentMd(
   const links = metadata.componentLinks?.[componentName] ?? []
 
   // leading '' ensures a blank line between frontmatter and the import
-  const previewImport = previewSlug
+  const hasPreviewFile = previewSlug && fixture?.jsLevel !== 1
+  const previewImport = hasPreviewFile
     ? [``, `import Preview from './_previews/${previewSlug}.mdx'`]
     : []
 
@@ -713,8 +760,14 @@ export function generateComponentMd(
     lines.push(text, ``)
   }
 
-  if (previewSlug) {
-    lines.push(`## Preview`, ``, `<Preview />`, ``)
+  if (fixture || previewSlug) {
+    lines.push(`## Preview`, ``)
+    if (fixture?.jsLevel === 2) {
+      lines.push(buildJsBanner(2, fixture.jsNotice), ``)
+    }
+    if (hasPreviewFile) {
+      lines.push(`<Preview />`, ``)
+    }
   }
 
   lines.push(

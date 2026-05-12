@@ -48,6 +48,7 @@ jest.mock('fs', () => ({
 }))
 
 import {
+  buildJsBanner,
   controllerLabel,
   controllerSlug,
   deriveCategory,
@@ -345,6 +346,86 @@ describe('Component Documentation Generator', () => {
       const result = generateComponentMd('TextField', interfaceData, 1)
       expect(result).not.toContain('import Preview')
       expect(result).not.toContain('## Preview')
+    })
+  })
+
+  describe('buildJsBanner', () => {
+    it('Level 2: contains govuk-notification-banner and correct heading', () => {
+      const result = buildJsBanner(
+        2,
+        'This component is progressively enhanced.'
+      )
+      expect(result).toContain('govuk-notification-banner')
+      expect(result).toContain('JavaScript enhances this component')
+      expect(result).not.toContain('Requires client-side JavaScript')
+    })
+
+    it('Level 2: contains jsNotice text and demo link', () => {
+      const result = buildJsBanner(
+        2,
+        'This component is progressively enhanced.'
+      )
+      expect(result).toContain('This component is progressively enhanced.')
+      expect(result).toContain(
+        'submit-form-to-defra.service.gov.uk/form/components-preview'
+      )
+      expect(result).toContain("If the full experience isn't available")
+    })
+
+    it('Level 2: HTML-escapes angle brackets in jsNotice', () => {
+      const result = buildJsBanner(2, 'Renders as a <select> element.')
+      expect(result).toContain('&lt;select&gt;')
+      expect(result).not.toContain('<select>')
+    })
+
+    it('Level 1: contains "Requires client-side JavaScript" heading and cannot-be-previewed text', () => {
+      const result = buildJsBanner(1, 'Notice text.')
+      expect(result).toContain('Requires client-side JavaScript')
+      expect(result).toContain('cannot be previewed here')
+      expect(result).toContain('Notice text.')
+      expect(result).toContain('View the components demo')
+    })
+
+    it('Level 1: HTML-escapes angle brackets in jsNotice', () => {
+      const result = buildJsBanner(1, 'Use a <input> element.')
+      expect(result).toContain('&lt;input&gt;')
+      expect(result).not.toContain('<input>')
+    })
+  })
+
+  describe('generateComponentMd with Level 2 fixture', () => {
+    const interfaceData = { options: [], schema: [], props: [] }
+
+    it('emits notification banner under ## Preview, before <Preview />', () => {
+      const fixture = { jsLevel: 2, jsNotice: 'Progressively enhanced.' }
+      const result = generateComponentMd(
+        'TextField',
+        interfaceData,
+        1,
+        'text-field',
+        fixture
+      )
+      expect(result).toContain('## Preview')
+      expect(result).toContain('JavaScript enhances this component')
+      expect(result).toContain('Progressively enhanced.')
+      expect(result).toContain('<Preview />')
+      expect(result.indexOf('JavaScript enhances this component')).toBeLessThan(
+        result.indexOf('<Preview />')
+      )
+    })
+
+    it('still imports the preview partial for Level 2', () => {
+      const fixture = { jsLevel: 2, jsNotice: 'Progressively enhanced.' }
+      const result = generateComponentMd(
+        'TextField',
+        interfaceData,
+        1,
+        'text-field',
+        fixture
+      )
+      expect(result).toContain(
+        "import Preview from './_previews/text-field.mdx'"
+      )
     })
   })
 })
