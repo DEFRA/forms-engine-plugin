@@ -752,7 +752,7 @@ export function generateComponentMd(
     lines.push(text, ``)
   }
 
-  if (fixture || previewSlug) {
+  if (fixture) {
     lines.push(`## Preview`, ``)
     if (fixture?.jsLevel === 1 || fixture?.jsLevel === 2) {
       lines.push(buildJsNotice(fixture.jsLevel, fixture.jsNotice), ``)
@@ -1146,12 +1146,12 @@ function main() {
     )
     fs.writeFileSync(path.join(componentsOutputDir, `${slug}.mdx`), content)
 
-    if (fixture && fixture.jsLevel !== 1) {
-      writePreviewPartial(previewsOutputDir, slug, fixture)
-    } else if (!fixture) {
+    if (!fixture) {
       console.warn(
         `Warning: no preview fixture for ${name} — add one to component-preview-fixtures.js`
       )
+    } else if (fixture.jsLevel !== 1) {
+      writePreviewPartial(previewsOutputDir, slug, fixture)
     }
   }
 

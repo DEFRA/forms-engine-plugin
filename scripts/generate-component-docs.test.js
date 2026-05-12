@@ -328,12 +328,13 @@ describe('Component Documentation Generator', () => {
   describe('generateComponentMd with preview', () => {
     const interfaceData = { options: [], schema: [], props: [] }
 
-    it('includes preview import when slug is provided', () => {
+    it('includes preview import when slug and fixture are provided', () => {
       const result = generateComponentMd(
         'TextField',
         interfaceData,
         1,
-        'text-field'
+        'text-field',
+        { jsLevel: 3, render: () => '' }
       )
       expect(result).toContain(
         "import Preview from './_previews/text-field.mdx'"
@@ -342,7 +343,7 @@ describe('Component Documentation Generator', () => {
       expect(result).toContain('<Preview />')
     })
 
-    it('omits preview section when no slug is provided', () => {
+    it('omits preview section when no fixture is provided', () => {
       const result = generateComponentMd('TextField', interfaceData, 1)
       expect(result).not.toContain('import Preview')
       expect(result).not.toContain('## Preview')
