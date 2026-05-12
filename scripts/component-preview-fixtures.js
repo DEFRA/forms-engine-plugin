@@ -473,4 +473,21 @@ export const fixtures = {
  * @typedef {{ def: ComponentDef, model: Partial<FormModel>|null, payload: FormPayload }} FixtureRender
  * @typedef {{ label: string } & FixtureRender} FixtureVariant
  * @typedef {{ jsLevel: 1|2|3, jsNotice?: string, previewSuffix?: string } & (FixtureRender | { variants: FixtureVariant[] })} Fixture
+ *
+ * jsLevel describes the component's JavaScript dependency:
+ *   1 — hard JS requirement, cannot be statically rendered (e.g. map). Docs show a jsNotice only.
+ *   2 — progressively enhanced, works without JS but degrades. Docs show a jsNotice + static preview.
+ *   3 — no meaningful JS dependency beyond what GOV.UK Frontend already provides. Docs show a static preview only.
+ *
+ * jsNotice — plain text shown to users explaining the JS dependency (required for levels 1 and 2).
+ *
+ * previewSuffix — optional text appended below the static preview as a placeholder, used to
+ *   indicate where a JS-rendered element (e.g. a map) would appear in a live environment.
+ *
+ * def — the component definition passed to the form engine to render the preview.
+ * model — partial FormModel state; null if no model context is needed.
+ * payload — form submission payload used to pre-populate the component.
+ *
+ * variants — alternative to a single render: an array of labelled def/model/payload sets,
+ *   each rendered as a separate tab in the preview.
  */
