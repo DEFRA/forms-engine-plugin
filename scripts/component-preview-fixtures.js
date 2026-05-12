@@ -26,6 +26,7 @@ const sampleList = {
 /** @type {Partial<Record<ComponentType, Fixture>>} */
 export const fixtures = {
   [ComponentType.TextField]: {
+    jsLevel: 3,
     def: {
       type: ComponentType.TextField,
       name: 'full-name',
@@ -38,6 +39,7 @@ export const fixtures = {
     payload: {}
   },
   [ComponentType.EmailAddressField]: {
+    jsLevel: 3,
     def: {
       type: ComponentType.EmailAddressField,
       name: 'email',
@@ -48,6 +50,7 @@ export const fixtures = {
     payload: {}
   },
   [ComponentType.MultilineTextField]: {
+    jsLevel: 3,
     def: {
       type: ComponentType.MultilineTextField,
       name: 'description',
@@ -60,6 +63,7 @@ export const fixtures = {
     payload: {}
   },
   [ComponentType.NumberField]: {
+    jsLevel: 3,
     def: {
       type: ComponentType.NumberField,
       name: 'age',
@@ -71,6 +75,7 @@ export const fixtures = {
     payload: {}
   },
   [ComponentType.TelephoneNumberField]: {
+    jsLevel: 3,
     def: {
       type: ComponentType.TelephoneNumberField,
       name: 'phone',
@@ -81,6 +86,7 @@ export const fixtures = {
     payload: {}
   },
   [ComponentType.MonthYearField]: {
+    jsLevel: 3,
     def: {
       type: ComponentType.MonthYearField,
       name: 'start-date',
@@ -92,6 +98,7 @@ export const fixtures = {
     payload: {}
   },
   [ComponentType.DatePartsField]: {
+    jsLevel: 3,
     def: {
       type: ComponentType.DatePartsField,
       name: 'dob',
@@ -103,6 +110,7 @@ export const fixtures = {
     payload: {}
   },
   [ComponentType.UkAddressField]: {
+    jsLevel: 3,
     variants: [
       {
         label: 'With postcode lookup',
@@ -129,6 +137,7 @@ export const fixtures = {
     ]
   },
   [ComponentType.YesNoField]: {
+    jsLevel: 3,
     def: {
       type: ComponentType.YesNoField,
       name: 'agree',
@@ -139,6 +148,7 @@ export const fixtures = {
     payload: {}
   },
   [ComponentType.RadiosField]: {
+    jsLevel: 3,
     def: {
       type: ComponentType.RadiosField,
       name: 'colour',
@@ -150,6 +160,7 @@ export const fixtures = {
     payload: {}
   },
   [ComponentType.CheckboxesField]: {
+    jsLevel: 3,
     def: {
       type: ComponentType.CheckboxesField,
       name: 'colours',
@@ -161,6 +172,7 @@ export const fixtures = {
     payload: {}
   },
   [ComponentType.SelectField]: {
+    jsLevel: 3,
     def: {
       type: ComponentType.SelectField,
       name: 'country',
@@ -172,6 +184,9 @@ export const fixtures = {
     payload: {}
   },
   [ComponentType.AutocompleteField]: {
+    jsLevel: 2,
+    jsNotice:
+      'This component is progressively enhanced. Without JavaScript it renders as a standard <select> dropdown that works fully. With JavaScript enabled it becomes a searchable autocomplete.',
     def: {
       type: ComponentType.AutocompleteField,
       name: 'country',
@@ -183,6 +198,7 @@ export const fixtures = {
     payload: {}
   },
   [ComponentType.DeclarationField]: {
+    jsLevel: 3,
     def: {
       type: ComponentType.DeclarationField,
       name: 'declaration',
@@ -196,6 +212,9 @@ export const fixtures = {
   // FileUploadField acts as a file manager for files already in session state.
   // Actual uploading is handled by CDP via FileUploadPageController.
   [ComponentType.FileUploadField]: {
+    jsLevel: 2,
+    jsNotice:
+      'This component is progressively enhanced. File uploads work without JavaScript using standard form submission. With JavaScript enabled, users get real-time upload progress.',
     variants: [
       {
         label: 'No files uploaded',
@@ -260,6 +279,7 @@ export const fixtures = {
     ]
   },
   [ComponentType.Html]: {
+    jsLevel: 3,
     def: {
       type: ComponentType.Html,
       name: 'info',
@@ -271,6 +291,7 @@ export const fixtures = {
     payload: {}
   },
   [ComponentType.InsetText]: {
+    jsLevel: 3,
     def: {
       type: ComponentType.InsetText,
       name: 'notice',
@@ -282,6 +303,7 @@ export const fixtures = {
     payload: {}
   },
   [ComponentType.Details]: {
+    jsLevel: 3,
     def: {
       type: ComponentType.Details,
       name: 'help',
@@ -293,6 +315,7 @@ export const fixtures = {
     payload: {}
   },
   [ComponentType.Markdown]: {
+    jsLevel: 3,
     def: {
       type: ComponentType.Markdown,
       name: 'guidance',
@@ -304,6 +327,7 @@ export const fixtures = {
     payload: {}
   },
   [ComponentType.List]: {
+    jsLevel: 3,
     def: {
       type: ComponentType.List,
       name: 'steps',
@@ -315,6 +339,7 @@ export const fixtures = {
     payload: {}
   },
   [ComponentType.HiddenField]: {
+    jsLevel: 3,
     def: {
       type: ComponentType.HiddenField,
       name: 'ref',
@@ -325,6 +350,10 @@ export const fixtures = {
     payload: {}
   },
   [ComponentType.LatLongField]: {
+    jsLevel: 2,
+    jsNotice:
+      'This component is progressively enhanced. The coordinate fields work without JavaScript. With JavaScript enabled, an interactive map lets users click to set their location.',
+    previewSuffix: 'Map appears here with JavaScript enabled',
     def: {
       type: ComponentType.LatLongField,
       name: 'location',
@@ -333,10 +362,13 @@ export const fixtures = {
       schema: {}
     },
     model: null,
-    payload: {},
-    mapPlaceholder: true
+    payload: {}
   },
   [ComponentType.EastingNorthingField]: {
+    jsLevel: 2,
+    jsNotice:
+      'This component is progressively enhanced. The coordinate fields work without JavaScript. With JavaScript enabled, an interactive map lets users click to set their location.',
+    previewSuffix: 'Map appears here with JavaScript enabled',
     def: {
       type: ComponentType.EastingNorthingField,
       name: 'location',
@@ -345,10 +377,13 @@ export const fixtures = {
       schema: {}
     },
     model: null,
-    payload: {},
-    mapPlaceholder: true
+    payload: {}
   },
   [ComponentType.OsGridRefField]: {
+    jsLevel: 2,
+    jsNotice:
+      'This component is progressively enhanced. The OS grid reference field works without JavaScript. With JavaScript enabled, an interactive map lets users click to set their location.',
+    previewSuffix: 'Map appears here with JavaScript enabled',
     def: {
       type: ComponentType.OsGridRefField,
       name: 'location',
@@ -356,10 +391,13 @@ export const fixtures = {
       options: {}
     },
     model: null,
-    payload: {},
-    mapPlaceholder: true
+    payload: {}
   },
   [ComponentType.NationalGridFieldNumberField]: {
+    jsLevel: 2,
+    jsNotice:
+      'This component is progressively enhanced. The national grid reference field works without JavaScript. With JavaScript enabled, an interactive map lets users click to set their location.',
+    previewSuffix: 'Map appears here with JavaScript enabled',
     def: {
       type: ComponentType.NationalGridFieldNumberField,
       name: 'location',
@@ -367,10 +405,12 @@ export const fixtures = {
       options: {}
     },
     model: null,
-    payload: {},
-    mapPlaceholder: true
+    payload: {}
   },
   [ComponentType.GeospatialField]: {
+    jsLevel: 1,
+    jsNotice:
+      'A multiline text input that accepts raw GeoJSON is available as a fallback when JavaScript is unavailable, but this is not a recommended user journey. The interactive map this component is based on has a high level of accessibility built in — but it comes with a hard client-side JavaScript requirement. If JavaScript availability is a concern, use a progressively enhanced component instead.',
     def: {
       type: ComponentType.GeospatialField,
       name: 'location',
@@ -378,10 +418,10 @@ export const fixtures = {
       options: {}
     },
     model: null,
-    payload: {},
-    mapPlaceholder: true
+    payload: {}
   },
   [ComponentType.PaymentField]: {
+    jsLevel: 3,
     variants: [
       {
         label: 'Before payment',
@@ -432,5 +472,5 @@ export const fixtures = {
  * @typedef {import('~/src/server/plugins/engine/types.js').FormPayload} FormPayload
  * @typedef {{ def: ComponentDef, model: Partial<FormModel>|null, payload: FormPayload }} FixtureRender
  * @typedef {{ label: string } & FixtureRender} FixtureVariant
- * @typedef {{ mapPlaceholder?: boolean } & (FixtureRender | { variants: FixtureVariant[] })} Fixture
+ * @typedef {{ jsLevel: 1|2|3, jsNotice?: string, previewSuffix?: string } & (FixtureRender | { variants: FixtureVariant[] })} Fixture
  */
