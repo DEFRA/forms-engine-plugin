@@ -432,12 +432,15 @@ describe('SummaryPageController - Payment (DF-832)', () => {
   })
 
   describe('handleFormSubmit - notification email gate', () => {
-    /** @param {{ notificationEmail?: string }} args */
-    function buildHandleFormSubmitHarness({ notificationEmail }) {
-      const state = /** @type {FormSubmissionState} */ {
+    function buildHandleFormSubmitHarness({
+      notificationEmail
+    }: {
+      notificationEmail?: string
+    }) {
+      const state = {
         $$__referenceNumber: 'ref',
         yesNoField: false
-      }
+      } as unknown as FormSubmissionState
 
       const cacheService = {
         setConfirmationState: jest.fn().mockResolvedValue(undefined),

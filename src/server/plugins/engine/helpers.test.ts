@@ -446,20 +446,17 @@ describe('Helpers', () => {
   })
 
   describe('definitionHasPaymentField', () => {
-    /**
-     * @param {Array<{ type: ComponentType }>} components
-     * @returns {FormDefinition}
-     */
-    const buildDef = (components = []) => /** @type {FormDefinition} */ ({
-      pages: [
-        {
-          title: 'p',
-          path: '/p',
-          components,
-          next: []
-        }
-      ]
-    })
+    const buildDef = (components: { type: ComponentType }[] = []) =>
+      ({
+        pages: [
+          {
+            title: 'p',
+            path: '/p',
+            components,
+            next: []
+          }
+        ]
+      }) as unknown as FormDefinition
 
     it('returns true when a PaymentField is present', () => {
       expect(
@@ -480,11 +477,11 @@ describe('Helpers', () => {
     })
 
     it('returns false for pages without a components array', () => {
-      const def = /** @type {FormDefinition} */ {
+      const def = {
         pages: [
           { title: 'p', path: '/p', controller: 'TerminalPageController' }
         ]
-      }
+      } as unknown as FormDefinition
       expect(definitionHasPaymentField(def)).toBe(false)
     })
   })
