@@ -730,6 +730,7 @@ export function generateComponentMd(
   const links = metadata.componentLinks?.[componentName] ?? []
 
   // leading '' ensures a blank line between frontmatter and the import
+  // Level 1 components require client-side JavaScript to render and can't be statically previewed
   const hasPreviewFile = previewSlug && fixture?.jsLevel !== 1
   const previewImport = hasPreviewFile
     ? [``, `import Preview from './_previews/${previewSlug}.mdx'`]
@@ -754,7 +755,10 @@ export function generateComponentMd(
 
   if (fixture) {
     lines.push(`## Preview`, ``)
-    if (fixture?.jsLevel === 1 || fixture?.jsLevel === 2) {
+    // Level 1: jsNotice only — hasPreviewFile is false, static render not possible
+    // Level 2: jsNotice + <Preview /> — hasPreviewFile is true
+    // Level 3: <Preview /> only — no jsNotice, hasPreviewFile is true
+    if (fixture.jsLevel === 1 || fixture.jsLevel === 2) {
       lines.push(buildJsNotice(fixture.jsLevel, fixture.jsNotice), ``)
     }
     if (hasPreviewFile) {
