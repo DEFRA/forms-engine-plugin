@@ -45,6 +45,14 @@ export function buildJsNotice(jsLevel, jsNotice) {
     .replace(/>/g, '&gt;')
 
   if (jsLevel === 1) {
+    // Convert markdown-style links [text](url) in the notice text to JSX anchors —
+    // jsNotice is embedded inside a JSX <p> tag, not a markdown context, so [text](url)
+    // would render as literal text without this conversion.
+    const noticeWithLinks = escaped.replace(
+      /\[([^\]]+)\]\(([^)]+)\)/g,
+      (_, text, url) =>
+        `<a className="govuk-notification-banner__link" href="${url}">${text}</a>`
+    )
     return [
       `<div className="govuk-notification-banner app-no-prose" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">`,
       `  <div className="govuk-notification-banner__header">`,
@@ -53,7 +61,7 @@ export function buildJsNotice(jsLevel, jsNotice) {
       `  <div className="govuk-notification-banner__content">`,
       `    <h3 className="govuk-notification-banner__heading">Requires client-side JavaScript</h3>`,
       `    <p className="govuk-body">This component cannot be previewed here — it requires Ordnance Survey API credentials and a running map service that aren't available in the documentation environment.</p>`,
-      `    <p className="govuk-body">${escaped}</p>`,
+      `    <p className="govuk-body">${noticeWithLinks}</p>`,
       `    <p className="govuk-body"><a className="govuk-link" href="${DEMO_FORM_URL}">View the components demo</a> to see it working.</p>`,
       `  </div>`,
       `</div>`

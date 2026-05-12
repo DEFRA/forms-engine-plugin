@@ -387,6 +387,17 @@ describe('Component Documentation Generator', () => {
       expect(result).not.toContain('<input>')
     })
 
+    it('Level 1: converts markdown links in jsNotice to JSX anchors', () => {
+      const result = buildJsNotice(
+        1,
+        'See [interactive-map](https://example.com/) for details.'
+      )
+      expect(result).toContain(
+        '<a className="govuk-notification-banner__link" href="https://example.com/">interactive-map</a>'
+      )
+      expect(result).not.toContain('[interactive-map]')
+    })
+
     it('HTML-escapes ampersands in jsNotice', () => {
       const result = buildJsNotice(2, 'Fish & chips')
       expect(result).toContain('Fish &amp; chips')
