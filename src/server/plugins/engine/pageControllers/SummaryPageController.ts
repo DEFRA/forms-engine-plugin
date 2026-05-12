@@ -269,10 +269,9 @@ export class SummaryPageController extends QuestionPageController {
 
     checkEmailAddressForLiveFormSubmission(notificationEmail, isPreview)
 
-    if (notificationEmail) {
-      const viewModel = this.getSummaryViewModel(request, context)
-
-      try {
+    try {
+      if (notificationEmail) {
+        const viewModel = this.getSummaryViewModel(request, context)
         await submitForm(
           context,
           formMetadata,
@@ -281,9 +280,14 @@ export class SummaryPageController extends QuestionPageController {
           model,
           notificationEmail
         )
-      } catch (error) {
-        return this.handleSubmissionError(error, request, h)
+      } else {
+        // No notification email is configured (e.g. preview), but a
+        // PaymentField may still require preauth/capture. Run only the
+        // PaymentField onSubmit hooks so the GOV.UK Pay redirect fires.
+        await finalisePaymentFields(request, formMetadata, context, model)
       }
+    } catch (error) {
+      return this.handleSubmissionError(error, request, h)
     }
 
     await cacheService.setConfirmationState(request, {
@@ -513,6 +517,26 @@ async function finaliseComponents(
 
   for (const component of allFields) {
     await component.onSubmit(request, metadata, context)
+  }
+}
+
+/**
+ * Runs only the PaymentField onSubmit hooks. Used when there is no
+ * notification email so the GOV.UK Pay preauth/redirect still fires
+ * without triggering email-dependent components like FileUploadField.
+ */
+async function finalisePaymentFields(
+  request: FormRequestPayload,
+  metadata: FormMetadata,
+  context: FormContext,
+  model: FormModel
+) {
+  for (const page of model.pages) {
+    for (const field of page.collection.fields) {
+      if (field instanceof PaymentField) {
+        await field.onSubmit(request, metadata, context)
+      }
+    }
   }
 }
 

@@ -5,6 +5,7 @@ import { isEqual } from 'date-fns'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
   checkEmailAddressForLiveFormSubmission,
+  definitionHasPaymentField,
   getCacheService
 } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
@@ -172,7 +173,8 @@ export async function resolveFormModel(
 
     checkEmailAddressForLiveFormSubmission(
       metadata.notificationEmail,
-      isPreview
+      isPreview,
+      definitionHasPaymentField(definition)
     )
 
     const routePrefix =
