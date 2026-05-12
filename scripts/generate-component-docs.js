@@ -31,13 +31,14 @@ const DEMO_FORM_URL =
   'https://submit-form-to-defra.service.gov.uk/form/components-preview'
 
 /**
- * Build a GOV.UK notification banner JSX string for Level 1 or Level 2 components.
+ * Build a JS notice string for Level 1 or Level 2 components.
+ * Level 1 emits a GOV.UK notification banner (JSX). Level 2 emits plain markdown text.
  * The jsNotice text is HTML-escaped before emission.
  * @param {1|2} jsLevel
  * @param {string} jsNotice
  * @returns {string}
  */
-export function buildJsBanner(jsLevel, jsNotice) {
+export function buildJsNotice(jsLevel, jsNotice) {
   const escaped = jsNotice
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -58,17 +59,7 @@ export function buildJsBanner(jsLevel, jsNotice) {
     ].join('\n')
   }
 
-  return [
-    `<div className="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">`,
-    `  <div className="govuk-notification-banner__header">`,
-    `    <h2 className="govuk-notification-banner__title" id="govuk-notification-banner-title">JavaScript enhances this component</h2>`,
-    `  </div>`,
-    `  <div className="govuk-notification-banner__content">`,
-    `    <p className="govuk-body">${escaped}</p>`,
-    `    <p className="govuk-body">If the full experience isn't available, <a className="govuk-link" href="${DEMO_FORM_URL}">view the components demo</a>.</p>`,
-    `  </div>`,
-    `</div>`
-  ].join('\n')
+  return `${escaped}\n\nIf the full experience isn't available, [view the components demo](${DEMO_FORM_URL}).`
 }
 
 /**
@@ -763,7 +754,7 @@ export function generateComponentMd(
   if (fixture || previewSlug) {
     lines.push(`## Preview`, ``)
     if (fixture?.jsLevel === 1 || fixture?.jsLevel === 2) {
-      lines.push(buildJsBanner(fixture.jsLevel, fixture.jsNotice), ``)
+      lines.push(buildJsNotice(fixture.jsLevel, fixture.jsNotice), ``)
     }
     if (hasPreviewFile) {
       lines.push(`<Preview />`, ``)

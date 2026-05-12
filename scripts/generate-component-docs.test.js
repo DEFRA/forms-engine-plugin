@@ -48,7 +48,7 @@ jest.mock('fs', () => ({
 }))
 
 import {
-  buildJsBanner,
+  buildJsNotice,
   controllerLabel,
   controllerSlug,
   deriveCategory,
@@ -349,19 +349,9 @@ describe('Component Documentation Generator', () => {
     })
   })
 
-  describe('buildJsBanner', () => {
-    it('Level 2: contains govuk-notification-banner and correct heading', () => {
-      const result = buildJsBanner(
-        2,
-        'This component is progressively enhanced.'
-      )
-      expect(result).toContain('govuk-notification-banner')
-      expect(result).toContain('JavaScript enhances this component')
-      expect(result).not.toContain('Requires client-side JavaScript')
-    })
-
-    it('Level 2: contains jsNotice text and demo link', () => {
-      const result = buildJsBanner(
+  describe('buildJsNotice', () => {
+    it('Level 2: contains jsNotice text and demo link as plain text', () => {
+      const result = buildJsNotice(
         2,
         'This component is progressively enhanced.'
       )
@@ -370,16 +360,18 @@ describe('Component Documentation Generator', () => {
         'submit-form-to-defra.service.gov.uk/form/components-preview'
       )
       expect(result).toContain("If the full experience isn't available")
+      expect(result).not.toContain('govuk-notification-banner')
     })
 
     it('Level 2: HTML-escapes angle brackets in jsNotice', () => {
-      const result = buildJsBanner(2, 'Renders as a <select> element.')
+      const result = buildJsNotice(2, 'Renders as a <select> element.')
       expect(result).toContain('&lt;select&gt;')
       expect(result).not.toContain('<select>')
     })
 
     it('Level 1: contains "Requires client-side JavaScript" heading and cannot-be-previewed text', () => {
-      const result = buildJsBanner(1, 'Notice text.')
+      const result = buildJsNotice(1, 'Notice text.')
+      expect(result).toContain('govuk-notification-banner')
       expect(result).toContain('Requires client-side JavaScript')
       expect(result).toContain('cannot be previewed here')
       expect(result).toContain('Notice text.')
@@ -387,13 +379,13 @@ describe('Component Documentation Generator', () => {
     })
 
     it('Level 1: HTML-escapes angle brackets in jsNotice', () => {
-      const result = buildJsBanner(1, 'Use a <input> element.')
+      const result = buildJsNotice(1, 'Use a <input> element.')
       expect(result).toContain('&lt;input&gt;')
       expect(result).not.toContain('<input>')
     })
 
     it('HTML-escapes ampersands in jsNotice', () => {
-      const result = buildJsBanner(2, 'Fish & chips')
+      const result = buildJsNotice(2, 'Fish & chips')
       expect(result).toContain('Fish &amp; chips')
       expect(result).not.toContain('Fish & chips')
     })
@@ -434,7 +426,7 @@ describe('Component Documentation Generator', () => {
   describe('generateComponentMd with Level 2 fixture', () => {
     const interfaceData = { options: [], schema: [], props: [] }
 
-    it('emits notification banner under ## Preview, before <Preview />', () => {
+    it('emits jsNotice text under ## Preview, before <Preview />', () => {
       const fixture = { jsLevel: 2, jsNotice: 'Progressively enhanced.' }
       const result = generateComponentMd(
         'TextField',
@@ -444,10 +436,10 @@ describe('Component Documentation Generator', () => {
         fixture
       )
       expect(result).toContain('## Preview')
-      expect(result).toContain('JavaScript enhances this component')
+      expect(result).not.toContain('govuk-notification-banner')
       expect(result).toContain('Progressively enhanced.')
       expect(result).toContain('<Preview />')
-      expect(result.indexOf('JavaScript enhances this component')).toBeLessThan(
+      expect(result.indexOf('Progressively enhanced.')).toBeLessThan(
         result.indexOf('<Preview />')
       )
     })
