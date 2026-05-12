@@ -762,8 +762,8 @@ export function generateComponentMd(
 
   if (fixture || previewSlug) {
     lines.push(`## Preview`, ``)
-    if (fixture?.jsLevel === 2) {
-      lines.push(buildJsBanner(2, fixture.jsNotice), ``)
+    if (fixture?.jsLevel === 1 || fixture?.jsLevel === 2) {
+      lines.push(buildJsBanner(fixture.jsLevel, fixture.jsNotice), ``)
     }
     if (hasPreviewFile) {
       lines.push(`<Preview />`, ``)
@@ -1134,17 +1134,29 @@ function main() {
     const slug = toKebabCase(name)
     const fixture = fixtures[name]
     const sidebarPosition = i + 1
+
+    if (
+      fixture &&
+      (fixture.jsLevel === 1 || fixture.jsLevel === 2) &&
+      !fixture.jsNotice
+    ) {
+      throw new Error(
+        `Fixture for ${name} has jsLevel ${fixture.jsLevel} but no jsNotice`
+      )
+    }
+
     const content = generateComponentMd(
       name,
       interfaceData,
       sidebarPosition,
-      fixture ? slug : null
+      fixture ? slug : null,
+      fixture ?? null
     )
     fs.writeFileSync(path.join(componentsOutputDir, `${slug}.mdx`), content)
 
-    if (fixture) {
+    if (fixture && fixture.jsLevel !== 1) {
       writePreviewPartial(previewsOutputDir, slug, fixture)
-    } else {
+    } else if (!fixture) {
       console.warn(
         `Warning: no preview fixture for ${name} — add one to component-preview-fixtures.js`
       )

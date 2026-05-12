@@ -393,6 +393,38 @@ describe('Component Documentation Generator', () => {
     })
   })
 
+  describe('generateComponentMd with Level 1 fixture', () => {
+    const interfaceData = { options: [], schema: [], props: [] }
+
+    it('emits ## Preview section with Level 1 banner', () => {
+      const fixture = { jsLevel: 1, jsNotice: 'Requires OS API credentials.' }
+      const result = generateComponentMd(
+        'GeospatialField',
+        interfaceData,
+        1,
+        'geospatial-field',
+        fixture
+      )
+      expect(result).toContain('## Preview')
+      expect(result).toContain('Requires client-side JavaScript')
+      expect(result).toContain('cannot be previewed here')
+      expect(result).toContain('Requires OS API credentials.')
+    })
+
+    it('does not emit <Preview /> or import statement for Level 1', () => {
+      const fixture = { jsLevel: 1, jsNotice: 'Requires OS API credentials.' }
+      const result = generateComponentMd(
+        'GeospatialField',
+        interfaceData,
+        1,
+        'geospatial-field',
+        fixture
+      )
+      expect(result).not.toContain('<Preview />')
+      expect(result).not.toContain('import Preview')
+    })
+  })
+
   describe('generateComponentMd with Level 2 fixture', () => {
     const interfaceData = { options: [], schema: [], props: [] }
 
