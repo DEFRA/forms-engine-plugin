@@ -65,6 +65,22 @@ describe('component-preview-fixtures', () => {
       expect(typeof fixtures[type].model?.getList).toBe('function')
     }
   })
+
+  it('every fixture has a jsLevel of 1, 2, or 3', () => {
+    for (const fixture of Object.values(fixtures)) {
+      expect([1, 2, 3]).toContain(fixture.jsLevel)
+    }
+  })
+
+  it('every level 1 or 2 fixture has a non-empty jsNotice string', () => {
+    const lowLevelFixtures = Object.values(fixtures).filter(
+      (f) => f.jsLevel === 1 || f.jsLevel === 2
+    )
+    for (const fixture of lowLevelFixtures) {
+      expect(typeof fixture.jsNotice).toBe('string')
+      expect(fixture.jsNotice.length).toBeGreaterThan(0)
+    }
+  })
 })
 
 describe('buildPartialMdx', () => {
@@ -169,5 +185,28 @@ describe('writePreviewPartial', () => {
     const written = writeFileSync.mock.calls[0][1]
     const matches = written.match(/className="component-preview"/g)
     expect(matches).toHaveLength(2)
+  })
+
+  it('appends previewSuffix text wrapped in app-preview-placeholder div', () => {
+    const fixture = {
+      def: { type: 'TextField', name: 'loc', title: 'Location', options: {} },
+      model: null,
+      payload: {},
+      previewSuffix: 'Map appears here with JavaScript enabled'
+    }
+    writePreviewPartial('/out/_previews', 'location', fixture)
+    const written = writeFileSync.mock.calls[0][1]
+    expect(written).toContain('app-preview-placeholder')
+    expect(written).toContain('Map appears here with JavaScript enabled')
+  })
+
+  it('does not append placeholder when previewSuffix is absent', () => {
+    writePreviewPartial('/out/_previews', 'text-field', {
+      def: { type: 'TextField', name: 'field', title: 'Field', options: {} },
+      model: null,
+      payload: {}
+    })
+    const written = writeFileSync.mock.calls[0][1]
+    expect(written).not.toContain('app-preview-placeholder')
   })
 })

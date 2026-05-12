@@ -48,6 +48,7 @@ jest.mock('fs', () => ({
 }))
 
 import {
+  buildJsNotice,
   controllerLabel,
   controllerSlug,
   deriveCategory,
@@ -327,12 +328,13 @@ describe('Component Documentation Generator', () => {
   describe('generateComponentMd with preview', () => {
     const interfaceData = { options: [], schema: [], props: [] }
 
-    it('includes preview import when slug is provided', () => {
+    it('includes preview import when slug and fixture are provided', () => {
       const result = generateComponentMd(
         'TextField',
         interfaceData,
         1,
-        'text-field'
+        'text-field',
+        { jsLevel: 3, render: () => '' }
       )
       expect(result).toContain(
         "import Preview from './_previews/text-field.mdx'"
@@ -341,10 +343,125 @@ describe('Component Documentation Generator', () => {
       expect(result).toContain('<Preview />')
     })
 
-    it('omits preview section when no slug is provided', () => {
+    it('omits preview section when no fixture is provided', () => {
       const result = generateComponentMd('TextField', interfaceData, 1)
       expect(result).not.toContain('import Preview')
       expect(result).not.toContain('## Preview')
+    })
+  })
+
+  describe('buildJsNotice', () => {
+    it('Level 2: contains jsNotice text and demo link as plain text', () => {
+      const result = buildJsNotice(
+        2,
+        'This component is progressively enhanced.'
+      )
+      expect(result).toContain('This component is progressively enhanced.')
+      expect(result).toContain(
+        'submit-form-to-defra.service.gov.uk/form/register-a-unicorn'
+      )
+      expect(result).toContain(
+        'To see the full experience, [view our demo form]'
+      )
+      expect(result).not.toContain('govuk-notification-banner')
+    })
+
+    it('Level 2: HTML-escapes angle brackets in jsNotice', () => {
+      const result = buildJsNotice(2, 'Renders as a <select> element.')
+      expect(result).toContain('&lt;select&gt;')
+      expect(result).not.toContain('<select>')
+    })
+
+    it('Level 1: contains Warning title, Requires client-side JavaScript heading, and cannot-be-previewed text', () => {
+      const result = buildJsNotice(1, 'Notice text.')
+      expect(result).toContain('govuk-notification-banner')
+      expect(result).toContain('govuk-notification-banner__title')
+      expect(result).toContain('Warning')
+      expect(result).toContain('govuk-notification-banner__heading')
+      expect(result).toContain('Requires client-side JavaScript')
+      expect(result).toContain('cannot be previewed here')
+      expect(result).toContain('Notice text.')
+      expect(result).toContain('View the components demo')
+    })
+
+    it('Level 1: HTML-escapes angle brackets in jsNotice', () => {
+      const result = buildJsNotice(1, 'Use a <input> element.')
+      expect(result).toContain('&lt;input&gt;')
+      expect(result).not.toContain('<input>')
+    })
+
+    it('HTML-escapes ampersands in jsNotice', () => {
+      const result = buildJsNotice(2, 'Fish & chips')
+      expect(result).toContain('Fish &amp; chips')
+      expect(result).not.toContain('Fish & chips')
+    })
+  })
+
+  describe('generateComponentMd with Level 1 fixture', () => {
+    const interfaceData = { options: [], schema: [], props: [] }
+
+    it('emits ## Preview section with Level 1 banner', () => {
+      const fixture = { jsLevel: 1, jsNotice: 'Requires OS API credentials.' }
+      const result = generateComponentMd(
+        'GeospatialField',
+        interfaceData,
+        1,
+        'geospatial-field',
+        fixture
+      )
+      expect(result).toContain('## Preview')
+      expect(result).toContain('Requires client-side JavaScript')
+      expect(result).toContain('cannot be previewed here')
+      expect(result).toContain('Requires OS API credentials.')
+    })
+
+    it('does not emit <Preview /> or import statement for Level 1', () => {
+      const fixture = { jsLevel: 1, jsNotice: 'Requires OS API credentials.' }
+      const result = generateComponentMd(
+        'GeospatialField',
+        interfaceData,
+        1,
+        'geospatial-field',
+        fixture
+      )
+      expect(result).not.toContain('<Preview />')
+      expect(result).not.toContain('import Preview')
+    })
+  })
+
+  describe('generateComponentMd with Level 2 fixture', () => {
+    const interfaceData = { options: [], schema: [], props: [] }
+
+    it('emits jsNotice text under ## Preview, before <Preview />', () => {
+      const fixture = { jsLevel: 2, jsNotice: 'Progressively enhanced.' }
+      const result = generateComponentMd(
+        'TextField',
+        interfaceData,
+        1,
+        'text-field',
+        fixture
+      )
+      expect(result).toContain('## Preview')
+      expect(result).not.toContain('govuk-notification-banner')
+      expect(result).toContain('Progressively enhanced.')
+      expect(result).toContain('<Preview />')
+      expect(result.indexOf('Progressively enhanced.')).toBeLessThan(
+        result.indexOf('<Preview />')
+      )
+    })
+
+    it('still imports the preview partial for Level 2', () => {
+      const fixture = { jsLevel: 2, jsNotice: 'Progressively enhanced.' }
+      const result = generateComponentMd(
+        'TextField',
+        interfaceData,
+        1,
+        'text-field',
+        fixture
+      )
+      expect(result).toContain(
+        "import Preview from './_previews/text-field.mdx'"
+      )
     })
   })
 })

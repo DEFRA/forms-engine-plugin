@@ -72,12 +72,6 @@ export function buildPartialMdx(renders) {
     .join('\n\n')
 }
 
-const MAP_PLACEHOLDER =
-  `<div class="app-map-placeholder">` +
-  `<p class="govuk-body govuk-!-margin-bottom-0">` +
-  `Map appears here with JavaScript enabled` +
-  `</p></div>`
-
 /**
  * Renders all variants for a component and writes the MDX partial to _previews/<slug>.mdx.
  * @param {string} previewsDir - absolute path to the _previews/ directory
@@ -87,18 +81,18 @@ const MAP_PLACEHOLDER =
 export function writePreviewPartial(previewsDir, slug, fixture) {
   fs.mkdirSync(previewsDir, { recursive: true })
 
-  // rendering the real map component is too hard as it has server-side dependencies, so we
-  // just put a placeholder in the documentation
-  const appendHtml = fixture.mapPlaceholder ? `\n${MAP_PLACEHOLDER}` : ''
+  const suffixHtml = fixture.previewSuffix
+    ? `\n<div class="app-preview-placeholder"><p class="govuk-body govuk-!-margin-bottom-0">${fixture.previewSuffix}</p></div>`
+    : ''
 
   let renders
   if ('variants' in fixture) {
     renders = fixture.variants.map((variant) => ({
       label: variant.label,
-      html: renderComponent(variant) + appendHtml
+      html: renderComponent(variant) + suffixHtml
     }))
   } else {
-    renders = [{ html: renderComponent(fixture) + appendHtml }]
+    renders = [{ html: renderComponent(fixture) + suffixHtml }]
   }
 
   const content = buildPartialMdx(renders)
