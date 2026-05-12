@@ -267,7 +267,12 @@ export class SummaryPageController extends QuestionPageController {
     const { notificationEmail } = formMetadata
     const { isPreview } = checkFormStatus(request.params)
 
-    checkEmailAddressForLiveFormSubmission(notificationEmail, isPreview)
+    const hasPayment = this.findPaymentField() !== undefined
+    checkEmailAddressForLiveFormSubmission(
+      notificationEmail,
+      isPreview,
+      hasPayment
+    )
 
     try {
       if (notificationEmail) {

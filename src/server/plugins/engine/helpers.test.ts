@@ -11,6 +11,7 @@ import { ValidationError } from 'joi'
 import {
   checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
+  definitionHasPaymentField,
   encodeUrl,
   engine,
   evaluateTemplate,
@@ -425,6 +426,66 @@ describe('Helpers', () => {
       expect(() =>
         checkEmailAddressForLiveFormSubmission('test@example.com', true)
       ).not.toThrow()
+    })
+
+    it('should not throw when emailAddress is undefined and the form has a PaymentField', () => {
+      expect(() =>
+        checkEmailAddressForLiveFormSubmission(undefined, false, true)
+      ).not.toThrow()
+    })
+
+    it('should still throw when neither emailAddress nor PaymentField is present on a live form', () => {
+      expect(() =>
+        checkEmailAddressForLiveFormSubmission(undefined, false, false)
+      ).toThrow(
+        Boom.internal(
+          'An email address is required to complete the form submission'
+        )
+      )
+    })
+  })
+
+  describe('definitionHasPaymentField', () => {
+    /**
+     * @param {Array<{ type: ComponentType }>} components
+     * @returns {FormDefinition}
+     */
+    const buildDef = (components = []) => /** @type {FormDefinition} */ ({
+      pages: [
+        {
+          title: 'p',
+          path: '/p',
+          components,
+          next: []
+        }
+      ]
+    })
+
+    it('returns true when a PaymentField is present', () => {
+      expect(
+        definitionHasPaymentField(
+          buildDef([{ type: ComponentType.PaymentField }])
+        )
+      ).toBe(true)
+    })
+
+    it('returns false when no PaymentField is present', () => {
+      expect(
+        definitionHasPaymentField(buildDef([{ type: ComponentType.TextField }]))
+      ).toBe(false)
+    })
+
+    it('returns false when the form has no components', () => {
+      expect(definitionHasPaymentField(buildDef([]))).toBe(false)
+    })
+
+    it('returns false for pages without a components array', () => {
+      const def = /** @type {FormDefinition} */ {
+        pages: [
+          { title: 'p', path: '/p', controller: 'TerminalPageController' }
+        ]
+      }
+      expect(definitionHasPaymentField(def)).toBe(false)
     })
   })
 
