@@ -170,4 +170,27 @@ describe('writePreviewPartial', () => {
     const matches = written.match(/className="component-preview"/g)
     expect(matches).toHaveLength(2)
   })
+
+  it('appends previewSuffix text wrapped in app-preview-placeholder div', () => {
+    const fixture = {
+      def: { type: 'TextField', name: 'loc', title: 'Location', options: {} },
+      model: null,
+      payload: {},
+      previewSuffix: 'Map appears here with JavaScript enabled'
+    }
+    writePreviewPartial('/out/_previews', 'location', fixture)
+    const written = writeFileSync.mock.calls[0][1]
+    expect(written).toContain('app-preview-placeholder')
+    expect(written).toContain('Map appears here with JavaScript enabled')
+  })
+
+  it('does not append placeholder when previewSuffix is absent', () => {
+    writePreviewPartial('/out/_previews', 'text-field', {
+      def: { type: 'TextField', name: 'field', title: 'Field', options: {} },
+      model: null,
+      payload: {}
+    })
+    const written = writeFileSync.mock.calls[0][1]
+    expect(written).not.toContain('app-preview-placeholder')
+  })
 })
