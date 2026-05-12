@@ -103,7 +103,10 @@
       "This component renders an inline Ordnance Survey map that lets users click a location to auto-populate the latitude and longitude inputs. The map requires the `ordnanceSurveyApiKey` and `ordnanceSurveyApiSecret` [plugin options](../../plugin-options.md#geospatial-map) to be set — without them the component falls back to plain text inputs."
     ],
     "GeospatialField": [
-      "This component renders an inline Ordnance Survey map that lets users click a location to auto-populate the coordinate inputs across multiple coordinate formats. The map requires the `ordnanceSurveyApiKey` and `ordnanceSurveyApiSecret` [plugin options](../../plugin-options.md#geospatial-map) to be set — without them the component falls back to plain text inputs."
+      "This component renders an inline Ordnance Survey map that lets users click a location to auto-populate the coordinate inputs across multiple coordinate formats. The map requires the `ordnanceSurveyApiKey` and `ordnanceSurveyApiSecret` [plugin options](../../plugin-options.md#geospatial-map) to be set — without them the component falls back to plain text inputs.",
+      "## Using maps in your form",
+      "We recommend using the [map question pattern](https://submit-form-to-defra.service.gov.uk/form/preview/draft/geospatial-pattern/site-information) when asking users to select or draw locations on a map.",
+      "This pattern provides alternatives so users who cannot use maps are not excluded."
     ]
   },
   "pageProperties": {

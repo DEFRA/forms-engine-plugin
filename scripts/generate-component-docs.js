@@ -753,12 +753,14 @@ export function generateComponentMd(
     lines.push(text, ``)
   }
 
-  if (fixture) {
+  // Level 1: jsNotice only, no ## Preview heading — notice appears above ## JSON definition, static render not possible
+  // Level 2: jsNotice + <Preview /> under ## Preview — hasPreviewFile is true
+  // Level 3: <Preview /> only under ## Preview — no jsNotice, hasPreviewFile is true
+  if (fixture?.jsLevel === 1) {
+    lines.push(buildJsNotice(1, fixture.jsNotice), ``)
+  } else if (fixture) {
     lines.push(`## Preview`, ``)
-    // Level 1: jsNotice only — hasPreviewFile is false, static render not possible
-    // Level 2: jsNotice + <Preview /> — hasPreviewFile is true
-    // Level 3: <Preview /> only — no jsNotice, hasPreviewFile is true
-    if (fixture.jsLevel === 1 || fixture.jsLevel === 2) {
+    if (fixture.jsLevel === 2) {
       lines.push(buildJsNotice(fixture.jsLevel, fixture.jsNotice), ``)
     }
     if (hasPreviewFile) {
