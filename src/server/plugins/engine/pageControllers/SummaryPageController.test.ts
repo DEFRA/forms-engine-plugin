@@ -492,12 +492,11 @@ describe('SummaryPageController - Payment (DF-832)', () => {
       expect(onSubmitSpy).toHaveBeenCalled()
     })
 
-    it('does not run PaymentField onSubmit when notificationEmail is set (submitForm path handles it)', async () => {
-      const onSubmitSpy = jest
+    it('routes through submitForm when notificationEmail is set', async () => {
+      jest
         .spyOn(PaymentField.prototype, 'onSubmit')
         .mockResolvedValue(undefined)
 
-      // Stub the submission services so submitForm completes cleanly.
       model.services = {
         ...model.services,
         formSubmissionService: {
@@ -516,12 +515,7 @@ describe('SummaryPageController - Payment (DF-832)', () => {
 
       await controller.handleFormSubmit(request, context, h)
 
-      // submitForm runs finaliseComponents which also calls PaymentField
-      // onSubmit, so onSubmit IS called here too. The point of this test
-      // is that the no-email path is not taken — we assert by checking the
-      // outputService.submit was reached (i.e. submitForm ran).
       expect(model.services.outputService.submit).toHaveBeenCalled()
-      onSubmitSpy.mockRestore()
     })
 
     it('routes errors through handleSubmissionError when finalisePaymentFields throws', async () => {

@@ -1,3 +1,4 @@
+import { hasPaymentQuestionInForm } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type Request, type Server } from '@hapi/hapi'
 import { isEqual } from 'date-fns'
@@ -5,7 +6,6 @@ import { isEqual } from 'date-fns'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
   checkEmailAddressForLiveFormSubmission,
-  definitionHasPaymentField,
   getCacheService
 } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
@@ -174,7 +174,7 @@ export async function resolveFormModel(
     checkEmailAddressForLiveFormSubmission(
       metadata.notificationEmail,
       isPreview,
-      definitionHasPaymentField(definition)
+      hasPaymentQuestionInForm(definition)
     )
 
     const routePrefix =

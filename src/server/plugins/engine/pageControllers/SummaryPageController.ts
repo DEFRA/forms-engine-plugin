@@ -274,9 +274,12 @@ export class SummaryPageController extends QuestionPageController {
       hasPayment
     )
 
+    const viewModel = notificationEmail
+      ? this.getSummaryViewModel(request, context)
+      : undefined
+
     try {
-      if (notificationEmail) {
-        const viewModel = this.getSummaryViewModel(request, context)
+      if (notificationEmail && viewModel) {
         await submitForm(
           context,
           formMetadata,
@@ -286,9 +289,7 @@ export class SummaryPageController extends QuestionPageController {
           notificationEmail
         )
       } else {
-        // No notification email is configured (e.g. preview), but a
-        // PaymentField may still require preauth/capture. Run only the
-        // PaymentField onSubmit hooks so the GOV.UK Pay redirect fires.
+        // Payment-only submission path — runs PaymentField capture hooks only.
         await finalisePaymentFields(request, formMetadata, context, model)
       }
     } catch (error) {
@@ -526,9 +527,7 @@ async function finaliseComponents(
 }
 
 /**
- * Runs only the PaymentField onSubmit hooks. Used when there is no
- * notification email so the GOV.UK Pay preauth/redirect still fires
- * without triggering email-dependent components like FileUploadField.
+ * Runs PaymentField capture hooks for the no-email submission path.
  */
 async function finalisePaymentFields(
   request: FormRequestPayload,

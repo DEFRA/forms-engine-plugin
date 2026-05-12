@@ -11,7 +11,6 @@ import { ValidationError } from 'joi'
 import {
   checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
-  definitionHasPaymentField,
   encodeUrl,
   engine,
   evaluateTemplate,
@@ -402,7 +401,7 @@ describe('Helpers', () => {
   describe('checkEmailAddressForLiveFormSubmission', () => {
     it('should throw an error if emailAddress is undefined and isPreview is false', () => {
       expect(() =>
-        checkEmailAddressForLiveFormSubmission(undefined, false)
+        checkEmailAddressForLiveFormSubmission(undefined, false, false)
       ).toThrow(
         Boom.internal(
           'An email address is required to complete the form submission'
@@ -412,19 +411,19 @@ describe('Helpers', () => {
 
     it('should not throw an error if emailAddress is defined and isPreview is false', () => {
       expect(() =>
-        checkEmailAddressForLiveFormSubmission('test@example.com', false)
+        checkEmailAddressForLiveFormSubmission('test@example.com', false, false)
       ).not.toThrow()
     })
 
     it('should not throw an error if emailAddress is undefined and isPreview is true', () => {
       expect(() =>
-        checkEmailAddressForLiveFormSubmission(undefined, true)
+        checkEmailAddressForLiveFormSubmission(undefined, true, false)
       ).not.toThrow()
     })
 
     it('should not throw an error if emailAddress is defined and isPreview is true', () => {
       expect(() =>
-        checkEmailAddressForLiveFormSubmission('test@example.com', true)
+        checkEmailAddressForLiveFormSubmission('test@example.com', true, false)
       ).not.toThrow()
     })
 
@@ -432,57 +431,6 @@ describe('Helpers', () => {
       expect(() =>
         checkEmailAddressForLiveFormSubmission(undefined, false, true)
       ).not.toThrow()
-    })
-
-    it('should still throw when neither emailAddress nor PaymentField is present on a live form', () => {
-      expect(() =>
-        checkEmailAddressForLiveFormSubmission(undefined, false, false)
-      ).toThrow(
-        Boom.internal(
-          'An email address is required to complete the form submission'
-        )
-      )
-    })
-  })
-
-  describe('definitionHasPaymentField', () => {
-    const buildDef = (components: { type: ComponentType }[] = []) =>
-      ({
-        pages: [
-          {
-            title: 'p',
-            path: '/p',
-            components,
-            next: []
-          }
-        ]
-      }) as unknown as FormDefinition
-
-    it('returns true when a PaymentField is present', () => {
-      expect(
-        definitionHasPaymentField(
-          buildDef([{ type: ComponentType.PaymentField }])
-        )
-      ).toBe(true)
-    })
-
-    it('returns false when no PaymentField is present', () => {
-      expect(
-        definitionHasPaymentField(buildDef([{ type: ComponentType.TextField }]))
-      ).toBe(false)
-    })
-
-    it('returns false when the form has no components', () => {
-      expect(definitionHasPaymentField(buildDef([]))).toBe(false)
-    })
-
-    it('returns false for pages without a components array', () => {
-      const def = {
-        pages: [
-          { title: 'p', path: '/p', controller: 'TerminalPageController' }
-        ]
-      } as unknown as FormDefinition
-      expect(definitionHasPaymentField(def)).toBe(false)
     })
   })
 

@@ -1,5 +1,4 @@
 import {
-  ComponentType,
   ControllerPath,
   Engine,
   getErrorMessage,
@@ -281,30 +280,12 @@ export function checkFormStatus(params?: FormParams) {
   }
 }
 
-/**
- * True when the form definition contains at least one PaymentField.
- * Used to gate the email-required check, since payment-only forms can
- * submit through GOV.UK Pay without a notification email.
- */
-export function definitionHasPaymentField(definition: FormDefinition): boolean {
-  return definition.pages.some((page) => {
-    if (!hasComponents(page)) {
-      return false
-    }
-    return page.components.some(
-      (component) => component.type === ComponentType.PaymentField
-    )
-  })
-}
-
 export function checkEmailAddressForLiveFormSubmission(
   emailAddress: string | undefined,
   isPreview: boolean,
-  hasPayment = false
+  hasPayment: boolean
 ) {
-  // Payment-only live forms can submit through GOV.UK Pay without a
-  // notification email, so we skip the requirement when a PaymentField
-  // is present.
+  // Payment-only forms submit via GOV.UK Pay without a notification email.
   if (!emailAddress && !isPreview && !hasPayment) {
     throw Boom.internal(
       'An email address is required to complete the form submission'
