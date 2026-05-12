@@ -46,7 +46,7 @@ export function buildJsNotice(jsLevel, jsNotice) {
 
   if (jsLevel === 1) {
     return [
-      `<div className="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">`,
+      `<div className="govuk-notification-banner app-no-prose" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">`,
       `  <div className="govuk-notification-banner__header">`,
       `    <h2 className="govuk-notification-banner__title" id="govuk-notification-banner-title">Warning</h2>`,
       `  </div>`,
