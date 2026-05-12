@@ -48,9 +48,10 @@ export function buildJsNotice(jsLevel, jsNotice) {
     return [
       `<div className="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">`,
       `  <div className="govuk-notification-banner__header">`,
-      `    <h2 className="govuk-notification-banner__title" id="govuk-notification-banner-title">Requires client-side JavaScript</h2>`,
+      `    <h2 className="govuk-notification-banner__title" id="govuk-notification-banner-title">Warning</h2>`,
       `  </div>`,
       `  <div className="govuk-notification-banner__content">`,
+      `    <h3 className="govuk-notification-banner__heading">Requires client-side JavaScript</h3>`,
       `    <p className="govuk-body">This component cannot be previewed here — it requires Ordnance Survey API credentials and a running map service that aren't available in the documentation environment.</p>`,
       `    <p className="govuk-body">${escaped}</p>`,
       `    <p className="govuk-body"><a className="govuk-link" href="${DEMO_FORM_URL}">View the components demo</a> to see it working.</p>`,

@@ -369,9 +369,12 @@ describe('Component Documentation Generator', () => {
       expect(result).not.toContain('<select>')
     })
 
-    it('Level 1: contains "Requires client-side JavaScript" heading and cannot-be-previewed text', () => {
+    it('Level 1: contains Warning title, Requires client-side JavaScript heading, and cannot-be-previewed text', () => {
       const result = buildJsNotice(1, 'Notice text.')
       expect(result).toContain('govuk-notification-banner')
+      expect(result).toContain('govuk-notification-banner__title')
+      expect(result).toContain('Warning')
+      expect(result).toContain('govuk-notification-banner__heading')
       expect(result).toContain('Requires client-side JavaScript')
       expect(result).toContain('cannot be previewed here')
       expect(result).toContain('Notice text.')
