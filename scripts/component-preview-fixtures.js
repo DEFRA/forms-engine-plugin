@@ -410,7 +410,7 @@ export const fixtures = {
   [ComponentType.GeospatialField]: {
     jsLevel: 1,
     jsNotice:
-      'A multiline text input that accepts raw GeoJSON is available as a fallback when JavaScript is unavailable, but this is not a recommended user journey. This form component is based on the open source [interactive-map](https://defra.github.io/interactive-map/) component which has a high level of accessibility built in — but it comes with a hard client-side JavaScript requirement. If JavaScript availability is a concern, use a progressively enhanced component instead.',
+      'A multiline text input that accepts raw GeoJSON is available as a fallback when JavaScript is unavailable, but this is not a recommended user journey. This component has a hard client-side JavaScript requirement. If JavaScript availability is a concern, use a progressively enhanced component instead.',
     def: {
       type: ComponentType.GeospatialField,
       name: 'location',
