@@ -391,6 +391,12 @@ describe('Component Documentation Generator', () => {
       expect(result).toContain('&lt;input&gt;')
       expect(result).not.toContain('<input>')
     })
+
+    it('HTML-escapes ampersands in jsNotice', () => {
+      const result = buildJsBanner(2, 'Fish & chips')
+      expect(result).toContain('Fish &amp; chips')
+      expect(result).not.toContain('Fish & chips')
+    })
   })
 
   describe('generateComponentMd with Level 1 fixture', () => {
