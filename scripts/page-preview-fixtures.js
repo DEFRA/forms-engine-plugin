@@ -143,7 +143,15 @@ export const pageFixtures = {
             showTitle: true,
             formAction: 'preview',
             componentsBefore: [],
-            components: [],
+            components: [
+              {
+                type: ComponentType.FileUploadField,
+                model: componentViewModel(
+                  'FileUploadField',
+                  'No files uploaded'
+                )
+              }
+            ],
             formComponent: {
               type: ComponentType.FileUploadField,
               model: componentViewModel('FileUploadField', 'No files uploaded')
@@ -157,7 +165,15 @@ export const pageFixtures = {
             showTitle: true,
             formAction: 'preview',
             componentsBefore: [],
-            components: [],
+            components: [
+              {
+                type: ComponentType.FileUploadField,
+                model: componentViewModel(
+                  'FileUploadField',
+                  'With files uploaded'
+                )
+              }
+            ],
             formComponent: {
               type: ComponentType.FileUploadField,
               model: componentViewModel(
