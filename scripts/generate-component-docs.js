@@ -7,6 +7,8 @@ import ts from 'typescript'
 
 import { fixtures } from './component-preview-fixtures.js'
 import { writePreviewPartial } from './generate-component-previews.js'
+import { writePagePreviewPartial } from './generate-page-previews.js'
+import { pageFixtures } from './page-preview-fixtures.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -1103,6 +1105,8 @@ function main() {
     fs.rmSync(pagesOutputDir, { recursive: true, force: true })
   }
   fs.mkdirSync(pagesOutputDir, { recursive: true })
+  const pagePreviewsDir = path.resolve(pagesOutputDir, '_previews')
+  fs.mkdirSync(pagePreviewsDir, { recursive: true })
 
   // Parse sources
   const interfaces = parseComponentInterfaces(componentsDtsPath)
@@ -1191,13 +1195,23 @@ function main() {
     }
     const { props: uniqueProps = [], examplePath = '/page-path' } =
       pageInterfaces[key] ?? {}
-    const content = generatePageMd(key, uniqueProps, examplePath, i + 1)
+    const fixture = pageFixtures[key]
+    const content = generatePageMd(
+      key,
+      uniqueProps,
+      examplePath,
+      i + 1,
+      fixture ? slug : null
+    )
     if (content) {
-      fs.writeFileSync(path.join(pagesOutputDir, `${slug}.md`), content)
+      fs.writeFileSync(path.join(pagesOutputDir, `${slug}.mdx`), content)
+    }
+    if (fixture) {
+      writePagePreviewPartial(pagePreviewsDir, slug, fixture)
     }
   }
 
-  fs.writeFileSync(path.join(pagesOutputDir, 'index.md'), generatePagesIndex())
+  fs.writeFileSync(path.join(pagesOutputDir, 'index.mdx'), generatePagesIndex())
 
   console.log(
     `Generated ${componentOrder.length} component pages and ${Object.keys(metadata.pages).length} page type pages.`
