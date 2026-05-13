@@ -72,13 +72,18 @@ describe('component-preview-fixtures', () => {
     }
   })
 
-  it('every level 1 or 2 fixture has a non-empty jsNotice string', () => {
+  it('every level 1 or 2 fixture has a non-empty jsNotice string or array', () => {
     const lowLevelFixtures = Object.values(fixtures).filter(
       (f) => f.jsLevel === 1 || f.jsLevel === 2
     )
     for (const fixture of lowLevelFixtures) {
-      expect(typeof fixture.jsNotice).toBe('string')
-      expect(fixture.jsNotice.length).toBeGreaterThan(0)
+      const { jsNotice } = fixture
+      expect(typeof jsNotice === 'string' || Array.isArray(jsNotice)).toBe(true)
+      const items = Array.isArray(jsNotice) ? jsNotice : [jsNotice]
+      expect(items.length).toBeGreaterThan(0)
+      for (const item of items) {
+        expect(item.length).toBeGreaterThan(0)
+      }
     }
   })
 })
