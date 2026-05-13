@@ -27,18 +27,43 @@ function componentViewModel(name, variantLabel) {
 export const pageFixtures = {
   PageController: {
     viewName: 'index',
-    context: {
-      pageTitle: 'What is your full name?',
-      showTitle: true,
-      page: { allowContinue: true },
-      allowSaveAndExit: false,
-      components: [
-        {
-          type: ComponentType.TextField,
-          model: componentViewModel('TextField')
+    variants: [
+      {
+        label: 'Single question',
+        context: {
+          showTitle: false,
+          page: { allowContinue: true },
+          allowSaveAndExit: false,
+          get components() {
+            const model = componentViewModel('TextField')
+            model.label.isPageHeading = true
+            model.label.classes = 'govuk-label--l'
+            return [{ type: ComponentType.TextField, model }]
+          }
         }
-      ]
-    }
+      },
+      {
+        label: 'Multiple questions',
+        context: {
+          pageTitle: 'Tell us about yourself',
+          showTitle: true,
+          page: { allowContinue: true },
+          allowSaveAndExit: false,
+          get components() {
+            return [
+              {
+                type: ComponentType.TextField,
+                model: componentViewModel('TextField')
+              },
+              {
+                type: ComponentType.DatePartsField,
+                model: componentViewModel('DatePartsField')
+              }
+            ]
+          }
+        }
+      }
+    ]
   },
 
   StartPageController: {

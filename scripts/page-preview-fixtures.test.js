@@ -77,4 +77,43 @@ describe('page-preview-fixtures', () => {
       expect.anything()
     )
   })
+
+  it('PageController has exactly 2 variants', () => {
+    expect(pageFixtures.PageController.variants).toHaveLength(2)
+  })
+
+  it('PageController single question variant sets isPageHeading and govuk-label--l on the TextField label', () => {
+    const mockLabel = {
+      text: 'What is your full name?',
+      classes: 'govuk-label--s'
+    }
+    createComponent.mockReturnValue({
+      getViewModel: jest
+        .fn()
+        .mockReturnValue({
+          id: 'full-name',
+          name: 'full-name',
+          label: mockLabel
+        })
+    })
+    const singleVariant = pageFixtures.PageController.variants[0]
+    const [component] = singleVariant.context.components
+    expect(component.model.label.isPageHeading).toBe(true)
+    expect(component.model.label.classes).toBe('govuk-label--l')
+  })
+
+  it('PageController single question variant has showTitle false', () => {
+    expect(pageFixtures.PageController.variants[0].context.showTitle).toBe(
+      false
+    )
+  })
+
+  it('PageController multiple questions variant has showTitle true', () => {
+    expect(pageFixtures.PageController.variants[1].context.showTitle).toBe(true)
+  })
+
+  it('PageController multiple questions variant has two components', () => {
+    const multiVariant = pageFixtures.PageController.variants[1]
+    expect(multiVariant.context.components).toHaveLength(2)
+  })
 })
