@@ -1045,7 +1045,7 @@ function generatePagesIndex() {
   for (const [key, description] of Object.entries(metadata.pages)) {
     const label = controllerLabel(key)
     const slug = controllerSlug(key)
-    lines.push(`- [**${label}**](./${slug}.md) — ${description}`)
+    lines.push(`- [**${label}**](./${slug}.mdx) — ${description}`)
   }
 
   lines.push(``)
