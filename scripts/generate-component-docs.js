@@ -888,6 +888,9 @@ export function generatePageExample(
     setNestedValue(example, prop.name, placeholderForType(prop.type))
   }
 
+  const exampleComponents = metadata.pageExampleComponents?.[controllerKey]
+  if (exampleComponents) example.components = exampleComponents
+
   return example
 }
 

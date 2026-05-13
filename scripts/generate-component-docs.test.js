@@ -47,7 +47,7 @@ jest.mock('fs', () => ({
   readdirSync: jest.fn(),
   readFileSync: jest.fn().mockImplementation((filePath) => {
     if (String(filePath ?? '').includes('component-metadata.json')) {
-      return '{"components":{"TextField":"Single-line text input."},"pages":{"PageController":"The default page type.","RepeatPageController":"Allows repeated answers.","SummaryPageController":"Summary page type."},"properties":{"rows":"Number of rows for the textarea."},"pageProperties":{"repeat.options.name":"Identifier for the repeatable section."}}'
+      return '{"components":{"TextField":"Single-line text input."},"pages":{"PageController":"The default page type.","RepeatPageController":"Allows repeated answers.","SummaryPageController":"Summary page type."},"properties":{"rows":"Number of rows for the textarea."},"pageProperties":{"repeat.options.name":"Identifier for the repeatable section."},"pageExampleComponents":{"FileUploadPageController":[{"type":"FileUploadField","name":"upload","title":"Upload a document","options":{},"schema":{}}]}}'
     }
     return ''
   }),
@@ -295,6 +295,24 @@ describe('Component Documentation Generator', () => {
       ])
       expect(result.repeat.options.name).toBe('')
       expect(result.repeat).not.toHaveProperty('schema')
+    })
+
+    it('injects pageExampleComponents.components when an entry exists for the controllerKey', () => {
+      const result = generatePageExample('FileUploadPageController', [])
+      expect(result.components).toEqual([
+        {
+          type: 'FileUploadField',
+          name: 'upload',
+          title: 'Upload a document',
+          options: {},
+          schema: {}
+        }
+      ])
+    })
+
+    it('does not add components when pageExampleComponents has no entry for the controllerKey', () => {
+      const result = generatePageExample('PageController', [])
+      expect(result).not.toHaveProperty('components')
     })
   })
 
