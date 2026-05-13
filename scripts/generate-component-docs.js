@@ -895,11 +895,12 @@ export function generatePageExample(
  * @param {string} examplePath
  * @param {number} sidebarPosition
  */
-function generatePageMd(
+export function generatePageMd(
   controllerKey,
   uniqueProps,
   examplePath,
-  sidebarPosition
+  sidebarPosition,
+  previewSlug = null
 ) {
   const description = metadata.pages[controllerKey]
   if (!description) return null
@@ -908,11 +909,16 @@ function generatePageMd(
   const isDefault = controllerKey === 'PageController'
   const links = metadata.pageLinks?.[controllerKey] ?? []
 
+  const previewImport = previewSlug
+    ? [``, `import Preview from './_previews/${previewSlug}.mdx'`]
+    : []
+
   const lines = [
     `---`,
     `sidebar_label: "${label}"`,
     `sidebar_position: ${sidebarPosition}`,
     `---`,
+    ...previewImport,
     ``,
     `# ${label}`,
     ``,
@@ -931,6 +937,10 @@ function generatePageMd(
     )
   } else {
     lines.push(`**Controller value:** \`"${controllerKey}"\``, ``)
+  }
+
+  if (previewSlug) {
+    lines.push(`## Preview`, ``, `<Preview />`, ``)
   }
 
   lines.push(

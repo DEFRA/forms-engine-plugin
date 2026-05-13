@@ -39,7 +39,7 @@ jest.mock('fs', () => ({
   readdirSync: jest.fn(),
   readFileSync: jest.fn().mockImplementation((filePath) => {
     if (String(filePath ?? '').includes('component-metadata.json')) {
-      return '{"components":{"TextField":"Single-line text input."},"pages":{"PageController":"The default page type.","RepeatPageController":"Allows repeated answers."},"properties":{"rows":"Number of rows for the textarea."},"pageProperties":{"repeat.options.name":"Identifier for the repeatable section."}}'
+      return '{"components":{"TextField":"Single-line text input."},"pages":{"PageController":"The default page type.","RepeatPageController":"Allows repeated answers.","SummaryPageController":"Summary page type."},"properties":{"rows":"Number of rows for the textarea."},"pageProperties":{"repeat.options.name":"Identifier for the repeatable section."}}'
     }
     return ''
   }),
@@ -55,6 +55,7 @@ import {
   generateComponentMd,
   generateExample,
   generatePageExample,
+  generatePageMd,
   placeholderForType,
   setNestedValue,
   simplifyType,
@@ -286,6 +287,54 @@ describe('Component Documentation Generator', () => {
       ])
       expect(result.repeat.options.name).toBe('')
       expect(result.repeat).not.toHaveProperty('schema')
+    })
+  })
+
+  describe('generatePageMd with preview', () => {
+    it('includes preview import when previewSlug is provided', () => {
+      const result = generatePageMd(
+        'PageController',
+        [],
+        '/page-path',
+        1,
+        'page-controller'
+      )
+      expect(result).toContain(
+        "import Preview from './_previews/page-controller.mdx'"
+      )
+    })
+
+    it('includes ## Preview section and <Preview /> when previewSlug is provided', () => {
+      const result = generatePageMd(
+        'PageController',
+        [],
+        '/page-path',
+        1,
+        'page-controller'
+      )
+      expect(result).toContain('## Preview')
+      expect(result).toContain('<Preview />')
+    })
+
+    it('places ## Preview before ## JSON definition', () => {
+      const result = generatePageMd(
+        'SummaryPageController',
+        [],
+        '/summary',
+        1,
+        'summary-page-controller'
+      )
+      const previewIdx = result.indexOf('## Preview')
+      const jsonIdx = result.indexOf('## JSON definition')
+      expect(previewIdx).toBeGreaterThan(-1)
+      expect(previewIdx).toBeLessThan(jsonIdx)
+    })
+
+    it('omits import, ## Preview, and <Preview /> when previewSlug is absent', () => {
+      const result = generatePageMd('PageController', [], '/page-path', 1)
+      expect(result).not.toContain('import Preview')
+      expect(result).not.toContain('## Preview')
+      expect(result).not.toContain('<Preview />')
     })
   })
 
