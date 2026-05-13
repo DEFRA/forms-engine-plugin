@@ -15,6 +15,7 @@ import { getRoutes as getQuestionRoutes } from '~/src/server/plugins/engine/rout
 import { getRoutes as getRepeaterItemDeleteRoutes } from '~/src/server/plugins/engine/routes/repeaters/item-delete.js'
 import { getRoutes as getRepeaterSummaryRoutes } from '~/src/server/plugins/engine/routes/repeaters/summary.js'
 import { type PluginOptions } from '~/src/server/plugins/engine/types.js'
+import { registerUnavailableResponse } from '~/src/server/plugins/engine/unavailable-response.js'
 import { registerVision } from '~/src/server/plugins/engine/vision.js'
 import { mapPlugin } from '~/src/server/plugins/map/index.js'
 import { postcodeLookupPlugin } from '~/src/server/plugins/postcode-lookup/index.js'
@@ -129,5 +130,7 @@ export const plugin = {
     ]
 
     server.route(routes as unknown as ServerRoute[]) // TODO
+
+    registerUnavailableResponse(server)
   }
 } satisfies Plugin<PluginOptions>
