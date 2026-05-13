@@ -99,7 +99,7 @@ export const pageFixtures = {
   RepeatPageController: {
     viewName: 'repeat-list-summary',
     context: {
-      pageTitle: 'People',
+      pageTitle: 'Add members of your household',
       showTitle: true,
       allowSaveAndExit: false,
       checkAnswers: [
@@ -138,6 +138,7 @@ export const pageFixtures = {
             pageTitle: 'Upload a document',
             showTitle: true,
             formAction: 'preview',
+            page: { allowContinue: true },
             componentsBefore: [],
             components: [
               {
@@ -160,6 +161,7 @@ export const pageFixtures = {
             pageTitle: 'Upload a document',
             showTitle: true,
             formAction: 'preview',
+            page: { allowContinue: true },
             componentsBefore: [],
             components: [
               {
