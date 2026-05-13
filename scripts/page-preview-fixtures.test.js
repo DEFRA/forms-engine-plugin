@@ -63,9 +63,8 @@ describe('page-preview-fixtures', () => {
     }
   })
 
-  it('FileUploadPageController and RepeatPageController have exactly 2 variants', () => {
+  it('FileUploadPageController has exactly 2 variants', () => {
     expect(pageFixtures.FileUploadPageController.variants).toHaveLength(2)
-    expect(pageFixtures.RepeatPageController.variants).toHaveLength(2)
   })
 
   it('FileUploadPageController variants reference the FileUploadField component fixture', () => {
@@ -88,13 +87,11 @@ describe('page-preview-fixtures', () => {
       classes: 'govuk-label--s'
     }
     createComponent.mockReturnValue({
-      getViewModel: jest
-        .fn()
-        .mockReturnValue({
-          id: 'full-name',
-          name: 'full-name',
-          label: mockLabel
-        })
+      getViewModel: jest.fn().mockReturnValue({
+        id: 'full-name',
+        name: 'full-name',
+        label: mockLabel
+      })
     })
     const singleVariant = pageFixtures.PageController.variants[0]
     const [component] = singleVariant.context.components

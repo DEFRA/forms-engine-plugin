@@ -98,38 +98,34 @@ export const pageFixtures = {
 
   RepeatPageController: {
     viewName: 'repeat-list-summary',
-    variants: [
-      {
-        label: 'No items',
-        context: {
-          pageTitle: 'People',
-          showTitle: true,
-          checkAnswers: [],
-          allowSaveAndExit: false
-        }
-      },
-      {
-        label: 'One item',
-        context: {
-          pageTitle: 'People',
-          showTitle: true,
-          allowSaveAndExit: false,
-          checkAnswers: [
-            {
-              summaryList: {
-                rows: [
-                  {
-                    key: { text: 'Full name' },
-                    value: { text: 'Sarah Phillips' },
-                    actions: { items: [{ href: '#', text: 'Remove' }] }
-                  }
-                ]
+    context: {
+      pageTitle: 'People',
+      showTitle: true,
+      allowSaveAndExit: false,
+      checkAnswers: [
+        {
+          summaryList: {
+            rows: [
+              {
+                key: { text: 'Full name' },
+                value: { text: 'Sarah Phillips' },
+                actions: { items: [{ href: '#', text: 'Remove' }] }
+              },
+              {
+                key: { text: 'Full name' },
+                value: { text: 'David Jones' },
+                actions: { items: [{ href: '#', text: 'Remove' }] }
+              },
+              {
+                key: { text: 'Full name' },
+                value: { text: 'Emma Wilson' },
+                actions: { items: [{ href: '#', text: 'Remove' }] }
               }
-            }
-          ]
+            ]
+          }
         }
-      }
-    ]
+      ]
+    }
   },
 
   FileUploadPageController: {
