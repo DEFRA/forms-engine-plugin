@@ -14,10 +14,13 @@ import { environment } from '~/src/server/plugins/nunjucks/environment.js'
  * @returns {string}
  */
 export function renderPage(context, viewName) {
-  return environment.render(`${viewName}.html`, {
+  const html = environment.render(`${viewName}.html`, {
     ...context,
     baseLayoutPath: 'preview-layout.html'
   })
+  return html
+    .replace(/<form\b[^>]*>/g, '<div class="app-page-preview__form">')
+    .replace(/<\/form>/g, '</div>')
 }
 
 /**
@@ -39,6 +42,6 @@ export function writePagePreviewPartial(previewsDir, slug, fixture) {
 
   fs.writeFileSync(
     path.join(previewsDir, `${slug}.mdx`),
-    buildPartialMdx(renders)
+    buildPartialMdx(renders, 'component-preview component-preview--page')
   )
 }

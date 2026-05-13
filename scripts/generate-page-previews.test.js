@@ -52,6 +52,17 @@ describe('renderPage', () => {
     const result = renderPage({ pageTitle: 'Check your answers' }, 'summary')
     expect(result).toBe('<h1>Check your answers</h1>')
   })
+
+  it('replaces <form> tags with divs to prevent form submission', () => {
+    environment.render.mockReturnValue(
+      '<form method="post" novalidate><button class="govuk-button">Continue</button></form>'
+    )
+    const result = renderPage({ pageTitle: 'Test' }, 'index')
+    expect(result).not.toContain('<form')
+    expect(result).not.toContain('</form>')
+    expect(result).toContain('<div class="app-page-preview__form">')
+    expect(result).toContain('</div>')
+  })
 })
 
 describe('writePagePreviewPartial', () => {
@@ -86,9 +97,10 @@ describe('writePagePreviewPartial', () => {
       viewName: 'index',
       context: { pageTitle: 'Question' }
     })
-    expect(buildPartialMdx).toHaveBeenCalledWith([
-      { html: '<div>page html</div>' }
-    ])
+    expect(buildPartialMdx).toHaveBeenCalledWith(
+      [{ html: '<div>page html</div>' }],
+      'component-preview component-preview--page'
+    )
   })
 
   it('passes labelled renders to buildPartialMdx for a variant fixture', () => {
@@ -99,10 +111,13 @@ describe('writePagePreviewPartial', () => {
         { label: 'With files uploaded', context: { pageTitle: 'Upload' } }
       ]
     })
-    expect(buildPartialMdx).toHaveBeenCalledWith([
-      { label: 'No files uploaded', html: '<div>page html</div>' },
-      { label: 'With files uploaded', html: '<div>page html</div>' }
-    ])
+    expect(buildPartialMdx).toHaveBeenCalledWith(
+      [
+        { label: 'No files uploaded', html: '<div>page html</div>' },
+        { label: 'With files uploaded', html: '<div>page html</div>' }
+      ],
+      'component-preview component-preview--page'
+    )
   })
 
   it('renders each variant context independently', () => {
