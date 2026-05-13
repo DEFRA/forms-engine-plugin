@@ -42,7 +42,7 @@ const DEMO_FORM_URL =
 export function buildJsNotice(jsLevel, jsNotice) {
   if (typeof jsNotice === 'string') jsNotice = [jsNotice]
 
-  const toP = (s) => `<p className="govuk-body">${s}</p>`
+  const toP = (/** @type {string} */ s) => `<p className="govuk-body">${s}</p>`
 
   const noticeParagraphs = jsNotice.map(toP)
   const demoLink = `<p className="govuk-body">To see the full experience, <a className="govuk-link" href="${DEMO_FORM_URL}">view our demo form</a> which includes most components.</p>`
@@ -716,7 +716,7 @@ export function generateExample(componentName, interfaceData) {
  * @param {ComponentData} interfaceData
  * @param {number} sidebarPosition
  * @param {string|null} [previewSlug]
- * @param {object|null} [fixture]
+ * @param {import('./component-preview-fixtures.js').Fixture|null} [fixture]
  * @returns {string}
  */
 export function generateComponentMd(
@@ -760,11 +760,11 @@ export function generateComponentMd(
   // Level 2: jsNotice + <Preview /> under ## Preview — hasPreviewFile is true
   // Level 3: <Preview /> only under ## Preview — no jsNotice, hasPreviewFile is true
   if (fixture?.jsLevel === 1) {
-    lines.push(buildJsNotice(1, fixture.jsNotice), ``)
+    lines.push(buildJsNotice(1, fixture.jsNotice ?? ''), ``)
   } else if (fixture) {
     lines.push(`## Preview`, ``)
     if (fixture.jsLevel === 2) {
-      lines.push(buildJsNotice(fixture.jsLevel, fixture.jsNotice), ``)
+      lines.push(buildJsNotice(fixture.jsLevel, fixture.jsNotice ?? ''), ``)
     }
     if (hasPreviewFile) {
       lines.push(`<Preview />`, ``)
