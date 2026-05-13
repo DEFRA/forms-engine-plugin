@@ -2,8 +2,14 @@
 
 jest.mock(
   '~/src/server/plugins/engine/components/helpers/components.ts',
-  () => ({ createComponent: jest.fn() })
+  () => ({
+    createComponent: jest.fn().mockReturnValue({
+      getViewModel: jest.fn().mockReturnValue({ id: 'field', name: 'field' })
+    })
+  })
 )
+
+import { ComponentType } from '@defra/forms-model'
 
 import { pageFixtures } from './page-preview-fixtures.js'
 
@@ -66,6 +72,9 @@ describe('page-preview-fixtures', () => {
     for (const variant of pageFixtures.FileUploadPageController.variants) {
       const _model = variant.context.formComponent.model // trigger lazy getter
     }
-    expect(createComponent).toHaveBeenCalled()
+    expect(createComponent).toHaveBeenCalledWith(
+      expect.objectContaining({ type: ComponentType.FileUploadField }),
+      expect.anything()
+    )
   })
 })

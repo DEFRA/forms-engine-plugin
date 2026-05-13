@@ -20,7 +20,7 @@ function componentViewModel(name, variantLabel) {
       fixture.variants[0])
     : fixture
   const component = createComponent(variant.def, { model: variant.model })
-  return component?.getViewModel(variant.payload, []) ?? {}
+  return component.getViewModel(variant.payload, [])
 }
 
 /** @type {Record<string, { viewName: string, context?: object, variants?: Array<{label: string, context: object}> }>} */
