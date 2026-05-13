@@ -148,13 +148,10 @@ export async function resolveFormModel(
   }
 
   // The models cache is created lazily per server instance
-   
+
   server.app.models ??= new Map<string, { model: FormModel; updatedAt: Date }>()
 
-  const cache = server.app.models as Map<
-    string,
-    { model: FormModel; updatedAt: Date }
-  >
+  const cache = server.app.models
 
   const cacheKey = `${metadata.id}_${formState}_${isPreview}`
   let entry = cache.get(cacheKey)

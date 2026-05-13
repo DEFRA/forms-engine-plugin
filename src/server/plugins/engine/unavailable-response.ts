@@ -17,8 +17,10 @@ export function registerUnavailableResponse(server: Server) {
       return h.continue
     }
 
+    const { metadata } = response.data
+
     return h
-      .view('unavailable', unavailableViewModel(response.data.metadata))
+      .view('unavailable', unavailableViewModel(metadata))
       .header('Cache-Control', 'no-store, no-cache, must-revalidate')
       .header('X-Robots-Tag', 'noindex, nofollow')
       .code(200)

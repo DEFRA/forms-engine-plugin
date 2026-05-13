@@ -116,7 +116,7 @@ export function getGeospatialSchema(country?: GeospatialFieldOptionsCountry) {
       return value
     }
 
-    const result = booleanWithin(value, countryFeature)
+    const result = booleanWithin(value as Geometry | Feature, countryFeature)
 
     if (!result) {
       return helpers.error('any.custom', {

@@ -1,7 +1,7 @@
 import { type FormMetadata } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 
-interface OfflineBoomData {
+export interface OfflineBoomData {
   offline: true
   metadata: FormMetadata
 }
@@ -24,7 +24,7 @@ export function assertFormAvailable(metadata: FormMetadata): void {
 /** Type guard for the offline Boom marker. */
 export function isOfflineBoom(
   err: unknown
-): err is Boom.Boom & { data: OfflineBoomData } {
+): err is Boom.Boom<OfflineBoomData> & { data: OfflineBoomData } {
   if (!Boom.isBoom(err)) return false
   const data = err.data as Partial<OfflineBoomData> | null | undefined
   return data?.offline === true && !!data.metadata
