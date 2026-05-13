@@ -1,1 +1,40 @@
-{% block content %}{% endblock %}
+{% from "govuk/components/phase-banner/macro.njk" import govukPhaseBanner %}
+
+<div class="govuk-header" style="background:#1d70b8">
+  <div class="govuk-header__container" style="border-bottom-color:#1d70b8">
+    <div class="govuk-header__logo">
+      <span class="govuk-header__logotype">
+        <span class="govuk-header__logotype-text">GOV.UK</span>
+      </span>
+    </div>
+    <div class="govuk-header__content">
+      <span class="govuk-header__service-name">
+        Example service
+        <strong class="govuk-tag" style="margin-left:8px;background:#fd0;color:#0b0c0c;font-size:12px">
+          Example layout
+        </strong>
+      </span>
+    </div>
+  </div>
+</div>
+
+<div class="govuk-width-container">
+  {{ govukPhaseBanner({ tag: { text: 'Beta' }, html: 'This is a new service.' }) }}
+  <div class="govuk-main-wrapper">
+    {% block content %}{% endblock %}
+  </div>
+</div>
+
+<div class="govuk-footer">
+  <div class="govuk-footer__meta">
+    <div class="govuk-footer__meta-item govuk-footer__meta-item--grow">
+      <span class="govuk-footer__licence-description">
+        All content is available under the
+        <a class="govuk-footer__link" href="#">Open Government Licence v3.0</a>
+      </span>
+    </div>
+    <div class="govuk-footer__meta-item">
+      <span class="govuk-footer__copyright-logo">© Crown copyright</span>
+    </div>
+  </div>
+</div>
