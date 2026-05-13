@@ -63,8 +63,9 @@ describe('page-preview-fixtures', () => {
   })
 
   it('FileUploadPageController variants reference the FileUploadField component fixture', () => {
-    // createComponent should have been called when the module was loaded
-    // (context objects are evaluated at module load time)
+    for (const variant of pageFixtures.FileUploadPageController.variants) {
+      const _model = variant.context.formComponent.model // trigger lazy getter
+    }
     expect(createComponent).toHaveBeenCalled()
   })
 })
