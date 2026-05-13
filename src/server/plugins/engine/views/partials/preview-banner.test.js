@@ -13,13 +13,55 @@ describe('Preview banner partial', () => {
     let $component = /** @type {HTMLElement | null} */ (null)
     let $paragraphs = /** @type {HTMLElement[]} */ ([])
 
-    describe('Form preview', () => {
+    describe('Form preview (no notification email)', () => {
       beforeEach(() => {
         const { container } = renderView('partials/preview-banner.html', {
           context: {
             previewMode: status,
             context: {
               isForceAccess: false,
+              relevantPages: [{ title: 'Page 1' }]
+            }
+          }
+        })
+
+        $component = container.getByRole('region')
+        $paragraphs = container.getAllByRole('paragraph')
+      })
+
+      it('should render contents', () => {
+        expect($component).toBeInTheDocument()
+        expect($component).toContainElement($paragraphs[0])
+        expect($component).toHaveClass('govuk-notification-banner')
+
+        expect($paragraphs).toHaveLength(2)
+        expect($paragraphs[0]).toHaveClass('govuk-notification-banner__heading')
+        expect($paragraphs[1]).toHaveClass('govuk-body')
+      })
+
+      it('should have accessible name', () => {
+        expect($component).toHaveAccessibleName('Important')
+      })
+
+      it('should have text content', () => {
+        expect($paragraphs[0]).toHaveTextContent(
+          `This is a preview of a ${status} form. Do not enter personal information.`
+        )
+
+        expect($paragraphs[1]).toHaveTextContent(
+          'You can complete this form to test the user journey. The form will appear to submit successfully, but because a destination email address has not been set, the following features will not trigger:'
+        )
+      })
+    })
+
+    describe('Form preview (with notification email)', () => {
+      beforeEach(() => {
+        const { container } = renderView('partials/preview-banner.html', {
+          context: {
+            previewMode: status,
+            context: {
+              isForceAccess: false,
+              notificationEmail: 'test@example.com',
               relevantPages: [{ title: 'Page 1' }]
             }
           }

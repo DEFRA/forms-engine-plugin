@@ -92,6 +92,7 @@ export class FormModel {
 
   pageMap: Map<string, PageControllerClass>
   componentMap: Map<string, Component>
+  notificationEmail?: string
 
   constructor(
     def: typeof this.def,
@@ -99,6 +100,7 @@ export class FormModel {
       basePath: string
       ordnanceSurveyApiKey?: string
       formId?: string
+      notificationEmail?: string
     },
     services: Services = defaultServices,
     controllers?: Record<string, typeof PageController>
@@ -155,6 +157,7 @@ export class FormModel {
     this.values = result.value
     this.basePath = options.basePath
     this.ordnanceSurveyApiKey = options.ordnanceSurveyApiKey
+    this.notificationEmail = options.notificationEmail
     this.conditions = {}
     this.services = services
     this.controllers = controllers
@@ -357,7 +360,8 @@ export class FormModel {
       componentDefMap: this.componentDefMap,
       pageMap: this.pageMap,
       componentMap: this.componentMap,
-      referenceNumber: getReferenceNumber(state)
+      referenceNumber: getReferenceNumber(state),
+      notificationEmail: this.notificationEmail
     }
 
     // Validate current page
