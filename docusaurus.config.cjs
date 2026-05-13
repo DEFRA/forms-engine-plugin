@@ -78,7 +78,6 @@ const config = {
           text: 'Features',
           href: '/features',
           sidebar: [
-            { text: 'Overview', href: '/features' },
             { text: 'Components', href: '/features/components' },
             { text: 'Page Types', href: '/features/pages' },
             {

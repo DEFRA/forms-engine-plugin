@@ -186,7 +186,7 @@ export const fixtures = {
   [ComponentType.AutocompleteField]: {
     jsLevel: 2,
     jsNotice:
-      'This component is progressively enhanced. Without JavaScript it renders as a standard <select> dropdown that works fully. With JavaScript enabled it becomes a searchable autocomplete.',
+      'This component is progressively enhanced. Without JavaScript it renders as a standard &lt;select&gt; dropdown that works fully. With JavaScript enabled it becomes a searchable autocomplete.',
     def: {
       type: ComponentType.AutocompleteField,
       name: 'country',
@@ -409,8 +409,10 @@ export const fixtures = {
   },
   [ComponentType.GeospatialField]: {
     jsLevel: 1,
-    jsNotice:
+    jsNotice: [
       'A multiline text input that accepts raw GeoJSON is available as a fallback when JavaScript is unavailable, but this is not a recommended user journey. This component has a hard client-side JavaScript requirement. If JavaScript availability is a concern, use a progressively enhanced component instead.',
+      'We recommend using the <a className="govuk-link" href="https://submit-form-to-defra.service.gov.uk/form/preview/draft/geospatial-pattern/site-information">map question pattern</a> when asking users to select or draw locations on a map. This pattern provides alternatives so users who cannot use maps are not excluded.'
+    ],
     def: {
       type: ComponentType.GeospatialField,
       name: 'location',
@@ -472,14 +474,16 @@ export const fixtures = {
  * @typedef {import('~/src/server/plugins/engine/types.js').FormPayload} FormPayload
  * @typedef {{ def: ComponentDef, model: Partial<FormModel>|null, payload: FormPayload }} FixtureRender
  * @typedef {{ label: string } & FixtureRender} FixtureVariant
- * @typedef {{ jsLevel: 1|2|3, jsNotice?: string, previewSuffix?: string } & (FixtureRender | { variants: FixtureVariant[] })} Fixture
+ * @typedef {{ jsLevel: 1|2|3, jsNotice?: string | string[], previewSuffix?: string } & (FixtureRender | { variants: FixtureVariant[] })} Fixture
  *
  * jsLevel describes the component's JavaScript dependency:
  *   1 — hard JS requirement, cannot be statically rendered (e.g. map). Docs show a jsNotice only.
  *   2 — progressively enhanced, works without JS but degrades. Docs show a jsNotice + static preview.
  *   3 — no meaningful JS dependency beyond what GOV.UK Frontend already provides. Docs show a static preview only.
  *
- * jsNotice — plain text shown to users explaining the JS dependency (required for levels 1 and 2).
+ * jsNotice — HTML/JSX string or array of strings explaining the JS dependency (required for levels 1
+ *   and 2). Each string is wrapped in a <p className="govuk-body">. Use <a className="govuk-link">
+ *   for links. previewSuffix is plain text (markdown context).
  *
  * previewSuffix — optional text appended below the static preview as a placeholder, used to
  *   indicate where a JS-rendered element (e.g. a map) would appear in a live environment.

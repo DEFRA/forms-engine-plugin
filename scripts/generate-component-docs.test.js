@@ -351,49 +351,56 @@ describe('Component Documentation Generator', () => {
   })
 
   describe('buildJsNotice', () => {
-    it('Level 2: contains jsNotice text and demo link as plain text', () => {
+    it('Level 1: renders a GOV.UK notification banner with banner structure', () => {
+      const result = buildJsNotice(1, 'Notice text.')
+      expect(result).toContain('govuk-notification-banner')
+      expect(result).toContain('Warning')
+      expect(result).toContain('Requires client-side JavaScript')
+      expect(result).toContain('cannot be previewed here')
+      expect(result).toContain('Notice text.')
+      expect(result).toContain('view our demo form')
+    })
+
+    it('Level 1: wraps jsNotice strings in govuk-body paragraphs', () => {
+      const result = buildJsNotice(1, 'Plain notice text.')
+      expect(result).toContain(
+        '<p className="govuk-body">Plain notice text.</p>'
+      )
+    })
+
+    it('Level 1: emits inline HTML as-is within the paragraph', () => {
+      const result = buildJsNotice(
+        1,
+        'See the <a className="govuk-link" href="https://example.com">pattern</a> for details.'
+      )
+      expect(result).toContain(
+        '<a className="govuk-link" href="https://example.com">pattern</a>'
+      )
+    })
+
+    it('Level 2: renders govuk-body paragraphs with demo link', () => {
       const result = buildJsNotice(
         2,
         'This component is progressively enhanced.'
       )
-      expect(result).toContain('This component is progressively enhanced.')
       expect(result).toContain(
-        'submit-form-to-defra.service.gov.uk/form/register-a-unicorn'
+        '<p className="govuk-body">This component is progressively enhanced.</p>'
       )
+      expect(result).toContain('To see the full experience,')
       expect(result).toContain(
-        'To see the full experience, [view our demo form]'
+        `<a className="govuk-link" href="https://submit-form-to-defra.service.gov.uk/form/register-a-unicorn">view our demo form</a>`
       )
       expect(result).not.toContain('govuk-notification-banner')
     })
 
-    it('Level 2: HTML-escapes angle brackets in jsNotice', () => {
-      const result = buildJsNotice(2, 'Renders as a <select> element.')
-      expect(result).toContain('&lt;select&gt;')
-      expect(result).not.toContain('<select>')
-    })
-
-    it('Level 1: contains Warning title, Requires client-side JavaScript heading, and cannot-be-previewed text', () => {
-      const result = buildJsNotice(1, 'Notice text.')
-      expect(result).toContain('govuk-notification-banner')
-      expect(result).toContain('govuk-notification-banner__title')
-      expect(result).toContain('Warning')
-      expect(result).toContain('govuk-notification-banner__heading')
-      expect(result).toContain('Requires client-side JavaScript')
-      expect(result).toContain('cannot be previewed here')
-      expect(result).toContain('Notice text.')
-      expect(result).toContain('View the components demo')
-    })
-
-    it('Level 1: HTML-escapes angle brackets in jsNotice', () => {
-      const result = buildJsNotice(1, 'Use a <input> element.')
-      expect(result).toContain('&lt;input&gt;')
-      expect(result).not.toContain('<input>')
-    })
-
-    it('HTML-escapes ampersands in jsNotice', () => {
-      const result = buildJsNotice(2, 'Fish & chips')
-      expect(result).toContain('Fish &amp; chips')
-      expect(result).not.toContain('Fish & chips')
+    it('Level 2: emits inline HTML as-is within the paragraph', () => {
+      const result = buildJsNotice(
+        2,
+        'See the <a className="govuk-link" href="https://example.com">pattern</a> for details.'
+      )
+      expect(result).toContain(
+        '<a className="govuk-link" href="https://example.com">pattern</a>'
+      )
     })
   })
 

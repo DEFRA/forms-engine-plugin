@@ -31,18 +31,21 @@ const DEMO_FORM_URL =
   'https://submit-form-to-defra.service.gov.uk/form/register-a-unicorn'
 
 /**
- * Build a JS notice string for Level 1 or Level 2 components.
- * Level 1 emits a GOV.UK notification banner (JSX). Level 2 emits plain markdown text.
- * The jsNotice text is HTML-escaped before emission.
+ * Build a JS notice for Level 1 or Level 2 components.
+ * jsNotice is a plain HTML/JSX string or array of strings; each is wrapped in a govuk-body
+ * paragraph and emitted as-is (no conversion). Level 1 renders a GOV.UK notification banner
+ * (JSX); Level 2 emits the paragraphs directly as HTML.
  * @param {1|2} jsLevel
- * @param {string} jsNotice
+ * @param {string | string[]} jsNotice - Plain HTML/JSX string(s). Use <a className="govuk-link"> for links.
  * @returns {string}
  */
 export function buildJsNotice(jsLevel, jsNotice) {
-  const escaped = jsNotice
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
+  if (typeof jsNotice === 'string') jsNotice = [jsNotice]
+
+  const toP = (s) => `<p className="govuk-body">${s}</p>`
+
+  const noticeParagraphs = jsNotice.map(toP)
+  const demoLink = `<p className="govuk-body">To see the full experience, <a className="govuk-link" href="${DEMO_FORM_URL}">view our demo form</a> which includes most components.</p>`
 
   if (jsLevel === 1) {
     return [
@@ -53,14 +56,14 @@ export function buildJsNotice(jsLevel, jsNotice) {
       `  <div className="govuk-notification-banner__content">`,
       `    <h3 className="govuk-notification-banner__heading">Requires client-side JavaScript</h3>`,
       `    <p className="govuk-body">This component cannot be previewed here — it requires Ordnance Survey API credentials and a running map service that aren't available in the documentation environment.</p>`,
-      `    <p className="govuk-body">${escaped}</p>`,
-      `    <p className="govuk-body"><a className="govuk-link" href="${DEMO_FORM_URL}">View the components demo</a> to see it working.</p>`,
+      ...noticeParagraphs,
+      demoLink,
       `  </div>`,
       `</div>`
     ].join('\n')
   }
 
-  return `${escaped}\n\nTo see the full experience, [view our demo form](${DEMO_FORM_URL}) which includes most components.`
+  return [...noticeParagraphs, demoLink].join('\n\n')
 }
 
 /**
