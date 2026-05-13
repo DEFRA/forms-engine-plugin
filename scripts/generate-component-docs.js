@@ -894,6 +894,7 @@ export function generatePageExample(
  * @param {Array<{name: string, type: string, optional: boolean}>} uniqueProps
  * @param {string} examplePath
  * @param {number} sidebarPosition
+ * @param {string|null} [previewSlug]
  */
 export function generatePageMd(
   controllerKey,
