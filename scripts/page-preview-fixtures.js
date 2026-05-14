@@ -56,18 +56,17 @@ function pageViewContext(pageDef, state = {}) {
     paths: [],
     state
   }
+  /** @type {import('~/src/server/plugins/engine/types.js').FormContextRequest} */
+  const mockRequest = {
+    query: {},
+    params: {},
+    path: pageDef.path,
+    url: { search: '' },
+    server: { plugins: { 'forms-engine-plugin': {} } }
+  }
   return {
     viewName: controller.viewName,
-    context: controller.getViewModel(
-      {
-        query: {},
-        params: {},
-        path: pageDef.path,
-        url: { search: '' },
-        server: { plugins: { 'forms-engine-plugin': {} } }
-      },
-      mockContext
-    )
+    context: controller.getViewModel(mockRequest, mockContext)
   }
 }
 
