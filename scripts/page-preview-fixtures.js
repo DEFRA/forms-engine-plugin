@@ -5,12 +5,12 @@ import { fixtures as componentFixtures } from './component-preview-fixtures.js'
 import { createComponent } from '~/src/server/plugins/engine/components/helpers/components.js'
 
 /**
- * Derives a GOV.UK Frontend view model from the canonical component fixture.
- * Handles both flat fixtures (def/model/payload at top level) and variant
- * fixtures (variants array). When variantLabel is provided, finds the matching
- * variant; otherwise uses the first variant (or the flat fixture itself).
- * @param {string} name - Component fixture key, e.g. 'TextField'
- * @param {string} [variantLabel] - Variant label, e.g. 'No files uploaded'
+ * Builds a component view model from the named component fixture so page
+ * fixtures can reuse the same data as component previews without duplicating
+ * component definitions. Supports variant fixtures — pass a label to select
+ * a specific variant, or omit it to use the first (or only) variant.
+ * @param {string} name - e.g. 'FileUploadField'
+ * @param {string} [variantLabel] - e.g. 'No files uploaded'
  * @returns {object}
  */
 function componentViewModel(name, variantLabel) {
