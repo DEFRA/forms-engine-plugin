@@ -7,14 +7,15 @@ import { environment } from '~/src/server/plugins/nunjucks/environment.js'
 
 /**
  * Render a single page fixture context to an HTML string.
- * Passes baseLayoutPath: 'preview-layout.html' to strip the GOV.UK page wrapper,
- * leaving only the {% block content %} output from the page template.
+ * Reads the view name from context.page.viewName — set automatically by the
+ * real page controller via getViewModel, or manually on the page stub for
+ * fixtures that don't use pageViewContext.
+ * Passes baseLayoutPath: 'preview-layout.html' to strip the GOV.UK page wrapper.
  * @param {object} context
- * @param {string} viewName
  * @returns {string}
  */
-export function renderPage(context, viewName) {
-  const html = environment.render(`${viewName}.html`, {
+export function renderPage(context) {
+  const html = environment.render(`${context.page.viewName}.html`, {
     ...context,
     baseLayoutPath: 'preview-layout.html'
   })
@@ -28,7 +29,7 @@ export function renderPage(context, viewName) {
  * MDX partial to previewsDir/<slug>.mdx.
  * @param {string} previewsDir
  * @param {string} slug
- * @param {{ viewName: string, context?: object, variants?: Array<{label: string, context: object}> }} fixture
+ * @param {{ context?: object, variants?: Array<{label: string, context: object}> }} fixture
  */
 export function writePagePreviewPartial(previewsDir, slug, fixture) {
   fs.mkdirSync(previewsDir, { recursive: true })
@@ -36,9 +37,9 @@ export function writePagePreviewPartial(previewsDir, slug, fixture) {
   const renders = fixture.variants
     ? fixture.variants.map(({ label, context }) => ({
         label,
-        html: renderPage(context, fixture.viewName)
+        html: renderPage(context)
       }))
-    : [{ html: renderPage(fixture.context, fixture.viewName) }]
+    : [{ html: renderPage(fixture.context) }]
 
   fs.writeFileSync(
     path.join(previewsDir, `${slug}.mdx`),

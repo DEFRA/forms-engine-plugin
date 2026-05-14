@@ -35,7 +35,7 @@ function componentViewModel(name, variantLabel) {
  * automatically — no manual fixture properties needed for these.
  * @param {object} pageDef - Page definition (path, title, controller, components)
  * @param {object} [state] - Optional form state to pass as the payload
- * @returns {{ viewName: string, context: object }}
+ * @returns {object}
  */
 function pageViewContext(pageDef, state = {}) {
   const model = new FormModel(
@@ -76,84 +76,86 @@ function pageViewContext(pageDef, state = {}) {
     url: { search: '?force=true' },
     server: { plugins: { 'forms-engine-plugin': {} } }
   }
-  return {
-    viewName: controller.viewName,
-    context: controller.getViewModel(mockRequest, mockContext)
-  }
+  return controller.getViewModel(mockRequest, mockContext)
 }
 
-/** @type {Record<string, { viewName: string, context?: object, variants?: Array<{label: string, context: object}> }>} */
+/** @type {Record<string, { context?: object, variants?: Array<{label: string, context: object}> }>} */
 export const pageFixtures = {
-  PageController: (() => {
-    const single = pageViewContext({
-      path: '/pagepath',
-      title: 'What is your full name?',
-      components: [
-        {
-          type: 'TextField',
-          name: 'fullname',
-          title: 'What is your full name?',
-          hint: 'As shown on your passport',
-          options: {},
-          schema: {}
-        }
-      ]
-    })
-    const multiple = pageViewContext({
-      path: '/pagepath',
-      title: 'Tell us about yourself',
-      components: [
-        {
-          type: 'TextField',
-          name: 'fullname',
-          title: 'What is your full name?',
-          options: {},
-          schema: {}
-        },
-        {
-          type: 'DatePartsField',
-          name: 'dob',
-          title: 'What is your date of birth?',
-          hint: 'For example, 27 3 2007',
-          options: {},
-          schema: {}
-        }
-      ]
-    })
-    return {
-      viewName: single.viewName,
-      variants: [
-        { label: 'Single question', context: single.context },
-        { label: 'Multiple questions', context: multiple.context }
-      ]
-    }
-  })(),
-
-  StartPageController: pageViewContext({
-    path: '/start',
-    controller: 'StartPageController',
-    title: 'Apply for a licence',
-    components: []
-  }),
-
-  TerminalPageController: pageViewContext({
-    path: '/ineligible',
-    controller: 'TerminalPageController',
-    title: 'You are not eligible',
-    components: [
+  PageController: {
+    variants: [
       {
-        type: 'Html',
-        name: 'eligibility',
-        content:
-          '<p class="govuk-body">You do not meet the eligibility criteria for this service.</p>',
-        options: {}
+        label: 'Single question',
+        context: pageViewContext({
+          path: '/pagepath',
+          title: 'What is your full name?',
+          components: [
+            {
+              type: 'TextField',
+              name: 'fullname',
+              title: 'What is your full name?',
+              hint: 'As shown on your passport',
+              options: {},
+              schema: {}
+            }
+          ]
+        })
+      },
+      {
+        label: 'Multiple questions',
+        context: pageViewContext({
+          path: '/pagepath',
+          title: 'Tell us about yourself',
+          components: [
+            {
+              type: 'TextField',
+              name: 'fullname',
+              title: 'What is your full name?',
+              options: {},
+              schema: {}
+            },
+            {
+              type: 'DatePartsField',
+              name: 'dob',
+              title: 'What is your date of birth?',
+              hint: 'For example, 27 3 2007',
+              options: {},
+              schema: {}
+            }
+          ]
+        })
       }
     ]
-  }),
+  },
+
+  StartPageController: {
+    context: pageViewContext({
+      path: '/start',
+      controller: 'StartPageController',
+      title: 'Apply for a licence',
+      components: []
+    })
+  },
+
+  TerminalPageController: {
+    context: pageViewContext({
+      path: '/ineligible',
+      controller: 'TerminalPageController',
+      title: 'You are not eligible',
+      components: [
+        {
+          type: 'Html',
+          name: 'eligibility',
+          content:
+            '<p class="govuk-body">You do not meet the eligibility criteria for this service.</p>',
+          options: {}
+        }
+      ]
+    })
+  },
 
   RepeatPageController: {
-    viewName: 'repeat-list-summary',
     context: {
+      page: { viewName: 'repeat-list-summary' },
       pageTitle: 'Add members of your household',
       showTitle: true,
       allowSaveAndExit: false,
@@ -184,7 +186,6 @@ export const pageFixtures = {
   },
 
   FileUploadPageController: {
-    viewName: 'file-upload',
     exampleComponents: [
       {
         type: 'FileUploadField',
@@ -202,7 +203,7 @@ export const pageFixtures = {
             pageTitle: 'Upload a document',
             showTitle: true,
             formAction: 'preview',
-            page: { allowContinue: true },
+            page: { viewName: 'file-upload', allowContinue: true },
             componentsBefore: [],
             components: [
               componentViewModel('FileUploadField', 'No files uploaded')
@@ -219,7 +220,7 @@ export const pageFixtures = {
             pageTitle: 'Upload a document',
             showTitle: true,
             formAction: 'preview',
-            page: { allowContinue: true },
+            page: { viewName: 'file-upload', allowContinue: true },
             componentsBefore: [],
             components: [
               componentViewModel('FileUploadField', 'With files uploaded')
@@ -235,8 +236,8 @@ export const pageFixtures = {
   },
 
   SummaryPageController: {
-    viewName: 'summary',
     context: {
+      page: { viewName: 'summary' },
       pageTitle: 'Check your answers',
       allowSaveAndExit: false,
       checkAnswers: [

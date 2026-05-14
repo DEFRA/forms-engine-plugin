@@ -28,8 +28,8 @@ describe('renderPage', () => {
     environment.render.mockReturnValue('<h1 class="govuk-heading-l">Page</h1>')
   })
 
-  it('calls environment.render with the correct template name', () => {
-    renderPage({ pageTitle: 'Test' }, 'index')
+  it('calls environment.render with the template name from context.page.viewName', () => {
+    renderPage({ pageTitle: 'Test', page: { viewName: 'index' } })
     expect(environment.render).toHaveBeenCalledWith(
       'index.html',
       expect.objectContaining({ pageTitle: 'Test' })
@@ -37,10 +37,11 @@ describe('renderPage', () => {
   })
 
   it('overrides baseLayoutPath with preview-layout.html', () => {
-    renderPage(
-      { pageTitle: 'Test', baseLayoutPath: 'something-else.html' },
-      'summary'
-    )
+    renderPage({
+      pageTitle: 'Test',
+      baseLayoutPath: 'something-else.html',
+      page: { viewName: 'summary' }
+    })
     expect(environment.render).toHaveBeenCalledWith(
       'summary.html',
       expect.objectContaining({ baseLayoutPath: 'preview-layout.html' })
@@ -49,7 +50,10 @@ describe('renderPage', () => {
 
   it('returns the rendered HTML string', () => {
     environment.render.mockReturnValue('<h1>Check your answers</h1>')
-    const result = renderPage({ pageTitle: 'Check your answers' }, 'summary')
+    const result = renderPage({
+      pageTitle: 'Check your answers',
+      page: { viewName: 'summary' }
+    })
     expect(result).toBe('<h1>Check your answers</h1>')
   })
 
@@ -57,7 +61,10 @@ describe('renderPage', () => {
     environment.render.mockReturnValue(
       '<form method="post" novalidate><button class="govuk-button">Continue</button></form>'
     )
-    const result = renderPage({ pageTitle: 'Test' }, 'index')
+    const result = renderPage({
+      pageTitle: 'Test',
+      page: { viewName: 'index' }
+    })
     expect(result).not.toContain('<form')
     expect(result).not.toContain('</form>')
     expect(result).toContain('<div class="app-page-preview__form">')
@@ -73,8 +80,7 @@ describe('writePagePreviewPartial', () => {
 
   it('creates the output directory', () => {
     writePagePreviewPartial('/out/_previews', 'page-controller', {
-      viewName: 'index',
-      context: { pageTitle: 'Question' }
+      context: { pageTitle: 'Question', page: { viewName: 'index' } }
     })
     expect(mkdirSync).toHaveBeenCalledWith('/out/_previews', {
       recursive: true
@@ -83,8 +89,10 @@ describe('writePagePreviewPartial', () => {
 
   it('writes MDX to the correct path', () => {
     writePagePreviewPartial('/out/_previews', 'summary-page-controller', {
-      viewName: 'summary',
-      context: { pageTitle: 'Check your answers' }
+      context: {
+        pageTitle: 'Check your answers',
+        page: { viewName: 'summary' }
+      }
     })
     expect(writeFileSync).toHaveBeenCalledWith(
       '/out/_previews/summary-page-controller.mdx',
@@ -94,8 +102,7 @@ describe('writePagePreviewPartial', () => {
 
   it('passes a single unlabelled render to buildPartialMdx for a flat fixture', () => {
     writePagePreviewPartial('/out/_previews', 'page-controller', {
-      viewName: 'index',
-      context: { pageTitle: 'Question' }
+      context: { pageTitle: 'Question', page: { viewName: 'index' } }
     })
     expect(buildPartialMdx).toHaveBeenCalledWith(
       [{ html: '<div>page html</div>' }],
@@ -105,10 +112,15 @@ describe('writePagePreviewPartial', () => {
 
   it('passes labelled renders to buildPartialMdx for a variant fixture', () => {
     writePagePreviewPartial('/out/_previews', 'file-upload-page-controller', {
-      viewName: 'file-upload',
       variants: [
-        { label: 'No files uploaded', context: { pageTitle: 'Upload' } },
-        { label: 'With files uploaded', context: { pageTitle: 'Upload' } }
+        {
+          label: 'No files uploaded',
+          context: { pageTitle: 'Upload', page: { viewName: 'file-upload' } }
+        },
+        {
+          label: 'With files uploaded',
+          context: { pageTitle: 'Upload', page: { viewName: 'file-upload' } }
+        }
       ]
     })
     expect(buildPartialMdx).toHaveBeenCalledWith(
@@ -126,15 +138,22 @@ describe('writePagePreviewPartial', () => {
       .mockReturnValueOnce('<div>with files</div>')
 
     writePagePreviewPartial('/out/_previews', 'file-upload-page-controller', {
-      viewName: 'file-upload',
       variants: [
         {
           label: 'No files uploaded',
-          context: { pageTitle: 'Upload', formAction: null }
+          context: {
+            pageTitle: 'Upload',
+            formAction: null,
+            page: { viewName: 'file-upload' }
+          }
         },
         {
           label: 'With files uploaded',
-          context: { pageTitle: 'Upload', formAction: 'preview' }
+          context: {
+            pageTitle: 'Upload',
+            formAction: 'preview',
+            page: { viewName: 'file-upload' }
+          }
         }
       ]
     })

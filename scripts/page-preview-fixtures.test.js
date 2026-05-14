@@ -36,9 +36,14 @@ describe('page-preview-fixtures', () => {
     }
   })
 
-  it('every fixture has a viewName string', () => {
+  it('every fixture context has a page.viewName string', () => {
     for (const [_key, fixture] of Object.entries(pageFixtures)) {
-      expect(typeof fixture.viewName).toBe('string')
+      const contexts = fixture.variants
+        ? fixture.variants.map((v) => v.context)
+        : [fixture.context]
+      for (const context of contexts) {
+        expect(typeof context.page?.viewName).toBe('string')
+      }
     }
   })
 
