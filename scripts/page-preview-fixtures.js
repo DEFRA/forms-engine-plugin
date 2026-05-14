@@ -1,4 +1,7 @@
+import { Engine } from '@defra/forms-model'
+
 import { FormModel } from '../.server/server/plugins/engine/models/FormModel.js'
+
 
 import { fixtures as componentFixtures } from './component-preview-fixtures.js'
 
@@ -40,11 +43,20 @@ function pageViewContext(pageDef, state = {}) {
     {
       name: 'preview',
       schema: 2,
+      engine: Engine.V2,
       startPage: pageDef.path,
       sections: [],
       conditions: [],
       lists: [],
-      pages: [pageDef]
+      pages: [
+        pageDef,
+        {
+          path: '/summary',
+          controller: 'SummaryPageController',
+          title: 'Check your answers',
+          components: []
+        }
+      ]
     },
     { basePath: '/preview' }
   )
@@ -54,14 +66,15 @@ function pageViewContext(pageDef, state = {}) {
     errors: undefined,
     evaluationState: {},
     paths: [],
-    state
+    state,
+    isForceAccess: true
   }
   /** @type {import('~/src/server/plugins/engine/types.js').FormContextRequest} */
   const mockRequest = {
-    query: {},
+    query: { force: 'true' },
     params: {},
     path: pageDef.path,
-    url: { search: '' },
+    url: { search: '?force=true' },
     server: { plugins: { 'forms-engine-plugin': {} } }
   }
   return {
