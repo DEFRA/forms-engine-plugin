@@ -2,7 +2,6 @@ import { Engine } from '@defra/forms-model'
 
 import { FormModel } from '../.server/server/plugins/engine/models/FormModel.js'
 
-
 import { fixtures as componentFixtures } from './component-preview-fixtures.js'
 
 import { createComponent } from '~/src/server/plugins/engine/components/helpers/components.js'
@@ -85,54 +84,50 @@ function pageViewContext(pageDef, state = {}) {
 
 /** @type {Record<string, { viewName: string, context?: object, variants?: Array<{label: string, context: object}> }>} */
 export const pageFixtures = {
-  PageController: {
-    viewName: 'index',
-    get variants() {
-      return [
+  PageController: (() => {
+    const single = pageViewContext({
+      path: '/pagepath',
+      title: 'What is your full name?',
+      components: [
         {
-          label: 'Single question',
-          context: pageViewContext({
-            path: '/pagepath',
-            title: 'What is your full name?',
-            components: [
-              {
-                type: 'TextField',
-                name: 'fullname',
-                title: 'What is your full name?',
-                hint: 'As shown on your passport',
-                options: {},
-                schema: {}
-              }
-            ]
-          }).context
-        },
-        {
-          label: 'Multiple questions',
-          context: pageViewContext({
-            path: '/pagepath',
-            title: 'Tell us about yourself',
-            components: [
-              {
-                type: 'TextField',
-                name: 'fullname',
-                title: 'What is your full name?',
-                options: {},
-                schema: {}
-              },
-              {
-                type: 'DatePartsField',
-                name: 'dob',
-                title: 'What is your date of birth?',
-                hint: 'For example, 27 3 2007',
-                options: {},
-                schema: {}
-              }
-            ]
-          }).context
+          type: 'TextField',
+          name: 'fullname',
+          title: 'What is your full name?',
+          hint: 'As shown on your passport',
+          options: {},
+          schema: {}
         }
       ]
+    })
+    const multiple = pageViewContext({
+      path: '/pagepath',
+      title: 'Tell us about yourself',
+      components: [
+        {
+          type: 'TextField',
+          name: 'fullname',
+          title: 'What is your full name?',
+          options: {},
+          schema: {}
+        },
+        {
+          type: 'DatePartsField',
+          name: 'dob',
+          title: 'What is your date of birth?',
+          hint: 'For example, 27 3 2007',
+          options: {},
+          schema: {}
+        }
+      ]
+    })
+    return {
+      viewName: single.viewName,
+      variants: [
+        { label: 'Single question', context: single.context },
+        { label: 'Multiple questions', context: multiple.context }
+      ]
     }
-  },
+  })(),
 
   StartPageController: pageViewContext({
     path: '/start',
