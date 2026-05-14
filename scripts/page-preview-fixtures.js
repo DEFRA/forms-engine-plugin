@@ -1,4 +1,4 @@
-import { ComponentType } from '@defra/forms-model'
+import { FormModel } from '../.server/server/plugins/engine/models/FormModel.js'
 
 import { fixtures as componentFixtures } from './component-preview-fixtures.js'
 
@@ -26,72 +26,123 @@ function componentViewModel(name, variantLabel) {
   }
 }
 
+/**
+ * Instantiates the real page controller for the given page definition and
+ * calls getViewModel with a minimal mock request/context. The controller
+ * handles showTitle, label sizing, isPageHeading, allowContinue, and viewName
+ * automatically — no manual fixture properties needed for these.
+ * @param {object} pageDef - Page definition (path, title, controller, components)
+ * @param {object} [state] - Optional form state to pass as the payload
+ * @returns {{ viewName: string, context: object }}
+ */
+function pageViewContext(pageDef, state = {}) {
+  const model = new FormModel(
+    {
+      name: 'preview',
+      schema: 2,
+      startPage: pageDef.path,
+      sections: [],
+      conditions: [],
+      lists: [],
+      pages: [pageDef]
+    },
+    { basePath: '/preview' }
+  )
+  const [controller] = model.pages
+  const mockContext = {
+    payload: state,
+    errors: undefined,
+    evaluationState: {},
+    paths: [],
+    state
+  }
+  return {
+    viewName: controller.viewName,
+    context: controller.getViewModel(
+      {
+        query: {},
+        params: {},
+        path: pageDef.path,
+        url: { search: '' },
+        server: { plugins: { 'forms-engine-plugin': {} } }
+      },
+      mockContext
+    )
+  }
+}
+
 /** @type {Record<string, { viewName: string, context?: object, variants?: Array<{label: string, context: object}> }>} */
 export const pageFixtures = {
   PageController: {
     viewName: 'index',
-    variants: [
-      {
-        label: 'Single question',
-        context: {
-          showTitle: false,
-          page: { allowContinue: true },
-          allowSaveAndExit: false,
-          get components() {
-            const component = componentViewModel('TextField')
-            component.model.label.isPageHeading = true
-            component.model.label.classes = 'govuk-label--l'
-            return [component]
-          }
-        }
-      },
-      {
-        label: 'Multiple questions',
-        context: {
-          pageTitle: 'Tell us about yourself',
-          showTitle: true,
-          page: { allowContinue: true },
-          allowSaveAndExit: false,
-          get components() {
-            return [
-              componentViewModel('TextField'),
-              componentViewModel('DatePartsField')
-            ]
-          }
-        }
-      }
-    ]
-  },
-
-  StartPageController: {
-    viewName: 'index',
-    context: {
-      pageTitle: 'Apply for a licence',
-      showTitle: true,
-      isStartPage: true,
-      page: { allowContinue: true },
-      allowSaveAndExit: false,
-      components: []
-    }
-  },
-
-  TerminalPageController: {
-    viewName: 'index',
-    context: {
-      pageTitle: 'You are not eligible',
-      showTitle: true,
-      page: { allowContinue: false },
-      components: [
+    get variants() {
+      return [
         {
-          type: ComponentType.Html,
-          model: {
-            content:
-              '<p class="govuk-body">You do not meet the eligibility criteria for this service.</p>'
-          }
+          label: 'Single question',
+          context: pageViewContext({
+            path: '/pagepath',
+            title: 'What is your full name?',
+            components: [
+              {
+                type: 'TextField',
+                name: 'fullname',
+                title: 'What is your full name?',
+                hint: 'As shown on your passport',
+                options: {},
+                schema: {}
+              }
+            ]
+          }).context
+        },
+        {
+          label: 'Multiple questions',
+          context: pageViewContext({
+            path: '/pagepath',
+            title: 'Tell us about yourself',
+            components: [
+              {
+                type: 'TextField',
+                name: 'fullname',
+                title: 'What is your full name?',
+                options: {},
+                schema: {}
+              },
+              {
+                type: 'DatePartsField',
+                name: 'dob',
+                title: 'What is your date of birth?',
+                hint: 'For example, 27 3 2007',
+                options: {},
+                schema: {}
+              }
+            ]
+          }).context
         }
       ]
     }
   },
+
+  StartPageController: pageViewContext({
+    path: '/start',
+    controller: 'StartPageController',
+    title: 'Apply for a licence',
+    components: []
+  }),
+
+  TerminalPageController: pageViewContext({
+    path: '/ineligible',
+    controller: 'TerminalPageController',
+    title: 'You are not eligible',
+    components: [
+      {
+        type: 'Html',
+        name: 'eligibility',
+        content:
+          '<p class="govuk-body">You do not meet the eligibility criteria for this service.</p>',
+        options: {}
+      }
+    ]
+  }),
 
   RepeatPageController: {
     viewName: 'repeat-list-summary',
