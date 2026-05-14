@@ -121,16 +121,5 @@
     "repeat.options.title": "Label displayed per repeated item in the list summary.",
     "repeat.schema.min": "Minimum number of items the user must add.",
     "repeat.schema.max": "Maximum number of items the user can add. Cannot exceed 200."
-  },
-  "pageExampleComponents": {
-    "FileUploadPageController": [
-      {
-        "type": "FileUploadField",
-        "name": "upload",
-        "title": "Upload a document",
-        "options": {},
-        "schema": {}
-      }
-    ]
   }
 }

@@ -130,6 +130,15 @@ export const pageFixtures = {
 
   FileUploadPageController: {
     viewName: 'file-upload',
+    exampleComponents: [
+      {
+        type: 'FileUploadField',
+        name: 'upload',
+        title: 'Upload a document',
+        options: {},
+        schema: {}
+      }
+    ],
     get variants() {
       return [
         {

@@ -865,12 +865,14 @@ export function controllerSlug(controllerKey) {
  * @param {string} controllerKey
  * @param {Array<{name: string, type: string, optional: boolean}>} uniqueProps
  * @param {string} [examplePath]
+ * @param {Array<object>|null} [exampleComponents]
  * @returns {Record<string, unknown>}
  */
 export function generatePageExample(
   controllerKey,
   uniqueProps,
-  examplePath = '/page-path'
+  examplePath = '/page-path',
+  exampleComponents = null
 ) {
   const controllerValue =
     controllerKey === 'PageController' ? null : controllerKey
@@ -888,7 +890,6 @@ export function generatePageExample(
     setNestedValue(example, prop.name, placeholderForType(prop.type))
   }
 
-  const exampleComponents = metadata.pageExampleComponents?.[controllerKey]
   if (exampleComponents) example.components = exampleComponents
 
   return example
@@ -900,13 +901,15 @@ export function generatePageExample(
  * @param {string} examplePath
  * @param {number} sidebarPosition
  * @param {string|null} [previewSlug]
+ * @param {Array<object>|null} [exampleComponents]
  */
 export function generatePageMd(
   controllerKey,
   uniqueProps,
   examplePath,
   sidebarPosition,
-  previewSlug = null
+  previewSlug = null,
+  exampleComponents = null
 ) {
   const description = metadata.pages[controllerKey]
   if (!description) return null
@@ -954,7 +957,12 @@ export function generatePageMd(
     ``,
     '```json',
     JSON.stringify(
-      generatePageExample(controllerKey, uniqueProps, examplePath),
+      generatePageExample(
+        controllerKey,
+        uniqueProps,
+        examplePath,
+        exampleComponents
+      ),
       null,
       2
     ),
@@ -1199,12 +1207,14 @@ function main() {
     const { props: uniqueProps = [], examplePath = '/page-path' } =
       pageInterfaces[key] ?? {}
     const fixture = pageFixtures[key]
+    const sidebarPosition = i + 1
     const content = generatePageMd(
       key,
       uniqueProps,
       examplePath,
-      i + 1,
-      fixture ? slug : null
+      sidebarPosition,
+      fixture ? slug : null,
+      fixture?.exampleComponents ?? null
     )
     if (content) {
       fs.writeFileSync(path.join(pagesOutputDir, `${slug}.mdx`), content)
