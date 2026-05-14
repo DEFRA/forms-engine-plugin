@@ -27,6 +27,45 @@ const metadata = JSON.parse(
 /** @type {Record<string, string>} */
 const ACRONYMS = { Uk: 'UK', Os: 'OS', Html: 'HTML' }
 
+const DEMO_FORM_URL =
+  'https://submit-form-to-defra.service.gov.uk/form/register-a-unicorn'
+
+/**
+ * Build a JS notice for Level 1 or Level 2 components.
+ * jsNotice is a plain HTML/JSX string or array of strings; each is wrapped in a govuk-body
+ * paragraph and emitted as-is (no conversion). Level 1 renders a GOV.UK notification banner
+ * (JSX); Level 2 emits the paragraphs directly as HTML.
+ * @param {1|2} jsLevel
+ * @param {string | string[]} jsNotice - Plain HTML/JSX string(s). Use <a className="govuk-link"> for links.
+ * @returns {string}
+ */
+export function buildJsNotice(jsLevel, jsNotice) {
+  if (typeof jsNotice === 'string') jsNotice = [jsNotice]
+
+  const toP = (/** @type {string} */ s) => `<p className="govuk-body">${s}</p>`
+
+  const noticeParagraphs = jsNotice.map(toP)
+  const demoLink = `<p className="govuk-body">To see the full experience, <a className="govuk-link" href="${DEMO_FORM_URL}">view our demo form</a> which includes most components.</p>`
+
+  if (jsLevel === 1) {
+    return [
+      `<div className="govuk-notification-banner app-no-prose" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">`,
+      `  <div className="govuk-notification-banner__header">`,
+      `    <h2 className="govuk-notification-banner__title" id="govuk-notification-banner-title">Warning</h2>`,
+      `  </div>`,
+      `  <div className="govuk-notification-banner__content">`,
+      `    <h3 className="govuk-notification-banner__heading">Requires client-side JavaScript</h3>`,
+      `    <p className="govuk-body">This component cannot be previewed here — it requires Ordnance Survey API credentials and a running map service that aren't available in the documentation environment.</p>`,
+      ...noticeParagraphs,
+      demoLink,
+      `  </div>`,
+      `</div>`
+    ].join('\n')
+  }
+
+  return [...noticeParagraphs, demoLink].join('\n\n')
+}
+
 /**
  * @param {string} str
  * @returns {string}
@@ -677,13 +716,15 @@ export function generateExample(componentName, interfaceData) {
  * @param {ComponentData} interfaceData
  * @param {number} sidebarPosition
  * @param {string|null} [previewSlug]
+ * @param {import('./component-preview-fixtures.js').Fixture|null} [fixture]
  * @returns {string}
  */
 export function generateComponentMd(
   componentName,
   interfaceData,
   sidebarPosition,
-  previewSlug = null
+  previewSlug = null,
+  fixture = null
 ) {
   const description = metadata.components[componentName] ?? ''
   const label = toLabel(componentName)
@@ -692,7 +733,9 @@ export function generateComponentMd(
   const links = metadata.componentLinks?.[componentName] ?? []
 
   // leading '' ensures a blank line between frontmatter and the import
-  const previewImport = previewSlug
+  // Level 1 components require client-side JavaScript to render and can't be statically previewed
+  const hasPreviewFile = previewSlug && fixture?.jsLevel !== 1
+  const previewImport = hasPreviewFile
     ? [``, `import Preview from './_previews/${previewSlug}.mdx'`]
     : []
 
@@ -713,8 +756,19 @@ export function generateComponentMd(
     lines.push(text, ``)
   }
 
-  if (previewSlug) {
-    lines.push(`## Preview`, ``, `<Preview />`, ``)
+  // Level 1: jsNotice only, no ## Preview heading — notice appears above ## JSON definition, static render not possible
+  // Level 2: jsNotice + <Preview /> under ## Preview — hasPreviewFile is true
+  // Level 3: <Preview /> only under ## Preview — no jsNotice, hasPreviewFile is true
+  if (fixture?.jsLevel === 1) {
+    lines.push(buildJsNotice(1, fixture.jsNotice ?? ''), ``)
+  } else if (fixture) {
+    lines.push(`## Preview`, ``)
+    if (fixture.jsLevel === 2) {
+      lines.push(buildJsNotice(fixture.jsLevel, fixture.jsNotice ?? ''), ``)
+    }
+    if (hasPreviewFile) {
+      lines.push(`<Preview />`, ``)
+    }
   }
 
   lines.push(
@@ -1081,20 +1135,32 @@ function main() {
     const slug = toKebabCase(name)
     const fixture = fixtures[name]
     const sidebarPosition = i + 1
+
+    if (
+      fixture &&
+      (fixture.jsLevel === 1 || fixture.jsLevel === 2) &&
+      !fixture.jsNotice
+    ) {
+      throw new Error(
+        `Fixture for ${name} has jsLevel ${fixture.jsLevel} but no jsNotice`
+      )
+    }
+
     const content = generateComponentMd(
       name,
       interfaceData,
       sidebarPosition,
-      fixture ? slug : null
+      fixture ? slug : null,
+      fixture ?? null
     )
     fs.writeFileSync(path.join(componentsOutputDir, `${slug}.mdx`), content)
 
-    if (fixture) {
-      writePreviewPartial(previewsOutputDir, slug, fixture)
-    } else {
+    if (!fixture) {
       console.warn(
         `Warning: no preview fixture for ${name} — add one to component-preview-fixtures.js`
       )
+    } else if (fixture.jsLevel !== 1) {
+      writePreviewPartial(previewsOutputDir, slug, fixture)
     }
   }
 
