@@ -131,6 +131,9 @@ export const plugin = {
 
     server.route(routes as unknown as ServerRoute[]) // TODO
 
+    // Registration order is important: must be registered after the engine's
+    // routes so it sees their responses, but before any global error-page
+    // handler that would re-shape Boom errors.
     registerUnavailableResponse(server)
   }
 } satisfies Plugin<PluginOptions>
