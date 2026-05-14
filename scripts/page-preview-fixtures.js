@@ -11,7 +11,7 @@ import { createComponent } from '~/src/server/plugins/engine/components/helpers/
  * a specific variant, or omit it to use the first (or only) variant.
  * @param {string} name - e.g. 'FileUploadField'
  * @param {string} [variantLabel] - e.g. 'No files uploaded'
- * @returns {object}
+ * @returns {{ type: string, model: object }}
  */
 function componentViewModel(name, variantLabel) {
   const fixture = componentFixtures[name]
@@ -20,7 +20,10 @@ function componentViewModel(name, variantLabel) {
       fixture.variants[0])
     : fixture
   const component = createComponent(variant.def, { model: variant.model })
-  return component.getViewModel(variant.payload, [])
+  return {
+    type: variant.def.type,
+    model: component.getViewModel(variant.payload, [])
+  }
 }
 
 /** @type {Record<string, { viewName: string, context?: object, variants?: Array<{label: string, context: object}> }>} */
@@ -35,10 +38,10 @@ export const pageFixtures = {
           page: { allowContinue: true },
           allowSaveAndExit: false,
           get components() {
-            const model = componentViewModel('TextField')
-            model.label.isPageHeading = true
-            model.label.classes = 'govuk-label--l'
-            return [{ type: ComponentType.TextField, model }]
+            const component = componentViewModel('TextField')
+            component.model.label.isPageHeading = true
+            component.model.label.classes = 'govuk-label--l'
+            return [component]
           }
         }
       },
@@ -51,14 +54,8 @@ export const pageFixtures = {
           allowSaveAndExit: false,
           get components() {
             return [
-              {
-                type: ComponentType.TextField,
-                model: componentViewModel('TextField')
-              },
-              {
-                type: ComponentType.DatePartsField,
-                model: componentViewModel('DatePartsField')
-              }
+              componentViewModel('TextField'),
+              componentViewModel('DatePartsField')
             ]
           }
         }
@@ -150,18 +147,12 @@ export const pageFixtures = {
             page: { allowContinue: true },
             componentsBefore: [],
             components: [
-              {
-                type: ComponentType.FileUploadField,
-                model: componentViewModel(
-                  'FileUploadField',
-                  'No files uploaded'
-                )
-              }
+              componentViewModel('FileUploadField', 'No files uploaded')
             ],
-            formComponent: {
-              type: ComponentType.FileUploadField,
-              model: componentViewModel('FileUploadField', 'No files uploaded')
-            }
+            formComponent: componentViewModel(
+              'FileUploadField',
+              'No files uploaded'
+            )
           }
         },
         {
@@ -173,21 +164,12 @@ export const pageFixtures = {
             page: { allowContinue: true },
             componentsBefore: [],
             components: [
-              {
-                type: ComponentType.FileUploadField,
-                model: componentViewModel(
-                  'FileUploadField',
-                  'With files uploaded'
-                )
-              }
+              componentViewModel('FileUploadField', 'With files uploaded')
             ],
-            formComponent: {
-              type: ComponentType.FileUploadField,
-              model: componentViewModel(
-                'FileUploadField',
-                'With files uploaded'
-              )
-            }
+            formComponent: componentViewModel(
+              'FileUploadField',
+              'With files uploaded'
+            )
           }
         }
       ]
