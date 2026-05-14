@@ -4,6 +4,7 @@ import { type Request, type Server } from '@hapi/hapi'
 import { isEqual } from 'date-fns'
 
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
+import { assertFormAvailable } from '~/src/server/plugins/engine/form-availability.js'
 import {
   checkEmailAddressForLiveFormSubmission,
   getCacheService
@@ -53,6 +54,7 @@ export async function getFormModel(
   const formState = resolveState(state)
 
   const metadata = await formsService.getFormMetadata(slug)
+  assertFormAvailable(metadata)
 
   const definition = await formsService.getFormDefinition(
     metadata.id,
@@ -136,6 +138,7 @@ export async function resolveFormModel(
   const { formsService } = services
 
   const metadata = await formsService.getFormMetadata(slug)
+  assertFormAvailable(metadata)
   const formState = resolveState(state)
   const isPreview = options.isPreview ?? isPreviewState(state, options)
   const stateMetadata = metadata[formState]
@@ -147,15 +150,10 @@ export async function resolveFormModel(
   }
 
   // The models cache is created lazily per server instance
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  if (!server.app.models) {
-    server.app.models = new Map<string, { model: FormModel; updatedAt: Date }>()
-  }
 
-  const cache = server.app.models as Map<
-    string,
-    { model: FormModel; updatedAt: Date }
-  >
+  server.app.models ??= new Map<string, { model: FormModel; updatedAt: Date }>()
+
+  const cache = server.app.models
 
   const cacheKey = `${metadata.id}_${formState}_${isPreview}_${metadata.notificationEmail}`
   let entry = cache.get(cacheKey)
