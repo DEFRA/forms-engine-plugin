@@ -1,4 +1,4 @@
-import { Engine } from '@defra/forms-model'
+import { ComponentType, ControllerType, Engine } from '@defra/forms-model'
 
 import { FormModel } from '../.server/server/plugins/engine/models/FormModel.js'
 
@@ -6,7 +6,7 @@ import { fixtures as componentFixtures } from './component-preview-fixtures.js'
 
 const SUMMARY_PAGE_DEF = {
   path: '/summary',
-  controller: 'SummaryPageController',
+  controller: ControllerType.Summary,
   title: 'Check your answers',
   components: []
 }
@@ -16,13 +16,8 @@ const SUMMARY_PAGE_DEF = {
  * calls getViewModel (or an optional override) with a minimal mock
  * request/context. The controller handles showTitle, label sizing,
  * isPageHeading, allowContinue, and viewName automatically.
- * @param {object} options
- * @param {object[]} options.pages - All page defs; SUMMARY_PAGE_DEF is always appended automatically
- * @param {string} [options.renderPage] - Path of the page to render; defaults to pages[0].path
- * @param {object} [options.state] - Form state
- * @param {object} [options.payload] - Form payload; defaults to state
- * @param {(controller: object, model: object, request: object, context: object) => object} [options.getViewModelOverride] - Override which method to call; defaults to getViewModel
- * @returns {object}
+ * @param {PageViewContextOptions} options
+ * @returns {PageViewModel}
  */
 function pageViewContext({
   pages,
@@ -70,7 +65,7 @@ function pageViewContext({
 }
 
 const fileUploadWithFilesVariant = componentFixtures[
-  'FileUploadField'
+  ComponentType.FileUploadField
 ].variants.find((v) => v.label === 'With files uploaded')
 
 /** @type {Record<string, PageFixture>} */
@@ -86,7 +81,7 @@ export const pageFixtures = {
               title: 'What is your full name?',
               components: [
                 {
-                  type: 'TextField',
+                  type: ComponentType.TextField,
                   name: 'fullname',
                   title: 'What is your full name?',
                   hint: 'As shown on your passport',
@@ -107,14 +102,14 @@ export const pageFixtures = {
               title: 'Tell us about yourself',
               components: [
                 {
-                  type: 'TextField',
+                  type: ComponentType.TextField,
                   name: 'fullname',
                   title: 'What is your full name?',
                   options: {},
                   schema: {}
                 },
                 {
-                  type: 'DatePartsField',
+                  type: ComponentType.DatePartsField,
                   name: 'dob',
                   title: 'What is your date of birth?',
                   hint: 'For example, 27 3 2007',
@@ -134,7 +129,7 @@ export const pageFixtures = {
       pages: [
         {
           path: '/start',
-          controller: 'StartPageController',
+          controller: ControllerType.Start,
           title: 'Apply for a licence',
           components: []
         }
@@ -147,11 +142,11 @@ export const pageFixtures = {
       pages: [
         {
           path: '/ineligible',
-          controller: 'TerminalPageController',
+          controller: ControllerType.Terminal,
           title: 'You are not eligible',
           components: [
             {
-              type: 'Html',
+              type: ComponentType.Html,
               name: 'eligibility',
               content:
                 '<p class="govuk-body">You do not meet the eligibility criteria for this service.</p>',
@@ -168,7 +163,7 @@ export const pageFixtures = {
       pages: [
         {
           path: '/people',
-          controller: 'RepeatPageController',
+          controller: ControllerType.Repeat,
           title: 'People',
           repeat: {
             options: { name: 'people', title: 'Person' },
@@ -176,7 +171,7 @@ export const pageFixtures = {
           },
           components: [
             {
-              type: 'TextField',
+              type: ComponentType.TextField,
               name: 'fullname',
               title: 'Full name',
               options: {},
@@ -186,14 +181,15 @@ export const pageFixtures = {
         }
       ],
       getViewModelOverride: (ctrl, _model, req, ctx) => {
-        const vm = ctrl.getListSummaryViewModel(req, ctx, [
+        const repeat = /** @type {RepeatPageController} */ (ctrl)
+        const vm = repeat.getListSummaryViewModel(req, ctx, [
           { itemId: '1', fullname: 'Sarah Phillips' },
           { itemId: '2', fullname: 'David Jones' },
           { itemId: '3', fullname: 'Emma Wilson' }
         ])
         return {
           ...vm,
-          page: { ...vm.page, viewName: ctrl.listSummaryViewName }
+          page: { ...vm.page, viewName: repeat.listSummaryViewName }
         }
       }
     })
@@ -208,16 +204,18 @@ export const pageFixtures = {
           pages: [
             {
               path: '/upload',
-              controller: 'FileUploadPageController',
+              controller: ControllerType.FileUpload,
               title: 'Upload a document',
               components: [fileUploadWithFilesVariant.def]
             }
           ],
-          state: {
-            upload: {
-              '/upload': { upload: { uploadUrl: 'preview' }, files: [] }
-            }
-          }
+          state: /** @type {FormState} */ (
+            /** @type {unknown} */ ({
+              upload: {
+                '/upload': { upload: { uploadUrl: 'preview' }, files: [] }
+              }
+            })
+          )
         })
       },
       {
@@ -226,16 +224,18 @@ export const pageFixtures = {
           pages: [
             {
               path: '/upload',
-              controller: 'FileUploadPageController',
+              controller: ControllerType.FileUpload,
               title: 'Upload a document',
               components: [fileUploadWithFilesVariant.def]
             }
           ],
-          state: {
-            upload: {
-              '/upload': { upload: { uploadUrl: 'preview' }, files: [] }
-            }
-          },
+          state: /** @type {FormState} */ (
+            /** @type {unknown} */ ({
+              upload: {
+                '/upload': { upload: { uploadUrl: 'preview' }, files: [] }
+              }
+            })
+          ),
           payload: fileUploadWithFilesVariant.payload
         })
       }
@@ -250,14 +250,14 @@ export const pageFixtures = {
           title: 'Your details',
           components: [
             {
-              type: 'TextField',
+              type: ComponentType.TextField,
               name: 'fullname',
               title: 'Full name',
               options: {},
               schema: {}
             },
             {
-              type: 'EmailAddressField',
+              type: ComponentType.EmailAddressField,
               name: 'email',
               title: 'Email address',
               options: {},
@@ -268,13 +268,25 @@ export const pageFixtures = {
       ],
       renderPage: '/summary',
       state: { fullname: 'Sarah Phillips', email: 'sarah@example.gov.uk' },
-      getViewModelOverride: (ctrl, _model, req, ctx) =>
-        ctrl.getSummaryViewModel(req, ctx)
+      getViewModelOverride: (ctrl, _model, req, ctx) => {
+        const summary = /** @type {SummaryPageController} */ (ctrl)
+        return summary.getSummaryViewModel(req, ctx)
+      }
     })
   }
 }
 
 /**
+ * @typedef {import('@defra/forms-model').ComponentDef} ComponentDef
+ * @typedef {import('@defra/forms-model').Page} Page
+ * @typedef {import('~/src/server/plugins/engine/types.js').FormContext} FormContext
  * @typedef {import('~/src/server/plugins/engine/types.js').FormContextRequest} FormContextRequest
- * @typedef {{ context?: object, variants?: Array<{label: string, context: object}> }} PageFixture
+ * @typedef {import('~/src/server/plugins/engine/types.js').FormState} FormState
+ * @typedef {import('~/src/server/plugins/engine/types.js').PageViewModel} PageViewModel
+ * @typedef {import('~/src/server/plugins/engine/pageControllers/PageController.js').PageController} PageController
+ * @typedef {import('~/src/server/plugins/engine/pageControllers/RepeatPageController.js').RepeatPageController} RepeatPageController
+ * @typedef {import('~/src/server/plugins/engine/pageControllers/SummaryPageController.js').SummaryPageController} SummaryPageController
+ * @typedef {{ label: string, context: PageViewModel }} PageFixtureVariant
+ * @typedef {{ context?: PageViewModel, variants?: PageFixtureVariant[], exampleComponents?: ComponentDef[] }} PageFixture
+ * @typedef {{ pages: Page[], renderPage?: string, state?: FormState, payload?: FormState, getViewModelOverride?: (controller: PageController, model: FormModel, request: FormContextRequest, context: FormContext) => PageViewModel }} PageViewContextOptions
  */
