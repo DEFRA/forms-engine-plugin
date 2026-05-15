@@ -20,18 +20,24 @@ const SUMMARY_PAGE_DEF = {
  * @param {object} [options]
  * @param {object} [options.state] - Form state passed as both payload and state
  * @param {object[]} [options.additionalPageDefs] - Extra page defs to include before pageDef (e.g. question pages before a summary)
- * @param {(controller: object, model: object, request: object, context: object) => object} [options.invoke] - Override which method to call; defaults to getViewModel
+ * @param {boolean} [options.appendSummary] - Append SUMMARY_PAGE_DEF after pageDef; pass false when pageDef IS the summary page
+ * @param {(controller: object, model: object, request: object, context: object) => object} [options.getViewModelOverride] - Override which method to call; defaults to getViewModel
  * @returns {object}
  */
 function pageViewContext(
   pageDef,
-  { state = {}, payload, additionalPageDefs = [], invoke } = {}
+  {
+    state = {},
+    payload,
+    additionalPageDefs = [],
+    appendSummary = true,
+    getViewModelOverride
+  } = {}
 ) {
-  const isSummary = pageDef.controller === 'SummaryPageController'
   const allPageDefs = [
     ...additionalPageDefs,
     pageDef,
-    ...(isSummary ? [] : [SUMMARY_PAGE_DEF])
+    ...(appendSummary ? [SUMMARY_PAGE_DEF] : [])
   ]
   const model = new FormModel(
     {
@@ -57,7 +63,7 @@ function pageViewContext(
     isForceAccess: false,
     relevantPages: model.pages.filter((p) => p.viewName !== 'summary')
   }
-  /** @type {import('~/src/server/plugins/engine/types.js').FormContextRequest} */
+  /** @type {FormContextRequest} */
   const mockRequest = {
     query: {},
     params: {},
@@ -65,12 +71,30 @@ function pageViewContext(
     url: { search: '' },
     server: { plugins: { 'forms-engine-plugin': {} } }
   }
-  return invoke
-    ? invoke(controller, model, mockRequest, mockContext)
+  return getViewModelOverride
+    ? getViewModelOverride(controller, model, mockRequest, mockContext)
     : controller.getViewModel(mockRequest, mockContext)
 }
 
-/** @type {Record<string, { context?: object, variants?: Array<{label: string, context: object}> }>} */
+const fileUploadDef = componentFixtures['FileUploadField'].variants[0].def
+const fileUploadWithFilesPayload = componentFixtures[
+  'FileUploadField'
+].variants.find((v) => v.label === 'With files uploaded').payload
+
+const fileUploadPageDef = {
+  path: '/upload',
+  controller: 'FileUploadPageController',
+  title: 'Upload a document',
+  components: [fileUploadDef]
+}
+
+const fileUploadState = {
+  upload: {
+    '/upload': { upload: { uploadUrl: 'preview' }, files: [] }
+  }
+}
+
+/** @type {Record<string, PageFixture>} */
 export const pageFixtures = {
   PageController: {
     variants: [
@@ -165,7 +189,7 @@ export const pageFixtures = {
         ]
       },
       {
-        invoke: (ctrl, _model, req, ctx) => {
+        getViewModelOverride: (ctrl, _model, req, ctx) => {
           const vm = ctrl.getListSummaryViewModel(req, ctx, [
             { itemId: '1', fullname: 'Sarah Phillips' },
             { itemId: '2', fullname: 'David Jones' },
@@ -181,46 +205,18 @@ export const pageFixtures = {
   },
 
   FileUploadPageController: {
-    exampleComponents: [componentFixtures['FileUploadField'].variants[0].def],
+    exampleComponents: [fileUploadDef],
     variants: [
       {
         label: 'No files uploaded',
-        context: pageViewContext(
-          {
-            path: '/upload',
-            controller: 'FileUploadPageController',
-            title: 'Upload a document',
-            components: [componentFixtures['FileUploadField'].variants[0].def]
-          },
-          {
-            state: {
-              upload: {
-                '/upload': { upload: { uploadUrl: 'preview' }, files: [] }
-              }
-            }
-          }
-        )
+        context: pageViewContext(fileUploadPageDef, { state: fileUploadState })
       },
       {
         label: 'With files uploaded',
-        context: pageViewContext(
-          {
-            path: '/upload',
-            controller: 'FileUploadPageController',
-            title: 'Upload a document',
-            components: [componentFixtures['FileUploadField'].variants[0].def]
-          },
-          {
-            state: {
-              upload: {
-                '/upload': { upload: { uploadUrl: 'preview' }, files: [] }
-              }
-            },
-            payload: componentFixtures['FileUploadField'].variants.find(
-              (v) => v.label === 'With files uploaded'
-            ).payload
-          }
-        )
+        context: pageViewContext(fileUploadPageDef, {
+          state: fileUploadState,
+          payload: fileUploadWithFilesPayload
+        })
       }
     ]
   },
@@ -234,6 +230,7 @@ export const pageFixtures = {
         components: []
       },
       {
+        appendSummary: false,
         additionalPageDefs: [
           {
             path: '/name',
@@ -263,8 +260,14 @@ export const pageFixtures = {
           }
         ],
         state: { fullname: 'Sarah Phillips', email: 'sarah@example.gov.uk' },
-        invoke: (ctrl, _model, req, ctx) => ctrl.getSummaryViewModel(req, ctx)
+        getViewModelOverride: (ctrl, _model, req, ctx) =>
+          ctrl.getSummaryViewModel(req, ctx)
       }
     )
   }
 }
+
+/**
+ * @typedef {import('~/src/server/plugins/engine/types.js').FormContextRequest} FormContextRequest
+ * @typedef {{ context?: object, variants?: Array<{label: string, context: object}> }} PageFixture
+ */
