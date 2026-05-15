@@ -8,7 +8,7 @@ import { environment } from '~/src/server/plugins/nunjucks/environment.js'
 
 // Make preview-layout.html discoverable by name within the Nunjucks environment.
 const scriptsDir = fileURLToPath(new URL('.', import.meta.url))
-for (const loader of environment.loaders ?? []) {
+for (const loader of /** @type {any} */ (environment).loaders ?? []) {
   if (loader.searchPaths) loader.searchPaths.push(scriptsDir)
 }
 
@@ -18,7 +18,7 @@ for (const loader of environment.loaders ?? []) {
  * real page controller via getViewModel, or manually on the page stub for
  * fixtures that don't use pageViewContext.
  * Passes baseLayoutPath to strip the GOV.UK page wrapper.
- * @param {object} context
+ * @param {PageViewModelBase} context
  * @returns {string}
  */
 export function renderPage(context) {
@@ -38,7 +38,7 @@ export function renderPage(context) {
  * MDX partial to previewsDir/<slug>.mdx.
  * @param {string} previewsDir
  * @param {string} slug
- * @param {{ context?: object, variants?: Array<{label: string, context: object}> }} fixture
+ * @param {{ context?: PageViewModelBase, variants?: Array<{label: string, context: PageViewModelBase}> }} fixture
  */
 export function writePagePreviewPartial(previewsDir, slug, fixture) {
   fs.mkdirSync(previewsDir, { recursive: true })
@@ -48,10 +48,14 @@ export function writePagePreviewPartial(previewsDir, slug, fixture) {
         label,
         html: renderPage(context)
       }))
-    : [{ html: renderPage(fixture.context) }]
+    : [{ html: renderPage(/** @type {PageViewModelBase} */ (fixture.context)) }]
 
   fs.writeFileSync(
     path.join(previewsDir, `${slug}.mdx`),
     buildPartialMdx(renders, 'component-preview component-preview--page')
   )
 }
+
+/**
+ * @typedef {import('~/src/server/plugins/engine/types.js').PageViewModelBase} PageViewModelBase
+ */

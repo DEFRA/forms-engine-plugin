@@ -1,15 +1,17 @@
 import { ComponentType, ControllerType, Engine } from '@defra/forms-model'
 
-import { FormModel } from '../.server/server/plugins/engine/models/FormModel.js'
-
 import { fixtures as componentFixtures } from './component-preview-fixtures.js'
 
-const SUMMARY_PAGE_DEF = {
-  path: '/summary',
-  controller: ControllerType.Summary,
-  title: 'Check your answers',
-  components: []
-}
+import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+
+
+const SUMMARY_PAGE_DEF =
+  /** @type {import('@defra/forms-model').PageSummary} */ ({
+    path: '/summary',
+    controller: ControllerType.Summary,
+    title: 'Check your answers',
+    components: []
+  })
 
 /**
  * Instantiates the real page controller for the given page definition and
@@ -41,32 +43,39 @@ function pageViewContext({
     { basePath: '/preview' }
   )
   const controller = model.pages.find((p) => p.path === renderPage)
-  const mockContext = {
-    payload: payload ?? state,
-    errors: undefined,
-    evaluationState: state,
-    relevantState: state,
-    paths: [],
-    state,
-    isForceAccess: false,
-    relevantPages: model.pages.filter((p) => p.viewName !== 'summary')
-  }
-  /** @type {FormContextRequest} */
-  const mockRequest = {
-    query: {},
-    params: {},
-    path: renderPage,
-    url: { search: '' },
-    server: { plugins: { 'forms-engine-plugin': {} } }
-  }
+  if (!controller)
+    throw new Error(`No page controller found for '${renderPage}'`)
+  const mockContext = /** @type {FormContext} */ (
+    /** @type {unknown} */ ({
+      payload: payload ?? state,
+      errors: undefined,
+      evaluationState: state,
+      relevantState: state,
+      paths: [],
+      state,
+      isForceAccess: false,
+      relevantPages: model.pages.filter((p) => p.viewName !== 'summary')
+    })
+  )
+  const mockRequest = /** @type {FormContextRequest} */ (
+    /** @type {unknown} */ ({
+      query: {},
+      params: {},
+      path: renderPage,
+      url: { search: '' },
+      server: { plugins: { 'forms-engine-plugin': {} } }
+    })
+  )
   return getViewModelOverride
     ? getViewModelOverride(controller, model, mockRequest, mockContext)
-    : controller.getViewModel(mockRequest, mockContext)
+    : controller.getViewModel(/** @type {any} */ (mockRequest), mockContext)
 }
 
-const fileUploadWithFilesVariant = componentFixtures[
-  ComponentType.FileUploadField
-].variants.find((v) => v.label === 'With files uploaded')
+const fileUploadWithFilesVariant = /** @type {any} */ (
+  componentFixtures[ComponentType.FileUploadField]
+)?.variants?.find(
+  (/** @type {{ label: string }} */ v) => v.label === 'With files uploaded'
+)
 
 /** @type {Record<string, PageFixture>} */
 export const pageFixtures = {
@@ -79,6 +88,7 @@ export const pageFixtures = {
             {
               path: '/pagepath',
               title: 'What is your full name?',
+              next: [],
               components: [
                 {
                   type: ComponentType.TextField,
@@ -100,6 +110,7 @@ export const pageFixtures = {
             {
               path: '/pagepath',
               title: 'Tell us about yourself',
+              next: [],
               components: [
                 {
                   type: ComponentType.TextField,
@@ -113,8 +124,7 @@ export const pageFixtures = {
                   name: 'dob',
                   title: 'What is your date of birth?',
                   hint: 'For example, 27 3 2007',
-                  options: {},
-                  schema: {}
+                  options: {}
                 }
               ]
             }
@@ -131,6 +141,7 @@ export const pageFixtures = {
           path: '/start',
           controller: ControllerType.Start,
           title: 'Apply for a licence',
+          next: [],
           components: []
         }
       ]
@@ -144,10 +155,12 @@ export const pageFixtures = {
           path: '/ineligible',
           controller: ControllerType.Terminal,
           title: 'You are not eligible',
+          next: [],
           components: [
             {
               type: ComponentType.Html,
               name: 'eligibility',
+              title: '',
               content:
                 '<p class="govuk-body">You do not meet the eligibility criteria for this service.</p>',
               options: {}
@@ -165,6 +178,7 @@ export const pageFixtures = {
           path: '/people',
           controller: ControllerType.Repeat,
           title: 'People',
+          next: [],
           repeat: {
             options: { name: 'people', title: 'Person' },
             schema: { min: 1, max: 25 }
@@ -187,10 +201,12 @@ export const pageFixtures = {
           { itemId: '2', fullname: 'David Jones' },
           { itemId: '3', fullname: 'Emma Wilson' }
         ])
-        return {
-          ...vm,
-          page: { ...vm.page, viewName: repeat.listSummaryViewName }
-        }
+        return /** @type {PageViewModel} */ (
+          /** @type {unknown} */ ({
+            ...vm,
+            page: { ...vm.page, viewName: repeat.listSummaryViewName }
+          })
+        )
       }
     })
   },
@@ -206,6 +222,7 @@ export const pageFixtures = {
               path: '/upload',
               controller: ControllerType.FileUpload,
               title: 'Upload a document',
+              next: [],
               components: [fileUploadWithFilesVariant.def]
             }
           ],
@@ -226,6 +243,7 @@ export const pageFixtures = {
               path: '/upload',
               controller: ControllerType.FileUpload,
               title: 'Upload a document',
+              next: [],
               components: [fileUploadWithFilesVariant.def]
             }
           ],
@@ -248,6 +266,7 @@ export const pageFixtures = {
         {
           path: '/details',
           title: 'Your details',
+          next: [],
           components: [
             {
               type: ComponentType.TextField,
@@ -260,8 +279,7 @@ export const pageFixtures = {
               type: ComponentType.EmailAddressField,
               name: 'email',
               title: 'Email address',
-              options: {},
-              schema: {}
+              options: {}
             }
           ]
         }
@@ -270,7 +288,9 @@ export const pageFixtures = {
       state: { fullname: 'Sarah Phillips', email: 'sarah@example.gov.uk' },
       getViewModelOverride: (ctrl, _model, req, ctx) => {
         const summary = /** @type {SummaryPageController} */ (ctrl)
-        return summary.getSummaryViewModel(req, ctx)
+        return /** @type {PageViewModel} */ (
+          /** @type {unknown} */ (summary.getSummaryViewModel(req, ctx))
+        )
       }
     })
   }
