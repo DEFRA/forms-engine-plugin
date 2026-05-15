@@ -165,29 +165,12 @@ If your service hosts multiple forms, `serviceName` should be your real service 
 
 ```njk
 {{ govukServiceNavigation({
-  serviceName: "My Service",
+  serviceName: "My Service Name",
   serviceUrl: "/"
 }) }}
 
 <h1 class="govuk-heading-l">{{ name }}</h1>
 ```
-
-<div className="component-preview app-no-prose">
-  <div dangerouslySetInnerHTML={{ __html: `<section aria-label="Service information"
-class="govuk-service-navigation"
-data-module="govuk-service-navigation"
->
-  <div class="govuk-width-container">
-    <div class="govuk-service-navigation__container">
-      <span class="govuk-service-navigation__service-name">
-        <a href="#" class="govuk-service-navigation__link">
-          My Service
-        </a>
-      </span>
-    </div>
-  </div>
-</section>` }} />
-</div>
 
 ---
 
