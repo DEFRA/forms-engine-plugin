@@ -13,32 +13,25 @@ const SUMMARY_PAGE_DEF = {
 
 /**
  * Instantiates the real page controller for the given page definition and
- * calls getViewModel (or an optional invoke callback) with a minimal mock
+ * calls getViewModel (or an optional override) with a minimal mock
  * request/context. The controller handles showTitle, label sizing,
  * isPageHeading, allowContinue, and viewName automatically.
- * @param {object} pageDef - Page definition for the preview page
- * @param {object} [options]
- * @param {object} [options.state] - Form state passed as both payload and state
- * @param {object[]} [options.additionalPageDefs] - Extra page defs to include before pageDef (e.g. question pages before a summary)
- * @param {boolean} [options.appendSummary] - Append SUMMARY_PAGE_DEF after pageDef; pass false when pageDef IS the summary page
+ * @param {object} options
+ * @param {object[]} options.pages - All page defs; SUMMARY_PAGE_DEF is always appended automatically
+ * @param {string} [options.renderPage] - Path of the page to render; defaults to pages[0].path
+ * @param {object} [options.state] - Form state
+ * @param {object} [options.payload] - Form payload; defaults to state
  * @param {(controller: object, model: object, request: object, context: object) => object} [options.getViewModelOverride] - Override which method to call; defaults to getViewModel
  * @returns {object}
  */
-function pageViewContext(
-  pageDef,
-  {
-    state = {},
-    payload,
-    additionalPageDefs = [],
-    appendSummary = true,
-    getViewModelOverride
-  } = {}
-) {
-  const allPageDefs = [
-    ...additionalPageDefs,
-    pageDef,
-    ...(appendSummary ? [SUMMARY_PAGE_DEF] : [])
-  ]
+function pageViewContext({
+  pages,
+  renderPage = pages[0].path,
+  state = {},
+  payload,
+  getViewModelOverride
+}) {
+  const allPageDefs = [...pages, SUMMARY_PAGE_DEF]
   const model = new FormModel(
     {
       name: 'preview',
@@ -52,7 +45,7 @@ function pageViewContext(
     },
     { basePath: '/preview' }
   )
-  const controller = model.pages[additionalPageDefs.length]
+  const controller = model.pages.find((p) => p.path === renderPage)
   const mockContext = {
     payload: payload ?? state,
     errors: undefined,
@@ -67,7 +60,7 @@ function pageViewContext(
   const mockRequest = {
     query: {},
     params: {},
-    path: pageDef.path,
+    path: renderPage,
     url: { search: '' },
     server: { plugins: { 'forms-engine-plugin': {} } }
   }
@@ -101,16 +94,20 @@ export const pageFixtures = {
       {
         label: 'Single question',
         context: pageViewContext({
-          path: '/pagepath',
-          title: 'What is your full name?',
-          components: [
+          pages: [
             {
-              type: 'TextField',
-              name: 'fullname',
+              path: '/pagepath',
               title: 'What is your full name?',
-              hint: 'As shown on your passport',
-              options: {},
-              schema: {}
+              components: [
+                {
+                  type: 'TextField',
+                  name: 'fullname',
+                  title: 'What is your full name?',
+                  hint: 'As shown on your passport',
+                  options: {},
+                  schema: {}
+                }
+              ]
             }
           ]
         })
@@ -118,23 +115,27 @@ export const pageFixtures = {
       {
         label: 'Multiple questions',
         context: pageViewContext({
-          path: '/pagepath',
-          title: 'Tell us about yourself',
-          components: [
+          pages: [
             {
-              type: 'TextField',
-              name: 'fullname',
-              title: 'What is your full name?',
-              options: {},
-              schema: {}
-            },
-            {
-              type: 'DatePartsField',
-              name: 'dob',
-              title: 'What is your date of birth?',
-              hint: 'For example, 27 3 2007',
-              options: {},
-              schema: {}
+              path: '/pagepath',
+              title: 'Tell us about yourself',
+              components: [
+                {
+                  type: 'TextField',
+                  name: 'fullname',
+                  title: 'What is your full name?',
+                  options: {},
+                  schema: {}
+                },
+                {
+                  type: 'DatePartsField',
+                  name: 'dob',
+                  title: 'What is your date of birth?',
+                  hint: 'For example, 27 3 2007',
+                  options: {},
+                  schema: {}
+                }
+              ]
             }
           ]
         })
@@ -144,64 +145,72 @@ export const pageFixtures = {
 
   StartPageController: {
     context: pageViewContext({
-      path: '/start',
-      controller: 'StartPageController',
-      title: 'Apply for a licence',
-      components: []
+      pages: [
+        {
+          path: '/start',
+          controller: 'StartPageController',
+          title: 'Apply for a licence',
+          components: []
+        }
+      ]
     })
   },
 
   TerminalPageController: {
     context: pageViewContext({
-      path: '/ineligible',
-      controller: 'TerminalPageController',
-      title: 'You are not eligible',
-      components: [
+      pages: [
         {
-          type: 'Html',
-          name: 'eligibility',
-          content:
-            '<p class="govuk-body">You do not meet the eligibility criteria for this service.</p>',
-          options: {}
+          path: '/ineligible',
+          controller: 'TerminalPageController',
+          title: 'You are not eligible',
+          components: [
+            {
+              type: 'Html',
+              name: 'eligibility',
+              content:
+                '<p class="govuk-body">You do not meet the eligibility criteria for this service.</p>',
+              options: {}
+            }
+          ]
         }
       ]
     })
   },
 
   RepeatPageController: {
-    context: pageViewContext(
-      {
-        path: '/people',
-        controller: 'RepeatPageController',
-        title: 'People',
-        repeat: {
-          options: { name: 'people', title: 'Person' },
-          schema: { min: 1, max: 25 }
-        },
-        components: [
-          {
-            type: 'TextField',
-            name: 'fullname',
-            title: 'Full name',
-            options: {},
-            schema: {}
-          }
-        ]
-      },
-      {
-        getViewModelOverride: (ctrl, _model, req, ctx) => {
-          const vm = ctrl.getListSummaryViewModel(req, ctx, [
-            { itemId: '1', fullname: 'Sarah Phillips' },
-            { itemId: '2', fullname: 'David Jones' },
-            { itemId: '3', fullname: 'Emma Wilson' }
-          ])
-          return {
-            ...vm,
-            page: { ...vm.page, viewName: ctrl.listSummaryViewName }
-          }
+    context: pageViewContext({
+      pages: [
+        {
+          path: '/people',
+          controller: 'RepeatPageController',
+          title: 'People',
+          repeat: {
+            options: { name: 'people', title: 'Person' },
+            schema: { min: 1, max: 25 }
+          },
+          components: [
+            {
+              type: 'TextField',
+              name: 'fullname',
+              title: 'Full name',
+              options: {},
+              schema: {}
+            }
+          ]
+        }
+      ],
+      getViewModelOverride: (ctrl, _model, req, ctx) => {
+        const vm = ctrl.getListSummaryViewModel(req, ctx, [
+          { itemId: '1', fullname: 'Sarah Phillips' },
+          { itemId: '2', fullname: 'David Jones' },
+          { itemId: '3', fullname: 'Emma Wilson' }
+        ])
+        return {
+          ...vm,
+          page: { ...vm.page, viewName: ctrl.listSummaryViewName }
         }
       }
-    )
+    })
   },
 
   FileUploadPageController: {
@@ -209,11 +218,15 @@ export const pageFixtures = {
     variants: [
       {
         label: 'No files uploaded',
-        context: pageViewContext(fileUploadPageDef, { state: fileUploadState })
+        context: pageViewContext({
+          pages: [fileUploadPageDef],
+          state: fileUploadState
+        })
       },
       {
         label: 'With files uploaded',
-        context: pageViewContext(fileUploadPageDef, {
+        context: pageViewContext({
+          pages: [fileUploadPageDef],
           state: fileUploadState,
           payload: fileUploadWithFilesPayload
         })
@@ -222,48 +235,34 @@ export const pageFixtures = {
   },
 
   SummaryPageController: {
-    context: pageViewContext(
-      {
-        path: '/summary',
-        controller: 'SummaryPageController',
-        title: 'Check your answers',
-        components: []
-      },
-      {
-        appendSummary: false,
-        additionalPageDefs: [
-          {
-            path: '/name',
-            title: 'Full name',
-            components: [
-              {
-                type: 'TextField',
-                name: 'fullname',
-                title: 'Full name',
-                options: {},
-                schema: {}
-              }
-            ]
-          },
-          {
-            path: '/email',
-            title: 'Email',
-            components: [
-              {
-                type: 'EmailAddressField',
-                name: 'email',
-                title: 'Email address',
-                options: {},
-                schema: {}
-              }
-            ]
-          }
-        ],
-        state: { fullname: 'Sarah Phillips', email: 'sarah@example.gov.uk' },
-        getViewModelOverride: (ctrl, _model, req, ctx) =>
-          ctrl.getSummaryViewModel(req, ctx)
-      }
-    )
+    context: pageViewContext({
+      pages: [
+        {
+          path: '/details',
+          title: 'Your details',
+          components: [
+            {
+              type: 'TextField',
+              name: 'fullname',
+              title: 'Full name',
+              options: {},
+              schema: {}
+            },
+            {
+              type: 'EmailAddressField',
+              name: 'email',
+              title: 'Email address',
+              options: {},
+              schema: {}
+            }
+          ]
+        }
+      ],
+      renderPage: '/summary',
+      state: { fullname: 'Sarah Phillips', email: 'sarah@example.gov.uk' },
+      getViewModelOverride: (ctrl, _model, req, ctx) =>
+        ctrl.getSummaryViewModel(req, ctx)
+    })
   }
 }
 
