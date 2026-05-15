@@ -11,15 +11,15 @@ None of these are required. The form journey will function without any of them, 
 
 The template block names in the examples below follow the [GOV.UK Frontend page template](https://design-system.service.gov.uk/styles/page-template/).
 
-| Property | Source | Type | Description |
-|----------|--------|------|-------------|
-| `backLink` | Page view model | `{ text: string; href: string } \| undefined` | Back link macro params, or `undefined` if there is no back navigation |
-| `pageTitle` | Page view model | `string` | Title of the current page |
-| `name` | Page view model | `string \| undefined` | Form name from the form definition |
-| `phaseTag` | Page view model | `string \| undefined` | Phase label from the form definition's `phaseBanner.phase` setting |
-| `feedbackLink` | Page view model | `string \| undefined` | URL of the built-in feedback form, or `undefined` if feedback is disabled |
-| `serviceUrl` | Page view model | `string` | Root URL of the current form |
-| `errors` | Page view model | `FormSubmissionError[] \| undefined` | Validation errors for the current page |
+| Property | Type | Description |
+|----------|------|-------------|
+| `backLink` | `{ text: string; href: string } \| undefined` | Back link macro params, or `undefined` if there is no back navigation |
+| `pageTitle` | `string` | Title of the current page |
+| `name` | `string \| undefined` | Form name from the form definition |
+| `phaseTag` | `string \| undefined` | Phase label from the form definition's `phaseBanner.phase` setting |
+| `feedbackLink` | `string \| undefined` | URL of the built-in feedback form, or `undefined` if feedback is disabled |
+| `serviceUrl` | `string` | Root URL of the current form |
+| `errors` | `FormSubmissionError[] \| undefined` | Validation errors for the current page |
 
 ---
 
