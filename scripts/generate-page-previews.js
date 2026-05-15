@@ -1,16 +1,23 @@
 import fs from 'fs'
 import path from 'path'
+import { fileURLToPath } from 'url'
 
 import { buildPartialMdx } from './generate-component-previews.js'
 
 import { environment } from '~/src/server/plugins/nunjucks/environment.js'
+
+// Make preview-layout.html discoverable by name within the Nunjucks environment.
+const scriptsDir = fileURLToPath(new URL('.', import.meta.url))
+for (const loader of environment.loaders ?? []) {
+  if (loader.searchPaths) loader.searchPaths.push(scriptsDir)
+}
 
 /**
  * Render a single page fixture context to an HTML string.
  * Reads the view name from context.page.viewName — set automatically by the
  * real page controller via getViewModel, or manually on the page stub for
  * fixtures that don't use pageViewContext.
- * Passes baseLayoutPath: 'preview-layout.html' to strip the GOV.UK page wrapper.
+ * Passes baseLayoutPath to strip the GOV.UK page wrapper.
  * @param {object} context
  * @returns {string}
  */
