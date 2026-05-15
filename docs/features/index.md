@@ -10,6 +10,10 @@ A library of built-in form components — text fields, date inputs, radio button
 
 Built-in page controllers that define how a page behaves — question pages, repeating groups, file upload pages, summary and confirmation pages.
 
+## [Page Elements](./features/page-elements)
+
+View model properties that the plugin provides for page-level GOV.UK Frontend components — back link, phase banner, page title, service navigation, and footer — which your base layout template must render.
+
 ## Advanced
 
 ### [Configuration-based Features](./features/configuration-based)

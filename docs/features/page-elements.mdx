@@ -1,0 +1,190 @@
+---
+sidebar_label: "Page Elements"
+sidebar_position: 2
+---
+
+# Page Elements
+
+For each page it renders, the plugin computes a set of view model properties and makes them available to your base layout template — set via `baseLayoutPath` in the [plugin options](../plugin-options.md#nunjucks-configuration). Some of these map directly to GOV.UK Frontend components (back link, phase banner, error summary, service navigation). Others are general metadata about the current page or form (title, name, slug) that your layout can use however it needs to.
+
+None of these are required. The form journey will function without any of them, but omitting them may result in a degraded experience: missing back links, no phase banner, inaccessible page titles, and so on. Use whichever ones apply to your service.
+
+The template block names in the examples below follow the [GOV.UK Frontend page template](https://design-system.service.gov.uk/styles/page-template/).
+
+| Property | Source | Type | Description |
+|----------|--------|------|-------------|
+| `backLink` | Page view model | `{ text: string; href: string } \| undefined` | Back link macro params, or `undefined` if there is no back navigation |
+| `pageTitle` | Page view model | `string` | Title of the current page |
+| `name` | Page view model | `string \| undefined` | Form name from the form definition |
+| `phaseTag` | Page view model | `string \| undefined` | Phase label from the form definition's `phaseBanner.phase` setting |
+| `feedbackLink` | Page view model | `string \| undefined` | URL of the built-in feedback form, or `undefined` if feedback is disabled |
+| `serviceUrl` | Page view model | `string` | Root URL of the current form |
+| `errors` | Page view model | `FormSubmissionError[] \| undefined` | Validation errors for the current page |
+
+---
+
+## Back link
+
+**Property:** `backLink: { text: string; href: string } | undefined`
+
+The plugin automatically calculates the back link for each page based on the user's journey. The value is ready to pass directly to the GOV.UK Frontend [Back link](https://design-system.service.gov.uk/components/back-link/) macro.
+
+Add the following to your base layout's `beforeContent` block:
+
+```njk
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+
+{% block beforeContent %}
+  {% if backLink %}
+    {{ govukBackLink(backLink) }}
+  {% endif %}
+{% endblock %}
+```
+
+`backLink` is `undefined` on pages with no back navigation — for example, the start page and confirmation page.
+
+<div className="component-preview app-no-prose">
+  <div dangerouslySetInnerHTML={{ __html: `<a href="#" class="govuk-back-link">Back</a>` }} />
+</div>
+
+---
+
+## Phase banner
+
+**Properties:** `phaseTag: string | undefined`, `feedbackLink: string | undefined`
+
+The plugin provides both values for rendering a GOV.UK Frontend [Phase banner](https://design-system.service.gov.uk/components/phase-banner/).
+
+- `phaseTag` comes from the form definition's `phaseBanner.phase` property.
+- `feedbackLink` is the URL of the built-in form feedback page (`/form/feedback?formId=...`). It is `undefined` when user feedback is disabled via `disableUserFeedback` in the form definition's options.
+
+If either value is not set by the form definition, you can fall back to a value from your own service configuration:
+
+```njk
+{% from "govuk/components/phase-banner/macro.njk" import govukPhaseBanner %}
+
+{% set phaseTag = phaseTag or config.phaseTag %}
+{% set feedbackLink = feedbackLink or config.feedbackLink %}
+
+{% if phaseTag %}
+  {{ govukPhaseBanner({
+    tag: { text: phaseTag | capitalize },
+    html: '<a class="govuk-link govuk-link--no-visited-state" href="' + feedbackLink + '" target="_blank" rel="noopener noreferrer">Give feedback</a>'
+  }) }}
+{% endif %}
+```
+
+<div className="component-preview app-no-prose">
+  <div dangerouslySetInnerHTML={{ __html: `<div class="govuk-phase-banner">
+  <p class="govuk-phase-banner__content">
+    <strong class="govuk-tag govuk-phase-banner__content__tag">
+      Beta
+    </strong>
+    <span class="govuk-phase-banner__text">
+      This is a new service – <a class="govuk-link govuk-link--no-visited-state" href="#">give feedback</a>.
+    </span>
+  </p>
+</div>` }} />
+</div>
+
+---
+
+## Error summary
+
+**Property:** `errors: FormSubmissionError[] | undefined`
+
+The plugin populates `errors` with validation failures when a page is submitted with invalid input. Pass it to the GOV.UK Frontend [Error summary](https://design-system.service.gov.uk/components/error-summary/) component, which must appear at the top of the main content area, above the page heading.
+
+The plugin's own page views already render the error summary. This property is listed here because your `pageTitle` block should prefix the title with `"Error: "` when errors are present — a GDS accessibility requirement.
+
+```njk
+{% block pageTitle %}
+  {{ "Error: " if errors | length }}{{ pageTitle }} - {{ name }} - GOV.UK
+{% endblock %}
+```
+
+<div className="component-preview app-no-prose">
+  <div dangerouslySetInnerHTML={{ __html: `<div class="govuk-error-summary" data-module="govuk-error-summary">
+  <div role="alert">
+    <h2 class="govuk-error-summary__title">
+      There is a problem
+    </h2>
+    <div class="govuk-error-summary__body">
+      <ul class="govuk-list govuk-error-summary__list">
+        <li>
+          <a href="#dob">Enter your date of birth</a>
+        </li>
+        <li>
+          <a href="#email">Enter an email address in the correct format, like name@example.com</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>` }} />
+</div>
+
+---
+
+## Page title
+
+**Property:** `pageTitle: string`
+
+The title of the current form page. Use it in your layout's `pageTitle` block to populate the browser `<title>` element. `name` is the form name from the form definition:
+
+```njk
+{% block pageTitle %}
+  {{ "Error: " if errors | length }}{{ pageTitle }} - {{ name }} - GOV.UK
+{% endblock %}
+```
+
+When a page has validation errors, prefix the title with `"Error: "`. Screen readers announce the page title on load, so this is what alerts users to the presence of errors before they reach the error summary or individual fields. This pattern is documented in the [GDS error summary guidance](https://design-system.service.gov.uk/components/error-summary/#how-it-works).
+
+---
+
+## Header and service navigation
+
+**Properties:** `serviceUrl: string`, `name: string | undefined`
+
+- `serviceUrl` is the root URL of the current form (e.g. `/my-form`). Use it as the service link in your header so users can return to the start of the form.
+- `name` is the form name from the form definition. Use it as the service name in your header.
+
+The [GOV.UK Service navigation](https://design-system.service.gov.uk/components/service-navigation/) component is recommended for this from GOV.UK Frontend v5:
+
+```njk
+{% from "govuk/components/service-navigation/macro.njk" import govukServiceNavigation %}
+
+{{ govukServiceNavigation({
+  serviceName: name,
+  serviceUrl: serviceUrl
+}) }}
+```
+
+<div className="component-preview app-no-prose">
+  <div dangerouslySetInnerHTML={{ __html: `<section aria-label="Service information"
+class="govuk-service-navigation"
+data-module="govuk-service-navigation"
+>
+  <div class="govuk-width-container">
+    <div class="govuk-service-navigation__container">
+      <span class="govuk-service-navigation__service-name">
+        <a href="#" class="govuk-service-navigation__link">
+          My Service
+        </a>
+      </span>
+    </div>
+  </div>
+</section>` }} />
+</div>
+
+---
+
+## Other available properties
+
+The following properties are also available in the template context. They are used internally by the plugin's own page views but can be accessed in your base layout where needed:
+
+| Property | Description |
+|----------|-------------|
+| `slug` | The form's URL slug (e.g. `my-form`). Only set on successful page responses — `undefined` on error pages. Commonly used to build per-form footer links (privacy, cookies, accessibility statement). |
+| `currentPath` | The current page URL including query string. Useful for building redirect URLs (e.g. cookie preference form actions). |
+| `context.isForceAccess` | `true` when a form is being viewed in preview mode. Use this to suppress external navigation links. |
+| `previewMode` | Set when the form is in a preview state, indicating which preview mode is active. |
