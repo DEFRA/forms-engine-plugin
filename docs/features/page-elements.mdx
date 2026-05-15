@@ -146,9 +146,11 @@ When a page has validation errors, prefix the title with `"Error: "`. Screen rea
 **Properties:** `serviceUrl: string`, `name: string | undefined`
 
 - `serviceUrl` is the root URL of the current form (e.g. `/my-form`). Use it as the service link in your header so users can return to the start of the form.
-- `name` is the form name from the form definition. Use it as the service name in your header.
+- `name` is the form name from the form definition.
 
-The [GOV.UK Service navigation](https://design-system.service.gov.uk/components/service-navigation/) component is recommended for this from GOV.UK Frontend v5:
+The [GOV.UK Service navigation](https://design-system.service.gov.uk/components/service-navigation/) component is recommended for this from GOV.UK Frontend v5.
+
+If your service hosts a single form and the form name is the service name, passing `name` as `serviceName` is appropriate:
 
 ```njk
 {% from "govuk/components/service-navigation/macro.njk" import govukServiceNavigation %}
@@ -157,6 +159,17 @@ The [GOV.UK Service navigation](https://design-system.service.gov.uk/components/
   serviceName: name,
   serviceUrl: serviceUrl
 }) }}
+```
+
+If your service hosts multiple forms, `serviceName` should be your real service name rather than the individual form name. In that case, `name` is more suited as a page-level heading — for example, as an `<h1>` above the form content:
+
+```njk
+{{ govukServiceNavigation({
+  serviceName: "My Service",
+  serviceUrl: "/"
+}) }}
+
+<h1 class="govuk-heading-l">{{ name }}</h1>
 ```
 
 <div className="component-preview app-no-prose">
