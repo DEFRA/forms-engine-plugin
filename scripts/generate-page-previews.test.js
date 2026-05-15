@@ -57,6 +57,19 @@ describe('renderPage', () => {
     expect(result).toBe('<h1>Check your answers</h1>')
   })
 
+  it('replaces all href values with # to neutralise links', () => {
+    environment.render.mockReturnValue(
+      '<a href="/some/path" class="govuk-link">Change</a><a href="/another?q=1">Remove</a>'
+    )
+    const result = renderPage({
+      pageTitle: 'Test',
+      page: { viewName: 'index' }
+    })
+    expect(result).not.toContain('href="/some/path"')
+    expect(result).not.toContain('href="/another?q=1"')
+    expect(result).toContain('href="#"')
+  })
+
   it('replaces <form> tags with divs to prevent form submission', () => {
     environment.render.mockReturnValue(
       '<form method="post" novalidate><button class="govuk-button">Continue</button></form>'

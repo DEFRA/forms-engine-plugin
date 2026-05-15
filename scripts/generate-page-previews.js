@@ -22,6 +22,7 @@ export function renderPage(context) {
   return html
     .replace(/<form\b[^>]*>/g, '<div class="app-page-preview__form">')
     .replace(/<\/form>/g, '</div>')
+    .replace(/href="[^"]*"/g, 'href="#"')
 }
 
 /**
