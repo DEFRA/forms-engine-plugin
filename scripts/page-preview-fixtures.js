@@ -4,7 +4,6 @@ import { fixtures as componentFixtures } from './component-preview-fixtures.js'
 
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 
-
 const SUMMARY_PAGE_DEF =
   /** @type {import('@defra/forms-model').PageSummary} */ ({
     path: '/summary',
