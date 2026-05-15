@@ -19,6 +19,7 @@ export function renderPage(context) {
     ...context,
     baseLayoutPath: 'preview-layout.html'
   })
+  // Neutralise interactive elements — this is documentation, not a working service.
   return html
     .replace(/<form\b[^>]*>/g, '<div class="app-page-preview__form">')
     .replace(/<\/form>/g, '</div>')
