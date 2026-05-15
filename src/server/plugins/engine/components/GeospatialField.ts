@@ -31,18 +31,21 @@ export class GeospatialField extends FormComponent {
 
     const { options } = def
 
-    let formSchema = getGeospatialSchema(options.countries?.at(0))
+    const formSchema = getGeospatialSchema(def)
       .label(this.label)
-      .required()
-
-    formSchema = formSchema.max(50)
-
-    if (options.required !== false) {
-      formSchema = formSchema.min(1)
-    }
+      .messages({
+        'array.min': messageTemplate.featuresMin as string,
+        'array.max': messageTemplate.featuresMax as string,
+        'array.length': messageTemplate.featuresLength as string
+      })
 
     this.formSchema = formSchema
     this.stateSchema = formSchema.default(null)
+
+    if (options.required === false) {
+      this.stateSchema = this.stateSchema.allow(null)
+    }
+
     this.options = options
   }
 

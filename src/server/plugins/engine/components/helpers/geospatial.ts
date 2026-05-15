@@ -1,5 +1,6 @@
 import {
   GeospatialFieldOptionsCountryEnum,
+  type GeospatialFieldComponent,
   type GeospatialFieldOptionsCountry
 } from '@defra/forms-model'
 import Bourne from '@hapi/bourne'
@@ -31,7 +32,8 @@ const Joi = JoiBase.extend({
     from: 'string',
     method(value, helpers) {
       if (typeof value === 'string') {
-        if (value.trim() === '') {
+        const trimmed = value.trim()
+        if (trimmed === '' || trimmed === '[]') {
           return {
             value: undefined
           }
@@ -96,14 +98,48 @@ const featureSchema = Joi.object<Feature>().keys({
   geometry: featureGeometrySchema
 })
 
-const geospatialSchema = Joi.array<Feature[]>()
-  .items(featureSchema)
-  .unique('id')
-  .required()
+function applySchemaConstraints(
+  schema: JoiBase.ArraySchema<Feature[]>,
+  def: GeospatialFieldComponent
+) {
+  const { options, schema: constraints } = def
+  const isOptional = options.required === false
 
-export function getGeospatialSchema(country?: GeospatialFieldOptionsCountry) {
+  if (typeof constraints?.length === 'number') {
+    schema = schema.length(constraints.length)
+  } else {
+    if (typeof constraints?.min === 'number') {
+      schema = schema.min(constraints.min)
+    } else if (!isOptional) {
+      schema = schema.min(1)
+    }
+
+    schema = schema.max(
+      typeof constraints?.max === 'number' ? constraints.max : 50
+    )
+  }
+
+  if (isOptional) {
+    schema = schema.optional()
+  } else {
+    schema = schema.required()
+  }
+
+  return schema
+}
+
+export function getGeospatialSchema(
+  def: GeospatialFieldComponent
+): JoiBase.ArraySchema<Feature[]> {
+  const { options = {} } = def
+  const country: GeospatialFieldOptionsCountry | undefined =
+    options.countries?.at(0)
+
   if (!country) {
-    return geospatialSchema
+    return applySchemaConstraints(
+      Joi.array<Feature[]>().items(featureSchema).unique('id'),
+      def
+    )
   }
 
   const validateCountryBounds: CustomValidator = (value, helpers) => {
@@ -128,10 +164,12 @@ export function getGeospatialSchema(country?: GeospatialFieldOptionsCountry) {
     return value
   }
 
-  return Joi.array<Feature[]>()
-    .items(featureSchema.custom(validateCountryBounds))
-    .unique('id')
-    .required()
+  return applySchemaConstraints(
+    Joi.array<Feature[]>()
+      .items(featureSchema.custom(validateCountryBounds))
+      .unique('id'),
+    def
+  )
 }
 
 /**

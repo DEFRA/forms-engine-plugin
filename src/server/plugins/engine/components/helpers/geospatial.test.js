@@ -1,9 +1,22 @@
-import { GeospatialFieldOptionsCountryEnum } from '@defra/forms-model'
+import {
+  ComponentType,
+  GeospatialFieldOptionsCountryEnum
+} from '@defra/forms-model'
 
 import { validState } from '~/src/server/plugins/engine/components/helpers/__stubs__/geospatial.js'
 import { getGeospatialSchema } from '~/src/server/plugins/engine/components/helpers/geospatial.js'
 
-const geospatialSchema = getGeospatialSchema()
+/**
+ * @type {import('@defra/forms-model').GeospatialFieldComponent}
+ */
+const geospatialComponent = {
+  name: 'geospatial',
+  title: 'Geospatial',
+  type: ComponentType.GeospatialField,
+  options: {}
+}
+
+const geospatialSchema = getGeospatialSchema(geospatialComponent)
 
 describe('Geospatial validation helpers', () => {
   test('it should not have errors for valid geojson object', () => {
@@ -39,8 +52,19 @@ describe('Geospatial validation helpers', () => {
   test('it should validate an empty array', () => {
     const result = geospatialSchema.validate('[]')
 
+    expect(result.error).toBeDefined()
+    expect(result.value).toBeUndefined()
+  })
+
+  test('it should validate an empty array when optional', () => {
+    const schema = getGeospatialSchema({
+      ...geospatialComponent,
+      options: { required: false }
+    })
+    const result = schema.validate('[]')
+
     expect(result.error).toBeUndefined()
-    expect(result.value).toEqual([])
+    expect(result.value).toBeUndefined()
   })
 
   test('it should not validate an empty object', () => {
@@ -58,9 +82,10 @@ describe('Geospatial validation helpers', () => {
   })
 
   test('it should be valid inside country bounds', () => {
-    const schema = getGeospatialSchema(
-      GeospatialFieldOptionsCountryEnum.England
-    )
+    const schema = getGeospatialSchema({
+      ...geospatialComponent,
+      options: { countries: [GeospatialFieldOptionsCountryEnum.England] }
+    })
 
     expect(schema.validate(validState).error).toBeUndefined()
     expect(schema.validate(validState.slice(1)).error).toBeUndefined()
@@ -69,9 +94,10 @@ describe('Geospatial validation helpers', () => {
   })
 
   test('it should be invalid outside country bounds', () => {
-    const schema = getGeospatialSchema(
-      GeospatialFieldOptionsCountryEnum.Scotland
-    )
+    const schema = getGeospatialSchema({
+      ...geospatialComponent,
+      options: { countries: [GeospatialFieldOptionsCountryEnum.Scotland] }
+    })
 
     expect(schema.validate(validState).error).toBeDefined()
     expect(schema.validate(validState.slice(1)).error).toBeDefined()
@@ -80,7 +106,7 @@ describe('Geospatial validation helpers', () => {
   })
 
   test('it should be valid with no country bounds', () => {
-    const schema = getGeospatialSchema()
+    const schema = getGeospatialSchema(geospatialComponent)
 
     expect(schema.validate(validState).error).toBeUndefined()
   })

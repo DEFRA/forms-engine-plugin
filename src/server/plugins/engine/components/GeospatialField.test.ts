@@ -261,7 +261,7 @@ describe('GeospatialField', () => {
               value: getFormData([]),
               errors: [
                 expect.objectContaining({
-                  text: 'Example geospatial field must contain at least 1 items'
+                  text: 'Define at least 1 features'
                 })
               ]
             }
@@ -292,6 +292,171 @@ describe('GeospatialField', () => {
         ]
       },
       {
+        description: 'Required with min constraints',
+        component: {
+          title: 'Example geospatial field',
+          name: 'myComponent',
+          type: ComponentType.GeospatialField,
+          options: {
+            required: true
+          },
+          schema: {
+            min: 2
+          }
+        } satisfies GeospatialFieldComponent,
+        assertions: [
+          {
+            input: getFormData([]),
+            output: {
+              value: getFormData([]),
+              errors: [
+                expect.objectContaining({
+                  text: 'Define at least 2 features'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData(),
+            output: {
+              value: getFormData(),
+              errors: [
+                expect.objectContaining({
+                  text: 'Select example geospatial field'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData(validSingleState),
+            output: {
+              value: getFormData(validSingleState),
+              errors: [
+                expect.objectContaining({
+                  text: 'Define at least 2 features'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData(validState),
+            output: {
+              value: getFormData(validState)
+            }
+          }
+        ]
+      },
+      {
+        description: 'Required with max constraints',
+        component: {
+          title: 'Example geospatial field',
+          name: 'myComponent',
+          type: ComponentType.GeospatialField,
+          options: {
+            required: true
+          },
+          schema: {
+            max: 1
+          }
+        } satisfies GeospatialFieldComponent,
+        assertions: [
+          {
+            input: getFormData([]),
+            output: {
+              value: getFormData([]),
+              errors: [
+                expect.objectContaining({
+                  text: 'Define at least 1 features'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData(),
+            output: {
+              value: getFormData(),
+              errors: [
+                expect.objectContaining({
+                  text: 'Select example geospatial field'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData(validSingleState),
+            output: {
+              value: getFormData(validSingleState)
+            }
+          },
+          {
+            input: getFormData(validState),
+            output: {
+              value: getFormData(validState),
+              errors: [
+                expect.objectContaining({
+                  text: 'Only 1 features can be defined'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Required with exact length constraints',
+        component: {
+          title: 'Example geospatial field',
+          name: 'myComponent',
+          type: ComponentType.GeospatialField,
+          options: {
+            required: true
+          },
+          schema: {
+            length: 1
+          }
+        } satisfies GeospatialFieldComponent,
+        assertions: [
+          {
+            input: getFormData([]),
+            output: {
+              value: getFormData([]),
+              errors: [
+                expect.objectContaining({
+                  text: 'Define exactly 1 features'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData(),
+            output: {
+              value: getFormData(),
+              errors: [
+                expect.objectContaining({
+                  text: 'Select example geospatial field'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData(validSingleState),
+            output: {
+              value: getFormData(validSingleState)
+            }
+          },
+          {
+            input: getFormData(validState),
+            output: {
+              value: getFormData(validState),
+              errors: [
+                expect.objectContaining({
+                  text: 'Define exactly 1 features'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
         description: 'Optional',
         component: {
           title: 'Example geospatial field',
@@ -307,14 +472,148 @@ describe('GeospatialField', () => {
             output: {
               value: getFormData([])
             }
+          }
+        ]
+      },
+      {
+        description: 'Optional with min constraints',
+        component: {
+          title: 'Example geospatial field',
+          name: 'myComponent',
+          type: ComponentType.GeospatialField,
+          options: {
+            required: false
+          },
+          schema: {
+            min: 2
+          }
+        } satisfies GeospatialFieldComponent,
+        assertions: [
+          {
+            input: getFormData([]),
+            output: {
+              value: getFormData([]),
+              errors: [
+                expect.objectContaining({
+                  text: 'Define at least 2 features'
+                })
+              ]
+            }
           },
           {
             input: getFormData(),
             output: {
-              value: getFormData(),
+              value: getFormData()
+            }
+          },
+          {
+            input: getFormData(validSingleState),
+            output: {
+              value: getFormData(validSingleState),
               errors: [
                 expect.objectContaining({
-                  text: 'Select example geospatial field'
+                  text: 'Define at least 2 features'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData(validState),
+            output: {
+              value: getFormData(validState)
+            }
+          }
+        ]
+      },
+      {
+        description: 'Optional with max constraints',
+        component: {
+          title: 'Example geospatial field',
+          name: 'myComponent',
+          type: ComponentType.GeospatialField,
+          options: {
+            required: false
+          },
+          schema: {
+            max: 1
+          }
+        } satisfies GeospatialFieldComponent,
+        assertions: [
+          {
+            input: getFormData([]),
+            output: {
+              value: getFormData([])
+            }
+          },
+          {
+            input: getFormData(),
+            output: {
+              value: getFormData()
+            }
+          },
+          {
+            input: getFormData(validSingleState),
+            output: {
+              value: getFormData(validSingleState)
+            }
+          },
+          {
+            input: getFormData(validState),
+            output: {
+              value: getFormData(validState),
+              errors: [
+                expect.objectContaining({
+                  text: 'Only 1 features can be defined'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Optional with exact length constraints',
+        component: {
+          title: 'Example geospatial field',
+          name: 'myComponent',
+          type: ComponentType.GeospatialField,
+          options: {
+            required: false
+          },
+          schema: {
+            length: 1
+          }
+        } satisfies GeospatialFieldComponent,
+        assertions: [
+          {
+            input: getFormData([]),
+            output: {
+              value: getFormData([]),
+              errors: [
+                expect.objectContaining({
+                  text: 'Define exactly 1 features'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData(),
+            output: {
+              value: getFormData()
+            }
+          },
+          {
+            input: getFormData(validSingleState),
+            output: {
+              value: getFormData(validSingleState)
+            }
+          },
+          {
+            input: getFormData(validState),
+            output: {
+              value: getFormData(validState),
+              errors: [
+                expect.objectContaining({
+                  text: 'Define exactly 1 features'
                 })
               ]
             }
