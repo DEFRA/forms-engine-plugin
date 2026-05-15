@@ -54,7 +54,7 @@ function pageViewContext(
     relevantState: state,
     paths: [],
     state,
-    isForceAccess: true,
+    isForceAccess: false,
     relevantPages: model.pages.filter((p) => p.viewName !== 'summary')
   }
   /** @type {import('~/src/server/plugins/engine/types.js').FormContextRequest} */
@@ -165,12 +165,17 @@ export const pageFixtures = {
         ]
       },
       {
-        invoke: (ctrl, _model, req, ctx) =>
-          ctrl.getListSummaryViewModel(req, ctx, [
+        invoke: (ctrl, _model, req, ctx) => {
+          const vm = ctrl.getListSummaryViewModel(req, ctx, [
             { itemId: '1', fullname: 'Sarah Phillips' },
             { itemId: '2', fullname: 'David Jones' },
             { itemId: '3', fullname: 'Emma Wilson' }
           ])
+          return {
+            ...vm,
+            page: { ...vm.page, viewName: ctrl.listSummaryViewName }
+          }
+        }
       }
     )
   },
