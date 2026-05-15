@@ -59,10 +59,10 @@ function pageViewContext(
   }
   /** @type {import('~/src/server/plugins/engine/types.js').FormContextRequest} */
   const mockRequest = {
-    query: { force: 'true' },
+    query: {},
     params: {},
     path: pageDef.path,
-    url: { search: '?force=true' },
+    url: { search: '' },
     server: { plugins: { 'forms-engine-plugin': {} } }
   }
   return invoke
