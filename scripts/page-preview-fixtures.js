@@ -69,23 +69,9 @@ function pageViewContext({
     : controller.getViewModel(mockRequest, mockContext)
 }
 
-const fileUploadDef = componentFixtures['FileUploadField'].variants[0].def
-const fileUploadWithFilesPayload = componentFixtures[
+const fileUploadWithFilesVariant = componentFixtures[
   'FileUploadField'
-].variants.find((v) => v.label === 'With files uploaded').payload
-
-const fileUploadPageDef = {
-  path: '/upload',
-  controller: 'FileUploadPageController',
-  title: 'Upload a document',
-  components: [fileUploadDef]
-}
-
-const fileUploadState = {
-  upload: {
-    '/upload': { upload: { uploadUrl: 'preview' }, files: [] }
-  }
-}
+].variants.find((v) => v.label === 'With files uploaded')
 
 /** @type {Record<string, PageFixture>} */
 export const pageFixtures = {
@@ -214,21 +200,43 @@ export const pageFixtures = {
   },
 
   FileUploadPageController: {
-    exampleComponents: [fileUploadDef],
+    exampleComponents: [fileUploadWithFilesVariant.def],
     variants: [
       {
         label: 'No files uploaded',
         context: pageViewContext({
-          pages: [fileUploadPageDef],
-          state: fileUploadState
+          pages: [
+            {
+              path: '/upload',
+              controller: 'FileUploadPageController',
+              title: 'Upload a document',
+              components: [fileUploadWithFilesVariant.def]
+            }
+          ],
+          state: {
+            upload: {
+              '/upload': { upload: { uploadUrl: 'preview' }, files: [] }
+            }
+          }
         })
       },
       {
         label: 'With files uploaded',
         context: pageViewContext({
-          pages: [fileUploadPageDef],
-          state: fileUploadState,
-          payload: fileUploadWithFilesPayload
+          pages: [
+            {
+              path: '/upload',
+              controller: 'FileUploadPageController',
+              title: 'Upload a document',
+              components: [fileUploadWithFilesVariant.def]
+            }
+          ],
+          state: {
+            upload: {
+              '/upload': { upload: { uploadUrl: 'preview' }, files: [] }
+            }
+          },
+          payload: fileUploadWithFilesVariant.payload
         })
       }
     ]
