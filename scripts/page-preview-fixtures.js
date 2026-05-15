@@ -4,69 +4,58 @@ import { FormModel } from '../.server/server/plugins/engine/models/FormModel.js'
 
 import { fixtures as componentFixtures } from './component-preview-fixtures.js'
 
-import { createComponent } from '~/src/server/plugins/engine/components/helpers/components.js'
-
-/**
- * Builds a component view model from the named component fixture so page
- * fixtures can reuse the same data as component previews without duplicating
- * component definitions. Supports variant fixtures — pass a label to select
- * a specific variant, or omit it to use the first (or only) variant.
- * @param {string} name - e.g. 'FileUploadField'
- * @param {string} [variantLabel] - e.g. 'No files uploaded'
- * @returns {{ type: string, model: object }}
- */
-function componentViewModel(name, variantLabel) {
-  const fixture = componentFixtures[name]
-  const variant = fixture.variants
-    ? (fixture.variants.find((v) => v.label === variantLabel) ??
-      fixture.variants[0])
-    : fixture
-  const component = createComponent(variant.def, { model: variant.model })
-  return {
-    type: variant.def.type,
-    model: component.getViewModel(variant.payload, [])
-  }
+const SUMMARY_PAGE_DEF = {
+  path: '/summary',
+  controller: 'SummaryPageController',
+  title: 'Check your answers',
+  components: []
 }
 
 /**
  * Instantiates the real page controller for the given page definition and
- * calls getViewModel with a minimal mock request/context. The controller
- * handles showTitle, label sizing, isPageHeading, allowContinue, and viewName
- * automatically — no manual fixture properties needed for these.
- * @param {object} pageDef - Page definition (path, title, controller, components)
- * @param {object} [state] - Optional form state to pass as the payload
+ * calls getViewModel (or an optional invoke callback) with a minimal mock
+ * request/context. The controller handles showTitle, label sizing,
+ * isPageHeading, allowContinue, and viewName automatically.
+ * @param {object} pageDef - Page definition for the preview page
+ * @param {object} [options]
+ * @param {object} [options.state] - Form state passed as both payload and state
+ * @param {object[]} [options.additionalPageDefs] - Extra page defs to include before pageDef (e.g. question pages before a summary)
+ * @param {(controller: object, model: object, request: object, context: object) => object} [options.invoke] - Override which method to call; defaults to getViewModel
  * @returns {object}
  */
-function pageViewContext(pageDef, state = {}) {
+function pageViewContext(
+  pageDef,
+  { state = {}, payload, additionalPageDefs = [], invoke } = {}
+) {
+  const isSummary = pageDef.controller === 'SummaryPageController'
+  const allPageDefs = [
+    ...additionalPageDefs,
+    pageDef,
+    ...(isSummary ? [] : [SUMMARY_PAGE_DEF])
+  ]
   const model = new FormModel(
     {
       name: 'preview',
       schema: 2,
       engine: Engine.V2,
-      startPage: pageDef.path,
+      startPage: allPageDefs[0].path,
       sections: [],
       conditions: [],
       lists: [],
-      pages: [
-        pageDef,
-        {
-          path: '/summary',
-          controller: 'SummaryPageController',
-          title: 'Check your answers',
-          components: []
-        }
-      ]
+      pages: allPageDefs
     },
     { basePath: '/preview' }
   )
-  const [controller] = model.pages
+  const controller = model.pages[additionalPageDefs.length]
   const mockContext = {
-    payload: state,
+    payload: payload ?? state,
     errors: undefined,
-    evaluationState: {},
+    evaluationState: state,
+    relevantState: state,
     paths: [],
     state,
-    isForceAccess: true
+    isForceAccess: true,
+    relevantPages: model.pages.filter((p) => p.viewName !== 'summary')
   }
   /** @type {import('~/src/server/plugins/engine/types.js').FormContextRequest} */
   const mockRequest = {
@@ -76,7 +65,9 @@ function pageViewContext(pageDef, state = {}) {
     url: { search: '?force=true' },
     server: { plugins: { 'forms-engine-plugin': {} } }
   }
-  return controller.getViewModel(mockRequest, mockContext)
+  return invoke
+    ? invoke(controller, model, mockRequest, mockContext)
+    : controller.getViewModel(mockRequest, mockContext)
 }
 
 /** @type {Record<string, { context?: object, variants?: Array<{label: string, context: object}> }>} */
@@ -154,126 +145,121 @@ export const pageFixtures = {
   },
 
   RepeatPageController: {
-    context: {
-      page: { viewName: 'repeat-list-summary' },
-      pageTitle: 'Add members of your household',
-      showTitle: true,
-      allowSaveAndExit: false,
-      checkAnswers: [
-        {
-          summaryList: {
-            rows: [
-              {
-                key: { text: 'Full name' },
-                value: { text: 'Sarah Phillips' },
-                actions: { items: [{ href: '#', text: 'Remove' }] }
-              },
-              {
-                key: { text: 'Full name' },
-                value: { text: 'David Jones' },
-                actions: { items: [{ href: '#', text: 'Remove' }] }
-              },
-              {
-                key: { text: 'Full name' },
-                value: { text: 'Emma Wilson' },
-                actions: { items: [{ href: '#', text: 'Remove' }] }
-              }
-            ]
+    context: pageViewContext(
+      {
+        path: '/people',
+        controller: 'RepeatPageController',
+        title: 'People',
+        repeat: {
+          options: { name: 'people', title: 'Person' },
+          schema: { min: 1, max: 25 }
+        },
+        components: [
+          {
+            type: 'TextField',
+            name: 'fullname',
+            title: 'Full name',
+            options: {},
+            schema: {}
           }
-        }
-      ]
-    }
+        ]
+      },
+      {
+        invoke: (ctrl, _model, req, ctx) =>
+          ctrl.getListSummaryViewModel(req, ctx, [
+            { itemId: '1', fullname: 'Sarah Phillips' },
+            { itemId: '2', fullname: 'David Jones' },
+            { itemId: '3', fullname: 'Emma Wilson' }
+          ])
+      }
+    )
   },
 
   FileUploadPageController: {
-    exampleComponents: [
+    exampleComponents: [componentFixtures['FileUploadField'].variants[0].def],
+    variants: [
       {
-        type: 'FileUploadField',
-        name: 'upload',
-        title: 'Upload a document',
-        options: {},
-        schema: {}
+        label: 'No files uploaded',
+        context: pageViewContext(
+          {
+            path: '/upload',
+            controller: 'FileUploadPageController',
+            title: 'Upload a document',
+            components: [componentFixtures['FileUploadField'].variants[0].def]
+          },
+          {
+            state: {
+              upload: {
+                '/upload': { upload: { uploadUrl: 'preview' }, files: [] }
+              }
+            }
+          }
+        )
+      },
+      {
+        label: 'With files uploaded',
+        context: pageViewContext(
+          {
+            path: '/upload',
+            controller: 'FileUploadPageController',
+            title: 'Upload a document',
+            components: [componentFixtures['FileUploadField'].variants[0].def]
+          },
+          {
+            state: {
+              upload: {
+                '/upload': { upload: { uploadUrl: 'preview' }, files: [] }
+              }
+            },
+            payload: componentFixtures['FileUploadField'].variants.find(
+              (v) => v.label === 'With files uploaded'
+            ).payload
+          }
+        )
       }
-    ],
-    get variants() {
-      return [
-        {
-          label: 'No files uploaded',
-          context: {
-            pageTitle: 'Upload a document',
-            showTitle: true,
-            formAction: 'preview',
-            page: { viewName: 'file-upload', allowContinue: true },
-            componentsBefore: [],
-            components: [
-              componentViewModel('FileUploadField', 'No files uploaded')
-            ],
-            formComponent: componentViewModel(
-              'FileUploadField',
-              'No files uploaded'
-            )
-          }
-        },
-        {
-          label: 'With files uploaded',
-          context: {
-            pageTitle: 'Upload a document',
-            showTitle: true,
-            formAction: 'preview',
-            page: { viewName: 'file-upload', allowContinue: true },
-            componentsBefore: [],
-            components: [
-              componentViewModel('FileUploadField', 'With files uploaded')
-            ],
-            formComponent: componentViewModel(
-              'FileUploadField',
-              'With files uploaded'
-            )
-          }
-        }
-      ]
-    }
+    ]
   },
 
   SummaryPageController: {
-    context: {
-      page: { viewName: 'summary' },
-      pageTitle: 'Check your answers',
-      allowSaveAndExit: false,
-      checkAnswers: [
-        {
-          summaryList: {
-            rows: [
+    context: pageViewContext(
+      {
+        path: '/summary',
+        controller: 'SummaryPageController',
+        title: 'Check your answers',
+        components: []
+      },
+      {
+        additionalPageDefs: [
+          {
+            path: '/name',
+            title: 'Full name',
+            components: [
               {
-                key: { text: 'Full name' },
-                value: { text: 'Sarah Phillips' },
-                actions: {
-                  items: [
-                    {
-                      href: '#',
-                      text: 'Change',
-                      visuallyHiddenText: 'full name'
-                    }
-                  ]
-                }
-              },
+                type: 'TextField',
+                name: 'fullname',
+                title: 'Full name',
+                options: {},
+                schema: {}
+              }
+            ]
+          },
+          {
+            path: '/email',
+            title: 'Email',
+            components: [
               {
-                key: { text: 'Email address' },
-                value: { text: 'sarah@example.gov.uk' },
-                actions: {
-                  items: [
-                    {
-                      href: '#',
-                      text: 'Change',
-                      visuallyHiddenText: 'email address'
-                    }
-                  ]
-                }
+                type: 'EmailAddressField',
+                name: 'email',
+                title: 'Email address',
+                options: {},
+                schema: {}
               }
             ]
           }
-        }
-      ]
-    }
+        ],
+        state: { fullname: 'Sarah Phillips', email: 'sarah@example.gov.uk' },
+        invoke: (ctrl, _model, req, ctx) => ctrl.getSummaryViewModel(req, ctx)
+      }
+    )
   }
 }

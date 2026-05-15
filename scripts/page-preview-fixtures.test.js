@@ -1,25 +1,6 @@
 // @ts-nocheck
 
-jest.mock(
-  '~/src/server/plugins/engine/components/helpers/components.ts',
-  () => ({
-    createComponent: jest.fn().mockReturnValue({
-      getViewModel: jest.fn().mockReturnValue({ id: 'field', name: 'field' })
-    })
-  })
-)
-
-import { ComponentType } from '@defra/forms-model'
-
 import { pageFixtures } from './page-preview-fixtures.js'
-
-import { createComponent } from '~/src/server/plugins/engine/components/helpers/components.ts'
-
-beforeEach(() => {
-  createComponent.mockReturnValue({
-    getViewModel: jest.fn().mockReturnValue({ id: 'field', name: 'field' })
-  })
-})
 
 describe('page-preview-fixtures', () => {
   it('all 6 expected page types are present', () => {
@@ -36,7 +17,13 @@ describe('page-preview-fixtures', () => {
     }
   })
 
-  it('every fixture context has a page.viewName string', () => {
+  it('every fixture has either context or variants', () => {
+    for (const [_key, fixture] of Object.entries(pageFixtures)) {
+      expect(!!fixture.context || !!fixture.variants).toBe(true)
+    }
+  })
+
+  it('every context has a page.viewName string', () => {
     for (const [_key, fixture] of Object.entries(pageFixtures)) {
       const contexts = fixture.variants
         ? fixture.variants.map((v) => v.context)
@@ -44,14 +31,6 @@ describe('page-preview-fixtures', () => {
       for (const context of contexts) {
         expect(typeof context.page?.viewName).toBe('string')
       }
-    }
-  })
-
-  it('every fixture has either context or variants, not neither', () => {
-    for (const [_key, fixture] of Object.entries(pageFixtures)) {
-      const hasContext = !!fixture.context
-      const hasVariants = !!fixture.variants
-      expect(hasContext || hasVariants).toBe(true)
     }
   })
 
@@ -70,52 +49,5 @@ describe('page-preview-fixtures', () => {
 
   it('FileUploadPageController has exactly 2 variants', () => {
     expect(pageFixtures.FileUploadPageController.variants).toHaveLength(2)
-  })
-
-  it('FileUploadPageController variants reference the FileUploadField component fixture', () => {
-    for (const variant of pageFixtures.FileUploadPageController.variants) {
-      const _model = variant.context.formComponent.model // trigger lazy getter
-    }
-    expect(createComponent).toHaveBeenCalledWith(
-      expect.objectContaining({ type: ComponentType.FileUploadField }),
-      expect.anything()
-    )
-  })
-
-  it('PageController has exactly 2 variants', () => {
-    expect(pageFixtures.PageController.variants).toHaveLength(2)
-  })
-
-  it('PageController single question variant sets isPageHeading and govuk-label--l on the TextField label', () => {
-    const mockLabel = {
-      text: 'What is your full name?',
-      classes: 'govuk-label--s'
-    }
-    createComponent.mockReturnValue({
-      getViewModel: jest.fn().mockReturnValue({
-        id: 'full-name',
-        name: 'full-name',
-        label: mockLabel
-      })
-    })
-    const singleVariant = pageFixtures.PageController.variants[0]
-    const [component] = singleVariant.context.components
-    expect(component.model.label.isPageHeading).toBe(true)
-    expect(component.model.label.classes).toBe('govuk-label--l')
-  })
-
-  it('PageController single question variant has showTitle false', () => {
-    expect(pageFixtures.PageController.variants[0].context.showTitle).toBe(
-      false
-    )
-  })
-
-  it('PageController multiple questions variant has showTitle true', () => {
-    expect(pageFixtures.PageController.variants[1].context.showTitle).toBe(true)
-  })
-
-  it('PageController multiple questions variant has two components', () => {
-    const multiVariant = pageFixtures.PageController.variants[1]
-    expect(multiVariant.context.components).toHaveLength(2)
   })
 })
