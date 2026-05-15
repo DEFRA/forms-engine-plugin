@@ -156,14 +156,13 @@ export const pageFixtures = {
           title: 'You are not eligible',
           next: [],
           components: [
-            {
+            /** @type {ComponentDef} */ ({
               type: ComponentType.Html,
               name: 'eligibility',
-              title: '',
               content:
                 '<p class="govuk-body">You do not meet the eligibility criteria for this service.</p>',
               options: {}
-            }
+            })
           ]
         }
       ]
