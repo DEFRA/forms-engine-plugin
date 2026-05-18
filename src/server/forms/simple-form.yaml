@@ -84,13 +84,14 @@ pages:
       - type: NotificationBanner
         title: Important
         name: notificationImportant
-        content: 'You have 30 days to appeal this decision.'
-        options: {}
+        content: 'Contact us if you need [help with your application](/help).'
+        options:
+          heading: There may be a delay in processing your application.
         id: ca6b6590-1608-49f4-82f9-9d92e38e66ea
       - type: NotificationBanner
-        title: Application submitted
+        title: Success
         name: notificationSuccess
-        content: 'Your application for {{ applicantFirstName }} {{ applicantLastName }} has been received.'
+        content: 'Your application has been submitted.'
         options:
           type: success
         id: b6960f4b-d771-4956-9c9b-17da5c603062

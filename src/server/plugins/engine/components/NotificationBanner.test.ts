@@ -50,6 +50,41 @@ describe('NotificationBanner', () => {
     })
   })
 
+  describe('With heading', () => {
+    let def: NotificationBannerComponent
+    let collection: ComponentCollection
+    let guidance: Guidance
+
+    beforeEach(() => {
+      def = {
+        title: 'Important',
+        name: 'myComponent',
+        type: ComponentType.NotificationBanner,
+        content: 'Contact us if you need help.',
+        options: {
+          heading: 'There may be a delay in processing your application.'
+        }
+      } satisfies NotificationBannerComponent
+
+      collection = new ComponentCollection([def], { model })
+      guidance = collection.guidance[0]
+    })
+
+    describe('View model', () => {
+      it('includes heading', () => {
+        const viewModel = guidance.getViewModel()
+
+        expect(viewModel).toEqual(
+          expect.objectContaining({
+            titleHtml: def.title,
+            content: def.content,
+            heading: def.options.heading
+          })
+        )
+      })
+    })
+  })
+
   describe('Success variant', () => {
     let def: NotificationBannerComponent
     let collection: ComponentCollection

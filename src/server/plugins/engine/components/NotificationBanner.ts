@@ -25,6 +25,7 @@ export class NotificationBanner extends ComponentBase {
       ...viewModel,
       titleHtml: title,
       content,
+      heading: this.options.heading,
       type: this.options.type
     }
   }
