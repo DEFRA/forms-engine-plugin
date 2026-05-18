@@ -1,6 +1,6 @@
 # Custom page controllers
 
-Custom page controllers let you attach bespoke server-side logic to a specific page in your form — for example, fetching data from an external service before render, running an authorisation check, intercepting form submission, or writing additional data to session state.
+Custom page controllers let you attach bespoke server-side logic to a specific page in your form. For example, fetching data from an external service before render, running an authorisation check, intercepting form submission, or writing additional data to session state.
 
 Use a custom controller when you need server-side behaviour that cannot be expressed through configuration alone. If you want to avoid writing TypeScript altogether, explore the [configuration-based options](../configuration-based/index.md) first.
 
@@ -63,10 +63,17 @@ Both are imported from `@defra/forms-engine-plugin/controllers/<ClassName>.js`.
 
 ## Examples
 
-- [Fetching data for the view model](#fetching-data-for-the-view-model)
-- [Intercepting the GET handler](#intercepting-the-get-handler)
-- [Writing to state on POST](#writing-to-state-on-post)
-- [Display-only page (no form components)](#display-only-page-no-form-components)
+- [Custom page controllers](#custom-page-controllers)
+  - [How it works](#how-it-works)
+  - [Choosing a base class](#choosing-a-base-class)
+  - [Examples](#examples)
+    - [Fetching data for the view model](#fetching-data-for-the-view-model)
+    - [Intercepting the GET handler](#intercepting-the-get-handler)
+    - [Writing to state on POST](#writing-to-state-on-post)
+    - [Display-only page (no form components)](#display-only-page-no-form-components)
+  - [Reference](#reference)
+    - [What QuestionPageController gives you](#what-questionpagecontroller-gives-you)
+    - [Overridable members](#overridable-members)
 
 > **Note:** Examples that call `h.view()` require Nunjucks to be configured with the correct template paths. See [plugin options](../../plugin-options.md).
 

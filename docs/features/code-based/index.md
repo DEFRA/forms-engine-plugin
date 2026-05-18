@@ -10,7 +10,7 @@ Build custom form components. Components can extend `ComponentBase` for display-
 
 ## [Custom Page Controllers](./code-based/page-controllers)
 
-Attach bespoke server-side logic to a specific page — for example, running an auth check before render, enriching the view model with external data, or intercepting form submission.
+Attach bespoke server-side logic to a specific page. For example: running an auth check before render, enriching the view model with external data, or intercepting form submission.
 
 ## [Custom Services](./code-based/custom-services)
 
