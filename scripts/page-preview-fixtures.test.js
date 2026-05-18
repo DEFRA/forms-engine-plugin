@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import { pageFixtures } from './page-preview-fixtures.js'
 
 describe('page-preview-fixtures', () => {
@@ -27,7 +25,7 @@ describe('page-preview-fixtures', () => {
     for (const [_key, fixture] of Object.entries(pageFixtures)) {
       const contexts = fixture.variants
         ? fixture.variants.map((v) => v.context)
-        : [fixture.context]
+        : [/** @type {NonNullable<typeof fixture.context>} */ (fixture.context)]
       for (const context of contexts) {
         expect(typeof context.page?.viewName).toBe('string')
       }
@@ -40,7 +38,7 @@ describe('page-preview-fixtures', () => {
     )
     expect(variantFixtures.length).toBeGreaterThan(0)
     for (const [, fixture] of variantFixtures) {
-      for (const variant of fixture.variants) {
+      for (const variant of fixture.variants ?? []) {
         expect(typeof variant.label).toBe('string')
         expect(variant.context).toBeDefined()
       }
