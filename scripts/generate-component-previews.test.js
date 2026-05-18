@@ -116,6 +116,17 @@ describe('buildPartialMdx', () => {
     expect(result).toContain('\\`backtick\\`')
     expect(result).toContain('\\' + dollarBrace + 'expr}')
   })
+
+  it('uses custom wrapperClass when provided', () => {
+    const result = buildPartialMdx(
+      [{ html: '<input>' }],
+      'component-preview component-preview--page'
+    )
+    expect(result).toContain(
+      'className="component-preview component-preview--page"'
+    )
+    expect(result).not.toContain('className="component-preview"')
+  })
 })
 
 describe('renderComponent', () => {
