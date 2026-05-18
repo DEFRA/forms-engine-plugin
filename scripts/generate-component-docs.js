@@ -7,6 +7,8 @@ import ts from 'typescript'
 
 import { fixtures } from './component-preview-fixtures.js'
 import { writePreviewPartial } from './generate-component-previews.js'
+import { writePagePreviewPartial } from './generate-page-previews.js'
+import { pageFixtures } from './page-preview-fixtures.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -863,12 +865,14 @@ export function controllerSlug(controllerKey) {
  * @param {string} controllerKey
  * @param {Array<{name: string, type: string, optional: boolean}>} uniqueProps
  * @param {string} [examplePath]
+ * @param {Array<object>|null} [exampleComponents]
  * @returns {Record<string, unknown>}
  */
 export function generatePageExample(
   controllerKey,
   uniqueProps,
-  examplePath = '/page-path'
+  examplePath = '/page-path',
+  exampleComponents = null
 ) {
   const controllerValue =
     controllerKey === 'PageController' ? null : controllerKey
@@ -886,6 +890,8 @@ export function generatePageExample(
     setNestedValue(example, prop.name, placeholderForType(prop.type))
   }
 
+  if (exampleComponents) example.components = exampleComponents
+
   return example
 }
 
@@ -894,12 +900,16 @@ export function generatePageExample(
  * @param {Array<{name: string, type: string, optional: boolean}>} uniqueProps
  * @param {string} examplePath
  * @param {number} sidebarPosition
+ * @param {string|null} [previewSlug]
+ * @param {Array<object>|null} [exampleComponents]
  */
-function generatePageMd(
+export function generatePageMd(
   controllerKey,
   uniqueProps,
   examplePath,
-  sidebarPosition
+  sidebarPosition,
+  previewSlug = null,
+  exampleComponents = null
 ) {
   const description = metadata.pages[controllerKey]
   if (!description) return null
@@ -908,11 +918,16 @@ function generatePageMd(
   const isDefault = controllerKey === 'PageController'
   const links = metadata.pageLinks?.[controllerKey] ?? []
 
+  const previewImport = previewSlug
+    ? [``, `import Preview from './_previews/${previewSlug}.mdx'`]
+    : []
+
   const lines = [
     `---`,
     `sidebar_label: "${label}"`,
     `sidebar_position: ${sidebarPosition}`,
     `---`,
+    ...previewImport,
     ``,
     `# ${label}`,
     ``,
@@ -933,12 +948,21 @@ function generatePageMd(
     lines.push(`**Controller value:** \`"${controllerKey}"\``, ``)
   }
 
+  if (previewSlug) {
+    lines.push(`## Preview`, ``, `<Preview />`, ``)
+  }
+
   lines.push(
     `## JSON definition`,
     ``,
     '```json',
     JSON.stringify(
-      generatePageExample(controllerKey, uniqueProps, examplePath),
+      generatePageExample(
+        controllerKey,
+        uniqueProps,
+        examplePath,
+        exampleComponents
+      ),
       null,
       2
     ),
@@ -1032,7 +1056,7 @@ function generatePagesIndex() {
   for (const [key, description] of Object.entries(metadata.pages)) {
     const label = controllerLabel(key)
     const slug = controllerSlug(key)
-    lines.push(`- [**${label}**](./${slug}.md) — ${description}`)
+    lines.push(`- [**${label}**](./${slug}.mdx) — ${description}`)
   }
 
   lines.push(``)
@@ -1092,6 +1116,8 @@ function main() {
     fs.rmSync(pagesOutputDir, { recursive: true, force: true })
   }
   fs.mkdirSync(pagesOutputDir, { recursive: true })
+  const pagePreviewsDir = path.resolve(pagesOutputDir, '_previews')
+  fs.mkdirSync(pagePreviewsDir, { recursive: true })
 
   // Parse sources
   const interfaces = parseComponentInterfaces(componentsDtsPath)
@@ -1180,13 +1206,25 @@ function main() {
     }
     const { props: uniqueProps = [], examplePath = '/page-path' } =
       pageInterfaces[key] ?? {}
-    const content = generatePageMd(key, uniqueProps, examplePath, i + 1)
+    const fixture = pageFixtures[key]
+    const sidebarPosition = i + 1
+    const content = generatePageMd(
+      key,
+      uniqueProps,
+      examplePath,
+      sidebarPosition,
+      fixture ? slug : null,
+      fixture?.exampleComponents ?? null
+    )
     if (content) {
-      fs.writeFileSync(path.join(pagesOutputDir, `${slug}.md`), content)
+      fs.writeFileSync(path.join(pagesOutputDir, `${slug}.mdx`), content)
+    }
+    if (fixture) {
+      writePagePreviewPartial(pagePreviewsDir, slug, fixture)
     }
   }
 
-  fs.writeFileSync(path.join(pagesOutputDir, 'index.md'), generatePagesIndex())
+  fs.writeFileSync(path.join(pagesOutputDir, 'index.mdx'), generatePagesIndex())
 
   console.log(
     `Generated ${componentOrder.length} component pages and ${Object.keys(metadata.pages).length} page type pages.`
