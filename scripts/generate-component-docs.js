@@ -1060,6 +1060,16 @@ function generatePagesIndex() {
   }
 
   lines.push(``)
+  lines.push(`## Build your own page type`)
+  lines.push(``)
+  lines.push(
+    `If none of the built-in page types meet your needs, you can write a custom page controller by extending \`QuestionPageController\` (for pages with form components) or \`PageController\` (for display-only pages). Custom controllers are registered via the \`controllers\` plugin option and referenced in your form definition by name.`
+  )
+  lines.push(``)
+  lines.push(
+    `See [Custom page controllers](../code-based/page-controllers.md) for a full guide.`
+  )
+  lines.push(``)
   return lines.join('\n')
 }
 

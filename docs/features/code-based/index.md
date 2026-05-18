@@ -4,9 +4,13 @@ Code-based features let you extend forms-engine-plugin with custom TypeScript or
 
 > Only introduce code-based customisations where there is genuine business need. Custom code becomes your team's responsibility to test, maintain and keep accessible.
 
-## [Components](./code-based/components)
+## [Custom Components](./code-based/components)
 
 Build custom form components. Components can extend `ComponentBase` for display-only purposes or `FormComponent` to handle user input with validation, state management and rendering.
+
+## [Custom Page Controllers](./code-based/page-controllers)
+
+Attach bespoke server-side logic to a specific page. For example: running an auth check before render, enriching the view model with external data, or intercepting form submission.
 
 ## [Custom Services](./code-based/custom-services)
 

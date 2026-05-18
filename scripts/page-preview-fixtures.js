@@ -8,7 +8,7 @@ const SUMMARY_PAGE_DEF =
   /** @type {import('@defra/forms-model').PageSummary} */ ({
     path: '/summary',
     controller: ControllerType.Summary,
-    title: 'Check your answers',
+    title: 'Check your answers before sending your form',
     components: []
   })
 
