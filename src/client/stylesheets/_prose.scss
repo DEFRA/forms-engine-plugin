@@ -26,6 +26,10 @@
     @extend %govuk-body-m;
   }
 
+  > :last-child {
+    margin-bottom: 0;
+  }
+
   strong,
   b {
     @include govuk-typography-weight-bold;
