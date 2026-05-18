@@ -4,7 +4,6 @@ import {
 } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { type Guidance } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import definition from '~/test/form/definitions/basic.js'
 
@@ -18,26 +17,18 @@ describe('NotificationBanner', () => {
   })
 
   describe('Defaults', () => {
-    let def: NotificationBannerComponent
-    let collection: ComponentCollection
-    let guidance: Guidance
-
-    beforeEach(() => {
-      def = {
-        title: 'Important',
-        name: 'myComponent',
-        type: ComponentType.NotificationBanner,
-        content: 'You have 30 days to [appeal this decision](/appeal).',
-        options: {}
-      } satisfies NotificationBannerComponent
-
-      collection = new ComponentCollection([def], { model })
-      guidance = collection.guidance[0]
-    })
-
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = guidance.getViewModel()
+        const def = {
+          title: 'Important',
+          name: 'myComponent',
+          type: ComponentType.NotificationBanner,
+          content: 'You have 30 days to [appeal this decision](/appeal).',
+          options: {}
+        } satisfies NotificationBannerComponent
+
+        const collection = new ComponentCollection([def], { model })
+        const viewModel = collection.guidance[0].getViewModel()
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -51,28 +42,20 @@ describe('NotificationBanner', () => {
   })
 
   describe('With heading', () => {
-    let def: NotificationBannerComponent
-    let collection: ComponentCollection
-    let guidance: Guidance
-
-    beforeEach(() => {
-      def = {
-        title: 'Important',
-        name: 'myComponent',
-        type: ComponentType.NotificationBanner,
-        content: 'Contact us if you need help.',
-        options: {
-          heading: 'There may be a delay in processing your application.'
-        }
-      } satisfies NotificationBannerComponent
-
-      collection = new ComponentCollection([def], { model })
-      guidance = collection.guidance[0]
-    })
-
     describe('View model', () => {
       it('includes heading', () => {
-        const viewModel = guidance.getViewModel()
+        const def = {
+          title: 'Important',
+          name: 'myComponent',
+          type: ComponentType.NotificationBanner,
+          content: 'Contact us if you need help.',
+          options: {
+            heading: 'There may be a delay in processing your application.'
+          }
+        } satisfies NotificationBannerComponent
+
+        const collection = new ComponentCollection([def], { model })
+        const viewModel = collection.guidance[0].getViewModel()
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -86,26 +69,18 @@ describe('NotificationBanner', () => {
   })
 
   describe('Success variant', () => {
-    let def: NotificationBannerComponent
-    let collection: ComponentCollection
-    let guidance: Guidance
-
-    beforeEach(() => {
-      def = {
-        title: 'Success',
-        name: 'myComponent',
-        type: ComponentType.NotificationBanner,
-        content: 'Your application has been submitted.',
-        options: { type: 'success' }
-      } satisfies NotificationBannerComponent
-
-      collection = new ComponentCollection([def], { model })
-      guidance = collection.guidance[0]
-    })
-
     describe('View model', () => {
       it('includes type: success', () => {
-        const viewModel = guidance.getViewModel()
+        const def = {
+          title: 'Success',
+          name: 'myComponent',
+          type: ComponentType.NotificationBanner,
+          content: 'Your application has been submitted.',
+          options: { type: 'success' }
+        } satisfies NotificationBannerComponent
+
+        const collection = new ComponentCollection([def], { model })
+        const viewModel = collection.guidance[0].getViewModel()
 
         expect(viewModel).toEqual(
           expect.objectContaining({
