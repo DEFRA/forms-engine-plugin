@@ -64,7 +64,10 @@ export const messageTemplate: Record<string, JoiExpression> = {
   dateMax: '{{#title}} must be the same as or before {{#limit}}',
   arrayMin: 'Select at least {{#limit}} options from the list',
   arrayMax: 'Only {{#limit}} can be selected from the list',
-  arrayLength: 'Select only {{#limit}} options from the list'
+  arrayLength: 'Select only {{#limit}} options from the list',
+  featuresMin: 'Define at least {{#limit}} features',
+  featuresMax: 'Only {{#limit}} features can be defined',
+  featuresLength: 'Define exactly {{#limit}} features'
 }
 
 export const messages: LanguageMessagesExt = {
