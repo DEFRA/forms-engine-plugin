@@ -433,7 +433,8 @@ export async function submitForm(
 
   const items = getFormSubmissionData(
     summaryViewModel.context,
-    summaryViewModel.details
+    summaryViewModel.details,
+    model
   )
 
   try {
@@ -531,11 +532,14 @@ function submitData(
     main: buildMainRecords(items),
     repeaters: buildRepeaterRecords(items)
   }
-
   return submit(payload)
 }
 
-export function getFormSubmissionData(context: FormContext, details: Detail[]) {
+export function getFormSubmissionData(
+  context: FormContext,
+  details: Detail[],
+  model: FormModel
+) {
   const items = context.relevantPages
     .map(({ href }) =>
       details.flatMap(({ items }) =>
@@ -544,7 +548,7 @@ export function getFormSubmissionData(context: FormContext, details: Detail[]) {
     )
     .flat()
 
-  const paymentItems = getPaymentFieldItems(context)
+  const paymentItems = getPaymentFieldItems(context, model)
 
   return [...items, ...paymentItems]
 }
@@ -553,10 +557,13 @@ export function getFormSubmissionData(context: FormContext, details: Detail[]) {
  * Gets DetailItems for PaymentField components
  * PaymentField is excluded from summaryDetails for UI but needs to be in submission data
  */
-function getPaymentFieldItems(context: FormContext): DetailItemField[] {
+function getPaymentFieldItems(
+  context: FormContext,
+  model: FormModel
+): DetailItemField[] {
   const items: DetailItemField[] = []
 
-  for (const page of context.relevantPages) {
+  for (const page of model.pages) {
     for (const field of page.collection.fields) {
       if (field instanceof PaymentField) {
         items.push({

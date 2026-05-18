@@ -1,8 +1,11 @@
 import {
+  ComponentType,
   SchemaVersion,
   formDefinitionSchema,
   formDefinitionV2Schema,
-  type FormDefinition
+  type ComponentDef,
+  type FormDefinition,
+  type PageQuestion
 } from '@defra/forms-model'
 
 import { todayAsDateOnly } from '~/src/server/plugins/engine/date-helper.js'
@@ -16,6 +19,7 @@ import conditionsListDefinition from '~/test/form/definitions/conditions-list.js
 import relativeDatesDefinition from '~/test/form/definitions/conditions-relative-dates-v2.js'
 import fieldsRequiredDefinition from '~/test/form/definitions/fields-required.js'
 import joinedConditionsDefinition from '~/test/form/definitions/joined-conditions-simple-v2.js'
+import paymentDefinition from '~/test/form/definitions/payment.js'
 
 jest.mock('~/src/server/plugins/engine/date-helper.ts')
 
@@ -720,6 +724,38 @@ describe('FormModel - Joined Conditions', () => {
       // V2 should not find by name
       expect(model.getSection('personal')).toBeUndefined()
       expect(model.getSection('nonexistent')).toBeUndefined()
+    })
+  })
+
+  describe('moreThanOnePaymentQuestion', () => {
+    it('should return false if no payment questions', () => {
+      const model = new FormModel(definition, { basePath: 'test' })
+      expect(model.moreThanOnePaymentQuestion()).toBe(false)
+    })
+
+    it('should return false if only one payment question', () => {
+      const definition = {
+        ...paymentDefinition
+      }
+
+      const model = new FormModel(definition, { basePath: 'test' })
+      expect(model.moreThanOnePaymentQuestion()).toBe(false)
+    })
+
+    it('should throw if more than one payment questions', () => {
+      const definition = {
+        ...paymentDefinition
+      }
+      const extraPaymentComponent = {
+        type: ComponentType.PaymentField,
+        name: 'paymentField'
+      } as ComponentDef
+      const page = definition.pages[0] as PageQuestion
+      page.components.push(extraPaymentComponent)
+
+      expect(() => new FormModel(definition, { basePath: 'test' })).toThrow(
+        'Invalid form definition: Only one payment question is allowed per form'
+      )
     })
   })
 })

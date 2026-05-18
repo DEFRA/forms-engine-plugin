@@ -9,6 +9,7 @@ import {
   formDefinitionV2Schema,
   generateConditionAlias,
   hasComponents,
+  hasComponentsEvenIfNoNext,
   hasRepeater,
   isConditionWrapperV2,
   yesNoListId,
@@ -158,6 +159,13 @@ export class FormModel {
     this.conditions = {}
     this.services = services
     this.controllers = controllers
+
+    // Assert that there is only one payment question (if any)
+    if (this.moreThanOnePaymentQuestion()) {
+      throw new Error(
+        'Invalid form definition: Only one payment question is allowed per form'
+      )
+    }
 
     this.pageDefMap = new Map(def.pages.map((page) => [page.path, page]))
     this.listDefMap = new Map(def.lists.map((list) => [list.name, list]))
@@ -542,6 +550,18 @@ export class FormModel {
     return this.def.conditions
       .filter(isConditionWrapperV2)
       .find((condition) => condition.id === conditionId)
+  }
+
+  /**
+   * Checks that only one payment field exists (if any payments fields exist)
+   */
+  moreThanOnePaymentQuestion() {
+    const numOfPaymentFields = this.def.pages
+      .flatMap((page) =>
+        hasComponentsEvenIfNoNext(page) ? page.components : []
+      )
+      .filter((comp) => comp.type === ComponentType.PaymentField).length
+    return numOfPaymentFields > 1
   }
 }
 
