@@ -556,10 +556,6 @@ export class FormModel {
    * Checks that only one payment field exists (if any payments fields exist)
    */
   moreThanOnePaymentQuestion() {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    if (!this.def) {
-      return false
-    }
     const numOfPaymentFields = this.def.pages
       .flatMap((page) =>
         hasComponentsEvenIfNoNext(page) ? page.components : []
