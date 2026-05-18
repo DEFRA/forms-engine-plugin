@@ -431,7 +431,7 @@ describe('SummaryPageController - Payment (DF-832)', () => {
     })
 
     it('submits with correct payload', async () => {
-      const { request, context, viewModel, formMetadata, outputSubmit, formSubmissionSubmit } =
+      const { request, context, viewModel, formMetadata, formSubmissionSubmit } =
         buildSubmitHarness({ captured: true })
 
       await submitForm(
