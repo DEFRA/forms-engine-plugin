@@ -1,7 +1,6 @@
 import { type NotificationBannerComponent } from '@defra/forms-model'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
-import { markdown } from '~/src/server/plugins/engine/components/markdownParser.js'
 
 export class NotificationBanner extends ComponentBase {
   declare options: NotificationBannerComponent['options']
@@ -25,7 +24,7 @@ export class NotificationBanner extends ComponentBase {
     return {
       ...viewModel,
       titleHtml: title,
-      html: markdown.parse(content, { async: false }).trim(),
+      content,
       type: this.options.type
     }
   }

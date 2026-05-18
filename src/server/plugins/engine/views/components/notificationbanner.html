@@ -1,5 +1,10 @@
 {% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
 
 {% macro NotificationBanner(component) %}
-  {{ govukNotificationBanner(component.model) }}
+  {% set bannerHtml %}{{ component.model.content | markdown | safe }}{% endset %}
+  {{ govukNotificationBanner({
+    titleHtml: component.model.titleHtml,
+    html: bannerHtml,
+    type: component.model.type
+  }) }}
 {% endmacro %}
