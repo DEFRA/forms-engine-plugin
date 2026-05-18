@@ -16,80 +16,68 @@ describe('NotificationBanner', () => {
     })
   })
 
-  describe('Defaults', () => {
-    describe('View model', () => {
-      it('sets Nunjucks component defaults', () => {
-        const def = {
-          title: 'Important',
-          name: 'myComponent',
-          type: ComponentType.NotificationBanner,
-          content: 'You have 30 days to [appeal this decision](/appeal).',
-          options: {}
-        } satisfies NotificationBannerComponent
+  it('sets Nunjucks component defaults', () => {
+    const def = {
+      title: 'Important',
+      name: 'myComponent',
+      type: ComponentType.NotificationBanner,
+      content: 'You have 30 days to [appeal this decision](/appeal).',
+      options: {}
+    } satisfies NotificationBannerComponent
 
-        const collection = new ComponentCollection([def], { model })
-        const viewModel = collection.guidance[0].getViewModel()
+    const collection = new ComponentCollection([def], { model })
+    const viewModel = collection.guidance[0].getViewModel()
 
-        expect(viewModel).toEqual(
-          expect.objectContaining({
-            attributes: {},
-            titleHtml: def.title,
-            content: def.content
-          })
-        )
+    expect(viewModel).toEqual(
+      expect.objectContaining({
+        attributes: {},
+        titleHtml: def.title,
+        content: def.content
       })
-    })
+    )
   })
 
-  describe('With heading', () => {
-    describe('View model', () => {
-      it('includes heading', () => {
-        const def = {
-          title: 'Important',
-          name: 'myComponent',
-          type: ComponentType.NotificationBanner,
-          content: 'Contact us if you need help.',
-          options: {
-            heading: 'There may be a **delay** in processing your application.'
-          }
-        } satisfies NotificationBannerComponent
+  it('includes heading in view model', () => {
+    const def = {
+      title: 'Important',
+      name: 'myComponent',
+      type: ComponentType.NotificationBanner,
+      content: 'Contact us if you need help.',
+      options: {
+        heading: 'There may be a **delay** in processing your application.'
+      }
+    } satisfies NotificationBannerComponent
 
-        const collection = new ComponentCollection([def], { model })
-        const viewModel = collection.guidance[0].getViewModel()
+    const collection = new ComponentCollection([def], { model })
+    const viewModel = collection.guidance[0].getViewModel()
 
-        expect(viewModel).toEqual(
-          expect.objectContaining({
-            titleHtml: def.title,
-            content: def.content,
-            heading: def.options.heading
-          })
-        )
+    expect(viewModel).toEqual(
+      expect.objectContaining({
+        titleHtml: def.title,
+        content: def.content,
+        heading: def.options.heading
       })
-    })
+    )
   })
 
-  describe('Success variant', () => {
-    describe('View model', () => {
-      it('includes type: success', () => {
-        const def = {
-          title: 'Success',
-          name: 'myComponent',
-          type: ComponentType.NotificationBanner,
-          content: 'Your application has been submitted.',
-          options: { type: 'success' }
-        } satisfies NotificationBannerComponent
+  it('sets type: success for success variant', () => {
+    const def = {
+      title: 'Success',
+      name: 'myComponent',
+      type: ComponentType.NotificationBanner,
+      content: 'Your application has been submitted.',
+      options: { type: 'success' }
+    } satisfies NotificationBannerComponent
 
-        const collection = new ComponentCollection([def], { model })
-        const viewModel = collection.guidance[0].getViewModel()
+    const collection = new ComponentCollection([def], { model })
+    const viewModel = collection.guidance[0].getViewModel()
 
-        expect(viewModel).toEqual(
-          expect.objectContaining({
-            titleHtml: def.title,
-            content: def.content,
-            type: 'success'
-          })
-        )
+    expect(viewModel).toEqual(
+      expect.objectContaining({
+        titleHtml: def.title,
+        content: def.content,
+        type: 'success'
       })
-    })
+    )
   })
 })
