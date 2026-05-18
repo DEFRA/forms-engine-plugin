@@ -84,7 +84,7 @@ pages:
       - type: NotificationBanner
         title: Important
         name: notificationImportant
-        content: 'Contact us if you need [help with your application](/help).'
+        content: 'Contact us if you need [help with your application](https://www.defra.gov.uk).'
         options:
           heading: There may be a delay in processing your application.
         id: ca6b6590-1608-49f4-82f9-9d92e38e66ea
