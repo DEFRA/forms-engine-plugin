@@ -46,6 +46,7 @@ export type Guidance =
   | InstanceType<typeof Components.Markdown>
   | InstanceType<typeof Components.InsetText>
   | InstanceType<typeof Components.List>
+  | InstanceType<typeof Components.NotificationBanner>
 
 // List component instances only
 export type ListField = InstanceType<
@@ -132,6 +133,10 @@ export function createComponent(
 
     case ComponentType.Markdown:
       component = new Components.Markdown(def, options)
+      break
+
+    case ComponentType.NotificationBanner:
+      component = new Components.NotificationBanner(def, options)
       break
 
     case ComponentType.MultilineTextField:
