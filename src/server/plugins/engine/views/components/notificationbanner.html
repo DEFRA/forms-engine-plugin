@@ -3,7 +3,7 @@
 {% macro NotificationBanner(component) %}
   {%- set bannerHtml -%}
     {%- if component.model.heading %}<p class="govuk-notification-banner__heading">{{ component.model.heading }}</p>{% endif -%}
-    {{ component.model.content | markdown | safe }}
+    <div class="app-prose-scope">{{ component.model.content | markdown | safe }}</div>
   {%- endset -%}
   {{ govukNotificationBanner({
     titleHtml: component.model.titleHtml,
