@@ -63,19 +63,10 @@ Both are imported from `@defra/forms-engine-plugin/controllers/<ClassName>.js`.
 
 ## Examples
 
-- [Custom page controllers](#custom-page-controllers)
-  - [How it works](#how-it-works)
-  - [Choosing a base class](#choosing-a-base-class)
-  - [Examples](#examples)
-    - [Fetching data for the view model](#fetching-data-for-the-view-model)
-    - [Intercepting the GET handler](#intercepting-the-get-handler)
-    - [Writing to state on POST](#writing-to-state-on-post)
-    - [Display-only page (no form components)](#display-only-page-no-form-components)
-  - [Reference](#reference)
-    - [What QuestionPageController gives you](#what-questionpagecontroller-gives-you)
-    - [Overridable members](#overridable-members)
-
-> **Note:** Examples that call `h.view()` require Nunjucks to be configured with the correct template paths. See [plugin options](../../plugin-options.md).
+- [Fetching data for the view model](#fetching-data-for-the-view-model)
+- [Intercepting the GET handler](#intercepting-the-get-handler)
+- [Writing to state on POST](#writing-to-state-on-post)
+- [Display-only page (no form components)](#display-only-page-no-form-components)
 
 ### Fetching data for the view model
 
