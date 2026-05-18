@@ -80,6 +80,7 @@ const config = {
           sidebar: [
             { text: 'Components', href: '/features/components' },
             { text: 'Page Types', href: '/features/pages' },
+            { text: 'Page Elements', href: '/features/page-elements' },
             {
               text: 'Advanced',
               href: '/features',
