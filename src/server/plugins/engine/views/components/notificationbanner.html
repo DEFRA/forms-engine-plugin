@@ -2,8 +2,10 @@
 
 {% macro NotificationBanner(component) %}
   {%- set bannerHtml -%}
-    {%- if component.model.heading %}<p class="govuk-notification-banner__heading">{{ component.model.heading }}</p>{% endif -%}
-    <div class="app-prose-scope">{{ component.model.content | markdown | safe }}</div>
+    <div class="app-prose-scope">
+      {%- if component.model.heading %}{{ component.model.heading | markdown | safe }}{% endif -%}
+      {{ component.model.content | markdown | safe }}
+    </div>
   {%- endset -%}
   {{ govukNotificationBanner({
     titleHtml: component.model.titleHtml,

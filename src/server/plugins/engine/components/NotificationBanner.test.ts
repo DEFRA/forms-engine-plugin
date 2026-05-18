@@ -50,7 +50,7 @@ describe('NotificationBanner', () => {
           type: ComponentType.NotificationBanner,
           content: 'Contact us if you need help.',
           options: {
-            heading: 'There may be a delay in processing your application.'
+            heading: 'There may be a **delay** in processing your application.'
           }
         } satisfies NotificationBannerComponent
 
