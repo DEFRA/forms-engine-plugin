@@ -753,7 +753,9 @@ describe('FormModel - Joined Conditions', () => {
       const page = definition.pages[0] as PageQuestion
       page.components.push(extraPaymentComponent)
 
-      expect(() => new FormModel(definition, { basePath: 'test' })).toThrow('Invalid form definition: Only one payment question is allowed per form')
+      expect(() => new FormModel(definition, { basePath: 'test' })).toThrow(
+        'Invalid form definition: Only one payment question is allowed per form'
+      )
     })
   })
 })

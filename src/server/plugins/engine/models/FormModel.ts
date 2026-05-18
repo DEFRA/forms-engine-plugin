@@ -162,7 +162,9 @@ export class FormModel {
 
     // Assert that there is only one payment question (if any)
     if (this.moreThanOnePaymentQuestion()) {
-      throw new Error('Invalid form definition: Only one payment question is allowed per form')
+      throw new Error(
+        'Invalid form definition: Only one payment question is allowed per form'
+      )
     }
 
     this.pageDefMap = new Map(def.pages.map((page) => [page.path, page]))
@@ -559,8 +561,10 @@ export class FormModel {
       return false
     }
     const numOfPaymentFields = this.def.pages
-          .flatMap((page) => hasComponentsEvenIfNoNext(page) ? page.components : [])
-          .filter((comp) => comp.type === ComponentType.PaymentField).length
+      .flatMap((page) =>
+        hasComponentsEvenIfNoNext(page) ? page.components : []
+      )
+      .filter((comp) => comp.type === ComponentType.PaymentField).length
     return numOfPaymentFields > 1
   }
 }

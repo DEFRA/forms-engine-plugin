@@ -535,7 +535,11 @@ function submitData(
   return submit(payload)
 }
 
-export function getFormSubmissionData(context: FormContext, details: Detail[], model: FormModel) {
+export function getFormSubmissionData(
+  context: FormContext,
+  details: Detail[],
+  model: FormModel
+) {
   const items = context.relevantPages
     .map(({ href }) =>
       details.flatMap(({ items }) =>
@@ -553,7 +557,10 @@ export function getFormSubmissionData(context: FormContext, details: Detail[], m
  * Gets DetailItems for PaymentField components
  * PaymentField is excluded from summaryDetails for UI but needs to be in submission data
  */
-function getPaymentFieldItems(context: FormContext, model: FormModel): DetailItemField[] {
+function getPaymentFieldItems(
+  context: FormContext,
+  model: FormModel
+): DetailItemField[] {
   const items: DetailItemField[] = []
 
   for (const page of model.pages) {

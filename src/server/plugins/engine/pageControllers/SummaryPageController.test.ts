@@ -362,7 +362,9 @@ describe('SummaryPageController - Payment (DF-832)', () => {
         ...model.services,
         formSubmissionService: {
           ...model.services.formSubmissionService,
-          submit: formSubmissionSubmit.mockResolvedValue({ data: { reference: 'r' } })
+          submit: formSubmissionSubmit.mockResolvedValue({
+            data: { reference: 'r' }
+          })
         },
         outputService: {
           ...model.services.outputService,
@@ -388,7 +390,14 @@ describe('SummaryPageController - Payment (DF-832)', () => {
         contact: { online: { url: '/help' } }
       } as unknown as Parameters<typeof submitForm>[1]
 
-      return { request, context, viewModel, formMetadata, outputSubmit, formSubmissionSubmit }
+      return {
+        request,
+        context,
+        viewModel,
+        formMetadata,
+        outputSubmit,
+        formSubmissionSubmit
+      }
     }
 
     it('re-throws as PaymentSubmissionError when outputService fails and a payment has been captured', async () => {
@@ -431,8 +440,13 @@ describe('SummaryPageController - Payment (DF-832)', () => {
     })
 
     it('submits with correct payload', async () => {
-      const { request, context, viewModel, formMetadata, formSubmissionSubmit } =
-        buildSubmitHarness({ captured: true })
+      const {
+        request,
+        context,
+        viewModel,
+        formMetadata,
+        formSubmissionSubmit
+      } = buildSubmitHarness({ captured: true })
 
       await submitForm(
         context,
@@ -445,7 +459,11 @@ describe('SummaryPageController - Payment (DF-832)', () => {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const paymentCall = formSubmissionSubmit.mock.calls[0][0]
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      const paymentItems = paymentCall.main as unknown as { name: string, title: string, value: string }[]
+      const paymentItems = paymentCall.main as unknown as {
+        name: string
+        title: string
+        value: string
+      }[]
       expect(paymentItems).toHaveLength(4)
       expect(paymentItems[0]).toEqual({
         name: 'paymentField_paymentDescription',
@@ -454,18 +472,18 @@ describe('SummaryPageController - Payment (DF-832)', () => {
       })
       expect(paymentItems[1]).toEqual({
         name: 'paymentField_paymentAmount',
-          title: 'Payment amount',
-          value: '£99.00'
+        title: 'Payment amount',
+        value: '£99.00'
       })
       expect(paymentItems[2]).toEqual({
         name: 'paymentField_paymentReference',
-          title: 'Payment reference',
-          value: 'ref-1'
+        title: 'Payment reference',
+        value: 'ref-1'
       })
       expect(paymentItems[3]).toEqual({
         name: 'paymentField_paymentDate',
-          title: 'Payment date',
-          value: ''
+        title: 'Payment date',
+        value: ''
       })
     })
   })
