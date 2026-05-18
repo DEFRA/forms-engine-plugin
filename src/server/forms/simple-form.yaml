@@ -84,18 +84,18 @@ pages:
       - type: NotificationBanner
         title: Important
         name: notificationImportant
-        content: '<p class="govuk-body">You have 30 days to appeal this decision.</p>'
+        content: 'You have 30 days to appeal this decision.'
         options: {}
-        id: a3f8e1b2-4c56-7d89-0e12-3f456789abcd
+        id: ca6b6590-1608-49f4-82f9-9d92e38e66ea
       - type: NotificationBanner
         title: Application submitted
         name: notificationSuccess
-        content: '<p class="govuk-body">Your application for {{ applicantFirstName }} {{ applicantLastName }} has been received.</p>'
+        content: 'Your application for {{ applicantFirstName }} {{ applicantLastName }} has been received.'
         options:
           type: success
-        id: b4e9f2c3-5d67-8e90-1f23-4g567890bcde
+        id: b6960f4b-d771-4956-9c9b-17da5c603062
     next: []
-    id: c5f0a3d4-6e78-9f01-2a34-5h678901cdef
+    id: be4b4b86-514c-43bb-8cdc-f9aed6155924
   - id: 449a45f6-4541-4a46-91bd-8b8931b07b50
     title: ''
     path: '/summary'

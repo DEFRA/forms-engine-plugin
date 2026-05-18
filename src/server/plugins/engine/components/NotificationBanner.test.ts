@@ -27,7 +27,7 @@ describe('NotificationBanner', () => {
         title: 'Important',
         name: 'myComponent',
         type: ComponentType.NotificationBanner,
-        content: 'You have 30 days to appeal this decision.',
+        content: 'You have 30 days to [appeal this decision](/appeal).',
         options: {}
       } satisfies NotificationBannerComponent
 
@@ -43,7 +43,7 @@ describe('NotificationBanner', () => {
           expect.objectContaining({
             attributes: {},
             titleHtml: def.title,
-            html: def.content
+            html: 'You have 30 days to <a href="/appeal">appeal this decision</a>.<br>'
           })
         )
       })
@@ -75,7 +75,7 @@ describe('NotificationBanner', () => {
         expect(viewModel).toEqual(
           expect.objectContaining({
             titleHtml: def.title,
-            html: def.content,
+            html: 'Your application has been submitted.',
             type: 'success'
           })
         )
