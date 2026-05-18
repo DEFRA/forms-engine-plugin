@@ -27,7 +27,7 @@ describe('NotificationBanner', () => {
         title: 'Important',
         name: 'myComponent',
         type: ComponentType.NotificationBanner,
-        content: 'You have 30 days to appeal this decision.',
+        content: 'You have 30 days to [appeal this decision](/appeal).',
         options: {}
       } satisfies NotificationBannerComponent
 
