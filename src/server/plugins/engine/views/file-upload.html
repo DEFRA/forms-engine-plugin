@@ -16,7 +16,8 @@
       {{ govukButton({
         text: "Upload file",
         classes: "govuk-button--secondary upload-file-button",
-        preventDoubleClick: true
+        preventDoubleClick: true,
+        disabled: context.isForceAccess
       }) }}
     {% else %}
       {{ govukWarningText({
