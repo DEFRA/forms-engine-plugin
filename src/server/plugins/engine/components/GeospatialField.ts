@@ -96,6 +96,7 @@ export class GeospatialField extends FormComponent {
     return {
       ...viewModel,
       country: this.options.countries?.at(0),
+      geometryTypes: this.options.geometryTypes,
       value
     }
   }

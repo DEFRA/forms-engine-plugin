@@ -1,6 +1,7 @@
 import {
   createFeatureHTML,
-  createFeaturesHTML
+  createFeaturesHTML,
+  getHelpPanelHtml
 } from '~/src/client/javascripts/geospatial-map.js'
 import {
   formSubmitFactory,
@@ -286,6 +287,44 @@ describe('Maps Client JS', () => {
         expect(() => initMaps()).not.toThrow()
         expect(onMock).not.toHaveBeenCalled()
       })
+    })
+  })
+
+  describe('getHelpPanelHtml', () => {
+    it('should handle only point', () => {
+      expect(getHelpPanelHtml(true, false, false)).toBe(
+        '<p class="govuk-body-s govuk-!-margin-bottom-2">You can add points to the map.</p><ul class="govuk-list govuk-list--number govuk-body-s"><li>Search for a county, place or postcode</li><li>Use the + and - icons to zoom in and out</li><li>Give the location a name</li></ul>'
+      )
+    })
+    it('should handle only line', () => {
+      expect(getHelpPanelHtml(false, true, false)).toBe(
+        '<p class="govuk-body-s govuk-!-margin-bottom-2">You can add lines to the map.</p><ul class="govuk-list govuk-list--number govuk-body-s"><li>Search for a county, place or postcode</li><li>Use the + and - icons to zoom in and out</li><li>Double‑click, or select \'Done\', when you have finished drawing a line</li><li>Give the location a name</li></ul>'
+      )
+    })
+    it('should handle only shape', () => {
+      expect(getHelpPanelHtml(false, false, true)).toBe(
+        '<p class="govuk-body-s govuk-!-margin-bottom-2">You can add shapes to the map.</p><ul class="govuk-list govuk-list--number govuk-body-s"><li>Search for a county, place or postcode</li><li>Use the + and - icons to zoom in and out</li><li>Double‑click, or select \'Done\', when you have finished drawing a shape</li><li>Give the location a name</li></ul>'
+      )
+    })
+    it('should handle point and line', () => {
+      expect(getHelpPanelHtml(true, true, false)).toBe(
+        '<p class="govuk-body-s govuk-!-margin-bottom-2">You can add points or lines to the map.</p><ul class="govuk-list govuk-list--number govuk-body-s"><li>Search for a county, place or postcode</li><li>Use the + and - icons to zoom in and out</li><li>Double‑click, or select \'Done\', when you have finished drawing a line</li><li>Give the location a name</li></ul>'
+      )
+    })
+    it('should handle point and shape', () => {
+      expect(getHelpPanelHtml(true, false, true)).toBe(
+        '<p class="govuk-body-s govuk-!-margin-bottom-2">You can add points or shapes to the map.</p><ul class="govuk-list govuk-list--number govuk-body-s"><li>Search for a county, place or postcode</li><li>Use the + and - icons to zoom in and out</li><li>Double‑click, or select \'Done\', when you have finished drawing a shape</li><li>Give the location a name</li></ul>'
+      )
+    })
+    it('should handle line and shape', () => {
+      expect(getHelpPanelHtml(false, true, true)).toBe(
+        '<p class="govuk-body-s govuk-!-margin-bottom-2">You can add lines or shapes to the map.</p><ul class="govuk-list govuk-list--number govuk-body-s"><li>Search for a county, place or postcode</li><li>Use the + and - icons to zoom in and out</li><li>Double‑click, or select \'Done\', when you have finished drawing a line or shape</li><li>Give the location a name</li></ul>'
+      )
+    })
+    it('should handle point, line and shape', () => {
+      expect(getHelpPanelHtml(true, true, true)).toBe(
+        '<p class="govuk-body-s govuk-!-margin-bottom-2">You can add points, lines or shapes to the map.</p><ul class="govuk-list govuk-list--number govuk-body-s"><li>Search for a county, place or postcode</li><li>Use the + and - icons to zoom in and out</li><li>Double‑click, or select \'Done\', when you have finished drawing a line or shape</li><li>Give the location a name</li></ul>'
+      )
     })
   })
 
