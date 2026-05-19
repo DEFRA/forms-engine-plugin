@@ -31,3 +31,15 @@ Automatically copy query string parameter values into hidden fields on first loa
 ## [Save and Exit](./code-based/save-and-exit)
 
 Show a secondary "Save and exit" button on question pages and handle the persisted session using a route handler you supply, enabling users to leave and resume their journey later.
+
+## [Template Extensions](./code-based/template-extensions)
+
+Add custom globals and filters to the Nunjucks template environment, making them available across all form page templates and LiquidJS page templates.
+
+## [Form Definition Formats](./code-based/form-definition-formats)
+
+Options for loading form definitions — file-based loading with the built-in `FileFormService`, or a custom `formsService` implementation for API and database sources.
+
+## [Session Cache](./code-based/session-cache)
+
+Configuring the server-side session store for production: named catbox cache or a custom `CacheService` subclass.

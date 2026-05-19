@@ -147,79 +147,17 @@ await server.register({
 })
 ```
 
-### Custom globals
+### Custom globals and filters
 
-Use the `globals` plugin option to provide custom functions that can be called from within Nunjucks templates.
+The `globals` and `filters` options extend the Nunjucks template environment with custom functions and transform filters, available in all form page templates.
 
-Unlike filters which transform values, globals are functions that can be called directly in templates.
-
-Example:
-
-```js
-await server.register({
-  plugin,
-  options: {
-    globals: {
-      getCurrentYear: () => new Date().getFullYear(),
-      formatCurrency: (amount) => new Intl.NumberFormat('en-GB', {
-        style: 'currency',
-        currency: 'GBP'
-      }).format(amount)
-    }
-  }
-})
-```
-
-In your templates:
-
-```html
-<p>Copyright {{ getCurrentYear() }}</p>
-<p>Total: {{ formatCurrency(123.45) }}</p>
-```
-
-### Custom filters
-
-Use the `filter` plugin option to provide custom template filters.
-Filters are available in both [nunjucks](https://mozilla.github.io/nunjucks/templating.html#filters) and [liquid](https://liquidjs.com/filters/overview.html) templates.
-
-```js
-const formatter = new Intl.NumberFormat('en-GB')
-
-await server.register({
-  plugin,
-  options: {
-    filters: {
-      money: value => formatter.format(value),
-      upper: value => typeof value === 'string' ? value.toUpperCase() : value
-    }
-  }
-})
-```
+See [Template extensions](./features/code-based/template-extensions) for registration examples and the list of built-in filters.
 
 ### Custom cache
 
-The plugin will use the [default server cache](https://hapi.dev/api/?v=21.4.0#-serveroptionscache) to store form answers on the server.
-This is just an in-memory cache which is fine for development.
+The default in-memory cache is unsuitable for production. Pass a named hapi catbox cache string for most deployments, or a subclassed `CacheService` instance when you need to customise any part of the state storage lifecycle.
 
-In production you should create a custom cache one of the available `@hapi/catbox` adapters.
-
-E.g. [Redis](https://github.com/hapijs/catbox-redis)
-
-```js
-import { Engine as CatboxRedis } from '@hapi/catbox-redis'
-
-const server = new Hapi.Server({
-  cache : [
-    {
-      name: 'my_cache',
-      provider: {
-        constructor: CatboxRedis,
-        options: {}
-      }
-    }
-  ]
-})
-```
+See [Session cache](./features/code-based/session-cache) for setup instructions.
 
 ### onRequest
 
@@ -256,36 +194,9 @@ await server.register({
 
 ### saveAndExit
 
-The `saveAndExit` plugin option enables custom session handling to enable "Save and Exit" functionality. It is an optional route handler function that is called with the hapi request and response toolkit in addition to the last argument which is the [form context](./request-lifecycle) of the current page from which the save and exit button was pressed:
+The `saveAndExit` option adds a secondary button to question pages that lets users save their progress and return later. When clicked, the plugin calls your handler after validating the current page.
 
-```ts
-export type SaveAndExitHandler = (
-  request: FormRequestPayload,
-  h: FormResponseToolkit,
-  context: FormContext
-) => ResponseObject
-```
-
-```js
-await server.register({
-  plugin,
-  options: {
-    saveAndExit: (
-      request: FormRequestPayload,
-      h: FormResponseToolkit,
-      context: FormContext
-    ) => {
-      const { params } = request
-      const { slug } = params
-
-      // Redirect user to custom page to handle saving
-      return h.redirect(`/custom-magic-link-save-and-exit/${slug}`)
-    }
-  }
-})
-```
-
-For detailed documentation and examples, see [Save and Exit](./features/code-based/save-and-exit).
+See [Save and Exit](./features/code-based/save-and-exit) for the full guide including the handler signature and examples.
 
 ### Geospatial map
 

@@ -48,7 +48,7 @@ Additional npm dependencies that you will need are:
 
 ## Step 2: Decide where you want to store your forms and in what format
 
-See [form definition formats](./form-definition-formats) to understand your options. For simple use-cases, we recommend you use our disk-based form loader using YAML form definitions.
+See [form definition formats](./features/code-based/form-definition-formats) to understand your options. For simple use-cases, we recommend you use our disk-based form loader using YAML form definitions.
 
 This will influence the `services.formsService` you provide when registering the plugin (see step 3 below).
 
@@ -319,139 +319,14 @@ Lists are used to populated selection components like Radios and Selects
 
 #### Conditions
 
-Conditions bring logic to the form, when assigned to a page they make the page "conditional" and the page is only visited if the condition evaluates to "truthy"
+Conditions make pages conditional — assign a condition to a page and the engine skips it if the condition does not pass. Pages are always traversed in the order they appear in the `pages` array; conditions cause individual pages to be bypassed, not re-ordered.
 
-```jsonc
-{
-  // Each condition is identified by an UUID
-  "id": "0e7ae320-c876-40c2-8803-7848cc49689b",
+See the [Conditions guide](./features/conditions) for full documentation, including all supported operators, condition types, and worked examples.
 
-  // Condition displayName should be unique
-  "displayName": "faveColourIsRed",
+## What to explore next
 
-  "items": [
-    {
-      // Each condition item is identified by an UUID
-      "id": "f03a6735-0f7c-4dc9-b65c-7c42fcd0d189",
-
-      // `componentId` is a reference to the component
-      "componentId": "fa67e20d-a89b-4e8a-85ec-8a63923b7137",
-
-      // Condition `operator` is a comparison operator ('is', 'is not', 'is longer than', 'contains', 'has length' etc.)
-      "operator": "is",
-
-      // Conditions item values come in a few different forms:
-
-      // 1. `ListItemRef` - use these when the condition references a question (componentId) that is a list selection
-      // The `value` of a `ListitemRef` should be an object with a listId and itemId keys pointing to the list and list item
-      "type": "ListItemRef",
-      "value": {
-        "listId": "23d5309e-1aed-427d-b8ee-87e14f673e7f", // References the "Colours" list
-        "itemId": "bedd5984-fa95-48f9-87e2-1089d66574b2"  // References the "Red" item in the "Colours" list
-      },
-
-      // 2. `RelativeDate` - relative date for date-based conditions
-      // The `value` of a `RelativeDate` should be an object with a listId and itemId keys pointing to the list and list item
-      "type": "RelativeDate",
-      "value": {
-        "period": 1, // Numeric amount of the time period
-        "unit": "weeks", // Time unit (days, weeks, months, years),
-        "direction": "future" // Temporal direction (either "past" or "future"')
-      },
-
-      // 3. Scalar values can be `StringValue`, `NumberValue`, `BooleanValue` or `DateValue`
-      // and are used to check absolute values of strings (TextField), numbers (NumberField), booleans (YesNoField) or dates (DatePartsField)
-      // They are also used when the `operator` implies a numeric parameter e.g. 'has length' see below for examples.
-      // The `value` of a scalar value condition should be a literal of the same type e.g.
-      "type": "StringValue",
-      "value": "Enrique Chase"
-    }
-  ],
-
-  // When the condition has 2 or more items, a coordinator is also required
-  "coordinator": "and", // Supports both "and" and "or"
-}
-```
-
-#### Condition examples
-
-```jsonc
-{
-  "name": "Example form asking what a users favourite animal are, with an condition based on their answer",
-  "pages": [
-    {
-      "id": "a86ea4ba-ae3b-4324-9acd-3a3f347cb0ec",
-      "title": "What are your favourite animals",
-      "path": "/favourite-animal",
-      "components": [
-        {
-          // ComponentId
-          "id": "f0f67bf7-cdbb-4247-9f3c-8cd919183968",
-          "type": "CheckboxesField",
-          "title": "What are your favourite animals",
-          "name": "nUaCCW",
-          "shortDescription": "Favourite animals",
-          "hint": "",
-          "options": {
-            "required": true
-          },
-          "schema": {},
-
-          // References the "Animals" list
-          "list": "0e047f83-dbb6-4c82-b709-f9dbaddf8644"
-        }
-      ],
-      "next": []
-    }
-  ],
-  "conditions": [
-    {
-      "items": [
-        {
-          // This condition checks if the user chose "Monkey" as one of their favourite animals
-          "id": "86e63584-12a8-4f2b-b51b-49765518b811",
-          "componentId": "f0f67bf7-cdbb-4247-9f3c-8cd919183968",
-          "operator": "contains",
-          "type": "ListItemRef",
-          "value": {
-            // Reference to the "Animals" list
-            "listId": "0e047f83-dbb6-4c82-b709-f9dbaddf8644",
-            // Reference to "Monkey" in the "Animals" list
-            "itemId": "0c546ae1-897e-48d0-9388-b0902fe23baf"
-          }
-        }
-      ],
-      "displayName": "FaveAnimalIsMonkey",
-      "id": "8a3f6bb2-c305-410a-a037-7375be839105"
-    }
-  ],
-  "sections": [],
-  "lists": [
-    {
-      "id": "0e047f83-dbb6-4c82-b709-f9dbaddf8644",
-      "name": "sdewRT",
-      "title": "Animals",
-      "type": "string",
-      "items": [
-        {
-          "id": "fb3519b2-c6c7-40b6-8e03-2fb0db6d4f32",
-          "text": "Horse",
-          "value": "horse"
-        },
-        {
-          "id": "0c546ae1-897e-48d0-9388-b0902fe23baf",
-          "text": "Monkey",
-          "value": "monkey"
-        },
-        {
-          "id": "39f6fa65-1781-4569-9ba3-d8d13931f036",
-          "text": "Giraffe",
-          "value": "giraffe"
-        }
-      ]
-    }
-  ],
-  "engine": "V2",
-  "schema": 2
-}
-```
+- [Components](./features/components) — the full library of built-in form components available in your form definitions
+- [Page Types](./features/pages) — built-in page controllers for question pages, file upload, repeating sections, summary, and confirmation
+- [Plugin Options](./plugin-options) — complete reference for all plugin registration options
+- [Conditions](./features/conditions) — make pages conditional based on previous answers, with support for text, date, boolean, and number comparisons
+- [Configuration-based Features](./features/configuration-based) — drive dynamic behaviour through form definitions, with page events and LiquidJS templates

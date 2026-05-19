@@ -80,9 +80,14 @@ const config = {
           sidebar: [
             { text: 'Components', href: '/features/components' },
             { text: 'Page Types', href: '/features/pages' },
+            { text: 'Conditions', href: '/features/conditions' },
             { text: 'Page Elements', href: '/features/page-elements' },
             {
-              text: 'Advanced',
+              text: 'Form Definition Options',
+              href: '/features/form-definition-options'
+            },
+            {
+              text: 'Extending the plugin',
               href: '/features',
               items: [
                 {
@@ -101,14 +106,8 @@ const config = {
         { text: 'Schema', href: '/schemas', sidebar: 'auto' },
         {
           text: 'Reference',
-          href: '/request-lifecycle',
-          sidebar: [
-            { text: 'Request Lifecycle', href: '/request-lifecycle' },
-            {
-              text: 'Form Definition Formats',
-              href: '/form-definition-formats'
-            }
-          ]
+          href: '/reference',
+          sidebar: [{ text: 'Request Lifecycle', href: '/request-lifecycle' }]
         }
       ],
 

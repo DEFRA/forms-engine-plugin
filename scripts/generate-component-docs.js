@@ -733,6 +733,7 @@ export function generateComponentMd(
   const { options = [], schema = [], props = [] } = interfaceData
 
   const links = metadata.componentLinks?.[componentName] ?? []
+  const secrets = metadata.componentSecrets?.[componentName] ?? []
 
   // leading '' ensures a blank line between frontmatter and the import
   // Level 1 components require client-side JavaScript to render and can't be statically previewed
@@ -789,7 +790,7 @@ export function generateComponentMd(
     for (const prop of props) {
       const desc = metadata.properties[prop.name] ?? ''
       lines.push(
-        `| \`${prop.name}\` | \`${prop.type}\` | ${prop.optional ? 'No' : 'Yes'} | ${desc} |`
+        `| \`${prop.name}\` | \`${prop.type.replace(/\|/g, '\\|')}\` | ${prop.optional ? 'No' : 'Yes'} | ${desc} |`
       )
     }
     lines.push(``)
@@ -802,7 +803,7 @@ export function generateComponentMd(
     for (const prop of options) {
       const desc = metadata.properties[prop.name] ?? ''
       lines.push(
-        `| \`${prop.name}\` | \`${prop.type}\` | ${prop.optional ? 'No' : 'Yes'} | ${desc} |`
+        `| \`${prop.name}\` | \`${prop.type.replace(/\|/g, '\\|')}\` | ${prop.optional ? 'No' : 'Yes'} | ${desc} |`
       )
     }
     lines.push(``)
@@ -814,7 +815,23 @@ export function generateComponentMd(
     lines.push(`|----------|------|-------------|`)
     for (const prop of schema) {
       const desc = metadata.properties[prop.name] ?? ''
-      lines.push(`| \`${prop.name}\` | \`${prop.type}\` | ${desc} |`)
+      lines.push(
+        `| \`${prop.name}\` | \`${prop.type.replace(/\|/g, '\\|')}\` | ${desc} |`
+      )
+    }
+    lines.push(``)
+  }
+
+  if (secrets.length > 0) {
+    lines.push(`## Required secrets`, ``)
+    lines.push(
+      `This component retrieves secrets at runtime via [\`getFormSecret\`](../code-based/custom-services.md#formsservice) on your \`formsService\`. Implement it to return the correct value from your secrets store — do not use environment variables or plugin options for per-form secrets.`,
+      ``
+    )
+    lines.push(`| Secret name | Description |`)
+    lines.push(`|---|---|`)
+    for (const secret of secrets) {
+      lines.push(`| \`${secret.name}\` | ${secret.description} |`)
     }
     lines.push(``)
   }
@@ -977,7 +994,7 @@ export function generatePageMd(
     for (const prop of uniqueProps) {
       const desc = metadata.pageProperties?.[prop.name] ?? ''
       lines.push(
-        `| \`${prop.name}\` | \`${prop.type}\` | ${prop.optional ? 'No' : 'Yes'} | ${desc} |`
+        `| \`${prop.name}\` | \`${prop.type.replace(/\|/g, '\\|')}\` | ${prop.optional ? 'No' : 'Yes'} | ${desc} |`
       )
     }
     lines.push(``)
