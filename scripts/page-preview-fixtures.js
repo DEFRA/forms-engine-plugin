@@ -258,6 +258,22 @@ export const pageFixtures = {
     ]
   },
 
+  StatusPageController: {
+    // Stub context — StatusPageController builds its view model in the route
+    // handler (not getViewModel), so we construct it manually here.
+    context: /** @type {PageViewModel} */ (
+      /** @type {unknown} */ ({
+        page: { viewName: 'confirmation' },
+        pageTitle: 'Application received',
+        submissionGuidance:
+          "We'll review your application and contact you within 10 working days.",
+        showReferenceNumber: true,
+        referenceNumber: 'R3K-2WN-P5M',
+        feedbackLink: '/form/feedback?formId=example'
+      })
+    )
+  },
+
   SummaryPageController: {
     context: pageViewContext({
       pages: [

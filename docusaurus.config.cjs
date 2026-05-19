@@ -107,6 +107,10 @@ const config = {
             {
               text: 'Form Definition Formats',
               href: '/form-definition-formats'
+            },
+            {
+              text: 'Form Definition Options',
+              href: '/form-definition-options'
             }
           ]
         }

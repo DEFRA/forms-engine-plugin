@@ -53,7 +53,10 @@ export function renderComponent(fixture) {
  * @param {string} [wrapperClass]
  * @returns {string}
  */
-export function buildPartialMdx(renders, wrapperClass = 'component-preview') {
+export function buildPartialMdx(
+  renders,
+  wrapperClass = 'component-preview app-no-prose'
+) {
   return renders
     .map(({ label, html }) => {
       const escaped = html.replace(/`/g, '\\`').replace(/\$\{/g, '\\${')

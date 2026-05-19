@@ -52,7 +52,10 @@ export function writePagePreviewPartial(previewsDir, slug, fixture) {
 
   fs.writeFileSync(
     path.join(previewsDir, `${slug}.mdx`),
-    buildPartialMdx(renders, 'component-preview component-preview--page')
+    buildPartialMdx(
+      renders,
+      'component-preview component-preview--page app-no-prose'
+    )
   )
 }
 

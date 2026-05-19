@@ -198,28 +198,60 @@ await server.register({
 
 ### Custom cache
 
-The plugin will use the [default server cache](https://hapi.dev/api/?v=21.4.0#-serveroptionscache) to store form answers on the server.
-This is just an in-memory cache which is fine for development.
+By default the plugin uses the [hapi default in-memory cache](https://hapi.dev/api/?v=21.4.0#-serveroptionscache), which is fine for development but unsuitable for production (sessions are lost on restart and not shared across instances).
 
-In production you should create a custom cache one of the available `@hapi/catbox` adapters.
+There are two ways to configure a production cache.
 
-E.g. [Redis](https://github.com/hapijs/catbox-redis)
+#### Option 1 — named cache (recommended)
+
+Register a named cache on the hapi server using any `@hapi/catbox` adapter, then pass the cache name as the `cache` plugin option:
 
 ```js
 import { Engine as CatboxRedis } from '@hapi/catbox-redis'
 
 const server = new Hapi.Server({
-  cache : [
+  cache: [
     {
-      name: 'my_cache',
+      name: 'session',
       provider: {
         constructor: CatboxRedis,
-        options: {}
+        options: {
+          host: process.env.REDIS_HOST,
+          port: 6379
+        }
       }
     }
   ]
 })
+
+await server.register({
+  plugin,
+  options: {
+    cache: 'session',
+    // ...
+  }
+})
 ```
+
+#### Option 2 — CacheService instance
+
+Import the `CacheService` class and pass an instance directly. Use this when you need direct control over the cache segment or lifecycle:
+
+```js
+import { CacheService } from '@defra/forms-engine-plugin/cache-service.js'
+
+const cacheService = new CacheService({ server, cacheName: 'session' })
+
+await server.register({
+  plugin,
+  options: {
+    cache: cacheService,
+    // ...
+  }
+})
+```
+
+`CacheService` takes `{ server, cacheName }` where `cacheName` must match a cache registered on the hapi server. Omitting `cacheName` falls back to the default in-memory cache with a warning.
 
 ### onRequest
 
@@ -256,36 +288,9 @@ await server.register({
 
 ### saveAndExit
 
-The `saveAndExit` plugin option enables custom session handling to enable "Save and Exit" functionality. It is an optional route handler function that is called with the hapi request and response toolkit in addition to the last argument which is the [form context](./request-lifecycle) of the current page from which the save and exit button was pressed:
+The `saveAndExit` option adds a secondary button to question pages that lets users save their progress and return later. When clicked, the plugin calls your handler after validating the current page.
 
-```ts
-export type SaveAndExitHandler = (
-  request: FormRequestPayload,
-  h: FormResponseToolkit,
-  context: FormContext
-) => ResponseObject
-```
-
-```js
-await server.register({
-  plugin,
-  options: {
-    saveAndExit: (
-      request: FormRequestPayload,
-      h: FormResponseToolkit,
-      context: FormContext
-    ) => {
-      const { params } = request
-      const { slug } = params
-
-      // Redirect user to custom page to handle saving
-      return h.redirect(`/custom-magic-link-save-and-exit/${slug}`)
-    }
-  }
-})
-```
-
-For detailed documentation and examples, see [Save and Exit](./features/code-based/save-and-exit).
+See [Save and Exit](./features/code-based/save-and-exit) for the full guide including the handler signature and examples.
 
 ### Geospatial map
 

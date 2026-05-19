@@ -789,7 +789,7 @@ export function generateComponentMd(
     for (const prop of props) {
       const desc = metadata.properties[prop.name] ?? ''
       lines.push(
-        `| \`${prop.name}\` | \`${prop.type}\` | ${prop.optional ? 'No' : 'Yes'} | ${desc} |`
+        `| \`${prop.name}\` | \`${prop.type.replace(/\|/g, '\\|')}\` | ${prop.optional ? 'No' : 'Yes'} | ${desc} |`
       )
     }
     lines.push(``)
@@ -802,7 +802,7 @@ export function generateComponentMd(
     for (const prop of options) {
       const desc = metadata.properties[prop.name] ?? ''
       lines.push(
-        `| \`${prop.name}\` | \`${prop.type}\` | ${prop.optional ? 'No' : 'Yes'} | ${desc} |`
+        `| \`${prop.name}\` | \`${prop.type.replace(/\|/g, '\\|')}\` | ${prop.optional ? 'No' : 'Yes'} | ${desc} |`
       )
     }
     lines.push(``)
@@ -814,7 +814,9 @@ export function generateComponentMd(
     lines.push(`|----------|------|-------------|`)
     for (const prop of schema) {
       const desc = metadata.properties[prop.name] ?? ''
-      lines.push(`| \`${prop.name}\` | \`${prop.type}\` | ${desc} |`)
+      lines.push(
+        `| \`${prop.name}\` | \`${prop.type.replace(/\|/g, '\\|')}\` | ${desc} |`
+      )
     }
     lines.push(``)
   }
@@ -977,7 +979,7 @@ export function generatePageMd(
     for (const prop of uniqueProps) {
       const desc = metadata.pageProperties?.[prop.name] ?? ''
       lines.push(
-        `| \`${prop.name}\` | \`${prop.type}\` | ${prop.optional ? 'No' : 'Yes'} | ${desc} |`
+        `| \`${prop.name}\` | \`${prop.type.replace(/\|/g, '\\|')}\` | ${prop.optional ? 'No' : 'Yes'} | ${desc} |`
       )
     }
     lines.push(``)

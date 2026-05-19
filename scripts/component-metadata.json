@@ -34,7 +34,8 @@
     "TerminalPageController": "A dead-end page that does not route the user to another page. Use this for outcomes where the journey ends without proceeding to the summary — for example, an ineligibility screen.",
     "RepeatPageController": "Allows the user to add multiple sets of answers to the same group of questions. Answers are stored as an array under the key defined by `repeat.options.name`.",
     "FileUploadPageController": "A question page that handles file upload via the CDP file upload service. Must contain a `FileUploadField` component.",
-    "SummaryPageController": "Displays a check-your-answers summary of all form responses before submission. Must use the path `/summary`."
+    "SummaryPageController": "Displays a check-your-answers summary of all form responses before submission. Must use the path `/summary`.",
+    "StatusPageController": "The confirmation page shown after a successful form submission. Renders a GOV.UK panel with the page title and, optionally, the reference number. Automatically added to every form at `/status` — only define it explicitly to customise the title."
   },
   "properties": {
     "required": "Whether the field must be filled in. Defaults to `true`.",
@@ -79,6 +80,11 @@
     "content": "HTML or Markdown content to display."
   },
   "pageLinks": {
+    "StatusPageController": [
+      "The status page is automatically injected into every form at `/status` if one is not already present in the form definition. You only need to add it explicitly to customise the title.",
+      "The submission guidance shown under \"What happens next\" comes from `formMetadata.submissionGuidance`, not the form definition itself. Set it on the metadata object returned by your `formsService`. The value is rendered as Markdown (headings level 3 and below).",
+      "Set `options.showReferenceNumber` to `true` in the form definition to display the auto-generated reference number inside the confirmation panel. See [Form definition options](../../form-definition-options.md) for details."
+    ],
     "FileUploadPageController": [
       "This controller manages the CDP file upload lifecycle: it initiates an upload session with `cdp-uploader` on each page load, sets the CDP upload URL as the form action so the browser posts files directly to CDP, polls CDP for the upload status on return, and populates session state with completed `FileState` entries. It is tightly coupled to the CDP file upload service and is the provided implementation for Defra teams. See the [File Upload guide](../code-based/file-upload.md) for setup instructions, including the required `formSubmissionService` interface."
     ]
