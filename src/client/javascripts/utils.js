@@ -18,5 +18,6 @@ export function formatDelimtedList(items, separator, lastSpearator) {
   }
 
   const last = items.pop()
-  return `${items.join(`${separator} `)} ${lastSpearator} ${last}`
+  const separatorAndSpace = `${separator} `
+  return `${items.join(separatorAndSpace)} ${lastSpearator} ${last}`
 }

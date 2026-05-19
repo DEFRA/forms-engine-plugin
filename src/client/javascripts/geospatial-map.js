@@ -67,10 +67,6 @@ function getAllowedTypesPhrase(allowPoint, allowLine, allowShape) {
     items.push('shapes')
   }
 
-  if (items.length === 0) {
-    return ''
-  }
-
   return formatDelimtedList(items, ',', 'or')
 }
 
