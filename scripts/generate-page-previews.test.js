@@ -130,7 +130,7 @@ describe('writePagePreviewPartial', () => {
     })
     expect(mockBuildPartialMdx).toHaveBeenCalledWith(
       [{ html: '<div>page html</div>' }],
-      'component-preview component-preview--page'
+      'component-preview component-preview--page app-no-prose'
     )
   })
 
@@ -158,7 +158,7 @@ describe('writePagePreviewPartial', () => {
         { label: 'No files uploaded', html: '<div>page html</div>' },
         { label: 'With files uploaded', html: '<div>page html</div>' }
       ],
-      'component-preview component-preview--page'
+      'component-preview component-preview--page app-no-prose'
     )
   })
 

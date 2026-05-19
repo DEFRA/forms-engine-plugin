@@ -91,7 +91,7 @@ describe('component-preview-fixtures', () => {
 describe('buildPartialMdx', () => {
   it('wraps a single render in a component-preview div', () => {
     const result = buildPartialMdx([{ html: '<input class="govuk-input">' }])
-    expect(result).toContain('className="component-preview"')
+    expect(result).toContain('className="component-preview app-no-prose"')
     expect(result).toContain('dangerouslySetInnerHTML')
     expect(result).toContain('govuk-input')
   })
@@ -103,7 +103,7 @@ describe('buildPartialMdx', () => {
     ])
     expect(result).toContain('Before payment')
     expect(result).toContain('After payment')
-    const matches = result.match(/className="component-preview"/g)
+    const matches = result.match(/className="component-preview app-no-prose"/g)
     expect(matches).toHaveLength(2)
   })
 
@@ -199,7 +199,7 @@ describe('writePreviewPartial', () => {
       fixtures.PaymentField
     )
     const written = writeFileSync.mock.calls[0][1]
-    const matches = written.match(/className="component-preview"/g)
+    const matches = written.match(/className="component-preview app-no-prose"/g)
     expect(matches).toHaveLength(2)
   })
 
