@@ -15,7 +15,9 @@ interface FormsService {
 }
 ```
 
-`getFormMetadata` is called on every request and should be fast. `getFormDefinition` is only called when the metadata signals the definition has changed, so it can be slower. `getFormMetadataById` is called by the status page to retrieve the submitted form's name by its ID — this allows the confirmation panel to display the correct form name even when the current URL belongs to a different form (for example, a shared feedback form). `getFormSecret` is used by components that need secrets (such as API keys) stored outside the form definition.
+`getFormMetadata` is called on every request and should be fast. `getFormDefinition` is only called when the metadata signals the definition has changed, so it can be slower. `getFormMetadataById` is called by the status page to retrieve the submitted form's name by its ID — this allows the confirmation panel to display the correct form name even when the current URL belongs to a different form (for example, a shared feedback form).
+
+`getFormSecret` retrieves a secret that belongs to a specific form — for example, a payment API key scoped to that form. This is distinct from global secrets such as `ordnanceSurveyApiKey` and `ordnanceSurveyApiSecret`, which are passed once at plugin registration and apply across all forms. If your forms do not use any components that require per-form secrets, this method will never be called and you can safely return `undefined` (or leave it unimplemented). See the documentation for each component to find out whether it requires secrets and what names it requests.
 
 ### Loading forms from files
 

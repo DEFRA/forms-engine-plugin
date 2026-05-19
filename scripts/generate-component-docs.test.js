@@ -47,7 +47,7 @@ jest.mock('fs', () => ({
   readdirSync: jest.fn(),
   readFileSync: jest.fn().mockImplementation((filePath) => {
     if (String(filePath ?? '').includes('component-metadata.json')) {
-      return '{"components":{"TextField":"Single-line text input."},"pages":{"PageController":"The default page type.","RepeatPageController":"Allows repeated answers.","SummaryPageController":"Summary page type."},"properties":{"rows":"Number of rows for the textarea."},"pageProperties":{"repeat.options.name":"Identifier for the repeatable section."}}'
+      return '{"components":{"TextField":"Single-line text input.","PaymentField":"Redirects the user to GOV.UK Pay."},"pages":{"PageController":"The default page type.","RepeatPageController":"Allows repeated answers.","SummaryPageController":"Summary page type."},"properties":{"rows":"Number of rows for the textarea."},"pageProperties":{"repeat.options.name":"Identifier for the repeatable section."},"componentSecrets":{"PaymentField":[{"name":"payment-test-api-key","description":"GOV.UK Pay API key for test mode."},{"name":"payment-live-api-key","description":"GOV.UK Pay API key for live mode."}]}}'
     }
     return ''
   }),
@@ -433,6 +433,24 @@ describe('Component Documentation Generator', () => {
       const result = generateComponentMd('TextField', interfaceData, 1)
       expect(result).not.toContain('import Preview')
       expect(result).not.toContain('## Preview')
+    })
+  })
+
+  describe('generateComponentMd with componentSecrets', () => {
+    const interfaceData = { options: [], schema: [], props: [] }
+
+    it('renders a Required secrets section with blurb and table when secrets are defined', () => {
+      const result = generateComponentMd('PaymentField', interfaceData, 1)
+      expect(result).toContain('## Required secrets')
+      expect(result).toContain('`getFormSecret`')
+      expect(result).toContain('`payment-test-api-key`')
+      expect(result).toContain('`payment-live-api-key`')
+    })
+
+    it('omits Required secrets section for components with no secrets', () => {
+      const result = generateComponentMd('TextField', interfaceData, 1)
+      expect(result).not.toContain('## Required secrets')
+      expect(result).not.toContain('getFormSecret')
     })
   })
 

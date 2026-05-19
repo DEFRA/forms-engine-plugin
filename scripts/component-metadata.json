@@ -115,6 +115,18 @@
       "This component renders an inline Ordnance Survey map that lets users click a location to auto-populate the coordinate inputs across multiple coordinate formats. The map requires the `ordnanceSurveyApiKey` and `ordnanceSurveyApiSecret` [plugin options](../../plugin-options.md#geospatial-map) to be set — without them the component falls back to plain text inputs."
     ]
   },
+  "componentSecrets": {
+    "PaymentField": [
+      {
+        "name": "payment-test-api-key",
+        "description": "GOV.UK Pay API key used when the form is in test or draft mode."
+      },
+      {
+        "name": "payment-live-api-key",
+        "description": "GOV.UK Pay API key used when the form is in live mode."
+      }
+    ]
+  },
   "pageProperties": {
     "components": "Array of component definitions rendered on the page.",
     "condition": "Name of a condition that controls whether this page is shown.",
