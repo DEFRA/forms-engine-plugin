@@ -126,7 +126,7 @@ Here is an example of a Liquid template that renders a page title, displays a li
 </p>
 ```
 
-When using these kind of multi-line HTML snippets, you would benefit from our [YAML-based form definitions](../../form-definition-formats) that provide a better developer experience compared to JSON files.
+When using these kind of multi-line HTML snippets, you would benefit from our [YAML-based form definitions](../code-based/form-definition-formats) that provide a better developer experience compared to JSON files.
 
 If you choose to stick with JSON form definitions, the above template should be minified and inserted into the content field in the form definition example. E.g. quotes should be either replaced with `'` or escaped `\"`. Your IDE should do this automatically when pasting the into a JSON string, or a tool like https://www.freeformatter.com/json-escape.html can do it manually.
 
@@ -149,8 +149,8 @@ Full example of the minified and escaped component, which can be appended to [th
 
 ## Providing your own filters
 
-Whilst forms-engine-plugin offers some out of the box filters, teams using the plugin have the capability to provide their own. See [PLUGIN_OPTIONS.md](/plugin-options) for more information.
+Whilst forms-engine-plugin offers some out of the box filters, teams using the plugin have the capability to provide their own. See [plugin options](/plugin-options) for more information.
 
 ## Using page templates with data from your own API
 
-Page templates have access to `{{ context.data }}`, which is an attribute made available when a page event is triggered. It represents the entire response body from your API. To learn more about this, [see our guidance on page events](/forms-engine-plugin/features/configuration-based/PAGE_EVENTS).
+Page templates have access to `{{ context.data }}`, which is an attribute made available when a page event is triggered. It represents the entire response body from your API. To learn more about this, [see our guidance on page events](./page-events).

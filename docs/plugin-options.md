@@ -147,111 +147,17 @@ await server.register({
 })
 ```
 
-### Custom globals
+### Custom globals and filters
 
-Use the `globals` plugin option to provide custom functions that can be called from within Nunjucks templates.
+The `globals` and `filters` options extend the Nunjucks template environment with custom functions and transform filters, available in all form page templates.
 
-Unlike filters which transform values, globals are functions that can be called directly in templates.
-
-Example:
-
-```js
-await server.register({
-  plugin,
-  options: {
-    globals: {
-      getCurrentYear: () => new Date().getFullYear(),
-      formatCurrency: (amount) => new Intl.NumberFormat('en-GB', {
-        style: 'currency',
-        currency: 'GBP'
-      }).format(amount)
-    }
-  }
-})
-```
-
-In your templates:
-
-```html
-<p>Copyright {{ getCurrentYear() }}</p>
-<p>Total: {{ formatCurrency(123.45) }}</p>
-```
-
-### Custom filters
-
-Use the `filter` plugin option to provide custom template filters.
-Filters are available in both [nunjucks](https://mozilla.github.io/nunjucks/templating.html#filters) and [liquid](https://liquidjs.com/filters/overview.html) templates.
-
-```js
-const formatter = new Intl.NumberFormat('en-GB')
-
-await server.register({
-  plugin,
-  options: {
-    filters: {
-      money: value => formatter.format(value),
-      upper: value => typeof value === 'string' ? value.toUpperCase() : value
-    }
-  }
-})
-```
+See [Template extensions](./features/code-based/template-extensions) for registration examples and the list of built-in filters.
 
 ### Custom cache
 
-By default the plugin uses the [hapi default in-memory cache](https://hapi.dev/api/?v=21.4.0#-serveroptionscache), which is fine for development but unsuitable for production (sessions are lost on restart and not shared across instances).
+The default in-memory cache is unsuitable for production. Pass a named hapi catbox cache string for most deployments, or a subclassed `CacheService` instance when you need to customise any part of the state storage lifecycle.
 
-There are two ways to configure a production cache.
-
-#### Option 1 — named cache (recommended)
-
-Register a named cache on the hapi server using any `@hapi/catbox` adapter, then pass the cache name as the `cache` plugin option:
-
-```js
-import { Engine as CatboxRedis } from '@hapi/catbox-redis'
-
-const server = new Hapi.Server({
-  cache: [
-    {
-      name: 'session',
-      provider: {
-        constructor: CatboxRedis,
-        options: {
-          host: process.env.REDIS_HOST,
-          port: 6379
-        }
-      }
-    }
-  ]
-})
-
-await server.register({
-  plugin,
-  options: {
-    cache: 'session',
-    // ...
-  }
-})
-```
-
-#### Option 2 — CacheService instance
-
-Import the `CacheService` class and pass an instance directly. Use this when you need direct control over the cache segment or lifecycle:
-
-```js
-import { CacheService } from '@defra/forms-engine-plugin/cache-service.js'
-
-const cacheService = new CacheService({ server, cacheName: 'session' })
-
-await server.register({
-  plugin,
-  options: {
-    cache: cacheService,
-    // ...
-  }
-})
-```
-
-`CacheService` takes `{ server, cacheName }` where `cacheName` must match a cache registered on the hapi server. Omitting `cacheName` falls back to the default in-memory cache with a warning.
+See [Session cache](./features/code-based/session-cache) for setup instructions.
 
 ### onRequest
 

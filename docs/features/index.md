@@ -1,6 +1,6 @@
 # Features
 
-forms-engine-plugin provides built-in components and page types you can use immediately in your form definitions, as well as advanced features for driving dynamic behaviour or writing custom code.
+forms-engine-plugin provides built-in components and page types you can use immediately in your form definitions, as well as extension points for driving dynamic behaviour or writing custom code.
 
 ## [Components](./features/components)
 
@@ -10,11 +10,19 @@ A library of built-in form components — text fields, date inputs, radio button
 
 Built-in page controllers that define how a page behaves — question pages, repeating groups, file upload pages, summary and confirmation pages.
 
+## [Conditions](./features/conditions)
+
+Make pages conditional — skip them based on the user's previous answers. Conditions support comparisons across all answer types and can be composed into nested logic groups.
+
 ## [Page Elements](./features/page-elements)
 
-View model properties that the plugin provides for page-level GOV.UK Frontend components — back link, phase banner, page title, service navigation, and footer — which your base layout template must render.
+View model properties the plugin provides to your base layout template — back link, phase banner, page title, errors, and feedback link. Required reading when building or customising the base Nunjucks layout.
 
-## Advanced
+## [Form Definition Options](./features/form-definition-options)
+
+Top-level form definition fields that control global behaviour: sections, lists, reference number display, user feedback, phase banner label, and declaration text on the summary page.
+
+## Extending the plugin
 
 ### [Configuration-based Features](./features/configuration-based)
 
