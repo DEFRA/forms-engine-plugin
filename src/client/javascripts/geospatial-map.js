@@ -7,6 +7,7 @@ import {
   getCentroidGridRef,
   getCoordinateGridRef
 } from '~/src/client/javascripts/map.js'
+import { formatDelimtedList } from '~/src/client/javascripts/utils.js'
 
 const helpPanelConfig = {
   showLabel: true,
@@ -56,21 +57,21 @@ function getLineOrShapeText(allowLine, allowShape) {
 function getAllowedTypesPhrase(allowPoint, allowLine, allowShape) {
   const items = []
 
-  if (allowPoint) items.push('points')
-  if (allowLine) items.push('lines')
-  if (allowShape) items.push('shapes')
-
-  if (items.length === 0) return ''
-
-  if (items.length === 1) {
-    return items[0]
+  if (allowPoint) {
+    items.push('points')
+  }
+  if (allowLine) {
+    items.push('lines')
+  }
+  if (allowShape) {
+    items.push('shapes')
   }
 
-  if (items.length === 2) {
-    return `${items[0]} or ${items[1]}`
+  if (items.length === 0) {
+    return ''
   }
 
-  return `${items[0]}, ${items[1]} or ${items[2]}`
+  return formatDelimtedList(items, ',', 'or')
 }
 
 /**
@@ -78,7 +79,7 @@ function getAllowedTypesPhrase(allowPoint, allowLine, allowShape) {
  * @param {boolean} allowLine
  * @param {boolean} allowShape
  */
-function getHelpPanelHtml(allowPoint, allowLine, allowShape) {
+export function getHelpPanelHtml(allowPoint, allowLine, allowShape) {
   const lineOrShapeText = getLineOrShapeText(allowLine, allowShape)
   const doneExtra = lineOrShapeText
     ? `<li>Double‑click, or select 'Done', when you have finished drawing ${lineOrShapeText}</li>`
