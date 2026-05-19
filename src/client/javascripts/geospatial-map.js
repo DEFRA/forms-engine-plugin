@@ -564,10 +564,10 @@ function getValueRenderer(geojson, geospatialInput) {
 function getUIManager(geojson, map, mapId, listEl, geospatialInput, options) {
   /**
    * Get a CSV list of geometry types the user can create
-   * @returns {string}
+   * @returns {string[]}
    */
   function getAllowableGeometryTypes() {
-    return options.geometryTypes ?? ''
+    return options.geometryTypes ? options.geometryTypes.split(',') : []
   }
 
   /**
@@ -1157,7 +1157,7 @@ function onListElKeydownFactory() {
 /**
  * Returns the list of geometry types a user can create
  * @callback GetAllowableGeometryTypes
- * @returns {string}
+ * @returns {string[]}
  */
 
 /**
@@ -1189,7 +1189,7 @@ function onListElKeydownFactory() {
  * @property {HTMLDivElement} listEl - the summary list of features
  * @property {ToggleActionButtons} toggleActionButtons - function that toggles the action buttons
  * @property {FocusDescriptionInput} focusDescriptionInput - function that sets focus to a description input element
- * @property {GetAllowableGeometryTypes} getAllowableGeometryTypes - function that returns the list of geometry types a user can create
+ * @property {GetAllowableGeometryTypes} getAllowableGeometryTypes - function that returns the array of geometry types a user can create
  */
 
 /**
