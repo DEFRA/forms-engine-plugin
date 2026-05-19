@@ -157,7 +157,11 @@ export function processGeospatial(config, geospatial, index) {
   const { map, interactPlugin } = createMap(mapId, initConfig, config)
   const featuresManager = getFeaturesManager(geojson)
   const activeFeatureManager = getActiveFeatureManager()
-  const uiManager = getUIManager(geojson, map, mapId, listEl, geospatialInput)
+  const geometryTypes = geospatial.dataset.geometryTypes ?? 'point,line,shape'
+  const options = {
+    geometryTypes
+  }
+  const uiManager = getUIManager(geojson, map, mapId, listEl, geospatialInput, options)
 
   /**
    * @type {Context}
@@ -492,16 +496,32 @@ function getValueRenderer(geojson, geospatialInput) {
  * @param {string} mapId - the ID of the map
  * @param {HTMLDivElement} listEl - where to render the feature list
  * @param {HTMLTextAreaElement} geospatialInput - the geospatial textarea
+ * @param {UIManagerOptions} options - extra options such as allowable geometry types
  */
-function getUIManager(geojson, map, mapId, listEl, geospatialInput) {
+function getUIManager(geojson, map, mapId, listEl, geospatialInput, options) {
+  /**
+   * Get a CSV list of geometry types the user can create
+   * @returns {string}
+   */
+  function getAllowableGeometryTypes() {
+    return options.geometryTypes ?? ''
+  }
+
   /**
    * Toggle the hidden state of the action buttons
    * @type {ToggleActionButtons}
    */
   function toggleActionButtons(hidden) {
-    map.toggleButtonState('btnAddPoint', 'hidden', hidden)
-    map.toggleButtonState('btnAddPolygon', 'hidden', hidden)
-    map.toggleButtonState('btnAddLine', 'hidden', hidden)
+    const types = getAllowableGeometryTypes()
+    if (types.includes('point')) {
+      map.toggleButtonState('btnAddPoint', 'hidden', hidden)
+    }
+    if (types.includes('shape')) {
+      map.toggleButtonState('btnAddPolygon', 'hidden', hidden)
+    }
+    if (types.includes('line')) {
+      map.toggleButtonState('btnAddLine', 'hidden', hidden)
+    }
   }
 
   /**
@@ -528,7 +548,8 @@ function getUIManager(geojson, map, mapId, listEl, geospatialInput) {
     renderValue,
     listEl,
     toggleActionButtons,
-    focusDescriptionInput
+    focusDescriptionInput,
+    getAllowableGeometryTypes
   }
 }
 
@@ -572,7 +593,7 @@ function createContainers(geospatialInput, index) {
 function onMapReadyFactory(context) {
   const { map, activeFeatureManager, uiManager, interactPlugin, drawPlugin } =
     context
-  const { toggleActionButtons, renderList } = uiManager
+  const { toggleActionButtons, renderList, getAllowableGeometryTypes } = uiManager
   const { resetActiveFeature } = activeFeatureManager
 
   /**
@@ -584,50 +605,71 @@ function onMapReadyFactory(context) {
     // Add info panel
     map.addPanel('info', helpPanelConfig)
 
-    map.addButton('btnAddPoint', {
-      variant: 'tertiary',
-      label: 'Add point',
-      iconSvgContent: POINT_SVG,
-      onClick: () => {
-        resetActiveFeature()
-        toggleActionButtons(true)
-        renderList(true)
-        interactPlugin.enable()
-      },
-      mobile: { slot: 'actions' },
-      tablet: { slot: 'actions' },
-      desktop: { slot: 'actions' }
-    })
+    const types = getAllowableGeometryTypes()
+    const allowPoint = types.includes('point')
+    const allowLine = types.includes('line')
+    const allowShape = types.includes('shape')
 
-    map.addButton('btnAddPolygon', {
-      variant: 'tertiary',
-      label: 'Add shape',
-      iconSvgContent: POLYGON_SVG,
-      onClick: () => {
-        resetActiveFeature()
-        toggleActionButtons(true)
-        renderList(true)
-        drawPlugin.newPolygon(generateID(), polygonFeatureProperties)
-      },
-      mobile: { slot: 'actions' },
-      tablet: { slot: 'actions' },
-      desktop: { slot: 'actions' }
-    })
+    // If only a single geometry type, don't show any buttons as will default to that geometry operation
+    if (types.split(',').length === 1) {
+      resetActiveFeature()
+      toggleActionButtons(true)
+      renderList(true)
+      if (allowPoint) interactPlugin.enable()
+      if (allowLine) drawPlugin.newLine(generateID(), lineFeatureProperties)
+      if (allowShape) drawPlugin.newPolygon(generateID(), polygonFeatureProperties)
+    } else {
+      if (allowPoint) {
+        map.addButton('btnAddPoint', {
+          variant: 'tertiary',
+          label: 'Add point',
+          iconSvgContent: POINT_SVG,
+          onClick: () => {
+            resetActiveFeature()
+            toggleActionButtons(true)
+            renderList(true)
+            interactPlugin.enable()
+          },
+          mobile: { slot: 'actions' },
+          tablet: { slot: 'actions' },
+          desktop: { slot: 'actions' }
+        })
+      }
 
-    map.addButton('btnAddLine', {
-      variant: 'tertiary',
-      label: 'Add line',
-      iconSvgContent: LINE_SVG,
-      onClick: () => {
-        resetActiveFeature()
-        toggleActionButtons(true)
-        renderList(true)
-        drawPlugin.newLine(generateID(), lineFeatureProperties)
-      },
-      mobile: { slot: 'actions' },
-      tablet: { slot: 'actions' },
-      desktop: { slot: 'actions' }
-    })
+      if (allowShape) {
+        map.addButton('btnAddPolygon', {
+          variant: 'tertiary',
+          label: 'Add shape',
+          iconSvgContent: POLYGON_SVG,
+          onClick: () => {
+            resetActiveFeature()
+            toggleActionButtons(true)
+            renderList(true)
+            drawPlugin.newPolygon(generateID(), polygonFeatureProperties)
+          },
+          mobile: { slot: 'actions' },
+          tablet: { slot: 'actions' },
+          desktop: { slot: 'actions' }
+        })
+      }
+
+      if (allowLine) {
+        map.addButton('btnAddLine', {
+          variant: 'tertiary',
+          label: 'Add line',
+          iconSvgContent: LINE_SVG,
+          onClick: () => {
+            resetActiveFeature()
+            toggleActionButtons(true)
+            renderList(true)
+            drawPlugin.newLine(generateID(), lineFeatureProperties)
+          },
+          mobile: { slot: 'actions' },
+          tablet: { slot: 'actions' },
+          desktop: { slot: 'actions' }
+        })
+      }
+    }
 
     // Set the map provider on the context
     context.mapProvider = e.map
@@ -1056,6 +1098,12 @@ function onListElKeydownFactory() {
  */
 
 /**
+ * Returns the list of geometry types a user can create
+ * @callback GetAllowableGeometryTypes
+ * @returns {string}
+ */
+
+/**
  * Set focus to the last description input
  * @callback FocusDescriptionInput
  * @returns {void}
@@ -1084,6 +1132,7 @@ function onListElKeydownFactory() {
  * @property {HTMLDivElement} listEl - the summary list of features
  * @property {ToggleActionButtons} toggleActionButtons - function that toggles the action buttons
  * @property {FocusDescriptionInput} focusDescriptionInput - function that sets focus to a description input element
+ * @property {GetAllowableGeometryTypes} getAllowableGeometryTypes - function that returns the list of geometry types a user can create
  */
 
 /**
@@ -1098,5 +1147,5 @@ function onListElKeydownFactory() {
  */
 
 /**
- * @import { MapLibreMap } from '~/src/client/javascripts/map.js'
+ * @import { MapLibreMap, UIManagerOptions } from '~/src/client/javascripts/map.js'
  */
