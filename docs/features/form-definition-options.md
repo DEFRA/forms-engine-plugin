@@ -174,6 +174,8 @@ The `options` object controls a handful of form-wide behaviours.
 
 The reference number is always generated for every form session regardless of this setting. The setting only controls whether it is visible to the user on the confirmation screen.
 
+When a form uses [GOV.UK Pay](./components/payment-field.mdx), the same reference number is passed to Gov.UK Pay as the payment reference. Enabling `showReferenceNumber` lets users correlate their form submission with their payment receipt.
+
 ### Reference number prefix
 
 `metadata.referenceNumberPrefix` — a string prepended to the auto-generated reference number. Without a prefix the format is `XXX-XXX-XXX`. With a prefix the format is `PREFIX-XXX-XXX`.
