@@ -825,7 +825,7 @@ export function generateComponentMd(
   if (secrets.length > 0) {
     lines.push(`## Required secrets`, ``)
     lines.push(
-      `This component retrieves secrets at runtime via [\`getFormSecret\`](../../code-based/custom-services.md#formsservice) on your \`formsService\`. Implement it to return the correct value from your secrets store — do not use environment variables or plugin options for per-form secrets.`,
+      `This component retrieves secrets at runtime via [\`getFormSecret\`](../code-based/custom-services.md#formsservice) on your \`formsService\`. Implement it to return the correct value from your secrets store — do not use environment variables or plugin options for per-form secrets.`,
       ``
     )
     lines.push(`| Secret name | Description |`)
