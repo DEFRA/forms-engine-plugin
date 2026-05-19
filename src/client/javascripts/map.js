@@ -396,5 +396,10 @@ export function centerMap(map, mapProvider, center) {
  */
 
 /**
+ * @typedef {object} UIManagerOptions
+ * @property {string} [geometryTypes] - the CSV list of geometry types that a user can create
+ */
+
+/**
  * @import { Feature } from '~/src/server/plugins/engine/types.js'
  */
