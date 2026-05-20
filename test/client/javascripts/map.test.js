@@ -1647,7 +1647,7 @@ describe('Maps Client JS', () => {
     })
   })
 
-  describe('processGeospatial', () => {
+  describe('UiManager', () => {
     beforeEach(() => {
       document.body.innerHTML = `
       <div class="app-geospatial-field">
@@ -1657,8 +1657,8 @@ describe('Maps Client JS', () => {
 
     it('should create UiManager with default geometry types', () => {
       const geospatialElem = document.querySelector('.app-geospatial-field')
-      // @ts-expect-error - partial mock of data
       const uiManager = getUIManager(
+        // @ts-expect-error - partial mock of data
         {},
         {},
         'map-id',
@@ -1676,8 +1676,8 @@ describe('Maps Client JS', () => {
 
     it('should create UiManager with specified geometry types', () => {
       const geospatialElem = document.querySelector('.app-geospatial-field')
-      // @ts-expect-error - partial mock of data
       const uiManager = getUIManager(
+        // @ts-expect-error - partial mock of data
         {},
         {},
         'map-id',
