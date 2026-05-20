@@ -1,7 +1,8 @@
 import {
   createFeatureHTML,
   createFeaturesHTML,
-  getHelpPanelHtml
+  getHelpPanelHtml,
+  getUIManager
 } from '~/src/client/javascripts/geospatial-map.js'
 import {
   formSubmitFactory,
@@ -1645,4 +1646,51 @@ describe('Maps Client JS', () => {
       expect(result).toBe('TQ 29472 80890')
     })
   })
+
+  describe('UiManager', () => {
+    beforeEach(() => {
+      document.body.innerHTML = `
+      <div class="app-geospatial-field">
+        <textarea class="govuk-textarea"></textarea>
+      </div>`
+    })
+
+    it('should create UiManager with default geometry types', () => {
+      const geospatialElem = document.querySelector('.app-geospatial-field')
+      const uiManager = getUIManager(
+        // @ts-expect-error - partial mock of data
+        {},
+        {},
+        'map-id',
+        geospatialElem,
+        {},
+        undefined
+      )
+      expect(uiManager.getAllowableGeometryTypes).toBeDefined()
+      expect(uiManager.getAllowableGeometryTypes()).toEqual([
+        'point',
+        'line',
+        'shape'
+      ])
+    })
+
+    it('should create UiManager with specified geometry types', () => {
+      const geospatialElem = document.querySelector('.app-geospatial-field')
+      const uiManager = getUIManager(
+        // @ts-expect-error - partial mock of data
+        {},
+        {},
+        'map-id',
+        geospatialElem,
+        {},
+        { geometryTypes: 'point,line' }
+      )
+      expect(uiManager.getAllowableGeometryTypes).toBeDefined()
+      expect(uiManager.getAllowableGeometryTypes()).toEqual(['point', 'line'])
+    })
+  })
 })
+
+/**
+ * @import { GeoJSON } from '~/src/client/javascripts/geospatial-map.js'
+ */
