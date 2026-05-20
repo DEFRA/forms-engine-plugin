@@ -213,7 +213,7 @@ export function processGeospatial(config, geospatial, index) {
   const { map, interactPlugin } = createMap(mapId, initConfig, config)
   const featuresManager = getFeaturesManager(geojson)
   const activeFeatureManager = getActiveFeatureManager()
-  const geometryTypes = geospatial.dataset.geometrytypes ?? 'point,line,shape'
+  const geometryTypes = geospatial.dataset.geometrytypes
   const options = {
     geometryTypes
   }
@@ -567,7 +567,9 @@ function getUIManager(geojson, map, mapId, listEl, geospatialInput, options) {
    * @returns {string[]}
    */
   function getAllowableGeometryTypes() {
-    return options.geometryTypes ? options.geometryTypes.split(',') : []
+    return options.geometryTypes
+      ? options.geometryTypes.split(',')
+      : ['point', 'line', 'shape']
   }
 
   /**
