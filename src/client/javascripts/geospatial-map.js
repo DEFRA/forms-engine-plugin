@@ -559,15 +559,22 @@ function getValueRenderer(geojson, geospatialInput) {
  * @param {string} mapId - the ID of the map
  * @param {HTMLDivElement} listEl - where to render the feature list
  * @param {HTMLTextAreaElement} geospatialInput - the geospatial textarea
- * @param {UIManagerOptions} options - extra options such as allowable geometry types
+ * @param { UIManagerOptions | undefined } options - extra options such as allowable geometry types
  */
-function getUIManager(geojson, map, mapId, listEl, geospatialInput, options) {
+export function getUIManager(
+  geojson,
+  map,
+  mapId,
+  listEl,
+  geospatialInput,
+  options
+) {
   /**
    * Get a CSV list of geometry types the user can create
    * @returns {string[]}
    */
   function getAllowableGeometryTypes() {
-    return options.geometryTypes
+    return options?.geometryTypes
       ? options.geometryTypes.split(',')
       : ['point', 'line', 'shape']
   }
