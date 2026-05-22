@@ -63,10 +63,27 @@ Both are imported from `@defra/forms-engine-plugin/controllers/<ClassName>.js`.
 
 ## Examples
 
+- [Changing the Nunjucks template](#changing-the-nunjucks-template)
 - [Fetching data for the view model](#fetching-data-for-the-view-model)
 - [Intercepting the GET handler](#intercepting-the-get-handler)
 - [Writing to state on POST](#writing-to-state-on-post)
 - [Display-only page (no form components)](#display-only-page-no-form-components)
+
+### Changing the Nunjucks template
+
+To render a different Nunjucks template without changing any handler logic, declare `viewName` as a class property. No handler overrides are needed — all standard GET and POST behaviour (validation, state, routing, error display) runs unchanged:
+
+```ts
+import { QuestionPageController } from '@defra/forms-engine-plugin/controllers/QuestionPageController.js'
+
+class CustomViewPageController extends QuestionPageController {
+  viewName = 'my-custom-page'
+}
+```
+
+The template receives the same view model as the default `index` template. See [Templates and views](./page-views.md) to configure Nunjucks to resolve your template file.
+
+> **Note:** A `view` property on the page definition in your form JSON also overrides `viewName` — but that approach does not require a custom controller at all. Use the class property when you want every page using this controller to share the same template.
 
 ### Fetching data for the view model
 
