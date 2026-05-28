@@ -1,4 +1,5 @@
 import { initAllAutocomplete as initAllAutocompleteImp } from '~/src/client/javascripts/autocomplete.js'
+import { initDebounceClick as initDebounceClickImp } from '~/src/client/javascripts/debounce-click.js'
 import { initFileUpload as initFileUploadImp } from '~/src/client/javascripts/file-upload.js'
 import { initAllGovuk as initAllGovukImp } from '~/src/client/javascripts/govuk.js'
 import { initPreviewCloseLink as initPreviewCloseLinkImp } from '~/src/client/javascripts/preview-close-link.js'
@@ -8,6 +9,7 @@ export * as geospatialMap from '~/src/client/javascripts/geospatial-map.js'
 
 export const initAllGovuk = initAllGovukImp
 export const initAllAutocomplete = initAllAutocompleteImp
+export const initDebounceClick = initDebounceClickImp
 export const initFileUpload = initFileUploadImp
 export const initPreviewCloseLink = initPreviewCloseLinkImp
 
@@ -17,6 +19,7 @@ export const initPreviewCloseLink = initPreviewCloseLinkImp
 export function initAll() {
   initAllGovuk()
   initAllAutocomplete()
+  initDebounceClick()
   initFileUpload()
   initPreviewCloseLink()
 }
