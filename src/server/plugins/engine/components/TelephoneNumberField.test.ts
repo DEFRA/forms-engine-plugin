@@ -1,5 +1,6 @@
 import {
   ComponentType,
+  type ComponentDef,
   type TelephoneNumberFieldComponent
 } from '@defra/forms-model'
 
@@ -377,7 +378,7 @@ describe('TelephoneNumberField', () => {
       let collection: ComponentCollection
 
       beforeEach(() => {
-        collection = new ComponentCollection([def], { model })
+        collection = new ComponentCollection([def as ComponentDef], { model })
       })
 
       it.each([...assertions])(
@@ -390,3 +391,7 @@ describe('TelephoneNumberField', () => {
     })
   })
 })
+
+/**
+ * @import { ComponentDef } from '@defra/forms-model'
+ */
