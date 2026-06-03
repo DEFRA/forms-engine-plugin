@@ -171,7 +171,3 @@ export function getGeospatialSchema(
     def
   )
 }
-
-/**
- * @import { CustomHelpers } from 'joi'
- */
