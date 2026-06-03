@@ -135,7 +135,7 @@ describe('Telephone validation helpers', () => {
 
       expect(result.error).toBeDefined()
       expect(result.error?.message).toBe(
-        'Enter home phone in the correct format'
+        'Enter home phone, like 01632 960 001, 07700 900 982, +44 808 157 0192 or +924568456136'
       )
       expect(result.value).toBe('ABC')
     })

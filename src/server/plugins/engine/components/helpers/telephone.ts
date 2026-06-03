@@ -30,7 +30,7 @@ export const joi = JoiBase.extend({
   base: JoiBase.string(),
   messages: {
     [INVALID_ERROR_CODE]: JoiBase.expression(
-      'Enter {{lowerFirst(#label)}} in the correct format',
+      'Enter {{lowerFirst(#label)}}, like 01632 960 001, 07700 900 982, +44 808 157 0192 or +924568456136',
       opts
     ) as JoiExpression,
     [UK_ERROR_CODE]: JoiBase.expression(
