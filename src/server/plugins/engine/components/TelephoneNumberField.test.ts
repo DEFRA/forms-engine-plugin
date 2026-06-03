@@ -8,6 +8,11 @@ import {
   getAnswer,
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
+import {
+  INTERNATIONAL_ERROR_CODE,
+  INVALID_ERROR_CODE,
+  UK_ERROR_CODE
+} from '~/src/server/plugins/engine/components/helpers/telephone.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
@@ -99,19 +104,19 @@ describe('TelephoneNumberField', () => {
       })
 
       it.each([
-        '+111-111-11',
-        '+111 111 11',
-        '+11111111',
+        '+1 213 555-0123',
+        '+1213555-0123',
+        '+12135550123',
         '+44 7930 111 222',
         '07930 111 222',
         '01606 76543',
         '01606 765432',
-        '0203 765 443',
+        '0203 005 1234',
         '0800 123 321',
         '(01606) 765432',
         '(01606) 765-432',
         '01606 765-432',
-        '+44203-765-443',
+        '+44203-005-1234',
         '0800123-321',
         '0800-123-321'
       ])("accepts valid value '%s'", (value) => {
@@ -308,7 +313,10 @@ describe('TelephoneNumberField', () => {
             customValidationMessages: {
               'any.required': 'This is a custom required error',
               'string.empty': 'This is a custom empty string error',
-              'string.pattern.base': 'This is a custom pattern error'
+              'string.pattern.base': 'This is a custom pattern error',
+              [INVALID_ERROR_CODE]: 'This is a custom pattern error',
+              [UK_ERROR_CODE]: 'This is a custom pattern error',
+              [INTERNATIONAL_ERROR_CODE]: 'This is a custom pattern error'
             }
           }
         } satisfies TelephoneNumberFieldComponent,
