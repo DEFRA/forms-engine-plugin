@@ -38,7 +38,7 @@ describe('Telephone validation helpers', () => {
 
       expect(result.error).toBeDefined()
       expect(result.error?.message).toBe(
-        'Enter home phone, like 01632 960 001, 07700 900 982 or +44 808 157 0192'
+        'Enter home phone in the correct format'
       )
       expect(result.value).toBe('ABC')
     })
@@ -53,7 +53,7 @@ describe('Telephone validation helpers', () => {
 
       expect(result.error).toBeDefined()
       expect(result.error?.message).toBe(
-        'Enter home phone, like 01632 960 001, 07700 900 982 or +44 808 157 0192'
+        'Enter home phone in the correct format'
       )
       expect(result.value).toBe('+1-212-456-7890')
     })
@@ -86,7 +86,7 @@ describe('Telephone validation helpers', () => {
 
       expect(result.error).toBeDefined()
       expect(result.error?.message).toBe(
-        'Enter home phone, starting with + and the country code, for example +92333 1234567 or 00923331234567'
+        'Enter home phone in the correct format'
       )
       expect(result.value).toBe('ABC')
     })
@@ -103,7 +103,7 @@ describe('Telephone validation helpers', () => {
 
       expect(result.error).toBeDefined()
       expect(result.error?.message).toBe(
-        'Enter home phone, starting with + and the country code, for example +92333 1234567 or 00923331234567'
+        'Enter home phone in the correct format'
       )
       expect(result.value).toBe('+44 1606 76477')
     })
@@ -135,7 +135,7 @@ describe('Telephone validation helpers', () => {
 
       expect(result.error).toBeDefined()
       expect(result.error?.message).toBe(
-        'Enter home phone, like 01632 960 001, 07700 900 982, +44 808 157 0192 or +924568456136'
+        'Enter home phone in the correct format'
       )
       expect(result.value).toBe('ABC')
     })
