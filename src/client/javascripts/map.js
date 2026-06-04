@@ -1,3 +1,15 @@
+// @ts-expect-error - no types
+import InteractiveMap from '@defra/interactive-map'
+// @ts-expect-error - no types
+import createInteractPlugin from '@defra/interactive-map/plugins/interact'
+// @ts-expect-error - no types
+import createMapStylesPlugin from '@defra/interactive-map/plugins/map-styles'
+// @ts-expect-error - no types
+import createScaleBarPlugin from '@defra/interactive-map/plugins/scale-bar'
+// @ts-expect-error - no types
+import createSearchPlugin from '@defra/interactive-map/plugins/search'
+// @ts-expect-error - no types
+import maplibreProvider from '@defra/interactive-map/providers/maplibre'
 import { centroid } from '@turf/centroid'
 // @ts-expect-error - no types
 import OsGridRef, { LatLon } from 'geodesy/osgridref.js'
@@ -249,24 +261,17 @@ export function makeTileRequestTransformer(apiPath) {
 export function createMap(mapId, initConfig, mapsConfig) {
   const { assetPath, apiPath, data = defaultData } = mapsConfig
   const logoAltText = 'Ordnance survey logo'
-
-  // @ts-expect-error - Defra namespace currently comes from UMD support files
-  const defra = window.defra
-
-  const interactPlugin = defra.interactPlugin({
+  const interactPlugin = createInteractPlugin({
     markerColor: { outdoor: '#ff0000', dark: '#00ff00' },
     interactionModes: ['placeMarker'],
     multiSelect: false
   })
 
   /** @type {InteractiveMap} */
-  const map = new defra.InteractiveMap(mapId, {
+  const map = new InteractiveMap(mapId, {
     enableFullscreen: true,
     autoColorScheme: false,
-    mapProvider: defra.maplibreProvider(),
-    reverseGeocodeProvider: defra.openNamesProvider({
-      url: `${apiPath}/reverse-geocode-proxy?easting={easting}&northing={northing}`
-    }),
+    mapProvider: maplibreProvider(),
     behaviour: 'inline',
     minZoom: 6,
     maxZoom: 18,
@@ -275,7 +280,7 @@ export function createMap(mapId, initConfig, mapsConfig) {
     transformRequest: makeTileRequestTransformer(apiPath),
     ...initConfig,
     plugins: [
-      defra.mapStylesPlugin({
+      createMapStylesPlugin({
         mapStyles: [
           {
             id: 'outdoor',
@@ -319,12 +324,12 @@ export function createMap(mapId, initConfig, mapsConfig) {
         ]
       }),
       interactPlugin,
-      defra.searchPlugin({
+      createSearchPlugin({
         osNamesURL: `${apiPath}/geocode-proxy?query={query}`,
         width: '300px',
         showMarker: false
       }),
-      defra.scaleBarPlugin({
+      createScaleBarPlugin({
         units: 'metric'
       }),
       ...(initConfig.plugins ?? [])
