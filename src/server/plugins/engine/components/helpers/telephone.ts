@@ -52,11 +52,10 @@ export const joi = JoiBase.extend({
           if (format) {
             const isUK = isUKNumber(parsed)
 
-            if (!isUK && format === TelephoneNumberFieldOptionsFormatEnum.UK) {
-              return error(INVALID_ERROR_CODE)
-            } else if (
-              isUK &&
-              format === TelephoneNumberFieldOptionsFormatEnum.International
+            if (
+              (!isUK && format === TelephoneNumberFieldOptionsFormatEnum.UK) ||
+              (isUK &&
+                format === TelephoneNumberFieldOptionsFormatEnum.International)
             ) {
               return error(INVALID_ERROR_CODE)
             }
