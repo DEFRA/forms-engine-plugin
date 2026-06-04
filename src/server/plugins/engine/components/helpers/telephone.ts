@@ -1,8 +1,8 @@
 import { TelephoneNumberFieldOptionsFormatEnum } from '@defra/forms-model'
 import LibPhoneNumber from 'google-libphonenumber'
-import JoiBase, { type JoiExpression, type LanguageMessages } from 'joi'
+import JoiBase, { type LanguageMessages } from 'joi'
 
-import { opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
+import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 
 const phoneUtil = LibPhoneNumber.PhoneNumberUtil.getInstance()
 
@@ -17,11 +17,8 @@ export const joi = JoiBase.extend({
   type: 'string',
   base: JoiBase.string(),
   messages: {
-    [INVALID_ERROR_CODE]: JoiBase.expression(
-      'Enter {{lowerFirst(#label)}} in the correct format',
-      opts
-    ) as JoiExpression
-  } as unknown as LanguageMessages,
+    [INVALID_ERROR_CODE]: messageTemplate.format
+  } as LanguageMessages,
   rules: {
     phoneNumber: {
       method({
