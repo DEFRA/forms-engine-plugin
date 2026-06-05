@@ -9,11 +9,7 @@ import {
   getAnswer,
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
-import {
-  INTERNATIONAL_ERROR_CODE,
-  INVALID_ERROR_CODE,
-  UK_ERROR_CODE
-} from '~/src/server/plugins/engine/components/helpers/telephone.js'
+import { INVALID_ERROR_CODE } from '~/src/server/plugins/engine/components/helpers/telephone.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
@@ -315,9 +311,7 @@ describe('TelephoneNumberField', () => {
               'any.required': 'This is a custom required error',
               'string.empty': 'This is a custom empty string error',
               'string.pattern.base': 'This is a custom pattern error',
-              [INVALID_ERROR_CODE]: 'This is a custom pattern error',
-              [UK_ERROR_CODE]: 'This is a custom pattern error',
-              [INTERNATIONAL_ERROR_CODE]: 'This is a custom pattern error'
+              [INVALID_ERROR_CODE]: 'This is a custom pattern error'
             }
           }
         } satisfies TelephoneNumberFieldComponent,
