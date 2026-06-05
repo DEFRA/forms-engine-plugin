@@ -96,7 +96,7 @@
   },
   "componentLinks": {
     "NotificationBanner": [
-      "Both `content` and `options.heading` are rendered as Markdown at runtime — links, bold, and standard inline formatting are all supported. Set `options.type` to `'success'` to display a green success banner with `role=\"alert\"`, which causes assistive technologies to announce it immediately. Omit `type` for the default blue \"Important\" banner."
+      "Both `content` and `options.heading` are rendered as Markdown at runtime — links, bold, and standard inline formatting are all supported."
     ],
     "UkAddressField": [
       "When `usePostcodeLookup` is enabled, the component uses the Ordnance Survey API to find addresses by postcode. This requires the `ordnanceSurveyApiKey` and `ordnanceSurveyApiSecret` [plugin options](../../plugin-options.md#geospatial-map) to be set — without them the component falls back to the manual address entry form regardless of the `usePostcodeLookup` setting."

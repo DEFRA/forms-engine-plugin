@@ -783,12 +783,17 @@ export function generateComponentMd(
     ``
   )
 
+  const resolveDesc = (propName) => {
+    const entry = metadata.properties[propName]
+    return typeof entry === 'string' ? entry : (entry?.[componentName] ?? '')
+  }
+
   if (props.length > 0) {
     lines.push(`## Properties`, ``)
     lines.push(`| Property | Type | Required | Description |`)
     lines.push(`|----------|------|----------|-------------|`)
     for (const prop of props) {
-      const desc = metadata.properties[prop.name] ?? ''
+      const desc = resolveDesc(prop.name)
       lines.push(
         `| \`${prop.name}\` | \`${prop.type.replace(/\|/g, '\\|')}\` | ${prop.optional ? 'No' : 'Yes'} | ${desc} |`
       )
@@ -801,7 +806,7 @@ export function generateComponentMd(
     lines.push(`| Property | Type | Required | Description |`)
     lines.push(`|----------|------|----------|-------------|`)
     for (const prop of options) {
-      const desc = metadata.properties[prop.name] ?? ''
+      const desc = resolveDesc(prop.name)
       lines.push(
         `| \`${prop.name}\` | \`${prop.type.replace(/\|/g, '\\|')}\` | ${prop.optional ? 'No' : 'Yes'} | ${desc} |`
       )
@@ -814,7 +819,7 @@ export function generateComponentMd(
     lines.push(`| Property | Type | Description |`)
     lines.push(`|----------|------|-------------|`)
     for (const prop of schema) {
-      const desc = metadata.properties[prop.name] ?? ''
+      const desc = resolveDesc(prop.name)
       lines.push(
         `| \`${prop.name}\` | \`${prop.type.replace(/\|/g, '\\|')}\` | ${desc} |`
       )
