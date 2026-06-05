@@ -47,7 +47,7 @@ jest.mock('fs', () => ({
   readdirSync: jest.fn(),
   readFileSync: jest.fn().mockImplementation((filePath) => {
     if (String(filePath ?? '').includes('component-metadata.json')) {
-      return '{"components":{"TextField":"Single-line text input.","PaymentField":"Redirects the user to GOV.UK Pay."},"pages":{"PageController":"The default page type.","RepeatPageController":"Allows repeated answers.","SummaryPageController":"Summary page type."},"properties":{"rows":"Number of rows for the textarea."},"pageProperties":{"repeat.options.name":"Identifier for the repeatable section."},"componentSecrets":{"PaymentField":[{"name":"payment-test-api-key","description":"GOV.UK Pay API key for test mode."},{"name":"payment-live-api-key","description":"GOV.UK Pay API key for live mode."}]}}'
+      return '{"components":{"TextField":"Single-line text input.","PaymentField":"Redirects the user to GOV.UK Pay."},"pages":{"PageController":"The default page type.","RepeatPageController":"Allows repeated answers.","SummaryPageController":"Summary page type."},"properties":{"rows":"Number of rows for the textarea.","type":{"List":"Display style for the list.","NotificationBanner":"When set to success, renders the green success variant."}},"pageProperties":{"repeat.options.name":"Identifier for the repeatable section."},"componentSecrets":{"PaymentField":[{"name":"payment-test-api-key","description":"GOV.UK Pay API key for test mode."},{"name":"payment-live-api-key","description":"GOV.UK Pay API key for live mode."}]}}'
     }
     return ''
   }),
@@ -451,6 +451,44 @@ describe('Component Documentation Generator', () => {
       const result = generateComponentMd('TextField', interfaceData, 1)
       expect(result).not.toContain('## Required secrets')
       expect(result).not.toContain('getFormSecret')
+    })
+  })
+
+  describe('generateComponentMd with object-valued property description', () => {
+    it('uses the component-specific description when the property entry is an object', () => {
+      const interfaceData = {
+        options: [
+          { name: 'type', optional: true, type: "'bulleted' | 'numbered'" }
+        ],
+        schema: [],
+        props: []
+      }
+      const result = generateComponentMd('List', interfaceData, 1)
+      expect(result).toContain('Display style for the list.')
+      expect(result).not.toContain('When set to success')
+    })
+
+    it('uses the other component-specific description for a different component', () => {
+      const interfaceData = {
+        options: [{ name: 'type', optional: true, type: "'success'" }],
+        schema: [],
+        props: []
+      }
+      const result = generateComponentMd('NotificationBanner', interfaceData, 1)
+      expect(result).toContain(
+        'When set to success, renders the green success variant.'
+      )
+      expect(result).not.toContain('Display style for the list.')
+    })
+
+    it('returns empty string when no matching key exists in the object', () => {
+      const interfaceData = {
+        options: [{ name: 'type', optional: true, type: "'other'" }],
+        schema: [],
+        props: []
+      }
+      const result = generateComponentMd('TextField', interfaceData, 1)
+      expect(result).toContain("| `type` | `'other'` | No |  |")
     })
   })
 
