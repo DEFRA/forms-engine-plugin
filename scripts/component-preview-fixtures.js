@@ -328,17 +328,34 @@ export const fixtures = {
   },
   [ComponentType.NotificationBanner]: {
     jsLevel: 3,
-    def: {
-      type: ComponentType.NotificationBanner,
-      name: 'notice',
-      title: 'Important',
-      content: 'You have **30 days** to [appeal this decision](/appeal).',
-      options: {
-        heading: 'There may be a delay in processing your application.'
+    variants: [
+      {
+        label: 'Standard',
+        def: {
+          type: ComponentType.NotificationBanner,
+          name: 'notice',
+          title: 'Important',
+          content: 'You have **30 days** to [appeal this decision](/appeal).',
+          options: {
+            heading: 'There may be a delay in processing your application.'
+          }
+        },
+        model: null,
+        payload: {}
+      },
+      {
+        label: 'Success',
+        def: {
+          type: ComponentType.NotificationBanner,
+          name: 'notice',
+          title: 'Success',
+          content: 'Your application has been submitted.',
+          options: { type: 'success' }
+        },
+        model: null,
+        payload: {}
       }
-    },
-    model: null,
-    payload: {}
+    ]
   },
   [ComponentType.List]: {
     jsLevel: 3,
