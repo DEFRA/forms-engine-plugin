@@ -63,14 +63,6 @@ declare module '@hapi/hapi' {
   }
 }
 
-declare module 'blankie' {
-  declare const blankie: {
-    plugin: Plugin<Record<string, boolean | string | string[]>>
-  }
-
-  export = blankie
-}
-
 declare module 'blipp' {
   declare const blipp: {
     plugin: Plugin
