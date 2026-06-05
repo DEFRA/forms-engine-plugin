@@ -57,6 +57,16 @@ module.exports = {
       'geodesy' // Supports ESM only
     ].join('|')}/)`
   ],
+  moduleNameMapper: {
+    '^@defra/interactive-map$':
+      '<rootDir>/test/__mocks__/@defra/interactive-map.js',
+    '^@defra/interactive-map/plugins/datasets/adapters/(.*)$':
+      '<rootDir>/test/__mocks__/@defra/interactive-map/plugins/datasets/adapters/$1.js',
+    '^@defra/interactive-map/plugins/(.*)$':
+      '<rootDir>/test/__mocks__/@defra/interactive-map/plugins/$1.js',
+    '^@defra/interactive-map/providers/(.*)$':
+      '<rootDir>/test/__mocks__/@defra/interactive-map/providers/$1.js'
+  },
   testTimeout: 10000,
   forceExit: true
 }

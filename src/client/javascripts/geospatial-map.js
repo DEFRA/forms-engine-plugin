@@ -1,3 +1,9 @@
+// @ts-expect-error - no types
+import createDatasetsPlugin from '@defra/interactive-map/plugins/datasets'
+// @ts-expect-error - no types
+import { maplibreLayerAdapter } from '@defra/interactive-map/plugins/datasets/adapters/maplibre'
+// @ts-expect-error - no types
+import createDrawPlugin from '@defra/interactive-map/plugins/draw-ml'
 import { bbox } from '@turf/bbox'
 
 import {
@@ -151,9 +157,6 @@ export function getBoundingBox(geojson) {
  * @param {number} index - the 0-based index
  */
 export function processGeospatial(config, geospatial, index) {
-  // @ts-expect-error - Defra namespace currently comes from UMD support files
-  const defra = window.defra
-
   if (!(geospatial instanceof HTMLDivElement)) {
     return
   }
@@ -166,14 +169,15 @@ export function processGeospatial(config, geospatial, index) {
   const { listEl, mapId } = createContainers(geospatialInput, index)
   const geojson = getGeoJSON(geospatialInput)
   const bounds = geojson.features.length ? getBoundingBox(geojson) : undefined
-  const drawPlugin = defra.drawMLPlugin()
+  const drawPlugin = createDrawPlugin()
   const plugins = [drawPlugin]
   const country = geospatial.dataset.country
 
   if (country) {
     // Add the country bounds as a dataset plugin to show the valid area on the map
     // and provide feedback to the user when they add features outside of the bounds.
-    const datasetsPlugin = defra.datasetsMaplibrePlugin({
+    const datasetsPlugin = createDatasetsPlugin({
+      layerAdapter: maplibreLayerAdapter,
       datasets: [
         {
           id: 'invalid-area',

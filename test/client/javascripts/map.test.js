@@ -1,3 +1,21 @@
+// Module-level mocks for @defra/interactive-map and its plugins
+// @ts-expect-error - no types
+import InteractiveMap from '@defra/interactive-map'
+// @ts-expect-error - no types
+import createDatasetsPlugin from '@defra/interactive-map/plugins/datasets'
+// @ts-expect-error - no types
+import createDrawPlugin from '@defra/interactive-map/plugins/draw-ml'
+// @ts-expect-error - no types
+import createInteractPlugin from '@defra/interactive-map/plugins/interact'
+// @ts-expect-error - no types
+import createMapStylesPlugin from '@defra/interactive-map/plugins/map-styles'
+// @ts-expect-error - no types
+import createScaleBarPlugin from '@defra/interactive-map/plugins/scale-bar'
+// @ts-expect-error - no types
+import createSearchPlugin from '@defra/interactive-map/plugins/search'
+// @ts-expect-error - no types
+import maplibreProvider from '@defra/interactive-map/providers/maplibre'
+
 import {
   createFeatureHTML,
   createFeaturesHTML,
@@ -12,113 +30,89 @@ import {
   makeTileRequestTransformer
 } from '~/src/client/javascripts/map.js'
 
+/** @type {jest.Mock} */
+let mockOn
+/** @type {jest.Mock} */
+let mockAddMarker
+/** @type {jest.Mock} */
+let mockRemoveMarker
+/** @type {jest.Mock} */
+let mockAddPanel
+/** @type {jest.Mock} */
+let mockAddButton
+/** @type {jest.Mock} */
+let mockToggleButtonState
+
+/** @type {jest.Mock} */
+let mockInteractPluginSelectFeature
+/** @type {jest.Mock} */
+let mockInteractPluginEnable
+/** @type {jest.Mock} */
+let mockInteractPluginDisable
+
+/** @type {jest.Mock} */
+let mockDrawPluginAddFeature
+/** @type {jest.Mock} */
+let mockDrawPluginEditFeature
+/** @type {jest.Mock} */
+let mockDrawPluginNewPolygon
+/** @type {jest.Mock} */
+let mockDrawPluginNewLine
+/** @type {jest.Mock} */
+let mockDrawPluginDeleteFeature
+/** @type {jest.Mock} */
+let mockDatasetsMaplibrePlugin
+
 describe('Maps Client JS', () => {
-  /** @type {jest.Mock} */
-  let onMock
-
-  /** @type {jest.Mock} */
-  let addMarkerMock
-
-  /** @type {jest.Mock} */
-  let removeMarkerMock
-
-  /** @type {jest.Mock} */
-  let addPanelMock
-
-  /** @type {jest.Mock} */
-  let addButtonMock
-
-  /** @type {jest.Mock} */
-  let interactPlugin
-
-  /** @type {jest.Mock} */
-  let interactPluginSelectFeature
-
-  /** @type {jest.Mock} */
-  let interactPluginEnable
-
-  /** @type {jest.Mock} */
-  let interactPluginDisable
-
-  /** @type {jest.Mock} */
-  let drawMLPlugin
-
-  /** @type {jest.Mock} */
-  let drawPluginAddFeature
-
-  /** @type {jest.Mock} */
-  let drawPluginEditFeature
-
-  /** @type {jest.Mock} */
-  let drawPluginNewPolygon
-
-  /** @type {jest.Mock} */
-  let drawPluginNewLine
-
-  /** @type {jest.Mock} */
-  let drawPluginDeleteFeature
-
-  /** @type {jest.Mock} */
-  let toggleButtonStateMock
-
-  /** @type {jest.Mock} */
-  let datasetsMaplibrePlugin
-
   beforeEach(() => {
     jest.resetAllMocks()
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     const noop = () => {}
-    onMock = jest.fn()
-    addMarkerMock = jest.fn()
-    removeMarkerMock = jest.fn()
-    addPanelMock = jest.fn()
-    addButtonMock = jest.fn()
-    toggleButtonStateMock = jest.fn()
-    interactPluginSelectFeature = jest.fn()
-    interactPluginEnable = jest.fn()
-    interactPluginDisable = jest.fn()
-    drawPluginAddFeature = jest.fn()
-    drawPluginEditFeature = jest.fn()
-    drawPluginDeleteFeature = jest.fn()
-    drawPluginNewPolygon = jest.fn()
-    drawPluginNewLine = jest.fn()
-    interactPlugin = jest.fn(() => ({
-      selectFeature: interactPluginSelectFeature,
-      enable: interactPluginEnable,
-      disable: interactPluginDisable
+    mockOn = jest.fn()
+    mockAddMarker = jest.fn()
+    mockRemoveMarker = jest.fn()
+    mockAddPanel = jest.fn()
+    mockAddButton = jest.fn()
+    mockToggleButtonState = jest.fn()
+    mockInteractPluginSelectFeature = jest.fn()
+    mockInteractPluginEnable = jest.fn()
+    mockInteractPluginDisable = jest.fn()
+    mockDrawPluginAddFeature = jest.fn()
+    mockDrawPluginEditFeature = jest.fn()
+    mockDrawPluginDeleteFeature = jest.fn()
+    mockDrawPluginNewPolygon = jest.fn()
+    mockDrawPluginNewLine = jest.fn()
+    mockDatasetsMaplibrePlugin = jest.fn()
+    InteractiveMap.mockImplementation(() => ({
+      on: (/** @type {any} */ ...args) => mockOn(...args),
+      addMarker: (/** @type {any} */ ...args) => mockAddMarker(...args),
+      removeMarker: (/** @type {any} */ ...args) => mockRemoveMarker(...args),
+      addPanel: (/** @type {any} */ ...args) => mockAddPanel(...args),
+      addButton: (/** @type {any} */ ...args) => mockAddButton(...args),
+      toggleButtonState: (/** @type {any} */ ...args) =>
+        mockToggleButtonState(...args)
     }))
-    drawMLPlugin = jest.fn(() => ({
-      addFeature: drawPluginAddFeature,
-      editFeature: drawPluginEditFeature,
-      deleteFeature: drawPluginDeleteFeature,
-      newPolygon: drawPluginNewPolygon,
-      newLine: drawPluginNewLine
+    createInteractPlugin.mockImplementation(() => ({
+      selectFeature: mockInteractPluginSelectFeature,
+      enable: mockInteractPluginEnable,
+      disable: mockInteractPluginDisable
     }))
-    datasetsMaplibrePlugin = jest.fn()
+    createDrawPlugin.mockImplementation(() => ({
+      addFeature: mockDrawPluginAddFeature,
+      editFeature: mockDrawPluginEditFeature,
+      deleteFeature: mockDrawPluginDeleteFeature,
+      newPolygon: mockDrawPluginNewPolygon,
+      newLine: mockDrawPluginNewLine
+    }))
+    createDatasetsPlugin.mockImplementation((/** @type {any} */ opts) =>
+      mockDatasetsMaplibrePlugin(opts)
+    )
 
-    class MockInteractiveMap {
-      on = onMock
-      addMarker = addMarkerMock
-      removeMarker = removeMarkerMock
-      addPanel = addPanelMock
-      addButton = addButtonMock
-      toggleButtonState = toggleButtonStateMock
-    }
-
-    // @ts-expect-error - loaded via UMD
-    window.defra = {
-      InteractiveMap: MockInteractiveMap,
-      maplibreProvider: noop,
-      openNamesProvider: noop,
-      mapStylesPlugin: noop,
-      interactPlugin,
-      searchPlugin: noop,
-      zoomControlsPlugin: noop,
-      scaleBarPlugin: noop,
-      drawMLPlugin,
-      datasetsMaplibrePlugin
-    }
+    maplibreProvider.mockImplementation(noop)
+    createMapStylesPlugin.mockImplementation(noop)
+    createSearchPlugin.mockImplementation(noop)
+    createScaleBarPlugin.mockImplementation(noop)
   })
 
   afterEach(() => {
@@ -171,12 +165,12 @@ describe('Maps Client JS', () => {
     describe('Map initialisation', () => {
       test('initMaps initializes without errors when DOM elements are present', () => {
         expect(() => initMaps()).not.toThrow()
-        expect(onMock).toHaveBeenLastCalledWith(
+        expect(mockOn).toHaveBeenLastCalledWith(
           'map:ready',
           expect.any(Function)
         )
 
-        const onMapReady = onMock.mock.calls[0][1]
+        const onMapReady = mockOn.mock.calls[0][1]
         expect(typeof onMapReady).toBe('function')
 
         // Manually invoke onMapReady callback
@@ -187,11 +181,11 @@ describe('Maps Client JS', () => {
           }
         })
 
-        expect(interactPlugin).toHaveBeenCalledWith(expect.any(Object))
-        expect(addPanelMock).toHaveBeenCalledWith('info', expect.any(Object))
-        expect(interactPluginEnable).toHaveBeenCalled()
+        expect(createInteractPlugin).toHaveBeenCalledWith(expect.any(Object))
+        expect(mockAddPanel).toHaveBeenCalledWith('info', expect.any(Object))
+        expect(mockInteractPluginEnable).toHaveBeenCalled()
 
-        expect(onMock).toHaveBeenLastCalledWith(
+        expect(mockOn).toHaveBeenLastCalledWith(
           'interact:markerchange',
           expect.any(Function)
         )
@@ -209,10 +203,10 @@ describe('Maps Client JS', () => {
         longInput.dispatchEvent(new window.Event('change'))
 
         // Expect it to update once, only when both fields are valid
-        expect(addMarkerMock).toHaveBeenCalledTimes(1)
+        expect(mockAddMarker).toHaveBeenCalledTimes(1)
         expect(flyToMock).toHaveBeenCalledTimes(1)
 
-        const onInteractMarkerChange = onMock.mock.calls[1][1]
+        const onInteractMarkerChange = mockOn.mock.calls[1][1]
         expect(typeof onInteractMarkerChange).toBe('function')
         onInteractMarkerChange({ coords: [-2.1478238, 54.155676] })
       })
@@ -229,12 +223,12 @@ describe('Maps Client JS', () => {
         longInput.value = '-1.522781'
 
         expect(() => initMaps()).not.toThrow()
-        expect(onMock).toHaveBeenLastCalledWith(
+        expect(mockOn).toHaveBeenLastCalledWith(
           'map:ready',
           expect.any(Function)
         )
 
-        const onMapReady = onMock.mock.calls[0][1]
+        const onMapReady = mockOn.mock.calls[0][1]
         expect(typeof onMapReady).toBe('function')
 
         // Manually invoke onMapReady callback
@@ -245,11 +239,11 @@ describe('Maps Client JS', () => {
           }
         })
 
-        expect(interactPlugin).toHaveBeenCalledWith(expect.any(Object))
-        expect(addPanelMock).toHaveBeenCalledWith('info', expect.any(Object))
-        expect(interactPluginEnable).toHaveBeenCalled()
+        expect(createInteractPlugin).toHaveBeenCalledWith(expect.any(Object))
+        expect(mockAddPanel).toHaveBeenCalledWith('info', expect.any(Object))
+        expect(mockInteractPluginEnable).toHaveBeenCalled()
 
-        expect(onMock).toHaveBeenLastCalledWith(
+        expect(mockOn).toHaveBeenLastCalledWith(
           'interact:markerchange',
           expect.any(Function)
         )
@@ -261,7 +255,7 @@ describe('Maps Client JS', () => {
         longInput.dispatchEvent(new window.Event('change'))
 
         // Expect it to update twice as both fields are already valid
-        expect(addMarkerMock).toHaveBeenCalledTimes(2)
+        expect(mockAddMarker).toHaveBeenCalledTimes(2)
         expect(flyToMock).toHaveBeenCalledTimes(2)
       })
 
@@ -274,7 +268,7 @@ describe('Maps Client JS', () => {
         })
 
         expect(() => initMaps()).not.toThrow()
-        expect(onMock).not.toHaveBeenCalled()
+        expect(mockOn).not.toHaveBeenCalled()
       })
 
       test('initMaps only applies when there are supported location components on the page', () => {
@@ -286,7 +280,7 @@ describe('Maps Client JS', () => {
         })
 
         expect(() => initMaps()).not.toThrow()
-        expect(onMock).not.toHaveBeenCalled()
+        expect(mockOn).not.toHaveBeenCalled()
       })
     })
   })
@@ -373,12 +367,12 @@ describe('Maps Client JS', () => {
     describe('Map initialisation', () => {
       test('initMaps easting northing initializes without errors when DOM elements are present', () => {
         expect(() => initMaps()).not.toThrow()
-        expect(onMock).toHaveBeenLastCalledWith(
+        expect(mockOn).toHaveBeenLastCalledWith(
           'map:ready',
           expect.any(Function)
         )
 
-        const onMapReady = onMock.mock.calls[0][1]
+        const onMapReady = mockOn.mock.calls[0][1]
         expect(typeof onMapReady).toBe('function')
 
         // Manually invoke onMapReady callback
@@ -389,11 +383,11 @@ describe('Maps Client JS', () => {
           }
         })
 
-        expect(interactPlugin).toHaveBeenCalledWith(expect.any(Object))
-        expect(addPanelMock).toHaveBeenCalledWith('info', expect.any(Object))
-        expect(interactPluginEnable).toHaveBeenCalled()
+        expect(createInteractPlugin).toHaveBeenCalledWith(expect.any(Object))
+        expect(mockAddPanel).toHaveBeenCalledWith('info', expect.any(Object))
+        expect(mockInteractPluginEnable).toHaveBeenCalled()
 
-        expect(onMock).toHaveBeenLastCalledWith(
+        expect(mockOn).toHaveBeenLastCalledWith(
           'interact:markerchange',
           expect.any(Function)
         )
@@ -411,10 +405,10 @@ describe('Maps Client JS', () => {
         northingInput.dispatchEvent(new window.Event('change'))
 
         // Expect it to update once, only when both fields are valid
-        expect(addMarkerMock).toHaveBeenCalledTimes(1)
+        expect(mockAddMarker).toHaveBeenCalledTimes(1)
         expect(flyToMock).toHaveBeenCalledTimes(1)
 
-        const onInteractMarkerChange = onMock.mock.calls[1][1]
+        const onInteractMarkerChange = mockOn.mock.calls[1][1]
         expect(typeof onInteractMarkerChange).toBe('function')
         onInteractMarkerChange({
           coords: [-2.147823, 54.155676]
@@ -433,12 +427,12 @@ describe('Maps Client JS', () => {
         northingInput.value = '427585'
 
         expect(() => initMaps()).not.toThrow()
-        expect(onMock).toHaveBeenLastCalledWith(
+        expect(mockOn).toHaveBeenLastCalledWith(
           'map:ready',
           expect.any(Function)
         )
 
-        const onMapReady = onMock.mock.calls[0][1]
+        const onMapReady = mockOn.mock.calls[0][1]
         expect(typeof onMapReady).toBe('function')
 
         // Manually invoke onMapReady callback
@@ -449,11 +443,11 @@ describe('Maps Client JS', () => {
           }
         })
 
-        expect(interactPlugin).toHaveBeenCalledWith(expect.any(Object))
-        expect(addPanelMock).toHaveBeenCalledWith('info', expect.any(Object))
-        expect(interactPluginEnable).toHaveBeenCalled()
+        expect(createInteractPlugin).toHaveBeenCalledWith(expect.any(Object))
+        expect(mockAddPanel).toHaveBeenCalledWith('info', expect.any(Object))
+        expect(mockInteractPluginEnable).toHaveBeenCalled()
 
-        expect(onMock).toHaveBeenLastCalledWith(
+        expect(mockOn).toHaveBeenLastCalledWith(
           'interact:markerchange',
           expect.any(Function)
         )
@@ -465,7 +459,7 @@ describe('Maps Client JS', () => {
         northingInput.dispatchEvent(new window.Event('change'))
 
         // Expect it to update twice as both fields are already valid
-        expect(addMarkerMock).toHaveBeenCalledTimes(2)
+        expect(mockAddMarker).toHaveBeenCalledTimes(2)
         expect(flyToMock).toHaveBeenCalledTimes(2)
       })
 
@@ -478,7 +472,7 @@ describe('Maps Client JS', () => {
         })
 
         expect(() => initMaps()).not.toThrow()
-        expect(onMock).not.toHaveBeenCalled()
+        expect(mockOn).not.toHaveBeenCalled()
       })
 
       test('initMaps only applies when there are supported location components on the page', () => {
@@ -490,7 +484,7 @@ describe('Maps Client JS', () => {
         })
 
         expect(() => initMaps()).not.toThrow()
-        expect(onMock).not.toHaveBeenCalled()
+        expect(mockOn).not.toHaveBeenCalled()
       })
     })
   })
@@ -524,12 +518,12 @@ describe('Maps Client JS', () => {
     describe('Map initialisation', () => {
       test('initMaps os grid reference initializes without errors when DOM elements are present', () => {
         expect(() => initMaps()).not.toThrow()
-        expect(onMock).toHaveBeenLastCalledWith(
+        expect(mockOn).toHaveBeenLastCalledWith(
           'map:ready',
           expect.any(Function)
         )
 
-        const onMapReady = onMock.mock.calls[0][1]
+        const onMapReady = mockOn.mock.calls[0][1]
         expect(typeof onMapReady).toBe('function')
 
         // Manually invoke onMapReady callback
@@ -540,11 +534,11 @@ describe('Maps Client JS', () => {
           }
         })
 
-        expect(interactPlugin).toHaveBeenCalledWith(expect.any(Object))
-        expect(addPanelMock).toHaveBeenCalledWith('info', expect.any(Object))
-        expect(interactPluginEnable).toHaveBeenCalled()
+        expect(createInteractPlugin).toHaveBeenCalledWith(expect.any(Object))
+        expect(mockAddPanel).toHaveBeenCalledWith('info', expect.any(Object))
+        expect(mockInteractPluginEnable).toHaveBeenCalled()
 
-        expect(onMock).toHaveBeenLastCalledWith(
+        expect(mockOn).toHaveBeenLastCalledWith(
           'interact:markerchange',
           expect.any(Function)
         )
@@ -558,10 +552,10 @@ describe('Maps Client JS', () => {
         osGridRefInput.dispatchEvent(new window.Event('change'))
 
         // Expect it to update once
-        expect(addMarkerMock).toHaveBeenCalledTimes(1)
+        expect(mockAddMarker).toHaveBeenCalledTimes(1)
         expect(flyToMock).toHaveBeenCalledTimes(1)
 
-        const onInteractMarkerChange = onMock.mock.calls[1][1]
+        const onInteractMarkerChange = mockOn.mock.calls[1][1]
         expect(typeof onInteractMarkerChange).toBe('function')
         onInteractMarkerChange({
           coords: [-2.147823, 54.155676]
@@ -578,12 +572,12 @@ describe('Maps Client JS', () => {
         osGridRefInput.value = 'SJ 61831 71500'
 
         expect(() => initMaps()).not.toThrow()
-        expect(onMock).toHaveBeenLastCalledWith(
+        expect(mockOn).toHaveBeenLastCalledWith(
           'map:ready',
           expect.any(Function)
         )
 
-        const onMapReady = onMock.mock.calls[0][1]
+        const onMapReady = mockOn.mock.calls[0][1]
         expect(typeof onMapReady).toBe('function')
 
         // Manually invoke onMapReady callback
@@ -594,11 +588,11 @@ describe('Maps Client JS', () => {
           }
         })
 
-        expect(interactPlugin).toHaveBeenCalledWith(expect.any(Object))
-        expect(addPanelMock).toHaveBeenCalledWith('info', expect.any(Object))
-        expect(interactPluginEnable).toHaveBeenCalled()
+        expect(createInteractPlugin).toHaveBeenCalledWith(expect.any(Object))
+        expect(mockAddPanel).toHaveBeenCalledWith('info', expect.any(Object))
+        expect(mockInteractPluginEnable).toHaveBeenCalled()
 
-        expect(onMock).toHaveBeenLastCalledWith(
+        expect(mockOn).toHaveBeenLastCalledWith(
           'interact:markerchange',
           expect.any(Function)
         )
@@ -607,7 +601,7 @@ describe('Maps Client JS', () => {
         osGridRefInput.dispatchEvent(new window.Event('change'))
 
         // Expect it to update once as the field is valid
-        expect(addMarkerMock).toHaveBeenCalledTimes(1)
+        expect(mockAddMarker).toHaveBeenCalledTimes(1)
         expect(flyToMock).toHaveBeenCalledTimes(1)
       })
 
@@ -620,7 +614,7 @@ describe('Maps Client JS', () => {
         })
 
         expect(() => initMaps()).not.toThrow()
-        expect(onMock).not.toHaveBeenCalled()
+        expect(mockOn).not.toHaveBeenCalled()
       })
 
       test('initMaps only applies when there are supported location components on the page', () => {
@@ -632,7 +626,7 @@ describe('Maps Client JS', () => {
         })
 
         expect(() => initMaps()).not.toThrow()
-        expect(onMock).not.toHaveBeenCalled()
+        expect(mockOn).not.toHaveBeenCalled()
       })
     })
   })
@@ -735,47 +729,47 @@ describe('Maps Client JS', () => {
         : ''
 
       expect(() => initMaps()).not.toThrow()
-      expect(onMock).toHaveBeenCalledTimes(1)
-      expect(onMock).toHaveBeenNthCalledWith(
+      expect(mockOn).toHaveBeenCalledTimes(1)
+      expect(mockOn).toHaveBeenNthCalledWith(
         1,
         'map:ready',
         expect.any(Function)
       )
 
-      const onMapReady = onMock.mock.calls[0][1]
+      const onMapReady = mockOn.mock.calls[0][1]
       expect(typeof onMapReady).toBe('function')
 
       // Manually invoke onMapReady callback
       onMapReady({})
 
-      expect(onMock).toHaveBeenCalledTimes(6)
-      expect(onMock).toHaveBeenNthCalledWith(
+      expect(mockOn).toHaveBeenCalledTimes(6)
+      expect(mockOn).toHaveBeenNthCalledWith(
         2,
         'draw:ready',
         expect.any(Function)
       )
-      expect(onMock).toHaveBeenNthCalledWith(
+      expect(mockOn).toHaveBeenNthCalledWith(
         3,
         'draw:created',
         expect.any(Function)
       )
-      expect(onMock).toHaveBeenNthCalledWith(
+      expect(mockOn).toHaveBeenNthCalledWith(
         4,
         'draw:edited',
         expect.any(Function)
       )
-      expect(onMock).toHaveBeenNthCalledWith(
+      expect(mockOn).toHaveBeenNthCalledWith(
         5,
         'draw:cancelled',
         expect.any(Function)
       )
-      expect(onMock).toHaveBeenNthCalledWith(
+      expect(mockOn).toHaveBeenNthCalledWith(
         6,
         'interact:markerchange',
         expect.any(Function)
       )
 
-      const onDrawReady = onMock.mock.calls[1][1]
+      const onDrawReady = mockOn.mock.calls[1][1]
       expect(typeof onDrawReady).toBe('function')
 
       // Manually invoke onDrawReady callback
@@ -800,20 +794,20 @@ describe('Maps Client JS', () => {
      * @param {number} [offset]
      */
     function expectToggleButtons(hidden, offset = 0) {
-      expect(toggleButtonStateMock).toHaveBeenCalledTimes(3 + offset)
-      expect(toggleButtonStateMock).toHaveBeenNthCalledWith(
+      expect(mockToggleButtonState).toHaveBeenCalledTimes(3 + offset)
+      expect(mockToggleButtonState).toHaveBeenNthCalledWith(
         1 + offset,
         'btnAddPoint',
         'hidden',
         hidden
       )
-      expect(toggleButtonStateMock).toHaveBeenNthCalledWith(
+      expect(mockToggleButtonState).toHaveBeenNthCalledWith(
         2 + offset,
         'btnAddPolygon',
         'hidden',
         hidden
       )
-      expect(toggleButtonStateMock).toHaveBeenNthCalledWith(
+      expect(mockToggleButtonState).toHaveBeenNthCalledWith(
         3 + offset,
         'btnAddLine',
         'hidden',
@@ -882,17 +876,17 @@ describe('Maps Client JS', () => {
       test('initMaps geospatial component initializes without errors when DOM elements are present', () => {
         initialiseGeospatialMaps()
 
-        expect(interactPlugin).toHaveBeenCalledWith(expect.any(Object))
-        expect(addPanelMock).toHaveBeenCalledWith('info', expect.any(Object))
-        expect(addButtonMock).toHaveBeenCalledTimes(3)
-        expect(interactPluginEnable).not.toHaveBeenCalled()
+        expect(createInteractPlugin).toHaveBeenCalledWith(expect.any(Object))
+        expect(mockAddPanel).toHaveBeenCalledWith('info', expect.any(Object))
+        expect(mockAddButton).toHaveBeenCalledTimes(3)
+        expect(mockInteractPluginEnable).not.toHaveBeenCalled()
       })
 
       test('initMaps with initial values', () => {
         initialiseGeospatialMaps()
 
-        expect(drawPluginAddFeature).toHaveBeenCalledTimes(2)
-        expect(addMarkerMock).toHaveBeenCalledOnce()
+        expect(mockDrawPluginAddFeature).toHaveBeenCalledTimes(2)
+        expect(mockAddMarker).toHaveBeenCalledOnce()
       })
 
       test('initMaps with no initial value', () => {
@@ -917,19 +911,20 @@ describe('Maps Client JS', () => {
 
         initialiseGeospatialMaps()
 
-        expect(datasetsMaplibrePlugin).toHaveBeenCalledWith({
-          datasets: Array(2).fill(expect.any(Object))
+        expect(mockDatasetsMaplibrePlugin).toHaveBeenCalledWith({
+          datasets: Array(2).fill(expect.any(Object)),
+          layerAdapter: expect.any(Object)
         })
-        expect(interactPlugin).toHaveBeenCalledWith(expect.any(Object))
-        expect(addPanelMock).toHaveBeenCalledWith('info', expect.any(Object))
-        expect(addButtonMock).toHaveBeenCalledTimes(3)
-        expect(interactPluginEnable).not.toHaveBeenCalled()
+        expect(createInteractPlugin).toHaveBeenCalledWith(expect.any(Object))
+        expect(mockAddPanel).toHaveBeenCalledWith('info', expect.any(Object))
+        expect(mockAddButton).toHaveBeenCalledTimes(3)
+        expect(mockInteractPluginEnable).not.toHaveBeenCalled()
       })
 
       test('drawing created', () => {
         const { geospatialInput } = initialiseGeospatialMaps()
 
-        const onDrawCreated = onMock.mock.calls[2][1]
+        const onDrawCreated = mockOn.mock.calls[2][1]
         expect(typeof onDrawCreated).toBe('function')
 
         // Manually invoke onDrawCreated callback with a new polygon
@@ -1016,7 +1011,7 @@ describe('Maps Client JS', () => {
       test('drawing edited', () => {
         const { geospatialInput, listContainer } = initialiseGeospatialMaps()
 
-        const onDrawEdited = onMock.mock.calls[3][1]
+        const onDrawEdited = mockOn.mock.calls[3][1]
         expect(typeof onDrawEdited).toBe('function')
 
         // Manually click the "Change" link to set the _activeFeatureId
@@ -1026,7 +1021,7 @@ describe('Maps Client JS', () => {
         )
         stJamesParkChangeLink.click()
 
-        expect(drawPluginEditFeature).toHaveBeenCalledWith(
+        expect(mockDrawPluginEditFeature).toHaveBeenCalledWith(
           '6d75415d-31e8-4ce7-88f0-621ae3321d6a'
         )
 
@@ -1076,7 +1071,7 @@ describe('Maps Client JS', () => {
 
         stJamesParkDeleteLink.click()
 
-        expect(drawPluginDeleteFeature).toHaveBeenCalledWith(
+        expect(mockDrawPluginDeleteFeature).toHaveBeenCalledWith(
           '6d75415d-31e8-4ce7-88f0-621ae3321d6a'
         )
 
@@ -1089,7 +1084,7 @@ describe('Maps Client JS', () => {
       test('drawing cancelled', () => {
         initialiseGeospatialMaps()
 
-        const onDrawCancelled = onMock.mock.calls[4][1]
+        const onDrawCancelled = mockOn.mock.calls[4][1]
         expect(typeof onDrawCancelled).toBe('function')
 
         // Manually invoke onDrawReady callback (to render the list)
@@ -1100,7 +1095,7 @@ describe('Maps Client JS', () => {
       test('marker added', () => {
         const { geospatialInput } = initialiseGeospatialMaps()
 
-        const interactMarkerChange = onMock.mock.calls[5][1]
+        const interactMarkerChange = mockOn.mock.calls[5][1]
         expect(typeof interactMarkerChange).toBe('function')
 
         // Manually invoke interactMarkerChange callback with a new point
@@ -1110,12 +1105,12 @@ describe('Maps Client JS', () => {
 
         interactMarkerChange(newPointFeature)
 
-        expect(addMarkerMock).toHaveBeenLastCalledWith(
+        expect(mockAddMarker).toHaveBeenLastCalledWith(
           expect.any(String),
           newPointFeature.coords
         )
-        expect(removeMarkerMock).toHaveBeenCalledExactlyOnceWith('location')
-        expect(interactPluginDisable).toHaveBeenCalled()
+        expect(mockRemoveMarker).toHaveBeenCalledExactlyOnceWith('location')
+        expect(mockInteractPluginDisable).toHaveBeenCalled()
         expectToggleButtons(false)
 
         expect(JSON.parse(geospatialInput.value)).toEqual([
@@ -1139,7 +1134,7 @@ describe('Maps Client JS', () => {
       test('marker edited', () => {
         const { geospatialInput, listContainer } = initialiseGeospatialMaps()
 
-        const interactMarkerChange = onMock.mock.calls[5][1]
+        const interactMarkerChange = mockOn.mock.calls[5][1]
         expect(typeof interactMarkerChange).toBe('function')
 
         // Manually click the "Change" link to set the _activeFeatureId
@@ -1149,10 +1144,12 @@ describe('Maps Client JS', () => {
         )
         buckinghamPalaceChangeLink.click()
 
-        expect(interactPluginSelectFeature).toHaveBeenCalledExactlyOnceWith({
-          featureId: '6d67810c-7228-4f71-b6ec-0d16b132fcd7'
-        })
-        expect(interactPluginEnable).toHaveBeenCalledOnce()
+        expect(mockInteractPluginSelectFeature).toHaveBeenCalledExactlyOnceWith(
+          {
+            featureId: '6d67810c-7228-4f71-b6ec-0d16b132fcd7'
+          }
+        )
+        expect(mockInteractPluginEnable).toHaveBeenCalledOnce()
         expectToggleButtons(true)
 
         // Manually invoke interactMarkerChange callback with a new point
@@ -1162,7 +1159,7 @@ describe('Maps Client JS', () => {
 
         interactMarkerChange(updatedPointArgs)
 
-        expect(addMarkerMock).toHaveBeenLastCalledWith(
+        expect(mockAddMarker).toHaveBeenLastCalledWith(
           '6d67810c-7228-4f71-b6ec-0d16b132fcd7',
           [0, 0]
         )
@@ -1196,7 +1193,7 @@ describe('Maps Client JS', () => {
 
         buckinghamPalaceDeleteLink.click()
 
-        expect(removeMarkerMock).toHaveBeenCalledWith(
+        expect(mockRemoveMarker).toHaveBeenCalledWith(
           '6d67810c-7228-4f71-b6ec-0d16b132fcd7'
         )
 
@@ -1209,13 +1206,13 @@ describe('Maps Client JS', () => {
       test('action buttons', () => {
         initialiseGeospatialMaps()
 
-        const onMapReady = onMock.mock.calls[5][1]
+        const onMapReady = mockOn.mock.calls[5][1]
         expect(typeof onMapReady).toBe('function')
 
-        expect(addButtonMock).toHaveBeenCalledTimes(3)
-        const { onClick: onAddPointClick } = addButtonMock.mock.calls[0][1]
-        const { onClick: onAddPolygonClick } = addButtonMock.mock.calls[1][1]
-        const { onClick: onAddLineClick } = addButtonMock.mock.calls[2][1]
+        expect(mockAddButton).toHaveBeenCalledTimes(3)
+        const { onClick: onAddPointClick } = mockAddButton.mock.calls[0][1]
+        const { onClick: onAddPolygonClick } = mockAddButton.mock.calls[1][1]
+        const { onClick: onAddLineClick } = mockAddButton.mock.calls[2][1]
 
         expect(typeof onAddPointClick).toBe('function')
         expect(typeof onAddPolygonClick).toBe('function')
@@ -1224,12 +1221,12 @@ describe('Maps Client JS', () => {
         // Manually invoke add point button click
         onAddPointClick()
         expectToggleButtons(true)
-        expect(interactPluginEnable).toHaveBeenCalledTimes(1)
+        expect(mockInteractPluginEnable).toHaveBeenCalledTimes(1)
 
         // Manually invoke add polygon button click
         onAddPolygonClick()
         expectToggleButtons(true, 3)
-        expect(drawPluginNewPolygon).toHaveBeenCalledExactlyOnceWith(
+        expect(mockDrawPluginNewPolygon).toHaveBeenCalledExactlyOnceWith(
           expect.any(String),
           expect.any(Object)
         )
@@ -1237,7 +1234,7 @@ describe('Maps Client JS', () => {
         // Manually invoke add line button click
         onAddLineClick()
         expectToggleButtons(true, 6)
-        expect(drawPluginNewLine).toHaveBeenCalledExactlyOnceWith(
+        expect(mockDrawPluginNewLine).toHaveBeenCalledExactlyOnceWith(
           expect.any(String),
           expect.any(Object)
         )
@@ -1371,10 +1368,10 @@ describe('Maps Client JS', () => {
       test('initMaps with no country boundaries', () => {
         initialiseGeospatialMaps(false)
 
-        expect(interactPlugin).toHaveBeenCalledWith(expect.any(Object))
-        expect(addPanelMock).toHaveBeenCalledWith('info', expect.any(Object))
-        expect(addButtonMock).toHaveBeenCalledTimes(3)
-        expect(interactPluginEnable).not.toHaveBeenCalled()
+        expect(createInteractPlugin).toHaveBeenCalledWith(expect.any(Object))
+        expect(mockAddPanel).toHaveBeenCalledWith('info', expect.any(Object))
+        expect(mockAddButton).toHaveBeenCalledTimes(3)
+        expect(mockInteractPluginEnable).not.toHaveBeenCalled()
       })
     })
   })
