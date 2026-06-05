@@ -58,3 +58,13 @@
     @extend %govuk-section-break--xl;
   }
 }
+
+.app-prose-notification-banner-scope {
+  p {
+    @extend .govuk-notification-banner__heading;
+  }
+
+  a {
+    @extend .govuk-notification-banner__link;
+  }
+}
