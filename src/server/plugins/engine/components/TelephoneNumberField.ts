@@ -4,9 +4,7 @@ import { type StringSchema } from 'joi'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers/index.js'
 import {
-  INTERNATIONAL_ERROR_CODE,
   INVALID_ERROR_CODE,
-  UK_ERROR_CODE,
   joi
 } from '~/src/server/plugins/engine/components/helpers/telephone.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
@@ -48,9 +46,7 @@ export class TelephoneNumberField extends FormComponent {
         'any.required': message,
         'string.empty': message,
         'string.pattern.base': message,
-        [INVALID_ERROR_CODE]: message,
-        [UK_ERROR_CODE]: message,
-        [INTERNATIONAL_ERROR_CODE]: message
+        [INVALID_ERROR_CODE]: message
       })
     } else if (options.customValidationMessages) {
       formSchema = formSchema.messages(options.customValidationMessages)
