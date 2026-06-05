@@ -26,10 +26,6 @@
     @extend %govuk-body-m;
   }
 
-  > :last-child {
-    margin-bottom: 0;
-  }
-
   strong,
   b {
     @include govuk-typography-weight-bold;
@@ -56,6 +52,12 @@
     @extend %govuk-section-break;
     @extend %govuk-section-break--visible;
     @extend %govuk-section-break--xl;
+  }
+}
+
+.govuk-notification-banner__content {
+  .app-prose-scope > :last-child {
+    margin-bottom: 0;
   }
 }
 
