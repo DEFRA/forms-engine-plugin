@@ -29,7 +29,7 @@ function buildMockModel(
     def: {
       metadata: {
         submission: { code: 'TEST-CODE' }
-      } as { submission: { code: string } },
+      },
       pages: pagesOverride
     },
     getFormContext: jest.fn().mockReturnValue({
@@ -57,15 +57,13 @@ describe('redirectOrMakeHandler', () => {
     redirect: jest.fn(),
     view: jest.fn(),
     continue: Symbol('continue')
-  } as unknown as FormResponseToolkit
+  }
 
   let mockPage: PageControllerClass
 
   const mockModel = buildMockModel()
 
-  const mockMakeHandler = jest
-    .fn()
-    .mockResolvedValue({ statusCode: 200 } as ResponseObject)
+  const mockMakeHandler = jest.fn().mockResolvedValue({ statusCode: 200 })
 
   beforeEach(() => {
     jest.clearAllMocks()

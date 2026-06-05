@@ -27,7 +27,6 @@ import {
   UploadStatus,
   type FeaturedFormPageViewModel,
   type FormContext,
-  type FormContextRequest,
   type FormPayloadParams,
   type FormSubmissionState,
   type UploadStatusFileResponse,
@@ -1203,12 +1202,7 @@ describe('FileUploadPageController', () => {
       jest.spyOn(uploadService, 'initiateUpload').mockResolvedValue(undefined)
 
       await expect(
-        (
-          controller['initiateAndStoreNewUpload'] as (
-            req: FormRequest,
-            state: FormSubmissionState
-          ) => Promise<FormSubmissionState>
-        )(request, state)
+        controller['initiateAndStoreNewUpload'](request, state)
       ).rejects.toThrow('Unexpected empty response from initiateUpload')
     })
   })
@@ -1307,10 +1301,7 @@ describe('FileUploadPageController', () => {
         .spyOn(pageHelpers, 'getProxyUrlForLocalDevelopment')
         .mockReturnValue('http://uploader.127.0.0.1.sslip.io:7300')
 
-      const viewModel = controller.getViewModel(
-        request as FormContextRequest,
-        context
-      )
+      const viewModel = controller.getViewModel(request, context)
 
       expect(viewModel.uploadId).toBe('some-upload-id')
       expect(viewModel.proxyUrl).toBe('http://uploader.127.0.0.1.sslip.io:7300')

@@ -13,7 +13,6 @@ import { type PageController } from '~/src/server/plugins/engine/pageControllers
 import { TerminalPageController } from '~/src/server/plugins/engine/pageControllers/index.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import {
-  type AnyRequest,
   type FormContext,
   type FormContextRequest,
   type FormSubmissionError,
@@ -110,9 +109,7 @@ export async function getFormContext(
     yar
   }
 
-  const cachedState = await cacheService.getState(
-    summaryRequest as unknown as AnyRequest
-  )
+  const cachedState = await cacheService.getState(summaryRequest)
 
   const formState = {
     ...cachedState,

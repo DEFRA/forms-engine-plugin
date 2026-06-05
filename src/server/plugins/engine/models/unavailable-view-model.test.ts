@@ -1,5 +1,3 @@
-import { type FormMetadata } from '@defra/forms-model'
-
 import { unavailableViewModel } from '~/src/server/plugins/engine/models/unavailable-view-model.js'
 import { metadata } from '~/test/fixtures/form.js'
 
@@ -18,7 +16,7 @@ describe('unavailableViewModel', () => {
     const result = unavailableViewModel({
       ...metadata,
       organisation: 'Rural Payments Agency – RPA'
-    } as FormMetadata)
+    })
     expect(result.organisationName).toBe('Rural Payments Agency')
   })
 
@@ -28,7 +26,7 @@ describe('unavailableViewModel', () => {
       contact: {
         phone: '01234 567 890\n09876 543 210'
       }
-    } as FormMetadata)
+    })
     expect(result.phoneLines).toEqual(['01234 567 890', '09876 543 210'])
   })
 
@@ -38,7 +36,7 @@ describe('unavailableViewModel', () => {
       contact: {
         phone: '  01234 567 890  \n  \n  09876 543 210  '
       }
-    } as FormMetadata)
+    })
     expect(result.phoneLines).toEqual(['01234 567 890', '09876 543 210'])
   })
 
@@ -48,7 +46,7 @@ describe('unavailableViewModel', () => {
       contact: {
         phone: ' \n '
       }
-    } as FormMetadata)
+    })
     expect(result.phoneLines).toBeUndefined()
   })
 
@@ -56,7 +54,7 @@ describe('unavailableViewModel', () => {
     const result = unavailableViewModel({
       ...metadata,
       contact: undefined
-    } as FormMetadata)
+    })
     expect(result.phoneLines).toBeUndefined()
   })
 })

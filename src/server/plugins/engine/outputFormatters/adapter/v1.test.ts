@@ -212,7 +212,7 @@ describe('Adapter v1 formatter', () => {
       slug: 'test-form',
       title: 'Test Form',
       notificationEmail: 'test@example.com'
-    } as FormMetadata
+    }
 
     const formStatus = {
       isPreview: false,
@@ -289,7 +289,7 @@ describe('Adapter v1 formatter', () => {
       slug: 'test-form',
       title: 'Test Form',
       notificationEmail: 'test@example.com'
-    } as FormMetadata
+    }
 
     const formStatus = {
       isPreview: true,
@@ -331,7 +331,7 @@ describe('Adapter v1 formatter', () => {
       id: 'form-456',
       slug: 'partial-form',
       title: 'Partial Form'
-    } as FormMetadata
+    }
 
     const formStatus = {
       isPreview: true,
@@ -454,7 +454,7 @@ describe('Adapter v1 formatter', () => {
   it('should handle formMetadata with only id', () => {
     const formMetadata: Partial<FormMetadata> = {
       id: 'only-id-form'
-    } as FormMetadata
+    }
 
     const formStatus = {
       isPreview: false,
@@ -479,7 +479,7 @@ describe('Adapter v1 formatter', () => {
   it('should handle formMetadata with only slug', () => {
     const formMetadata: Partial<FormMetadata> = {
       slug: 'only-slug-form'
-    } as FormMetadata
+    }
 
     const formStatus = {
       isPreview: false,
@@ -504,7 +504,7 @@ describe('Adapter v1 formatter', () => {
   it('should handle formMetadata with only notificationEmail', () => {
     const formMetadata: Partial<FormMetadata> = {
       notificationEmail: 'only-email@example.com'
-    } as FormMetadata
+    }
 
     const formStatus = {
       isPreview: false,
@@ -700,7 +700,7 @@ describe('Adapter v1 formatter', () => {
       slug: 'test-form',
       title: 'Test Form',
       notificationEmail: 'test@example.com'
-    } as FormMetadata
+    }
 
     const formStatus = {
       isPreview: false,
@@ -726,7 +726,7 @@ describe('Adapter v1 formatter', () => {
       slug: 'test-form',
       title: 'Test Form',
       notificationEmail: 'test@example.com'
-    } as FormMetadata
+    }
 
     const formStatus = {
       isPreview: false,
