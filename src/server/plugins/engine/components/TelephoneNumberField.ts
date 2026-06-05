@@ -1,16 +1,18 @@
 import { type TelephoneNumberFieldComponent } from '@defra/forms-model'
-import joi, { type StringSchema } from 'joi'
+import { type StringSchema } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers/index.js'
+import {
+  INVALID_ERROR_CODE,
+  joi
+} from '~/src/server/plugins/engine/components/helpers/telephone.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
   type FormPayload,
   type FormSubmissionError
 } from '~/src/server/plugins/engine/types.js'
-
-const PATTERN = /^[0-9\\\s+()-]*$/
 
 export class TelephoneNumberField extends FormComponent {
   declare options: TelephoneNumberFieldComponent['options']
@@ -24,11 +26,12 @@ export class TelephoneNumberField extends FormComponent {
     super(def, props)
 
     const { options } = def
+    const { format } = options
 
     let formSchema = joi
       .string()
       .trim()
-      .pattern(PATTERN)
+      .phoneNumber({ format })
       .label(this.label)
       .required()
 
@@ -42,7 +45,8 @@ export class TelephoneNumberField extends FormComponent {
       formSchema = formSchema.messages({
         'any.required': message,
         'string.empty': message,
-        'string.pattern.base': message
+        'string.pattern.base': message,
+        [INVALID_ERROR_CODE]: message
       })
     } else if (options.customValidationMessages) {
       formSchema = formSchema.messages(options.customValidationMessages)

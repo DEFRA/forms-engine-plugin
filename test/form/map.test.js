@@ -3,9 +3,8 @@ import { StatusCodes } from 'http-status-codes'
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import { getAccessToken } from '~/src/server/plugins/map/routes/get-os-token.js'
-import { find, nearest } from '~/src/server/plugins/map/service.js'
+import { find } from '~/src/server/plugins/map/service.js'
 import { result as findResult } from '~/src/server/plugins/map/test/__stubs__/find.js'
-import { result as nearestResult } from '~/src/server/plugins/map/test/__stubs__/nearest.js'
 import { get, request } from '~/src/server/services/httpService.js'
 
 const basePath = `${FORM_PREFIX}/api`
@@ -158,18 +157,6 @@ describe('Map API routes', () => {
 
     expect(response.statusCode).toBe(StatusCodes.OK)
     expect(response.result).toEqual(findResult)
-  })
-
-  it('should get reverse geocode results', async () => {
-    jest.mocked(nearest).mockResolvedValueOnce(nearestResult)
-
-    const response = await server.inject({
-      url: `${basePath}/reverse-geocode-proxy?easting=523065&northing=185795`,
-      method: 'GET'
-    })
-
-    expect(response.statusCode).toBe(StatusCodes.OK)
-    expect(response.result).toEqual(nearestResult)
   })
 
   it('should get all geojson countries boundaries', async () => {

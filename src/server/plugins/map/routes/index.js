@@ -6,7 +6,7 @@ import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
 import { getAccessToken } from '~/src/server/plugins/map/routes/get-os-token.js'
-import { find, nearest } from '~/src/server/plugins/map/service.js'
+import { find } from '~/src/server/plugins/map/service.js'
 import {
   get,
   request as httpRequest
@@ -34,7 +34,6 @@ export function getRoutes(options) {
     mapProxyRoute(options),
     tileProxyRoute(options),
     geocodeProxyRoute(options),
-    reverseGeocodeProxyRoute(options),
     getGeospatialCountries()
   ]
 }
@@ -149,41 +148,6 @@ function geocodeProxyRoute(options) {
         query: Joi.object()
           .keys({
             query: Joi.string().required()
-          })
-          .required()
-      }
-    }
-  }
-}
-
-/**
- * Proxies ordnance survey reverse geocode requests from the front end to api.os.uk
- * Used to find name from easting and northing points.
- * N.B this endpoint is currently not used by the front end but will be soon in "maps V2"
- * @param {MapConfiguration} options - the map options
- * @returns {ServerRoute<MapReverseGeocodeGetRequestRefs>}
- */
-function reverseGeocodeProxyRoute(options) {
-  return {
-    method: 'GET',
-    path: '/api/reverse-geocode-proxy',
-    async handler(request, _h) {
-      const { query } = request
-      const data = await nearest(
-        query.easting,
-        query.northing,
-        options.ordnanceSurveyApiKey
-      )
-
-      return data
-    },
-    options: {
-      auth: false,
-      validate: {
-        query: Joi.object()
-          .keys({
-            easting: Joi.number().required(),
-            northing: Joi.number().required()
           })
           .required()
       }

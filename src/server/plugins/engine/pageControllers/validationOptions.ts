@@ -10,7 +10,7 @@ import joi, {
 
 import { lowerFirstPreserveProperNouns } from '~/src/server/plugins/engine/components/helpers/index.js'
 
-const opts = {
+export const opts = {
   functions: {
     lowerFirst: lowerFirstPreserveProperNouns
   }
