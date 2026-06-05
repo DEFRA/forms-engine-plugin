@@ -22,6 +22,7 @@
     "InsetText": "Display highlighted inset text using the GOV.UK inset text component.",
     "Details": "Display content inside a collapsible disclosure element.",
     "List": "Display a GOV.UK-styled list sourced from a named list definition.",
+    "NotificationBanner": "Display a GOV.UK notification banner with a title and Markdown-formatted body content. Use to surface important information — such as a deadline, an outcome, or a required action — before or after a question page.",
     "EastingNorthingField": "Paired numeric inputs for collecting British National Grid easting and northing coordinates.",
     "OsGridRefField": "Text input for collecting an Ordnance Survey grid reference.",
     "NationalGridFieldNumberField": "Numeric input for a single National Grid coordinate component.",
@@ -59,7 +60,10 @@
     "maxDaysInPast": "Maximum number of days in the past the entered date can be.",
     "maxDaysInFuture": "Maximum number of days in the future the entered date can be.",
     "bold": "When `true`, displays option labels in bold.",
-    "type": "Display style for the list: `'bulleted'` or `'numbered'`.",
+    "type": {
+      "List": "Display style for the list: `'bulleted'` or `'numbered'`.",
+      "NotificationBanner": "When set to `'success'`, renders the green success variant with `role=\"alert\"`, causing assistive technologies to announce it immediately."
+    },
     "accept": "Comma-separated list of accepted MIME types (e.g. `'image/png,application/pdf'`).",
     "declarationConfirmationLabel": "Custom label text for the declaration checkbox.",
     "amount": "Fixed payment amount in pence.",
@@ -77,7 +81,8 @@
     "hint": "Hint text displayed below the field label to help the user answer the question.",
     "list": "Name of a list definition that provides the options to display. See [list schema](../../schemas/index.md#list-schema) for the list definition format.",
     "shortDescription": "A short description of the field used in the check-your-answers summary.",
-    "content": "HTML or Markdown content to display."
+    "content": "HTML or Markdown content to display.",
+    "heading": "Subheading rendered above the body content. Accepts Markdown."
   },
   "pageLinks": {
     "StatusPageController": [
@@ -90,6 +95,9 @@
     ]
   },
   "componentLinks": {
+    "NotificationBanner": [
+      "Both `content` and `options.heading` are rendered as Markdown at runtime — links, bold, and standard inline formatting are all supported. Set `options.type` to `'success'` to display a green success banner with `role=\"alert\"`, which causes assistive technologies to announce it immediately. Omit `type` for the default blue \"Important\" banner."
+    ],
     "UkAddressField": [
       "When `usePostcodeLookup` is enabled, the component uses the Ordnance Survey API to find addresses by postcode. This requires the `ordnanceSurveyApiKey` and `ordnanceSurveyApiSecret` [plugin options](../../plugin-options.md#geospatial-map) to be set — without them the component falls back to the manual address entry form regardless of the `usePostcodeLookup` setting."
     ],
