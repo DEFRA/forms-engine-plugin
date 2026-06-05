@@ -164,7 +164,7 @@
     "babel-plugin-replace-import-extension": "^1.1.5",
     "babel-plugin-transform-import-meta": "^2.3.3",
     "clean-webpack-plugin": "^4.0.0",
-    "concurrently": "^9.2.1",
+    "concurrently": "^10.0.3",
     "cookie": "^1.1.1",
     "copy-webpack-plugin": "^13.0.1",
     "cssnano": "^7.1.2",
