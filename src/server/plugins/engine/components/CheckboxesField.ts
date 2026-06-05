@@ -44,7 +44,7 @@ export class CheckboxesField extends SelectionControlField {
         'array.min': messageTemplate.arrayMin as string,
         'array.max': messageTemplate.arrayMax as string,
         'array.length': messageTemplate.arrayLength as string
-      })
+      }) as unknown as typeof formSchema
 
     if (options.required === false) {
       formSchema = formSchema.optional()

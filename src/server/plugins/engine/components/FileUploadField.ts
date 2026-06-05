@@ -144,11 +144,13 @@ export class FileUploadField extends FormComponent {
       formSchema = formSchema.length(schema.length)
     }
 
-    this.formSchema = formSchema.items(formItemSchema)
+    this.formSchema = formSchema.items(
+      formItemSchema
+    ) as unknown as ArraySchema<FileState>
     this.stateSchema = formSchema
       .items(formItemSchema)
       .default(null)
-      .allow(null)
+      .allow(null) as unknown as ArraySchema<FileState>
 
     this.options = options
     this.schema = schema
