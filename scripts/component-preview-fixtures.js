@@ -335,9 +335,9 @@ export const fixtures = {
           type: ComponentType.NotificationBanner,
           name: 'notice',
           title: 'Important',
-          content: 'You have **30 days** to [appeal this decision](/appeal).',
+          content: 'Call us on 0300 123 4567 if you need help with your application.',
           options: {
-            heading: 'There may be a delay in processing your application.'
+            heading: 'You have **30 days** to [appeal this decision](/appeal).'
           }
         },
         model: null,
