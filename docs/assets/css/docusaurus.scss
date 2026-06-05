@@ -125,3 +125,55 @@
     background-size: 220px;
   }
 }
+
+// Production prose styles — mirrors src/client/stylesheets/_prose.scss.
+// Cannot @use that file directly because it depends on pkg:govuk-frontend,
+// a custom importer not available in the Docusaurus Sass pipeline.
+.app-prose-scope {
+  h1 { @extend %govuk-heading-xl; }
+  h2 { @extend %govuk-heading-l; }
+  h3 { @extend %govuk-heading-m; }
+  h4 { @extend %govuk-heading-s; }
+
+  p { @extend %govuk-body-m; }
+
+  strong,
+  b {
+    @include govuk-typography-weight-bold;
+  }
+
+  ul,
+  ol {
+    @extend %govuk-list;
+  }
+
+  ol { @extend %govuk-list--number; }
+  ul { @extend %govuk-list--bullet; }
+
+  a { @extend %govuk-link; }
+
+  hr {
+    @extend %govuk-section-break;
+    @extend %govuk-section-break--visible;
+    @extend %govuk-section-break--xl;
+  }
+}
+
+.govuk-notification-banner__content {
+  .app-prose-scope > :last-child {
+    margin-bottom: 0;
+  }
+}
+
+// stylelint-disable-next-line selector-not-notation
+.app-prose-notification-banner-scope {
+  p {
+    // stylelint-disable-next-line scss/at-extend-no-missing-placeholder
+    @extend .govuk-notification-banner__heading;
+  }
+
+  a {
+    // stylelint-disable-next-line scss/at-extend-no-missing-placeholder
+    @extend .govuk-notification-banner__link;
+  }
+}
