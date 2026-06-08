@@ -206,6 +206,6 @@
     "webpack-cli": "^7.0.3"
   },
   "peerDependencies": {
-    "govuk-frontend": "^6.0.0"
+    "govuk-frontend": "^6.2.0"
   }
 }
