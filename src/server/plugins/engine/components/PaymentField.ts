@@ -107,7 +107,7 @@ export class PaymentField extends FormComponent {
     const viewModel = super.getViewModel(payload, errors)
 
     // Payload is pre-populated from state if a payment has already been made
-    const paymentState = this.isPaymentState(payload[this.name] as unknown)
+    const paymentState = this.isPaymentState(payload[this.name])
       ? (payload[this.name] as unknown as PaymentState)
       : undefined
 

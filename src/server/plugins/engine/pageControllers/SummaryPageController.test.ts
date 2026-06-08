@@ -350,10 +350,10 @@ describe('SummaryPageController - Payment (DF-832)', () => {
               capture: { status: 'success' }
             }
           } as unknown as FormSubmissionState)
-        : ({
+        : {
             $$__referenceNumber: 'foobar',
             yesNoField: true
-          } as FormSubmissionState)
+          }
 
       const outputSubmit = jest.fn()
       const formSubmissionSubmit = jest.fn()
@@ -370,7 +370,7 @@ describe('SummaryPageController - Payment (DF-832)', () => {
           ...model.services.outputService,
           submit: outputSubmit
         }
-      } as typeof model.services
+      }
 
       const request = {
         ...requestPage,

@@ -63,8 +63,7 @@ export abstract class LocationFieldBase extends FormComponent {
     addClassOptionIfNone(locationOptions, 'govuk-input--width-10')
 
     const config = this.getValidationConfig()
-    const requiredMessage =
-      config.requiredMessage ?? (messageTemplate.required as string)
+    const requiredMessage = config.requiredMessage ?? messageTemplate.required
 
     const messages = convertToLanguageMessages({
       'any.required': requiredMessage,
@@ -140,8 +139,7 @@ export abstract class LocationFieldBase extends FormComponent {
       baseErrors: [
         {
           type: 'required',
-          template:
-            config.requiredMessage ?? (messageTemplate.required as string)
+          template: config.requiredMessage ?? messageTemplate.required
         },
         ...this.getErrorTemplates()
       ],

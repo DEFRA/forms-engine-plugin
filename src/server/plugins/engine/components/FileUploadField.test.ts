@@ -389,7 +389,6 @@ describe('FileUploadField', () => {
             label: { text: def.title },
             name: 'file', // hardcoded to 'file' for CDP
             id: 'myComponent',
-            value: '', // input type=file can't have a default value
             upload: {
               count: 3,
               summaryList: {
@@ -474,7 +473,6 @@ describe('FileUploadField', () => {
             label: { text: def.title },
             name: 'file', // hardcoded to 'file' for CDP
             id: 'myComponent',
-            value: '', // input type=file can't have a default value
             upload: {
               count: 3,
               summaryList: {
@@ -528,7 +526,6 @@ describe('FileUploadField', () => {
             label: { text: def.title },
             name: 'file', // hardcoded to 'file' for CDP
             id: 'myComponent',
-            value: '', // input type=file can't have a default value
             upload: {
               count: 1,
               summaryList: {
@@ -569,7 +566,6 @@ describe('FileUploadField', () => {
             label: { text: def.title },
             name: 'file', // hardcoded to 'file' for CDP
             id: 'myComponent',
-            value: '', // input type=file can't have a default value
             upload: {
               count: 1,
               summaryList: {

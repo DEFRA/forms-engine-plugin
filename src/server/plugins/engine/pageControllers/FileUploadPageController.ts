@@ -444,7 +444,7 @@ export class FileUploadPageController extends QuestionPageController {
           status: {
             ...validatedStatus,
             form: { file }
-          } as FileState['status']
+          }
         }
         files.unshift(prepareFileState(perFileState))
       } else {

@@ -9,6 +9,7 @@
 {% from "components/tag-env/macro.njk" import appTagEnv -%}
 {% from "govuk/components/cookie-banner/macro.njk" import govukCookieBanner -%}
 {% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner -%}
+{% from "govuk/components/service-navigation/macro.njk" import govukServiceNavigation -%}
 
 {% set productName %}
   {{ appTagEnv({ env: "devtool" }) }}
@@ -24,24 +25,27 @@
   {{ "Error: " if errors | length }}{{ pageTitle | evaluate }} - {{ name if name else config.serviceName }} - GOV.UK
 {%- endblock %}
 
-{% block skipLink %}
+{% block govukSkipLink %}
   {{ govukSkipLink({
     href: '#main-content',
     text: 'Skip to main content'
   }) }}
 {% endblock %}
 
-{% block header %}
+{% block govukHeader %}
   {{ govukHeader({
     homepageUrl: currentPath if context.isForceAccess else "https://defra.github.io/forms-engine-plugin/",
-    containerClasses: "govuk-width-container",
-    productName: productName | safe | trim,
-    serviceName: config.serviceName,
+    productName: productName | safe | trim
+  }) }}
+{% endblock %}
+{% block govukServiceNavigation %}
+  {{ govukServiceNavigation({
+    serviceName: name if name else config.serviceName,
     serviceUrl: currentPath if context.isForceAccess else serviceUrl
   }) }}
 {% endblock %}
 
-{% block beforeContent %}
+{% block containerStart %}
   {% if backLink %}
     {{ govukBackLink(backLink) }}
   {% endif %}
@@ -55,7 +59,7 @@
   <script type="module" nonce="{{ cspNonce }}" src="{{ getDxtAssetPath("application.js") }}"></script>
 {% endblock %}
 
-{% block footer %}
+{% block govukFooter %}
   {% set meta = {
     items: [
       {

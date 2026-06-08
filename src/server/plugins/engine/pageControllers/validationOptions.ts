@@ -17,7 +17,7 @@ export const opts = {
 } as ReferenceOptions
 
 /**
- * see @link https://joi.dev/api/?v=17.4.2#template-syntax for template syntax
+ * see {@link https://joi.dev/api/?v=17.4.2#template-syntax} for template syntax
  */
 export const messageTemplate: Record<string, JoiExpression> = {
   declarationRequired: joi.expression(

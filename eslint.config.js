@@ -178,6 +178,8 @@ export default tseslint.config(
       ],
 
       // JSDoc @param is optional
+      'jsdoc/reject-any-type': 'off',
+      'jsdoc/reject-function-type': 'off',
       'jsdoc/require-param-description': 'off',
       'jsdoc/require-param-type': 'off',
       'jsdoc/require-param': 'off',
@@ -218,6 +220,8 @@ export default tseslint.config(
       ],
 
       // JSDoc @param types are mandatory for JavaScript
+      'jsdoc/reject-any-type': 'off',
+      'jsdoc/reject-function-type': 'off',
       'jsdoc/require-param-description': 'off',
       'jsdoc/require-param-type': 'error',
       'jsdoc/require-param': 'off',
