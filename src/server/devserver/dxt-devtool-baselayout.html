@@ -9,6 +9,7 @@
 {% from "components/tag-env/macro.njk" import appTagEnv -%}
 {% from "govuk/components/cookie-banner/macro.njk" import govukCookieBanner -%}
 {% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner -%}
+{% from "govuk/components/service-navigation/macro.njk" import govukServiceNavigation -%}
 
 {% set productName %}
   {{ appTagEnv({ env: "devtool" }) }}
@@ -35,7 +36,9 @@
   {{ govukHeader({
     homepageUrl: currentPath if context.isForceAccess else "https://defra.github.io/forms-engine-plugin/",
     containerClasses: "govuk-width-container",
-    productName: productName | safe | trim,
+    productName: productName | safe | trim
+  }) }}
+  {{ govukServiceNavigation({
     serviceName: config.serviceName,
     serviceUrl: currentPath if context.isForceAccess else serviceUrl
   }) }}
