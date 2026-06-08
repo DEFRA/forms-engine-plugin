@@ -1,0 +1,15 @@
+{% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
+
+{% macro NotificationBanner(component) %}
+  {%- set bannerHtml -%}
+    {%- if component.model.heading -%}
+      <div class="app-prose-notification-banner-scope">{{ component.model.heading | markdown | safe }}</div>
+    {%- endif -%}
+    <div class="app-prose-scope">{{ component.model.content | markdown | safe }}</div>
+  {%- endset -%}
+  {{ govukNotificationBanner({
+    titleHtml: component.model.titleHtml,
+    html: bannerHtml,
+    type: component.model.type
+  }) }}
+{% endmacro %}

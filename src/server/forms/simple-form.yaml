@@ -78,6 +78,25 @@ pages:
         id: '00738799-3489-4ab2-a57b-542eecb31bfa'
     next: []
     id: da0fbdb4-a2de-4650-be16-9ba552af135f
+  - title: ''
+    path: '/notification-demo'
+    components:
+      - type: NotificationBanner
+        title: Important
+        name: notificationImportant
+        content: 'Contact us if you need [help with your application](https://www.defra.gov.uk).'
+        options:
+          heading: There may be a delay in processing your application.
+        id: ca6b6590-1608-49f4-82f9-9d92e38e66ea
+      - type: NotificationBanner
+        title: Success
+        name: notificationSuccess
+        content: 'Your application has been submitted.'
+        options:
+          type: success
+        id: b6960f4b-d771-4956-9c9b-17da5c603062
+    next: []
+    id: be4b4b86-514c-43bb-8cdc-f9aed6155924
   - id: 449a45f6-4541-4a46-91bd-8b8931b07b50
     title: ''
     path: '/summary'
