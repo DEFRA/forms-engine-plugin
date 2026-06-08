@@ -277,9 +277,6 @@ export class FileUploadField extends FormComponent {
     return {
       ...viewModel,
 
-      // File input can't have a initial value
-      value: '',
-
       // Override the component name we send to CDP
       name: 'file',
 
