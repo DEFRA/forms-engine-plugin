@@ -62,7 +62,7 @@ export class DeclarationField extends FormComponent {
         'any.unknown': messageTemplate.declarationRequired as string,
         'array.includesRequiredUnknowns':
           messageTemplate.declarationRequired as string
-      }) as unknown as ArraySchema<StringSchema[]>
+      }) as ArraySchema<StringSchema[]>
 
     this.formSchema = formSchema
     this.stateSchema = joi.boolean().cast('string').label(this.label).required()
