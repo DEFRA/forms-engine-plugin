@@ -32,12 +32,13 @@
   }) }}
 {% endblock %}
 
-{% block header %}
+{% block govukHeader %}
   {{ govukHeader({
     homepageUrl: currentPath if context.isForceAccess else "https://defra.github.io/forms-engine-plugin/",
-    containerClasses: "govuk-width-container",
     productName: productName | safe | trim
   }) }}
+{% endblock %}
+{% block govukServiceNavigation %}
   {{ govukServiceNavigation({
     serviceName: name if name else config.serviceName,
     serviceUrl: currentPath if context.isForceAccess else serviceUrl
@@ -58,7 +59,7 @@
   <script type="module" nonce="{{ cspNonce }}" src="{{ getDxtAssetPath("application.js") }}"></script>
 {% endblock %}
 
-{% block footer %}
+{% block govukFooter %}
   {% set meta = {
     items: [
       {
