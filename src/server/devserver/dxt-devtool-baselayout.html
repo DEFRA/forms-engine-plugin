@@ -25,7 +25,7 @@
   {{ "Error: " if errors | length }}{{ pageTitle | evaluate }} - {{ name if name else config.serviceName }} - GOV.UK
 {%- endblock %}
 
-{% block skipLink %}
+{% block govukSkipLink %}
   {{ govukSkipLink({
     href: '#main-content',
     text: 'Skip to main content'
@@ -44,7 +44,7 @@
   }) }}
 {% endblock %}
 
-{% block beforeContent %}
+{% block containerStart %}
   {% if backLink %}
     {{ govukBackLink(backLink) }}
   {% endif %}
