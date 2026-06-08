@@ -39,7 +39,7 @@
     productName: productName | safe | trim
   }) }}
   {{ govukServiceNavigation({
-    serviceName: config.serviceName,
+    serviceName: name if name else config.serviceName,
     serviceUrl: currentPath if context.isForceAccess else serviceUrl
   }) }}
 {% endblock %}
