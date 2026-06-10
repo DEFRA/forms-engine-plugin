@@ -1,5 +1,5 @@
 import { ComponentType, type MonthYearFieldComponent } from '@defra/forms-model'
-import { startOfDay } from 'date-fns'
+import { addMonths, format, startOfDay, startOfMonth } from 'date-fns'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import {
@@ -401,6 +401,13 @@ describe('MonthYearField', () => {
 
   describe('Validation', () => {
     const date = new Date('2001-01-01')
+    const today = startOfDay(new Date())
+    const thisMonth = startOfMonth(today)
+
+    const OneMonthInPast = addMonths(thisMonth, -1)
+    const TwoMonthsInPast = addMonths(thisMonth, -2)
+    const OneMonthInFuture = addMonths(thisMonth, 1)
+    const TwoMonthsInFuture = addMonths(thisMonth, 2)
 
     describe.each([
       {
@@ -514,6 +521,62 @@ describe('MonthYearField', () => {
                 })
               ]
             }
+          }
+        ]
+      },
+      {
+        description: 'Earliest month/year option',
+        component: {
+          title: 'Example month/year field',
+          name: 'myComponent',
+          type: ComponentType.MonthYearField,
+          options: {
+            earliestMonthYear: format(OneMonthInPast, 'yyyy-MM')
+          }
+        } satisfies MonthYearFieldComponent,
+        assertions: [
+          {
+            input: getFormData(TwoMonthsInPast),
+            output: {
+              value: getFormData(TwoMonthsInPast),
+              errors: [
+                expect.objectContaining({
+                  text: `Example month/year field must be the same as or after ${format(OneMonthInPast, 'd MMMM yyyy')}`
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData(today),
+            output: { value: getFormData(today) }
+          }
+        ]
+      },
+      {
+        description: 'Latest month/year option',
+        component: {
+          title: 'Example month/year field',
+          name: 'myComponent',
+          type: ComponentType.MonthYearField,
+          options: {
+            latestMonthYear: format(OneMonthInFuture, 'yyyy-MM')
+          }
+        } satisfies MonthYearFieldComponent,
+        assertions: [
+          {
+            input: getFormData(TwoMonthsInFuture),
+            output: {
+              value: getFormData(TwoMonthsInFuture),
+              errors: [
+                expect.objectContaining({
+                  text: `Example month/year field must be the same as or before ${format(OneMonthInFuture, 'd MMMM yyyy')}`
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData(today),
+            output: { value: getFormData(today) }
           }
         ]
       },
