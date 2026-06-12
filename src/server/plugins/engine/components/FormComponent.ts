@@ -44,10 +44,20 @@ export class FormComponent extends ComponentBase {
 
     this.type = type
     this.hint = hint
-    this.label =
-      'shortDescription' in def && def.shortDescription
-        ? def.shortDescription
-        : def.title
+
+    this.label = this.getLabel(def)
+  }
+
+  getLabel(def: FormComponentsDef) {
+    if ('errorDescription' in def && def.errorDescription) {
+      return def.errorDescription
+    }
+
+    if ('shortDescription' in def && def.shortDescription) {
+      return def.shortDescription
+    }
+
+    return def.title
   }
 
   get keys() {
