@@ -229,7 +229,9 @@ export class DatePartsField extends FormComponent {
       ],
       advancedSettingsErrors: [
         { type: 'dateMin', template: messageTemplate.dateMin },
-        { type: 'dateMax', template: messageTemplate.dateMax }
+        { type: 'dateMax', template: messageTemplate.dateMax },
+        { type: 'earliestDate', template: messageTemplate.dateMin },
+        { type: 'latestDate', template: messageTemplate.dateMax }
       ]
     }
   }
@@ -281,18 +283,36 @@ export function getValidatorDate(component: DatePartsField) {
         ? sub(startOfToday(), { days: options.maxDaysInPast })
         : undefined
 
+    if (dateMin && date < dateMin) {
+      return helpers.error('date.min', { ...context, limit: dateMin })
+    }
+
     // Maximum date from today
     const dateMax =
       options.maxDaysInFuture || options.maxDaysInFuture === 0
         ? add(startOfToday(), { days: options.maxDaysInFuture })
         : undefined
 
-    if (dateMin && date < dateMin) {
-      return helpers.error('date.min', { ...context, limit: dateMin })
-    }
-
     if (dateMax && date > dateMax) {
       return helpers.error('date.max', { ...context, limit: dateMax })
+    }
+
+    // Minimum date from today
+    const earliestDate = options.earliestDate
+      ? new Date(options.earliestDate)
+      : undefined
+
+    if (earliestDate && date < earliestDate) {
+      return helpers.error('date.min', { ...context, limit: earliestDate })
+    }
+
+    // Maximum date from today
+    const latestDate = options.latestDate
+      ? new Date(options.latestDate)
+      : undefined
+
+    if (latestDate && date > latestDate) {
+      return helpers.error('date.max', { ...context, limit: latestDate })
     }
 
     return payload
