@@ -1,8 +1,4 @@
-import {
-  ComponentType,
-  type FormComponentsDef,
-  type UkAddressFieldComponent
-} from '@defra/forms-model'
+import { ComponentType, type UkAddressFieldComponent } from '@defra/forms-model'
 import { type ObjectSchema } from 'joi'
 import lowerFirst from 'lodash/lowerFirst.js'
 
@@ -34,15 +30,13 @@ export class UkAddressField extends FormComponent {
   declare stateSchema: ObjectSchema<FormState>
   declare collection: ComponentCollection
 
-  shortDescription: FormComponentsDef['shortDescription']
-
   constructor(
     def: UkAddressFieldComponent,
     props: ConstructorParameters<typeof FormComponent>[1]
   ) {
     super(def, props)
 
-    const { name, options, shortDescription } = def
+    const { name, options } = def
 
     const isRequired = options.required !== false
     const hideOptional = !!options.optionalText
@@ -126,7 +120,6 @@ export class UkAddressField extends FormComponent {
     this.options = options
     this.formSchema = this.collection.formSchema
     this.stateSchema = this.collection.stateSchema
-    this.shortDescription = shortDescription
   }
 
   getFormValueFromState(state: FormSubmissionState) {
@@ -174,14 +167,14 @@ export class UkAddressField extends FormComponent {
     // When using postcode lookup, the address fields are hidden
     // so we replace any individual validation messages with a single one
     if (this.shouldUsePostcodeLookup() && uniqueErrors?.length) {
-      const { name, shortDescription } = this
+      const { name, label } = this
 
       return [
         {
           name,
           path: [name],
           href: `#${name}`,
-          text: `Enter ${lowerFirst(shortDescription)}`
+          text: `Enter ${lowerFirst(label)}`
         }
       ]
     }

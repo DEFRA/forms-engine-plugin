@@ -20,6 +20,7 @@ export default /** @satisfies {FormDefinition} */ ({
           title: 'What is your address?',
           name: 'ybMHIv',
           shortDescription: 'Address',
+          errorDescription: 'Your address',
           hint: '',
           options: {
             required: true,
