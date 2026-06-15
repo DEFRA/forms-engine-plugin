@@ -39,7 +39,11 @@ export const joi = JoiBase.extend({
           )
         }
       ],
-      validate(value, { error }, args) {
+      validate(
+        value: string,
+        { error }: JoiBase.CustomHelpers,
+        args: { format?: TelephoneNumberFieldOptionsFormatEnum }
+      ) {
         const format = args.format
 
         try {
