@@ -28,8 +28,7 @@ class TestLocationField extends LocationFieldBase {
     return [
       {
         type: 'pattern',
-        template:
-          'Enter a valid test code for [short description] like TEST1234'
+        template: 'Enter a valid test code for [description] like TEST1234'
       },
       {
         type: 'custom',
