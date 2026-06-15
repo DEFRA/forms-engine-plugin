@@ -230,8 +230,8 @@ export class DatePartsField extends FormComponent {
       advancedSettingsErrors: [
         { type: 'dateMin', template: messageTemplate.dateMin },
         { type: 'dateMax', template: messageTemplate.dateMax },
-        { type: 'earliestDate', template: messageTemplate.dateMin },
-        { type: 'latestDate', template: messageTemplate.dateMax }
+        { type: 'dateEarliest', template: messageTemplate.dateMin },
+        { type: 'dateLatest', template: messageTemplate.dateMax }
       ]
     }
   }

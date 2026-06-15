@@ -223,8 +223,8 @@ export class MonthYearField extends FormComponent {
         { type: 'dateFormatYear', template: '{{#label}} must include a year' }
       ],
       advancedSettingsErrors: [
-        { type: 'dateMin', template: messageTemplate.dateMin },
-        { type: 'dateMax', template: messageTemplate.dateMax }
+        { type: 'dateEarliest', template: messageTemplate.dateMin },
+        { type: 'dateLatest', template: messageTemplate.dateMax }
       ]
     }
   }
