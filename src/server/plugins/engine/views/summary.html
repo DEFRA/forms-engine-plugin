@@ -57,7 +57,7 @@
         {{ govukSummaryList(paymentDetails.summaryList) }}
       {% endif %}
 
-      <form method="post" novalidate>
+      <form method="post" action="#" novalidate>
         <input type="hidden" name="crumb" value="{{ crumb }}">
 
         {% block customPageContent %}{% endblock %}
