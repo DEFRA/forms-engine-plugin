@@ -101,7 +101,7 @@ describe('Postcode lookup form pages', () => {
 
     const $errorItems = within($errorSummary).getAllByRole('listitem')
     expect($errorItems).toHaveLength(1)
-    expect($errorItems[0]).toHaveTextContent('Enter address')
+    expect($errorItems[0]).toHaveTextContent('Enter your address')
   })
 
   it('should dispatch to details page on POST', async () => {
