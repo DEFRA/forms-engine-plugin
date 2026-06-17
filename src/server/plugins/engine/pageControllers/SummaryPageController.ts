@@ -570,7 +570,7 @@ function getPaymentFieldItems(
           name: field.name,
           page,
           title: field.title,
-          label: field.label,
+          label: field.summaryLabel,
           field,
           state: context.state,
           href: page.href,

@@ -228,8 +228,8 @@ export function ItemField(
     label: field.title,
     title:
       field.options.required === false
-        ? `${field.label} (optional)`
-        : field.label,
+        ? `${field.summaryLabel} (optional)`
+        : field.summaryLabel,
     error: field.getFirstError(options.errors),
     value: getAnswer(field, state),
     href: getPageHref(page, options.path, {
