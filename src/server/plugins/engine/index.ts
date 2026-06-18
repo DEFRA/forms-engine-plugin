@@ -20,6 +20,7 @@ export {
   getFormModel,
   resolveFormModel
 } from '~/src/server/plugins/engine/beta/form-context.js'
+export * from '~/src/server/plugins/engine/form-availability.js'
 
 const globals = {
   checkComponentTemplates,
