@@ -71,3 +71,5 @@ export const prepareNunjucksEnvironment = function (
 }
 
 export default plugin
+
+export * from '~/src/server/plugins/engine/form-availability.js'
