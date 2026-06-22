@@ -4,16 +4,30 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-l">Sorry, this form is unavailable</h1>
-      <p class="govuk-body">'{{ formTitle }}' has been archived and is no longer available.</p>
-      <p class="govuk-body">Contact the {{ organisationName }}.</p>
+      <p class="govuk-body">'{{ formTitle }}' is no longer available.</p>
+      <h2 class="govuk-heading-m">Contact details for {{ organisationName }}:</h2>
 
-      {% if phoneLines %}
-        <ul class="govuk-list govuk-list--bullet">
-          {% for line in phoneLines %}
-            <li>{{ line }}</li>
-          {% endfor %}
-        </ul>
+      {% if contact.phone %}
+        <h3 class="govuk-heading-s">Telephone</h3>
+        <div class="app-prose-scope">
+          {{ contact.phone | markdown(3) | safe }}
+        </div>
         <p class="govuk-body"><a href="https://www.gov.uk/call-charges" class="govuk-link govuk-link--no-visited-state">Find out about call charges</a></p>
+      {% endif %}
+
+      {% if contact.email %}
+        <h3 class="govuk-heading-s">Email</h3>
+        <ul class="govuk-list">
+          <li><a class="govuk-link govuk-link--no-visited-state" href="mailto:{{ contact.email.address }}">{{ contact.email.address }}</a></li>
+          <li>{{ contact.email.responseTime }}</li>
+        </ul>
+      {% endif %}
+
+      {% if contact.online %}
+        <h3 class="govuk-heading-s">Online contact form</h3>
+        <ul class="govuk-list">
+          <li><a class="govuk-link govuk-link--no-visited-state" href="{{ contact.online.url }}">{{ contact.online.text }}</a></li>
+        </ul>
       {% endif %}
     </div>
   </div>
