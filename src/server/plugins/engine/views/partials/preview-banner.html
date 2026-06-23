@@ -11,10 +11,22 @@
 {% call govukNotificationBanner() %}
   {% if not context.isForceAccess %}
     <p class="govuk-notification-banner__heading govuk-!-margin-bottom-0">
-      This is a preview of a {{ previewMode }} form. Do not enter personal information.
+      This is a preview of a {{ previewMode }} form. Do not enter personal information.
     </p>
 
     {{ _closeLink() }}
+
+    {% if not context.notificationEmail %}
+      <p class="govuk-body govuk-!-margin-top-2">
+        You can complete this form to test the user journey. The form will appear to submit successfully, but because a destination email address has not been set, the following features will not trigger:
+      </p>
+      <ul class="govuk-list govuk-list--bullet">
+        <li>email delivery</li>
+        <li>file uploads</li>
+        <li>payments</li>
+        <li>SQS deliveries</li>
+      </ul>
+    {% endif %}
   {% else %}
     <p class="govuk-notification-banner__heading govuk-!-margin-bottom-0">
       This is a preview of a {{ previewMode }} form page you are editing.

@@ -267,12 +267,19 @@ export class SummaryPageController extends QuestionPageController {
     const { notificationEmail } = formMetadata
     const { isPreview } = checkFormStatus(request.params)
 
-    checkEmailAddressForLiveFormSubmission(notificationEmail, isPreview)
+    const hasPayment = this.findPaymentField() !== undefined
+    checkEmailAddressForLiveFormSubmission(
+      notificationEmail,
+      isPreview,
+      hasPayment
+    )
 
-    if (notificationEmail) {
-      const viewModel = this.getSummaryViewModel(request, context)
+    const viewModel = notificationEmail
+      ? this.getSummaryViewModel(request, context)
+      : undefined
 
-      try {
+    try {
+      if (notificationEmail && viewModel) {
         await submitForm(
           context,
           formMetadata,
@@ -281,9 +288,12 @@ export class SummaryPageController extends QuestionPageController {
           model,
           notificationEmail
         )
-      } catch (error) {
-        return this.handleSubmissionError(error, request, h)
+      } else {
+        // Payment-only submission path — runs PaymentField capture hooks only.
+        await finalisePaymentFields(request, formMetadata, context, model)
       }
+    } catch (error) {
+      return this.handleSubmissionError(error, request, h)
     }
 
     await cacheService.setConfirmationState(request, {
@@ -514,6 +524,24 @@ async function finaliseComponents(
 
   for (const component of allFields) {
     await component.onSubmit(request, metadata, context)
+  }
+}
+
+/**
+ * Runs PaymentField capture hooks for the no-email submission path.
+ */
+async function finalisePaymentFields(
+  request: FormRequestPayload,
+  metadata: FormMetadata,
+  context: FormContext,
+  model: FormModel
+) {
+  for (const page of model.pages) {
+    for (const field of page.collection.fields) {
+      if (field instanceof PaymentField) {
+        await field.onSubmit(request, metadata, context)
+      }
+    }
   }
 }
 

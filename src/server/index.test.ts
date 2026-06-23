@@ -259,7 +259,9 @@ describe('Model cache', () => {
 
       // Assert the live/live cache item has the correct updatedAt timestamp
       expect(
-        getCacheItem(`${fixtures.form.metadata.id}_live_false`)?.updatedAt
+        getCacheItem(
+          `${fixtures.form.metadata.id}_live_false_${fixtures.form.metadata.notificationEmail}`
+        )?.updatedAt
       ).toBe(now2)
 
       // Expect the cache size to remain unchanged

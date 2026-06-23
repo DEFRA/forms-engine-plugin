@@ -1,3 +1,4 @@
+import { hasPaymentQuestionInForm } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type Request, type Server } from '@hapi/hapi'
 import { isEqual } from 'date-fns'
@@ -73,7 +74,8 @@ export async function getFormModel(
         options.basePath ??
         buildBasePath(options.routePrefix ?? '', slug, formState, isPreview),
       ordnanceSurveyApiKey: options.ordnanceSurveyApiKey,
-      formId: options.formId ?? metadata.id
+      formId: options.formId ?? metadata.id,
+      notificationEmail: metadata.notificationEmail
     },
     services,
     options.controllers
@@ -153,7 +155,7 @@ export async function resolveFormModel(
 
   const cache = server.app.models
 
-  const cacheKey = `${metadata.id}_${formState}_${isPreview}`
+  const cacheKey = `${metadata.id}_${formState}_${isPreview}_${metadata.notificationEmail}`
   let entry = cache.get(cacheKey)
 
   if (!entry || !isEqual(entry.updatedAt, stateMetadata.updatedAt)) {
@@ -170,7 +172,8 @@ export async function resolveFormModel(
 
     checkEmailAddressForLiveFormSubmission(
       metadata.notificationEmail,
-      isPreview
+      isPreview,
+      hasPaymentQuestionInForm(definition)
     )
 
     const routePrefix =
@@ -183,7 +186,8 @@ export async function resolveFormModel(
           options.basePath ??
           buildBasePath(routePrefix, slug, formState, isPreview),
         ordnanceSurveyApiKey: options.ordnanceSurveyApiKey,
-        formId: options.formId ?? metadata.id
+        formId: options.formId ?? metadata.id,
+        notificationEmail: metadata.notificationEmail
       },
       services,
       options.controllers

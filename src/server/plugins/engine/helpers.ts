@@ -282,9 +282,11 @@ export function checkFormStatus(params?: FormParams) {
 
 export function checkEmailAddressForLiveFormSubmission(
   emailAddress: string | undefined,
-  isPreview: boolean
+  isPreview: boolean,
+  hasPayment: boolean
 ) {
-  if (!emailAddress && !isPreview) {
+  // Payment-only forms submit via GOV.UK Pay without a notification email.
+  if (!emailAddress && !isPreview && !hasPayment) {
     throw Boom.internal(
       'An email address is required to complete the form submission'
     )
