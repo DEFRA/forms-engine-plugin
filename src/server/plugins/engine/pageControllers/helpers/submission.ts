@@ -36,10 +36,11 @@ export function buildMainRecords(items: DetailItem[]): SubmitRecord[] {
     } else if (item.field instanceof GeospatialField) {
       // Stringify of GeoJSON is done here rather than inside `getContextValueFromState`
       // so we don't incur the overhead of JSON.stringify on every request when building context
+      const value = item.field.getFormValueFromState(item.state)
       records.push({
         name: item.name,
         title: item.label,
-        value: JSON.stringify(item.field.getFormValueFromState(item.state))
+        value: value === undefined ? '' : JSON.stringify(value)
       })
     } else {
       records.push({
