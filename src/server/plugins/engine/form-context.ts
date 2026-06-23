@@ -53,7 +53,7 @@ export async function getFormModel(
   const formState = resolveState(state)
 
   const metadata = await formsService.getFormMetadata(slug)
-  assertFormAvailable(metadata)
+  assertFormAvailable(metadata, formState, isPreview)
 
   const definition = await formsService.getFormDefinition(
     metadata.id,
@@ -136,9 +136,9 @@ export async function resolveFormModel(
   const { formsService } = services
 
   const metadata = await formsService.getFormMetadata(slug)
-  assertFormAvailable(metadata)
   const formState = resolveState(state)
   const isPreview = options.isPreview ?? isPreviewState(state, options)
+  assertFormAvailable(metadata, formState, isPreview)
   const stateMetadata = metadata[formState]
 
   if (!stateMetadata) {

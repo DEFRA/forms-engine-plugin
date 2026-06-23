@@ -1,3 +1,4 @@
+import { FormStatus } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 
 import {
@@ -8,17 +9,48 @@ import { metadata } from '~/test/fixtures/form.js'
 
 describe('form-availability', () => {
   describe('assertFormAvailable', () => {
-    it('should do nothing if form is online', () => {
+    it('should do nothing if live form is online', () => {
       expect(() =>
-        assertFormAvailable({ ...metadata, offline: false })
+        assertFormAvailable(
+          { ...metadata, offline: false },
+          FormStatus.Live,
+          false
+        )
       ).not.toThrow()
       expect(() =>
-        assertFormAvailable({ ...metadata, offline: undefined })
+        assertFormAvailable(
+          { ...metadata, offline: undefined },
+          FormStatus.Live,
+          false
+        )
+      ).not.toThrow()
+    })
+
+    it('should do nothing if draft form or live preview is online', () => {
+      expect(() =>
+        assertFormAvailable(
+          { ...metadata, offline: false },
+          FormStatus.Draft,
+          true
+        )
+      ).not.toThrow()
+      expect(() =>
+        assertFormAvailable(
+          { ...metadata, offline: undefined },
+          FormStatus.Live,
+          true
+        )
       ).not.toThrow()
     })
 
     it('should throw a 503 Boom error if form is offline', () => {
-      expect(() => assertFormAvailable({ ...metadata, offline: true })).toThrow(
+      expect(() =>
+        assertFormAvailable(
+          { ...metadata, offline: true },
+          FormStatus.Live,
+          false
+        )
+      ).toThrow(
         expect.objectContaining({
           message: `Form ${metadata.slug} is offline`,
           data: {

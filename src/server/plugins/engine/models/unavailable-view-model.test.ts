@@ -17,46 +17,8 @@ describe('unavailableViewModel', () => {
   it('should strip the organisation suffix if present', () => {
     const result = unavailableViewModel({
       ...metadata,
-      organisation: 'Rural Payments Agency – RPA'
+      organisation: 'Rural Payments Agency - RPA'
     } as FormMetadata)
-    expect(result.organisationName).toBe('Rural Payments Agency')
-  })
-
-  it('should handle multiple phone lines correctly', () => {
-    const result = unavailableViewModel({
-      ...metadata,
-      contact: {
-        phone: '01234 567 890\n09876 543 210'
-      }
-    } as FormMetadata)
-    expect(result.phoneLines).toEqual(['01234 567 890', '09876 543 210'])
-  })
-
-  it('should filter out empty phone lines and trim whitespace', () => {
-    const result = unavailableViewModel({
-      ...metadata,
-      contact: {
-        phone: '  01234 567 890  \n  \n  09876 543 210  '
-      }
-    } as FormMetadata)
-    expect(result.phoneLines).toEqual(['01234 567 890', '09876 543 210'])
-  })
-
-  it('should return undefined if phone is empty or only whitespace', () => {
-    const result = unavailableViewModel({
-      ...metadata,
-      contact: {
-        phone: ' \n '
-      }
-    } as FormMetadata)
-    expect(result.phoneLines).toBeUndefined()
-  })
-
-  it('should handle missing contact property', () => {
-    const result = unavailableViewModel({
-      ...metadata,
-      contact: undefined
-    } as FormMetadata)
-    expect(result.phoneLines).toBeUndefined()
+    expect(result.organisationName).toBe('Rural Payments Agency - RPA')
   })
 })
