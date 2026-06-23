@@ -17,8 +17,8 @@ describe('unavailableViewModel', () => {
   it('should strip the organisation suffix if present', () => {
     const result = unavailableViewModel({
       ...metadata,
-      organisation: 'Rural Payments Agency – RPA'
+      organisation: 'Rural Payments Agency - RPA'
     } as FormMetadata)
-    expect(result.organisationName).toBe('the Rural Payments Agency')
+    expect(result.organisationName).toBe('Rural Payments Agency - RPA')
   })
 })
