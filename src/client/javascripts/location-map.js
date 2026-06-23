@@ -444,6 +444,7 @@ export function processLocation(config, location, index) {
 
       // Add info panel
       map.addPanel('info', {
+        focus: false,
         showLabel: true,
         label: 'How to use the map',
         mobile: {
