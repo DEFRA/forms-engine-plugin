@@ -6,7 +6,9 @@ import { SelectionControlField } from '~/src/server/plugins/engine/components/Se
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
+import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
+  type ErrorMessageTemplateList,
   type FormState,
   type FormStateValue,
   type FormSubmissionState
@@ -14,6 +16,7 @@ import {
 
 export class CheckboxesField extends SelectionControlField {
   declare options: CheckboxesFieldComponent['options']
+  declare schema: CheckboxesFieldComponent['schema']
   declare formSchema: ArraySchema<string> | ArraySchema<number>
   declare stateSchema: ArraySchema<string> | ArraySchema<number>
 
@@ -24,7 +27,7 @@ export class CheckboxesField extends SelectionControlField {
     super(def, props)
 
     const { listType: type } = this
-    const { options } = def
+    const { options, schema } = def
 
     let formSchema =
       type === 'string' ? joi.array<string>() : joi.array<number>()
@@ -38,9 +41,26 @@ export class CheckboxesField extends SelectionControlField {
       .single()
       .label(this.label)
       .required()
+      .messages({
+        'array.min': messageTemplate.arrayMin as string,
+        'array.max': messageTemplate.arrayMax as string,
+        'array.length': messageTemplate.arrayLength as string
+      })
 
     if (options.required === false) {
       formSchema = formSchema.optional()
+    }
+
+    if (typeof schema?.length === 'number') {
+      formSchema = formSchema.length(schema.length)
+    } else {
+      if (typeof schema?.min === 'number') {
+        formSchema = formSchema.min(schema.min)
+      }
+
+      if (typeof schema?.max === 'number') {
+        formSchema = formSchema.max(schema.max)
+      }
     }
 
     this.formSchema = formSchema.default([])
@@ -111,6 +131,30 @@ export class CheckboxesField extends SelectionControlField {
     const values = this.getFormValueFromState(state)
 
     return this.getContextValueFromFormValue(values)
+  }
+
+  /**
+   * For error preview page that shows all possible errors on a component
+   */
+  getAllPossibleErrors(): ErrorMessageTemplateList {
+    return CheckboxesField.getAllPossibleErrors()
+  }
+
+  /**
+   * Static version of getAllPossibleErrors that doesn't require a component instance.
+   */
+  static getAllPossibleErrors(): ErrorMessageTemplateList {
+    const parentErrors = SelectionControlField.getAllPossibleErrors()
+
+    return {
+      ...parentErrors,
+      advancedSettingsErrors: [
+        ...parentErrors.advancedSettingsErrors,
+        { type: 'array.min', template: messageTemplate.arrayMin },
+        { type: 'array.max', template: messageTemplate.arrayMax },
+        { type: 'array.length', template: messageTemplate.arrayLength }
+      ]
+    }
   }
 
   isValue(value?: FormStateValue | FormState): value is Item['value'][] {

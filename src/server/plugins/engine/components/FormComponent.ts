@@ -33,6 +33,7 @@ export class FormComponent extends ComponentBase {
   type: FormComponentsDef['type']
   hint: FormComponentsDef['hint']
   label: string
+  summaryLabel: string
 
   isFormComponent = true
   isAppendageStateSingleObject = false
@@ -47,10 +48,25 @@ export class FormComponent extends ComponentBase {
 
     this.type = type
     this.hint = hint
-    this.label =
-      'shortDescription' in def && def.shortDescription
-        ? def.shortDescription
-        : def.title
+
+    this.label = this.getLabel(def)
+    this.summaryLabel = this.getSummaryLabel(def)
+  }
+
+  getLabel(def: FormComponentsDef) {
+    if ('errorDescription' in def && def.errorDescription) {
+      return def.errorDescription
+    }
+
+    return this.getSummaryLabel(def)
+  }
+
+  getSummaryLabel(def: FormComponentsDef) {
+    if ('shortDescription' in def && def.shortDescription) {
+      return def.shortDescription
+    }
+
+    return def.title
   }
 
   get keys() {

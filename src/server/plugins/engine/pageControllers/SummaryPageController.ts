@@ -6,6 +6,7 @@ import {
 } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type RouteOptions } from '@hapi/hapi'
+import { StatusCodes } from 'http-status-codes'
 
 import {
   COMPONENT_STATE_ERROR,
@@ -66,6 +67,16 @@ export class SummaryPageController extends QuestionPageController {
    * The controller which is used when Page["controller"] is defined as "./pages/summary.js"
    */
 
+  /**
+   * Finds the PaymentField component across all pages in the model.
+   * Payment pages are skipped in the normal page walk
+   */
+  private findPaymentField(): PaymentField | undefined {
+    return this.model.pages
+      .flatMap((page) => page.collection.fields)
+      .find((field): field is PaymentField => field instanceof PaymentField)
+  }
+
   constructor(model: FormModel, pageDef: Page) {
     super(model, pageDef)
     this.viewName = 'summary'
@@ -88,19 +99,34 @@ export class SummaryPageController extends QuestionPageController {
 
     const { payload, errors, state } = context
 
-    const paymentField = context.relevantPages
-      .flatMap((page) => page.collection.fields)
-      .find((field): field is PaymentField => field instanceof PaymentField)
+    const paymentField = this.findPaymentField()
 
     if (paymentField) {
+      const resolvedAmount = PaymentField.resolveAmount(
+        paymentField.options,
+        this.model,
+        state
+      )
       const paymentState = paymentField.getPaymentStateFromState(state)
-      if (paymentState) {
+
+      if (paymentState?.amount === resolvedAmount) {
         viewModel.paymentState = paymentState
         viewModel.paymentDetails = this.buildPaymentDetails(
           paymentField,
           paymentState,
           t
         )
+      }
+
+      if (resolvedAmount > 0) {
+        viewModel.paymentRequired = true
+      }
+      if (
+        paymentState &&
+        paymentState.preAuth?.status === 'success' &&
+        paymentState.amount === resolvedAmount
+      ) {
+        viewModel.paymentPreAuthorized = true
       }
     }
 
@@ -169,6 +195,18 @@ export class SummaryPageController extends QuestionPageController {
       const translator = this.getTranslator(request)
       const { t } = translator
 
+      // After GOV.UK Pay callback, auto-submit the form instead of
+      // showing CYA again. The payment is already pre-authorized.
+      if (request.query.paymentComplete === 'true') {
+        return this.handleFormSubmit(
+          request as unknown as FormRequestPayload,
+          context,
+          h
+        )
+      }
+
+      await this.reconcilePaymentState(request, context)
+
       const viewModel = this.getSummaryViewModel(request, context, translator)
 
       viewModel.hasMissingNotificationEmail =
@@ -176,6 +214,33 @@ export class SummaryPageController extends QuestionPageController {
 
       viewModel.t = t
       return h.view(viewName, viewModel)
+    }
+  }
+
+  /**
+   * Checks if the resolved payment amount has changed since pre-auth
+   * and invalidates stale payment state if so.
+   */
+  private async reconcilePaymentState(
+    request: FormRequest,
+    context: FormContext
+  ) {
+    const paymentField = this.findPaymentField()
+
+    if (!paymentField) {
+      return
+    }
+
+    const resolvedAmount = PaymentField.resolveAmount(
+      paymentField.options,
+      this.model,
+      context.state
+    )
+    const paymentState = paymentField.getPaymentStateFromState(context.state)
+
+    if (paymentState && paymentState.amount !== resolvedAmount) {
+      const cacheService = getCacheService(request.server)
+      await cacheService.resetComponentStates(request, [paymentField.name])
     }
   }
 
@@ -308,6 +373,18 @@ export class SummaryPageController extends QuestionPageController {
       }
     }
 
+    // Payment page is skipped in the page walk, so proceed() would redirect
+    // to an earlier page. For PaymentIncomplete, redirect directly to the
+    // payment page using its href.
+    if (
+      error.errorType === PaymentErrorTypes.PaymentIncomplete &&
+      error.component.page
+    ) {
+      return h
+        .redirect(error.component.page.getHref(error.component.page.path))
+        .code(StatusCodes.SEE_OTHER)
+    }
+
     const govukError = createError(error.component.name, error.userMessage)
     request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
 
@@ -366,9 +443,9 @@ export async function submitForm(
   emailAddress: string,
   translator: Translator
 ) {
-  await finaliseComponents(request, formMetadata, context)
+  await finaliseComponents(request, formMetadata, context, model)
 
-  const paymentWasCaptured = hasPaymentBeenCaptured(context)
+  const paymentWasCaptured = hasPaymentBeenCaptured(context, model)
 
   const formStatus = checkFormStatus(request.params)
   const logTags = ['submit', 'submissionApi']
@@ -378,7 +455,8 @@ export async function submitForm(
   const items = getFormSubmissionData(
     summaryViewModel.context,
     summaryViewModel.details,
-    translator
+    translator,
+    model
   )
 
   try {
@@ -418,8 +496,11 @@ export async function submitForm(
 /**
  * Checks if any payment component has been captured
  */
-function hasPaymentBeenCaptured(context: FormContext): boolean {
-  for (const page of context.relevantPages) {
+function hasPaymentBeenCaptured(
+  context: FormContext,
+  model: FormModel
+): boolean {
+  for (const page of model.pages) {
     for (const field of page.collection.fields) {
       if (field instanceof PaymentField) {
         const paymentState = field.getPaymentStateFromState(context.state)
@@ -442,17 +523,19 @@ function hasPaymentBeenCaptured(context: FormContext): boolean {
 async function finaliseComponents(
   request: FormRequestPayload,
   metadata: FormMetadata,
-  context: FormContext
+  context: FormContext,
+  model: FormModel
 ) {
-  const relevantFields = context.relevantPages.flatMap(
-    (page) => page.collection.fields
-  )
+  // Get fields from relevant pages (normal components)
+  // plus PaymentField from all pages (payment page is skipped in the page walk)
+  const allFields = new Set([
+    ...context.relevantPages.flatMap((page) => page.collection.fields),
+    ...model.pages
+      .flatMap((page) => page.collection.fields)
+      .filter((field) => field instanceof PaymentField)
+  ])
 
-  for (const component of relevantFields) {
-    /*
-      Each component will throw InvalidComponent if its state is invalid, which is handled
-      by handleFormSubmit
-    */
+  for (const component of allFields) {
     await component.onSubmit(request, metadata, context)
   }
 }
@@ -473,14 +556,14 @@ function submitData(
     main: buildMainRecords(items, translator),
     repeaters: buildRepeaterRecords(items, translator)
   }
-
   return submit(payload)
 }
 
 export function getFormSubmissionData(
   context: FormContext,
   details: Detail[],
-  translator: Translator
+  translator: Translator,
+  model: FormModel
 ) {
   const items = context.relevantPages
     .map(({ href }) =>
@@ -490,7 +573,7 @@ export function getFormSubmissionData(
     )
     .flat()
 
-  const paymentItems = getPaymentFieldItems(context, translator)
+  const paymentItems = getPaymentFieldItems(context, translator, model)
 
   return [...items, ...paymentItems]
 }
@@ -501,18 +584,19 @@ export function getFormSubmissionData(
  */
 function getPaymentFieldItems(
   context: FormContext,
-  translator: Translator
+  translator: Translator,
+  model: FormModel
 ): DetailItemField[] {
   const items: DetailItemField[] = []
 
-  for (const page of context.relevantPages) {
+  for (const page of model.pages) {
     for (const field of page.collection.fields) {
       if (field instanceof PaymentField) {
         items.push({
           name: field.name,
           page,
           title: field.title,
-          label: field.label,
+          label: field.summaryLabel,
           field,
           state: context.state,
           href: page.href,

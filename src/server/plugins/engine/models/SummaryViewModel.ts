@@ -63,6 +63,8 @@ export class SummaryViewModel {
   paymentDetails?: CheckAnswers
   t: (key: string, opts?: Record<string, unknown>) => string
   private _translator!: Translator
+  paymentRequired?: boolean
+  paymentPreAuthorized?: boolean
 
   constructor(
     request: FormContextRequest,

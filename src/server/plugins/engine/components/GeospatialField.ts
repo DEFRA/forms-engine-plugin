@@ -6,7 +6,7 @@ import {
   FormComponent,
   isGeospatialState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { geospatialSchema } from '~/src/server/plugins/engine/components/helpers/geospatial.js'
+import { getGeospatialSchema } from '~/src/server/plugins/engine/components/helpers/geospatial.js'
 import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
@@ -32,16 +32,21 @@ export class GeospatialField extends FormComponent {
 
     const { options } = def
 
-    let formSchema = geospatialSchema.label(this.label).required()
-
-    formSchema = formSchema.max(50)
-
-    if (options.required !== false) {
-      formSchema = formSchema.min(1)
-    }
+    const formSchema = getGeospatialSchema(def)
+      .label(this.label)
+      .messages({
+        'array.min': messageTemplate.featuresMin as string,
+        'array.max': messageTemplate.featuresMax as string,
+        'array.length': messageTemplate.featuresLength as string
+      })
 
     this.formSchema = formSchema
     this.stateSchema = formSchema.default(null)
+
+    if (options.required === false) {
+      this.stateSchema = this.stateSchema.allow(null)
+    }
+
     this.options = options
   }
 
@@ -97,6 +102,8 @@ export class GeospatialField extends FormComponent {
 
     return {
       ...viewModel,
+      country: this.options.countries?.at(0),
+      geometryTypes: this.options.geometryTypes,
       value
     }
   }
@@ -112,10 +119,10 @@ export class GeospatialField extends FormComponent {
     fieldErrors?.forEach((err) => {
       if (err.name === 'description') {
         err.href = `#description_${err.path[1]}`
-        err.text = t(
-          'components.geospatialField.validation.descriptionRequired',
-          { count: Number(err.path[1]) + 1 }
-        )
+        err.text = `Enter description for location ${Number(err.path[1]) + 1}`
+      } else if (typeof err.name === 'number' && err.context?.country) {
+        err.href = `#description_${err.path[1]}`
+        err.text = `Location ${Number(err.path[1]) + 1} must be in ${err.context.country}`
       }
     })
 

@@ -24,7 +24,13 @@ export default tseslint.config(
       'build',
       'build/**',
       '.docusaurus',
-      '.docusaurus/**'
+      '.docusaurus/**',
+      'package',
+      'package/**',
+      '.src',
+      '.src/**',
+      '.src.bak',
+      '.src.bak/**'
     ]
   },
 
@@ -241,7 +247,7 @@ export default tseslint.config(
 
   // Browser client code override
   {
-    files: ['src/client/**/*.js'],
+    files: ['src/client/**/*.js', 'test/client/**/*.js'],
     languageOptions: {
       globals: {
         ...globals.browser

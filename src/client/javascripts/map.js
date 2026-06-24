@@ -1,3 +1,15 @@
+// @ts-expect-error - no types
+import InteractiveMap from '@defra/interactive-map'
+// @ts-expect-error - no types
+import createInteractPlugin from '@defra/interactive-map/plugins/interact'
+// @ts-expect-error - no types
+import createMapStylesPlugin from '@defra/interactive-map/plugins/map-styles'
+// @ts-expect-error - no types
+import createScaleBarPlugin from '@defra/interactive-map/plugins/scale-bar'
+// @ts-expect-error - no types
+import createSearchPlugin from '@defra/interactive-map/plugins/search'
+// @ts-expect-error - no types
+import maplibreProvider from '@defra/interactive-map/providers/maplibre'
 import { centroid } from '@turf/centroid'
 // @ts-expect-error - no types
 import OsGridRef, { LatLon } from 'geodesy/osgridref.js'
@@ -13,7 +25,8 @@ const COMPANY_SYMBOL_CODE = 169
 const defaultData = {
   VTS_OUTDOOR_URL: '/api/maps/vts/OS_VTS_3857_Outdoor.json',
   VTS_DARK_URL: '/api/maps/vts/OS_VTS_3857_Dark.json',
-  VTS_BLACK_AND_WHITE_URL: '/api/maps/vts/OS_VTS_3857_Black_and_White.json'
+  VTS_BLACK_AND_WHITE_URL: '/api/maps/vts/OS_VTS_3857_Black_and_White.json',
+  VTS_AERIAL_URL: '/api/maps/vts/esri-aerial.json'
 }
 
 /**
@@ -240,18 +253,6 @@ export function makeTileRequestTransformer(apiPath) {
 }
 
 /**
- * Temporary transform request function to transform geocode requests. Fixed in v0.0.18 of interactive map so this is not needed when we upgrade.
- * @param {object} request
- * @param {string} request.url
- * @param {{ method: 'get' }} request.options
- * @returns {Request}
- */
-export const transformGeocodeRequest = (request) => {
-  const url = new URL(request.url, window.location.origin)
-  return new Request(url.toString(), request.options)
-}
-
-/**
  * Create a Defra map instance
  * @param {string} mapId - the map id
  * @param {InteractiveMapInitConfig} initConfig - the map initial configuration
@@ -260,24 +261,17 @@ export const transformGeocodeRequest = (request) => {
 export function createMap(mapId, initConfig, mapsConfig) {
   const { assetPath, apiPath, data = defaultData } = mapsConfig
   const logoAltText = 'Ordnance survey logo'
-
-  // @ts-expect-error - Defra namespace currently comes from UMD support files
-  const defra = window.defra
-
-  const interactPlugin = defra.interactPlugin({
+  const interactPlugin = createInteractPlugin({
     markerColor: { outdoor: '#ff0000', dark: '#00ff00' },
-    interactionMode: 'marker',
+    interactionModes: ['placeMarker'],
     multiSelect: false
   })
 
   /** @type {InteractiveMap} */
-  const map = new defra.InteractiveMap(mapId, {
+  const map = new InteractiveMap(mapId, {
     enableFullscreen: true,
     autoColorScheme: false,
-    mapProvider: defra.maplibreProvider(),
-    reverseGeocodeProvider: defra.openNamesProvider({
-      url: `${apiPath}/reverse-geocode-proxy?easting={easting}&northing={northing}`
-    }),
+    mapProvider: maplibreProvider(),
     behaviour: 'inline',
     minZoom: 6,
     maxZoom: 18,
@@ -286,7 +280,7 @@ export function createMap(mapId, initConfig, mapsConfig) {
     transformRequest: makeTileRequestTransformer(apiPath),
     ...initConfig,
     plugins: [
-      defra.mapStylesPlugin({
+      createMapStylesPlugin({
         mapStyles: [
           {
             id: 'outdoor',
@@ -317,17 +311,25 @@ export function createMap(mapId, initConfig, mapsConfig) {
             logo: `${assetPath}/interactive-map/assets/images/os-logo-black.svg`,
             logoAltText,
             attribution: `Contains OS data ${String.fromCodePoint(COMPANY_SYMBOL_CODE)} Crown copyright and database rights ${new Date().getFullYear()}`
+          },
+          {
+            id: 'aerial',
+            label: 'Aerial',
+            url: data.VTS_AERIAL_URL,
+            thumbnail: `${assetPath}/interactive-map/assets/images/aerial-map-thumb.jpg`,
+            logo: `${assetPath}/interactive-map/assets/images/esri-logo.png`,
+            logoAltText: 'Powered by Esri',
+            attribution: `Tiles ${String.fromCodePoint(COMPANY_SYMBOL_CODE)} Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community ${new Date().getFullYear()}`
           }
         ]
       }),
       interactPlugin,
-      defra.searchPlugin({
-        transformRequest: transformGeocodeRequest,
+      createSearchPlugin({
         osNamesURL: `${apiPath}/geocode-proxy?query={query}`,
         width: '300px',
         showMarker: false
       }),
-      defra.scaleBarPlugin({
+      createScaleBarPlugin({
         units: 'metric'
       }),
       ...(initConfig.plugins ?? [])
@@ -388,6 +390,7 @@ export function centerMap(map, mapProvider, center) {
  * @property {string} VTS_OUTDOOR_URL - the outdoor tile URL
  * @property {string} VTS_DARK_URL - the dark tile URL
  * @property {string} VTS_BLACK_AND_WHITE_URL - the black and white tile URL
+ * @property {string} VTS_AERIAL_URL - the aerial tile URL
  */
 
 /**
@@ -395,6 +398,11 @@ export function centerMap(map, mapProvider, center) {
  * @property {string} assetPath - the root asset path
  * @property {string} apiPath - the root API path
  * @property {TileData} data - the tile data config
+ */
+
+/**
+ * @typedef {object} UIManagerOptions
+ * @property {string} [geometryTypes] - the CSV list of geometry types that a user can create
  */
 
 /**

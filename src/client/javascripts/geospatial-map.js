@@ -1,3 +1,9 @@
+// @ts-expect-error - no types
+import createDatasetsPlugin from '@defra/interactive-map/plugins/datasets'
+// @ts-expect-error - no types
+import { maplibreLayerAdapter } from '@defra/interactive-map/plugins/datasets/adapters/maplibre'
+// @ts-expect-error - no types
+import createDrawPlugin from '@defra/interactive-map/plugins/draw-ml'
 import { bbox } from '@turf/bbox'
 
 import {
@@ -7,8 +13,10 @@ import {
   getCentroidGridRef,
   getCoordinateGridRef
 } from '~/src/client/javascripts/map.js'
+import { formatDelimtedList } from '~/src/client/javascripts/utils.js'
 
 const helpPanelConfig = {
+  focus: false,
   showLabel: true,
   label: 'How to use this map',
   mobile: {
@@ -28,8 +36,63 @@ const helpPanelConfig = {
     open: true,
     dismissible: true,
     modal: false
-  },
-  html: '<p class="govuk-body-s govuk-!-margin-bottom-2">You can add points, shapes or lines to the map.</p><ul class="govuk-list govuk-list--number govuk-body-s"><li>Search for a county, place or postcode</li><li>Use the + and - icons to zoom in and out</li><li>Double‑click, or select \'Done\', when you have finished drawing a line or shape</li><li>Give the location a name</li></ul>'
+  }
+}
+
+/**
+ * @param {boolean} allowLine
+ * @param {boolean} allowShape
+ */
+function getLineOrShapeText(allowLine, allowShape) {
+  if (allowLine && allowShape) {
+    return 'a line or shape'
+  }
+  if (allowLine) {
+    return 'a line'
+  }
+  if (allowShape) {
+    return 'a shape'
+  }
+  return ''
+}
+
+/**
+ * @param {boolean} allowPoint
+ * @param {boolean} allowLine
+ * @param {boolean} allowShape
+ */
+function getAllowedTypesPhrase(allowPoint, allowLine, allowShape) {
+  const items = []
+
+  if (allowPoint) {
+    items.push('points')
+  }
+  if (allowLine) {
+    items.push('lines')
+  }
+  if (allowShape) {
+    items.push('shapes')
+  }
+
+  return formatDelimtedList(items, ',', 'or')
+}
+
+/**
+ * @param {boolean} allowPoint
+ * @param {boolean} allowLine
+ * @param {boolean} allowShape
+ */
+export function getHelpPanelHtml(allowPoint, allowLine, allowShape) {
+  const lineOrShapeText = getLineOrShapeText(allowLine, allowShape)
+  const doneExtra = lineOrShapeText
+    ? `<li>Double‑click, or select 'Done', when you have finished drawing ${lineOrShapeText}</li>`
+    : ''
+  const allowedTypesText = getAllowedTypesPhrase(
+    allowPoint,
+    allowLine,
+    allowShape
+  )
+  return `<p class="govuk-body-s govuk-!-margin-bottom-2">You can add ${allowedTypesText} to the map.</p><ul class="govuk-list govuk-list--number govuk-body-s"><li>Search for a county, place or postcode</li><li>Use the + and - icons to zoom in and out</li>${doneExtra}<li>Give the location a name</li></ul>`
 }
 
 const lineFeatureProperties = {
@@ -39,8 +102,8 @@ const lineFeatureProperties = {
 }
 
 const polygonFeatureProperties = {
-  stroke: 'rgba(0,112,60,1)',
-  fill: 'rgba(0,112,60,0.2)',
+  stroke: 'rgb(0, 0, 0)',
+  fill: 'rgba(255, 221, 0, 0.2)',
   strokeWidth: 2
 }
 
@@ -95,9 +158,6 @@ export function getBoundingBox(geojson) {
  * @param {number} index - the 0-based index
  */
 export function processGeospatial(config, geospatial, index) {
-  // @ts-expect-error - Defra namespace currently comes from UMD support files
-  const defra = window.defra
-
   if (!(geospatial instanceof HTMLDivElement)) {
     return
   }
@@ -110,18 +170,66 @@ export function processGeospatial(config, geospatial, index) {
   const { listEl, mapId } = createContainers(geospatialInput, index)
   const geojson = getGeoJSON(geospatialInput)
   const bounds = geojson.features.length ? getBoundingBox(geojson) : undefined
-  const drawPlugin = defra.drawMLPlugin()
+  const drawPlugin = createDrawPlugin()
+  const plugins = [drawPlugin]
+  const country = geospatial.dataset.country
+
+  if (country) {
+    // Add the country bounds as a dataset plugin to show the valid area on the map
+    // and provide feedback to the user when they add features outside of the bounds.
+    const datasetsPlugin = createDatasetsPlugin({
+      layerAdapter: maplibreLayerAdapter,
+      datasets: [
+        {
+          id: 'invalid-area',
+          label: 'Invalid areas',
+          geojson: `${config.apiPath}/maps/countries.geojson?omit=${country}`,
+          showInKey: false,
+          showInMenu: false,
+          style: {
+            stroke: 'gray',
+            strokeWidth: 1,
+            fill: 'rgba(211,211,211,0.8)'
+          }
+        },
+        {
+          id: 'valid-area',
+          label: 'Valid areas',
+          geojson: `${config.apiPath}/maps/countries.geojson?only=${country}`,
+          showInKey: false,
+          showInMenu: false,
+          style: {
+            stroke: 'rgba(0,112,60,1)',
+            strokeWidth: 1
+          }
+        }
+      ]
+    })
+
+    plugins.push(datasetsPlugin)
+  }
 
   const initConfig = {
     ...defaultConfig,
     bounds,
-    plugins: [drawPlugin]
+    plugins
   }
 
   const { map, interactPlugin } = createMap(mapId, initConfig, config)
   const featuresManager = getFeaturesManager(geojson)
   const activeFeatureManager = getActiveFeatureManager()
-  const uiManager = getUIManager(geojson, map, mapId, listEl, geospatialInput)
+  const geometryTypes = geospatial.dataset.geometrytypes
+  const options = {
+    geometryTypes
+  }
+  const uiManager = getUIManager(
+    geojson,
+    map,
+    mapId,
+    listEl,
+    geospatialInput,
+    options
+  )
 
   /**
    * @type {Context}
@@ -456,16 +564,41 @@ function getValueRenderer(geojson, geospatialInput) {
  * @param {string} mapId - the ID of the map
  * @param {HTMLDivElement} listEl - where to render the feature list
  * @param {HTMLTextAreaElement} geospatialInput - the geospatial textarea
+ * @param { UIManagerOptions | undefined } options - extra options such as allowable geometry types
  */
-function getUIManager(geojson, map, mapId, listEl, geospatialInput) {
+export function getUIManager(
+  geojson,
+  map,
+  mapId,
+  listEl,
+  geospatialInput,
+  options
+) {
+  /**
+   * Get a CSV list of geometry types the user can create
+   * @returns {string[]}
+   */
+  function getAllowableGeometryTypes() {
+    return options?.geometryTypes
+      ? options.geometryTypes.split(',')
+      : ['point', 'line', 'shape']
+  }
+
   /**
    * Toggle the hidden state of the action buttons
    * @type {ToggleActionButtons}
    */
   function toggleActionButtons(hidden) {
-    map.toggleButtonState('btnAddPoint', 'hidden', hidden)
-    map.toggleButtonState('btnAddPolygon', 'hidden', hidden)
-    map.toggleButtonState('btnAddLine', 'hidden', hidden)
+    const types = getAllowableGeometryTypes()
+    if (types.includes('point')) {
+      map.toggleButtonState('btnAddPoint', 'hidden', hidden)
+    }
+    if (types.includes('shape')) {
+      map.toggleButtonState('btnAddPolygon', 'hidden', hidden)
+    }
+    if (types.includes('line')) {
+      map.toggleButtonState('btnAddLine', 'hidden', hidden)
+    }
   }
 
   /**
@@ -492,7 +625,8 @@ function getUIManager(geojson, map, mapId, listEl, geospatialInput) {
     renderValue,
     listEl,
     toggleActionButtons,
-    focusDescriptionInput
+    focusDescriptionInput,
+    getAllowableGeometryTypes
   }
 }
 
@@ -536,7 +670,8 @@ function createContainers(geospatialInput, index) {
 function onMapReadyFactory(context) {
   const { map, activeFeatureManager, uiManager, interactPlugin, drawPlugin } =
     context
-  const { toggleActionButtons, renderList } = uiManager
+  const { toggleActionButtons, renderList, getAllowableGeometryTypes } =
+    uiManager
   const { resetActiveFeature } = activeFeatureManager
 
   /**
@@ -545,53 +680,67 @@ function onMapReadyFactory(context) {
    * @param {MapLibreMap} e.map - the map provider instance
    */
   return function onMapReady(e) {
+    const types = getAllowableGeometryTypes()
+    const allowPoint = types.includes('point')
+    const allowLine = types.includes('line')
+    const allowShape = types.includes('shape')
+
     // Add info panel
-    map.addPanel('info', helpPanelConfig)
-
-    map.addButton('btnAddPoint', {
-      variant: 'tertiary',
-      label: 'Add point',
-      iconSvgContent: POINT_SVG,
-      onClick: () => {
-        resetActiveFeature()
-        toggleActionButtons(true)
-        renderList(true)
-        interactPlugin.enable()
-      },
-      mobile: { slot: 'actions' },
-      tablet: { slot: 'actions' },
-      desktop: { slot: 'actions' }
+    map.addPanel('info', {
+      ...helpPanelConfig,
+      html: getHelpPanelHtml(allowPoint, allowLine, allowShape)
     })
 
-    map.addButton('btnAddPolygon', {
-      variant: 'tertiary',
-      label: 'Add shape',
-      iconSvgContent: POLYGON_SVG,
-      onClick: () => {
-        resetActiveFeature()
-        toggleActionButtons(true)
-        renderList(true)
-        drawPlugin.newPolygon(generateID(), polygonFeatureProperties)
-      },
-      mobile: { slot: 'actions' },
-      tablet: { slot: 'actions' },
-      desktop: { slot: 'actions' }
-    })
+    if (allowPoint) {
+      map.addButton('btnAddPoint', {
+        variant: 'tertiary',
+        label: 'Add point',
+        iconSvgContent: POINT_SVG,
+        onClick: () => {
+          resetActiveFeature()
+          toggleActionButtons(true)
+          renderList(true)
+          interactPlugin.enable()
+        },
+        mobile: { slot: 'actions' },
+        tablet: { slot: 'actions' },
+        desktop: { slot: 'actions' }
+      })
+    }
 
-    map.addButton('btnAddLine', {
-      variant: 'tertiary',
-      label: 'Add line',
-      iconSvgContent: LINE_SVG,
-      onClick: () => {
-        resetActiveFeature()
-        toggleActionButtons(true)
-        renderList(true)
-        drawPlugin.newLine(generateID(), lineFeatureProperties)
-      },
-      mobile: { slot: 'actions' },
-      tablet: { slot: 'actions' },
-      desktop: { slot: 'actions' }
-    })
+    if (allowShape) {
+      map.addButton('btnAddPolygon', {
+        variant: 'tertiary',
+        label: 'Add shape',
+        iconSvgContent: POLYGON_SVG,
+        onClick: () => {
+          resetActiveFeature()
+          toggleActionButtons(true)
+          renderList(true)
+          drawPlugin.newPolygon(generateID(), polygonFeatureProperties)
+        },
+        mobile: { slot: 'actions' },
+        tablet: { slot: 'actions' },
+        desktop: { slot: 'actions' }
+      })
+    }
+
+    if (allowLine) {
+      map.addButton('btnAddLine', {
+        variant: 'tertiary',
+        label: 'Add line',
+        iconSvgContent: LINE_SVG,
+        onClick: () => {
+          resetActiveFeature()
+          toggleActionButtons(true)
+          renderList(true)
+          drawPlugin.newLine(generateID(), lineFeatureProperties)
+        },
+        mobile: { slot: 'actions' },
+        tablet: { slot: 'actions' },
+        desktop: { slot: 'actions' }
+      })
+    }
 
     // Set the map provider on the context
     context.mapProvider = e.map
@@ -1020,6 +1169,12 @@ function onListElKeydownFactory() {
  */
 
 /**
+ * Returns the list of geometry types a user can create
+ * @callback GetAllowableGeometryTypes
+ * @returns {string[]}
+ */
+
+/**
  * Set focus to the last description input
  * @callback FocusDescriptionInput
  * @returns {void}
@@ -1048,6 +1203,7 @@ function onListElKeydownFactory() {
  * @property {HTMLDivElement} listEl - the summary list of features
  * @property {ToggleActionButtons} toggleActionButtons - function that toggles the action buttons
  * @property {FocusDescriptionInput} focusDescriptionInput - function that sets focus to a description input element
+ * @property {GetAllowableGeometryTypes} getAllowableGeometryTypes - function that returns the array of geometry types a user can create
  */
 
 /**
@@ -1062,5 +1218,5 @@ function onListElKeydownFactory() {
  */
 
 /**
- * @import { MapLibreMap } from '~/src/client/javascripts/map.js'
+ * @import { MapLibreMap, UIManagerOptions } from '~/src/client/javascripts/map.js'
  */

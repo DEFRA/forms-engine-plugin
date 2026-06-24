@@ -4,6 +4,13 @@
 @use "summary-list";
 @use "location-fields";
 
+@use "@defra/interactive-map/css" as core;
+@use "@defra/interactive-map/plugins/interact/css" as interact;
+@use "@defra/interactive-map/plugins/map-styles/css" as mapStyles;
+@use "@defra/interactive-map/plugins/search/css" as search;
+@use "@defra/interactive-map/plugins/scale-bar/css" as scaleBar;
+@use "@defra/interactive-map/plugins/draw-ml/css" as drawMl;
+
 // Use default GDS Transport font for autocomplete
 .autocomplete__hint,
 .autocomplete__input,

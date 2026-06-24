@@ -23,7 +23,11 @@ export class MultilineTextField extends FormComponent {
 
     const { schema, options } = def
 
-    let formSchema = Joi.string().trim().label(this.label).required()
+    let formSchema = Joi.string()
+      .replace(/\r\n/g, '\n')
+      .trim()
+      .label(this.label)
+      .required()
 
     if (options.required === false) {
       formSchema = formSchema.allow('')

@@ -7,10 +7,15 @@ npm-debug.log
 coverage
 .public
 .server
+.src
+.src.bak
+package
 .cache
 .env
 tsconfig.tsbuildinfo
 docs/schemas
+docs/features/components
+docs/features/pages
 temp-schemas
 
 # Docusaurus

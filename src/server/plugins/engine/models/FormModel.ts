@@ -9,6 +9,7 @@ import {
   formDefinitionV2Schema,
   generateConditionAlias,
   hasComponents,
+  hasComponentsEvenIfNoNext,
   hasRepeater,
   isConditionWrapperV2,
   yesNoListId,
@@ -29,7 +30,7 @@ import { Parser, type Value } from 'expr-eval-fork'
 import { type i18n } from 'i18next'
 import joi from 'joi'
 
-import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { type ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
 import {} from '~/src/server/plugins/engine/components/YesNoField.js'
 import {
@@ -68,8 +69,6 @@ import { FormAction } from '~/src/server/routes/types.js'
 import { merge } from '~/src/server/services/cacheService.js'
 import { type Services } from '~/src/server/types.js'
 
-const logger = createLogger()
-
 export class FormModel {
   /** The runtime engine that should be used */
   engine?: Engine
@@ -85,7 +84,6 @@ export class FormModel {
   formId: string
   values: FormDefinition
   basePath: string
-  versionNumber?: number
   ordnanceSurveyApiKey?: string
   conditions: Partial<Record<string, ExecutableCondition>>
   pages: PageControllerClass[]
@@ -108,7 +106,6 @@ export class FormModel {
     def: typeof this.def,
     options: {
       basePath: string
-      versionNumber?: number
       ordnanceSurveyApiKey?: string
       formId?: string
     },
@@ -178,11 +175,17 @@ export class FormModel {
     this.formId = options.formId ?? ''
     this.values = result.value
     this.basePath = options.basePath
-    this.versionNumber = options.versionNumber
     this.ordnanceSurveyApiKey = options.ordnanceSurveyApiKey
     this.conditions = {}
     this.services = services
     this.controllers = controllers
+
+    // Assert that there is only one payment question (if any)
+    if (this.moreThanOnePaymentQuestion()) {
+      throw new Error(
+        'Invalid form definition: Only one payment question is allowed per form'
+      )
+    }
 
     this.pageDefMap = new Map(def.pages.map((page) => [page.path, page]))
     this.listDefMap = new Map(def.lists.map((list) => [list.name, list]))
@@ -428,8 +431,7 @@ export class FormModel {
       componentDefMap: this.componentDefMap,
       pageMap: this.pageMap,
       componentMap: this.componentMap,
-      referenceNumber: getReferenceNumber(state),
-      submittedVersionNumber: this.versionNumber
+      referenceNumber: getReferenceNumber(state)
     }
 
     // Validate current page
@@ -620,6 +622,18 @@ export class FormModel {
     return this.def.conditions
       .filter(isConditionWrapperV2)
       .find((condition) => condition.id === conditionId)
+  }
+
+  /**
+   * Checks that only one payment field exists (if any payments fields exist)
+   */
+  moreThanOnePaymentQuestion() {
+    const numOfPaymentFields = this.def.pages
+      .flatMap((page) =>
+        hasComponentsEvenIfNoNext(page) ? page.components : []
+      )
+      .filter((comp) => comp.type === ComponentType.PaymentField).length
+    return numOfPaymentFields > 1
   }
 }
 

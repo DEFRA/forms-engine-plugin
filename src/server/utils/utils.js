@@ -1,4 +1,5 @@
 import { getTraceId } from '@defra/hapi-tracing'
+import Joi from 'joi'
 
 import { config } from '~/src/config/index.js'
 
@@ -21,4 +22,14 @@ export function applyTraceHeaders(
   const headers = traceId ? { [header]: traceId } : undefined
 
   return existingHeaders ? Object.assign(existingHeaders, headers) : headers
+}
+
+/**
+ * Validates if a string conforms to the uuid structure
+ * @param {string} str
+ * @returns
+ */
+export function isValidUUID(str) {
+  const { error } = Joi.string().uuid().validate(str)
+  return error === undefined
 }

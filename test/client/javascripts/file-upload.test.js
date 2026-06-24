@@ -1084,7 +1084,7 @@ describe('File Upload Client JS', () => {
 
     const tempGlobal = /** @type {any} */ (global)
     // using bracket notation with ESLint disabled to safely add property to global
-    // eslint-disable-next-line @typescript-eslint/dot-notation, @typescript-eslint/no-unsafe-member-access
+    // eslint-disable-next-line @typescript-eslint/dot-notation
     tempGlobal['pollUploadStatus'] = jest.fn()
 
     const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
@@ -1142,7 +1142,7 @@ describe('File Upload Client JS', () => {
     `
 
     const tempGlobal = /** @type {any} */ (global)
-    // eslint-disable-next-line @typescript-eslint/dot-notation, @typescript-eslint/no-unsafe-member-access
+    // eslint-disable-next-line @typescript-eslint/dot-notation
     tempGlobal['pollUploadStatus'] = jest.fn()
 
     const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
@@ -1210,7 +1210,7 @@ describe('File Upload Client JS', () => {
     `
 
     const tempGlobal = /** @type {any} */ (global)
-    // eslint-disable-next-line @typescript-eslint/dot-notation, @typescript-eslint/no-unsafe-member-access
+    // eslint-disable-next-line @typescript-eslint/dot-notation
     tempGlobal['pollUploadStatus'] = jest.fn()
 
     const { loadFile, triggerChange, triggerClick } = setupTestableComponent()

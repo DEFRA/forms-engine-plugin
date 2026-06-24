@@ -1,0 +1,146 @@
+{
+  "components": {
+    "TextField": "Single-line text input for collecting short answers.",
+    "MultilineTextField": "Multi-line text area for collecting longer text answers.",
+    "NumberField": "Numeric input for collecting whole or decimal numbers.",
+    "EmailAddressField": "Text input validated as an email address.",
+    "TelephoneNumberField": "Text input for collecting telephone numbers.",
+    "DatePartsField": "Three separate inputs (day, month, year) for collecting full dates.",
+    "MonthYearField": "Two inputs (month, year) for collecting partial dates.",
+    "YesNoField": "A pair of radio buttons offering a yes/no choice.",
+    "RadiosField": "Radio buttons allowing the user to select one option from a named list.",
+    "CheckboxesField": "Checkboxes allowing the user to select one or more options from a named list.",
+    "SelectField": "A dropdown select element for choosing one option from a named list.",
+    "AutocompleteField": "Text input with autocomplete suggestions sourced from a named list.",
+    "UkAddressField": "Structured address input for collecting UK postal addresses.",
+    "FileUploadField": "File manager component that displays uploaded files from session state.",
+    "DeclarationField": "A checkbox the user must tick to confirm a declaration before proceeding.",
+    "HiddenField": "A non-visible field that stores a fixed value in form state without user input.",
+    "PaymentField": "Redirects the user to GOV.UK Pay to collect a payment before proceeding.",
+    "Html": "Display static HTML content on a page without collecting user input.",
+    "Markdown": "Display content authored in Markdown, rendered to HTML at runtime.",
+    "InsetText": "Display highlighted inset text using the GOV.UK inset text component.",
+    "Details": "Display content inside a collapsible disclosure element.",
+    "List": "Display a GOV.UK-styled list sourced from a named list definition.",
+    "EastingNorthingField": "Paired numeric inputs for collecting British National Grid easting and northing coordinates.",
+    "OsGridRefField": "Text input for collecting an Ordnance Survey grid reference.",
+    "NationalGridFieldNumberField": "Numeric input for a single National Grid coordinate component.",
+    "LatLongField": "Paired decimal inputs for collecting WGS84 latitude and longitude coordinates.",
+    "GeospatialField": "Composite location picker supporting multiple geospatial coordinate formats."
+  },
+  "pages": {
+    "PageController": "The default page type. Displays a set of components and advances to the next page on submission. Omit the `controller` property to use this page type.",
+    "StartPageController": "The entry page of the form. Initialises the session and redirects to the first question. Must use the path `/start`.",
+    "TerminalPageController": "A dead-end page that does not route the user to another page. Use this for outcomes where the journey ends without proceeding to the summary — for example, an ineligibility screen.",
+    "RepeatPageController": "Allows the user to add multiple sets of answers to the same group of questions. Answers are stored as an array under the key defined by `repeat.options.name`.",
+    "FileUploadPageController": "A question page that handles file upload via the CDP file upload service. Must contain a `FileUploadField` component.",
+    "SummaryPageController": "Displays a check-your-answers summary of all form responses before submission. Must use the path `/summary`.",
+    "StatusPageController": "The confirmation page shown after a successful form submission. Renders a GOV.UK panel with the page title and, optionally, the reference number. Automatically added to every form at `/status` — only define it explicitly to customise the title."
+  },
+  "properties": {
+    "required": "Whether the field must be filled in. Defaults to `true`.",
+    "optionalText": "When `true`, appends '(optional)' to the field label.",
+    "classes": "Additional CSS classes applied to the component.",
+    "customValidationMessage": "A single custom message shown for any validation error on this field.",
+    "customValidationMessages": "A map of Joi error codes to custom error messages.",
+    "instructionText": "Alternative text read by screen readers in place of the field title.",
+    "condition": "Name of a condition that controls whether this component is shown.",
+    "autocomplete": "Value for the HTML `autocomplete` attribute (e.g. `'given-name'`, `'email'`).",
+    "rows": "Number of rows for the textarea. Defaults to 5.",
+    "maxWords": "Maximum number of words permitted in the text area.",
+    "prefix": "Text displayed before the input (e.g. `'£'`).",
+    "suffix": "Text displayed after the input (e.g. `'kg'`).",
+    "precision": "Number of decimal places allowed.",
+    "minPrecision": "Minimum number of decimal places.",
+    "minLength": "Minimum number of characters.",
+    "maxLength": "Maximum number of characters.",
+    "hideTitle": "When `true`, hides the component or section title.",
+    "usePostcodeLookup": "When `true`, enables a postcode lookup integration.",
+    "maxDaysInPast": "Maximum number of days in the past the entered date can be.",
+    "maxDaysInFuture": "Maximum number of days in the future the entered date can be.",
+    "bold": "When `true`, displays option labels in bold.",
+    "type": "Display style for the list: `'bulleted'` or `'numbered'`.",
+    "accept": "Comma-separated list of accepted MIME types (e.g. `'image/png,application/pdf'`).",
+    "declarationConfirmationLabel": "Custom label text for the declaration checkbox.",
+    "amount": "Fixed payment amount in pence.",
+    "description": "Description shown on the GOV.UK Pay payment page.",
+    "conditionalAmounts": "Condition-based payment amounts. Each entry requires a `condition` name and `amount` in pence.",
+    "emailField": "Name of the form field containing the user's email address for the confirmation email.",
+    "min": "Minimum value, character length, word count, or file count.",
+    "max": "Maximum value, character length, word count, or file count.",
+    "length": "Exact character length required.",
+    "regex": "Regular expression pattern the value must match.",
+    "easting": "Easting coordinate constraints (`min`, `max`).",
+    "northing": "Northing coordinate constraints (`min`, `max`).",
+    "latitude": "Latitude constraints (`min`, `max`).",
+    "longitude": "Longitude constraints (`min`, `max`).",
+    "hint": "Hint text displayed below the field label to help the user answer the question.",
+    "list": "Name of a list definition that provides the options to display. See [list schema](../../schemas/index.md#list-schema) for the list definition format.",
+    "shortDescription": "A short description of the field used in the check-your-answers summary.",
+    "content": "HTML or Markdown content to display."
+  },
+  "pageLinks": {
+    "StatusPageController": [
+      "The status page is automatically injected into every form at `/status` if one is not already present in the form definition. You only need to add it explicitly to customise the title.",
+      "The submission guidance shown under \"What happens next\" comes from `formMetadata.submissionGuidance`, not the form definition itself. Set it on the metadata object returned by your `formsService`. The value is rendered as Markdown (headings level 3 and below).",
+      "Set `options.showReferenceNumber` to `true` in the form definition to display the auto-generated reference number inside the confirmation panel. See [Form definition options](../../form-definition-options.md) for details."
+    ],
+    "FileUploadPageController": [
+      "This controller manages the CDP file upload lifecycle: it initiates an upload session with `cdp-uploader` on each page load, sets the CDP upload URL as the form action so the browser posts files directly to CDP, polls CDP for the upload status on return, and populates session state with completed `FileState` entries. It is tightly coupled to the CDP file upload service and is the provided implementation for Defra teams. See the [File Upload guide](../code-based/file-upload.md) for setup instructions, including the required `formSubmissionService` interface."
+    ]
+  },
+  "componentLinks": {
+    "UkAddressField": [
+      "When `usePostcodeLookup` is enabled, the component uses the Ordnance Survey API to find addresses by postcode. This requires the `ordnanceSurveyApiKey` and `ordnanceSurveyApiSecret` [plugin options](../../plugin-options.md#geospatial-map) to be set — without them the component falls back to the manual address entry form regardless of the `usePostcodeLookup` setting."
+    ],
+    "FileUploadField": [
+      "This component renders the list of files already in session state, allows the user to remove individual files, and enforces min/max file count constraints. On final form submission it calls `persistFiles()` to move files to permanent storage. It does not handle uploading — that is the responsibility of the page controller. See [`FileUploadPageController`](../pages/file-upload-page.md) for the provided Defra implementation."
+    ],
+    "HiddenField": [
+      "Hidden fields can be pre-populated from query string parameters — see [Pre-populating state](../code-based/pre-populate-state.md) for details."
+    ],
+    "EastingNorthingField": [
+      "This component renders an inline Ordnance Survey map that lets users click a location to auto-populate the coordinate inputs. The map requires the `ordnanceSurveyApiKey` and `ordnanceSurveyApiSecret` [plugin options](../../plugin-options.md#geospatial-map) to be set — without them the component falls back to plain text inputs."
+    ],
+    "OsGridRefField": [
+      "This component renders an inline Ordnance Survey map that lets users click a location to auto-populate the grid reference input. The map requires the `ordnanceSurveyApiKey` and `ordnanceSurveyApiSecret` [plugin options](../../plugin-options.md#geospatial-map) to be set — without them the component falls back to a plain text input."
+    ],
+    "NationalGridFieldNumberField": [
+      "This component renders an inline Ordnance Survey map that lets users click a location to auto-populate the coordinate input. The map requires the `ordnanceSurveyApiKey` and `ordnanceSurveyApiSecret` [plugin options](../../plugin-options.md#geospatial-map) to be set — without them the component falls back to a plain text input."
+    ],
+    "LatLongField": [
+      "This component renders an inline Ordnance Survey map that lets users click a location to auto-populate the latitude and longitude inputs. The map requires the `ordnanceSurveyApiKey` and `ordnanceSurveyApiSecret` [plugin options](../../plugin-options.md#geospatial-map) to be set — without them the component falls back to plain text inputs."
+    ],
+    "GeospatialField": [
+      "This component renders an inline Ordnance Survey map that lets users click a location to auto-populate the coordinate inputs across multiple coordinate formats. The map requires the `ordnanceSurveyApiKey` and `ordnanceSurveyApiSecret` [plugin options](../../plugin-options.md#geospatial-map) to be set — without them the component falls back to plain text inputs."
+    ]
+  },
+  "componentSecrets": {
+    "PaymentField": [
+      {
+        "name": "payment-test-api-key",
+        "description": "GOV.UK Pay API key used when the form is in test or draft mode."
+      },
+      {
+        "name": "payment-live-api-key",
+        "description": "GOV.UK Pay API key used when the form is in live mode."
+      }
+    ]
+  },
+  "pageProperties": {
+    "components": "Array of component definitions rendered on the page.",
+    "condition": "Name of a condition that controls whether this page is shown.",
+    "controller": "The page controller class name. Omit or use `\"PageController\"` for the default question page.",
+    "events": "Lifecycle hooks that fire when the page is loaded or saved.",
+    "id": "Stable identifier for the page, used internally by the form engine.",
+    "next": "Array of routing links that define where the form goes after this page.",
+    "path": "URL path segment for the page (e.g. `/details`).",
+    "section": "Name of a section that groups this page in the form.",
+    "title": "Heading displayed to the user at the top of the page.",
+    "view": "Name of an alternative view template to render for this page.",
+    "repeat.options.name": "Identifier for the repeatable section, used as the key in form state.",
+    "repeat.options.title": "Label displayed per repeated item in the list summary.",
+    "repeat.schema.min": "Minimum number of items the user must add.",
+    "repeat.schema.max": "Maximum number of items the user can add. Cannot exceed 200."
+  }
+}

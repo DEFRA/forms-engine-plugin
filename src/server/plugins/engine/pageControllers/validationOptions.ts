@@ -3,14 +3,22 @@
 import {
   type LanguageMessages,
   type LanguageMessagesExt,
+  type ReferenceOptions,
   type ValidationOptions
 } from 'joi'
 
+import { lowerFirstPreserveProperNouns } from '~/src/server/plugins/engine/components/helpers/index.js'
 import {
   buildValidationMessages,
   type ValidationMessages
 } from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
 import { t } from '~/src/server/plugins/engine/i18n/index.js'
+
+export const opts = {
+  functions: {
+    lowerFirst: lowerFirstPreserveProperNouns
+  }
+} as ReferenceOptions
 
 /**
  * Module-level English message templates — built via the same factory used per-form.
@@ -27,6 +35,7 @@ export const messages: LanguageMessagesExt = {
   'string.empty': messageTemplate.required,
   'string.max': messageTemplate.max,
   'string.email': messageTemplate.format,
+  'string.unicode': messageTemplate.unicode,
   'string.pattern.base': messageTemplate.pattern,
   'string.maxWords': messageTemplate.maxWords,
 

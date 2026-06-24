@@ -76,6 +76,15 @@ pages:
           required: true
         schema: {}
         id: b68df7f1-d4f4-4c17-83c8-402f584906c9
+      - type: GeospatialField
+        title: Where do you live?
+        name: applicantLocation
+        shortDescription: Your location
+        hint: ''
+        options:
+          required: true
+        schema: {}
+        id: e18116e0-7c3e-416a-af42-6f229017c5b1
     next: []
     id: 622a35ec-3795-418a-81f3-a45746959045
   - title: Where do you live?
@@ -158,6 +167,25 @@ pages:
         id: aabbccdd-1122-3344-5566-778899001124
     next: []
     id: aabbccdd-1122-3344-5566-778899001122
+  - title: ''
+    path: '/notification-demo'
+    components:
+      - type: NotificationBanner
+        title: Important
+        name: notificationImportant
+        content: 'Contact us if you need [help with your application](https://www.defra.gov.uk).'
+        options:
+          heading: There may be a delay in processing your application.
+        id: ca6b6590-1608-49f4-82f9-9d92e38e66ea
+      - type: NotificationBanner
+        title: Success
+        name: notificationSuccess
+        content: 'Your application has been submitted.'
+        options:
+          type: success
+        id: b6960f4b-d771-4956-9c9b-17da5c603062
+    next: []
+    id: be4b4b86-514c-43bb-8cdc-f9aed6155924
   - id: 449a45f6-4541-4a46-91bd-8b8931b07b50
     title: ''
     path: '/summary'

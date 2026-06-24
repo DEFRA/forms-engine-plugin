@@ -4,9 +4,13 @@ Code-based features let you extend forms-engine-plugin with custom TypeScript or
 
 > Only introduce code-based customisations where there is genuine business need. Custom code becomes your team's responsibility to test, maintain and keep accessible.
 
-## [Components](./code-based/components)
+## [Custom Components](./code-based/components)
 
 Build custom form components. Components can extend `ComponentBase` for display-only purposes or `FormComponent` to handle user input with validation, state management and rendering.
+
+## [Custom Page Controllers](./code-based/page-controllers)
+
+Attach bespoke server-side logic to a specific page. For example: running an auth check before render, enriching the view model with external data, or intercepting form submission.
 
 ## [Custom Services](./code-based/custom-services)
 
@@ -27,3 +31,15 @@ Automatically copy query string parameter values into hidden fields on first loa
 ## [Save and Exit](./code-based/save-and-exit)
 
 Show a secondary "Save and exit" button on question pages and handle the persisted session using a route handler you supply, enabling users to leave and resume their journey later.
+
+## [Template Extensions](./code-based/template-extensions)
+
+Add custom globals and filters to the Nunjucks template environment, making them available across all form page templates and LiquidJS page templates.
+
+## [Form Definition Formats](./code-based/form-definition-formats)
+
+Options for loading form definitions — file-based loading with the built-in `FileFormService`, or a custom `formsService` implementation for API and database sources.
+
+## [Session Cache](./code-based/session-cache)
+
+Configuring the server-side session store for production: named catbox cache or a custom `CacheService` subclass.

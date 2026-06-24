@@ -57,7 +57,7 @@
         {{ govukSummaryList(paymentDetails.summaryList) }}
       {% endif %}
 
-      <form method="post" novalidate>
+      <form method="post" action="#" novalidate>
         <input type="hidden" name="crumb" value="{{ crumb }}">
 
         {% block customPageContent %}{% endblock %}
@@ -73,12 +73,16 @@
 
         <div class="govuk-button-group">
           {% set isDeclaration = declaration or components | length %}
+          {% set paymentPending = paymentRequired and not paymentState %}
 
+          {# The prevent-multiple-clicks CSS class wires up to debounce-click.js to disable the button for 10s.
+              For those with JS enabled, it will help prevent multiple submissions when a large form is taking a while to submit.
+              When a better fix is implemented, this class can be removed and preventDoubleClick should be set back to true. #}
           {{ govukButton({
             text: t('pages.summary.acceptAndSubmit') if isDeclaration else t('pages.summary.submit'),
             name: "action",
             value: "send",
-            preventDoubleClick: true
+            preventDoubleClick: false
           }) }}
 
           {% if allowSaveAndExit %}

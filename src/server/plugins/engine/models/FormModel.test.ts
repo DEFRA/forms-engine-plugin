@@ -1,8 +1,11 @@
 import {
+  ComponentType,
   SchemaVersion,
   formDefinitionSchema,
   formDefinitionV2Schema,
-  type FormDefinition
+  type ComponentDef,
+  type FormDefinition,
+  type PageQuestion
 } from '@defra/forms-model'
 
 import { todayAsDateOnly } from '~/src/server/plugins/engine/date-helper.js'
@@ -16,6 +19,7 @@ import conditionsListDefinition from '~/test/form/definitions/conditions-list.js
 import relativeDatesDefinition from '~/test/form/definitions/conditions-relative-dates-v2.js'
 import fieldsRequiredDefinition from '~/test/form/definitions/fields-required.js'
 import joinedConditionsDefinition from '~/test/form/definitions/joined-conditions-simple-v2.js'
+import paymentDefinition from '~/test/form/definitions/payment.js'
 
 jest.mock('~/src/server/plugins/engine/date-helper.ts')
 
@@ -368,55 +372,6 @@ describe('FormModel', () => {
       expect(() => formModel.getFormContext(request, state)).toThrow(
         'Reference number not found in form state'
       )
-    })
-
-    it('includes submittedVersionNumber in context when versionNumber is set', () => {
-      const formModel = new FormModel(fieldsRequiredDefinition, {
-        basePath: '/components',
-        versionNumber: 123
-      })
-
-      const state = {
-        $$__referenceNumber: 'foobar'
-      }
-      const pageUrl = new URL('http://example.com/components/fields-required')
-
-      const request: FormContextRequest = buildFormContextRequest({
-        method: 'get',
-        query: {},
-        path: pageUrl.pathname,
-        params: { path: 'components', slug: 'fields-required' },
-        url: pageUrl,
-        app: { model: formModel }
-      })
-
-      const context = formModel.getFormContext(request, state)
-
-      expect(context.submittedVersionNumber).toBe(123)
-    })
-
-    it('sets submittedVersionNumber to undefined when versionNumber is not set', () => {
-      const formModel = new FormModel(fieldsRequiredDefinition, {
-        basePath: '/components'
-      })
-
-      const state = {
-        $$__referenceNumber: 'foobar'
-      }
-      const pageUrl = new URL('http://example.com/components/fields-required')
-
-      const request: FormContextRequest = buildFormContextRequest({
-        method: 'get',
-        query: {},
-        path: pageUrl.pathname,
-        params: { path: 'components', slug: 'fields-required' },
-        url: pageUrl,
-        app: { model: formModel }
-      })
-
-      const context = formModel.getFormContext(request, state)
-
-      expect(context.submittedVersionNumber).toBeUndefined()
     })
 
     it('redirects to the page if the list field (radio) is invalidated due to list item conditions', () => {
@@ -853,6 +808,38 @@ describe('FormModel - Joined Conditions', () => {
       // No Welsh translations registered → falls back to en-GB base form string
       expect(tComponent(definitionV2.pages[0].components[0], 'title')).toBe(
         'Have you previously been married?'
+      )
+    })
+  })
+
+  describe('moreThanOnePaymentQuestion', () => {
+    it('should return false if no payment questions', () => {
+      const model = new FormModel(definition, { basePath: 'test' })
+      expect(model.moreThanOnePaymentQuestion()).toBe(false)
+    })
+
+    it('should return false if only one payment question', () => {
+      const definition = {
+        ...paymentDefinition
+      }
+
+      const model = new FormModel(definition, { basePath: 'test' })
+      expect(model.moreThanOnePaymentQuestion()).toBe(false)
+    })
+
+    it('should throw if more than one payment questions', () => {
+      const definition = {
+        ...paymentDefinition
+      }
+      const extraPaymentComponent = {
+        type: ComponentType.PaymentField,
+        name: 'paymentField'
+      } as ComponentDef
+      const page = definition.pages[0] as PageQuestion
+      page.components.push(extraPaymentComponent)
+
+      expect(() => new FormModel(definition, { basePath: 'test' })).toThrow(
+        'Invalid form definition: Only one payment question is allowed per form'
       )
     })
   })

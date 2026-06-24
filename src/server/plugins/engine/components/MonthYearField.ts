@@ -1,5 +1,5 @@
 import { ComponentType, type MonthYearFieldComponent } from '@defra/forms-model'
-import { format, isValid } from 'date-fns'
+import { format, isValid, parse } from 'date-fns'
 import {
   type Context,
   type CustomValidator,
@@ -245,8 +245,8 @@ export class MonthYearField extends FormComponent {
         { type: 'dateFormatYear', template: '{{#label}} must include a year' }
       ],
       advancedSettingsErrors: [
-        { type: 'dateMin', template: messageTemplate.dateMin },
-        { type: 'dateMax', template: messageTemplate.dateMax }
+        { type: 'dateEarliest', template: messageTemplate.dateMin },
+        { type: 'dateLatest', template: messageTemplate.dateMax }
       ]
     }
   }
@@ -279,6 +279,34 @@ export function getValidatorMonthYear(component: MonthYearField) {
       return options.required !== false
         ? helpers.error('object.required', context)
         : payload
+    }
+
+    const date = parse(
+      `${values.year}-${values.month}-01`,
+      'yyyy-MM-dd',
+      new Date()
+    )
+
+    if (!isValid(date)) {
+      return helpers.error('date.format', context)
+    }
+
+    // Minimum date from today
+    const earliestDate = options.earliestMonthYear
+      ? new Date(`${options.earliestMonthYear}-01`)
+      : undefined
+
+    if (earliestDate && date < earliestDate) {
+      return helpers.error('date.min', { ...context, limit: earliestDate })
+    }
+
+    // Maximum date from today
+    const latestDate = options.latestMonthYear
+      ? new Date(`${options.latestMonthYear}-01`)
+      : undefined
+
+    if (latestDate && date > latestDate) {
+      return helpers.error('date.max', { ...context, limit: latestDate })
     }
 
     return payload

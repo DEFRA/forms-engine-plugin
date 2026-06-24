@@ -54,6 +54,80 @@ export function getSchemaFiles() {
 }
 
 /**
+ * @param {JsonSchema} schema
+ * @param {string} parentTitle
+ */
+function recurseComposedTypes(schema, parentTitle) {
+  for (const keyword of /** @type {const} */ (['anyOf', 'oneOf', 'allOf'])) {
+    if (Array.isArray(schema[keyword])) {
+      for (const sub of schema[keyword]) {
+        simplifyNestedTitles(/** @type {JsonSchema} */ (sub), parentTitle)
+      }
+    }
+  }
+}
+
+/**
+ * @param {JsonSchema} schema
+ * @param {string} parentTitle
+ */
+function recurseSchemaChildren(schema, parentTitle) {
+  recurseComposedTypes(schema, parentTitle)
+
+  if (schema.items) {
+    if (Array.isArray(schema.items)) {
+      for (const item of schema.items) {
+        simplifyNestedTitles(/** @type {JsonSchema} */ (item), parentTitle)
+      }
+    } else {
+      simplifyNestedTitles(schema.items, parentTitle)
+    }
+  }
+
+  if (schema.properties) {
+    for (const propSchema of Object.values(schema.properties)) {
+      simplifyNestedTitles(/** @type {JsonSchema} */ (propSchema), parentTitle)
+    }
+  }
+}
+
+/**
+ * Recursively simplifies titles in nested schemas by stripping redundant parent
+ * prefixes. For example, if parent title is "Components (array)" and child title
+ * is "Components (array) Item", the child title is simplified to "Item".
+ *
+ * This prevents jsonschema2md from generating excessively long filenames that
+ * exceed the OS 255-byte filename limit when Docusaurus renders them as .html.
+ *
+ * The original (pre-simplification) title is passed to child schemas for
+ * matching, so the chain of prefix-stripping works correctly across all levels.
+ * @param {JsonSchema} schema - The schema to simplify in place
+ * @param {string} [originalParentTitle] - Original title of the parent schema
+ */
+export function simplifyNestedTitles(schema, originalParentTitle = '') {
+  if (!schema || typeof schema !== 'object') {
+    return
+  }
+
+  const originalTitle = schema.title ?? ''
+
+  if (originalTitle && originalParentTitle) {
+    const normalizedTitle = originalTitle.replaceAll(/\s+/g, ' ').trim()
+    const normalizedParent = originalParentTitle.replaceAll(/\s+/g, ' ').trim()
+
+    if (normalizedTitle.startsWith(normalizedParent)) {
+      const stripped = normalizedTitle.slice(normalizedParent.length).trim()
+      if (stripped) {
+        schema.title = stripped
+      }
+    }
+  }
+
+  // Pass the ORIGINAL title to children so multi-level stripping works correctly
+  recurseSchemaChildren(schema, originalTitle || originalParentTitle)
+}
+
+/**
  * Process schema content by adding ID if missing and building title map
  * @param {JsonSchema} schema - Schema content to process
  * @param {string} filename - Original filename
@@ -65,6 +139,7 @@ export function processSchemaContent(schema, filename, schemaTitleMap) {
     schema.$id = `@defra/forms-model/schemas/${filename}`
   }
 
+  simplifyNestedTitles(schema)
   buildTitleMap(schema, filename.replace('.json', ''), schemaTitleMap)
   return schema
 }

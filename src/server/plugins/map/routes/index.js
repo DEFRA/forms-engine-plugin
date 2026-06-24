@@ -1,14 +1,28 @@
+import fs from 'node:fs'
 import { resolve } from 'node:path'
 
+import { GeospatialFieldOptionsCountryEnum } from '@defra/forms-model'
 import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
 import { getAccessToken } from '~/src/server/plugins/map/routes/get-os-token.js'
-import { find, nearest } from '~/src/server/plugins/map/service.js'
+import { find } from '~/src/server/plugins/map/service.js'
 import {
   get,
   request as httpRequest
 } from '~/src/server/services/httpService.js'
+
+const filePath = resolve(import.meta.dirname, './vts/countries.geojson')
+
+/**
+ * @type {FeatureCollection}
+ */
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+export const countries = JSON.parse(fs.readFileSync(filePath, 'utf8'))
+
+export const countrySchema = Joi.string().valid(
+  ...Object.values(GeospatialFieldOptionsCountryEnum)
+)
 
 /**
  * Gets the map support routes
@@ -20,7 +34,7 @@ export function getRoutes(options) {
     mapProxyRoute(options),
     tileProxyRoute(options),
     geocodeProxyRoute(options),
-    reverseGeocodeProxyRoute(options)
+    getGeospatialCountries()
   ]
 }
 
@@ -58,6 +72,7 @@ function mapProxyRoute(options) {
       return response
     },
     options: {
+      auth: false,
       validate: {
         query: Joi.object()
           .keys({
@@ -85,7 +100,9 @@ function tileProxyRoute(options) {
 
       const url = `https://api.os.uk/maps/vector/v1/vts/tile/${z}/${y}/${x}.pbf?srs=3857`
 
-      const { payload, res } = await get(url, {
+      const getBuffer = /** @type {typeof get<Buffer>} */ (get)
+
+      const { payload, res } = await getBuffer(url, {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: 'application/x-protobuf'
@@ -102,6 +119,9 @@ function tileProxyRoute(options) {
         .response(payload)
         .type('application/x-protobuf')
         .header('Cache-Control', 'public, max-age=86400')
+    },
+    options: {
+      auth: false
     }
   }
 }
@@ -123,44 +143,11 @@ function geocodeProxyRoute(options) {
       return data
     },
     options: {
+      auth: false,
       validate: {
         query: Joi.object()
           .keys({
             query: Joi.string().required()
-          })
-          .required()
-      }
-    }
-  }
-}
-
-/**
- * Proxies ordnance survey reverse geocode requests from the front end to api.os.uk
- * Used to find name from easting and northing points.
- * N.B this endpoint is currently not used by the front end but will be soon in "maps V2"
- * @param {MapConfiguration} options - the map options
- * @returns {ServerRoute<MapReverseGeocodeGetRequestRefs>}
- */
-function reverseGeocodeProxyRoute(options) {
-  return {
-    method: 'GET',
-    path: '/api/reverse-geocode-proxy',
-    async handler(request, _h) {
-      const { query } = request
-      const data = await nearest(
-        query.easting,
-        query.northing,
-        options.ordnanceSurveyApiKey
-      )
-
-      return data
-    },
-    options: {
-      validate: {
-        query: Joi.object()
-          .keys({
-            easting: Joi.number().required(),
-            northing: Joi.number().required()
           })
           .required()
       }
@@ -177,6 +164,7 @@ function mapStyleResourceRoutes() {
     method: 'GET',
     path: '/api/maps/vts/{path*}',
     options: {
+      auth: false,
       handler: {
         directory: {
           path: resolve(import.meta.dirname, './vts')
@@ -187,6 +175,48 @@ function mapStyleResourceRoutes() {
 }
 
 /**
+ * Resource routes to return sprites and glyphs
+ * @returns {ServerRoute<GeospatialCountriesGetRequestRefs>}
+ */
+function getGeospatialCountries() {
+  return {
+    method: 'GET',
+    path: '/api/maps/countries.geojson',
+    handler: (request) => {
+      const { omit, only } = request.query
+
+      if (omit) {
+        return {
+          ...countries,
+          features: countries.features.filter((feature) => feature.id !== omit)
+        }
+      }
+
+      if (only) {
+        return {
+          ...countries,
+          features: countries.features.filter((feature) => feature.id === only)
+        }
+      }
+
+      return countries
+    },
+    options: {
+      auth: false,
+      validate: {
+        query: Joi.object()
+          .keys({
+            omit: countrySchema.optional(),
+            only: countrySchema.optional()
+          })
+          .optional()
+      }
+    }
+  }
+}
+
+/**
  * @import { ServerRoute } from '@hapi/hapi'
- * @import { MapConfiguration, MapProxyGetRequestRefs, MapGeocodeGetRequestRefs, MapReverseGeocodeGetRequestRefs } from '~/src/server/plugins/map/types.js'
+ * @import { FeatureCollection } from 'geojson'
+ * @import { MapConfiguration, MapProxyGetRequestRefs, MapGeocodeGetRequestRefs, MapReverseGeocodeGetRequestRefs, GeospatialCountriesGetRequestRefs } from '~/src/server/plugins/map/types.js'
  */

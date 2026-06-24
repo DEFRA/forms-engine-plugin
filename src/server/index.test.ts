@@ -27,11 +27,11 @@ describe('Model cache', () => {
   let server: Server
 
   const getCacheSize = () => {
-    return server.app.models.size
+    return server.app.models?.size ?? 0
   }
 
   const getCacheItem = (key: string) => {
-    return server.app.models.get(key)
+    return server.app.models?.get(key)
   }
 
   beforeAll(async () => {
@@ -43,7 +43,7 @@ describe('Model cache', () => {
 
   beforeEach(() => {
     jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
-    server.app.models.clear()
+    server.app.models?.clear()
   })
 
   afterAll(async () => {

@@ -640,6 +640,51 @@ describe('MultilineTextField', () => {
             output: { value: getFormData('') }
           }
         ]
+      },
+      {
+        description: 'Schema max with whitespace replacement',
+        component: {
+          title: 'Example textarea',
+          name: 'myComponent',
+          type: ComponentType.MultilineTextField,
+          options: {},
+          schema: {
+            max: 10
+          }
+        } satisfies MultilineTextFieldComponent,
+        assertions: [
+          {
+            input: getFormData(`h\r\ne\r\nl\r\nl\r\no`),
+            output: {
+              value: getFormData(`h\ne\nl\nl\no`)
+            }
+          }
+        ]
+      },
+      {
+        description: 'Schema max with whitespace replacement',
+        component: {
+          title: 'Example textarea',
+          name: 'myComponent',
+          type: ComponentType.MultilineTextField,
+          options: {},
+          schema: {
+            max: 8
+          }
+        } satisfies MultilineTextFieldComponent,
+        assertions: [
+          {
+            input: getFormData(`h\r\ne\r\nl\r\nl\r\no`),
+            output: {
+              value: getFormData(`h\ne\nl\nl\no`),
+              errors: [
+                expect.objectContaining({
+                  text: 'Example textarea must be 8 characters or less'
+                })
+              ]
+            }
+          }
+        ]
       }
     ])('$description', ({ component: def, assertions }) => {
       let collection: ComponentCollection

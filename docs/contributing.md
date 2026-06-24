@@ -56,3 +56,7 @@ If you would like to fix the bug yourself, contributions are accepted through pu
 ### Adding features
 
 Features should be discussed with the Defra Forms team prior to implementation. This is to prevent wasted effort if the Defra Forms team decides not to accept it, or if we suggest any significant amendments. Reach out to us on [#defra-forms-support](https://defra-digital-team.slack.com) to discuss your requirements. If accepted by the product owner, we welcome a pull request.
+
+## Building and publishing the package
+
+See the [Building the package](./BUILDING_THE_PACKAGE) guide for documentation on the build pipeline, path alias resolution, and the npm publish workflow.

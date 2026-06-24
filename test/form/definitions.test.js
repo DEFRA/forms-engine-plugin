@@ -32,6 +32,7 @@ describe('Form definition JSON V1', () => {
     // This is likely due to inconsistencies between the form schemas in forms-runner
     // and the latest schema definitions in the plugin repository.
     // Once the schemas are aligned across repositories, this test can be re-enabled.
+    // eslint-disable-next-line jest/no-disabled-tests
     it.skip('passes schema validation', async () => {
       for (const filename of filenames) {
         const definition = await getForm(join(directory, filename))

@@ -1,5 +1,11 @@
+import {
+  GeospatialFieldOptionsCountryEnum,
+  type GeospatialFieldComponent,
+  type GeospatialFieldOptionsCountry
+} from '@defra/forms-model'
 import Bourne from '@hapi/bourne'
-import JoiBase from 'joi'
+import { booleanWithin } from '@turf/boolean-within'
+import JoiBase, { type CustomValidator } from 'joi'
 
 import {
   type Coordinates,
@@ -7,6 +13,14 @@ import {
   type FeatureProperties,
   type Geometry
 } from '~/src/server/plugins/engine/types.js'
+import { countries } from '~/src/server/plugins/map/routes/index.js'
+
+const countriesDesc: Record<GeospatialFieldOptionsCountryEnum, string> = {
+  [GeospatialFieldOptionsCountryEnum.England]: 'England',
+  [GeospatialFieldOptionsCountryEnum.NorthernIreland]: 'Northern Ireland',
+  [GeospatialFieldOptionsCountryEnum.Scotland]: 'Scotland',
+  [GeospatialFieldOptionsCountryEnum.Wales]: 'Wales'
+}
 
 const Joi = JoiBase.extend({
   type: 'array',
@@ -18,7 +32,8 @@ const Joi = JoiBase.extend({
     from: 'string',
     method(value, helpers) {
       if (typeof value === 'string') {
-        if (value.trim() === '') {
+        const trimmed = value.trim()
+        if (trimmed === '' || trimmed === '[]') {
           return {
             value: undefined
           }
@@ -83,11 +98,76 @@ const featureSchema = Joi.object<Feature>().keys({
   geometry: featureGeometrySchema
 })
 
-export const geospatialSchema = Joi.array<Feature[]>()
-  .items(featureSchema)
-  .unique('id')
-  .required()
+function applySchemaConstraints(
+  schema: JoiBase.ArraySchema<Feature[]>,
+  def: GeospatialFieldComponent
+) {
+  const { options, schema: constraints } = def
+  const isOptional = options.required === false
 
-/**
- * @import { CustomHelpers } from 'joi'
- */
+  if (typeof constraints?.length === 'number') {
+    schema = schema.length(constraints.length)
+  } else {
+    if (typeof constraints?.min === 'number') {
+      schema = schema.min(constraints.min)
+    } else if (!isOptional) {
+      schema = schema.min(1)
+    }
+
+    schema = schema.max(
+      typeof constraints?.max === 'number' ? constraints.max : 50
+    )
+  }
+
+  if (isOptional) {
+    schema = schema.optional()
+  } else {
+    schema = schema.required()
+  }
+
+  return schema
+}
+
+export function getGeospatialSchema(
+  def: GeospatialFieldComponent
+): JoiBase.ArraySchema<Feature[]> {
+  const { options = {} } = def
+  const country: GeospatialFieldOptionsCountry | undefined =
+    options.countries?.at(0)
+
+  if (!country) {
+    return applySchemaConstraints(
+      Joi.array<Feature[]>().items(featureSchema).unique('id'),
+      def
+    )
+  }
+
+  const validateCountryBounds: CustomValidator = (value, helpers) => {
+    const countryFeature = countries.features.find(
+      (feature) => feature.id === country
+    )
+
+    if (!countryFeature) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return value
+    }
+
+    const result = booleanWithin(value as Geometry | Feature, countryFeature)
+
+    if (!result) {
+      return helpers.error('any.custom', {
+        country: countriesDesc[country as GeospatialFieldOptionsCountryEnum]
+      })
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return value
+  }
+
+  return applySchemaConstraints(
+    Joi.array<Feature[]>()
+      .items(featureSchema.custom(validateCountryBounds))
+      .unique('id'),
+    def
+  )
+}

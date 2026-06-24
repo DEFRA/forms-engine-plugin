@@ -5,6 +5,8 @@ const { CI } = process.env
  * @type {import('@jest/types').Config.InitialOptions}
  */
 module.exports = {
+  maxWorkers: '50%',
+  workerIdleMemoryLimit: '512MB',
   resetMocks: true,
   resetModules: true,
   restoreMocks: true,
@@ -52,9 +54,19 @@ module.exports = {
       'nanoid', // Supports ESM only
       'slug', // Supports ESM only
       '@defra/hapi-tracing', // Supports ESM only
-      'geodesy' // Supports ESM only|
+      'geodesy' // Supports ESM only
     ].join('|')}/)`
   ],
+  moduleNameMapper: {
+    '^@defra/interactive-map$':
+      '<rootDir>/test/__mocks__/@defra/interactive-map.js',
+    '^@defra/interactive-map/plugins/datasets/adapters/(.*)$':
+      '<rootDir>/test/__mocks__/@defra/interactive-map/plugins/datasets/adapters/$1.js',
+    '^@defra/interactive-map/plugins/(.*)$':
+      '<rootDir>/test/__mocks__/@defra/interactive-map/plugins/$1.js',
+    '^@defra/interactive-map/providers/(.*)$':
+      '<rootDir>/test/__mocks__/@defra/interactive-map/providers/$1.js'
+  },
   testTimeout: 10000,
   forceExit: true
 }

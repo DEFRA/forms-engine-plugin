@@ -23,6 +23,8 @@ import {
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
+const translator = (new FormModel(definition, { basePath: '/'})).createTranslator()
+
 describe.each([
   {
     component: {
@@ -174,6 +176,61 @@ describe.each([
         )
       })
 
+      it('is configured with min/max items', () => {
+        const collectionLimited = new ComponentCollection(
+          [{ ...def, schema: { min: 2, max: 4 } }],
+          { model }
+        )
+        const { formSchema } = collectionLimited
+        const { keys } = formSchema.describe()
+
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({
+            items: [
+              {
+                allow: options.allow,
+                flags: {
+                  label: def.shortDescription,
+                  only: true
+                },
+                type: options.list.type
+              }
+            ],
+            rules: [
+              { args: { limit: 2 }, name: 'min' },
+              { args: { limit: 4 }, name: 'max' }
+            ]
+          })
+        )
+      })
+
+      it('is configured with length items', () => {
+        const collectionLimited = new ComponentCollection(
+          [{ ...def, schema: { length: 3 } }],
+          { model }
+        )
+        const { formSchema } = collectionLimited
+        const { keys } = formSchema.describe()
+
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({
+            items: [
+              {
+                allow: options.allow,
+                flags: {
+                  label: def.shortDescription,
+                  only: true
+                },
+                type: options.list.type
+              }
+            ],
+            rules: [{ args: { limit: 3 }, name: 'length' }]
+          })
+        )
+      })
+
       it('adds errors for empty value', () => {
         const result = collection.validate(getFormData())
 
@@ -250,8 +307,8 @@ describe.each([
           const state1 = getFormState([item.value])
           const state2 = getFormState(null)
 
-          const answer1 = getAnswer(field, state1)
-          const answer2 = getAnswer(field, state2)
+          const answer1 = getAnswer(field, state1, undefined, translator)
+          const answer2 = getAnswer(field, state2, undefined, translator)
 
           expect(answer1).toBe(outdent`
             <ul>
@@ -268,7 +325,7 @@ describe.each([
         const item2 = options.examples[2]
 
         const state = getFormState([item1.value, item2.value])
-        const answer = getAnswer(field, state)
+        const answer = getAnswer(field, state, undefined, translator)
 
         expect(answer).toBe(outdent`
           <ul>
@@ -395,20 +452,20 @@ describe.each([
       it('should return errors', () => {
         const errors = field.getAllPossibleErrors()
         expect(errors.baseErrors).not.toBeEmpty()
-        expect(errors.advancedSettingsErrors).toBeEmpty()
+        expect(errors.advancedSettingsErrors).not.toBeEmpty()
       })
     })
 
     describe('getDisplayStringFromFormValue', () => {
       it('returns empty string when value is undefined', () => {
         const checkboxField = field as CheckboxesField
-        const result = checkboxField.getDisplayStringFromFormValue(undefined)
+        const result = checkboxField.getDisplayStringFromFormValue(undefined, translator)
         expect(result).toBe('')
       })
 
       it('returns empty string when value is empty array', () => {
         const checkboxField = field as CheckboxesField
-        const result = checkboxField.getDisplayStringFromFormValue([])
+        const result = checkboxField.getDisplayStringFromFormValue([], translator)
         expect(result).toBe('')
       })
 
@@ -418,7 +475,7 @@ describe.each([
           const checkboxField = field as CheckboxesField
           const result = checkboxField.getDisplayStringFromFormValue([
             item.value
-          ])
+          ], translator)
           expect(result).toBe(item.text)
         }
       )
@@ -431,7 +488,7 @@ describe.each([
         const result = checkboxField.getDisplayStringFromFormValue([
           item1.value,
           item2.value
-        ])
+        ], translator)
 
         expect(result).toBe(`${item1.text}, ${item2.text}`)
       })

@@ -121,7 +121,9 @@ describe('Machine V2 formatter - Location fields', () => {
     ]
 
     const result = format(context, items, model, submitResponse, formStatus)
-    const payload = JSON.parse(result)
+    const payload = JSON.parse(result) as {
+      data: { main: Record<string, unknown> }
+    }
 
     // Verify the payload uses full property names, not abbreviated
     expect(payload.data.main.locationLL).toEqual({
@@ -161,7 +163,9 @@ describe('Machine V2 formatter - Location fields', () => {
     ]
 
     const result = format(context, items, model, submitResponse, formStatus)
-    const payload = JSON.parse(result)
+    const payload = JSON.parse(result) as {
+      data: { main: Record<string, unknown> }
+    }
 
     // Verify the payload uses full property names
     expect(payload.data.main.locationEN).toEqual({
@@ -211,7 +215,9 @@ describe('Machine V2 formatter - Location fields', () => {
     ]
 
     const result = format(context, items, model, submitResponse, formStatus)
-    const payload = JSON.parse(result)
+    const payload = JSON.parse(result) as {
+      data: { main: Record<string, unknown> }
+    }
 
     expect(payload.data.main.gridRef).toBe('TQ123456')
     expect(payload.data.main.ngField).toBe('NG12345678')
@@ -287,7 +293,9 @@ describe('Machine V2 formatter - Location fields', () => {
     ]
 
     const result = format(context, items, model, submitResponse, formStatus)
-    const payload = JSON.parse(result)
+    const payload = JSON.parse(result) as {
+      data: { main: Record<string, unknown> }
+    }
 
     // Check all location fields use full property names
     expect(payload.data.main).toEqual({
@@ -333,7 +341,9 @@ describe('Machine V2 formatter - Location fields', () => {
     ]
 
     const result = format(context, items, model, submitResponse, formStatus)
-    const payload = JSON.parse(result)
+    const payload = JSON.parse(result) as {
+      data: { main: Record<string, unknown> }
+    }
 
     // Undefined location fields should be undefined in v2 (not null like in v1)
     expect(payload.data.main.locationLL).toBeUndefined()

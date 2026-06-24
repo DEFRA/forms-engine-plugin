@@ -285,7 +285,8 @@ describe('getPersonalisation', () => {
 
     const items = getFormSubmissionData(
       summaryViewModel.context,
-      summaryViewModel.details
+      summaryViewModel.details,
+      model
     )
 
     const body = format(context, items, model, submitResponse, formStatus)

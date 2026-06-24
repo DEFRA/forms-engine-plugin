@@ -333,7 +333,33 @@ describe('TextField', () => {
   describe('Validation', () => {
     describe.each([
       {
-        description: 'Use short description if it exists',
+        description: 'Use error description if it exists',
+        component: {
+          title: 'What is your example text?',
+          errorDescription: 'Example text',
+          shortDescription: 'Your example text',
+          name: 'myComponent',
+          type: ComponentType.TextField,
+          options: {},
+          schema: {}
+        } satisfies TextFieldComponent,
+        assertions: [
+          {
+            input: getFormData(''),
+            output: {
+              value: getFormData(''),
+              errors: [
+                expect.objectContaining({
+                  text: 'Enter example text'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description:
+          'Use short description if it exists and error description does not',
         component: {
           title: 'What is your example text?',
           shortDescription: 'Your example text',

@@ -1,5 +1,6 @@
 import {
   ComponentType,
+  type ComponentDef,
   type TelephoneNumberFieldComponent
 } from '@defra/forms-model'
 
@@ -8,6 +9,7 @@ import {
   getAnswer,
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
+import { INVALID_ERROR_CODE } from '~/src/server/plugins/engine/components/helpers/telephone.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import definition from '~/test/form/definitions/blank.js'
@@ -100,19 +102,19 @@ describe('TelephoneNumberField', () => {
       })
 
       it.each([
-        '+111-111-11',
-        '+111 111 11',
-        '+11111111',
+        '+1 213 555-0123',
+        '+1213555-0123',
+        '+12135550123',
         '+44 7930 111 222',
         '07930 111 222',
         '01606 76543',
         '01606 765432',
-        '0203 765 443',
+        '0203 005 1234',
         '0800 123 321',
         '(01606) 765432',
         '(01606) 765-432',
         '01606 765-432',
-        '+44203-765-443',
+        '+44203-005-1234',
         '0800123-321',
         '0800-123-321'
       ])("accepts valid value '%s'", (value) => {
@@ -311,7 +313,8 @@ describe('TelephoneNumberField', () => {
             customValidationMessages: {
               'any.required': 'This is a custom required error',
               'string.empty': 'This is a custom empty string error',
-              'string.pattern.base': 'This is a custom pattern error'
+              'string.pattern.base': 'This is a custom pattern error',
+              [INVALID_ERROR_CODE]: 'This is a custom pattern error'
             }
           }
         } satisfies TelephoneNumberFieldComponent,
@@ -372,7 +375,7 @@ describe('TelephoneNumberField', () => {
       let collection: ComponentCollection
 
       beforeEach(() => {
-        collection = new ComponentCollection([def], { model })
+        collection = new ComponentCollection([def as ComponentDef], { model })
       })
 
       it.each([...assertions])(
@@ -385,3 +388,7 @@ describe('TelephoneNumberField', () => {
     })
   })
 })
+
+/**
+ * @import { ComponentDef } from '@defra/forms-model'
+ */

@@ -84,7 +84,8 @@ const summaryViewModel = controller.getSummaryViewModel(
 
 const items = getFormSubmissionData(
   summaryViewModel.context,
-  summaryViewModel.details
+  summaryViewModel.details,
+  model
 )
 
 describe('getPersonalisation', () => {

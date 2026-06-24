@@ -37,6 +37,17 @@ const config = {
   ],
 
   plugins: [
+    function customCssPlugin() {
+      return {
+        name: 'custom-css',
+        getClientModules() {
+          return [
+            require.resolve('./docs/assets/css/docusaurus.scss'),
+            require.resolve('./docs/assets/js/preview-enhancements.js')
+          ]
+        }
+      }
+    },
     [
       '@docusaurus/plugin-content-docs',
       {
@@ -67,42 +78,25 @@ const config = {
           text: 'Features',
           href: '/features',
           sidebar: [
-            { text: 'Overview', href: '/features' },
+            { text: 'Components', href: '/features/components' },
+            { text: 'Page Types', href: '/features/pages' },
+            { text: 'Conditions', href: '/features/conditions' },
+            { text: 'Page Elements', href: '/features/page-elements' },
             {
-              text: 'Configuration-based',
-              href: '/features/configuration-based',
-              items: [
-                {
-                  text: 'Page Events',
-                  href: '/features/configuration-based/page-events'
-                },
-                {
-                  text: 'Page Templates',
-                  href: '/features/configuration-based/page-templates'
-                }
-              ]
+              text: 'Form Definition Options',
+              href: '/features/form-definition-options'
             },
             {
-              text: 'Code-based',
-              href: '/features/code-based',
+              text: 'Extending the plugin',
+              href: '/features',
               items: [
-                { text: 'Components', href: '/features/code-based/components' },
                 {
-                  text: 'Custom Services',
-                  href: '/features/code-based/custom-services'
+                  text: 'Configuration-based',
+                  href: '/features/configuration-based'
                 },
                 {
-                  text: 'File Upload',
-                  href: '/features/code-based/file-upload'
-                },
-                { text: 'Page Views', href: '/features/code-based/page-views' },
-                {
-                  text: 'Pre-populate State',
-                  href: '/features/code-based/pre-populate-state'
-                },
-                {
-                  text: 'Save and Exit',
-                  href: '/features/code-based/save-and-exit'
+                  text: 'Code-based',
+                  href: '/features/code-based'
                 }
               ]
             }
@@ -112,14 +106,8 @@ const config = {
         { text: 'Schema', href: '/schemas', sidebar: 'auto' },
         {
           text: 'Reference',
-          href: '/request-lifecycle',
-          sidebar: [
-            { text: 'Request Lifecycle', href: '/request-lifecycle' },
-            {
-              text: 'Form Definition Formats',
-              href: '/form-definition-formats'
-            }
-          ]
+          href: '/reference',
+          sidebar: [{ text: 'Request Lifecycle', href: '/request-lifecycle' }]
         }
       ],
 
@@ -144,7 +132,7 @@ const config = {
       homepage: {
         getStartedHref: '/getting-started',
         description:
-          'Schema-driven and extensible, built on Hapi.js foundations. Handles routing, validation, state management, and GOV.UK Frontend rendering — so teams can focus on form design, not plumbing.'
+          'Configuration-driven and extensible, built on Hapi.js. Handles routing, validation, state management, and GOV.UK Frontend rendering — so teams can focus on form design, not plumbing.'
       }
     }
   }

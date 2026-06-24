@@ -15,7 +15,7 @@ import { StatusCodes } from 'http-status-codes'
 import { type Schema, type ValidationErrorItem } from 'joi'
 import { Liquid } from 'liquidjs'
 
-import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { FORM_VERSION_METADATA_KEY } from '~/src/server/constants.js'
 import {
   getAnswer,
@@ -36,8 +36,6 @@ import {
   type FormQuery,
   type FormResponseToolkit
 } from '~/src/server/routes/types.js'
-
-const logger = createLogger()
 
 export const engine = new Liquid({
   outputEscape: 'escape',

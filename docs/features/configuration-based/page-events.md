@@ -4,7 +4,7 @@ Page events are a configuration-based way of triggering an action on an event tr
 
 forms-engine-plugin is a frontend service, which should remain as lightweight as possible with business logic being implemented in a backend/BFF API. Using page events, forms-engine-plugin can call your API and use the tailored response downstream, such a page templates to display the response value.
 
-The downstream API response becomes available under the `{{ context.data }}` view model attribute for view templates, so it can be used when rendering a page. This attribute is directly accessible by our [page templates](/forms-engine-plugin/features/configuration-based/PAGE_TEMPLATES) feature and our Nunjucks-based views.
+The downstream API response becomes available under the `{{ context.data }}` view model attribute for view templates, so it can be used when rendering a page. This attribute is directly accessible by our [page templates](./page-templates) feature and our Nunjucks-based views.
 
 ## Architecture
 
@@ -53,7 +53,7 @@ Currently supported event types:
 
 forms-engine-plugin sends a standardised payload to each API configured with page events. The latest version of our payload [can be found in our outputFormatters module by opening the latest version, e.g. `v2.ts`](https://github.com/DEFRA/forms-engine-plugin/tree/main/src/server/plugins/engine/outputFormatters/machine). Our payload contains some metadata about the payload, along with a "data" section that contains the main body of the form as a JSON object, an array of repeatable pages, and a file ID and download link for all files submitted.
 
-As of 2025-03-25, the payload would look something like this:
+The payload takes the following shape:
 
 ```jsonc
 {

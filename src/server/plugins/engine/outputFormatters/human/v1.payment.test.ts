@@ -84,7 +84,8 @@ describe('v1 human formatter', () => {
 
     const itemsPayment = getFormSubmissionData(
       summaryViewModelPayment.context,
-      summaryViewModelPayment.details
+      summaryViewModelPayment.details,
+      modelPayment
     )
 
     it('should add payment details', () => {

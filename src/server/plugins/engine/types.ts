@@ -56,6 +56,11 @@ import { type Services } from '~/src/server/types.js'
 export type AnyFormRequest = FormRequest | FormRequestPayload
 export type AnyRequest = Request | AnyFormRequest
 
+export interface CacheRequest {
+  yar: { id: string | undefined }
+  params: { slug?: string; state?: string }
+}
+
 /**
  * Form submission state stores the following in Redis:
  * Props containing user's submitted values as `{ [inputId]: value }` or as `{ [sectionName]: { [inputName]: value } }`
@@ -194,7 +199,6 @@ export interface FormContext {
   pageMap: Map<string, PageControllerClass>
   componentMap: Map<string, Component>
   referenceNumber: string
-  submittedVersionNumber?: number
 }
 
 export type FormContextRequest = (

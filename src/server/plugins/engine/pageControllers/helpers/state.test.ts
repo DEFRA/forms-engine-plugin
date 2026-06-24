@@ -19,7 +19,8 @@ const mockCacheService = { setState: jest.fn() }
 
 jest.mock('~/src/server/plugins/engine/helpers.ts', () => ({
   __esModule: true,
-  getCacheService: (...args: unknown[]) => mockGetCacheService(...args)
+  getCacheService: (...args: unknown[]) =>
+    mockGetCacheService(...args) as unknown
 }))
 
 function buildMockPage(

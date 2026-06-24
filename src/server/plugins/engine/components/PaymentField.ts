@@ -7,6 +7,7 @@ import {
 import { StatusCodes } from 'http-status-codes'
 import joi, { type ObjectSchema } from 'joi'
 
+import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { COMPONENT_STATE_ERROR } from '~/src/server/constants.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
@@ -16,6 +17,7 @@ import {
   getPluginOptions
 } from '~/src/server/plugins/engine/helpers.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   PaymentErrorTypes,
   PaymentPreAuthError,
@@ -113,7 +115,9 @@ export class PaymentField extends FormComponent {
       ? (payload[this.name] as unknown as PaymentState)
       : undefined
 
-    // When user initially visits the payment page, there is no payment state yet so the amount is read form the form definition.
+    // Use payment state amount if pre-authorized, otherwise use default.
+    // The page controller overrides this with the resolved conditional amount
+    // using the full form state (which getViewModel doesn't have access to).
     const amount = paymentState?.amount ?? this.options.amount
 
     return {
@@ -189,6 +193,37 @@ export class PaymentField extends FormComponent {
   }
 
   /**
+   * Resolves the payment amount from conditional amounts configuration.
+   * Evaluates conditions in order; first true condition wins.
+   * Falls back to the default options.amount.
+   */
+  static resolveAmount(
+    options: PaymentFieldComponent['options'],
+    model: FormModel,
+    state: FormState
+  ): number {
+    const { conditionalAmounts } = options
+
+    if (!conditionalAmounts?.length) {
+      return options.amount
+    }
+
+    for (const { condition, amount } of conditionalAmounts) {
+      if (!model.conditions[condition]) {
+        logger.warn(
+          `[payment] Condition '${condition}' not found in form conditions. Skipping.`
+        )
+        continue
+      }
+      if (model.conditions[condition].fn(state)) {
+        return amount
+      }
+    }
+
+    return options.amount
+  }
+
+  /**
    * Dispatcher for external redirect to GOV.UK Pay
    */
   static async dispatcher(
@@ -226,7 +261,12 @@ export class PaymentField extends FormComponent {
     const uuid = randomUUID()
 
     const reference = state.$$__referenceNumber as string
-    const amount = options.amount
+    const resolvedAmount = PaymentField.resolveAmount(options, model, state)
+
+    // Zero-amount safety net (page skip should prevent this, but defensive)
+    if (resolvedAmount === 0) {
+      return h.redirect(summaryUrl).code(StatusCodes.SEE_OTHER)
+    }
 
     const description = options.description
 
@@ -235,14 +275,21 @@ export class PaymentField extends FormComponent {
     const payCallbackUrl = `${baseUrl}/payment-callback?uuid=${uuid}`
     const paymentPageUrl = args.sourceUrl
 
-    const amountInPence = Math.round(amount * 100)
+    let prefilledEmail: string | undefined
+    const userConfirmationEmail = state.userConfirmationEmailAddress
+    if (typeof userConfirmationEmail === 'string' && userConfirmationEmail) {
+      prefilledEmail = userConfirmationEmail
+    }
+
+    const amountInPence = Math.round(resolvedAmount * 100)
     const payment = await paymentService.createPayment(
       amountInPence,
       description,
       payCallbackUrl,
       reference,
       isLivePayment,
-      { formId, slug }
+      { formId, slug },
+      prefilledEmail
     )
 
     if (!payment) {
@@ -251,14 +298,16 @@ export class PaymentField extends FormComponent {
         : t('components.paymentField.testApiKey')
       const govukError = createError(componentName, message)
       request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
-      return h.redirect(request.url.href).code(StatusCodes.SEE_OTHER)
+      return h
+        .redirect(`${request.url.pathname}${request.url.search}`)
+        .code(StatusCodes.SEE_OTHER)
     }
 
     const sessionData: PaymentSessionData = {
       uuid,
       formId,
       reference,
-      amount,
+      amount: resolvedAmount,
       description,
       paymentId: payment.paymentId,
       componentName,
@@ -284,6 +333,16 @@ export class PaymentField extends FormComponent {
     const { getLanguage } = getPluginOptions(request.server)
     const language = getLanguage?.(request) ?? 'en-GB'
     const { t } = this.model.createTranslator(language)
+
+    // Zero-amount bypass — no capture needed
+    const resolvedAmount = PaymentField.resolveAmount(
+      this.options,
+      this.model,
+      context.state
+    )
+    if (resolvedAmount === 0) {
+      return
+    }
 
     const paymentState = this.getPaymentStateFromState(context.state)
 
@@ -318,7 +377,7 @@ export class PaymentField extends FormComponent {
 
     PaymentSubmissionError.checkPaymentAmount(
       status.amount,
-      this.options.amount,
+      resolvedAmount,
       this,
       t
     )

@@ -1,3 +1,4 @@
+import { isPaymentPage } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
   type ResponseObject,
@@ -9,11 +10,11 @@ import {
   EXTERNAL_STATE_APPENDAGE,
   EXTERNAL_STATE_PAYLOAD
 } from '~/src/server/constants.js'
-import { resolveFormModel } from '~/src/server/plugins/engine/beta/form-context.js'
 import {
   FormComponent,
   isFormState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { resolveFormModel } from '~/src/server/plugins/engine/form-context.js'
 import {
   checkFormStatus,
   findPage,
@@ -111,8 +112,14 @@ export async function redirectOrMakeHandler(
     return proceed(request, h, resumeInRepeaterUrl)
   }
 
-  // Return handler for relevant pages or preview URL direct access
-  if (relevantPath.startsWith(page.path) || context.isForceAccess) {
+  // Return handler for relevant pages, payment pages, or preview URL direct access.
+  // Payment pages are skipped in the normal page walk but must render when the user
+  // is redirected there from CYA "Pay and submit".
+  if (
+    relevantPath.startsWith(page.path) ||
+    isPaymentPage(page.pageDef) ||
+    context.isForceAccess
+  ) {
     return makeHandler(page, context)
   }
 

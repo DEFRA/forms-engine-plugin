@@ -93,6 +93,10 @@ describe('Page: /summary', () => {
 
     expect($warning).not.toBeInTheDocument()
   })
+
+  afterAll(async () => {
+    await server.stop()
+  })
 })
 
 /**

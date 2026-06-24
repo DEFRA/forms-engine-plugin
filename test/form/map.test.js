@@ -3,9 +3,8 @@ import { StatusCodes } from 'http-status-codes'
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import { getAccessToken } from '~/src/server/plugins/map/routes/get-os-token.js'
-import { find, nearest } from '~/src/server/plugins/map/service.js'
+import { find } from '~/src/server/plugins/map/service.js'
 import { result as findResult } from '~/src/server/plugins/map/test/__stubs__/find.js'
-import { result as nearestResult } from '~/src/server/plugins/map/test/__stubs__/nearest.js'
 import { get, request } from '~/src/server/services/httpService.js'
 
 const basePath = `${FORM_PREFIX}/api`
@@ -160,20 +159,55 @@ describe('Map API routes', () => {
     expect(response.result).toEqual(findResult)
   })
 
-  it('should get reverse geocode results', async () => {
-    jest.mocked(nearest).mockResolvedValueOnce(nearestResult)
-
+  it('should get all geojson countries boundaries', async () => {
+    /**
+     * @type {ServerInjectResponse<FeatureCollection>}
+     */
     const response = await server.inject({
-      url: `${basePath}/reverse-geocode-proxy?easting=523065&northing=185795`,
+      url: `${basePath}/maps/countries.geojson`,
       method: 'GET'
     })
 
     expect(response.statusCode).toBe(StatusCodes.OK)
-    expect(response.result).toEqual(nearestResult)
+    expect(response.result).toBeDefined()
+    expect(response.result?.features).toHaveLength(4)
+  })
+
+  it('should get only 1 country boundary', async () => {
+    /**
+     * @type {ServerInjectResponse<FeatureCollection>}
+     */
+    const response = await server.inject({
+      url: `${basePath}/maps/countries.geojson?only=england`,
+      method: 'GET'
+    })
+
+    expect(response.statusCode).toBe(StatusCodes.OK)
+    expect(response.result).toBeDefined()
+    expect(response.result?.features).toHaveLength(1)
+  })
+
+  it('should get 3 country boundaries when 1 is omitted', async () => {
+    /**
+     * @type {ServerInjectResponse<FeatureCollection>}
+     */
+    const response = await server.inject({
+      url: `${basePath}/maps/countries.geojson?omit=wales`,
+      method: 'GET'
+    })
+
+    expect(response.statusCode).toBe(StatusCodes.OK)
+    expect(response.result).toBeDefined()
+    expect(response.result?.features).toHaveLength(3)
+  })
+
+  afterAll(async () => {
+    await server.stop()
   })
 })
 
 /**
  * @import { IncomingMessage } from 'node:http'
- * @import { Server } from '@hapi/hapi'
+ * @import { Server, ServerInjectResponse } from '@hapi/hapi'
+ * @import { FeatureCollection } from 'geojson'
  */

@@ -3,10 +3,10 @@ import { type Request, type Server } from '@hapi/hapi'
 import { isEqual } from 'date-fns'
 
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
+import { assertFormAvailable } from '~/src/server/plugins/engine/form-availability.js'
 import {
   checkEmailAddressForLiveFormSubmission,
-  getCacheService,
-  getFormVersion
+  getCacheService
 } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
@@ -54,6 +54,7 @@ export async function getFormModel(
   const formState = resolveState(state)
 
   const metadata = await formsService.getFormMetadata(slug)
+  assertFormAvailable(metadata, formState, isPreview)
 
   const definition = await formsService.getFormDefinition(
     metadata.id,
@@ -66,20 +67,18 @@ export async function getFormModel(
     )
   }
 
-  const versionNumber = getFormVersion(definition)?.versionNumber
-
   return new FormModel(
     definition,
     {
       basePath:
         options.basePath ??
         buildBasePath(options.routePrefix ?? '', slug, formState, isPreview),
-      versionNumber,
       ordnanceSurveyApiKey: options.ordnanceSurveyApiKey,
       formId: options.formId ?? metadata.id
     },
     services,
     options.controllers
+    // TODO - should we pass a new translator in here?
   )
 }
 
@@ -144,6 +143,7 @@ export async function resolveFormModel(
   const metadata = await formsService.getFormMetadata(slug)
   const formState = resolveState(state)
   const isPreview = options.isPreview ?? isPreviewState(state, options)
+  assertFormAvailable(metadata, formState, isPreview)
   const stateMetadata = metadata[formState]
 
   if (!stateMetadata) {
@@ -156,10 +156,7 @@ export async function resolveFormModel(
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   server.app.models ??= new Map<string, { model: FormModel; updatedAt: Date }>()
 
-  const cache = server.app.models as Map<
-    string,
-    { model: FormModel; updatedAt: Date }
-  >
+  const cache = server.app.models
 
   const cacheKey = `${metadata.id}_${formState}_${isPreview}`
   let entry = cache.get(cacheKey)
@@ -184,15 +181,12 @@ export async function resolveFormModel(
     const routePrefix =
       options.routePrefix ?? server.realm.modifiers.route.prefix
 
-    const versionNumber = getFormVersion(definition)?.versionNumber
-
     const model = new FormModel(
       definition,
       {
         basePath:
           options.basePath ??
           buildBasePath(routePrefix, slug, formState, isPreview),
-        versionNumber,
         ordnanceSurveyApiKey: options.ordnanceSurveyApiKey,
         formId: options.formId ?? metadata.id
       },

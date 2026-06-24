@@ -1,10 +1,8 @@
 import { getErrorMessage } from '@defra/forms-model'
 import Joi from 'joi'
 
-import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { CacheService } from '~/src/server/services/index.js'
-
-const logger = createLogger()
 
 const pluginRegistrationOptionsSchema = Joi.object({
   model: Joi.object().optional(),

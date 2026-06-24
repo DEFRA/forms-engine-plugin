@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes'
 
-import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import {
   buildPaymentInfo,
   convertPenceToPounds
@@ -9,8 +9,6 @@ import { get, post, postJson } from '~/src/server/services/httpService.js'
 
 const PAYMENT_BASE_URL = 'https://publicapi.payments.service.gov.uk'
 const PAYMENT_ENDPOINT = '/v1/payments'
-
-const logger = createLogger()
 
 /**
  * @param {string} apiKey
@@ -41,6 +39,7 @@ export class PaymentService {
    * @param {string} reference
    * @param {boolean} isLivePayment
    * @param {{ formId: string, slug: string } | undefined } metadata
+   * @param {string} [email] - optional email to prepopulate on GOV.UK Pay
    */
   async createPayment(
     amount,
@@ -48,17 +47,26 @@ export class PaymentService {
     returnUrl,
     reference,
     isLivePayment,
-    metadata
+    metadata,
+    email
   ) {
     try {
-      const response = await this.postToPayProvider({
+      /** @type {CreatePaymentRequest} */
+      const payload = {
         amount,
         description,
         reference,
         metadata,
         return_url: returnUrl,
         delayed_capture: true
-      })
+      }
+
+      // Prepopulate email on GOV.UK Pay if provided
+      if (email) {
+        payload.email = email
+      }
+
+      const response = await this.postToPayProvider(payload)
 
       logger.info(
         buildPaymentInfo(

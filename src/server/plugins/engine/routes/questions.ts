@@ -66,7 +66,8 @@ async function handleHttpEvent(
   const items = getFormSubmissionData(
     viewModel.context,
     viewModel.details,
-    translator
+    translator,
+    model
   )
 
   // @ts-expect-error - function signature will be refactored in the next iteration of the formatter
