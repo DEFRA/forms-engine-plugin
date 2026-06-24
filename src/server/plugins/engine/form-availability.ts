@@ -1,4 +1,4 @@
-import { type FormMetadata } from '@defra/forms-model'
+import { FormStatus, type FormMetadata } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 
 export interface OfflineBoomData {
@@ -11,8 +11,16 @@ export interface OfflineBoomData {
  * unavailable-response extension catches the marker and renders the
  * "Sorry, this form is unavailable" view at HTTP 200.
  */
-export function assertFormAvailable(metadata: FormMetadata): void {
-  if (metadata.offline === true) {
+export function assertFormAvailable(
+  metadata: FormMetadata,
+  formState: FormStatus,
+  isPreview: boolean
+): void {
+  if (
+    metadata.offline === true &&
+    formState === FormStatus.Live &&
+    !isPreview
+  ) {
     const data: OfflineBoomData = { offline: true, metadata }
     throw Boom.boomify(new Error(`Form ${metadata.slug} is offline`), {
       statusCode: 503,

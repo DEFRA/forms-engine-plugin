@@ -6,7 +6,7 @@ import {
   getFormModel,
   resolveFormModel,
   type FormModelOptions
-} from '~/src/server/plugins/engine/beta/form-context.js'
+} from '~/src/server/plugins/engine/form-context.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import { type FormContext } from '~/src/server/plugins/engine/types.js'
@@ -17,7 +17,7 @@ const mockGetCacheService = jest.fn()
 const mockCacheService = { getState: jest.fn() }
 const mockCheckEmailAddressForLiveFormSubmission = jest.fn()
 
-jest.mock('../models/index.ts', () => ({
+jest.mock('~/src/server/plugins/engine/models/index.ts', () => ({
   __esModule: true,
   FormModel: jest.fn()
 }))
@@ -32,7 +32,7 @@ jest.mock('~/src/server/plugins/engine/services/index.js', () => ({
   outputService: {}
 }))
 
-jest.mock('../pageControllers/index.ts', () => {
+jest.mock('~/src/server/plugins/engine/pageControllers/index.ts', () => {
   class MockTerminalPageController {
     path = ''
   }
@@ -43,8 +43,8 @@ jest.mock('../pageControllers/index.ts', () => {
   }
 })
 
-jest.mock('../helpers.ts', () => ({
-  ...jest.requireActual<object>('../helpers.ts'),
+jest.mock('~/src/server/plugins/engine/helpers.ts', () => ({
+  ...jest.requireActual<object>('~/src/server/plugins/engine/helpers.ts'),
   getCacheService: (...args: unknown[]): unknown =>
     mockGetCacheService(...args),
   checkEmailAddressForLiveFormSubmission: (...args: unknown[]): unknown =>
@@ -56,13 +56,14 @@ const mockServices: {
 } = jest.requireMock('~/src/server/plugins/engine/services/index.js')
 const mockFormsService = mockServices.formsService
 
-const { FormModel }: { FormModel: jest.Mock } =
-  jest.requireMock('../models/index.ts')
+const { FormModel }: { FormModel: jest.Mock } = jest.requireMock(
+  '~/src/server/plugins/engine/models/index.ts'
+)
 
 const {
   TerminalPageController: MockTerminalPageController
 }: { TerminalPageController: new () => { path: string } } = jest.requireMock(
-  '../pageControllers/index.ts'
+  '~/src/server/plugins/engine/pageControllers/index.ts'
 )
 
 describe('getFormContext helper', () => {
