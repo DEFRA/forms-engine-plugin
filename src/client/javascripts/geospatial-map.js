@@ -16,6 +16,7 @@ import {
 import { formatDelimtedList } from '~/src/client/javascripts/utils.js'
 
 const helpPanelConfig = {
+  focus: false,
   showLabel: true,
   label: 'How to use this map',
   mobile: {
