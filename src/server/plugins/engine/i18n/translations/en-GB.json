@@ -59,7 +59,9 @@
       "dateOfPayment": "Date of payment",
       "submissionFailed": "There was a problem and your form was not submitted. Try submitting the form again",
       "submissionFailedContactSuffix": " or you can [[contactUsLink]] and quote your reference number to arrange a refund",
-      "contactUsLinkText": "contact us (opens in new tab)"
+      "contactUsLinkText": "contact us (opens in new tab)",
+      "confirmationEmail": "Confirmation email (optional)",
+      "confirmationEmailHint": "Enter your email address to receive a confirmation email and a copy of your answers"
     },
 
     "repeater": {

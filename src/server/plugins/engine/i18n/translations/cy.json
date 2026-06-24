@@ -59,7 +59,9 @@
       "dateOfPayment": "Dyddiad talu",
       "submissionFailed": "Roedd problem ac ni chyflwynwyd eich ffurflen. Ceisiwch gyflwyno'r ffurflen eto",
       "submissionFailedContactSuffix": " neu gallwch [[contactUsLink]] a dyfynnu'ch cyfeirnod i drefnu ad-daliad",
-      "contactUsLinkText": "cysylltu â ni (yn agor mewn tab newydd)"
+      "contactUsLinkText": "cysylltu â ni (yn agor mewn tab newydd)",
+      "confirmationEmail": "welsh confirmation email (optional)",
+      "confirmationEmailHint": "welsh Enter your email address to receive a confirmation email and a copy of your answers"
     },
 
     "repeater": {

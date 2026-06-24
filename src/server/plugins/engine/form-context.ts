@@ -121,7 +121,9 @@ export async function getFormContext(
     $$__referenceNumber: cachedState.$$__referenceNumber
   } as unknown as FormSubmissionState
 
-  const translator = formModel.createTranslator(options.language ?? 'en-GB')
+  const language =
+    (yar.get('language') as string | undefined) ?? options.language ?? 'en-GB'
+  const translator = formModel.createTranslator(language)
 
   return formModel.getFormContext(
     summaryRequest,
@@ -153,7 +155,7 @@ export async function resolveFormModel(
   }
 
   // The models cache is created lazily per server instance
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+   
   server.app.models ??= new Map<string, { model: FormModel; updatedAt: Date }>()
 
   const cache = server.app.models
