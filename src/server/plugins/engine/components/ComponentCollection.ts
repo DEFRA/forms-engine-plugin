@@ -222,11 +222,11 @@ export class ComponentCollection {
    * Get all errors for all fields in this collection
    */
   getErrors(
-    errors?: FormSubmissionError[],
-    translator?: Translator
+    translator: Translator,
+    errors?: FormSubmissionError[]
   ): FormSubmissionError[] | undefined {
     return this.getFieldErrors(
-      (field) => field.getErrors(errors, translator),
+      (field) => field.getErrors(translator, errors),
       errors
     )
   }
@@ -237,11 +237,11 @@ export class ComponentCollection {
    * Composite fields like UKAddress can choose to return more than one error.
    */
   getViewErrors(
-    errors?: FormSubmissionError[],
-    translator: Translator
+    translator: Translator,
+    errors?: FormSubmissionError[]
   ): FormSubmissionError[] | undefined {
     return this.getFieldErrors(
-      (field) => field.getViewErrors(errors, translator),
+      (field) => field.getViewErrors(translator, errors),
       errors
     )
   }

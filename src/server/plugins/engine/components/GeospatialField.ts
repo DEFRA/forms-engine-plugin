@@ -8,7 +8,6 @@ import {
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { geospatialSchema } from '~/src/server/plugins/engine/components/helpers/geospatial.js'
 import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
-import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
@@ -103,15 +102,12 @@ export class GeospatialField extends FormComponent {
   }
 
   getErrors(
-    errors?: FormSubmissionError[],
-    translator?: Translator
+    translator: Translator,
+    errors?: FormSubmissionError[]
   ): FormSubmissionError[] | undefined {
-    const fieldErrors = super.getErrors(errors)
+    const fieldErrors = super.getErrors(translator, errors)
 
-    const t =
-      translator?.t ??
-      ((key: string, opts?: Record<string, unknown>) =>
-        tPlugin(key, 'en-GB', opts))
+    const t = translator.t
 
     fieldErrors?.forEach((err) => {
       if (err.name === 'description') {
@@ -127,10 +123,10 @@ export class GeospatialField extends FormComponent {
   }
 
   getViewErrors(
-    errors?: FormSubmissionError[],
-    translator: Translator
+    translator: Translator,
+    errors?: FormSubmissionError[]
   ): FormSubmissionError[] | undefined {
-    return this.getErrors(errors, translator)
+    return this.getErrors(translator, errors)
   }
 
   isValue(value?: FormStateValue | FormState): value is GeospatialState {

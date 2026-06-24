@@ -154,9 +154,7 @@ export async function resolveFormModel(
 
   // The models cache is created lazily per server instance
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  if (!server.app.models) {
-    server.app.models = new Map<string, { model: FormModel; updatedAt: Date }>()
-  }
+  server.app.models ??= new Map<string, { model: FormModel; updatedAt: Date }>()
 
   const cache = server.app.models as Map<
     string,

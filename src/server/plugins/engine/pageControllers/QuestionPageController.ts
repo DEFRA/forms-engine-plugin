@@ -442,7 +442,7 @@ export class QuestionPageController extends PageController {
       }
 
       const viewModel = this.getViewModel(request, context, translator)
-      viewModel.errors = collection.getViewErrors(viewModel.errors, translator)
+      viewModel.errors = collection.getViewErrors(translator, viewModel.errors)
 
       const flashedError = request.yar.flash(COMPONENT_STATE_ERROR)
       const flashedErrors = !Array.isArray(flashedError) ? [flashedError] : []
@@ -566,8 +566,8 @@ export class QuestionPageController extends PageController {
       if (context.errors || isForceAccess) {
         const viewModel = this.getViewModel(request, context, translator)
         viewModel.errors = collection.getViewErrors(
-          viewModel.errors,
-          translator
+          translator,
+          viewModel.errors
         )
 
         // Filter our components based on their conditions using our evaluated state

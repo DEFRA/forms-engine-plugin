@@ -172,12 +172,12 @@ export class UkAddressField extends FormComponent {
    * Returns one error per child field
    */
   getViewErrors(
-    errors?: FormSubmissionError[],
-    translator: Translator
+    translator: Translator,
+    errors?: FormSubmissionError[]
   ): FormSubmissionError[] | undefined {
     const { t } = translator
 
-    const uniqueErrors = this.getErrors(errors)?.filter(
+    const uniqueErrors = this.getErrors(translator, errors)?.filter(
       (error, index, self) =>
         index === self.findIndex((err) => err.name === error.name)
     )
@@ -203,7 +203,7 @@ export class UkAddressField extends FormComponent {
   }
 
   getViewModel(context: RenderContext) {
-    const { payload } = context
+    const { payload, translator } = context
     const { collection, name, options } = this
 
     const viewModel = super.getViewModel(context)
@@ -245,7 +245,7 @@ export class UkAddressField extends FormComponent {
     const usePostcodeLookup = this.shouldUsePostcodeLookup()
 
     const value = usePostcodeLookup
-      ? this.getDisplayStringFromState(payload)
+      ? this.getDisplayStringFromState(payload, translator)
       : undefined
 
     return {

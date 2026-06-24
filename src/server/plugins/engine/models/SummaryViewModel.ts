@@ -207,17 +207,14 @@ function ItemRepeat(
     path: string
     errors?: FormSubmissionError[]
   },
-  translator?: Translator
+  translator: Translator
 ): DetailItemRepeat {
   const { collection, repeat } = page
   const { name, title } = repeat.options
 
   const values = page.getListFromState(state)
   const count = values.length
-  const value = count
-    ? (translator?.t('pages.repeater.pageTitle', { count }) ??
-      `You have added ${count} ${count === 1 ? 'answer' : 'answers'}`)
-    : ''
+  const value = translator.t('pages.repeater.pageTitle', { count })
 
   return {
     name,
@@ -251,7 +248,7 @@ export function ItemField(
     path: string
     errors?: FormSubmissionError[]
   },
-  translator?: Translator
+  translator: Translator
 ): DetailItemField {
   // FormComponent doesn't expose shortDescription/title as raw def properties,
   // so build a lookup object with English values to let tComponent's GUID lookup fire.
@@ -261,21 +258,19 @@ export function ItemField(
     shortDescription: field.label,
     title: field.title
   } as unknown as ComponentDef
-  const rawLabel = translator
-    ? translator.tComponent(fieldDef, 'shortDescription')
-    : ''
+  const rawLabel = translator.tComponent(fieldDef, 'shortDescription')
   const translatedLabel = rawLabel !== '' ? rawLabel : field.label
-  const rawTitle = translator ? translator.tComponent(fieldDef, 'title') : ''
+  const rawTitle = translator.tComponent(fieldDef, 'title')
   const translatedTitle = rawTitle !== '' ? rawTitle : field.title
   const optional =
     field.options.required === false
-      ? ` ${translator?.t('common.optional') ?? '(optional)'}`
+      ? ` ${translator.t('common.optional')}`
       : ''
   return {
     name: field.name,
     label: translatedTitle,
     title: `${translatedLabel}${optional}`,
-    error: field.getFirstError(options.errors),
+    error: field.getFirstError(translator, options.errors),
     value: getAnswer(field, state, { format: 'summary' }, translator),
     href: getPageHref(page, options.path, {
       returnUrl: getPageHref(page, page.getSummaryPath())

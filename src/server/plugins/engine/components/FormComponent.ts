@@ -103,8 +103,8 @@ export class FormComponent extends ComponentBase {
   }
 
   getErrors(
-    errors?: FormSubmissionError[],
-    _translator?: Translator
+    _translator: Translator,
+    errors?: FormSubmissionError[]
   ): FormSubmissionError[] | undefined {
     const { name } = this
 
@@ -124,16 +124,17 @@ export class FormComponent extends ComponentBase {
   }
 
   getFirstError(
+    translator: Translator,
     errors?: FormSubmissionError[]
   ): FormSubmissionError | undefined {
-    return this.getErrors(errors)?.[0]
+    return this.getErrors(translator, errors)?.[0]
   }
 
   getViewErrors(
-    errors?: FormSubmissionError[],
-    _translator: Translator
+    translator: Translator,
+    errors?: FormSubmissionError[]
   ): FormSubmissionError[] | undefined {
-    const firstError = this.getFirstError(errors)
+    const firstError = this.getFirstError(translator, errors)
     return firstError && [firstError]
   }
 
@@ -172,8 +173,8 @@ export class FormComponent extends ComponentBase {
     }
 
     // Filter component errors only
-    const componentErrors = this.getErrors(errors)
-    const componentError = this.getFirstError(componentErrors)
+    const componentErrors = this.getErrors(translator, errors)
+    const componentError = this.getFirstError(translator, componentErrors)
 
     if (componentErrors) {
       viewModel.errors = componentErrors

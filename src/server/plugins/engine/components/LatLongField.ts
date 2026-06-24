@@ -199,10 +199,10 @@ export class LatLongField extends FormComponent {
   }
 
   getViewErrors(
-    errors?: FormSubmissionError[],
-    _translator: Translator
+    translator: Translator,
+    errors?: FormSubmissionError[]
   ): FormSubmissionError[] | undefined {
-    const allErrors = this.getErrors(errors)
+    const allErrors = this.getErrors(translator, errors)
     return deduplicateErrorsByHref(allErrors)
   }
 
