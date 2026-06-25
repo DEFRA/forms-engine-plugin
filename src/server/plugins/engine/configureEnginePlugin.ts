@@ -7,7 +7,10 @@ import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { plugin } from '~/src/server/plugins/engine/plugin.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import { formsService } from '~/src/server/plugins/engine/services/localFormsService.js'
-import { type PluginOptions } from '~/src/server/plugins/engine/types.js'
+import {
+  type AnyFormRequest,
+  type PluginOptions
+} from '~/src/server/plugins/engine/types.js'
 import { findPackageRoot } from '~/src/server/plugins/engine/vision.js'
 import { devtoolContext } from '~/src/server/plugins/nunjucks/context.js'
 import { type CacheService } from '~/src/server/services/cacheService.js'
@@ -68,7 +71,7 @@ export const configureEnginePlugin = async (
       saveAndExit,
       ordnanceSurveyApiKey,
       ordnanceSurveyApiSecret,
-      getLanguage: (request) => {
+      getLanguage: (request: AnyFormRequest) => {
         if ('language' in request.query) {
           request.yar.set('language', request.query.language)
         }

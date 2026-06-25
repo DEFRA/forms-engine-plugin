@@ -511,7 +511,7 @@ export interface PluginOptions {
   viewContext: PluginProperties['forms-engine-plugin']['viewContext']
   preparePageEventRequestOptions?: PreparePageEventRequestOptions
   onRequest?: OnRequestCallback
-  getLanguage?: (request: AnyFormRequest) => string | undefined
+  getLanguage?: (request: AnyFormRequest) => string
   baseUrl: string // base URL of the application, protocol and hostname e.g. "https://myapp.com"
   ordnanceSurveyApiKey?: string
   ordnanceSurveyApiSecret?: string
