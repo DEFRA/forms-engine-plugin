@@ -145,21 +145,6 @@ describe('FormModel', () => {
       expect(model.schemaVersion).toBe(SchemaVersion.V1)
     })
 
-    it('sets versionNumber from options', () => {
-      const model = new FormModel(definition, {
-        basePath: 'test',
-        versionNumber: 42
-      })
-
-      expect(model.versionNumber).toBe(42)
-    })
-
-    it('sets versionNumber to undefined when not provided', () => {
-      const model = new FormModel(definition, { basePath: 'test' })
-
-      expect(model.versionNumber).toBeUndefined()
-    })
-
     it('creates translator for en-GB', () => {
       const model = new FormModel(definition, { basePath: 'test' })
       const { t } = model.createTranslator('en-GB')

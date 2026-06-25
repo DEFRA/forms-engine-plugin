@@ -25,6 +25,10 @@ import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import definition from '~/test/form/definitions/blank.js'
 
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
+
 describe('Location field formatting', () => {
   let model: FormModel
 
@@ -445,7 +449,12 @@ describe('Location field formatting', () => {
         locationEN__northing: 654321
       }
 
-      const answer = getAnswerMarkdown(field, state, { format: 'email' })
+      const answer = getAnswerMarkdown(
+        field,
+        state,
+        { format: 'email' },
+        translator
+      )
       expect(answer).toBe('Easting: 123456\nNorthing: 654321\n')
     })
 
@@ -462,7 +471,12 @@ describe('Location field formatting', () => {
         locationLL__longitude: -0.127758
       }
 
-      const answer = getAnswerMarkdown(field, state, { format: 'email' })
+      const answer = getAnswerMarkdown(
+        field,
+        state,
+        { format: 'email' },
+        translator
+      )
       expect(answer).toBe('Latitude: 51.51945\nLongitude: -0.127758\n')
     })
 
@@ -478,7 +492,12 @@ describe('Location field formatting', () => {
         gridRef: 'TQ123456'
       }
 
-      const answer = getAnswerMarkdown(field, state, { format: 'email' })
+      const answer = getAnswerMarkdown(
+        field,
+        state,
+        { format: 'email' },
+        translator
+      )
       expect(answer).toBe('TQ123456\n')
     })
   })
