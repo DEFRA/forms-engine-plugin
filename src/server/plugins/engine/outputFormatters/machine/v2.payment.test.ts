@@ -85,6 +85,7 @@ const summaryViewModel = controller.getSummaryViewModel(
 const items = getFormSubmissionData(
   summaryViewModel.context,
   summaryViewModel.details,
+  stubTranslator,
   model
 )
 

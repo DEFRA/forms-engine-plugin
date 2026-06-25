@@ -33,3 +33,18 @@ export function isValidUUID(str) {
   const { error } = Joi.string().uuid().validate(str)
   return error === undefined
 }
+
+/**
+ * @param {AnyFormRequest} request
+ */
+export function getLanguage(request) {
+  if ('language' in request.query) {
+    request.yar.set('language', request.query.language)
+  }
+
+  return /** @type {string} */ (request.yar.get('language') ?? 'en-GB')
+}
+
+/**
+ * @import { AnyFormRequest } from '~/src/server/plugins/engine/types.js'
+ */

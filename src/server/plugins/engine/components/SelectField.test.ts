@@ -18,6 +18,10 @@ import {
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
+
 describe.each([
   {
     component: {
@@ -176,8 +180,8 @@ describe.each([
         const state1 = getFormState(item.value)
         const state2 = getFormState(null)
 
-        const answer1 = getAnswer(field, state1)
-        const answer2 = getAnswer(field, state2)
+        const answer1 = getAnswer(field, state1, undefined, translator)
+        const answer2 = getAnswer(field, state2, undefined, translator)
 
         expect(answer1).toBe(item.text)
         expect(answer2).toBe('')

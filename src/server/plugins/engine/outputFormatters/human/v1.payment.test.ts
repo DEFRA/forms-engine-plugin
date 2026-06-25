@@ -14,6 +14,10 @@ import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 import { FormStatus } from '~/src/server/routes/types.js'
 import definitionPayment from '~/test/form/definitions/payment.js'
 
+const translator = new FormModel(definitionPayment, {
+  basePath: '/'
+}).createTranslator()
+
 describe('v1 human formatter', () => {
   describe('Payment', () => {
     const modelPayment = new FormModel(definitionPayment, {
@@ -85,6 +89,7 @@ describe('v1 human formatter', () => {
     const itemsPayment = getFormSubmissionData(
       summaryViewModelPayment.context,
       summaryViewModelPayment.details,
+      translator,
       modelPayment
     )
 

@@ -76,6 +76,7 @@ describe('v1 human formatter', () => {
   const items = getFormSubmissionData(
     summaryViewModel.context,
     summaryViewModel.details,
+    stubTranslator,
     model
   )
 

@@ -11,6 +11,10 @@ import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__st
 import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
 
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
+
 describe('LatLongField', () => {
   let model: FormModel
 
@@ -198,8 +202,8 @@ describe('LatLongField', () => {
         })
         const state2 = getFormState({})
 
-        const answer1 = getAnswer(field, state1)
-        const answer2 = getAnswer(field, state2)
+        const answer1 = getAnswer(field, state1, undefined, translator)
+        const answer2 = getAnswer(field, state2, undefined, translator)
 
         expect(answer1).toBe('Latitude: 51.51945<br>Longitude: -0.127758<br>')
         expect(answer2).toBe('')
@@ -400,7 +404,7 @@ describe('LatLongField', () => {
           }
         ]
 
-        const viewErrors = field.getViewErrors(errors)
+        const viewErrors = field.getViewErrors(translator, errors)
 
         expect(viewErrors).toHaveLength(2)
         expect(viewErrors).toEqual([

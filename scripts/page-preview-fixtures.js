@@ -65,9 +65,14 @@ function pageViewContext({
       server: { plugins: { 'forms-engine-plugin': {} } }
     })
   )
+  const translator = model.createTranslator()
   return getViewModelOverride
     ? getViewModelOverride(controller, model, mockRequest, mockContext)
-    : controller.getViewModel(/** @type {any} */ (mockRequest), mockContext)
+    : controller.getViewModel(
+        /** @type {any} */ (mockRequest),
+        mockContext,
+        translator
+      )
 }
 
 const fileUploadWithFilesVariant = /** @type {any} */ (
@@ -192,13 +197,18 @@ export const pageFixtures = {
           ]
         }
       ],
-      getViewModelOverride: (ctrl, _model, req, ctx) => {
+      getViewModelOverride: (ctrl, model, req, ctx) => {
         const repeat = /** @type {RepeatPageController} */ (ctrl)
-        const vm = repeat.getListSummaryViewModel(req, ctx, [
-          { itemId: '1', fullname: 'Sarah Phillips' },
-          { itemId: '2', fullname: 'David Jones' },
-          { itemId: '3', fullname: 'Emma Wilson' }
-        ])
+        const vm = repeat.getListSummaryViewModel(
+          req,
+          ctx,
+          [
+            { itemId: '1', fullname: 'Sarah Phillips' },
+            { itemId: '2', fullname: 'David Jones' },
+            { itemId: '3', fullname: 'Emma Wilson' }
+          ],
+          model.createTranslator()
+        )
         return /** @type {PageViewModel} */ (
           /** @type {unknown} */ ({
             ...vm,
@@ -300,10 +310,12 @@ export const pageFixtures = {
       ],
       renderPage: '/summary',
       state: { fullname: 'Sarah Phillips', email: 'sarah@example.gov.uk' },
-      getViewModelOverride: (ctrl, _model, req, ctx) => {
+      getViewModelOverride: (ctrl, model, req, ctx) => {
         const summary = /** @type {SummaryPageController} */ (ctrl)
         return /** @type {PageViewModel} */ (
-          /** @type {unknown} */ (summary.getSummaryViewModel(req, ctx))
+          /** @type {unknown} */ (
+            summary.getSummaryViewModel(req, ctx, model.createTranslator())
+          )
         )
       }
     })

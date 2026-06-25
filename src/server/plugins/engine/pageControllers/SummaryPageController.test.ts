@@ -15,6 +15,10 @@ import { type CacheService } from '~/src/server/services/cacheService.js'
 import definition from '~/test/form/definitions/basic.js'
 import definitionPaymentV2Conditional from '~/test/form/definitions/payment-v2-conditional.js'
 
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
+
 describe('SummaryPageController', () => {
   let model: FormModel
   let controller: SummaryPageController
@@ -420,7 +424,7 @@ describe('SummaryPageController - Payment (DF-832)', () => {
       const request = {
         ...requestPage,
         params: { ...requestPage.params, path: 'summary' },
-        yar: { id: 'session-id' },
+        yar: { id: 'session-id', set: jest.fn(), get: jest.fn() },
         logger: { info: jest.fn(), error: jest.fn() }
       } as unknown as FormRequestPayload
 
@@ -458,7 +462,8 @@ describe('SummaryPageController - Payment (DF-832)', () => {
           request,
           viewModel,
           model,
-          'notify@example.com'
+          'notify@example.com',
+          translator
         )
       ).rejects.toMatchObject({
         name: 'PaymentSubmissionError'
@@ -479,7 +484,8 @@ describe('SummaryPageController - Payment (DF-832)', () => {
           request,
           viewModel,
           model,
-          'notify@example.com'
+          'notify@example.com',
+          translator
         )
       ).rejects.toBe(err)
     })
@@ -499,7 +505,8 @@ describe('SummaryPageController - Payment (DF-832)', () => {
         request,
         viewModel,
         model,
-        'notify@example.com'
+        'notify@example.com',
+        translator
       )
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const paymentCall = formSubmissionSubmit.mock.calls[0][0]

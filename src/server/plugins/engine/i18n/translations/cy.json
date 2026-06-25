@@ -232,7 +232,8 @@
       "added_one": "Ychwanegwyd [[count]] lleoliad",
       "added_other": "Ychwanegwyd [[count]] lleoliad",
       "validation": {
-        "descriptionRequired": "Rhowch ddisgrifiad ar gyfer lleoliad [[count]]"
+        "descriptionRequired": "Rhowch ddisgrifiad ar gyfer lleoliad [[count]]",
+        "wrongCountry": "welsh Location [[count]] must be in [[country]]"
       }
     },
 

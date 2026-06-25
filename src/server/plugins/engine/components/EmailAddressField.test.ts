@@ -13,6 +13,10 @@ import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__st
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
+
 describe('EmailAddressField', () => {
   let model: FormModel
 
@@ -155,8 +159,8 @@ describe('EmailAddressField', () => {
         const state1 = getFormState('defra.helpline@defra.gov.uk')
         const state2 = getFormState(null)
 
-        const answer1 = getAnswer(field, state1)
-        const answer2 = getAnswer(field, state2)
+        const answer1 = getAnswer(field, state1, undefined, translator)
+        const answer2 = getAnswer(field, state2, undefined, translator)
 
         expect(answer1).toBe('defra.helpline@defra.gov.uk')
         expect(answer2).toBe('')

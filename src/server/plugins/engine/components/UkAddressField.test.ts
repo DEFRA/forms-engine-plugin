@@ -19,6 +19,10 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
 
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
+
 describe('UkAddressField', () => {
   let model: FormModel
 
@@ -351,8 +355,8 @@ describe('UkAddressField', () => {
         const state1 = getFormState(address)
         const state2 = getFormState({})
 
-        const answer1 = getAnswer(field, state1)
-        const answer2 = getAnswer(field, state2)
+        const answer1 = getAnswer(field, state1, undefined, translator)
+        const answer2 = getAnswer(field, state2, undefined, translator)
 
         expect(answer1).toBe(
           'Richard Fairclough House<br>Knutsford Road<br>Warrington<br>Cheshire<br>WA4 1HT<br>'
@@ -793,7 +797,7 @@ describe('UkAddressField', () => {
           const result = collection.validate(input)
           expect(result).toEqual(output)
 
-          const errors = collection.getErrors(result.errors)
+          const errors = collection.getErrors(translator, result.errors)
           expect(errors).toEqual(output.errors)
         }
       )

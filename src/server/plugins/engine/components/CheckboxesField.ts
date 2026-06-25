@@ -42,9 +42,9 @@ export class CheckboxesField extends SelectionControlField {
       .label(this.label)
       .required()
       .messages({
-        'array.min': messageTemplate.arrayMin as string,
-        'array.max': messageTemplate.arrayMax as string,
-        'array.length': messageTemplate.arrayLength as string
+        'array.min': messageTemplate.arrayMin,
+        'array.max': messageTemplate.arrayMax,
+        'array.length': messageTemplate.arrayLength
       })
 
     if (options.required === false) {

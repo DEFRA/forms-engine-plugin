@@ -14,6 +14,10 @@ import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__st
 import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
 
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
+
 describe('EastingNorthingField', () => {
   let model: FormModel
 
@@ -209,8 +213,8 @@ describe('EastingNorthingField', () => {
         })
         const state2 = getFormState({})
 
-        const answer1 = getAnswer(field, state1)
-        const answer2 = getAnswer(field, state2)
+        const answer1 = getAnswer(field, state1, undefined, translator)
+        const answer2 = getAnswer(field, state2, undefined, translator)
 
         expect(answer1).toBe('Easting: 12345<br>Northing: 1234567<br>')
         expect(answer2).toBe('')
@@ -411,7 +415,7 @@ describe('EastingNorthingField', () => {
           }
         ]
 
-        const viewErrors = field.getViewErrors(errors)
+        const viewErrors = field.getViewErrors(translator, errors)
 
         // Should return all errors, not just the first one
         expect(viewErrors).toHaveLength(2)

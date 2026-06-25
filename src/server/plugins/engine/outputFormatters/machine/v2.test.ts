@@ -23,6 +23,10 @@ import {
 import { FormStatus } from '~/src/server/routes/types.js'
 import definition from '~/test/form/definitions/repeat-mixed.js'
 
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
+
 const submitResponse = {
   message: 'Submit completed',
   result: {
@@ -286,6 +290,7 @@ describe('getPersonalisation', () => {
     const items = getFormSubmissionData(
       summaryViewModel.context,
       summaryViewModel.details,
+      translator,
       model
     )
 

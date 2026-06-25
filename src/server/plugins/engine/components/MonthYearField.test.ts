@@ -16,6 +16,10 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
 
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
+
 describe('MonthYearField', () => {
   let model: FormModel
 
@@ -259,8 +263,8 @@ describe('MonthYearField', () => {
         const state1 = getFormState(date)
         const state2 = getFormState({})
 
-        const answer1 = getAnswer(field, state1)
-        const answer2 = getAnswer(field, state2)
+        const answer1 = getAnswer(field, state1, undefined, translator)
+        const answer2 = getAnswer(field, state2, undefined, translator)
 
         expect(answer1).toBe('December 2024')
         expect(answer2).toBe('')

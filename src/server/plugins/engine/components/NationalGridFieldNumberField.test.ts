@@ -14,6 +14,10 @@ import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__st
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
+
 describe('NationalGridFieldNumberField', () => {
   let model: FormModel
 
@@ -151,8 +155,8 @@ describe('NationalGridFieldNumberField', () => {
         const state1 = getFormState('NG12345678')
         const state2 = getFormState(null)
 
-        const answer1 = getAnswer(field, state1)
-        const answer2 = getAnswer(field, state2)
+        const answer1 = getAnswer(field, state1, undefined, translator)
+        const answer2 = getAnswer(field, state2, undefined, translator)
 
         expect(answer1).toBe('NG12345678')
         expect(answer2).toBe('')

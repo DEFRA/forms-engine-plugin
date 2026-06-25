@@ -68,7 +68,7 @@ const {
 
 describe('getFormContext helper', () => {
   const request = {
-    yar: { set: jest.fn() } as unknown as Request['yar'],
+    yar: { set: jest.fn(), get: jest.fn() } as unknown as Request['yar'],
     server: {
       app: {},
       realm: { modifiers: { route: { prefix: '' } } }

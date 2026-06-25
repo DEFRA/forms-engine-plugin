@@ -32,6 +32,10 @@ import definitionConditionsComplex from '~/test/form/definitions/conditions-comp
 import definitionConditionsDates from '~/test/form/definitions/conditions-dates.js'
 import definitionPaymentV2Conditional from '~/test/form/definitions/payment-v2-conditional.js'
 
+const translator = new FormModel(definitionConditionsBasic, {
+  basePath: '/'
+}).createTranslator()
+
 describe('QuestionPageController', () => {
   let page1: PageQuestion
   let page1Url: URL
@@ -1913,7 +1917,7 @@ describe('QuestionPageController translator support', () => {
           yesNoField: false
         })
 
-        const viewModel = paymentPage.getViewModel(request, context)
+        const viewModel = paymentPage.getViewModel(request, context, translator)
         const paymentComp = viewModel.components.find(
           (c) => 'amount' in c.model && 'paymentState' in c.model
         )
@@ -1930,7 +1934,7 @@ describe('QuestionPageController translator support', () => {
           yesNoField: true
         })
 
-        const viewModel = paymentPage.getViewModel(request, context)
+        const viewModel = paymentPage.getViewModel(request, context, translator)
         const paymentComp = viewModel.components.find(
           (c) => 'amount' in c.model && 'paymentState' in c.model
         )
@@ -1945,7 +1949,7 @@ describe('QuestionPageController translator support', () => {
           $$__referenceNumber: 'foobar'
         })
 
-        const viewModel = paymentPage.getViewModel(request, context)
+        const viewModel = paymentPage.getViewModel(request, context, translator)
         const paymentComp = viewModel.components.find(
           (c) => 'amount' in c.model && 'paymentState' in c.model
         )
@@ -1960,7 +1964,7 @@ describe('QuestionPageController translator support', () => {
           yesNoField: false
         })
 
-        const viewModel = paymentPage.getViewModel(request, context)
+        const viewModel = paymentPage.getViewModel(request, context, translator)
 
         expect(viewModel).toHaveProperty('allowSaveAndExit', false)
       })
@@ -1985,7 +1989,7 @@ describe('QuestionPageController translator support', () => {
         // rather than isPaymentPage for this page.
         jest.spyOn(choicePage, 'shouldShowSaveAndExit').mockReturnValue(true)
 
-        const viewModel = choicePage.getViewModel(request, context)
+        const viewModel = choicePage.getViewModel(request, context, translator)
 
         expect(viewModel).toHaveProperty('allowSaveAndExit', true)
       })
@@ -2013,7 +2017,7 @@ describe('QuestionPageController translator support', () => {
           yesNoField: false
         })
 
-        const viewModel = paymentPage.getViewModel(request, context)
+        const viewModel = paymentPage.getViewModel(request, context, translator)
 
         expect(viewModel).toHaveProperty('showSubmitButton', false)
       })
@@ -2039,7 +2043,7 @@ describe('QuestionPageController translator support', () => {
           }
         } as unknown as FormSubmissionState)
 
-        const viewModel = paymentPage.getViewModel(request, context)
+        const viewModel = paymentPage.getViewModel(request, context, translator)
 
         expect(viewModel).toHaveProperty('showSubmitButton', true)
       })

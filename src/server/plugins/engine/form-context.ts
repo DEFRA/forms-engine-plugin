@@ -155,7 +155,6 @@ export async function resolveFormModel(
   }
 
   // The models cache is created lazily per server instance
-   
   server.app.models ??= new Map<string, { model: FormModel; updatedAt: Date }>()
 
   const cache = server.app.models

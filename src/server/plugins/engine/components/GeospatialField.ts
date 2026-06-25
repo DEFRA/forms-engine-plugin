@@ -32,13 +32,11 @@ export class GeospatialField extends FormComponent {
 
     const { options } = def
 
-    const formSchema = getGeospatialSchema(def)
-      .label(this.label)
-      .messages({
-        'array.min': messageTemplate.featuresMin as string,
-        'array.max': messageTemplate.featuresMax as string,
-        'array.length': messageTemplate.featuresLength as string
-      })
+    const formSchema = getGeospatialSchema(def).label(this.label).messages({
+      'array.min': messageTemplate.featuresMin,
+      'array.max': messageTemplate.featuresMax,
+      'array.length': messageTemplate.featuresLength
+    })
 
     this.formSchema = formSchema
     this.stateSchema = formSchema.default(null)
@@ -114,15 +112,19 @@ export class GeospatialField extends FormComponent {
   ): FormSubmissionError[] | undefined {
     const fieldErrors = super.getErrors(translator, errors)
 
-    const t = translator.t
-
     fieldErrors?.forEach((err) => {
       if (err.name === 'description') {
         err.href = `#description_${err.path[1]}`
-        err.text = `Enter description for location ${Number(err.path[1]) + 1}`
+        err.text = translator.t(
+          'components.geospatialField.validation.descriptionRequired',
+          { count: Number(err.path[1]) + 1 }
+        )
       } else if (typeof err.name === 'number' && err.context?.country) {
         err.href = `#description_${err.path[1]}`
-        err.text = `Location ${Number(err.path[1]) + 1} must be in ${err.context.country}`
+        err.text = translator.t(
+          'components.geospatialField.validation.wrongCountry',
+          { count: Number(err.path[1]) + 1, country: err.context.country }
+        )
       }
     })
 
