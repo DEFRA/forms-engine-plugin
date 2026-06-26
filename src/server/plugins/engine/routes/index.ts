@@ -20,7 +20,6 @@ import {
   findPage,
   getCacheService,
   getPage,
-  getPluginOptions,
   getStartPath,
   proceed
 } from '~/src/server/plugins/engine/helpers.js'
@@ -44,6 +43,7 @@ import {
   type FormRequest,
   type FormResponseToolkit
 } from '~/src/server/routes/types.js'
+import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 export async function redirectOrMakeHandler(
   request: AnyFormRequest,
@@ -83,8 +83,7 @@ export async function redirectOrMakeHandler(
   state = await importExternalComponentState(request, page, state)
 
   const flash = cacheService.getFlash(request)
-  const { getLanguage } = getPluginOptions(request.server)
-  const language = getLanguage?.(request) ?? 'en-GB'
+  const language = resolveLanguage(request)
   const translator = model.createTranslator(language)
   const context = model.getFormContext(
     request,

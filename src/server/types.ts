@@ -60,7 +60,7 @@ export interface RouteConfig {
   cacheServiceCreator?: (server: Server) => CacheService
   ordnanceSurveyApiKey?: string
   ordnanceSurveyApiSecret?: string
-  getLanguage?: (request: AnyFormRequest) => string
+  getLanguage?: (request: AnyFormRequest, metadata?: FormMetadata) => string
 }
 
 export interface OutputService {

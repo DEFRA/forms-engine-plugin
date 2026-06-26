@@ -2,6 +2,7 @@ import { getTraceId } from '@defra/hapi-tracing'
 import Joi from 'joi'
 
 import { config } from '~/src/config/index.js'
+import { getPluginOptions } from '~/src/server/plugins/engine/helpers.js'
 
 /**
  * Returns a set of headers to use in an HTTP request, merging them with any existing headers in options.
@@ -35,16 +36,17 @@ export function isValidUUID(str) {
 }
 
 /**
+ *
  * @param {AnyFormRequest} request
+ * @param {FormMetadata} [metadata]
+ * @returns
  */
-export function getLanguage(request) {
-  if ('language' in request.query) {
-    request.yar.set('language', request.query.language)
-  }
-
-  return /** @type {string} */ (request.yar.get('language') ?? 'en-GB')
+export function resolveLanguage(request, metadata) {
+  const { getLanguage } = getPluginOptions(request.server)
+  return getLanguage?.(request, metadata) ?? 'en-GB'
 }
 
 /**
+ * @import { FormMetadata } from '@defra/forms-model'
  * @import { AnyFormRequest } from '~/src/server/plugins/engine/types.js'
  */

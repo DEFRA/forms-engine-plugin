@@ -1,6 +1,6 @@
 import { join, parse } from 'node:path'
 
-import { type FormDefinition } from '@defra/forms-model'
+import { type FormDefinition, type FormMetadata } from '@defra/forms-model'
 
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
@@ -71,12 +71,13 @@ export const configureEnginePlugin = async (
       saveAndExit,
       ordnanceSurveyApiKey,
       ordnanceSurveyApiSecret,
-      getLanguage: (request: AnyFormRequest) => {
+      getLanguage: (request: AnyFormRequest, metadata?: FormMetadata) => {
         if ('language' in request.query) {
           request.yar.set('language', request.query.language)
         }
 
-        return request.yar.get('language') ?? 'en-GB'
+        // @ts-expect-error - 'language' does not yet exist on FormMetadata
+        return request.yar.get('language') ?? metadata?.language ?? 'en-GB'
       }
     }
   }

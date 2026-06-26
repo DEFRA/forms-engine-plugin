@@ -1,6 +1,7 @@
 import {
   type ComponentDef,
   type Event,
+  type FormMetadata,
   type FormVersionMetadata,
   type Item,
   type List,
@@ -511,7 +512,7 @@ export interface PluginOptions {
   viewContext: PluginProperties['forms-engine-plugin']['viewContext']
   preparePageEventRequestOptions?: PreparePageEventRequestOptions
   onRequest?: OnRequestCallback
-  getLanguage?: (request: AnyFormRequest) => string
+  getLanguage?: (request: AnyFormRequest, metadata?: FormMetadata) => string
   baseUrl: string // base URL of the application, protocol and hostname e.g. "https://myapp.com"
   ordnanceSurveyApiKey?: string
   ordnanceSurveyApiSecret?: string

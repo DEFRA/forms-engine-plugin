@@ -10,7 +10,6 @@ import {
   isUploadState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
-import { getPluginOptions } from '~/src/server/plugins/engine/helpers.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { InvalidComponentStateError } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
@@ -34,6 +33,7 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 import { render } from '~/src/server/plugins/nunjucks/index.js'
 import { type FormRequestPayload } from '~/src/server/routes/types.js'
+import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 export const uploadIdSchema = joi.string().uuid().required()
 
@@ -312,8 +312,7 @@ export class FileUploadField extends FormComponent {
     metadata: FormMetadata,
     context: FormContext
   ) {
-    const { getLanguage } = getPluginOptions(request.server)
-    const language = getLanguage?.(request) ?? 'en-GB'
+    const language = resolveLanguage(request, metadata)
     const { t } = this.model.createTranslator(language)
 
     const notificationEmail = metadata.notificationEmail

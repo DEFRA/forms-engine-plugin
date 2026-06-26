@@ -39,7 +39,7 @@ import {
   createPaymentService,
   formatCurrency
 } from '~/src/server/plugins/payment/helper.js'
-import { getLanguage } from '~/src/server/utils/utils.js'
+import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 export class PaymentField extends FormComponent {
   declare options: PaymentFieldComponent['options']
@@ -234,10 +234,8 @@ export class PaymentField extends FormComponent {
   ): Promise<unknown> {
     const { options, name: componentName } = args.component
     const { model } = args.controller
-    const { getLanguage } = getPluginOptions(request.server)
-    const language = getLanguage?.(request) ?? 'en-GB'
+    const language = resolveLanguage(request)
     const { t } = model.createTranslator(language)
-
     const state = await args.controller.getState(request)
     const { baseUrl } = getPluginOptions(request.server)
     const summaryUrl = `${baseUrl}/${model.basePath}/summary`
@@ -328,10 +326,10 @@ export class PaymentField extends FormComponent {
    */
   async onSubmit(
     request: FormRequestPayload,
-    _metadata: FormMetadata,
+    metadata: FormMetadata,
     context: FormContext
   ): Promise<void> {
-    const language = getLanguage(request)
+    const language = resolveLanguage(request, metadata)
     const { t } = this.model.createTranslator(language)
 
     // Zero-amount bypass — no capture needed
