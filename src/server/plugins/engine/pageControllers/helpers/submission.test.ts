@@ -291,6 +291,36 @@ describe('Submission helpers', () => {
         }
       ])
     })
+
+    it('should send empty string for optional GeospatialField', () => {
+      const mockGeospatialField = Object.create(
+        GeospatialField.prototype
+      ) as GeospatialField
+      mockGeospatialField.name = 'geospatial'
+      mockGeospatialField.options = { required: false }
+
+      const items = [
+        {
+          name: 'geospatial',
+          label: 'Site features',
+          field: mockGeospatialField,
+          state: {
+            geospatial: undefined
+          } as FormSubmissionState
+        }
+      ] as unknown as DetailItemField[]
+
+      const result = buildMainRecords(items, translator)
+
+      expect(result).toHaveLength(1)
+      expect(result).toEqual([
+        {
+          name: 'geospatial',
+          title: 'Site features',
+          value: ''
+        }
+      ])
+    })
   })
 
   describe('buildRepeaterRecords', () => {
@@ -390,6 +420,52 @@ describe('Submission helpers', () => {
                 title: 'Site features',
                 value:
                   '[{"type":"Feature","properties":{"description":"My farm house","coordinateGridReference":"ST 00001","centroidGridReference":"ST 00001"},"geometry":{"coordinates":[-2.5723699109417737,53.2380485215034],"type":"Point"},"id":"a"}]'
+              }
+            ]
+          ]
+        }
+      ])
+    })
+
+    it('should send empty string for optional GeospatialField', () => {
+      const mockGeospatialField = Object.create(
+        GeospatialField.prototype
+      ) as GeospatialField
+      mockGeospatialField.name = 'geospatial'
+      mockGeospatialField.options = { required: false }
+
+      const items = [
+        {
+          name: 'features',
+          label: 'Site features repeater',
+          subItems: [
+            [
+              {
+                name: 'geospatial',
+                label: 'Site features',
+                field: mockGeospatialField,
+                state: {
+                  geospatial: undefined
+                } as FormSubmissionState
+              } as unknown as DetailItemField[]
+            ]
+          ]
+        }
+      ] as unknown as DetailItemField[]
+
+      const result = buildRepeaterRecords(items, translator)
+
+      expect(result).toHaveLength(1)
+      expect(result).toEqual([
+        {
+          name: 'features',
+          title: 'Site features repeater',
+          value: [
+            [
+              {
+                name: 'geospatial',
+                title: 'Site features',
+                value: ''
               }
             ]
           ]

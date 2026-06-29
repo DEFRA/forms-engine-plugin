@@ -40,10 +40,11 @@ export function buildMainRecords(
     } else if (item.field instanceof GeospatialField) {
       // Stringify of GeoJSON is done here rather than inside `getContextValueFromState`
       // so we don't incur the overhead of JSON.stringify on every request when building context
+      const value = item.field.getFormValueFromState(item.state)
       records.push({
         name: item.name,
         title: item.label,
-        value: JSON.stringify(item.field.getFormValueFromState(item.state))
+        value: value === undefined ? '' : JSON.stringify(value)
       })
     } else {
       records.push({
@@ -114,23 +115,29 @@ export function buildRepeaterRecords(
       name: item.name,
       title: item.label,
       value: item.subItems.map((detailItems) =>
-        detailItems.map((subItem) => ({
-          name: subItem.name,
-          title: subItem.label,
-          value:
+        detailItems.map((subItem) => {
+          let value
+
+          if (subItem.field instanceof GeospatialField) {
             // Stringify of GeoJSON is done here rather than inside `getContextValueFromState`
             // so we don't incur the overhead of JSON.stringify on every request when building context
-            subItem.field instanceof GeospatialField
-              ? JSON.stringify(
-                  subItem.field.getFormValueFromState(subItem.state)
-                )
-              : getAnswer(
-                  subItem.field,
-                  subItem.state,
-                  { format: 'data' },
-                  translator
-                )
-        }))
+            const formValue = subItem.field.getFormValueFromState(subItem.state)
+            value = formValue === undefined ? '' : JSON.stringify(formValue)
+          } else {
+            value = getAnswer(
+              subItem.field,
+              subItem.state,
+              { format: 'data' },
+              translator
+            )
+          }
+
+          return {
+            name: subItem.name,
+            title: subItem.label,
+            value
+          }
+        })
       )
     }))
 }
