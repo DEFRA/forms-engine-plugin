@@ -91,7 +91,9 @@ describe('extractBaseTranslations', () => {
   })
 
   it('skips components without an id', () => {
-    interface PageWithComponents { components: Record<string, unknown>[] }
+    interface PageWithComponents {
+      components: Record<string, unknown>[]
+    }
     const firstPage = def.pages[0] as unknown as PageWithComponents
     const defNoId = {
       ...def,

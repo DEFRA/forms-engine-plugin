@@ -173,8 +173,9 @@ async function detailsPostHandler(request, h, options) {
   const session = getSessionState(request)
   const { ordnanceSurveyApiKey: apiKey } = options
   const language = session.initial.language ?? 'en-GB'
-  const { value: details, error } =
-    createDetailsPayloadSchema(language).validate(request.payload)
+  const { value: details, error } = createDetailsPayloadSchema(
+    language
+  ).validate(request.payload)
 
   let model
 
@@ -205,8 +206,9 @@ async function selectPostHandler(request, h, options) {
   const session = getSessionState(request)
   const { ordnanceSurveyApiKey: apiKey } = options
   const language = session.initial.language ?? 'en-GB'
-  const { value: select, error } =
-    createSelectPayloadSchema(language).validate(request.payload)
+  const { value: select, error } = createSelectPayloadSchema(language).validate(
+    request.payload
+  )
 
   if (error) {
     const model = await selectViewModel({ session, apiKey }, select, error)

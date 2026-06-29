@@ -37,15 +37,13 @@ function buildMockModel(
       isForceAccess: false,
       data: {}
     }),
-    createTranslator: jest
-      .fn()
-      .mockReturnValue({
-        t: jest.fn(),
-        tPage: jest.fn(),
-        tComponent: jest.fn(),
-        tSection: jest.fn(),
-        tListItem: jest.fn()
-      }),
+    createTranslator: jest.fn().mockReturnValue({
+      t: jest.fn(),
+      tPage: jest.fn(),
+      tComponent: jest.fn(),
+      tSection: jest.fn(),
+      tListItem: jest.fn()
+    }),
     pages: pagesControllerOverride,
     services: servicesOverride
   } as unknown as FormModel
