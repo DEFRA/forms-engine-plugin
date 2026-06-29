@@ -216,7 +216,8 @@ function ItemRepeat(
 
   const values = page.getListFromState(state)
   const count = values.length
-  const value = translator.t('pages.repeater.pageTitle', { count })
+  const value =
+    count === 0 ? '' : translator.t('pages.repeater.pageTitle', { count })
 
   return {
     name,

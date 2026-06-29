@@ -36,10 +36,8 @@ export function isValidUUID(str) {
 }
 
 /**
- *
  * @param {AnyFormRequest} request
  * @param {FormMetadata} [metadata]
- * @returns
  */
 export function resolveLanguage(request, metadata) {
   const { getLanguage } = getPluginOptions(request.server)
