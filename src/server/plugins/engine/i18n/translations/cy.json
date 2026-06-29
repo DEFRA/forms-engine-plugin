@@ -60,8 +60,8 @@
       "submissionFailed": "Roedd problem ac ni chyflwynwyd eich ffurflen. Ceisiwch gyflwyno'r ffurflen eto",
       "submissionFailedContactSuffix": " neu gallwch [[contactUsLink]] a dyfynnu'ch cyfeirnod i drefnu ad-daliad",
       "contactUsLinkText": "cysylltu â ni (yn agor mewn tab newydd)",
-      "confirmationEmail": "welsh confirmation email (optional)",
-      "confirmationEmailHint": "welsh Enter your email address to receive a confirmation email and a copy of your answers"
+      "confirmationEmail": "E-bost cadarnhad (dewisol)",
+      "confirmationEmailHint": "Rhowch eich cyfeiriad e-bost i dderbyn e-bost cadarnhau a chopi o'ch atebion"
     },
 
     "repeater": {
@@ -233,7 +233,7 @@
       "added_other": "Ychwanegwyd [[count]] lleoliad",
       "validation": {
         "descriptionRequired": "Rhowch ddisgrifiad ar gyfer lleoliad [[count]]",
-        "wrongCountry": "welsh Location [[count]] must be in [[country]]"
+        "wrongCountry": "Rhaid i leoliad [[count]] fod y tu mewn i [[country]]"
       }
     },
 
