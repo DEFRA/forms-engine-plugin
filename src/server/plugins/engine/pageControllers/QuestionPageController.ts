@@ -130,15 +130,14 @@ export class QuestionPageController extends PageController {
 
     const { t, tPage, tSection } = translator
 
-    let { showTitle } = viewModel
+    let { showTitle, sectionTitle } = viewModel
 
     let pageTitle = tPage(this.pageDef, 'title') || viewModel.pageTitle
 
-    const sectionTitle = this.section
-      ? this.section.hideTitle !== true
-        ? tSection(this.section, 'title')
-        : ''
-      : viewModel.sectionTitle
+    if (this.section) {
+      sectionTitle =
+        this.section.hideTitle !== true ? tSection(this.section, 'title') : ''
+    }
 
     const components = collection.getViewModel({ payload, errors, translator })
     const formComponents = components.filter(
