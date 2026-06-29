@@ -62,7 +62,7 @@ export class SummaryViewModel {
   paymentState?: PaymentState
   paymentDetails?: CheckAnswers
   t: (key: string, opts?: Record<string, unknown>) => string
-  private _translator!: Translator
+  private readonly _translator!: Translator
   paymentRequired?: boolean
   paymentPreAuthorized?: boolean
 
@@ -274,7 +274,7 @@ export function ItemField(
     label: translatedTitle,
     title: `${translatedLabel}${optional}`,
     error: field.getFirstError(translator, options.errors),
-    value: getAnswer(field, state, { format: 'summary' }, translator),
+    value: getAnswer(field, state, translator, { format: 'summary' }),
     href: getPageHref(page, options.path, {
       returnUrl: getPageHref(page, page.getSummaryPath())
     }),

@@ -160,8 +160,8 @@ describe('NumberField', () => {
         const state1 = getFormState(2024)
         const state2 = getFormState(null)
 
-        const answer1 = getAnswer(field, state1, undefined, translator)
-        const answer2 = getAnswer(field, state2, undefined, translator)
+        const answer1 = getAnswer(field, state1, translator)
+        const answer2 = getAnswer(field, state2, translator)
 
         expect(answer1).toBe('2024')
         expect(answer2).toBe('')

@@ -11,7 +11,9 @@ import { listYesNoExamples } from '~/test/fixtures/list.js'
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
-const translator = (new FormModel(definition, { basePath: '/'})).createTranslator()
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
 
 describe('YesNoField', () => {
   let def: YesNoFieldComponent
@@ -146,9 +148,9 @@ describe('YesNoField', () => {
       const state2 = getFormState(false)
       const state3 = getFormState(null)
 
-      const answer1 = getAnswer(field, state1, undefined, translator)
-      const answer2 = getAnswer(field, state2, undefined, translator)
-      const answer3 = getAnswer(field, state3, undefined, translator)
+      const answer1 = getAnswer(field, state1, translator)
+      const answer2 = getAnswer(field, state2, translator)
+      const answer3 = getAnswer(field, state3, translator)
 
       expect(answer1).toBe('Yes')
       expect(answer2).toBe('No')

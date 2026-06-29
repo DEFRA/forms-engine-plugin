@@ -180,7 +180,9 @@ export class FormComponent extends ComponentBase {
 
     const resolvedTitle =
       tComponent(this as unknown as ComponentDef, 'title') || title
-    const label = `${resolvedTitle}${!isRequired && !hideOptional ? ` ${t('common.optional')}` : ''}`
+    const optionalTag =
+      !isRequired && !hideOptional ? ` ${t('common.optional')}` : ''
+    const label = `${resolvedTitle}${optionalTag}`
 
     if (hint) {
       viewModel.hint = {

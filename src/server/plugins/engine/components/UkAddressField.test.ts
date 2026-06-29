@@ -355,8 +355,8 @@ describe('UkAddressField', () => {
         const state1 = getFormState(address)
         const state2 = getFormState({})
 
-        const answer1 = getAnswer(field, state1, undefined, translator)
-        const answer2 = getAnswer(field, state2, undefined, translator)
+        const answer1 = getAnswer(field, state1, translator)
+        const answer2 = getAnswer(field, state2, translator)
 
         expect(answer1).toBe(
           'Richard Fairclough House<br>Knutsford Road<br>Warrington<br>Cheshire<br>WA4 1HT<br>'

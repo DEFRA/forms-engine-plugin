@@ -88,7 +88,7 @@ export class FormModel {
   conditions: Partial<Record<string, ExecutableCondition>>
   pages: PageControllerClass[]
   services: Services
-  private i18nInstance: i18n
+  private readonly i18nInstance: i18n
 
   controllers?: Record<string, typeof PageController>
   pageDefMap: Map<string, Page>

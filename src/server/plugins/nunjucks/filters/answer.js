@@ -20,14 +20,9 @@ export function answer(name) {
 
   const field = /** @type {Field} */ (component)
   const translator = field.model.createTranslator()
-  const answer = getAnswer(
-    field,
-    context.relevantState,
-    { format: 'summary' },
-    translator
-  )
-
-  return answer
+  return getAnswer(field, context.relevantState, translator, {
+    format: 'summary'
+  })
 }
 
 /**

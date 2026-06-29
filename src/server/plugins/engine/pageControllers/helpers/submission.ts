@@ -50,7 +50,7 @@ export function buildMainRecords(
       records.push({
         name: item.name,
         title: item.label,
-        value: getAnswer(item.field, item.state, { format: 'data' }, translator)
+        value: getAnswer(item.field, item.state, translator, { format: 'data' })
       })
     }
   }
@@ -124,12 +124,9 @@ export function buildRepeaterRecords(
             const formValue = subItem.field.getFormValueFromState(subItem.state)
             value = formValue === undefined ? '' : JSON.stringify(formValue)
           } else {
-            value = getAnswer(
-              subItem.field,
-              subItem.state,
-              { format: 'data' },
-              translator
-            )
+            value = getAnswer(subItem.field, subItem.state, translator, {
+              format: 'data'
+            })
           }
 
           return {

@@ -88,8 +88,8 @@ describe('answer Nunjucks filter', () => {
       expect(getAnswer).toHaveBeenCalledWith(
         mockFormComponent,
         mockThis.ctx.context?.relevantState,
-        { format: 'summary' },
-        { t: expect.anything() }
+        { t: expect.anything() },
+        { format: 'summary' }
       )
       expect(result).toBe('test answer')
     })

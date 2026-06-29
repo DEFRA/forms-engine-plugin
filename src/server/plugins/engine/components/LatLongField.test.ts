@@ -202,8 +202,8 @@ describe('LatLongField', () => {
         })
         const state2 = getFormState({})
 
-        const answer1 = getAnswer(field, state1, undefined, translator)
-        const answer2 = getAnswer(field, state2, undefined, translator)
+        const answer1 = getAnswer(field, state1, translator)
+        const answer2 = getAnswer(field, state2, translator)
 
         expect(answer1).toBe('Latitude: 51.51945<br>Longitude: -0.127758<br>')
         expect(answer2).toBe('')

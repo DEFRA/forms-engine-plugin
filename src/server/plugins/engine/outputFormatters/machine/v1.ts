@@ -83,12 +83,9 @@ function categoriseData(items: DetailItem[], translator: Translator) {
     } else if (isFileUploadFieldItem(item)) {
       output.files[item.name] = extractFileUploads(item)
     } else {
-      output.main[item.name] = getAnswer(
-        item.field,
-        item.state,
-        { format: 'data' },
-        translator
-      )
+      output.main[item.name] = getAnswer(item.field, item.state, translator, {
+        format: 'data'
+      })
     }
   })
 
@@ -110,8 +107,8 @@ function extractRepeaters(item: DetailItemRepeat, translator: Translator) {
       outputRepeaterItem[repeaterComponent.name] = getAnswer(
         repeaterComponent.field,
         repeaterComponent.state,
-        { format: 'data' },
-        translator
+        translator,
+        { format: 'data' }
       )
     })
 

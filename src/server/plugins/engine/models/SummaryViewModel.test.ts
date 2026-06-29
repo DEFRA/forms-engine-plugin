@@ -412,9 +412,13 @@ describe('SummaryViewModel with per-request Translator', () => {
     }
 
     context = model.getFormContext(request, state)
-    expect(
-      new SummaryViewModel(request, page, context, mockTranslator)
-    ).toBeDefined()
+    const viewModel = new SummaryViewModel(
+      request,
+      page,
+      context,
+      mockTranslator
+    )
+    expect(viewModel).toBeDefined()
 
     expect(mockTranslator.t).toHaveBeenCalledWith('pages.summary.change')
   })
@@ -427,9 +431,13 @@ describe('SummaryViewModel with per-request Translator', () => {
     }
 
     context = model.getFormContext(request, state)
-    expect(
-      new SummaryViewModel(request, page, context, mockTranslator)
-    ).toBeDefined()
+    const viewModel = new SummaryViewModel(
+      request,
+      page,
+      context,
+      mockTranslator
+    )
+    expect(viewModel).toBeDefined()
 
     expect(mockTranslator.t).toHaveBeenCalledWith('pages.summary.notProvided')
   })
@@ -442,9 +450,13 @@ describe('SummaryViewModel with per-request Translator', () => {
     }
 
     context = model.getFormContext(request, state)
-    expect(
-      new SummaryViewModel(request, page, context, stubTranslator)
-    ).toBeDefined()
+    const viewModel = new SummaryViewModel(
+      request,
+      page,
+      context,
+      stubTranslator
+    )
+    expect(viewModel).toBeDefined()
   })
 })
 
