@@ -11,7 +11,6 @@ import { type Lifecycle, type RouteOptions, type Server } from '@hapi/hapi'
 import { type ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { type FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import {
-  getPluginOptions,
   getSaveAndExitHelpers,
   getStartPath,
   normalisePath
@@ -31,6 +30,7 @@ import {
   type FormRequestRefs,
   type FormResponseToolkit
 } from '~/src/server/routes/types.js'
+import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 export class PageController {
   /**
@@ -165,8 +165,7 @@ export class PageController {
   }
 
   protected getTranslator(request: AnyFormRequest): Translator {
-    const { getLanguage } = getPluginOptions(request.server)
-    return this.model.createTranslator(getLanguage?.(request) ?? 'en-GB')
+    return this.model.createTranslator(resolveLanguage(request))
   }
 
   makeGetRouteHandler(): (

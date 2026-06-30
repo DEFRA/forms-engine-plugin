@@ -747,7 +747,7 @@ const EN_GB = 'en-GB'
 
 const allowedLanguages = {
   [EN_GB]: 'English',
-  cy: 'Welsh (Cymraeg)'
+  cy: 'Cymraeg'
 } as Record<string, string>
 
 export function getAvailableLanguages(
