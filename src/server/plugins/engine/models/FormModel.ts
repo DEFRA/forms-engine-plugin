@@ -746,12 +746,11 @@ function getReferenceNumber(state: FormSubmissionState): string {
 const EN_GB = 'en-GB'
 
 const allowedLanguages = {
-   
   [EN_GB]: 'English',
   cy: 'Welsh (Cymraeg)'
 } as Record<string, string>
 
-function getAvailableLanguages(
+export function getAvailableLanguages(
   def: FormDefinition
 ): { name: string; code: string }[] {
   if (def.metadata?.translations) {

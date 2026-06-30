@@ -9,7 +9,10 @@ import {
 } from '@defra/forms-model'
 
 import { todayAsDateOnly } from '~/src/server/plugins/engine/date-helper.js'
-import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import {
+  FormModel,
+  getAvailableLanguages
+} from '~/src/server/plugins/engine/models/FormModel.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { type FormContextRequest } from '~/src/server/plugins/engine/types.js'
 import { FormAction } from '~/src/server/routes/types.js'
@@ -794,6 +797,55 @@ describe('FormModel - Joined Conditions', () => {
       expect(tComponent(definitionV2.pages[0].components[0], 'title')).toBe(
         'Have you previously been married?'
       )
+    })
+
+    it('returns the form name with en-GB language (falls back to base en-GB form string)', () => {
+      const model = new FormModel(definitionV2, { basePath: 'test' })
+      const { tForm } = model.createTranslator('en-GB')
+      expect(tForm('name')).toBe('Conditions V2')
+    })
+  })
+
+  describe('getAvailableLanguages', () => {
+    it('should return list of languages, omitting unrecognised but adding english if not in list', () => {
+      const def = {
+        metadata: {
+          translations: {
+            cy: {},
+            fr: {
+              field1: 123
+            }
+          }
+        }
+      } as unknown as FormDefinition
+      expect(getAvailableLanguages(def)).toEqual([
+        { code: 'en-GB', name: 'English' },
+        { code: 'cy', name: 'Welsh (Cymraeg)' }
+      ])
+    })
+
+    it('should not add english if already in list', () => {
+      const def = {
+        metadata: {
+          translations: {
+            'en-GB': {
+              field1: 123
+            },
+            cy: {}
+          }
+        }
+      } as unknown as FormDefinition
+      expect(getAvailableLanguages(def)).toEqual([
+        { code: 'en-GB', name: 'English' },
+        { code: 'cy', name: 'Welsh (Cymraeg)' }
+      ])
+    })
+
+    it('should return empty list if no translations', () => {
+      const def = {
+        metadata: {}
+      } as unknown as FormDefinition
+      expect(getAvailableLanguages(def)).toEqual([])
     })
   })
 
