@@ -27,7 +27,9 @@
     "warningIconFallback": "Warning",
     "back": "Back",
     "continue": "Continue",
-    "saveAndExit": "Save and exit"
+    "saveAndExit": "Save and exit",
+    "draft": "draft",
+    "live": "live"
   },
 
   "pages": {
@@ -106,7 +108,10 @@
       "warnMissingNotificationEmail": {
         "body": "If you want to receive a test email, [[link]] you want form submissions to go to.",
         "linkText": "enter the email address (opens in new tab)"
-      }
+      },
+      "bannerForce": "This is a preview of a [[previewMode]] form. Do not enter personal information.",
+      "bannerText": "This is a preview of a [[previewMode]] form page you are editing.",
+      "previousPages": "It depends on answers from earlier pages in the form. In the live version, users will need to complete those questions first."
     }
   },
 

@@ -284,15 +284,26 @@ export class FormModel {
       return result
     }
 
+    const resolveRootContent = (prop: string) => {
+      const key = `form.${prop}`
+      const translation = i18nInstance.t(key, { lng: language, ns: 'form' })
+      if (translation === key && prop in this.def) {
+        return (this.def as unknown as Record<string, string>)[prop] ?? key
+      }
+      return translation
+    }
+
     return {
       t,
+      tForm: (prop) => resolveRootContent(prop),
       tPage: (entity, prop) => resolveContent(entity, 'pages', prop as string),
       tComponent: (entity, prop) =>
         resolveContent(entity, 'components', prop as string),
       tSection: (entity, prop) =>
         resolveContent(entity, 'sections', prop as string),
       tListItem: (entity, prop) =>
-        resolveContent(entity, 'listItems', prop as string)
+        resolveContent(entity, 'listItems', prop as string),
+      language
     }
   }
 
@@ -431,7 +442,9 @@ export class FormModel {
       componentDefMap: this.componentDefMap,
       pageMap: this.pageMap,
       componentMap: this.componentMap,
-      referenceNumber: getReferenceNumber(state)
+      referenceNumber: getReferenceNumber(state),
+      languages: getAvailableLanguages(this.def),
+      translator
     }
 
     // Validate current page
@@ -728,4 +741,30 @@ function getReferenceNumber(state: FormSubmissionState): string {
   }
 
   return state.$$__referenceNumber
+}
+
+const EN_GB = 'en-GB'
+
+const allowedLanguages = {
+   
+  [EN_GB]: 'English',
+  cy: 'Welsh (Cymraeg)'
+} as Record<string, string>
+
+function getAvailableLanguages(
+  def: FormDefinition
+): { name: string; code: string }[] {
+  if (def.metadata?.translations) {
+    const translations = Object.getOwnPropertyNames(def.metadata.translations)
+    if (!translations.includes(EN_GB)) {
+      translations.unshift(EN_GB)
+    }
+    return translations
+      .filter((lang) => allowedLanguages[lang])
+      .map((lang) => ({
+        code: lang,
+        name: allowedLanguages[lang]
+      }))
+  }
+  return []
 }

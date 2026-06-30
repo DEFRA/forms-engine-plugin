@@ -921,7 +921,9 @@ describe('FileUploadField', () => {
               tPage: jest.fn(),
               tComponent: jest.fn(),
               tSection: jest.fn(),
-              tListItem: jest.fn()
+              tListItem: jest.fn(),
+              tForm: jest.fn(),
+              language: 'en-GB'
             })
           }
         }

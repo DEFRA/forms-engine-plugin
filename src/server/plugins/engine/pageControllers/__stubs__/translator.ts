@@ -19,8 +19,10 @@ function resolveEntity(entity: unknown, prop: string): string {
 export const stubTranslator: Translator = {
   t: (key: string, opts?: Record<string, unknown>) =>
     resolveKey(key, 'en-GB', opts),
+  tForm: (prop) => resolveEntity({}, prop),
   tPage: (entity, prop) => resolveEntity(entity, prop as string),
   tComponent: (entity, prop) => resolveEntity(entity, prop as string),
   tSection: (entity, prop) => resolveEntity(entity, prop as string),
-  tListItem: (entity, prop) => resolveEntity(entity, prop as string)
+  tListItem: (entity, prop) => resolveEntity(entity, prop as string),
+  language: 'en-GB'
 }

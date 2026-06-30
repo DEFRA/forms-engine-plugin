@@ -27,7 +27,9 @@
     "warningIconFallback": "Rhybudd",
     "back": "Yn ôl",
     "continue": "Parhau",
-    "saveAndExit": "Cadw a gadael"
+    "saveAndExit": "Cadw a gadael",
+    "draft": "ddrafft",
+    "live": "fyw"
   },
 
   "pages": {
@@ -106,7 +108,10 @@
       "warnMissingNotificationEmail": {
         "body": "Os hoffech dderbyn e-bost prawf, [[link]] yr hoffech i gyflwyniadau ffurflen fynd iddo.",
         "linkText": "nodwch y cyfeiriad e-bost (yn agor mewn tab newydd)"
-      }
+      },
+      "bannerForce": "Rhagolwg o ffurflen [[previewMode]] yw hon. Peidiwch â rhoi gwybodaeth bersonol.",
+      "bannerText": "Dyma ragolwg o dudalen ffurflen [[previewMode]] rydych chi'n ei golygu.",
+      "previousPages": "Mae'n dibynnu ar atebion o dudalennau cynharach yn y ffurflen. Yn y fersiwn fyw, bydd angen i ddefnyddwyr gwblhau'r cwestiynau hynny yn gyntaf."
     }
   },
 

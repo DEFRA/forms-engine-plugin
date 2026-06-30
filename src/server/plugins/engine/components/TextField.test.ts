@@ -267,7 +267,9 @@ describe('TextField', () => {
             tComponent,
             tPage: jest.fn(),
             tSection: jest.fn(),
-            tListItem: jest.fn()
+            tListItem: jest.fn(),
+            tForm: jest.fn(),
+            language: 'en-GB'
           }
         })
         expect(tComponent).toHaveBeenCalledWith(field, 'title')
@@ -288,7 +290,9 @@ describe('TextField', () => {
             tComponent,
             tPage: jest.fn(),
             tSection: jest.fn(),
-            tListItem: jest.fn()
+            tListItem: jest.fn(),
+            tForm: jest.fn(),
+            language: 'en-GB'
           }
         })
         expect(tComponent).toHaveBeenCalledWith(hintField, 'hint')
@@ -309,7 +313,9 @@ describe('TextField', () => {
             tComponent,
             tPage: jest.fn(),
             tSection: jest.fn(),
-            tListItem: jest.fn()
+            tListItem: jest.fn(),
+            tForm: jest.fn(),
+            language: 'en-GB'
           }
         })
         expect(t).toHaveBeenCalledWith('common.optional')

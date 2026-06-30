@@ -34,6 +34,7 @@ type EntityTranslations = FormDefinitionTranslations[string]
 /**
  * Scoped translator returned by model.createTranslator(language).
  * t          — plugin namespace (UI strings, buttons, errors, sub-field labels)
+ * tForm      — form namespace: form attributes, such as name
  * tPage      — form namespace: page titles
  * tComponent — form namespace: component titles, hints, shortDescriptions
  * tSection   — form namespace: section titles
@@ -41,6 +42,7 @@ type EntityTranslations = FormDefinitionTranslations[string]
  */
 export interface Translator {
   t: (key: string, opts?: Record<string, unknown>) => string
+  tForm: (prop: string) => string
   tPage: (page: Page, prop: keyof EntityTranslations['pages'][string]) => string
   tComponent: (
     component: ComponentDef,
@@ -54,4 +56,5 @@ export interface Translator {
     item: Item,
     prop: keyof EntityTranslations['listItems'][string]
   ) => string
+  language: string
 }

@@ -32,6 +32,7 @@ import {
   type LatLongState,
   type MonthYearState
 } from '~/src/server/plugins/engine/components/types.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type DetailItemField } from '~/src/server/plugins/engine/models/types.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
@@ -200,6 +201,8 @@ export interface FormContext {
   pageMap: Map<string, PageControllerClass>
   componentMap: Map<string, Component>
   referenceNumber: string
+  languages: { name: string; code: string }[]
+  translator: Translator | undefined
 }
 
 export type FormContextRequest = (
