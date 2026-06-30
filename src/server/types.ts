@@ -10,7 +10,6 @@ import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type DetailItem } from '~/src/server/plugins/engine/models/types.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
-  type AnyFormRequest,
   type FormContext,
   type OnRequestCallback,
   type PluginOptions,
@@ -60,7 +59,7 @@ export interface RouteConfig {
   cacheServiceCreator?: (server: Server) => CacheService
   ordnanceSurveyApiKey?: string
   ordnanceSurveyApiSecret?: string
-  getLanguage?: (request: AnyFormRequest, metadata?: FormMetadata) => string
+  getLanguage?: PluginOptions['getLanguage']
 }
 
 export interface OutputService {
