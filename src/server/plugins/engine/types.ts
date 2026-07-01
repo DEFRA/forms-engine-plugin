@@ -12,8 +12,10 @@ import {
 import {
   type PluginProperties,
   type Request,
+  type RequestQuery,
   type ResponseObject
 } from '@hapi/hapi'
+import { type Yar } from '@hapi/yar'
 import { type JoiExpression, type ValidationErrorItem } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
@@ -476,6 +478,12 @@ export type SaveAndExitHandler = (
   context: FormContext
 ) => ResponseObject
 
+export type GetLanguageHandler = (
+  query?: RequestQuery,
+  yar?: Yar,
+  metadata?: FormMetadata
+) => string
+
 export interface ExternalArgs {
   component: ComponentDef
   controller: QuestionPageController
@@ -515,7 +523,7 @@ export interface PluginOptions {
   viewContext: PluginProperties['forms-engine-plugin']['viewContext']
   preparePageEventRequestOptions?: PreparePageEventRequestOptions
   onRequest?: OnRequestCallback
-  getLanguage?: (request: AnyFormRequest, metadata?: FormMetadata) => string
+  getLanguage?: GetLanguageHandler
   baseUrl: string // base URL of the application, protocol and hostname e.g. "https://myapp.com"
   ordnanceSurveyApiKey?: string
   ordnanceSurveyApiSecret?: string

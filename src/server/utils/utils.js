@@ -41,7 +41,7 @@ export function isValidUUID(str) {
  */
 export function resolveLanguage(request, metadata) {
   const { getLanguage } = getPluginOptions(request.server)
-  return getLanguage?.(request, metadata) ?? 'en-GB'
+  return getLanguage?.(request.query, request.yar, metadata) ?? 'en-GB'
 }
 
 /**
