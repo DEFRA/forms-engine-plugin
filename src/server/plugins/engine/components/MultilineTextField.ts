@@ -3,12 +3,9 @@ import Joi, { type CustomValidator, type StringSchema } from 'joi'
 
 import { type ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
-import {
-  type ErrorMessageTemplateList,
-  type FormPayload,
-  type FormSubmissionError
-} from '~/src/server/plugins/engine/types.js'
+import { type ErrorMessageTemplateList } from '~/src/server/plugins/engine/types.js'
 
 export class MultilineTextField extends FormComponent {
   declare options: MultilineTextFieldComponent['options']
@@ -94,10 +91,10 @@ export class MultilineTextField extends FormComponent {
     this.schema = schema
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
+  getViewModel(context: RenderContext) {
     const { schema, options, isCharacterOrWordCount } = this
 
-    const viewModel = super.getViewModel(payload, errors)
+    const viewModel = super.getViewModel(context)
     let { maxlength, maxwords, rows } = viewModel
 
     if (schema.max) {
@@ -122,7 +119,7 @@ export class MultilineTextField extends FormComponent {
   }
 
   buildMinMaxText(min?: number, max?: number): string {
-    const minMaxError = messageTemplate.minMax as string
+    const minMaxError = messageTemplate.minMax
     return minMaxError
       .replace('{{#min}}', min ? min.toString() : '[min length]')
       .replace('{{#max}}', max ? max.toString() : '[max length]')

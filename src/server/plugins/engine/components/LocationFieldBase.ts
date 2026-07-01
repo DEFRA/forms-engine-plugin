@@ -10,13 +10,12 @@ import {
   isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers/index.js'
+import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
-  type FormPayload,
   type FormState,
   type FormStateValue,
-  type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
@@ -63,8 +62,7 @@ export abstract class LocationFieldBase extends FormComponent {
     addClassOptionIfNone(locationOptions, 'govuk-input--width-10')
 
     const config = this.getValidationConfig()
-    const requiredMessage =
-      config.requiredMessage ?? (messageTemplate.required as string)
+    const requiredMessage = config.requiredMessage ?? messageTemplate.required
 
     const messages = convertToLanguageMessages({
       'any.required': requiredMessage,
@@ -120,8 +118,8 @@ export abstract class LocationFieldBase extends FormComponent {
     return LocationFieldBase.isText(value)
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
-    const viewModel = super.getViewModel(payload, errors)
+  getViewModel(context: RenderContext) {
+    const viewModel = super.getViewModel(context)
 
     if (this.instructionText) {
       return {
@@ -140,8 +138,7 @@ export abstract class LocationFieldBase extends FormComponent {
       baseErrors: [
         {
           type: 'required',
-          template:
-            config.requiredMessage ?? (messageTemplate.required as string)
+          template: config.requiredMessage ?? messageTemplate.required
         },
         ...this.getErrorTemplates()
       ],

@@ -1,4 +1,8 @@
-import { SchemaVersion, type Section } from '@defra/forms-model'
+import {
+  SchemaVersion,
+  type ComponentDef,
+  type Section
+} from '@defra/forms-model'
 
 import { PaymentField } from '~/src/server/plugins/engine/components/PaymentField.js'
 import { type PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
@@ -15,6 +19,7 @@ import {
   getError,
   getPageHref
 } from '~/src/server/plugins/engine/helpers.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import {
   type Detail,
   type DetailItem,
@@ -56,22 +61,29 @@ export class SummaryViewModel {
   allowSaveAndExit = false
   paymentState?: PaymentState
   paymentDetails?: CheckAnswers
+  t: (key: string, opts?: Record<string, unknown>) => string
+  private readonly _translator!: Translator
   paymentRequired?: boolean
   paymentPreAuthorized?: boolean
 
   constructor(
     request: FormContextRequest,
     page: PageControllerClass,
-    context: FormContext
+    context: FormContext,
+    translator: Translator
   ) {
     const { model } = page
     const { basePath, def, sections } = model
     const { isForceAccess } = context
 
+    const { t } = translator
+    this.t = t
+    this._translator = translator
+
     this.page = page
     this.pageTitle = page.title
     if (def.schema === SchemaVersion.V2 && !page.title) {
-      this.pageTitle = 'Check your answers before sending your form'
+      this.pageTitle = t('pages.summary.title')
     }
 
     this.serviceUrl = `/${basePath}`
@@ -85,7 +97,7 @@ export class SummaryViewModel {
 
     // Format errors
     this.errors = result.error?.details.map(getError)
-    this.details = this.summaryDetails(request, sections)
+    this.details = this.summaryDetails(request, sections, translator)
 
     // Format check answers
     this.checkAnswers = this.details.map((detail): CheckAnswers => {
@@ -98,7 +110,7 @@ export class SummaryViewModel {
         if (!isForceAccess) {
           items.push({
             href: item.href,
-            text: 'Change',
+            text: t('pages.summary.change'),
             classes: 'govuk-link--no-visited-state',
             visuallyHiddenText: item.label
           })
@@ -110,7 +122,7 @@ export class SummaryViewModel {
           },
           value: {
             classes: 'app-prose-scope',
-            html: item.value || 'Not provided'
+            html: item.value || t('pages.summary.notProvided')
           },
           actions: {
             items
@@ -125,7 +137,11 @@ export class SummaryViewModel {
     })
   }
 
-  private summaryDetails(request: FormContextRequest, sections: Section[]) {
+  private summaryDetails(
+    request: FormContextRequest,
+    sections: Section[],
+    translator: Translator
+  ) {
     const { context, errors } = this
     const { relevantPages, state } = context
 
@@ -143,10 +159,15 @@ export class SummaryViewModel {
 
         if (page instanceof RepeatPageController) {
           items.push(
-            ItemRepeat(page, state, {
-              path: page.getSummaryPath(request),
-              errors
-            })
+            ItemRepeat(
+              page,
+              state,
+              {
+                path: page.getSummaryPath(request),
+                errors
+              },
+              translator
+            )
           )
         } else {
           for (const field of collection.fields) {
@@ -154,15 +175,20 @@ export class SummaryViewModel {
             if (field instanceof PaymentField) {
               continue
             }
-            items.push(ItemField(page, state, field, { path, errors }))
+            items.push(
+              ItemField(page, state, field, { path, errors }, translator)
+            )
           }
         }
       })
 
       if (items.length) {
+        const sectionTitle = section
+          ? translator.tSection(section, 'title') || section.title
+          : undefined
         details.push({
           name: section?.name,
-          title: section?.title,
+          title: sectionTitle,
           items
         })
       }
@@ -182,19 +208,22 @@ function ItemRepeat(
   options: {
     path: string
     errors?: FormSubmissionError[]
-  }
+  },
+  translator: Translator
 ): DetailItemRepeat {
   const { collection, repeat } = page
   const { name, title } = repeat.options
 
   const values = page.getListFromState(state)
-  const unit = values.length === 1 ? 'answer' : 'answers'
+  const count = values.length
+  const value =
+    count === 0 ? '' : translator.t('pages.repeater.pageTitle', { count })
 
   return {
     name,
     label: title,
     title,
-    value: values.length ? `You have added ${values.length} ${unit}` : '',
+    value,
     href: getPageHref(page, options.path, {
       returnUrl: getPageHref(page, page.getSummaryPath())
     }),
@@ -204,7 +233,7 @@ function ItemRepeat(
     // Repeater field detail items
     subItems: values.map((repeatState) =>
       collection.fields.map((field) =>
-        ItemField(page, repeatState, field, options)
+        ItemField(page, repeatState, field, options, translator)
       )
     )
   }
@@ -221,17 +250,31 @@ export function ItemField(
   options: {
     path: string
     errors?: FormSubmissionError[]
-  }
+  },
+  translator: Translator
 ): DetailItemField {
+  // FormComponent doesn't expose shortDescription/title as raw def properties,
+  // so build a lookup object with English values to let tComponent's GUID lookup fire.
+  const fieldDef = {
+    id: field.id,
+    type: field.type,
+    shortDescription: field.label,
+    title: field.title
+  } as unknown as ComponentDef
+  const rawLabel = translator.tComponent(fieldDef, 'shortDescription')
+  const translatedLabel = rawLabel !== '' ? rawLabel : field.label
+  const rawTitle = translator.tComponent(fieldDef, 'title')
+  const translatedTitle = rawTitle !== '' ? rawTitle : field.title
+  const optional =
+    field.options.required === false
+      ? ` ${translator.t('common.optional')}`
+      : ''
   return {
     name: field.name,
-    label: field.title,
-    title:
-      field.options.required === false
-        ? `${field.summaryLabel} (optional)`
-        : field.summaryLabel,
-    error: field.getFirstError(options.errors),
-    value: getAnswer(field, state),
+    label: translatedTitle,
+    title: `${translatedLabel}${optional}`,
+    error: field.getFirstError(translator, options.errors),
+    value: getAnswer(field, state, translator, { format: 'summary' }),
     href: getPageHref(page, options.path, {
       returnUrl: getPageHref(page, page.getSummaryPath())
     }),

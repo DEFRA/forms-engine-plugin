@@ -9,23 +9,23 @@
 {%- endmacro -%}
 
 {% call govukNotificationBanner() %}
+  {% set previewModeTranslated = t('common.' + previewMode) %}
   {% if not context.isForceAccess %}
     <p class="govuk-notification-banner__heading govuk-!-margin-bottom-0">
-      This is a preview of a {{ previewMode }} form. Do not enter personal information.
+      {{ t('pages.preview.bannerForce', { previewMode: previewModeTranslated }) }}
     </p>
 
     {{ _closeLink() }}
   {% else %}
     <p class="govuk-notification-banner__heading govuk-!-margin-bottom-0">
-      This is a preview of a {{ previewMode }} form page you are editing.
+      {{ t('pages.preview.bannerText', { previewMode: previewModeTranslated }) }}
     </p>
 
     {{ _closeLink() }}
 
     {% if hasPreviousPages %}
       <p class="govuk-body govuk-!-margin-top-2">
-        It depends on answers from earlier pages in the form. In the live
-        version, users will need to complete those questions first.
+        {{ t('pages.preview.previousPages') }}
       </p>
     {% endif %}
   {% endif %}

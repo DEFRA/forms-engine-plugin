@@ -16,11 +16,18 @@ import {
   type Field,
   type Guidance
 } from '~/src/server/plugins/engine/components/helpers/components.js'
-import { type ComponentViewModel } from '~/src/server/plugins/engine/components/types.js'
+import {
+  type ComponentViewModel,
+  type RenderContext
+} from '~/src/server/plugins/engine/components/types.js'
 import { getErrors } from '~/src/server/plugins/engine/helpers.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
-import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
+import {
+  buildLanguageMessages,
+  validationOptions as opts
+} from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type FormPayload,
   type FormState,
@@ -28,7 +35,6 @@ import {
   type FormSubmissionState,
   type FormValidationResult
 } from '~/src/server/plugins/engine/types.js'
-import { type FormQuery } from '~/src/server/routes/types.js'
 
 export class ComponentCollection {
   page?: PageControllerClass
@@ -215,8 +221,14 @@ export class ComponentCollection {
   /**
    * Get all errors for all fields in this collection
    */
-  getErrors(errors?: FormSubmissionError[]): FormSubmissionError[] | undefined {
-    return this.getFieldErrors((field) => field.getErrors(errors), errors)
+  getErrors(
+    translator: Translator,
+    errors?: FormSubmissionError[]
+  ): FormSubmissionError[] | undefined {
+    return this.getFieldErrors(
+      (field) => field.getErrors(translator, errors),
+      errors
+    )
   }
 
   /**
@@ -225,16 +237,16 @@ export class ComponentCollection {
    * Composite fields like UKAddress can choose to return more than one error.
    */
   getViewErrors(
+    translator: Translator,
     errors?: FormSubmissionError[]
   ): FormSubmissionError[] | undefined {
-    return this.getFieldErrors((field) => field.getViewErrors(errors), errors)
+    return this.getFieldErrors(
+      (field) => field.getViewErrors(translator, errors),
+      errors
+    )
   }
 
-  getViewModel(
-    payload: FormPayload,
-    errors?: FormSubmissionError[],
-    query: FormQuery = {}
-  ) {
+  getViewModel(context: RenderContext) {
     const { components } = this
 
     const result: ComponentViewModel[] = components.map((component) => {
@@ -242,7 +254,7 @@ export class ComponentCollection {
 
       const model =
         component instanceof FormComponent
-          ? component.getViewModel(payload, errors, query)
+          ? component.getViewModel(context)
           : component.getViewModel()
 
       return { type, isFormComponent, model }
@@ -254,8 +266,67 @@ export class ComponentCollection {
   /**
    * Validate form payload
    */
-  validate(value: FormPayload = {}): FormValidationResult<FormPayload> {
-    const result = this.formSchema.validate(value, opts)
+  validate(
+    value: FormPayload = {},
+    translator?: Translator
+  ): FormValidationResult<FormPayload> {
+    const messages = translator
+      ? buildLanguageMessages(translator.t)
+      : undefined
+
+    // When translating, override Joi labels (and custom schema messages where
+    // needed) so #label/#title in message templates resolve in the correct language.
+    let schema = this.formSchema
+    if (translator) {
+      const { t } = translator
+      const labelOverrides: Record<string, joi.Schema> = {}
+
+      for (const field of this.fields) {
+        if (field.collection) {
+          // Composite field: translate each sub-field's label using the key constant
+          // (e.g. 'components.addressField.line1' → "Llinell cyfeiriad 1") and apply
+          // any field-type-specific message overrides (e.g. objectMissing for dates).
+          const messagesOverride =
+            field.getValidationMessagesOverride(translator)
+          for (const subField of field.collection.fields) {
+            const translatedSubLabel = t(subField.title) || subField.label
+            let patchedSchema = subField.formSchema.label(translatedSubLabel)
+            if (messagesOverride) {
+              patchedSchema = patchedSchema.messages(messagesOverride)
+            }
+            labelOverrides[subField.name] = patchedSchema
+          }
+        } else {
+          const translatedLabel =
+            translator.tComponent(
+              field as unknown as ComponentDef,
+              'shortDescription'
+            ) ||
+            translator.tComponent(field as unknown as ComponentDef, 'title')
+          const messagesOverride =
+            field.getValidationMessagesOverride(translator)
+          let patchedSchema = field.formSchema
+          if (translatedLabel && translatedLabel !== field.label) {
+            patchedSchema = patchedSchema.label(translatedLabel)
+          }
+          if (messagesOverride) {
+            patchedSchema = patchedSchema.messages(messagesOverride)
+          }
+          if (patchedSchema !== field.formSchema) {
+            labelOverrides[field.name] = patchedSchema
+          }
+        }
+      }
+
+      if (Object.keys(labelOverrides).length) {
+        schema = schema.keys(labelOverrides)
+      }
+    }
+
+    const result = schema.validate(value, {
+      ...opts,
+      ...(messages && { messages })
+    })
 
     const details = result.error?.details
 

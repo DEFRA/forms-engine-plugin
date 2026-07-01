@@ -2,17 +2,23 @@ import { ComponentType, type MonthYearFieldComponent } from '@defra/forms-model'
 import { addMonths, format, startOfDay, startOfMonth } from 'date-fns'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import { type MonthYearField } from '~/src/server/plugins/engine/components/MonthYearField.js'
 import {
   getAnswer,
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { type DateInputItem } from '~/src/server/plugins/engine/components/types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import {
   type FormPayload,
   type FormState
 } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
+
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
 
 describe('MonthYearField', () => {
   let model: FormModel
@@ -49,10 +55,14 @@ describe('MonthYearField', () => {
         expect(keys).toEqual(
           expect.objectContaining({
             myComponent__month: expect.objectContaining({
-              flags: expect.objectContaining({ label: 'Month' })
+              flags: expect.objectContaining({
+                label: 'components.monthYearField.month'
+              })
             }),
             myComponent__year: expect.objectContaining({
-              flags: expect.objectContaining({ label: 'Year' })
+              flags: expect.objectContaining({
+                label: 'components.monthYearField.year'
+              })
             })
           })
         )
@@ -135,9 +145,10 @@ describe('MonthYearField', () => {
         )
 
         expect(result1.errors).toBeUndefined()
+        // Sub-field title is a key constant; error text uses raw key until Task 9.
         expect(result2.errors).toEqual([
           expect.objectContaining({
-            text: 'Example month/year field must include a year'
+            text: 'Example month/year field must include a components.monthYearField.year'
           })
         ])
       })
@@ -169,12 +180,13 @@ describe('MonthYearField', () => {
           })
         )
 
+        // Sub-field titles are key constants; error text uses raw keys until Task 9.
         expect(result.errors).toEqual([
           expect.objectContaining({
-            text: 'Example month/year must include a month'
+            text: 'Example month/year must include a components.monthYearField.month'
           }),
           expect.objectContaining({
-            text: 'Example month/year must include a year'
+            text: 'Example month/year must include a components.monthYearField.year'
           })
         ])
       })
@@ -195,12 +207,13 @@ describe('MonthYearField', () => {
           })
         )
 
+        // Sub-field titles are key constants; error text uses raw keys until Task 9.
         expect(result.errors).toEqual([
           expect.objectContaining({
-            text: 'Example month/year field must include a month'
+            text: 'Example month/year field must include a components.monthYearField.month'
           }),
           expect.objectContaining({
-            text: 'Example month/year field must include a year'
+            text: 'Example month/year field must include a components.monthYearField.year'
           })
         ])
       })
@@ -250,8 +263,8 @@ describe('MonthYearField', () => {
         const state1 = getFormState(date)
         const state2 = getFormState({})
 
-        const answer1 = getAnswer(field, state1)
-        const answer2 = getAnswer(field, state2)
+        const answer1 = getAnswer(field, state1, translator)
+        const answer2 = getAnswer(field, state2, translator)
 
         expect(answer1).toBe('December 2024')
         expect(answer2).toBe('')
@@ -325,7 +338,11 @@ describe('MonthYearField', () => {
 
       it('sets Nunjucks component defaults', () => {
         const payload = getFormData(date)
-        const viewModel = field.getViewModel(payload)
+        const viewModel = field.getViewModel({
+          payload,
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -360,7 +377,11 @@ describe('MonthYearField', () => {
           year: 'YYYY'
         })
 
-        const viewModel = field.getViewModel(payload)
+        const viewModel = field.getViewModel({
+          payload,
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -379,7 +400,11 @@ describe('MonthYearField', () => {
 
       it('sets Nunjucks component fieldset', () => {
         const payload = getFormData(date)
-        const viewModel = field.getViewModel(payload)
+        const viewModel = field.getViewModel({
+          payload,
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel.fieldset).toEqual({
           legend: {
@@ -618,6 +643,33 @@ describe('MonthYearField', () => {
           const result = collection.validate(input)
           expect(result).toEqual(output)
         }
+      )
+    })
+  })
+
+  describe('sub-field title key constants', () => {
+    let monthYear: MonthYearField
+
+    beforeEach(() => {
+      const def: MonthYearFieldComponent = {
+        title: 'Date of issue',
+        name: 'issueDate',
+        type: ComponentType.MonthYearField,
+        options: {}
+      }
+      const coll = new ComponentCollection([def], { model })
+      monthYear = coll.fields[0] as MonthYearField
+    })
+
+    it('stores month sub-field title as i18next key constant', () => {
+      expect(monthYear.collection.fields[0].title).toBe(
+        'components.monthYearField.month'
+      )
+    })
+
+    it('stores year sub-field title as i18next key constant', () => {
+      expect(monthYear.collection.fields[1].title).toBe(
+        'components.monthYearField.year'
       )
     })
   })

@@ -7,6 +7,7 @@ import { config } from '~/src/config/index.js'
 import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FileUploadField } from '~/src/server/plugins/engine/components/index.js'
 import { type checkFormStatus } from '~/src/server/plugins/engine/helpers.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type DetailItem,
@@ -25,9 +26,10 @@ export function format(
   _formStatus: ReturnType<typeof checkFormStatus>,
   _formMetadata?: FormMetadata
 ) {
+  const translator = model.createTranslator()
   const now = new Date()
 
-  const categorisedData = categoriseData(items)
+  const categorisedData = categoriseData(items, translator)
 
   const data = {
     meta: {
@@ -68,7 +70,7 @@ export function format(
  *    }
  * }
  */
-function categoriseData(items: DetailItem[]) {
+function categoriseData(items: DetailItem[], translator: Translator) {
   const output: {
     main: Record<string, string>
     repeaters: Record<string, Record<string, string>[]>
@@ -77,11 +79,11 @@ function categoriseData(items: DetailItem[]) {
 
   items.forEach((item) => {
     if ('subItems' in item) {
-      output.repeaters[item.name] = extractRepeaters(item)
+      output.repeaters[item.name] = extractRepeaters(item, translator)
     } else if (isFileUploadFieldItem(item)) {
       output.files[item.name] = extractFileUploads(item)
     } else {
-      output.main[item.name] = getAnswer(item.field, item.state, {
+      output.main[item.name] = getAnswer(item.field, item.state, translator, {
         format: 'data'
       })
     }
@@ -95,7 +97,7 @@ function categoriseData(items: DetailItem[]) {
  * @param item - the repeater item
  * @returns the repeater item
  */
-function extractRepeaters(item: DetailItemRepeat) {
+function extractRepeaters(item: DetailItemRepeat, translator: Translator) {
   const repeaters: Record<string, string>[] = []
 
   item.subItems.forEach((inputRepeaterItem) => {
@@ -105,9 +107,8 @@ function extractRepeaters(item: DetailItemRepeat) {
       outputRepeaterItem[repeaterComponent.name] = getAnswer(
         repeaterComponent.field,
         repeaterComponent.state,
-        {
-          format: 'data'
-        }
+        translator,
+        { format: 'data' }
       )
     })
 

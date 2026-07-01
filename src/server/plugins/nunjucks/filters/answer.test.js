@@ -68,7 +68,14 @@ describe('answer Nunjucks filter', () => {
     it('returns the answer', () => {
       const mockFormComponent = {
         isFormComponent: true,
-        someProperty: 'value'
+        someProperty: 'value',
+        model: {
+          createTranslator: jest.fn().mockImplementation(() => {
+            return {
+              t: jest.fn().mockReturnValue('translated text')
+            }
+          })
+        }
       }
       mockThis.ctx.context?.componentMap.set(
         'validFormComponent',
@@ -80,7 +87,9 @@ describe('answer Nunjucks filter', () => {
 
       expect(getAnswer).toHaveBeenCalledWith(
         mockFormComponent,
-        mockThis.ctx.context?.relevantState
+        mockThis.ctx.context?.relevantState,
+        { t: expect.anything() },
+        { format: 'summary' }
       )
       expect(result).toBe('test answer')
     })

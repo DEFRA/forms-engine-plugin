@@ -27,6 +27,7 @@ import {
 } from '@defra/forms-model'
 import { add, format } from 'date-fns'
 import { Parser, type Value } from 'expr-eval-fork'
+import { type i18n } from 'i18next'
 import joi from 'joi'
 
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
@@ -43,6 +44,12 @@ import {
   getPage,
   setPageTitles
 } from '~/src/server/plugins/engine/helpers.js'
+import { extractBaseTranslations } from '~/src/server/plugins/engine/i18n/extractBaseTranslations.js'
+import { createFormI18nInstance } from '~/src/server/plugins/engine/i18n/index.js'
+import {
+  type FormDefinitionTranslations,
+  type Translator
+} from '~/src/server/plugins/engine/i18n/types.js'
 import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
@@ -81,6 +88,7 @@ export class FormModel {
   conditions: Partial<Record<string, ExecutableCondition>>
   pages: PageControllerClass[]
   services: Services
+  private readonly i18nInstance: i18n
 
   controllers?: Record<string, typeof PageController>
   pageDefMap: Map<string, Page>
@@ -123,7 +131,19 @@ export class FormModel {
     // by joi so as not to change the source data.
     def = structuredClone(result.value)
 
-    // Add default lists
+    const baseTranslations = extractBaseTranslations(def)
+    this.i18nInstance = createFormI18nInstance(baseTranslations)
+    const formTranslations = def.metadata?.translations as
+      | FormDefinitionTranslations
+      | undefined
+    if (formTranslations) {
+      for (const [lng, resources] of Object.entries(formTranslations)) {
+        this.i18nInstance.addResourceBundle(lng, 'form', resources, true, true)
+      }
+    }
+
+    // Add default lists. Yes/No text stored as i18n key constants so they
+    // resolve to the user's language at render time via the translator.
     def.lists.push({
       id: def.schema === SchemaVersion.V1 ? yesNoListName : yesNoListId,
       name: '__yesNo',
@@ -132,12 +152,12 @@ export class FormModel {
       items: [
         {
           id: '02900d42-83d1-4c72-a719-c4e8228952fa',
-          text: 'Yes',
+          text: 'components.yesNoField.yes',
           value: true
         },
         {
           id: 'f39000eb-c51b-4019-8f82-bbda0423f04d',
-          text: 'No',
+          text: 'components.yesNoField.no',
           value: false
         }
       ]
@@ -229,6 +249,62 @@ export class FormModel {
         ])
       )
     )
+  }
+
+  /** Returns a scoped translator pair for the given language. */
+  createTranslator(language = 'en-GB'): Translator {
+    const { i18nInstance } = this
+
+    const t = (key: string, opts?: Record<string, unknown>): string =>
+      i18nInstance.t(key, { lng: language, ns: 'plugin', ...opts })
+
+    const resolveContent = (
+      entity: { id?: string },
+      entityType: string,
+      prop: string
+    ): string => {
+      if (!entity.id) {
+        const raw = (entity as Record<string, unknown>)[prop]
+        if (typeof raw !== 'string') return ''
+        // t() resolves i18next key constants (sub-field labels); returns raw string unchanged if not a key
+        return t(raw)
+      }
+      const key = `${entityType}.${entity.id}.${prop}`
+      const result = i18nInstance.t(key, {
+        lng: language,
+        ns: 'form'
+      })
+      if (result === key) {
+        // No form translation found — fall through to t(raw) so plugin i18n
+        // key constants (e.g. 'components.yesNoField.yes') are still resolved.
+        const raw = (entity as Record<string, unknown>)[prop]
+        if (typeof raw !== 'string') return ''
+        return t(raw)
+      }
+      return result
+    }
+
+    const resolveRootContent = (prop: string) => {
+      const key = `form.${prop}`
+      const translation = i18nInstance.t(key, { lng: language, ns: 'form' })
+      if (translation === key && prop in this.def) {
+        return (this.def as unknown as Record<string, string>)[prop] ?? key
+      }
+      return translation
+    }
+
+    return {
+      t,
+      tForm: (prop) => resolveRootContent(prop),
+      tPage: (entity, prop) => resolveContent(entity, 'pages', prop as string),
+      tComponent: (entity, prop) =>
+        resolveContent(entity, 'components', prop as string),
+      tSection: (entity, prop) =>
+        resolveContent(entity, 'sections', prop as string),
+      tListItem: (entity, prop) =>
+        resolveContent(entity, 'listItems', prop as string),
+      language
+    }
   }
 
   /**
@@ -337,7 +413,8 @@ export class FormModel {
   getFormContext(
     request: FormContextRequest,
     state: FormSubmissionState,
-    errors?: FormSubmissionError[]
+    errors?: FormSubmissionError[],
+    translator?: Translator
   ): FormContext {
     const { query } = request
 
@@ -365,11 +442,13 @@ export class FormModel {
       componentDefMap: this.componentDefMap,
       pageMap: this.pageMap,
       componentMap: this.componentMap,
-      referenceNumber: getReferenceNumber(state)
+      referenceNumber: getReferenceNumber(state),
+      languages: getAvailableLanguages(this.def),
+      translator
     }
 
     // Validate current page
-    context = validateFormPayload(request, page, context)
+    context = validateFormPayload(request, page, context, translator)
 
     // Find start page
     let nextPage = findPage(this, startPath)
@@ -387,7 +466,7 @@ export class FormModel {
 
       // Stop at current page
       if (
-        this.pageStateIsInvalid(context, nextPage) ||
+        this.pageStateIsInvalid(context, nextPage, translator) ||
         nextPage.path === currentPath
       ) {
         break
@@ -448,7 +527,11 @@ export class FormModel {
     }
   }
 
-  private pageStateIsInvalid(context: FormContext, page: PageControllerClass) {
+  private pageStateIsInvalid(
+    context: FormContext,
+    page: PageControllerClass,
+    translator?: Translator
+  ) {
     // Get any list-bound fields on the page
     const listFields = page.collection.fields.filter(hasListFormField)
 
@@ -464,7 +547,7 @@ export class FormModel {
           list.items.filter((item) => item.condition).length > 0
 
         if (hasOptionalItems) {
-          return this.fieldStateIsInvalid(context, field, list)
+          return this.fieldStateIsInvalid(context, field, list, translator)
         }
       }
     }
@@ -473,7 +556,8 @@ export class FormModel {
   private fieldStateIsInvalid(
     context: FormContext,
     field: ListFormComponent,
-    list: List
+    list: List,
+    translator?: Translator
   ) {
     const { evaluationState, state } = context
 
@@ -503,8 +587,9 @@ export class FormModel {
       if (isInvalid) {
         context.errors ??= []
 
-        const text =
-          'Options are different because you changed a previous answer'
+        const text = (translator ?? this.createTranslator('en-GB')).t(
+          'errors.optionsMismatch'
+        )
 
         context.errors.push({
           text,
@@ -571,7 +656,8 @@ export class FormModel {
 function validateFormPayload(
   request: FormContextRequest,
   page: PageControllerClass,
-  context: FormContext
+  context: FormContext,
+  translator?: Translator
 ): FormContext {
   const { collection } = page
   const { payload, state } = context
@@ -601,10 +687,10 @@ function validateFormPayload(
     }
   })
 
-  const { value, errors } = collection.validate({
-    ...payload,
-    ...update
-  })
+  const { value, errors } = collection.validate(
+    { ...payload, ...update },
+    translator
+  )
 
   // Add sanitised payload (ready to save)
   const formState = page.getStateFromValidForm(request, state, value)
@@ -655,4 +741,29 @@ function getReferenceNumber(state: FormSubmissionState): string {
   }
 
   return state.$$__referenceNumber
+}
+
+const EN_GB = 'en-GB'
+
+const allowedLanguages = {
+  [EN_GB]: 'English',
+  cy: 'Cymraeg'
+} as Record<string, string>
+
+export function getAvailableLanguages(
+  def: FormDefinition
+): { name: string; code: string }[] {
+  if (def.metadata?.translations) {
+    const translations = Object.getOwnPropertyNames(def.metadata.translations)
+    if (!translations.includes(EN_GB)) {
+      translations.unshift(EN_GB)
+    }
+    return translations
+      .filter((lang) => allowedLanguages[lang])
+      .map((lang) => ({
+        code: lang,
+        name: allowedLanguages[lang]
+      }))
+  }
+  return []
 }

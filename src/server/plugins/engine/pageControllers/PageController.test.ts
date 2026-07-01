@@ -3,6 +3,7 @@ import { type ResponseToolkit } from '@hapi/hapi'
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
+import { buildFormRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { serverWithSaveAndExit } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
 import {
   type FormRequest,
@@ -139,7 +140,7 @@ describe('PageController', () => {
   describe('Route handlers', () => {
     const page1Url = new URL('http://example.com/test/licence')
 
-    const request = {
+    const request = buildFormRequest({
       method: 'get',
       url: page1Url,
       path: page1Url.pathname,
@@ -149,7 +150,7 @@ describe('PageController', () => {
       },
       query: {},
       app: { model }
-    } as FormRequest
+    } as FormRequest)
 
     const h: FormResponseToolkit = {
       redirect: jest.fn(),
@@ -204,10 +205,10 @@ describe('PageController', () => {
     })
 
     it('supports save and exit functionality', async () => {
-      const mockRequest = {
+      const mockRequest = buildFormRequest({
         ...request,
         payload: { saveAndExit: true }
-      } as FormRequest
+      } as FormRequest)
 
       const mockResponse = {
         redirect: jest.fn(),

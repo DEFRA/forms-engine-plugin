@@ -49,6 +49,11 @@ export function format(
     meta.versionMetadata = versionMetadata
   }
 
+  const definitionLanguage = model.def.metadata?.language
+  if (typeof definitionLanguage === 'string') {
+    meta.language = definitionLanguage
+  }
+
   const main = Object.fromEntries(
     Object.entries(v2Main).map(([key, value]) => {
       if (value === undefined) {

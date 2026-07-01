@@ -14,6 +14,7 @@ import {
   getFormSubmissionData
 } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import {
   FileStatus,
   UploadStatus,
@@ -21,6 +22,10 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 import { FormStatus } from '~/src/server/routes/types.js'
 import definition from '~/test/form/definitions/repeat-mixed.js'
+
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
 
 const submitResponse = {
   message: 'Submit completed',
@@ -276,11 +281,16 @@ describe('getPersonalisation', () => {
     const pageDef = definition.pages[2]
     const controller = new SummaryPageController(model, pageDef)
 
-    const summaryViewModel = controller.getSummaryViewModel(request, context)
+    const summaryViewModel = controller.getSummaryViewModel(
+      request,
+      context,
+      stubTranslator
+    )
 
     const items = getFormSubmissionData(
       summaryViewModel.context,
       summaryViewModel.details,
+      translator,
       model
     )
 

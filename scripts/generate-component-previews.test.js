@@ -27,6 +27,7 @@ import {
 } from './generate-component-previews.js'
 
 import { createComponent } from '~/src/server/plugins/engine/components/helpers/components.ts'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import { environment } from '~/src/server/plugins/nunjucks/environment.js'
 
 describe('component-preview-fixtures', () => {
@@ -132,6 +133,10 @@ describe('buildPartialMdx', () => {
 describe('renderComponent', () => {
   let mockGetViewModel
 
+  const mockModel = {
+    createTranslator: () => stubTranslator
+  }
+
   beforeEach(() => {
     mockGetViewModel = jest.fn().mockReturnValue({
       type: 'TextField',
@@ -145,22 +150,32 @@ describe('renderComponent', () => {
   })
 
   it('calls createComponent with def and model from fixture', () => {
-    renderComponent(fixtures.TextField)
+    renderComponent({
+      ...fixtures.TextField,
+      model: mockModel
+    })
     expect(createComponent).toHaveBeenCalledWith(fixtures.TextField.def, {
-      model: fixtures.TextField.model
+      model: mockModel
     })
   })
 
   it('calls getViewModel with payload and empty errors array', () => {
-    renderComponent(fixtures.TextField)
-    expect(mockGetViewModel).toHaveBeenCalledWith(
-      fixtures.TextField.payload,
-      []
-    )
+    renderComponent({
+      ...fixtures.TextField,
+      model: mockModel
+    })
+    expect(mockGetViewModel).toHaveBeenCalledWith({
+      payload: {},
+      errors: [],
+      translator: stubTranslator
+    })
   })
 
   it('passes viewModel wrapped as { type, model } to renderString', () => {
-    renderComponent(fixtures.TextField)
+    renderComponent({
+      ...fixtures.TextField,
+      model: mockModel
+    })
     expect(environment.renderString).toHaveBeenCalledWith(
       expect.stringContaining('componentList'),
       expect.objectContaining({

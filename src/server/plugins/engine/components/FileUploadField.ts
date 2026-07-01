@@ -9,6 +9,8 @@ import {
   FormComponent,
   isUploadState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { InvalidComponentStateError } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
@@ -19,10 +21,8 @@ import {
   type FileUpload,
   type FileUploadMetadata,
   type FormContext,
-  type FormPayload,
   type FormState,
   type FormStateValue,
-  type FormSubmissionError,
   type FormSubmissionState,
   type SummaryList,
   type SummaryListAction,
@@ -32,10 +32,8 @@ import {
   type UploadStatusResponse
 } from '~/src/server/plugins/engine/types.js'
 import { render } from '~/src/server/plugins/nunjucks/index.js'
-import {
-  type FormQuery,
-  type FormRequestPayload
-} from '~/src/server/routes/types.js'
+import { type FormRequestPayload } from '~/src/server/routes/types.js'
+import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 export const uploadIdSchema = joi.string().uuid().required()
 
@@ -163,19 +161,26 @@ export class FileUploadField extends FormComponent {
     return this.isValue(value) ? value : undefined
   }
 
-  getDisplayStringFromFormValue(files: FileState[] | undefined): string {
+  getDisplayStringFromFormValue(
+    files: FileState[] | undefined,
+    translator: Translator
+  ): string {
     if (!files?.length) {
       return ''
     }
 
-    const unit = files.length === 1 ? 'file' : 'files'
-    return `Uploaded ${files.length} ${unit}`
+    return translator.t('components.fileUploadField.filesCount', {
+      count: files.length
+    })
   }
 
-  getDisplayStringFromState(state: FormSubmissionState) {
+  getDisplayStringFromState(
+    state: FormSubmissionState,
+    translator: Translator
+  ) {
     const files = this.getFormValueFromState(state)
 
-    return this.getDisplayStringFromFormValue(files)
+    return this.getDisplayStringFromFormValue(files, translator)
   }
 
   getContextValueFromFormValue(
@@ -189,17 +194,12 @@ export class FileUploadField extends FormComponent {
     return this.getContextValueFromFormValue(files)
   }
 
-  getViewModel(
-    payload: FormPayload,
-    errors?: FormSubmissionError[],
-    query: FormQuery = {}
-  ) {
+  getViewModel(context: RenderContext) {
+    const { errors, isForceAccess = false } = context
+    const { t } = context.translator
     const { options, page, schema } = this
 
-    // Allow preview URL direct access
-    const isForceAccess = 'force' in query
-
-    const viewModel = super.getViewModel(payload, errors)
+    const viewModel = super.getViewModel(context)
     const { attributes, id, value } = viewModel
 
     const files = this.getFormValue(value) ?? []
@@ -213,7 +213,10 @@ export class FileUploadField extends FormComponent {
       const { form } = status
       const { file } = form
 
-      const tag = { classes: 'govuk-tag--green', text: 'Uploaded' }
+      const tag = {
+        classes: 'govuk-tag--green',
+        text: t('components.fileUploadField.uploaded')
+      }
 
       const valueHtml = render
         .view('components/fileuploadfield-value.html', {
@@ -309,6 +312,9 @@ export class FileUploadField extends FormComponent {
     metadata: FormMetadata,
     context: FormContext
   ) {
+    const language = resolveLanguage(request, metadata)
+    const { t } = this.model.createTranslator(language)
+
     const notificationEmail = metadata.notificationEmail
 
     if (!notificationEmail) {
@@ -347,7 +353,7 @@ export class FileUploadField extends FormComponent {
         // Scenarios: file missing from S3, invalid retrieval key (timing problem), etc.
         throw new InvalidComponentStateError(
           this,
-          'There was a problem with your uploaded files. Re-upload them before submitting the form again.'
+          t('components.fileUploadField.uploadFailed')
         )
       }
 

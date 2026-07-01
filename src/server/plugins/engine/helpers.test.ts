@@ -545,7 +545,9 @@ describe('Helpers', () => {
         componentDefMap: model.componentDefMap,
         pageMap: model.pageMap,
         componentMap: model.componentMap,
-        referenceNumber: 'foobar'
+        referenceNumber: 'foobar',
+        translator: model.createTranslator(),
+        languages: []
       }
     })
 

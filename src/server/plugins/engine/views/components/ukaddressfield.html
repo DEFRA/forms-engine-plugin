@@ -37,13 +37,13 @@
 
         {% if value %}
           {% set insetHtml %}
-            <strong>Selected address:</strong>
+            <strong>{{ t('components.addressField.selectedAddress') }}</strong>
             <br><br>
             {{ value }}
             <br><br>
             <p class="govuk-body">
               <button class="govuk-link govuk-button--link govuk-!-margin-right-1" name="action"
-                value="external-{{component.model.name}}">Use a different address</button>
+                value="external-{{component.model.name}}">{{ t('components.addressField.useDifferentAddress') }}</button>
             </p>
           {% endset %}
 
@@ -54,14 +54,14 @@
         {% else %}
           <div class="govuk-button-group govuk-!-margin-bottom-0">
             {{ govukButton({
-              text: "Find an address",
+              text: t('components.addressField.findAddress'),
               attributes: {
                 name: "action",
                 value: "external-" + component.model.name
               },
               classes: "govuk-button--secondary govuk-!-margin-right-1 govuk-!-margin-bottom-0"
             }) }}
-            <p class="govuk-body govuk-!-margin-bottom-0">or <button class="govuk-link govuk-button--link govuk-!-margin-right-1 govuk-!-margin-bottom-0" name="action" value="external-{{component.model.name}}--step:manual">enter address manually</button></p>
+            <p class="govuk-body govuk-!-margin-bottom-0">or <button class="govuk-link govuk-button--link govuk-!-margin-right-1 govuk-!-margin-bottom-0" name="action" value="external-{{component.model.name}}--step:manual">{{ t('components.addressField.enterManually') }}</button></p>
           </div>
           {# Include a line break if this is the last component #}
           {% if components[components.length - 1] == component %}

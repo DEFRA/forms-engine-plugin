@@ -36,6 +36,7 @@ export interface FormModelOptions {
 
 export interface FormContextOptions extends FormModelOptions {
   errors?: FormSubmissionError[]
+  language?: string
 }
 
 type SummaryRequest = FormContextRequest & {
@@ -119,10 +120,15 @@ export async function getFormContext(
     $$__referenceNumber: cachedState.$$__referenceNumber
   } as unknown as FormSubmissionState
 
+  const language =
+    (yar.get('language') as string | undefined) ?? options.language ?? 'en-GB'
+  const translator = formModel.createTranslator(language)
+
   return formModel.getFormContext(
     summaryRequest,
     formState,
-    options.errors ?? []
+    options.errors ?? [],
+    translator
   )
 }
 
@@ -148,7 +154,6 @@ export async function resolveFormModel(
   }
 
   // The models cache is created lazily per server instance
-
   server.app.models ??= new Map<string, { model: FormModel; updatedAt: Date }>()
 
   const cache = server.app.models

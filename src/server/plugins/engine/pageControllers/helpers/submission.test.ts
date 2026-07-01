@@ -2,6 +2,7 @@ import { GeospatialField } from '~/src/server/plugins/engine/components/Geospati
 import { PaymentField } from '~/src/server/plugins/engine/components/PaymentField.js'
 import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
 import { validSingleState } from '~/src/server/plugins/engine/components/helpers/__stubs__/geospatial.js'
+import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type DetailItemField } from '~/src/server/plugins/engine/models/types.js'
 import {
   buildMainRecords,
@@ -9,6 +10,11 @@ import {
   buildRepeaterRecords
 } from '~/src/server/plugins/engine/pageControllers/helpers/submission.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+import { definition } from '~/test/fixtures/form.js'
+
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
 
 describe('Submission helpers', () => {
   describe('buildPaymentRecords', () => {
@@ -123,7 +129,7 @@ describe('Submission helpers', () => {
 
   describe('buildMainRecords', () => {
     it('should return empty array for empty items', () => {
-      const result = buildMainRecords([])
+      const result = buildMainRecords([], translator)
       expect(result).toEqual([])
     })
 
@@ -145,7 +151,7 @@ describe('Submission helpers', () => {
         }
       ] as unknown as DetailItemField[]
 
-      const result = buildMainRecords(items)
+      const result = buildMainRecords(items, translator)
 
       expect(result).toHaveLength(1)
       expect(result[0]).toEqual({
@@ -183,7 +189,7 @@ describe('Submission helpers', () => {
         }
       ] as unknown as DetailItemField[]
 
-      const result = buildMainRecords(items)
+      const result = buildMainRecords(items, translator)
 
       expect(result).toHaveLength(4)
       expect(result.map((r) => r.name)).toEqual([
@@ -233,7 +239,7 @@ describe('Submission helpers', () => {
         }
       ] as unknown as DetailItemField[]
 
-      const result = buildMainRecords(items)
+      const result = buildMainRecords(items, translator)
 
       // 1 regular field + 4 payment fields = 5 records
       expect(result).toHaveLength(5)
@@ -248,9 +254,10 @@ describe('Submission helpers', () => {
         subItems: [[]]
       }
 
-      const result = buildMainRecords([
-        repeaterItem as unknown as DetailItemField
-      ])
+      const result = buildMainRecords(
+        [repeaterItem as unknown as DetailItemField],
+        translator
+      )
 
       expect(result).toEqual([])
     })
@@ -272,7 +279,7 @@ describe('Submission helpers', () => {
         }
       ] as unknown as DetailItemField[]
 
-      const result = buildMainRecords(items)
+      const result = buildMainRecords(items, translator)
 
       expect(result).toHaveLength(1)
       expect(result).toEqual([
@@ -303,7 +310,7 @@ describe('Submission helpers', () => {
         }
       ] as unknown as DetailItemField[]
 
-      const result = buildMainRecords(items)
+      const result = buildMainRecords(items, translator)
 
       expect(result).toHaveLength(1)
       expect(result).toEqual([
@@ -329,7 +336,10 @@ describe('Submission helpers', () => {
         }
       ]
 
-      const result = buildRepeaterRecords(items as unknown as DetailItemField[])
+      const result = buildRepeaterRecords(
+        items as unknown as DetailItemField[],
+        translator
+      )
 
       expect(result).toEqual([])
     })
@@ -360,7 +370,10 @@ describe('Submission helpers', () => {
         }
       ]
 
-      const result = buildRepeaterRecords(items as unknown as DetailItemField[])
+      const result = buildRepeaterRecords(
+        items as unknown as DetailItemField[],
+        translator
+      )
 
       expect(result).toHaveLength(1)
       expect(result[0].name).toBe('addresses')
@@ -393,7 +406,7 @@ describe('Submission helpers', () => {
         }
       ] as unknown as DetailItemField[]
 
-      const result = buildRepeaterRecords(items)
+      const result = buildRepeaterRecords(items, translator)
 
       expect(result).toHaveLength(1)
       expect(result).toEqual([
@@ -440,7 +453,7 @@ describe('Submission helpers', () => {
         }
       ] as unknown as DetailItemField[]
 
-      const result = buildRepeaterRecords(items)
+      const result = buildRepeaterRecords(items, translator)
 
       expect(result).toHaveLength(1)
       expect(result).toEqual([

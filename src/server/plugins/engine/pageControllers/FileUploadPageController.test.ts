@@ -19,6 +19,7 @@ import {
 } from '~/src/server/plugins/engine/pageControllers/FileUploadPageController.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import { serverWithSaveAndExit } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import * as pageHelpers from '~/src/server/plugins/engine/pageControllers/helpers/index.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import * as uploadService from '~/src/server/plugins/engine/services/uploadService.js'
@@ -1309,7 +1310,8 @@ describe('FileUploadPageController', () => {
 
       const viewModel = controller.getViewModel(
         request as FormContextRequest,
-        context
+        context,
+        stubTranslator
       )
 
       expect(viewModel.uploadId).toBe('some-upload-id')

@@ -109,7 +109,11 @@ engine.registerFilter('answer', function (name: string) {
     return
   }
 
-  const answer = getAnswer(component as Field, globals.context.relevantState)
+  const field = component as Field
+  const translator = field.model.createTranslator()
+  const answer = getAnswer(field, globals.context.relevantState, translator, {
+    format: 'summary'
+  })
 
   return answer
 })

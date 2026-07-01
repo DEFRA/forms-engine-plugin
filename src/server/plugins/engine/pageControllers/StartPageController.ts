@@ -1,3 +1,4 @@
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import { type FormContext } from '~/src/server/plugins/engine/types.js'
 import { type FormRequest } from '~/src/server/routes/types.js'
@@ -11,9 +12,13 @@ export class StartPageController extends QuestionPageController {
 
   allowSaveAndExit = false
 
-  getViewModel(request: FormRequest, context: FormContext) {
+  getViewModel(
+    request: FormRequest,
+    context: FormContext,
+    translator: Translator
+  ) {
     return {
-      ...super.getViewModel(request, context),
+      ...super.getViewModel(request, context, translator),
       isStartPage: true
     }
   }

@@ -8,6 +8,7 @@ import {
   type FormRequest,
   type FormResponseToolkit
 } from '~/src/server/routes/types.js'
+import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 export class StatusPageController extends QuestionPageController {
   declare pageDef: PageStatus
@@ -31,6 +32,10 @@ export class StatusPageController extends QuestionPageController {
       h: FormResponseToolkit
     ) => {
       const { viewModel, viewName } = this
+
+      const language = resolveLanguage(request)
+      const translator = this.model.createTranslator(language)
+      const { t } = translator
 
       const cacheService = getCacheService(request.server)
       const confirmationState = await cacheService.getConfirmationState(request)
@@ -58,7 +63,8 @@ export class StatusPageController extends QuestionPageController {
         submissionGuidance,
         formName,
         showReferenceNumber: this.showReferenceNumber,
-        referenceNumber: confirmationState.referenceNumber
+        referenceNumber: confirmationState.referenceNumber,
+        t
       })
     }
   }

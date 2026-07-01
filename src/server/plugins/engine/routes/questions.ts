@@ -44,6 +44,7 @@ import {
   stateSchema
 } from '~/src/server/schemas/index.js'
 import * as httpService from '~/src/server/services/httpService.js'
+import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 async function handleHttpEvent(
   request: AnyFormRequest,
@@ -58,10 +59,13 @@ async function handleHttpEvent(
 
   // TODO: Update structured data POST payload with when helper
   // is updated to removing the dependency on `SummaryViewModel` etc.
-  const viewModel = new SummaryViewModel(request, page, context)
+  const language = resolveLanguage(request)
+  const translator = model.createTranslator(language)
+  const viewModel = new SummaryViewModel(request, page, context, translator)
   const items = getFormSubmissionData(
     viewModel.context,
     viewModel.details,
+    translator,
     model
   )
 

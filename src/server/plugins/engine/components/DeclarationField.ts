@@ -8,6 +8,7 @@ import {
 import joi, {
   type ArraySchema,
   type BooleanSchema,
+  type LanguageMessages,
   type StringSchema
 } from 'joi'
 
@@ -15,23 +16,23 @@ import {
   FormComponent,
   isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
+import { buildValidationMessages } from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
   type FormPayload,
   type FormState,
   type FormStateValue,
-  type FormSubmissionError,
   type FormSubmissionState,
   type FormValue
 } from '~/src/server/plugins/engine/types.js'
 
 export class DeclarationField extends FormComponent {
-  private readonly DEFAULT_DECLARATION_LABEL = 'I understand and agree'
-
   declare options: DeclarationFieldComponent['options']
 
-  declare declarationConfirmationLabel: string
+  declare declarationConfirmationLabel: string | undefined
 
   declare formSchema: ArraySchema<StringSchema[]>
   declare stateSchema: BooleanSchema
@@ -69,8 +70,9 @@ export class DeclarationField extends FormComponent {
 
     this.options = options
     this.content = content
-    this.declarationConfirmationLabel =
-      options.declarationConfirmationLabel ?? this.DEFAULT_DECLARATION_LABEL
+    // Store only the form-authored label (if provided). If absent, getViewModel
+    // resolves the default via t() at render time so the correct language is used.
+    this.declarationConfirmationLabel = options.declarationConfirmationLabel
     const formComponents = hasFormComponents(props.page?.pageDef)
       ? props.page.pageDef.components
       : []
@@ -114,20 +116,40 @@ export class DeclarationField extends FormComponent {
     return this.isValue(value) ? value : undefined
   }
 
-  getDisplayStringFromFormValue(value: FormValue | FormPayload): string {
-    return value === 'true' ? this.declarationConfirmationLabel : 'Not provided'
+  getValidationMessagesOverride(translator: Translator) {
+    const { declarationRequired } = buildValidationMessages(translator.t)
+    const msg = declarationRequired as unknown as string
+    return {
+      'any.required': msg,
+      'any.unknown': msg,
+      'array.includesRequiredUnknowns': msg
+    } as unknown as LanguageMessages
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
-    const defaultDeclarationConfirmationLabel =
-      'I confirm that I understand and accept this declaration'
+  getDisplayStringFromFormValue(
+    value: FormValue | FormPayload,
+    translator: Translator
+  ): string {
+    const { t } = translator
+    return value === 'true'
+      ? (this.declarationConfirmationLabel ??
+          t('components.declarationField.defaultLabel'))
+      : t('components.declarationField.notProvided')
+  }
+
+  getViewModel(context: RenderContext) {
+    const { payload } = context
+    const { t } = context.translator
+
     const {
       hint,
       content,
-      declarationConfirmationLabel = defaultDeclarationConfirmationLabel
+      declarationConfirmationLabel = t(
+        'components.declarationField.defaultLabel'
+      )
     } = this
 
-    const viewModel = super.getViewModel(payload, errors)
+    const viewModel = super.getViewModel(context)
     let { fieldset, label } = viewModel
 
     fieldset ??= {

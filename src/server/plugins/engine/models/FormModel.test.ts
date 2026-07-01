@@ -9,7 +9,10 @@ import {
 } from '@defra/forms-model'
 
 import { todayAsDateOnly } from '~/src/server/plugins/engine/date-helper.js'
-import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import {
+  FormModel,
+  getAvailableLanguages
+} from '~/src/server/plugins/engine/models/FormModel.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { type FormContextRequest } from '~/src/server/plugins/engine/types.js'
 import { FormAction } from '~/src/server/routes/types.js'
@@ -143,6 +146,32 @@ describe('FormModel', () => {
       const model = new FormModel(definitionWithoutSchema, { basePath: 'test' })
 
       expect(model.schemaVersion).toBe(SchemaVersion.V1)
+    })
+
+    it('creates translator for en-GB', () => {
+      const model = new FormModel(definition, { basePath: 'test' })
+      const { t } = model.createTranslator('en-GB')
+      expect(t('errors.title')).toBe('There is a problem')
+    })
+
+    it('translates a key using createTranslator', () => {
+      const model = new FormModel(definition, { basePath: '/test' })
+      const { t } = model.createTranslator('en-GB')
+      expect(t('errors.title')).toBe('There is a problem')
+    })
+
+    it('passes interpolation options through createTranslator', () => {
+      const model = new FormModel(definition, { basePath: '/test' })
+      const { t } = model.createTranslator('en-GB')
+      expect(t('pages.repeater.pageTitle', { count: 3 })).toBe(
+        'You have added 3 answers'
+      )
+    })
+
+    it('creates translator that resolves plugin namespace keys', () => {
+      const model = new FormModel(definition, { basePath: 'test' })
+      const { t } = model.createTranslator('en-GB')
+      expect(t('common.continue')).toBe('Continue')
     })
 
     it.each([
@@ -724,6 +753,99 @@ describe('FormModel - Joined Conditions', () => {
       // V2 should not find by name
       expect(model.getSection('personal')).toBeUndefined()
       expect(model.getSection('nonexistent')).toBeUndefined()
+    })
+  })
+
+  describe('FormModel.createTranslator', () => {
+    beforeEach(() => {
+      jest.spyOn(formDefinitionV2Schema, 'validate').mockReturnValue({
+        value: definitionV2,
+        error: undefined
+      })
+    })
+
+    afterEach(() => {
+      jest.restoreAllMocks()
+    })
+
+    it('returns "Continue" for t("common.continue") with en-GB language', () => {
+      const model = new FormModel(definitionV2, { basePath: 'test' })
+      const { t } = model.createTranslator('en-GB')
+      expect(t('common.continue')).toBe('Continue')
+    })
+
+    it('returns x-pirate string for t("common.continue") with x-pirate language', () => {
+      const model = new FormModel(definitionV2, { basePath: 'test' })
+      const { t } = model.createTranslator('x-pirate')
+      expect(t('common.continue')).toBe('Sail on')
+    })
+
+    it('returns the component title for tComponent with en-GB language (falls back to base en-GB form string)', () => {
+      const model = new FormModel(definitionV2, { basePath: 'test' })
+      const { tComponent } = model.createTranslator('en-GB')
+      // pages[0].components[0] has id '717eb213-4e4b-4a2d-9cfd-2780f5e1e3e5'
+      // and title 'Have you previously been married?'
+      expect(tComponent(definitionV2.pages[0].components[0], 'title')).toBe(
+        'Have you previously been married?'
+      )
+    })
+
+    it('returns the component title for tComponent with cy language (no Welsh translation registered → en-GB fallback)', () => {
+      const model = new FormModel(definitionV2, { basePath: 'test' })
+      const { tComponent } = model.createTranslator('cy')
+      // No Welsh translations registered → falls back to en-GB base form string
+      expect(tComponent(definitionV2.pages[0].components[0], 'title')).toBe(
+        'Have you previously been married?'
+      )
+    })
+
+    it('returns the form name with en-GB language (falls back to base en-GB form string)', () => {
+      const model = new FormModel(definitionV2, { basePath: 'test' })
+      const { tForm } = model.createTranslator('en-GB')
+      expect(tForm('name')).toBe('Conditions V2')
+    })
+  })
+
+  describe('getAvailableLanguages', () => {
+    it('should return list of languages, omitting unrecognised but adding english if not in list', () => {
+      const def = {
+        metadata: {
+          translations: {
+            cy: {},
+            fr: {
+              field1: 123
+            }
+          }
+        }
+      } as unknown as FormDefinition
+      expect(getAvailableLanguages(def)).toEqual([
+        { code: 'en-GB', name: 'English' },
+        { code: 'cy', name: 'Cymraeg' }
+      ])
+    })
+
+    it('should not add english if already in list', () => {
+      const def = {
+        metadata: {
+          translations: {
+            'en-GB': {
+              field1: 123
+            },
+            cy: {}
+          }
+        }
+      } as unknown as FormDefinition
+      expect(getAvailableLanguages(def)).toEqual([
+        { code: 'en-GB', name: 'English' },
+        { code: 'cy', name: 'Cymraeg' }
+      ])
+    })
+
+    it('should return empty list if no translations', () => {
+      const def = {
+        metadata: {}
+      } as unknown as FormDefinition
+      expect(getAvailableLanguages(def)).toEqual([])
     })
   })
 

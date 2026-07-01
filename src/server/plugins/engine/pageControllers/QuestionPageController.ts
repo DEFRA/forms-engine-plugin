@@ -21,7 +21,6 @@ import {
 } from '~/src/server/constants.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { PaymentField } from '~/src/server/plugins/engine/components/PaymentField.js'
-import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import { type BackLink } from '~/src/server/plugins/engine/components/types.js'
 import {
   checkFormStatus,
@@ -31,6 +30,7 @@ import {
   normalisePath,
   proceed
 } from '~/src/server/plugins/engine/helpers.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { prefillStateFromQueryParameters } from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
@@ -118,18 +118,28 @@ export class QuestionPageController extends PageController {
    * Used for mapping form payloads and errors to govuk-frontend's template api, so a page can be rendered
    * @param request - the hapi request
    * @param context - the form context
+   * @param translator - optional per-request translator pair
    */
   getViewModel(
     request: FormContextRequest,
-    context: FormContext
+    context: FormContext,
+    translator: Translator
   ): FormPageViewModel {
     const { collection, viewModel } = this
-    const { query } = request
     const { payload, errors } = context
 
-    let { pageTitle, showTitle } = viewModel
+    const { t, tPage, tSection } = translator
 
-    const components = collection.getViewModel(payload, errors, query)
+    let { showTitle, sectionTitle } = viewModel
+
+    let pageTitle = tPage(this.pageDef, 'title') || viewModel.pageTitle
+
+    if (this.section) {
+      sectionTitle =
+        this.section.hideTitle !== true ? tSection(this.section, 'title') : ''
+    }
+
+    const components = collection.getViewModel({ payload, errors, translator })
     const formComponents = components.filter(
       ({ isFormComponent }) => isFormComponent
     )
@@ -163,7 +173,7 @@ export class QuestionPageController extends PageController {
 
           if (pageTitle) {
             labelOrLegend.text = isOptional
-              ? `${pageTitle}${optionalText}`
+              ? `${pageTitle} ${t('common.optional')}`
               : pageTitle
           }
 
@@ -216,8 +226,10 @@ export class QuestionPageController extends PageController {
 
     return {
       ...viewModel,
-      backLink: this.getBackLink(request, context),
+      backLink: this.getBackLink(request, context, t),
       context,
+      pageTitle,
+      sectionTitle,
       showTitle,
       components,
       errors,
@@ -450,14 +462,17 @@ export class QuestionPageController extends PageController {
       const { collection, model, viewName } = this
       const { evaluationState } = context
 
+      const translator = this.getTranslator(request)
+      const { t } = translator
+
       // Copy any URL params into the form state (if not already done so)
       if (await prefillStateFromQueryParameters(request, this)) {
         // Forward to same page without query string
         return h.redirect(request.url.pathname)
       }
 
-      const viewModel = this.getViewModel(request, context)
-      viewModel.errors = collection.getViewErrors(viewModel.errors)
+      const viewModel = this.getViewModel(request, context, translator)
+      viewModel.errors = collection.getViewErrors(translator, viewModel.errors)
 
       const flashedError = request.yar.flash(COMPONENT_STATE_ERROR)
       const flashedErrors = !Array.isArray(flashedError) ? [flashedError] : []
@@ -484,7 +499,10 @@ export class QuestionPageController extends PageController {
       viewModel.hasMissingNotificationEmail =
         await this.hasMissingNotificationEmail(request, context)
 
-      return h.view(viewName, viewModel)
+      return h.view(viewName, {
+        ...viewModel,
+        t
+      })
     }
   }
 
@@ -515,7 +533,8 @@ export class QuestionPageController extends PageController {
    */
   protected getBackLink(
     request: FormContextRequest,
-    context: FormContext
+    context: FormContext,
+    t: (key: string, opts?: Record<string, unknown>) => string
   ): BackLink | undefined {
     const { pageDef } = this
     const { path, query } = request
@@ -529,8 +548,8 @@ export class QuestionPageController extends PageController {
       return {
         text:
           hasRepeater(pageDef) && itemId
-            ? 'Go back to add another'
-            : 'Go back to check answers',
+            ? t('pages.question.backToAddAnother')
+            : t('pages.question.backToCheckAnswers'),
         href: returnUrl
       }
     }
@@ -548,7 +567,7 @@ export class QuestionPageController extends PageController {
 
     // Default back link
     return {
-      text: 'Back',
+      text: t('common.back'),
       href: this.getHref(backPath)
     }
   }
@@ -563,6 +582,9 @@ export class QuestionPageController extends PageController {
       const { isForceAccess, state, evaluationState } = context
       const action = request.payload.action
 
+      const translator = this.getTranslator(request)
+      const { t } = translator
+
       if (action?.startsWith(FormAction.External)) {
         return await this.dispatchExternal(request, h, context)
       }
@@ -572,8 +594,11 @@ export class QuestionPageController extends PageController {
        * @todo Refactor to match POST REDIRECT GET pattern
        */
       if (context.errors || isForceAccess) {
-        const viewModel = this.getViewModel(request, context)
-        viewModel.errors = collection.getViewErrors(viewModel.errors)
+        const viewModel = this.getViewModel(request, context, translator)
+        viewModel.errors = collection.getViewErrors(
+          translator,
+          viewModel.errors
+        )
 
         // Filter our components based on their conditions using our evaluated state
         viewModel.components = this.filterConditionalComponents(
@@ -582,7 +607,10 @@ export class QuestionPageController extends PageController {
           evaluationState
         )
 
-        return h.view(viewName, viewModel)
+        return h.view(viewName, {
+          ...viewModel,
+          t
+        })
       }
 
       // Save state
