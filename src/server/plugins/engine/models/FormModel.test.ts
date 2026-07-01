@@ -820,7 +820,7 @@ describe('FormModel - Joined Conditions', () => {
       } as unknown as FormDefinition
       expect(getAvailableLanguages(def)).toEqual([
         { code: 'en-GB', name: 'English' },
-        { code: 'cy', name: 'Welsh (Cymraeg)' }
+        { code: 'cy', name: 'Cymraeg' }
       ])
     })
 
@@ -837,7 +837,7 @@ describe('FormModel - Joined Conditions', () => {
       } as unknown as FormDefinition
       expect(getAvailableLanguages(def)).toEqual([
         { code: 'en-GB', name: 'English' },
-        { code: 'cy', name: 'Welsh (Cymraeg)' }
+        { code: 'cy', name: 'Cymraeg' }
       ])
     })
 

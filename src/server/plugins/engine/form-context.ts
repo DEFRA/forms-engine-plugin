@@ -78,7 +78,6 @@ export async function getFormModel(
     },
     services,
     options.controllers
-    // TODO - should we pass a new translator in here?
   )
 }
 
