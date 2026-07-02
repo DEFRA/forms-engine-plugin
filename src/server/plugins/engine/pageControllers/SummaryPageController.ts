@@ -443,7 +443,8 @@ export async function submitForm(
       model,
       items,
       emailAddress,
-      request.yar.id
+      request.yar.id,
+      summaryViewModel.context.referenceNumber
     )
 
     if (submitResponse === undefined) {
@@ -521,7 +522,8 @@ function submitData(
   model: FormModel,
   items: DetailItem[],
   retrievalKey: string,
-  sessionId: string
+  sessionId: string,
+  referenceNumber: string
 ) {
   const { formSubmissionService } = model.services
   const { submit } = formSubmissionService
@@ -529,6 +531,7 @@ function submitData(
   const payload: SubmitPayload = {
     sessionId,
     retrievalKey,
+    referenceNumber,
     main: buildMainRecords(items),
     repeaters: buildRepeaterRecords(items)
   }
