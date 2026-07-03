@@ -44,12 +44,11 @@ import {
   getPage,
   setPageTitles
 } from '~/src/server/plugins/engine/helpers.js'
+import { loadFormTranslations } from '~/src/server/plugins/engine/i18n/createFormTranslator.js'
+import { createTranslator } from '~/src/server/plugins/engine/i18n/createTranslator.js'
 import { extractBaseTranslations } from '~/src/server/plugins/engine/i18n/extractBaseTranslations.js'
 import { createFormI18nInstance } from '~/src/server/plugins/engine/i18n/index.js'
-import {
-  type FormDefinitionTranslations,
-  type Translator
-} from '~/src/server/plugins/engine/i18n/types.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
@@ -133,14 +132,7 @@ export class FormModel {
 
     const baseTranslations = extractBaseTranslations(def)
     this.i18nInstance = createFormI18nInstance(baseTranslations)
-    const formTranslations = def.metadata?.translations as
-      | FormDefinitionTranslations
-      | undefined
-    if (formTranslations) {
-      for (const [lng, resources] of Object.entries(formTranslations)) {
-        this.i18nInstance.addResourceBundle(lng, 'form', resources, true, true)
-      }
-    }
+    loadFormTranslations(def, this.i18nInstance)
 
     // Add default lists. Yes/No text stored as i18n key constants so they
     // resolve to the user's language at render time via the translator.
@@ -253,58 +245,7 @@ export class FormModel {
 
   /** Returns a scoped translator pair for the given language. */
   createTranslator(language = 'en-GB'): Translator {
-    const { i18nInstance } = this
-
-    const t = (key: string, opts?: Record<string, unknown>): string =>
-      i18nInstance.t(key, { lng: language, ns: 'plugin', ...opts })
-
-    const resolveContent = (
-      entity: { id?: string },
-      entityType: string,
-      prop: string
-    ): string => {
-      if (!entity.id) {
-        const raw = (entity as Record<string, unknown>)[prop]
-        if (typeof raw !== 'string') return ''
-        // t() resolves i18next key constants (sub-field labels); returns raw string unchanged if not a key
-        return t(raw)
-      }
-      const key = `${entityType}.${entity.id}.${prop}`
-      const result = i18nInstance.t(key, {
-        lng: language,
-        ns: 'form'
-      })
-      if (result === key) {
-        // No form translation found — fall through to t(raw) so plugin i18n
-        // key constants (e.g. 'components.yesNoField.yes') are still resolved.
-        const raw = (entity as Record<string, unknown>)[prop]
-        if (typeof raw !== 'string') return ''
-        return t(raw)
-      }
-      return result
-    }
-
-    const resolveRootContent = (prop: string) => {
-      const key = `form.${prop}`
-      const translation = i18nInstance.t(key, { lng: language, ns: 'form' })
-      if (translation === key && prop in this.def) {
-        return (this.def as unknown as Record<string, string>)[prop] ?? key
-      }
-      return translation
-    }
-
-    return {
-      t,
-      tForm: (prop) => resolveRootContent(prop),
-      tPage: (entity, prop) => resolveContent(entity, 'pages', prop as string),
-      tComponent: (entity, prop) =>
-        resolveContent(entity, 'components', prop as string),
-      tSection: (entity, prop) =>
-        resolveContent(entity, 'sections', prop as string),
-      tListItem: (entity, prop) =>
-        resolveContent(entity, 'listItems', prop as string),
-      language
-    }
+    return createTranslator(this.def, this.i18nInstance, language)
   }
 
   /**
