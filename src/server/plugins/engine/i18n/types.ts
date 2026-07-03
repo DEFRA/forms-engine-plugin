@@ -25,7 +25,7 @@ export type FormDefinitionTranslations = Record<
       }>
     >
     sections: Record<string, Partial<Pick<Section, 'title'>>>
-    listItems: Record<string, Partial<Pick<Item, 'text'>>>
+    listItems: Record<string, Partial<Pick<Item, 'text' | 'hint'>>>
   }
 >
 

@@ -139,7 +139,14 @@ export class ListFormComponent extends FormComponent {
     const items = listItems.map((item) => {
       const selected = values.includes(item.value)
       const resolvedText = tListItem(item, 'text') || item.text
-      const itemModel: ListItem = { ...item, text: resolvedText, selected }
+      const resolvedHint = tListItem(item, 'hint') || item.hint?.text
+      const hintAttr = resolvedHint ? { hint: { text: resolvedHint } } : {}
+      const itemModel: ListItem = {
+        ...item,
+        text: resolvedText,
+        selected,
+        ...hintAttr
+      }
 
       if ('id' in itemModel) {
         delete itemModel.id
