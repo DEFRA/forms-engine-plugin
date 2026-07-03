@@ -630,7 +630,8 @@ describe('Repeat POST tests', () => {
         }
       ],
       retrievalKey: 'enrique.chase@defra.gov.uk',
-      sessionId: expect.any(String)
+      sessionId: expect.any(String),
+      referenceNumber: expect.any(String)
     })
   })
 
