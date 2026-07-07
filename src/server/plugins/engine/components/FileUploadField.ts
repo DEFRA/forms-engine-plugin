@@ -292,7 +292,8 @@ export class FileUploadField extends FormComponent {
       upload: {
         count,
         summaryList
-      }
+      },
+      javascript: true
     }
   }
 
