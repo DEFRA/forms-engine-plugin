@@ -1,12 +1,12 @@
-import { type FormDefinition } from '@defra/forms-model'
+import { type FormMetadata } from '@defra/forms-model'
 import { type i18n } from 'i18next'
 
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 
 export function createTranslator(
-  def: FormDefinition,
   i18nInstance: i18n,
-  language = 'en-GB'
+  language = 'en-GB',
+  meta?: FormMetadata
 ): Translator {
   const t = (key: string, opts?: Record<string, unknown>): string =>
     i18nInstance.t(key, { lng: language, ns: 'plugin', ...opts })
@@ -37,18 +37,18 @@ export function createTranslator(
     return result
   }
 
-  const resolveRootContent = (prop: string) => {
-    const key = `form.${prop}`
+  const resolveMetadataContent = (prop: string) => {
+    const key = prop
     const translation = i18nInstance.t(key, { lng: language, ns: 'form' })
-    if (translation === key && prop in def) {
-      return (def as unknown as Record<string, string>)[prop] ?? key
+    if (translation === key && meta && prop in meta) {
+      return (meta as unknown as Record<string, string>)[prop] ?? key
     }
     return translation
   }
 
   return {
     t,
-    tForm: (prop) => resolveRootContent(prop),
+    tMetadata: (prop) => resolveMetadataContent(prop),
     tPage: (entity, prop) => resolveContent(entity, 'pages', prop as string),
     tComponent: (entity, prop) =>
       resolveContent(entity, 'components', prop as string),

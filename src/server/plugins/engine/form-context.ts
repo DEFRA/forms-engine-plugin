@@ -69,6 +69,7 @@ export async function getFormModel(
 
   return new FormModel(
     definition,
+    metadata,
     {
       basePath:
         options.basePath ??
@@ -183,6 +184,7 @@ export async function resolveFormModel(
 
     const model = new FormModel(
       definition,
+      metadata,
       {
         basePath:
           options.basePath ??

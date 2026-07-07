@@ -1,17 +1,22 @@
 import {
   hasComponentsEvenIfNoNext,
-  type FormDefinition
+  type FormDefinition,
+  type FormMetadata
 } from '@defra/forms-model'
 
 import { type FormDefinitionTranslations } from '~/src/server/plugins/engine/i18n/types.js'
 
 type BaseTranslations = FormDefinitionTranslations[string]
 
-export function extractBaseTranslations(def: FormDefinition): BaseTranslations {
+export function extractBaseTranslations(
+  def: FormDefinition,
+  meta: FormMetadata
+): BaseTranslations {
   const pages: BaseTranslations['pages'] = {}
   const components: BaseTranslations['components'] = {}
   const sections: BaseTranslations['sections'] = {}
   const listItems: BaseTranslations['listItems'] = {}
+  const metadata: BaseTranslations['metadata'] = {}
 
   for (const page of def.pages) {
     if (page.id && page.title) {
@@ -54,5 +59,9 @@ export function extractBaseTranslations(def: FormDefinition): BaseTranslations {
     }
   }
 
-  return { pages, components, sections, listItems }
+  for (const [key, value] of Object.entries(meta)) {
+    metadata[key] = value
+  }
+
+  return { pages, components, sections, listItems, metadata }
 }

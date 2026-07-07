@@ -40,7 +40,8 @@ describe('createFormI18nInstance', () => {
       'comp-id': { title: 'First name', hint: 'As shown on licence' }
     },
     sections: {},
-    listItems: {}
+    listItems: {},
+    metadata: {}
   }
 
   it('resolves plugin strings for en-GB', () => {

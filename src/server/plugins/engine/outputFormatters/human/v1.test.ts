@@ -10,6 +10,7 @@ import {
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import { FormStatus } from '~/src/server/routes/types.js'
+import { metadata } from '~/test/fixtures/form.js'
 import definition from '~/test/form/definitions/repeat-mixed.js'
 
 describe('v1 human formatter', () => {
@@ -28,7 +29,7 @@ describe('v1 human formatter', () => {
     }
   }
 
-  const model = new FormModel(definition, {
+  const model = new FormModel(definition, metadata, {
     basePath: 'test'
   })
 

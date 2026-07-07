@@ -21,9 +21,10 @@ import {
   type FileState
 } from '~/src/server/plugins/engine/types.js'
 import { FormStatus } from '~/src/server/routes/types.js'
+import { metadata } from '~/test/fixtures/form.js'
 import definition from '~/test/form/definitions/repeat-mixed.js'
 
-const translator = new FormModel(definition, {
+const translator = new FormModel(definition, metadata, {
   basePath: '/'
 }).createTranslator()
 
@@ -39,7 +40,7 @@ const submitResponse = {
   }
 }
 
-const model = new FormModel(definition, {
+const model = new FormModel(definition, metadata, {
   basePath: 'test'
 })
 

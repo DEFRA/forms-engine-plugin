@@ -26,6 +26,7 @@ export type FormDefinitionTranslations = Record<
     >
     sections: Record<string, Partial<Pick<Section, 'title'>>>
     listItems: Record<string, Partial<Pick<Item, 'text' | 'hint'>>>
+    metadata: Record<string, string>
   }
 >
 
@@ -34,7 +35,7 @@ type EntityTranslations = FormDefinitionTranslations[string]
 /**
  * Scoped translator returned by model.createTranslator(language).
  * t          — plugin namespace (UI strings, buttons, errors, sub-field labels)
- * tForm      — form namespace: form attributes, such as name
+ * tMetadata  — form namespace: metadata attributes, such as form name and contact info
  * tPage      — form namespace: page titles
  * tComponent — form namespace: component titles, hints, shortDescriptions
  * tSection   — form namespace: section titles
@@ -42,7 +43,7 @@ type EntityTranslations = FormDefinitionTranslations[string]
  */
 export interface Translator {
   t: (key: string, opts?: Record<string, unknown>) => string
-  tForm: (prop: string) => string
+  tMetadata: (prop: string) => string
   tPage: (page: Page, prop: keyof EntityTranslations['pages'][string]) => string
   tComponent: (
     component: ComponentDef,

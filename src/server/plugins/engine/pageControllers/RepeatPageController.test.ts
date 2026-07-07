@@ -14,6 +14,7 @@ import {
   type RepeatListState,
   type RepeaterSummaryPageViewModel
 } from '~/src/server/plugins/engine/types.js'
+import { metadata } from '~/test/fixtures/form.js'
 import definition from '~/test/form/definitions/repeat.js'
 
 describe('RepeatPageController', () => {
@@ -45,7 +46,7 @@ describe('RepeatPageController', () => {
       'http://example.com'
     )
 
-    model = new FormModel(definition, {
+    model = new FormModel(definition, metadata, {
       basePath: 'test'
     })
 
@@ -292,7 +293,7 @@ describe('RepeatPageController', () => {
         tComponent: jest.fn(() => ''),
         tSection: jest.fn(() => ''),
         tListItem: jest.fn(() => ''),
-        tForm: jest.fn(() => ''),
+        tMetadata: jest.fn(() => ''),
         language: 'en-GB'
       }
 
@@ -319,7 +320,7 @@ describe('RepeatPageController', () => {
         tComponent: jest.fn(() => ''),
         tSection: jest.fn(() => ''),
         tListItem: jest.fn(() => ''),
-        tForm: jest.fn(() => ''),
+        tMetadata: jest.fn(() => ''),
         language: 'en-GB'
       }
 
@@ -351,7 +352,7 @@ describe('RepeatPageController', () => {
         tComponent: jest.fn(() => ''),
         tSection: jest.fn(() => ''),
         tListItem: jest.fn(() => ''),
-        tForm: jest.fn(() => ''),
+        tMetadata: jest.fn(() => ''),
         language: 'en-GB'
       }
 

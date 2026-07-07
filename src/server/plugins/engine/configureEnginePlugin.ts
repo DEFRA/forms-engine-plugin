@@ -36,12 +36,14 @@ export const configureEnginePlugin = async (
 
   if (formFileName && formFilePath) {
     const definition = await getForm(join(formFilePath, formFileName))
+    const metadata = {} as unknown as FormMetadata
     const { name } = parse(formFileName)
 
     const initialBasePath = `${FORM_PREFIX}${name}`
 
     model = new FormModel(
       definition,
+      metadata,
       { basePath: initialBasePath, ordnanceSurveyApiKey },
       services,
       controllers

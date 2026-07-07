@@ -12,6 +12,7 @@ import {
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
+import { metadata } from '~/test/fixtures/form.js'
 import {
   listNumber,
   listNumberExamples,
@@ -21,7 +22,7 @@ import {
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
-const translator = new FormModel(definition, {
+const translator = new FormModel(definition, metadata, {
   basePath: '/'
 }).createTranslator()
 
@@ -67,7 +68,7 @@ describe.each([
     const updated = structuredClone(definition)
     updated.lists = [options.list]
 
-    model = new FormModel(updated, {
+    model = new FormModel(updated, metadata, {
       basePath: 'test'
     })
 
@@ -326,7 +327,7 @@ describe.each([
       })
 
       it('returns empty items when missing', () => {
-        const model = new FormModel(definition, {
+        const model = new FormModel(definition, metadata, {
           basePath: 'test'
         })
 

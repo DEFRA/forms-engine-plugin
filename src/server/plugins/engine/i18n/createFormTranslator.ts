@@ -1,4 +1,4 @@
-import { type FormDefinition } from '@defra/forms-model'
+import { type FormDefinition, type FormMetadata } from '@defra/forms-model'
 import { type i18n } from 'i18next'
 
 import { createTranslator } from '~/src/server/plugins/engine/i18n/createTranslator.js'
@@ -11,13 +11,14 @@ import {
 
 export function createFormTranslator(
   def: FormDefinition,
+  meta: FormMetadata,
   language: string
 ): Translator {
-  const baseTranslations = extractBaseTranslations(def)
+  const baseTranslations = extractBaseTranslations(def, meta)
   const i18nInstance = createFormI18nInstance(baseTranslations)
   loadFormTranslations(def, i18nInstance)
 
-  return createTranslator(def, i18nInstance, language)
+  return createTranslator(i18nInstance, language, meta)
 }
 
 export function loadFormTranslations(def: FormDefinition, i18nInstance: i18n) {

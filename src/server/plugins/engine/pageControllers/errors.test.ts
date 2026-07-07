@@ -7,13 +7,14 @@ import {
   InvalidComponentStateError,
   PaymentSubmissionError
 } from '~/src/server/plugins/engine/pageControllers/errors.js'
+import { metadata } from '~/test/fixtures/form.js'
 import definition from '~/test/form/definitions/file-upload-basic.js'
 
 describe('InvalidComponentStateError', () => {
   let model: FormModel
 
   beforeEach(() => {
-    model = new FormModel(definition, {
+    model = new FormModel(definition, metadata, {
       basePath: 'test'
     })
   })

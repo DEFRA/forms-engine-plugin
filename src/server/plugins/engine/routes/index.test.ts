@@ -43,7 +43,7 @@ function buildMockModel(
       tComponent: jest.fn(),
       tSection: jest.fn(),
       tListItem: jest.fn(),
-      tForm: jest.fn(),
+      tMetadata: jest.fn(),
       language: 'en-GB'
     }),
     pages: pagesControllerOverride,

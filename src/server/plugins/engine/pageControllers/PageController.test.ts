@@ -9,6 +9,7 @@ import {
   type FormRequest,
   type FormResponseToolkit
 } from '~/src/server/routes/types.js'
+import { metadata } from '~/test/fixtures/form.js'
 import definition from '~/test/form/definitions/basic.js'
 
 describe('PageController', () => {
@@ -24,7 +25,7 @@ describe('PageController', () => {
     const page1 = pages[0]
     const page2 = pages[1]
 
-    model = new FormModel(definition, {
+    model = new FormModel(definition, metadata, {
       basePath: testBasePath,
       formId: 'form-id'
     })

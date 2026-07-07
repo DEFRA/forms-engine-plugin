@@ -30,6 +30,7 @@ import {
   type UploadState
 } from '~/src/server/plugins/engine/types.js'
 import { type FormRequestPayload } from '~/src/server/routes/types.js'
+import { metadata } from '~/test/fixtures/form.js'
 import definition from '~/test/form/definitions/file-upload-basic.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
@@ -153,7 +154,7 @@ describe('FileUploadField', () => {
   ]
 
   beforeEach(() => {
-    model = new FormModel(definition, {
+    model = new FormModel(definition, metadata, {
       basePath: 'test'
     })
   })
@@ -922,7 +923,7 @@ describe('FileUploadField', () => {
               tComponent: jest.fn(),
               tSection: jest.fn(),
               tListItem: jest.fn(),
-              tForm: jest.fn(),
+              tMetadata: jest.fn(),
               language: 'en-GB'
             })
           }

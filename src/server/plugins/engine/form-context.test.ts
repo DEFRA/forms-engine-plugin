@@ -94,8 +94,11 @@ describe('getFormContext helper', () => {
       createTranslator: jest.fn().mockReturnValue({})
     }
     FormModel.mockImplementation(
-      (_definition: unknown, modelOptions: FormModelOptions) =>
-        Object.assign(formModel, { basePath: modelOptions.basePath })
+      (
+        _definition: unknown,
+        _metadata: unknown,
+        modelOptions: FormModelOptions
+      ) => Object.assign(formModel, { basePath: modelOptions.basePath })
     )
     mockFormsService.getFormMetadata.mockResolvedValue(metadata)
     mockFormsService.getFormDefinition.mockResolvedValue(definition)
@@ -200,6 +203,7 @@ describe('getFormModel helper', () => {
     )
     expect(FormModel).toHaveBeenCalledWith(
       definition,
+      metadata,
       {
         basePath: slug,
         ordnanceSurveyApiKey: undefined,
@@ -277,17 +281,18 @@ describe('resolveFormModel helper', () => {
 
   test('rebuilds the model when metadata changes and uses preview routing', async () => {
     const refreshedModel = { id: 'refreshed-model' }
+    const metadataWithoutEmail = { ...metadata, notificationEmail: undefined }
+    const metadataWithUpdatedDate = {
+      ...metadataWithoutEmail,
+      live: { updatedAt: new Date('2024-12-01T09:00:00Z') }
+    }
 
     FormModel.mockImplementationOnce(
       () => formModelInstance
     ).mockImplementationOnce(() => refreshedModel)
     mockFormsService.getFormMetadata
-      .mockResolvedValueOnce({ ...metadata, notificationEmail: undefined })
-      .mockResolvedValueOnce({
-        ...metadata,
-        notificationEmail: undefined,
-        live: { updatedAt: new Date('2024-12-01T09:00:00Z') }
-      })
+      .mockResolvedValueOnce(metadataWithoutEmail)
+      .mockResolvedValueOnce(metadataWithUpdatedDate)
 
     const model = await resolveFormModel(server, slug, 'preview', {
       ordnanceSurveyApiKey: 'os-api-key'
@@ -302,12 +307,26 @@ describe('resolveFormModel helper', () => {
       undefined,
       true
     )
-    expect(FormModel).toHaveBeenCalledWith(
+    expect(FormModel).toHaveBeenNthCalledWith(
+      1,
       definition,
+      metadataWithoutEmail,
       expect.objectContaining({
         basePath: 'forms/preview/live/tb-origin',
         ordnanceSurveyApiKey: 'os-api-key',
-        formId: metadata.id
+        formId: metadataWithoutEmail.id
+      }),
+      mockServices,
+      undefined
+    )
+    expect(FormModel).toHaveBeenNthCalledWith(
+      2,
+      definition,
+      metadataWithUpdatedDate,
+      expect.objectContaining({
+        basePath: 'forms/preview/live/tb-origin',
+        ordnanceSurveyApiKey: undefined,
+        formId: metadataWithUpdatedDate.id
       }),
       mockServices,
       undefined

@@ -12,15 +12,16 @@ import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControl
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 import { FormStatus } from '~/src/server/routes/types.js'
+import { metadata } from '~/test/fixtures/form.js'
 import definitionPayment from '~/test/form/definitions/payment.js'
 
-const translator = new FormModel(definitionPayment, {
+const translator = new FormModel(definitionPayment, metadata, {
   basePath: '/'
 }).createTranslator()
 
 describe('v1 human formatter', () => {
   describe('Payment', () => {
-    const modelPayment = new FormModel(definitionPayment, {
+    const modelPayment = new FormModel(definitionPayment, metadata, {
       basePath: 'test'
     })
 

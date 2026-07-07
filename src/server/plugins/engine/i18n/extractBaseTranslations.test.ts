@@ -5,6 +5,7 @@ import {
 } from '@defra/forms-model'
 
 import { extractBaseTranslations } from '~/src/server/plugins/engine/i18n/extractBaseTranslations.js'
+import { metadata } from '~/test/fixtures/form.js'
 
 const pageId = 'b2c3d4e5-0001-0000-0000-000000000000'
 const componentId = 'c3d4e5f6-0001-0000-0000-000000000000'
@@ -58,12 +59,12 @@ const def = {
 
 describe('extractBaseTranslations', () => {
   it('extracts page titles', () => {
-    const result = extractBaseTranslations(def)
+    const result = extractBaseTranslations(def, metadata)
     expect(result.pages[pageId]).toEqual({ title: 'Your personal details' })
   })
 
   it('extracts component title, hint and shortDescription', () => {
-    const result = extractBaseTranslations(def)
+    const result = extractBaseTranslations(def, metadata)
     expect(result.components[componentId]).toEqual({
       title: 'First name',
       hint: 'As it appears on your licence',
@@ -72,12 +73,12 @@ describe('extractBaseTranslations', () => {
   })
 
   it('extracts section titles', () => {
-    const result = extractBaseTranslations(def)
+    const result = extractBaseTranslations(def, metadata)
     expect(result.sections[sectionId]).toEqual({ title: 'Personal details' })
   })
 
   it('extracts list item text', () => {
-    const result = extractBaseTranslations(def)
+    const result = extractBaseTranslations(def, metadata)
     expect(result.listItems[listItemId]).toEqual({ text: '1 day' })
   })
 
@@ -86,7 +87,7 @@ describe('extractBaseTranslations', () => {
       ...def,
       pages: [{ ...def.pages[0], id: undefined }]
     } as unknown as FormDefinition
-    const result = extractBaseTranslations(defNoId)
+    const result = extractBaseTranslations(defNoId, metadata)
     expect(Object.keys(result.pages)).toHaveLength(0)
   })
 
@@ -104,7 +105,7 @@ describe('extractBaseTranslations', () => {
         }
       ]
     } as unknown as FormDefinition
-    const result = extractBaseTranslations(defNoId)
+    const result = extractBaseTranslations(defNoId, metadata)
     expect(Object.keys(result.components)).toHaveLength(0)
   })
 })

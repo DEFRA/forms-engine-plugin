@@ -21,6 +21,7 @@ import {
   type DateUnits,
   type Engine,
   type FormDefinition,
+  type FormMetadata,
   type List,
   type Page,
   type Section
@@ -74,6 +75,8 @@ export class FormModel {
 
   schemaVersion: SchemaVersion
 
+  meta: FormMetadata
+
   /** the entire form JSON as an object */
   def: FormDefinition
 
@@ -103,6 +106,7 @@ export class FormModel {
 
   constructor(
     def: typeof this.def,
+    meta: FormMetadata,
     options: {
       basePath: string
       ordnanceSurveyApiKey?: string
@@ -130,7 +134,7 @@ export class FormModel {
     // by joi so as not to change the source data.
     def = structuredClone(result.value)
 
-    const baseTranslations = extractBaseTranslations(def)
+    const baseTranslations = extractBaseTranslations(def, meta)
     this.i18nInstance = createFormI18nInstance(baseTranslations)
     loadFormTranslations(def, this.i18nInstance)
 
@@ -160,6 +164,7 @@ export class FormModel {
 
     this.engine = def.engine
     this.schemaVersion = def.schema ?? SchemaVersion.V1
+    this.meta = meta
     this.def = def
     this.lists = def.lists
     this.sections = def.sections
@@ -245,7 +250,7 @@ export class FormModel {
 
   /** Returns a scoped translator pair for the given language. */
   createTranslator(language = 'en-GB'): Translator {
-    return createTranslator(this.def, this.i18nInstance, language)
+    return createTranslator(this.i18nInstance, language, this.meta)
   }
 
   /**

@@ -14,9 +14,10 @@ import {
   type FormPayload,
   type FormState
 } from '~/src/server/plugins/engine/types.js'
+import { metadata } from '~/test/fixtures/form.js'
 import definition from '~/test/form/definitions/blank.js'
 
-const translator = new FormModel(definition, {
+const translator = new FormModel(definition, metadata, {
   basePath: '/'
 }).createTranslator()
 
@@ -24,7 +25,7 @@ describe('MonthYearField', () => {
   let model: FormModel
 
   beforeEach(() => {
-    model = new FormModel(definition, {
+    model = new FormModel(definition, metadata, {
       basePath: 'test'
     })
   })

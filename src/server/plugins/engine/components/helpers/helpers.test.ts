@@ -13,9 +13,10 @@ import {
   lowerFirstPreserveProperNouns
 } from '~/src/server/plugins/engine/components/helpers/index.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { metadata } from '~/test/fixtures/form.js'
 import definition from '~/test/form/definitions/basic.js'
 
-const formModel = new FormModel(definition, {
+const formModel = new FormModel(definition, metadata, {
   basePath: 'test'
 })
 

@@ -37,6 +37,7 @@ import {
   FormStatus,
   type FormResponseToolkit
 } from '~/src/server/routes/types.js'
+import { metadata } from '~/test/fixtures/form.js'
 import definition from '~/test/form/definitions/basic.js'
 import templateDefinition from '~/test/form/definitions/templates.js'
 
@@ -56,7 +57,7 @@ describe('Helpers', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    const model = new FormModel(definition, {
+    const model = new FormModel(definition, metadata, {
       basePath: 'test'
     })
 
@@ -527,7 +528,7 @@ describe('Helpers', () => {
     let formContext: FormContext
 
     beforeEach(() => {
-      model = new FormModel(templateDefinition, {
+      model = new FormModel(templateDefinition, metadata, {
         basePath: 'template'
       })
 

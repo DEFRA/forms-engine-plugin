@@ -22,6 +22,7 @@ import {
   SummaryPageController,
   TerminalPageController
 } from '~/src/server/plugins/engine/pageControllers/index.js'
+import { metadata } from '~/test/fixtures/form.js'
 import definition from '~/test/form/definitions/blank.js'
 
 describe('Page controller helpers', () => {
@@ -81,7 +82,7 @@ describe('Page controller helpers', () => {
   })
 
   describe('Helper: createPage', () => {
-    const model = new FormModel(definition, {
+    const model = new FormModel(definition, metadata, {
       basePath: 'test'
     })
 
@@ -123,7 +124,7 @@ describe('Page controller helpers', () => {
           components: []
         }
 
-        const testModel = new FormModel(definition, {
+        const testModel = new FormModel(definition, metadata, {
           basePath: 'test'
         })
 
