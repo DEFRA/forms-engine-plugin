@@ -31,8 +31,8 @@ export async function initiateUpload(path, retrievalKey, mimeTypesCsv) {
     metadata: {
       retrievalKey
     },
-    mimeTypes
-    // maxFileSize: 25 * 1000 * 1000
+    mimeTypes,
+    maxFileSize: 200 * 1000 * 1000 // 200 MB
   }
 
   const { payload: initiate } = await postJsonByType(
