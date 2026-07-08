@@ -35,7 +35,7 @@ export class StatusPageController extends QuestionPageController {
 
       const language = resolveLanguage(request)
       const translator = this.model.createTranslator(language)
-      const { t } = translator
+      const { t, tMetadata } = translator
 
       const cacheService = getCacheService(request.server)
       const confirmationState = await cacheService.getConfirmationState(request)
@@ -46,11 +46,8 @@ export class StatusPageController extends QuestionPageController {
         return this.proceed(request, h, this.getStartPath())
       }
 
-      const slug = request.params.slug
       const { formsService } = this.model.services
-      const { getFormMetadata, getFormMetadataById } = formsService
-
-      const { submissionGuidance } = await getFormMetadata(slug)
+      const { getFormMetadataById } = formsService
 
       // Re-read form name if overriding display (for example, in a feedback form)
       const storedFormId = confirmationState.formId
@@ -60,11 +57,11 @@ export class StatusPageController extends QuestionPageController {
 
       return h.view(viewName, {
         ...viewModel,
-        submissionGuidance,
         formName,
         showReferenceNumber: this.showReferenceNumber,
         referenceNumber: confirmationState.referenceNumber,
         t,
+        tMetadata,
         context
       })
     }

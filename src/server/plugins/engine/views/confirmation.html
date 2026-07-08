@@ -8,12 +8,12 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       {{ govukPanel({
-        titleText: pageTitle,
+        titleText: t('pages.confirmation.formSubmitted'),
         html: t('pages.confirmation.referenceNumber') + "<br><strong>" + referenceNumber + "</strong>" if showReferenceNumber
       }) }}
       <h2 class="govuk-heading-m">{{ t('pages.confirmation.whatHappensNext') }}</h2>
       <div class="app-prose-scope">
-        {{ submissionGuidance | markdown(3) | safe }}
+        {{ tMetadata('submissionGuidance') | markdown(3) | safe }}
       </div>
       {% if feedbackLink %}
         <p class="govuk-body">

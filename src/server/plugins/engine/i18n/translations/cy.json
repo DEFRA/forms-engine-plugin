@@ -99,6 +99,7 @@
     },
 
     "confirmation": {
+      "formSubmitted": "Ffurflen wedi'i chyflwyno",
       "whatHappensNext": "Beth sy'n digwydd nesaf",
       "referenceNumber": "Eich cyfeirnod",
       "feedbackLink": "Beth yw eich barn am y gwasanaeth hwn? (yn cymryd 30 eiliad)"

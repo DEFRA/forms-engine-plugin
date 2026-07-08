@@ -230,7 +230,7 @@ export class FormModel {
     ) {
       this.pages.push(
         createPage(this, {
-          title: 'Form submitted',
+          title: 'pages.confirmation.formSubmitted',
           path: ControllerPath.Status,
           controller: ControllerType.Status
         })
