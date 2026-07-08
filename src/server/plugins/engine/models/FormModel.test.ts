@@ -813,7 +813,7 @@ describe('FormModel - Joined Conditions', () => {
     it('returns the form name with en-GB language (falls back to base en-GB form string)', () => {
       const model = new FormModel(definitionV2, metadata, { basePath: 'test' })
       const { tMetadata } = model.createTranslator('en-GB')
-      expect(tMetadata('metadata.title')).toBe('Test form')
+      expect(tMetadata('title')).toBe('Test form')
     })
   })
 

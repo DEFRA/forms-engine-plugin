@@ -1,7 +1,8 @@
 import {
   ComponentType,
   SchemaVersion,
-  type FormDefinition
+  type FormDefinition,
+  type FormMetadata
 } from '@defra/forms-model'
 
 import { extractBaseTranslations } from '~/src/server/plugins/engine/i18n/extractBaseTranslations.js'
@@ -107,5 +108,46 @@ describe('extractBaseTranslations', () => {
     } as unknown as FormDefinition
     const result = extractBaseTranslations(defNoId, metadata)
     expect(Object.keys(result.components)).toHaveLength(0)
+  })
+
+  it('flattens compound metadata keys with dot notation - omitting unwanted fields', () => {
+    const metadataWithNesting = {
+      id: 'form-123',
+      title: 'Test Form',
+      contact: {
+        email: {
+          address: 'test@example.com'
+        },
+        phone: '555-1234'
+      },
+      organization: 'DEFRA',
+      createdAt: new Date('2024-01-01')
+    } as unknown as FormMetadata
+    const result = extractBaseTranslations(def, metadataWithNesting)
+    expect(result.metadata).toEqual({
+      title: 'Test Form',
+      organization: 'DEFRA',
+      'contact.email.address': 'test@example.com',
+      'contact.phone': '555-1234'
+    })
+  })
+
+  it('ignores arrays and dates in metadata', () => {
+    const metadataWithArraysAndDates = {
+      id: 'form-123',
+      tags: ['tag1', 'tag2'],
+      settings: {
+        enabled: true,
+        nested: {
+          value: 'test'
+        }
+      }
+    } as unknown as FormMetadata
+    const result = extractBaseTranslations(def, metadataWithArraysAndDates)
+    expect(result.metadata).toEqual({
+      tags: ['tag1', 'tag2'],
+      'settings.enabled': true,
+      'settings.nested.value': 'test'
+    })
   })
 })

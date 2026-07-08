@@ -38,7 +38,7 @@ export function createTranslator(
   }
 
   const resolveMetadataContent = (prop: string) => {
-    const key = prop
+    const key = `metadata.${prop}`
     const translation = i18nInstance.t(key, { lng: language, ns: 'form' })
     if (translation === key && meta && prop in meta) {
       return (meta as unknown as Record<string, string>)[prop] ?? key

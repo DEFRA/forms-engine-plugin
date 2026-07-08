@@ -16,7 +16,6 @@ export function extractBaseTranslations(
   const components: BaseTranslations['components'] = {}
   const sections: BaseTranslations['sections'] = {}
   const listItems: BaseTranslations['listItems'] = {}
-  const metadata: BaseTranslations['metadata'] = {}
 
   for (const page of def.pages) {
     if (page.id && page.title) {
@@ -59,9 +58,70 @@ export function extractBaseTranslations(
     }
   }
 
-  for (const [key, value] of Object.entries(meta)) {
-    metadata[key] = value
-  }
+  const metadata = buildMetadataTranslations(meta)
 
   return { pages, components, sections, listItems, metadata }
+}
+
+function flattenObject(obj: unknown, prefix = ''): Record<string, unknown> {
+  const result: Record<string, string> = {}
+
+  if (
+    obj === null ||
+    typeof obj !== 'object' ||
+    obj instanceof Date ||
+    Array.isArray(obj)
+  ) {
+    return result
+  }
+
+  for (const [key, value] of Object.entries(obj)) {
+    const fullKey = prefix ? `${prefix}.${key}` : key
+
+    if (
+      value === null ||
+      typeof value !== 'object' ||
+      value instanceof Date ||
+      Array.isArray(value)
+    ) {
+      result[fullKey] = value as string
+    } else {
+      Object.assign(result, flattenObject(value, fullKey))
+    }
+  }
+
+  return result
+}
+
+const unwantedFields = [
+  'id',
+  'slug',
+  'versions',
+  'offline',
+  'termsAndConditionsAgreed',
+  'draft',
+  'live',
+  'createdAt',
+  'createdBy',
+  'updatedAt',
+  'updatedBy'
+]
+
+function stripUnwantedFields(meta: FormMetadata) {
+  const stripped = structuredClone(meta)
+  const fieldsPresent = new Set(Object.keys(meta))
+  unwantedFields.forEach((fieldName) => {
+    if (fieldsPresent.has(fieldName)) {
+      // @ts-expect-error - dynamic field name
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+      delete stripped[fieldName]
+    }
+  })
+  return stripped
+}
+
+function buildMetadataTranslations(meta: FormMetadata) {
+  const strippedMeta = stripUnwantedFields(meta)
+
+  return flattenObject(strippedMeta) as BaseTranslations['metadata']
 }
