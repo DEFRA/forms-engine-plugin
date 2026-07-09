@@ -7,9 +7,7 @@ import { type FormDefinitionTranslations } from '~/src/server/plugins/engine/i18
 
 type BaseTranslations = FormDefinitionTranslations[string]
 
-export function extractBaseTranslations(
-  def: FormDefinition
-): BaseTranslations {
+export function extractBaseTranslations(def: FormDefinition): BaseTranslations {
   const pages: BaseTranslations['pages'] = {}
   const components: BaseTranslations['components'] = {}
   const sections: BaseTranslations['sections'] = {}

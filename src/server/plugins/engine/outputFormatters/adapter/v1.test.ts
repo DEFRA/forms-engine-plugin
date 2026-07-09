@@ -772,12 +772,9 @@ describe('Adapter v1 formatter', () => {
         }
       }
 
-      const modelWithFormVersion = new FormModel(
-        definitionWithFormVersion,
-        {
-          basePath: 'test'
-        }
-      )
+      const modelWithFormVersion = new FormModel(definitionWithFormVersion, {
+        basePath: 'test'
+      })
 
       const contextWithFormVersion = modelWithFormVersion.getFormContext(
         request,

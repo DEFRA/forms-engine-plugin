@@ -36,7 +36,7 @@ export function createTranslator(
   }
 
   const resolveFormContent = (prop: string) => {
-    const key =`form.${prop}`
+    const key = `form.${prop}`
     return i18nInstance.t(key, { lng: language, ns: 'form' })
   }
 

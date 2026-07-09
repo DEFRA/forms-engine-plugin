@@ -25,7 +25,6 @@ i18next
     logger.error(`Fatal init for translator i18next: ${getErrorMessage(err)}`)
   })
 
-
 export function t(
   key: string,
   language: string,
@@ -59,8 +58,10 @@ export function createFormI18nInstance(formEnGb: BaseTranslations) {
     })
     .catch((err: unknown) => {
       // init with inline resources completes synchronously — unreachable
-      logger.error(`Fatal init for translator instance: ${getErrorMessage(err)}`)
+      logger.error(
+        `Fatal init for translator instance: ${getErrorMessage(err)}`
+      )
     })
 
-    return instance
+  return instance
 }

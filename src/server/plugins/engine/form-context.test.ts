@@ -94,11 +94,8 @@ describe('getFormContext helper', () => {
       createTranslator: jest.fn().mockReturnValue({})
     }
     FormModel.mockImplementation(
-      (
-        _definition: unknown,
-        _metadata: unknown,
-        modelOptions: FormModelOptions
-      ) => Object.assign(formModel, { basePath: modelOptions.basePath })
+      (_definition: unknown, modelOptions: FormModelOptions) =>
+        Object.assign(formModel, { basePath: modelOptions.basePath })
     )
     mockFormsService.getFormMetadata.mockResolvedValue(metadata)
     mockFormsService.getFormDefinition.mockResolvedValue(definition)
@@ -203,7 +200,6 @@ describe('getFormModel helper', () => {
     )
     expect(FormModel).toHaveBeenCalledWith(
       definition,
-      metadata,
       {
         basePath: slug,
         ordnanceSurveyApiKey: undefined,
@@ -310,7 +306,6 @@ describe('resolveFormModel helper', () => {
     expect(FormModel).toHaveBeenNthCalledWith(
       1,
       definition,
-      metadataWithoutEmail,
       expect.objectContaining({
         basePath: 'forms/preview/live/tb-origin',
         ordnanceSurveyApiKey: 'os-api-key',
@@ -322,7 +317,6 @@ describe('resolveFormModel helper', () => {
     expect(FormModel).toHaveBeenNthCalledWith(
       2,
       definition,
-      metadataWithUpdatedDate,
       expect.objectContaining({
         basePath: 'forms/preview/live/tb-origin',
         ordnanceSurveyApiKey: undefined,
