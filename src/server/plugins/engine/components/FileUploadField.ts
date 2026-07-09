@@ -312,7 +312,7 @@ export class FileUploadField extends FormComponent {
     metadata: FormMetadata,
     context: FormContext
   ) {
-    const language = resolveLanguage(request, metadata)
+    const language = resolveLanguage(request)
     const { t } = this.model.createTranslator(language)
 
     const notificationEmail = metadata.notificationEmail

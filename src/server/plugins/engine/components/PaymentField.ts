@@ -326,10 +326,10 @@ export class PaymentField extends FormComponent {
    */
   async onSubmit(
     request: FormRequestPayload,
-    metadata: FormMetadata,
+    _metadata: FormMetadata,
     context: FormContext
   ): Promise<void> {
-    const language = resolveLanguage(request, metadata)
+    const language = resolveLanguage(request)
     const { t } = this.model.createTranslator(language)
 
     // Zero-amount bypass — no capture needed

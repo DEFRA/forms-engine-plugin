@@ -1,7 +1,6 @@
 import {
   type ComponentDef,
   type Event,
-  type FormMetadata,
   type FormVersionMetadata,
   type Item,
   type List,
@@ -478,11 +477,7 @@ export type SaveAndExitHandler = (
   context: FormContext
 ) => ResponseObject
 
-export type GetLanguageHandler = (
-  query?: RequestQuery,
-  yar?: Yar,
-  metadata?: FormMetadata
-) => string
+export type GetLanguageHandler = (query?: RequestQuery, yar?: Yar) => string
 
 export interface ExternalArgs {
   component: ComponentDef

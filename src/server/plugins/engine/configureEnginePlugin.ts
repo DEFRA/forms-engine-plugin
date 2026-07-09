@@ -1,6 +1,6 @@
 import { join, parse } from 'node:path'
 
-import { type FormDefinition, type FormMetadata } from '@defra/forms-model'
+import { type FormDefinition } from '@defra/forms-model'
 import { type RequestQuery } from '@hapi/hapi'
 import { type Yar } from '@hapi/yar'
 
@@ -70,23 +70,14 @@ export const configureEnginePlugin = async (
       saveAndExit,
       ordnanceSurveyApiKey,
       ordnanceSurveyApiSecret,
-      getLanguage: (
-        query: RequestQuery = {},
-        yar?: Yar,
-        metadata?: FormMetadata
-      ) => {
+      getLanguage: (query: RequestQuery = {}, yar?: Yar) => {
         const defaultLang = 'en-GB'
 
         if (yar && 'language' in query) {
           yar.set('language', query.language)
         }
 
-        return (
-          yar?.get('language') ??
-          // @ts-expect-error - 'language' not part of FormMetadata yet
-          metadata?.language ??
-          defaultLang
-        )
+        return yar?.get('language') ?? defaultLang
       }
     }
   }

@@ -37,11 +37,10 @@ export function isValidUUID(str) {
 
 /**
  * @param {AnyFormRequest} request
- * @param {FormMetadata} [metadata]
  */
-export function resolveLanguage(request, metadata) {
+export function resolveLanguage(request) {
   const { getLanguage } = getPluginOptions(request.server)
-  return getLanguage?.(request.query, request.yar, metadata) ?? 'en-GB'
+  return getLanguage?.(request.query, request.yar) ?? 'en-GB'
 }
 
 /**

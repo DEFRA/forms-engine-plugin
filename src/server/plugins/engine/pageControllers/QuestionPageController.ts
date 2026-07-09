@@ -132,9 +132,13 @@ export class QuestionPageController extends PageController {
 
     let { showTitle, sectionTitle } = viewModel
 
-    // const hasPageTitle = !!viewModel.pageTitle
-
+    // console.log('page tr', tPage(this.pageDef, 'title'))
+    // console.log('page viewModel', viewModel.pageTitle)
+    // console.log('page tr2', t(`pages.${this.pageDef.id}.title`))
+    // const pageTitleKey = `pages.${this.pageDef.id}.title`
+    // const hasPageTranslation = t(pageTitleKey) !== pageTitleKey
     let pageTitle = tPage(this.pageDef, 'title') || viewModel.pageTitle
+    // console.log('page title', pageTitle)
 
     if (this.section) {
       sectionTitle =
@@ -150,12 +154,15 @@ export class QuestionPageController extends PageController {
     if (formComponents.length === 1) {
       const { model } = formComponents[0]
       const { fieldset, label } = model
+      // console.log('comp tr2', tComponent({ id: '73a884c1-3470-4220-8fcb-17af17ed7f2b'} as ComponentDef, 'title'))
 
       // Set as page heading when not following other content
       const isPageHeading = formComponents[0] === components[0]
 
       // Check for legend or label
       const labelOrLegend = fieldset?.legend ?? label
+      // console.log('fieldset?.legend', fieldset?.legend)
+      // console.log('label', label)
 
       // Use legend or label as page heading
       if (labelOrLegend) {
@@ -174,8 +181,9 @@ export class QuestionPageController extends PageController {
             this.collection.fields.at(0)?.options.required === false
 
           if (pageTitle) {
-            // if (hasPageTitle) {
-            //   pageTitle = labelOrLegend.text || pageTitle
+            // if (!hasPageTranslation) {
+            //   pageTitle = labelOrLegend.text
+            // }
             labelOrLegend.text = isOptional
               ? `${pageTitle} ${t('common.optional')}`
               : pageTitle
