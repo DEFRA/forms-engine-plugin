@@ -2,8 +2,6 @@ import {
   ControllerPath,
   Engine,
   getErrorMessage,
-  hasComponents,
-  isFormType,
   type ComponentDef,
   type FormDefinition,
   type Page
@@ -406,19 +404,4 @@ export function getFormVersion(
   return definition.metadata?.[FORM_VERSION_METADATA_KEY] as
     | FormVersionMetadata
     | undefined
-}
-
-export function setPageTitles(def: FormDefinition) {
-  def.pages.forEach((page) => {
-    if (!page.title) {
-      if (hasComponents(page)) {
-        // Set the page title from the first form component
-        const firstFormComponent = page.components.find((component) =>
-          isFormType(component.type)
-        )
-
-        page.title = firstFormComponent?.title ?? ''
-      }
-    }
-  })
 }

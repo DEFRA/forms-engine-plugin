@@ -41,8 +41,7 @@ import { todayAsDateOnly } from '~/src/server/plugins/engine/date-helper.js'
 import {
   findPage,
   getError,
-  getPage,
-  setPageTitles
+  getPage
 } from '~/src/server/plugins/engine/helpers.js'
 import { loadFormTranslations } from '~/src/server/plugins/engine/i18n/createFormTranslator.js'
 import { createTranslator } from '~/src/server/plugins/engine/i18n/createTranslator.js'
@@ -154,9 +153,6 @@ export class FormModel {
         }
       ]
     })
-
-    // Fix up page titles
-    setPageTitles(def)
 
     this.engine = def.engine
     this.schemaVersion = def.schema ?? SchemaVersion.V1

@@ -38,22 +38,6 @@ describe('FormModel', () => {
       ).not.toThrow()
     })
 
-    it('Sets the page title from first form component when empty (V2 only)', () => {
-      const noTitlesDefinition = {
-        ...definitionV2,
-        pages: definitionV2.pages.map((page) => ({ ...page, title: '' }))
-      }
-
-      const model = new FormModel(noTitlesDefinition, {
-        basePath: 'test'
-      })
-
-      expect(model.def.pages.at(0)?.title).toBe(
-        'Have you previously been married?'
-      )
-      expect(model.def.pages.at(1)?.title).toBe('Date of marriage')
-    })
-
     it('Gets a list by ID', () => {
       const definitionWithLists: FormDefinition = {
         ...definitionV2,
