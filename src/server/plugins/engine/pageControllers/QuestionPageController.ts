@@ -178,6 +178,11 @@ export class QuestionPageController extends PageController {
             ? `${pageTitle} ${t('common.optional')}`
             : pageTitle
         }
+
+        // Fallback if still no pageTitle set
+        if (!pageTitle) {
+          pageTitle = labelOrLegend.text
+        }
       }
 
       showTitle = !isPageHeading
