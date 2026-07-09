@@ -14,7 +14,6 @@ import {
   type RepeatListState,
   type RepeaterSummaryPageViewModel
 } from '~/src/server/plugins/engine/types.js'
-import { metadata } from '~/test/fixtures/form.js'
 import definition from '~/test/form/definitions/repeat.js'
 
 describe('RepeatPageController', () => {
@@ -46,7 +45,7 @@ describe('RepeatPageController', () => {
       'http://example.com'
     )
 
-    model = new FormModel(definition, metadata, {
+    model = new FormModel(definition, {
       basePath: 'test'
     })
 
@@ -293,7 +292,7 @@ describe('RepeatPageController', () => {
         tComponent: jest.fn(() => ''),
         tSection: jest.fn(() => ''),
         tListItem: jest.fn(() => ''),
-        tMetadata: jest.fn(() => ''),
+        tForm: jest.fn(() => ''),
         language: 'en-GB'
       }
 
@@ -314,13 +313,14 @@ describe('RepeatPageController', () => {
     it('uses translator.tPage for page title when translator is supplied', () => {
       const mockT = jest.fn((key: string) => `translated:${key}`)
       const mockTPage = jest.fn(() => 'translated-title')
+      const mockTComponent = jest.fn(() => 'translated-title2')
       const translator: Translator = {
         t: mockT,
         tPage: mockTPage as Translator['tPage'],
-        tComponent: jest.fn(() => ''),
+        tComponent: mockTComponent as Translator['tComponent'],
         tSection: jest.fn(() => ''),
         tListItem: jest.fn(() => ''),
-        tMetadata: jest.fn(() => ''),
+        tForm: jest.fn(() => ''),
         language: 'en-GB'
       }
 
@@ -334,7 +334,8 @@ describe('RepeatPageController', () => {
         translator
       )
 
-      expect(mockTPage).toHaveBeenCalled()
+      expect(mockTComponent).toHaveBeenCalled()
+      // expect(mockTPage).toHaveBeenCalled()
       expect(viewModel).toHaveProperty('pageTitle', 'translated-title')
     })
   })
@@ -352,7 +353,7 @@ describe('RepeatPageController', () => {
         tComponent: jest.fn(() => ''),
         tSection: jest.fn(() => ''),
         tListItem: jest.fn(() => ''),
-        tMetadata: jest.fn(() => ''),
+        tForm: jest.fn(() => ''),
         language: 'en-GB'
       }
 

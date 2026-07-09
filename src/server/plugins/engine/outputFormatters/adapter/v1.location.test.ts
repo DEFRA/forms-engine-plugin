@@ -23,7 +23,6 @@ import {
   type FormAdapterSubmissionMessagePayload
 } from '~/src/server/plugins/engine/types/index.js'
 import { FormStatus } from '~/src/server/routes/types.js'
-import { metadata } from '~/test/fixtures/form.js'
 
 describe('Adapter V1 formatter - Location fields', () => {
   const definition: FormDefinition = {
@@ -67,7 +66,7 @@ describe('Adapter V1 formatter - Location fields', () => {
     conditions: []
   }
 
-  const model = new FormModel(definition, metadata, { basePath: 'test' })
+  const model = new FormModel(definition, { basePath: 'test' })
   const locationPage = definition.pages[0] as PageQuestion
 
   const submitResponse = {

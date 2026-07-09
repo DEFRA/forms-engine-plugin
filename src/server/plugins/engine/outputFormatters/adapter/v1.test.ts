@@ -21,7 +21,6 @@ import {
   type FormAdapterSubmissionMessagePayload
 } from '~/src/server/plugins/engine/types.js'
 import { FormStatus } from '~/src/server/routes/types.js'
-import { metadata } from '~/test/fixtures/form.js'
 import definition from '~/test/form/definitions/repeat-mixed.js'
 
 const submitResponse = {
@@ -36,7 +35,7 @@ const submitResponse = {
   }
 }
 
-const model = new FormModel(definition, metadata, {
+const model = new FormModel(definition, {
   basePath: 'test'
 })
 
@@ -775,7 +774,6 @@ describe('Adapter v1 formatter', () => {
 
       const modelWithFormVersion = new FormModel(
         definitionWithFormVersion,
-        metadata,
         {
           basePath: 'test'
         }
@@ -880,7 +878,6 @@ describe('Adapter v1 formatter', () => {
     it('includes meta.language when the form definition specifies a language', () => {
       const welshModel = new FormModel(
         { ...definition, metadata: { language: 'cy' } },
-        metadata,
         { basePath: 'test' }
       )
 

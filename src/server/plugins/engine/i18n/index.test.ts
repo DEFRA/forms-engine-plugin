@@ -41,7 +41,7 @@ describe('createFormI18nInstance', () => {
     },
     sections: {},
     listItems: {},
-    metadata: {}
+    form: {}
   }
 
   it('resolves plugin strings for en-GB', () => {

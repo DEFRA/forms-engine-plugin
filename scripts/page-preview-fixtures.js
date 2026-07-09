@@ -3,7 +3,6 @@ import { ComponentType, ControllerType, Engine } from '@defra/forms-model'
 import { fixtures as componentFixtures } from './component-preview-fixtures.js'
 
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import { metadata } from '~/test/fixtures/form.js'
 
 const SUMMARY_PAGE_DEF =
   /** @type {import('@defra/forms-model').PageSummary} */ ({
@@ -40,7 +39,6 @@ function pageViewContext({
       lists: [],
       pages: allPageDefs
     },
-    metadata,
     { basePath: '/preview' }
   )
   const controller = model.pages.find((p) => p.path === renderPage)

@@ -1,7 +1,6 @@
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { TerminalPageController } from '~/src/server/plugins/engine/pageControllers/TerminalPageController.js'
 import { serverWithSaveAndExit } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
-import { metadata } from '~/test/fixtures/form.js'
 import definition from '~/test/form/definitions/basic.js'
 
 describe('TerminalController', () => {
@@ -13,7 +12,7 @@ describe('TerminalController', () => {
 
     const page1 = pages[0]
 
-    model = new FormModel(definition, metadata, {
+    model = new FormModel(definition, {
       basePath: 'test'
     })
 

@@ -1,7 +1,6 @@
 import {
   hasComponentsEvenIfNoNext,
-  type FormDefinition,
-  type FormMetadata
+  type FormDefinition
 } from '@defra/forms-model'
 
 import { type FormDefinitionTranslations } from '~/src/server/plugins/engine/i18n/types.js'
@@ -9,13 +8,13 @@ import { type FormDefinitionTranslations } from '~/src/server/plugins/engine/i18
 type BaseTranslations = FormDefinitionTranslations[string]
 
 export function extractBaseTranslations(
-  def: FormDefinition,
-  meta: FormMetadata
+  def: FormDefinition
 ): BaseTranslations {
   const pages: BaseTranslations['pages'] = {}
   const components: BaseTranslations['components'] = {}
   const sections: BaseTranslations['sections'] = {}
   const listItems: BaseTranslations['listItems'] = {}
+  const form: BaseTranslations['form'] = {}
 
   for (const page of def.pages) {
     if (page.id && page.title) {
@@ -58,70 +57,7 @@ export function extractBaseTranslations(
     }
   }
 
-  const metadata = buildMetadataTranslations(meta)
+  form.title = def.name ?? ''
 
-  return { pages, components, sections, listItems, metadata }
-}
-
-function flattenObject(obj: unknown, prefix = ''): Record<string, unknown> {
-  const result: Record<string, string> = {}
-
-  if (
-    obj === null ||
-    typeof obj !== 'object' ||
-    obj instanceof Date ||
-    Array.isArray(obj)
-  ) {
-    return result
-  }
-
-  for (const [key, value] of Object.entries(obj)) {
-    const fullKey = prefix ? `${prefix}.${key}` : key
-
-    if (
-      value === null ||
-      typeof value !== 'object' ||
-      value instanceof Date ||
-      Array.isArray(value)
-    ) {
-      result[fullKey] = value as string
-    } else {
-      Object.assign(result, flattenObject(value, fullKey))
-    }
-  }
-
-  return result
-}
-
-const unwantedFields = [
-  'id',
-  'slug',
-  'versions',
-  'offline',
-  'termsAndConditionsAgreed',
-  'draft',
-  'live',
-  'createdAt',
-  'createdBy',
-  'updatedAt',
-  'updatedBy'
-]
-
-function stripUnwantedFields(meta: FormMetadata) {
-  const stripped = structuredClone(meta)
-  const fieldsPresent = new Set(Object.keys(meta))
-  unwantedFields.forEach((fieldName) => {
-    if (fieldsPresent.has(fieldName)) {
-      // @ts-expect-error - dynamic field name
-      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-      delete stripped[fieldName]
-    }
-  })
-  return stripped
-}
-
-function buildMetadataTranslations(meta: FormMetadata) {
-  const strippedMeta = stripUnwantedFields(meta)
-
-  return flattenObject(strippedMeta) as BaseTranslations['metadata']
+  return { pages, components, sections, listItems, form }
 }

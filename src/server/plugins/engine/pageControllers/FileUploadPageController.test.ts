@@ -40,7 +40,6 @@ import {
   type FormResponseToolkit
 } from '~/src/server/routes/types.js'
 import { type CacheService } from '~/src/server/services/index.js'
-import { metadata } from '~/test/fixtures/form.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import definition from '~/test/form/definitions/file-upload-basic.js'
 
@@ -72,7 +71,7 @@ describe('FileUploadPageController', () => {
   beforeEach(() => {
     const { pages } = structuredClone(definition)
 
-    model = new FormModel(definition, metadata, {
+    model = new FormModel(definition, {
       basePath: 'test'
     })
 
@@ -1098,7 +1097,7 @@ describe('FileUploadPageController', () => {
 
     beforeEach(() => {
       const { pages } = structuredClone(definition)
-      const model = new FormModel(definition, metadata, { basePath: 'test' })
+      const model = new FormModel(definition, { basePath: 'test' })
       controller = new FileUploadPageController(model, pages[0])
     })
 

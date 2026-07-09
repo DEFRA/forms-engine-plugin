@@ -11,13 +11,12 @@ import {
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
-import { metadata } from '~/test/fixtures/form.js'
 import definition from '~/test/form/definitions/blank.js'
 import declarationWithGuidance from '~/test/form/definitions/declaration-with-guidance.js'
 import declarationWithoutGuidance from '~/test/form/definitions/declaration-without-guidance.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
-const translator = new FormModel(definition, metadata, {
+const translator = new FormModel(definition, {
   basePath: '/'
 }).createTranslator()
 
@@ -25,7 +24,7 @@ describe('DeclarationField', () => {
   let model: FormModel
 
   beforeEach(() => {
-    model = new FormModel(definition, metadata, {
+    model = new FormModel(definition, {
       basePath: 'test'
     })
   })
@@ -572,7 +571,7 @@ describe('DeclarationField', () => {
 
   describe('Markdown header starting level', () => {
     test('should determine startHeadingLevel is 3 some guidance', () => {
-      const modelDecl = new FormModel(declarationWithGuidance, metadata, {
+      const modelDecl = new FormModel(declarationWithGuidance, {
         basePath: 'test'
       })
       const field = modelDecl.componentMap.get(
@@ -582,7 +581,7 @@ describe('DeclarationField', () => {
     })
 
     test('should determine startHeadingLevel is 2 when no guidance', () => {
-      const modelDecl = new FormModel(declarationWithoutGuidance, metadata, {
+      const modelDecl = new FormModel(declarationWithoutGuidance, {
         basePath: 'test'
       })
       const field = modelDecl.componentMap.get(

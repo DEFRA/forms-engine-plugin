@@ -16,7 +16,6 @@ import {
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { type FormContextRequest } from '~/src/server/plugins/engine/types.js'
 import { FormAction } from '~/src/server/routes/types.js'
-import { metadata } from '~/test/fixtures/form.js'
 import { V2 as definitionV2 } from '~/test/form/definitions/conditions-basic.js'
 import definition from '~/test/form/definitions/conditions-escaping.js'
 import conditionsListDefinition from '~/test/form/definitions/conditions-list.js'
@@ -35,7 +34,7 @@ describe('FormModel', () => {
   describe('Constructor', () => {
     it('loads a valid form definition', () => {
       expect(
-        () => new FormModel(definition, metadata, { basePath: 'test' })
+        () => new FormModel(definition, { basePath: 'test' })
       ).not.toThrow()
     })
 
@@ -45,7 +44,7 @@ describe('FormModel', () => {
         pages: definitionV2.pages.map((page) => ({ ...page, title: '' }))
       }
 
-      const model = new FormModel(noTitlesDefinition, metadata, {
+      const model = new FormModel(noTitlesDefinition, {
         basePath: 'test'
       })
 
@@ -93,7 +92,7 @@ describe('FormModel', () => {
         .fn()
         .mockReturnValue({ value: definitionWithLists })
 
-      const model = new FormModel(definitionWithLists, metadata, {
+      const model = new FormModel(definitionWithLists, {
         basePath: 'test'
       })
 
@@ -108,7 +107,7 @@ describe('FormModel', () => {
         .fn()
         .mockReturnValue({ value: definitionV2 })
 
-      const model = new FormModel(definitionV2, metadata, { basePath: 'test' })
+      const model = new FormModel(definitionV2, { basePath: 'test' })
 
       expect(
         model.getComponentById('717eb213-4e4b-4a2d-9cfd-2780f5e1e3e5')
@@ -120,7 +119,7 @@ describe('FormModel', () => {
       formDefinitionV2Schema.validate = jest
         .fn()
         .mockReturnValue({ value: definitionV2 })
-      const model = new FormModel(definitionV2, metadata, { basePath: 'test' })
+      const model = new FormModel(definitionV2, { basePath: 'test' })
 
       expect(
         model.getConditionById('6c9e2f4a-1d7b-5e8c-3f6a-9e2d5b7c4f1a')
@@ -133,7 +132,7 @@ describe('FormModel', () => {
       })
 
       expect(
-        () => new FormModel(definitionV2, metadata, { basePath: 'test' })
+        () => new FormModel(definitionV2, { basePath: 'test' })
       ).toThrow('Validation error')
     })
 
@@ -148,7 +147,7 @@ describe('FormModel', () => {
         .fn()
         .mockReturnValue({ value: definitionWithoutSchema })
 
-      const model = new FormModel(definitionWithoutSchema, metadata, {
+      const model = new FormModel(definitionWithoutSchema, {
         basePath: 'test'
       })
 
@@ -156,19 +155,19 @@ describe('FormModel', () => {
     })
 
     it('creates translator for en-GB', () => {
-      const model = new FormModel(definition, metadata, { basePath: 'test' })
+      const model = new FormModel(definition, { basePath: 'test' })
       const { t } = model.createTranslator('en-GB')
       expect(t('errors.title')).toBe('There is a problem')
     })
 
     it('translates a key using createTranslator', () => {
-      const model = new FormModel(definition, metadata, { basePath: '/test' })
+      const model = new FormModel(definition, { basePath: '/test' })
       const { t } = model.createTranslator('en-GB')
       expect(t('errors.title')).toBe('There is a problem')
     })
 
     it('passes interpolation options through createTranslator', () => {
-      const model = new FormModel(definition, metadata, { basePath: '/test' })
+      const model = new FormModel(definition, { basePath: '/test' })
       const { t } = model.createTranslator('en-GB')
       expect(t('pages.repeater.pageTitle', { count: 3 })).toBe(
         'You have added 3 answers'
@@ -176,7 +175,7 @@ describe('FormModel', () => {
     })
 
     it('creates translator that resolves plugin namespace keys', () => {
-      const model = new FormModel(definition, metadata, { basePath: 'test' })
+      const model = new FormModel(definition, { basePath: 'test' })
       const { t } = model.createTranslator('en-GB')
       expect(t('common.continue')).toBe('Continue')
     })
@@ -212,7 +211,7 @@ describe('FormModel', () => {
           error: undefined
         })
 
-        const model = new FormModel(definitionWithSchema, metadata, {
+        const model = new FormModel(definitionWithSchema, {
           basePath: 'test'
         })
 
@@ -230,7 +229,7 @@ describe('FormModel', () => {
     it.each([FormAction.Validate, undefined])(
       'returns a form context with the correct payload and state when action is %s',
       (action) => {
-        const formModel = new FormModel(fieldsRequiredDefinition, metadata, {
+        const formModel = new FormModel(fieldsRequiredDefinition, {
           basePath: '/components'
         })
 
@@ -262,7 +261,7 @@ describe('FormModel', () => {
     )
 
     it('returns without updating the state when the action is not validate or saveAndExit', () => {
-      const formModel = new FormModel(fieldsRequiredDefinition, metadata, {
+      const formModel = new FormModel(fieldsRequiredDefinition, {
         basePath: '/components'
       })
 
@@ -291,7 +290,7 @@ describe('FormModel', () => {
     })
 
     it('clears a previous checkbox field value when the field is omitted from the payload', () => {
-      const formModel = new FormModel(fieldsRequiredDefinition, metadata, {
+      const formModel = new FormModel(fieldsRequiredDefinition, {
         basePath: '/components'
       })
 
@@ -321,7 +320,7 @@ describe('FormModel', () => {
     })
 
     it('handles missing reference numbers', () => {
-      const formModel = new FormModel(fieldsRequiredDefinition, metadata, {
+      const formModel = new FormModel(fieldsRequiredDefinition, {
         basePath: '/components'
       })
 
@@ -346,7 +345,7 @@ describe('FormModel', () => {
     })
 
     it('handles non-string reference numbers', () => {
-      const formModel = new FormModel(fieldsRequiredDefinition, metadata, {
+      const formModel = new FormModel(fieldsRequiredDefinition, {
         basePath: '/components'
       })
 
@@ -372,7 +371,7 @@ describe('FormModel', () => {
     })
 
     it('redirects to the page if the list field (radio) is invalidated due to list item conditions', () => {
-      const formModel = new FormModel(conditionsListDefinition, metadata, {
+      const formModel = new FormModel(conditionsListDefinition, {
         basePath: '/conditional-list-items'
       })
 
@@ -407,7 +406,7 @@ describe('FormModel', () => {
     })
 
     it('redirects to the page if the list field (check) is invalidated due to list item conditions', () => {
-      const formModel = new FormModel(conditionsListDefinition, metadata, {
+      const formModel = new FormModel(conditionsListDefinition, {
         basePath: '/conditional-list-items'
       })
 
@@ -451,7 +450,7 @@ describe('FormModel', () => {
       formDefinitionV2Schema.validate = jest
         .fn()
         .mockReturnValue({ value: relativeDatesDefinition })
-      const model = new FormModel(relativeDatesDefinition, metadata, {
+      const model = new FormModel(relativeDatesDefinition, {
         basePath: 'test'
       })
 
@@ -499,7 +498,7 @@ describe('FormModel - Joined Conditions', () => {
       .fn()
       .mockReturnValue({ value: joinedConditionsDefinition })
 
-    const model = new FormModel(joinedConditionsDefinition, metadata, {
+    const model = new FormModel(joinedConditionsDefinition, {
       basePath: 'test'
     })
 
@@ -526,7 +525,7 @@ describe('FormModel - Joined Conditions', () => {
       .fn()
       .mockReturnValue({ value: joinedConditionsDefinition })
 
-    const model = new FormModel(joinedConditionsDefinition, metadata, {
+    const model = new FormModel(joinedConditionsDefinition, {
       basePath: 'test'
     })
 
@@ -548,7 +547,7 @@ describe('FormModel - Joined Conditions', () => {
       .fn()
       .mockReturnValue({ value: definition })
 
-    const model = new FormModel(definition, metadata, {
+    const model = new FormModel(definition, {
       basePath: 'test'
     })
 
@@ -581,7 +580,7 @@ describe('FormModel - Joined Conditions', () => {
       .fn()
       .mockReturnValue({ value: v1Definition })
 
-    const v1Model = new FormModel(v1Definition, metadata, { basePath: 'test' })
+    const v1Model = new FormModel(v1Definition, { basePath: 'test' })
     expect(v1Model.schemaVersion).toBe(SchemaVersion.V1)
 
     const v1TestState = { NIJphU: "ap'ostrophe's", iraEpG: "shouldn't've" }
@@ -597,7 +596,7 @@ describe('FormModel - Joined Conditions', () => {
       .fn()
       .mockReturnValue({ value: joinedConditionsDefinition })
 
-    const v2Model = new FormModel(joinedConditionsDefinition, metadata, {
+    const v2Model = new FormModel(joinedConditionsDefinition, {
       basePath: 'test'
     })
     expect(v2Model.schemaVersion).toBe(SchemaVersion.V2)
@@ -623,7 +622,7 @@ describe('FormModel - Joined Conditions', () => {
         .fn()
         .mockReturnValue({ value: joinedConditionsDefinition })
 
-      const model = new FormModel(joinedConditionsDefinition, metadata, {
+      const model = new FormModel(joinedConditionsDefinition, {
         basePath: 'test'
       })
 
@@ -646,7 +645,7 @@ describe('FormModel - Joined Conditions', () => {
         .fn()
         .mockReturnValue({ value: joinedConditionsDefinition })
 
-      const model = new FormModel(joinedConditionsDefinition, metadata, {
+      const model = new FormModel(joinedConditionsDefinition, {
         basePath: 'test'
       })
 
@@ -665,7 +664,7 @@ describe('FormModel - Joined Conditions', () => {
     })
 
     it('should handle V1 engine without display name replacement', () => {
-      const model = new FormModel(definition, metadata, { basePath: 'test' })
+      const model = new FormModel(definition, { basePath: 'test' })
 
       const condition = model.conditions.ZCXeMz
       expect(condition).toBeDefined()
@@ -688,7 +687,7 @@ describe('FormModel - Joined Conditions', () => {
         .fn()
         .mockReturnValue({ value: definitionWithoutDisplayName })
 
-      const model = new FormModel(definitionWithoutDisplayName, metadata, {
+      const model = new FormModel(definitionWithoutDisplayName, {
         basePath: 'test'
       })
 
@@ -707,7 +706,7 @@ describe('FormModel - Joined Conditions', () => {
         ]
       }
 
-      const model = new FormModel(v1Definition, metadata, { basePath: 'test' })
+      const model = new FormModel(v1Definition, { basePath: 'test' })
 
       expect(model.getSection('personal')).toEqual(
         expect.objectContaining({
@@ -745,7 +744,7 @@ describe('FormModel - Joined Conditions', () => {
         .fn()
         .mockReturnValue({ value: v2Definition })
 
-      const model = new FormModel(v2Definition, metadata, { basePath: 'test' })
+      const model = new FormModel(v2Definition, { basePath: 'test' })
 
       expect(model.getSection('a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d')).toEqual(
         expect.objectContaining({
@@ -780,19 +779,13 @@ describe('FormModel - Joined Conditions', () => {
     })
 
     it('returns "Continue" for t("common.continue") with en-GB language', () => {
-      const model = new FormModel(definitionV2, metadata, { basePath: 'test' })
+      const model = new FormModel(definitionV2, { basePath: 'test' })
       const { t } = model.createTranslator('en-GB')
       expect(t('common.continue')).toBe('Continue')
     })
 
-    it('returns x-pirate string for t("common.continue") with x-pirate language', () => {
-      const model = new FormModel(definitionV2, metadata, { basePath: 'test' })
-      const { t } = model.createTranslator('x-pirate')
-      expect(t('common.continue')).toBe('Sail on')
-    })
-
     it('returns the component title for tComponent with en-GB language (falls back to base en-GB form string)', () => {
-      const model = new FormModel(definitionV2, metadata, { basePath: 'test' })
+      const model = new FormModel(definitionV2, { basePath: 'test' })
       const { tComponent } = model.createTranslator('en-GB')
       // pages[0].components[0] has id '717eb213-4e4b-4a2d-9cfd-2780f5e1e3e5'
       // and title 'Have you previously been married?'
@@ -802,7 +795,7 @@ describe('FormModel - Joined Conditions', () => {
     })
 
     it('returns the component title for tComponent with cy language (no Welsh translation registered → en-GB fallback)', () => {
-      const model = new FormModel(definitionV2, metadata, { basePath: 'test' })
+      const model = new FormModel(definitionV2, { basePath: 'test' })
       const { tComponent } = model.createTranslator('cy')
       // No Welsh translations registered → falls back to en-GB base form string
       expect(tComponent(definitionV2.pages[0].components[0], 'title')).toBe(
@@ -811,9 +804,9 @@ describe('FormModel - Joined Conditions', () => {
     })
 
     it('returns the form name with en-GB language (falls back to base en-GB form string)', () => {
-      const model = new FormModel(definitionV2, metadata, { basePath: 'test' })
-      const { tMetadata } = model.createTranslator('en-GB')
-      expect(tMetadata('title')).toBe('Test form')
+      const model = new FormModel(definitionV2, { basePath: 'test' })
+      const { tForm } = model.createTranslator('en-GB')
+      expect(tForm('title')).toBe('Conditions V2')
     })
   })
 
@@ -862,7 +855,7 @@ describe('FormModel - Joined Conditions', () => {
 
   describe('moreThanOnePaymentQuestion', () => {
     it('should return false if no payment questions', () => {
-      const model = new FormModel(definition, metadata, { basePath: 'test' })
+      const model = new FormModel(definition, { basePath: 'test' })
       expect(model.moreThanOnePaymentQuestion()).toBe(false)
     })
 
@@ -871,7 +864,7 @@ describe('FormModel - Joined Conditions', () => {
         ...paymentDefinition
       }
 
-      const model = new FormModel(definition, metadata, { basePath: 'test' })
+      const model = new FormModel(definition, { basePath: 'test' })
       expect(model.moreThanOnePaymentQuestion()).toBe(false)
     })
 
@@ -887,7 +880,7 @@ describe('FormModel - Joined Conditions', () => {
       page.components.push(extraPaymentComponent)
 
       expect(
-        () => new FormModel(definition, metadata, { basePath: 'test' })
+        () => new FormModel(definition, { basePath: 'test' })
       ).toThrow(
         'Invalid form definition: Only one payment question is allowed per form'
       )

@@ -1,7 +1,6 @@
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { StatusPageController } from '~/src/server/plugins/engine/pageControllers/StatusPageController.js'
 import { serverWithSaveAndExit } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
-import { metadata } from '~/test/fixtures/form.js'
 import definition from '~/test/form/definitions/basic.js'
 
 describe('StatusPageController', () => {
@@ -9,7 +8,7 @@ describe('StatusPageController', () => {
   let controller: StatusPageController
 
   beforeEach(() => {
-    model = new FormModel(definition, metadata, {
+    model = new FormModel(definition, {
       basePath: 'test'
     })
 

@@ -23,7 +23,6 @@ import {
   type FormContextRequest,
   type FormState
 } from '~/src/server/plugins/engine/types.js'
-import { metadata } from '~/test/fixtures/form.js'
 import v2Definition from '~/test/form/definitions/conditions-relative-dates-v2.js'
 import definition from '~/test/form/definitions/repeat-mixed.js'
 const basePath = `${FORM_PREFIX}/test`
@@ -40,7 +39,7 @@ describe('SummaryViewModel', () => {
   let summaryViewModel: SummaryViewModel
 
   beforeEach(() => {
-    model = new FormModel(definition, metadata, {
+    model = new FormModel(definition, {
       basePath: `${FORM_PREFIX}/test`
     })
 
@@ -326,7 +325,7 @@ describe('SummaryViewModel', () => {
     const firstComponent = firstPage.components[0] as RadiosFieldComponent
     firstComponent.options.required = false
 
-    const model = new FormModel(definitionOptional, metadata, {
+    const model = new FormModel(definitionOptional, {
       basePath: `${FORM_PREFIX}/test`
     })
 
@@ -371,7 +370,7 @@ describe('SummaryViewModel with per-request Translator', () => {
   let mockTranslator: Translator
 
   beforeEach(() => {
-    model = new FormModel(definition, metadata, {
+    model = new FormModel(definition, {
       basePath: `${FORM_PREFIX}/test`
     })
 
@@ -402,9 +401,9 @@ describe('SummaryViewModel with per-request Translator', () => {
       tListItem: jest
         .fn()
         .mockReturnValue('mocked-content') as Translator['tListItem'],
-      tMetadata: jest
+      tForm: jest
         .fn()
-        .mockReturnValue('mocked-content') as Translator['tMetadata'],
+        .mockReturnValue('mocked-content') as Translator['tForm'],
       language: 'en-GB'
     }
   })
@@ -471,7 +470,7 @@ describe('SummaryPageController', () => {
   let request: FormContextRequest
 
   beforeEach(() => {
-    model = new FormModel(definition, metadata, {
+    model = new FormModel(definition, {
       basePath: `${FORM_PREFIX}/test`
     })
 
@@ -539,7 +538,7 @@ describe('SummaryPageController', () => {
         pizza: []
       }
 
-      const titleModel = new FormModel(v2Definition, metadata, {
+      const titleModel = new FormModel(v2Definition, {
         basePath: `${FORM_PREFIX}/test`
       })
 
@@ -581,7 +580,7 @@ describe('SummaryPageController', () => {
       const summaryPage = v2DefinitionWithSummaryTitle.pages[5]
       summaryPage.title = 'Override summary title'
 
-      const titleModel = new FormModel(v2DefinitionWithSummaryTitle, metadata, {
+      const titleModel = new FormModel(v2DefinitionWithSummaryTitle, {
         basePath: `${FORM_PREFIX}/test`
       })
 

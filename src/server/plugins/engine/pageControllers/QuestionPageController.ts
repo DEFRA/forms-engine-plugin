@@ -132,6 +132,8 @@ export class QuestionPageController extends PageController {
 
     let { showTitle, sectionTitle } = viewModel
 
+    // const hasPageTitle = !!viewModel.pageTitle
+
     let pageTitle = tPage(this.pageDef, 'title') || viewModel.pageTitle
 
     if (this.section) {
@@ -172,6 +174,8 @@ export class QuestionPageController extends PageController {
             this.collection.fields.at(0)?.options.required === false
 
           if (pageTitle) {
+          // if (hasPageTitle) {
+          //   pageTitle = labelOrLegend.text || pageTitle
             labelOrLegend.text = isOptional
               ? `${pageTitle} ${t('common.optional')}`
               : pageTitle

@@ -1,8 +1,9 @@
-import i18next, { createInstance, type i18n } from 'i18next'
+import { getErrorMessage } from '@defra/forms-model'
+import i18next, { createInstance } from 'i18next'
 
+import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import cy from '~/src/server/plugins/engine/i18n/translations/cy.json' with { type: 'json' }
 import enGB from '~/src/server/plugins/engine/i18n/translations/en-GB.json' with { type: 'json' }
-import xPirate from '~/src/server/plugins/engine/i18n/translations/x-pirate.json' with { type: 'json' }
 import { type FormDefinitionTranslations } from '~/src/server/plugins/engine/i18n/types.js'
 
 type BaseTranslations = FormDefinitionTranslations[string]
@@ -11,8 +12,7 @@ i18next
   .init({
     resources: {
       'en-GB': { translation: enGB },
-      cy: { translation: cy },
-      'x-pirate': { translation: xPirate }
+      cy: { translation: cy }
     },
     fallbackLng: 'en-GB',
     interpolation: {
@@ -21,9 +21,10 @@ i18next
       escapeValue: false
     }
   })
-  .catch(() => {
-    // init with inline resources completes synchronously — this branch is unreachable
+  .catch((err: unknown) => {
+    logger.error(`Fatal init for translator i18next: ${getErrorMessage(err)}`)
   })
+
 
 export function t(
   key: string,
@@ -33,7 +34,7 @@ export function t(
   return i18next.t(key, { lng: language, ...options })
 }
 
-export function createFormI18nInstance(formEnGb: BaseTranslations): i18n {
+export function createFormI18nInstance(formEnGb: BaseTranslations) {
   const instance = createInstance()
 
   instance
@@ -45,9 +46,6 @@ export function createFormI18nInstance(formEnGb: BaseTranslations): i18n {
         },
         cy: {
           plugin: cy
-        },
-        'x-pirate': {
-          plugin: xPirate
         }
       },
       fallbackLng: 'en-GB',
@@ -59,9 +57,10 @@ export function createFormI18nInstance(formEnGb: BaseTranslations): i18n {
         escapeValue: false
       }
     })
-    .catch(() => {
+    .catch((err: unknown) => {
       // init with inline resources completes synchronously — unreachable
+      logger.error(`Fatal init for translator instance: ${getErrorMessage(err)}`)
     })
 
-  return instance
+    return instance
 }

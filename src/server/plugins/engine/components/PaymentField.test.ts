@@ -26,13 +26,12 @@ import {
 } from '~/src/server/routes/types.js'
 import { get, post, postJson } from '~/src/server/services/httpService.js'
 import { type Services } from '~/src/server/types.js'
-import { metadata } from '~/test/fixtures/form.js'
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
 jest.mock('~/src/server/services/httpService.ts')
 
-const translator = new FormModel(definition, metadata, {
+const translator = new FormModel(definition, {
   basePath: '/'
 }).createTranslator()
 
@@ -62,7 +61,7 @@ describe('PaymentField', () => {
   let model: FormModel
 
   beforeEach(() => {
-    model = new FormModel(definition, metadata, {
+    model = new FormModel(definition, {
       basePath: 'test'
     })
   })

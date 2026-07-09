@@ -19,7 +19,6 @@ import { type DetailItemField } from '~/src/server/plugins/engine/models/types.j
 import { format } from '~/src/server/plugins/engine/outputFormatters/machine/v2.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { FormStatus } from '~/src/server/routes/types.js'
-import { metadata } from '~/test/fixtures/form.js'
 
 describe('Machine V2 formatter - Location fields', () => {
   const definition: FormDefinition = {
@@ -63,7 +62,7 @@ describe('Machine V2 formatter - Location fields', () => {
     conditions: []
   }
 
-  const model = new FormModel(definition, metadata, { basePath: 'test' })
+  const model = new FormModel(definition, { basePath: 'test' })
   const locationPage = definition.pages[0] as PageQuestion
 
   const submitResponse = {

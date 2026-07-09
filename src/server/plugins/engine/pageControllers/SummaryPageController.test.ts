@@ -12,11 +12,10 @@ import {
   type FormResponseToolkit
 } from '~/src/server/routes/types.js'
 import { type CacheService } from '~/src/server/services/cacheService.js'
-import { metadata } from '~/test/fixtures/form.js'
 import definition from '~/test/form/definitions/basic.js'
 import definitionPaymentV2Conditional from '~/test/form/definitions/payment-v2-conditional.js'
 
-const translator = new FormModel(definition, metadata, {
+const translator = new FormModel(definition, {
   basePath: '/'
 }).createTranslator()
 
@@ -35,7 +34,7 @@ describe('SummaryPageController', () => {
   }
 
   beforeEach(() => {
-    model = new FormModel(definition, metadata, {
+    model = new FormModel(definition, {
       basePath: 'test'
     })
 
@@ -111,9 +110,9 @@ describe('SummaryPageController', () => {
         tListItem: jest
           .fn()
           .mockReturnValue('content') as Translator['tListItem'],
-        tMetadata: jest
+        tForm: jest
           .fn()
-          .mockReturnValue('content') as Translator['tMetadata'],
+          .mockReturnValue('content') as Translator['tForm'],
         language: 'en-GB'
       }
 
@@ -161,7 +160,7 @@ describe('SummaryPageController - Payment (DF-832)', () => {
   }
 
   beforeEach(() => {
-    model = new FormModel(definitionPaymentV2Conditional, metadata, {
+    model = new FormModel(definitionPaymentV2Conditional, {
       basePath: 'test'
     })
 

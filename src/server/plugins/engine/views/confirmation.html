@@ -13,7 +13,7 @@
       }) }}
       <h2 class="govuk-heading-m">{{ t('pages.confirmation.whatHappensNext') }}</h2>
       <div class="app-prose-scope">
-        {{ tMetadata('submissionGuidance') | markdown(3) | safe }}
+        {{ submissionGuidance | markdown(3) | safe }}
       </div>
       {% if feedbackLink %}
         <p class="govuk-body">

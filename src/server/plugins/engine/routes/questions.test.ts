@@ -72,7 +72,7 @@ describe('makeGetHandler', () => {
         tComponent: jest.fn(),
         tSection: jest.fn(),
         tListItem: jest.fn(),
-        tMetadata: jest.fn(),
+        tForm: jest.fn(),
         language: 'en-GB'
       })
     } as unknown as FormModel
@@ -123,7 +123,7 @@ describe('makeGetHandler', () => {
         tComponent: jest.fn(),
         tSection: jest.fn(),
         tListItem: jest.fn(),
-        tMetadata: jest.fn(),
+        tForm: jest.fn(),
         language: 'en-GB'
       })
     } as unknown as FormModel
@@ -174,7 +174,7 @@ describe('makeGetHandler', () => {
         tComponent: jest.fn(),
         tSection: jest.fn(),
         tListItem: jest.fn(),
-        tMetadata: jest.fn(),
+        tForm: jest.fn(),
         language: 'en-GB'
       })
     } as unknown as FormModel
@@ -233,7 +233,7 @@ describe('makeGetHandler', () => {
         tComponent: jest.fn(),
         tSection: jest.fn(),
         tListItem: jest.fn(),
-        tMetadata: jest.fn(),
+        tForm: jest.fn(),
         language: 'en-GB'
       })
     } as unknown as FormModel
@@ -309,7 +309,7 @@ describe('makePostHandler', () => {
         tComponent: jest.fn(),
         tSection: jest.fn(),
         tListItem: jest.fn(),
-        tMetadata: jest.fn(),
+        tForm: jest.fn(),
         language: 'en-GB'
       })
     } as unknown as FormModel
@@ -358,7 +358,7 @@ describe('makePostHandler', () => {
         tComponent: jest.fn(),
         tSection: jest.fn(),
         tListItem: jest.fn(),
-        tMetadata: jest.fn(),
+        tForm: jest.fn(),
         language: 'en-GB'
       })
     } as unknown as FormModel
@@ -411,7 +411,7 @@ describe('makePostHandler', () => {
         tComponent: jest.fn(),
         tSection: jest.fn(),
         tListItem: jest.fn(),
-        tMetadata: jest.fn(),
+        tForm: jest.fn(),
         language: 'en-GB'
       })
     } as unknown as FormModel
@@ -461,7 +461,7 @@ describe('makePostHandler', () => {
         tComponent: jest.fn(),
         tSection: jest.fn(),
         tListItem: jest.fn(),
-        tMetadata: jest.fn(),
+        tForm: jest.fn(),
         language: 'en-GB'
       })
     } as unknown as FormModel
@@ -521,7 +521,7 @@ describe('makePostHandler', () => {
         tComponent: jest.fn(),
         tSection: jest.fn(),
         tListItem: jest.fn(),
-        tMetadata: jest.fn(),
+        tForm: jest.fn(),
         language: 'en-GB'
       })
     } as unknown as FormModel

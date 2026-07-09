@@ -8,11 +8,10 @@ import {
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
-import { metadata } from '~/test/fixtures/form.js'
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
-const translator = new FormModel(definition, metadata, {
+const translator = new FormModel(definition, {
   basePath: '/'
 }).createTranslator()
 
@@ -20,7 +19,7 @@ describe('OsGridRefField', () => {
   let model: FormModel
 
   beforeEach(() => {
-    model = new FormModel(definition, metadata, {
+    model = new FormModel(definition, {
       basePath: 'test'
     })
   })

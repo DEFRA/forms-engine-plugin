@@ -35,7 +35,7 @@ export class StatusPageController extends QuestionPageController {
 
       const language = resolveLanguage(request)
       const translator = this.model.createTranslator(language)
-      const { t, tMetadata } = translator
+      const { t, tForm } = translator
 
       const cacheService = getCacheService(request.server)
       const confirmationState = await cacheService.getConfirmationState(request)
@@ -61,7 +61,7 @@ export class StatusPageController extends QuestionPageController {
         showReferenceNumber: this.showReferenceNumber,
         referenceNumber: confirmationState.referenceNumber,
         t,
-        tMetadata,
+        tForm,
         context
       })
     }

@@ -10,9 +10,9 @@ import {
   buildRepeaterRecords
 } from '~/src/server/plugins/engine/pageControllers/helpers/submission.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
-import { definition, metadata } from '~/test/fixtures/form.js'
+import { definition } from '~/test/fixtures/form.js'
 
-const translator = new FormModel(definition, metadata, {
+const translator = new FormModel(definition, {
   basePath: '/'
 }).createTranslator()
 

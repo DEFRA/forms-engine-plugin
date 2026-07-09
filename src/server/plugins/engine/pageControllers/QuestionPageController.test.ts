@@ -24,7 +24,6 @@ import {
   type FormResponseToolkit
 } from '~/src/server/routes/types.js'
 import { CacheService } from '~/src/server/services/cacheService.js'
-import { metadata } from '~/test/fixtures/form.js'
 import conditionalReveal from '~/test/form/definitions/conditional-reveal.js'
 import definitionConditionsBasic, {
   V2 as definitionConditionsBasicV2
@@ -33,7 +32,7 @@ import definitionConditionsComplex from '~/test/form/definitions/conditions-comp
 import definitionConditionsDates from '~/test/form/definitions/conditions-dates.js'
 import definitionPaymentV2Conditional from '~/test/form/definitions/payment-v2-conditional.js'
 
-const translator = new FormModel(definitionConditionsBasic, metadata, {
+const translator = new FormModel(definitionConditionsBasic, {
   basePath: '/'
 }).createTranslator()
 
@@ -59,7 +58,7 @@ describe('QuestionPageController', () => {
     page2 = pages[1]
     page2Url = new URL('http://example.com/test/second-page')
 
-    model = new FormModel(definitionConditionsBasic, metadata, {
+    model = new FormModel(definitionConditionsBasic, {
       basePath: 'test'
     })
 
@@ -277,7 +276,7 @@ describe('QuestionPageController', () => {
     it('filters state by journey pages', () => {
       const { pages } = definitionConditionsComplex
 
-      const model = new FormModel(definitionConditionsComplex, metadata, {
+      const model = new FormModel(definitionConditionsComplex, {
         basePath: 'test'
       })
 
@@ -393,7 +392,7 @@ describe('QuestionPageController', () => {
     it('combines state values for date fields', () => {
       const { pages } = definitionConditionsDates
 
-      const model = new FormModel(definitionConditionsDates, metadata, {
+      const model = new FormModel(definitionConditionsDates, {
         basePath: 'test'
       })
 
@@ -433,7 +432,7 @@ describe('QuestionPageController', () => {
     it('filters on condition A', () => {
       const { pages } = conditionalReveal
 
-      const model = new FormModel(conditionalReveal, metadata, {
+      const model = new FormModel(conditionalReveal, {
         basePath: 'test'
       })
 
@@ -493,7 +492,7 @@ describe('QuestionPageController', () => {
     it('filters on condition B', () => {
       const { pages } = conditionalReveal
 
-      const model = new FormModel(conditionalReveal, metadata, {
+      const model = new FormModel(conditionalReveal, {
         basePath: 'test'
       })
 
@@ -556,7 +555,7 @@ describe('QuestionPageController', () => {
       )
       const { pages } = components
 
-      const model = new FormModel(components, metadata, {
+      const model = new FormModel(components, {
         basePath: 'test'
       })
 
@@ -969,7 +968,7 @@ describe('QuestionPageController V2', () => {
     page1Url = new URL('http://example.com/test/first-page')
     page2Url = new URL('http://example.com/test/second-page')
 
-    model = new FormModel(definitionConditionsBasicV2, metadata, {
+    model = new FormModel(definitionConditionsBasicV2, {
       basePath: 'test'
     })
 
@@ -1186,7 +1185,7 @@ describe('QuestionPageController V2', () => {
     it('filters state by journey pages', () => {
       const { pages } = definitionConditionsComplex
 
-      const model = new FormModel(definitionConditionsComplex, metadata, {
+      const model = new FormModel(definitionConditionsComplex, {
         basePath: 'test'
       })
 
@@ -1302,7 +1301,7 @@ describe('QuestionPageController V2', () => {
     it('combines state values for date fields', () => {
       const { pages } = definitionConditionsDates
 
-      const model = new FormModel(definitionConditionsDates, metadata, {
+      const model = new FormModel(definitionConditionsDates, {
         basePath: 'test'
       })
 
@@ -1536,7 +1535,7 @@ describe('Save and Exit functionality', () => {
   beforeEach(() => {
     const { pages } = definitionConditionsBasic
 
-    model = new FormModel(definitionConditionsBasic, metadata, {
+    model = new FormModel(definitionConditionsBasic, {
       basePath: 'test'
     })
 
@@ -1719,7 +1718,7 @@ describe('QuestionPageController translator support', () => {
     page1 = pages[0]
     page1Url = new URL('http://example.com/test/first-page')
 
-    model = new FormModel(definitionConditionsBasic, metadata, {
+    model = new FormModel(definitionConditionsBasic, {
       basePath: 'test'
     })
 
@@ -1747,7 +1746,7 @@ describe('QuestionPageController translator support', () => {
         tComponent: jest.fn((_, prop) => `content:${prop}`),
         tSection: jest.fn((_, prop) => `content:${prop}`),
         tListItem: jest.fn((_, prop) => `content:${prop}`),
-        tMetadata: jest.fn((prop) => `content:${prop}`),
+        tForm: jest.fn((prop) => `content:${prop}`),
         language: 'en-GB'
       }
 
@@ -1786,7 +1785,7 @@ describe('QuestionPageController translator support', () => {
         tComponent: jest.fn(() => ''),
         tSection: jest.fn(() => ''),
         tListItem: jest.fn(() => ''),
-        tMetadata: jest.fn(() => ''),
+        tForm: jest.fn(() => ''),
         language: 'en-GB'
       }
 
@@ -1810,7 +1809,7 @@ describe('QuestionPageController translator support', () => {
         tComponent: stubTranslator.tComponent,
         tSection: stubTranslator.tSection,
         tListItem: stubTranslator.tListItem,
-        tMetadata: stubTranslator.tMetadata,
+        tForm: stubTranslator.tForm,
         language: 'en-GB'
       }
 
@@ -1843,7 +1842,7 @@ describe('QuestionPageController translator support', () => {
     let paymentPage: QuestionPageController
 
     beforeEach(() => {
-      model = new FormModel(definitionPaymentV2Conditional, metadata, {
+      model = new FormModel(definitionPaymentV2Conditional, {
         basePath: 'test'
       })
 
