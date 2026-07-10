@@ -46,18 +46,17 @@ export class StatusPageController extends QuestionPageController {
         return this.proceed(request, h, this.getStartPath())
       }
 
+      const slug = request.params.slug
       const { formsService } = this.model.services
-      const { getFormMetadataById } = formsService
+      const { getFormMetadata, getFormMetadataById } = formsService
+
+      const { submissionGuidance } = await getFormMetadata(slug)
 
       // Re-read form name if overriding display (for example, in a feedback form)
       const storedFormId = confirmationState.formId
-      let formName
-      let submissionGuidance
-      if (storedFormId) {
-        const metadata = await getFormMetadataById(storedFormId)
-        formName = metadata.title
-        submissionGuidance = metadata.submissionGuidance
-      }
+      const formName = storedFormId
+        ? (await getFormMetadataById(storedFormId)).title
+        : undefined
 
       return h.view(viewName, {
         ...viewModel,
