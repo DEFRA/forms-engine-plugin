@@ -51,13 +51,18 @@ export class StatusPageController extends QuestionPageController {
 
       // Re-read form name if overriding display (for example, in a feedback form)
       const storedFormId = confirmationState.formId
-      const formName = storedFormId
-        ? (await getFormMetadataById(storedFormId)).title
-        : undefined
+      let formName
+      let submissionGuidance
+      if (storedFormId) {
+        const metadata = await getFormMetadataById(storedFormId)
+        formName = metadata.title
+        submissionGuidance = metadata.submissionGuidance
+      }
 
       return h.view(viewName, {
         ...viewModel,
         formName,
+        submissionGuidance,
         showReferenceNumber: this.showReferenceNumber,
         referenceNumber: confirmationState.referenceNumber,
         t,
