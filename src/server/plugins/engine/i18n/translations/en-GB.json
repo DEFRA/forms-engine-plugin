@@ -49,6 +49,7 @@
       "notProvided": "Not provided",
       "declaration": "Declaration",
       "acceptAndSubmit": "Accept and submit",
+      "payAndSubmit": "Pay and submit",
       "submit": "Submit",
       "saveAndExit": "Save and exit",
       "paymentSuccessBannerTitle": "Success",
@@ -238,7 +239,8 @@
       "added_one": "Added [[count]] location",
       "added_other": "Added [[count]] locations",
       "validation": {
-        "descriptionRequired": "Enter description for location [[count]]"
+        "descriptionRequired": "Enter description for location [[count]]",
+        "wrongCountry": "Location [[count]] must be within [[country]]"
       }
     },
 

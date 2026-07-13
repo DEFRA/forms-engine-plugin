@@ -2,6 +2,12 @@ import { type i18n } from 'i18next'
 
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 
+/**
+ * Creates a translator for the specified language, decorated with utility functions
+ * for translating specific parts of the form definition.
+ * @param i18nInstance - instance of i18next which gets created on startup (reads the boilerplate files en-GB.json and cy.json)
+ * @param language - requested language
+ */
 export function createTranslator(
   i18nInstance: i18n,
   language = 'en-GB'

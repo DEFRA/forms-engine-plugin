@@ -25,6 +25,13 @@ i18next
     logger.error(`Fatal init for translator i18next: ${getErrorMessage(err)}`)
   })
 
+/**
+ * Generic translation utility function
+ * @param key - key for lookup
+ * @param language - language requested
+ * @param options
+ * @returns {string}
+ */
 export function t(
   key: string,
   language: string,
@@ -33,6 +40,12 @@ export function t(
   return i18next.t(key, { lng: language, ...options })
 }
 
+/**
+ * Creates an instance of i18next with base (boilerplate) translation files loaded (en-GB.json and cy.json),
+ * and appropriate namespaces for loading of form-specific translations later
+ * @param formEnGb
+ * @returns
+ */
 export function createFormI18nInstance(formEnGb: BaseTranslations) {
   const instance = createInstance()
 

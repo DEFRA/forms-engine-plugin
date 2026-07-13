@@ -294,19 +294,6 @@ export class FormComponent extends ComponentBase {
 }
 
 /**
- * Type guard — returns true when the value is a Translator (has t and tComponent functions),
- * as opposed to a FormQuery (plain string-keyed record).
- */
-export function isTranslator(value: unknown): value is Translator {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    typeof (value as Record<string, unknown>).t === 'function' &&
-    typeof (value as Record<string, unknown>).tComponent === 'function'
-  )
-}
-
-/**
  * Check for form value
  */
 export function isFormValue(
