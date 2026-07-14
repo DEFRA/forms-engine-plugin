@@ -5,7 +5,7 @@
     "pattern": "Nodwch {{lowerFirst(#label)}} dilys",
     "format": "Nodwch {{lowerFirst(#label)}} yn y fformat cywir",
     "objectRequired": "Nodwch {{#label}}",
-    "objectMissing": "Rhaid i {{$title}} gynnwys {{lowerFirst(#label)}}",
+    "objectMissing": "Rhaid i {{#title}} gynnwys {{lowerFirst(#label)}}",
     "max": "Rhaid i {{#label}} fod yn {{#limit}} o nodau neu lai",
     "min": "Rhaid i {{#label}} fod yn {{#limit}} o nodau neu fwy",
     "minMax": "Rhaid i {{#label}} fod rhwng {{#min}} a {{#max}} o nodau",
@@ -153,9 +153,9 @@
       "month": "Mis",
       "year": "Blwyddyn",
       "validation": {
-        "dateFormat": "Rhaid i {{$title}} fod yn ddyddiad go iawn",
-        "dateMin": "Rhaid i {{$title}} fod yr un fath â neu ar ôl {{#limit}}",
-        "dateMax": "Rhaid i {{$title}} fod yr un fath â neu cyn {{#limit}}"
+        "dateFormat": "Rhaid i {{#title}} fod yn ddyddiad go iawn",
+        "dateMin": "Rhaid i {{#title}} fod yr un fath â neu ar ôl {{#limit}}",
+        "dateMax": "Rhaid i {{#title}} fod yr un fath â neu cyn {{#limit}}"
       }
     },
 

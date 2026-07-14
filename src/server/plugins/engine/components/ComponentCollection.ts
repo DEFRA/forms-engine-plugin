@@ -92,49 +92,6 @@ export class ComponentCollection {
         : stateSchema.keys({ [name]: field.stateSchema })
     }
 
-    // Add parent field title to collection field errors
-    formSchema = formSchema.error((errors) => {
-      return errors.flatMap((error) => {
-        if (!isErrorContext(error.local) || error.local.title) {
-          return error
-        }
-
-        // Use field key or first missing child field
-        let { missing, key = missing?.[0] } = error.local
-
-        // But avoid numeric key used by array payloads
-        if (typeof key === 'number') {
-          key = error.path[0]
-        }
-
-        // Find the parent field
-        const parent = fields.find(
-          (item) => item.name === key?.split('__').shift()
-        )
-
-        // Find the child field
-        const child = (parent?.collection?.fields ?? fields).find(
-          (item) => item.name === key
-        )
-
-        // Update error with child label
-        if (child && (!error.local.label || error.local.label === 'value')) {
-          error.local.label = child.title
-        }
-
-        // Fix error summary links for missing fields
-        if (missing?.length) {
-          error.path = missing
-          error.local.key = missing[0]
-        }
-
-        // Update error with parent title
-        error.local.title ??= parent?.label
-
-        return error
-      })
-    })
-
     if (schema?.peers) {
       formSchema = formSchema.and(...schema.peers, {
         isPresent: isFormValue
@@ -259,6 +216,61 @@ export class ComponentCollection {
     return result
   }
 
+  overrideParentTitle(
+    formSchema: joi.ObjectSchema<FormPayload>,
+    translator: Translator | undefined
+  ) {
+    // Add parent field title to collection field errors
+    return formSchema.error((errors) => {
+      return errors.flatMap((error) => {
+        if (!isErrorContext(error.local) || error.local.title) {
+          return error
+        }
+
+        // Use field key or first missing child field
+        let { missing, key = missing?.[0] } = error.local
+
+        // But avoid numeric key used by array payloads
+        if (typeof key === 'number') {
+          key = error.path[0]
+        }
+
+        // Find the parent field
+        const parent = this.fields.find(
+          (item) => item.name === key?.split('__').shift()
+        )
+
+        // Find the child field
+        const child = (parent?.collection?.fields ?? this.fields).find(
+          (item) => item.name === key
+        )
+
+        // Update error with child label
+        if (child && (!error.local.label || error.local.label === 'value')) {
+          error.local.label = child.title
+        }
+
+        // Fix error summary links for missing fields
+        if (missing?.length) {
+          error.path = missing
+          error.local.key = missing[0]
+        }
+
+        // Update error with parent title
+        if (translator && parent) {
+          error.local.title ??= translator.tComponent(
+            parent as ComponentDef,
+            'title'
+          )
+        } else {
+          error.local.title ??= parent?.label
+        }
+
+        return error
+      })
+    })
+  }
+
   /**
    * Validate form payload
    */
@@ -273,6 +285,9 @@ export class ComponentCollection {
     // When translating, override Joi labels (and custom schema messages where
     // needed) so #label/#title in message templates resolve in the correct language.
     let schema = this.formSchema
+    // Add parent field title to collection field errors
+    schema = this.overrideParentTitle(schema, translator)
+
     if (translator) {
       const { t } = translator
       const labelOverrides: Record<string, joi.Schema> = {}
