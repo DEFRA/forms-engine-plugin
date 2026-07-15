@@ -22,13 +22,6 @@
  */
 
 /**
- * Map reverse geocode query params
- * @typedef {object} MapReverseGeocodeQuery
- * @property {number} easting - the Easting point
- * @property {number} northing - the Northing point
- */
-
-/**
  * Geospatial countries query params
  * @typedef {object} GeospatialCountriesQuery
  * @property {string} omit - the country to omit
@@ -48,12 +41,6 @@
  */
 
 /**
- * Map reverse geocode get request
- * @typedef {object} MapReverseGeocodeGetRequestRefs
- * @property {MapReverseGeocodeQuery} Query - Request query
- */
-
-/**
  * Map countries geojson get request
  * @typedef {object} GeospatialCountriesGetRequestRefs
  * @property {GeospatialCountriesQuery} Query - Request query
@@ -62,11 +49,9 @@
 /**
  * @typedef {MapProxyGetRequestRefs} MapProxyRequestRefs
  * @typedef {MapGeocodeGetRequestRefs} MapGeocodeRequestRefs
- * @typedef {MapReverseGeocodeGetRequestRefs} MapReverseGeocodeRequestRefs
  * @typedef {Request<MapGeocodeGetRequestRefs>} MapProxyGetRequest
  * @typedef {Request<MapGeocodeGetRequestRefs>} MapGeocodeGetRequest
- * @typedef {Request<MapReverseGeocodeGetRequestRefs>} MapReverseGeocodeGetRequest
- * @typedef {MapProxyGetRequest | MapGeocodeGetRequest | MapReverseGeocodeGetRequest} MapRequest
+ * @typedef {MapProxyGetRequest | MapGeocodeGetRequest } MapRequest
  */
 
 //
