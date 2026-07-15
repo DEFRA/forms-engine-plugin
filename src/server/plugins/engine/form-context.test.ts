@@ -71,7 +71,9 @@ describe('getFormContext helper', () => {
     yar: { set: jest.fn(), get: jest.fn() } as unknown as Request['yar'],
     server: {
       app: {},
-      realm: { modifiers: { route: { prefix: '' } } }
+      realm: { modifiers: { route: { prefix: '' } } },
+      // eslint-disable-next-line no-useless-computed-key
+      plugins: { ['forms-engine-plugin']: { getLanguage: () => 'en-GB' } }
     } as unknown as Request['server']
   } satisfies Pick<Request, 'yar' | 'server'>
   const slug = 'tb-origin'

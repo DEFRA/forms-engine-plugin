@@ -110,8 +110,7 @@ describe('SummaryPageController', () => {
         tListItem: jest
           .fn()
           .mockReturnValue('content') as Translator['tListItem'],
-        tForm: jest.fn().mockReturnValue('content') as Translator['tForm'],
-        language: 'en-GB'
+        tForm: jest.fn().mockReturnValue('content') as Translator['tForm']
       }
 
       const createTranslatorSpy = jest

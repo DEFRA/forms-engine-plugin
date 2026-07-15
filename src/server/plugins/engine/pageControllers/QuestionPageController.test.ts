@@ -1746,8 +1746,7 @@ describe('QuestionPageController translator support', () => {
         tComponent: jest.fn((_, prop) => `content:${prop}`),
         tSection: jest.fn((_, prop) => `content:${prop}`),
         tListItem: jest.fn((_, prop) => `content:${prop}`),
-        tForm: jest.fn((prop) => `content:${prop}`),
-        language: 'en-GB'
+        tForm: jest.fn((prop) => `content:${prop}`)
       }
 
       // Use a request with returnUrl so that getBackLink calls t() for back link text
@@ -1785,8 +1784,7 @@ describe('QuestionPageController translator support', () => {
         tComponent: jest.fn(() => ''),
         tSection: jest.fn(() => ''),
         tListItem: jest.fn(() => ''),
-        tForm: jest.fn(() => ''),
-        language: 'en-GB'
+        tForm: jest.fn(() => '')
       }
 
       const context = model.getFormContext(requestPage1, {
@@ -1809,8 +1807,7 @@ describe('QuestionPageController translator support', () => {
         tComponent: stubTranslator.tComponent,
         tSection: stubTranslator.tSection,
         tListItem: stubTranslator.tListItem,
-        tForm: stubTranslator.tForm,
-        language: 'en-GB'
+        tForm: stubTranslator.tForm
       }
 
       // Use a request with returnUrl so that getBackLink calls translator.t for back link text

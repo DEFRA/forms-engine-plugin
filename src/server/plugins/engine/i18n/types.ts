@@ -57,5 +57,4 @@ export interface Translator {
     item: Item,
     prop: keyof EntityTranslations['listItems'][string]
   ) => string
-  language: string
 }

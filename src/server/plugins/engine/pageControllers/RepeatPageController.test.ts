@@ -292,8 +292,7 @@ describe('RepeatPageController', () => {
         tComponent: jest.fn(() => ''),
         tSection: jest.fn(() => ''),
         tListItem: jest.fn(() => ''),
-        tForm: jest.fn(() => ''),
-        language: 'en-GB'
+        tForm: jest.fn(() => '')
       }
 
       const context = model.getFormContext(requestPageItem, {
@@ -320,8 +319,7 @@ describe('RepeatPageController', () => {
         tComponent: mockTComponent as Translator['tComponent'],
         tSection: jest.fn(() => ''),
         tListItem: jest.fn(() => ''),
-        tForm: jest.fn(() => ''),
-        language: 'en-GB'
+        tForm: jest.fn(() => '')
       }
 
       const context = model.getFormContext(requestPageItem, {
@@ -353,8 +351,7 @@ describe('RepeatPageController', () => {
         tComponent: jest.fn(() => ''),
         tSection: jest.fn(() => ''),
         tListItem: jest.fn(() => ''),
-        tForm: jest.fn(() => ''),
-        language: 'en-GB'
+        tForm: jest.fn(() => '')
       }
 
       const context = model.getFormContext(requestPageSummary, {

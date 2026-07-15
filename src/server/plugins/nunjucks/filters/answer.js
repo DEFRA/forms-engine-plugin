@@ -19,10 +19,17 @@ export function answer(name) {
   }
 
   const field = /** @type {Field} */ (component)
-  const translator = field.model.createTranslator()
-  return getAnswer(field, context.relevantState, translator, {
-    format: 'summary'
-  })
+  const { translator } = context
+
+  // Fallback if no translator in the context
+  return getAnswer(
+    field,
+    context.relevantState,
+    translator ?? field.model.createTranslator(),
+    {
+      format: 'summary'
+    }
+  )
 }
 
 /**
