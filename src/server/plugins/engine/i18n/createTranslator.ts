@@ -55,6 +55,7 @@ export function createTranslator(
     tSection: (entity, prop) =>
       resolveContent(entity, 'sections', prop as string),
     tListItem: (entity, prop) =>
-      resolveContent(entity, 'listItems', prop as string)
+      resolveContent(entity, 'listItems', prop as string),
+    language
   }
 }

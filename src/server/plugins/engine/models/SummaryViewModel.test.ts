@@ -401,7 +401,8 @@ describe('SummaryViewModel with per-request Translator', () => {
       tListItem: jest
         .fn()
         .mockReturnValue('mocked-content') as Translator['tListItem'],
-      tForm: jest.fn().mockReturnValue('mocked-content') as Translator['tForm']
+      tForm: jest.fn().mockReturnValue('mocked-content') as Translator['tForm'],
+      language: 'en-GB'
     }
   })
 

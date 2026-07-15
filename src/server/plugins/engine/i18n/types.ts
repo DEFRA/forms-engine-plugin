@@ -40,6 +40,7 @@ type EntityTranslations = FormDefinitionTranslations[string]
  * tComponent — form namespace: component titles, hints, shortDescriptions
  * tSection   — form namespace: section titles
  * tListItem  — form namespace: list item text
+ * language   - current language
  */
 export interface Translator {
   t: (key: string, opts?: Record<string, unknown>) => string
@@ -57,4 +58,5 @@ export interface Translator {
     item: Item,
     prop: keyof EntityTranslations['listItems'][string]
   ) => string
+  language: string
 }
