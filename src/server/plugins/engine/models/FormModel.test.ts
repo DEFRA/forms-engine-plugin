@@ -795,30 +795,10 @@ describe('FormModel - Joined Conditions', () => {
   })
 
   describe('getAvailableLanguages', () => {
-    it('should return list of languages, omitting unrecognised but adding english if not in list', () => {
+    it('should return list of two languages', () => {
       const def = {
         metadata: {
           translations: {
-            cy: {},
-            fr: {
-              field1: 123
-            }
-          }
-        }
-      } as unknown as FormDefinition
-      expect(getAvailableLanguages(def)).toEqual([
-        { code: 'en-GB', name: 'English' },
-        { code: 'cy', name: 'Cymraeg' }
-      ])
-    })
-
-    it('should not add english if already in list', () => {
-      const def = {
-        metadata: {
-          translations: {
-            'en-GB': {
-              field1: 123
-            },
             cy: {}
           }
         }

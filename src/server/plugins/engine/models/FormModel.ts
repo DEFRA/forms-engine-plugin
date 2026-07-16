@@ -680,27 +680,15 @@ function getReferenceNumber(state: FormSubmissionState): string {
   return state.$$__referenceNumber
 }
 
-const EN_GB = 'en-GB'
-
-const allowedLanguages = {
-  [EN_GB]: 'English',
-  cy: 'Cymraeg'
-} as Record<string, string>
-
 export function getAvailableLanguages(
   def: FormDefinition
 ): { name: string; code: string }[] {
-  if (def.metadata?.translations) {
-    const translations = Object.getOwnPropertyNames(def.metadata.translations)
-    if (!translations.includes(EN_GB)) {
-      translations.unshift(EN_GB)
-    }
-    return translations
-      .filter((lang) => allowedLanguages[lang])
-      .map((lang) => ({
-        code: lang,
-        name: allowedLanguages[lang]
-      }))
+  // @ts-expect-error - dynamic property
+  if (def.metadata?.translations?.cy) {
+    return [
+      { name: 'English', code: 'en-GB' },
+      { name: 'Cymraeg', code: 'cy' }
+    ]
   }
   return []
 }
