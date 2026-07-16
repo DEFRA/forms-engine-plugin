@@ -11,6 +11,7 @@ import {
   getCentroidGridRef,
   getCoordinateGridRef
 } from '~/src/client/javascripts/map.js'
+import sssiDatasetPlugin from '~/src/client/javascripts/sssi-dataset.js'
 import { formatDelimtedList } from '~/src/client/javascripts/utils.js'
 
 const helpPanelConfig = {
@@ -171,6 +172,9 @@ export function processGeospatial(config, geospatial, index) {
   const drawPlugin = createDrawPlugin()
   const plugins = [drawPlugin]
   const country = geospatial.dataset.country
+  const mapLayers = geospatial.dataset.maplayers
+    ? geospatial.dataset.maplayers.split(',')
+    : []
 
   if (country) {
     // Add the country bounds as a dataset plugin to show the valid area on the map
@@ -204,6 +208,10 @@ export function processGeospatial(config, geospatial, index) {
     })
 
     plugins.push(countriesDatasetPlugin)
+  }
+
+  if (mapLayers.includes('sssi')) {
+    plugins.push(sssiDatasetPlugin)
   }
 
   const initConfig = {

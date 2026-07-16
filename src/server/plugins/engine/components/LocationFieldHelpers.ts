@@ -2,7 +2,9 @@ import { type Context, type CustomValidator } from 'joi'
 
 import { type EastingNorthingField } from '~/src/server/plugins/engine/components/EastingNorthingField.js'
 import { isFormValue } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { type GeospatialField } from '~/src/server/plugins/engine/components/GeospatialField.js'
 import { type LatLongField } from '~/src/server/plugins/engine/components/LatLongField.js'
+import { type OsGridRefField } from '~/src/server/plugins/engine/components/OsGridRefField.js'
 import {
   type DateInputItem,
   type Label,
@@ -86,6 +88,20 @@ export function deduplicateErrorsByHref(
   )
 }
 
+export function getMapLayers(
+  component:
+    | GeospatialField
+    | OsGridRefField
+    | LatLongField
+    | EastingNorthingField
+) {
+  return component.options.mapLayers
+    ? Object.keys(component.options.mapLayers)
+        .filter((key) => component.options.mapLayers[key] === true)
+        .join(',')
+    : ''
+}
+
 export function getLocationFieldViewModel(
   component: LocationField,
   viewModel: ViewModel & {
@@ -167,7 +183,8 @@ export function getLocationFieldViewModel(
   const result = {
     ...viewModel,
     fieldset,
-    items
+    items,
+    mapLayers: getMapLayers(component)
   }
 
   if (component.options.instructionText) {

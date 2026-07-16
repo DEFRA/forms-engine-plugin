@@ -6,6 +6,7 @@ import {
   FormComponent,
   isGeospatialState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { getMapLayers } from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
 import { getGeospatialSchema } from '~/src/server/plugins/engine/components/helpers/geospatial.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
@@ -97,6 +98,7 @@ export class GeospatialField extends FormComponent {
       ...viewModel,
       country: this.options.countries?.at(0),
       geometryTypes: this.options.geometryTypes,
+      mapLayers: getMapLayers(this),
       value
     }
   }

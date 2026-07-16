@@ -8,6 +8,7 @@ import {
   latLongToOsGridRef,
   osGridRefToLatLong
 } from '~/src/client/javascripts/map.js'
+import sssiDatasetPlugin from '~/src/client/javascripts/sssi-dataset.js'
 
 const LOCATION_FIELD_SELECTOR = 'input.govuk-input'
 
@@ -417,6 +418,14 @@ export function processLocation(config, location, index) {
   const initConfig = getInitMapConfig(location) ?? defaultConfig
 
   locationInputs.after(mapContainer)
+
+  const mapLayers = location.dataset.maplayers
+    ? location.dataset.maplayers.split(',')
+    : []
+
+  if (mapLayers.includes('sssi')) {
+    initConfig.plugins = [sssiDatasetPlugin]
+  }
 
   const { map, interactPlugin } = createMap(mapId, initConfig, config)
 
