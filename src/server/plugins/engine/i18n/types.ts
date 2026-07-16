@@ -12,7 +12,7 @@ import {
 export type FormDefinitionTranslations = Record<
   string,
   {
-    pages: Record<string, Partial<Pick<Page, 'title'>>>
+    pages: Record<string, Partial<{ title: string; repeatTitle: string }>>
     // ComponentDef is a discriminated union; Pick across the full union is not feasible.
     // The four keys below are the complete set of translatable component properties.
     components: Record<

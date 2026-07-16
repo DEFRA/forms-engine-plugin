@@ -375,6 +375,7 @@ export class RepeatPageController extends QuestionPageController {
     translator: Translator
   ): FormPageViewModel {
     const { state } = context
+    const { tPage } = translator
 
     const list = this.getListFromState(state)
     const itemId = this.getItemId(request)
@@ -382,7 +383,9 @@ export class RepeatPageController extends QuestionPageController {
 
     const viewModel = super.getViewModel(request, context, translator)
     const itemNumber = item ? list.indexOf(item) + 1 : list.length + 1
-    const repeatCaption = `${this.repeat.options.title} ${itemNumber}`
+    const title =
+      tPage(this.pageDef, 'repeatTitle') || this.pageDef.repeat.options.title
+    const repeatCaption = `${title} ${itemNumber}`
 
     return {
       ...viewModel,
