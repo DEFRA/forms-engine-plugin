@@ -13,7 +13,7 @@
 
       {% if errors %}
         {{ govukErrorSummary({
-          titleText: "There is a problem",
+          titleText: t('errors.title'),
           errorList: errors
         }) }}
       {% endif %}

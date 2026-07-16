@@ -43,6 +43,7 @@ import {
   type FormRequest,
   type FormResponseToolkit
 } from '~/src/server/routes/types.js'
+import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 export async function redirectOrMakeHandler(
   request: AnyFormRequest,
@@ -82,7 +83,14 @@ export async function redirectOrMakeHandler(
   state = await importExternalComponentState(request, page, state)
 
   const flash = cacheService.getFlash(request)
-  const context = model.getFormContext(request, state, flash?.errors)
+  const language = resolveLanguage(request)
+  const translator = model.createTranslator(language)
+  const context = model.getFormContext(
+    request,
+    state,
+    flash?.errors,
+    translator
+  )
 
   await copyNotYetValidatedState(request, context)
 

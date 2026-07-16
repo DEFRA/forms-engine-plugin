@@ -6,8 +6,13 @@ import {
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
+
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
 
 describe('TextField', () => {
   let model: FormModel
@@ -123,6 +128,55 @@ describe('TextField', () => {
         expect(result1.errors).toBeTruthy()
         expect(result2.errors).toBeTruthy()
       })
+
+      it('uses translated shortDescription as #label in validation error when translator provided', () => {
+        const componentId = 'b68df7f1-d4f4-4c17-83c8-402f584906c9'
+        const cyModel = new FormModel(
+          {
+            ...definition,
+            metadata: {
+              language: 'en-GB',
+              translations: {
+                cy: {
+                  components: {
+                    [componentId]: {
+                      title: 'Beth yw eich enw olaf?',
+                      shortDescription: 'Eich enw olaf'
+                    }
+                  },
+                  pages: {},
+                  sections: {},
+                  listItems: {}
+                }
+              }
+            }
+          },
+          { basePath: 'test' }
+        )
+
+        const cyDef: TextFieldComponent = {
+          id: componentId,
+          title: 'What is your last name?',
+          name: 'applicantLastName',
+          shortDescription: 'Your last name',
+          type: ComponentType.TextField,
+          options: { required: true },
+          schema: {}
+        }
+
+        const cyCollection = new ComponentCollection([cyDef], {
+          model: cyModel
+        })
+        const translator = cyModel.createTranslator('cy')
+        const result = cyCollection.validate(
+          { applicantLastName: '' },
+          translator
+        )
+
+        expect(result.errors).toEqual([
+          expect.objectContaining({ text: 'Nodwch eich enw olaf' })
+        ])
+      })
     })
 
     describe('State', () => {
@@ -130,8 +184,8 @@ describe('TextField', () => {
         const state1 = getFormState('Text field')
         const state2 = getFormState(null)
 
-        const answer1 = getAnswer(field, state1)
-        const answer2 = getAnswer(field, state2)
+        const answer1 = getAnswer(field, state1, translator)
+        const answer2 = getAnswer(field, state2, translator)
 
         expect(answer1).toBe('Text field')
         expect(answer2).toBe('')
@@ -184,7 +238,11 @@ describe('TextField', () => {
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = field.getViewModel(getFormData('Text field'))
+        const viewModel = field.getViewModel({
+          payload: getFormData('Text field'),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -194,6 +252,82 @@ describe('TextField', () => {
             value: 'Text field'
           })
         )
+      })
+    })
+
+    describe('getViewModel with Translator', () => {
+      it('calls tComponent for the field title', () => {
+        const tComponent = jest.fn().mockReturnValue('Translated title')
+        const t = jest.fn().mockReturnValue('(optional)')
+        const viewModel = field.getViewModel({
+          payload: {},
+          errors: undefined,
+          translator: {
+            t,
+            tComponent,
+            tPage: jest.fn(),
+            tSection: jest.fn(),
+            tListItem: jest.fn(),
+            tForm: jest.fn(),
+            language: 'en-GB'
+          }
+        })
+        expect(tComponent).toHaveBeenCalledWith(field, 'title')
+        expect(viewModel.label.text).toBe('Translated title')
+      })
+
+      it('calls tComponent for the hint when hint is set', () => {
+        const hintDef = { ...def, hint: 'Enter your name' }
+        const hintCollection = new ComponentCollection([hintDef], { model })
+        const hintField = hintCollection.fields[0]
+        const tComponent = jest.fn().mockReturnValue('Translated hint')
+        const t = jest.fn().mockReturnValue('')
+        const viewModel = hintField.getViewModel({
+          payload: {},
+          errors: undefined,
+          translator: {
+            t,
+            tComponent,
+            tPage: jest.fn(),
+            tSection: jest.fn(),
+            tListItem: jest.fn(),
+            tForm: jest.fn(),
+            language: 'en-GB'
+          }
+        })
+        expect(tComponent).toHaveBeenCalledWith(hintField, 'hint')
+        expect(viewModel.hint?.text).toBe('Translated hint')
+      })
+
+      it('calls t for common.optional when field is optional', () => {
+        const optDef = { ...def, options: { required: false } }
+        const optCollection = new ComponentCollection([optDef], { model })
+        const optField = optCollection.fields[0]
+        const tComponent = jest.fn().mockReturnValue('Title')
+        const t = jest.fn().mockReturnValue('(optional)')
+        optField.getViewModel({
+          payload: {},
+          errors: undefined,
+          translator: {
+            t,
+            tComponent,
+            tPage: jest.fn(),
+            tSection: jest.fn(),
+            tListItem: jest.fn(),
+            tForm: jest.fn(),
+            language: 'en-GB'
+          }
+        })
+        expect(t).toHaveBeenCalledWith('common.optional')
+      })
+
+      it('falls back to English when no translator supplied', () => {
+        const viewModel = field.getViewModel({
+          payload: {},
+          errors: undefined,
+          translator: stubTranslator
+        })
+        expect(viewModel.label.text).toBe('Example text field')
       })
     })
 

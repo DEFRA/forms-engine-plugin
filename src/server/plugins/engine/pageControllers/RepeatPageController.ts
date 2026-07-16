@@ -6,6 +6,7 @@ import Joi from 'joi'
 
 import { isRepeatState } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { redirectPath } from '~/src/server/plugins/engine/helpers.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
@@ -193,9 +194,20 @@ export class RepeatPageController extends QuestionPageController {
         return super.proceed(request, h, nextPath)
       }
 
-      const viewModel = this.getListSummaryViewModel(request, context, list)
+      const translator = this.getTranslator(request)
+      const { t } = translator
 
-      return h.view(this.listSummaryViewName, viewModel)
+      const viewModel = this.getListSummaryViewModel(
+        request,
+        context,
+        list,
+        translator
+      )
+
+      return h.view(this.listSummaryViewName, {
+        ...viewModel,
+        t
+      })
     }
   }
 
@@ -220,6 +232,9 @@ export class RepeatPageController extends QuestionPageController {
         return super.proceed(request, h, nextPath)
       }
 
+      const translator = this.getTranslator(request)
+      const { t } = translator
+
       const { action } = this.getFormParams(request)
 
       const hasErrorMin =
@@ -232,7 +247,6 @@ export class RepeatPageController extends QuestionPageController {
       // Show error if repeat limits apply
       if (hasErrorMin || hasErrorMax) {
         const count = hasErrorMax ? schema.max : schema.min
-        const itemTitle = `answer${count === 1 ? '' : 's'}`
 
         context.errors = [
           {
@@ -240,14 +254,22 @@ export class RepeatPageController extends QuestionPageController {
             href: '',
             name: '',
             text: hasErrorMax
-              ? `You can only add up to ${count} ${itemTitle}`
-              : `You must add at least ${count} ${itemTitle}`
+              ? t('pages.repeater.tooMany', { count })
+              : t('pages.repeater.tooFew', { count })
           }
         ]
 
-        const viewModel = this.getListSummaryViewModel(request, context, list)
+        const viewModel = this.getListSummaryViewModel(
+          request,
+          context,
+          list,
+          translator
+        )
 
-        return h.view(this.listSummaryViewName, viewModel)
+        return h.view(this.listSummaryViewName, {
+          ...viewModel,
+          t
+        })
       }
 
       if (action === FormAction.AddAnother) {
@@ -281,11 +303,14 @@ export class RepeatPageController extends QuestionPageController {
       const itemId = this.getItemId(request)
       const item = this.getItemFromList(list, itemId)
 
+      const translator = this.getTranslator(request)
+      const { t } = translator
+
       if (!item || list.length === 1) {
         throw Boom.notFound(
           item
-            ? 'Last list item cannot be removed'
-            : 'List item to remove not found'
+            ? t('pages.repeater.lastItemCannotBeRemoved')
+            : t('pages.repeater.itemToRemoveNotFound')
         )
       }
 
@@ -294,11 +319,12 @@ export class RepeatPageController extends QuestionPageController {
       return h.view(this.listDeleteViewName, {
         ...viewModel,
         context,
-        backLink: this.getBackLink(request, context),
-        pageTitle: 'Are you sure you want to remove this answer?',
+        backLink: this.getBackLink(request, context, t),
+        pageTitle: t('pages.repeater.removeAnswer'),
         itemTitle: `${title} ${list.indexOf(item) + 1}`,
-        buttonConfirm: { text: 'Remove' },
-        buttonCancel: { text: 'Cancel' }
+        buttonConfirm: { text: t('pages.repeater.remove') },
+        buttonCancel: { text: t('pages.repeater.cancel') },
+        t
       } satisfies ItemDeletePageViewModel)
     }
   }
@@ -318,11 +344,13 @@ export class RepeatPageController extends QuestionPageController {
       const itemId = this.getItemId(request)
       const item = this.getItemFromList(list, itemId)
 
+      const { t } = this.getTranslator(request)
+
       if (!item || list.length === 1) {
         throw Boom.notFound(
           item
-            ? 'Last list item cannot be removed'
-            : 'List item to remove not found'
+            ? t('pages.repeater.lastItemCannotBeRemoved')
+            : t('pages.repeater.itemToRemoveNotFound')
         )
       }
 
@@ -343,17 +371,21 @@ export class RepeatPageController extends QuestionPageController {
 
   getViewModel(
     request: FormContextRequest,
-    context: FormContext
+    context: FormContext,
+    translator: Translator
   ): FormPageViewModel {
     const { state } = context
+    const { tPage } = translator
 
     const list = this.getListFromState(state)
     const itemId = this.getItemId(request)
     const item = this.getItemFromList(list, itemId)
 
-    const viewModel = super.getViewModel(request, context)
+    const viewModel = super.getViewModel(request, context, translator)
     const itemNumber = item ? list.indexOf(item) + 1 : list.length + 1
-    const repeatCaption = `${this.repeat.options.title} ${itemNumber}`
+    const title =
+      tPage(this.pageDef, 'repeatTitle') || this.pageDef.repeat.options.title
+    const repeatCaption = `${title} ${itemNumber}`
 
     return {
       ...viewModel,
@@ -367,11 +399,14 @@ export class RepeatPageController extends QuestionPageController {
   getListSummaryViewModel(
     request: FormContextRequest,
     context: FormContext,
-    list: RepeatListState
+    list: RepeatListState,
+    translator: Translator
   ): RepeaterSummaryPageViewModel {
     const { collection, href, repeat } = this
     const { query } = request
     const { isForceAccess, errors } = context
+
+    const { t } = translator
 
     const { title } = repeat.options
 
@@ -396,9 +431,11 @@ export class RepeatPageController extends QuestionPageController {
             href: redirectPath(`${href}/${item.itemId}`, {
               returnUrl: query.returnUrl ?? this.getHref(summaryPath)
             }),
-            text: 'Change',
+            text: t('pages.repeater.change'),
             classes: 'govuk-link--no-visited-state',
-            visuallyHiddenText: `item ${index + 1}`
+            visuallyHiddenText: t('pages.repeater.visuallyHiddenItem', {
+              index: index + 1
+            })
           })
 
           if (count > 1) {
@@ -406,15 +443,17 @@ export class RepeatPageController extends QuestionPageController {
               href: redirectPath(`${href}/${item.itemId}/confirm-delete`, {
                 returnUrl: query.returnUrl
               }),
-              text: 'Remove',
+              text: t('pages.repeater.remove'),
               classes: 'govuk-link--no-visited-state',
-              visuallyHiddenText: `item ${index + 1}`
+              visuallyHiddenText: t('pages.repeater.visuallyHiddenItem', {
+                index: index + 1
+              })
             })
           }
         }
 
         const itemDisplayText = collection.fields.length
-          ? collection.fields[0].getDisplayStringFromState(item)
+          ? collection.fields[0].getDisplayStringFromState(item, translator)
           : ''
 
         summaryList.rows.push({
@@ -422,7 +461,7 @@ export class RepeatPageController extends QuestionPageController {
             text: `${title} ${index + 1}`
           },
           value: {
-            text: itemDisplayText || 'Not provided'
+            text: itemDisplayText || t('pages.repeater.notProvided')
           },
           actions: {
             items
@@ -431,13 +470,11 @@ export class RepeatPageController extends QuestionPageController {
       })
     }
 
-    const unit = count === 1 ? 'answer' : 'answers'
-
     return {
       ...this.viewModel,
-      backLink: this.getBackLink(request, context),
+      backLink: this.getBackLink(request, context, t),
       repeatTitle: title,
-      pageTitle: `You have added ${count} ${unit}`,
+      pageTitle: t('pages.repeater.pageTitle', { count }),
       showTitle: true,
       context,
       errors,

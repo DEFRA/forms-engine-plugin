@@ -5,11 +5,11 @@ import Joi from 'joi'
 import { EXTERNAL_STATE_APPENDAGE } from '~/src/server/constants.js'
 import {
   JOURNEY_BASE_URL,
-  detailsPayloadSchema,
+  createDetailsPayloadSchema,
+  createManualPayloadSchema,
+  createSelectPayloadSchema,
   detailsViewModel,
-  manualPayloadSchema,
   manualViewModel,
-  selectPayloadSchema,
   selectViewModel,
   stepSchema,
   steps
@@ -172,12 +172,10 @@ function postRoute(options) {
 async function detailsPostHandler(request, h, options) {
   const session = getSessionState(request)
   const { ordnanceSurveyApiKey: apiKey } = options
-
-  /** @type {{ value: PostcodeLookupDetailsPayload, error?: import('joi').ValidationError }} */
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const { value: details, error } = detailsPayloadSchema.validate(
-    request.payload
-  )
+  const language = session.initial.language ?? 'en-GB'
+  const { value: details, error } = createDetailsPayloadSchema(
+    language
+  ).validate(request.payload)
 
   let model
 
@@ -207,10 +205,10 @@ async function detailsPostHandler(request, h, options) {
 async function selectPostHandler(request, h, options) {
   const session = getSessionState(request)
   const { ordnanceSurveyApiKey: apiKey } = options
-
-  /** @type {{ value: PostcodeLookupSelectPayload, error?: import('joi').ValidationError }} */
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const { value: select, error } = selectPayloadSchema.validate(request.payload)
+  const language = session.initial.language ?? 'en-GB'
+  const { value: select, error } = createSelectPayloadSchema(language).validate(
+    request.payload
+  )
 
   if (error) {
     const model = await selectViewModel({ session, apiKey }, select, error)
@@ -239,10 +237,9 @@ async function selectPostHandler(request, h, options) {
  */
 function manualPostHandler(request, h) {
   const session = getSessionState(request)
+  const language = session.initial.language ?? 'en-GB'
 
-  /** @type {{ value: PostcodeLookupManualPayload, error?: import('joi').ValidationError }} */
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const { value: manual, error } = manualPayloadSchema.validate(
+  const { value: manual, error } = createManualPayloadSchema(language).validate(
     request.payload,
     {
       abortEarly: false

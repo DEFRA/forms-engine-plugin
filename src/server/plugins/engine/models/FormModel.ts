@@ -27,6 +27,7 @@ import {
 } from '@defra/forms-model'
 import { add, format } from 'date-fns'
 import { Parser, type Value } from 'expr-eval-fork'
+import { type i18n } from 'i18next'
 import joi from 'joi'
 
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
@@ -40,9 +41,13 @@ import { todayAsDateOnly } from '~/src/server/plugins/engine/date-helper.js'
 import {
   findPage,
   getError,
-  getPage,
-  setPageTitles
+  getPage
 } from '~/src/server/plugins/engine/helpers.js'
+import { loadFormTranslations } from '~/src/server/plugins/engine/i18n/createFormTranslator.js'
+import { createTranslator } from '~/src/server/plugins/engine/i18n/createTranslator.js'
+import { extractBaseTranslations } from '~/src/server/plugins/engine/i18n/extractBaseTranslations.js'
+import { createFormI18nInstance } from '~/src/server/plugins/engine/i18n/index.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
@@ -81,6 +86,7 @@ export class FormModel {
   conditions: Partial<Record<string, ExecutableCondition>>
   pages: PageControllerClass[]
   services: Services
+  private readonly i18nInstance: i18n
 
   controllers?: Record<string, typeof PageController>
   pageDefMap: Map<string, Page>
@@ -123,7 +129,12 @@ export class FormModel {
     // by joi so as not to change the source data.
     def = structuredClone(result.value)
 
-    // Add default lists
+    const baseTranslations = extractBaseTranslations(def)
+    this.i18nInstance = createFormI18nInstance(baseTranslations)
+    loadFormTranslations(def, this.i18nInstance)
+
+    // Add default lists. Yes/No text stored as i18n key constants so they
+    // resolve to the user's language at render time via the translator.
     def.lists.push({
       id: def.schema === SchemaVersion.V1 ? yesNoListName : yesNoListId,
       name: '__yesNo',
@@ -132,19 +143,16 @@ export class FormModel {
       items: [
         {
           id: '02900d42-83d1-4c72-a719-c4e8228952fa',
-          text: 'Yes',
+          text: 'components.yesNoField.yes',
           value: true
         },
         {
           id: 'f39000eb-c51b-4019-8f82-bbda0423f04d',
-          text: 'No',
+          text: 'components.yesNoField.no',
           value: false
         }
       ]
     })
-
-    // Fix up page titles
-    setPageTitles(def)
 
     this.engine = def.engine
     this.schemaVersion = def.schema ?? SchemaVersion.V1
@@ -213,7 +221,7 @@ export class FormModel {
     ) {
       this.pages.push(
         createPage(this, {
-          title: 'Form submitted',
+          title: 'pages.confirmation.formSubmitted',
           path: ControllerPath.Status,
           controller: ControllerType.Status
         })
@@ -229,6 +237,11 @@ export class FormModel {
         ])
       )
     )
+  }
+
+  /** Returns a scoped translator pair for the given language. */
+  createTranslator(language = 'en-GB'): Translator {
+    return createTranslator(this.i18nInstance, language)
   }
 
   /**
@@ -337,7 +350,8 @@ export class FormModel {
   getFormContext(
     request: FormContextRequest,
     state: FormSubmissionState,
-    errors?: FormSubmissionError[]
+    errors?: FormSubmissionError[],
+    translator?: Translator
   ): FormContext {
     const { query } = request
 
@@ -365,11 +379,13 @@ export class FormModel {
       componentDefMap: this.componentDefMap,
       pageMap: this.pageMap,
       componentMap: this.componentMap,
-      referenceNumber: getReferenceNumber(state)
+      referenceNumber: getReferenceNumber(state),
+      languages: getAvailableLanguages(this.def),
+      translator
     }
 
     // Validate current page
-    context = validateFormPayload(request, page, context)
+    context = validateFormPayload(request, page, context, translator)
 
     // Find start page
     let nextPage = findPage(this, startPath)
@@ -387,7 +403,7 @@ export class FormModel {
 
       // Stop at current page
       if (
-        this.pageStateIsInvalid(context, nextPage) ||
+        this.pageStateIsInvalid(context, nextPage, translator) ||
         nextPage.path === currentPath
       ) {
         break
@@ -448,7 +464,11 @@ export class FormModel {
     }
   }
 
-  private pageStateIsInvalid(context: FormContext, page: PageControllerClass) {
+  private pageStateIsInvalid(
+    context: FormContext,
+    page: PageControllerClass,
+    translator?: Translator
+  ) {
     // Get any list-bound fields on the page
     const listFields = page.collection.fields.filter(hasListFormField)
 
@@ -464,7 +484,7 @@ export class FormModel {
           list.items.filter((item) => item.condition).length > 0
 
         if (hasOptionalItems) {
-          return this.fieldStateIsInvalid(context, field, list)
+          return this.fieldStateIsInvalid(context, field, list, translator)
         }
       }
     }
@@ -473,7 +493,8 @@ export class FormModel {
   private fieldStateIsInvalid(
     context: FormContext,
     field: ListFormComponent,
-    list: List
+    list: List,
+    translator?: Translator
   ) {
     const { evaluationState, state } = context
 
@@ -503,8 +524,9 @@ export class FormModel {
       if (isInvalid) {
         context.errors ??= []
 
-        const text =
-          'Options are different because you changed a previous answer'
+        const text = (translator ?? this.createTranslator('en-GB')).t(
+          'errors.optionsMismatch'
+        )
 
         context.errors.push({
           text,
@@ -571,7 +593,8 @@ export class FormModel {
 function validateFormPayload(
   request: FormContextRequest,
   page: PageControllerClass,
-  context: FormContext
+  context: FormContext,
+  translator?: Translator
 ): FormContext {
   const { collection } = page
   const { payload, state } = context
@@ -601,10 +624,10 @@ function validateFormPayload(
     }
   })
 
-  const { value, errors } = collection.validate({
-    ...payload,
-    ...update
-  })
+  const { value, errors } = collection.validate(
+    { ...payload, ...update },
+    translator
+  )
 
   // Add sanitised payload (ready to save)
   const formState = page.getStateFromValidForm(request, state, value)
@@ -655,4 +678,17 @@ function getReferenceNumber(state: FormSubmissionState): string {
   }
 
   return state.$$__referenceNumber
+}
+
+export function getAvailableLanguages(
+  def: FormDefinition
+): { name: string; code: string }[] {
+  // @ts-expect-error - dynamic property
+  if (def.metadata?.translations?.cy) {
+    return [
+      { name: 'English', code: 'en-GB' },
+      { name: 'Cymraeg', code: 'cy' }
+    ]
+  }
+  return []
 }

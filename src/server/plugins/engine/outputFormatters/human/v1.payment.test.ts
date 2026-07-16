@@ -9,9 +9,14 @@ import {
   getFormSubmissionData
 } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 import { FormStatus } from '~/src/server/routes/types.js'
 import definitionPayment from '~/test/form/definitions/payment.js'
+
+const translator = new FormModel(definitionPayment, {
+  basePath: '/'
+}).createTranslator()
 
 describe('v1 human formatter', () => {
   describe('Payment', () => {
@@ -77,12 +82,14 @@ describe('v1 human formatter', () => {
     )
     const summaryViewModelPayment = controllerPayment.getSummaryViewModel(
       requestPayment,
-      contextPayment
+      contextPayment,
+      stubTranslator
     )
 
     const itemsPayment = getFormSubmissionData(
       summaryViewModelPayment.context,
       summaryViewModelPayment.details,
+      translator,
       modelPayment
     )
 

@@ -1,11 +1,14 @@
 import {
+  type ComponentDef,
   type FormComponentsDef,
   type FormMetadata,
   type Item
 } from '@defra/forms-model'
+import { type LanguageMessages } from 'joi'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
-import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
+import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import {
   type FormContext,
   type FormRequestPayload
@@ -115,7 +118,10 @@ export class FormComponent extends ComponentBase {
     }
   }
 
-  getErrors(errors?: FormSubmissionError[]): FormSubmissionError[] | undefined {
+  getErrors(
+    _translator: Translator,
+    errors?: FormSubmissionError[]
+  ): FormSubmissionError[] | undefined {
     const { name } = this
 
     // Filter component and child errors only
@@ -134,34 +140,59 @@ export class FormComponent extends ComponentBase {
   }
 
   getFirstError(
+    translator: Translator,
     errors?: FormSubmissionError[]
   ): FormSubmissionError | undefined {
-    return this.getErrors(errors)?.[0]
+    return this.getErrors(translator, errors)?.[0]
   }
 
   getViewErrors(
+    translator: Translator,
     errors?: FormSubmissionError[]
   ): FormSubmissionError[] | undefined {
-    const firstError = this.getFirstError(errors)
+    const firstError = this.getFirstError(translator, errors)
     return firstError && [firstError]
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
+  /**
+   * Override in composite fields to return translated Joi message overrides for
+   * their sub-fields, applied at validation time so schema-level English messages
+   * are replaced with the correct language. Return null to skip message patching.
+   */
+  getValidationMessagesOverride(
+    _translator: Translator
+  ): LanguageMessages | null {
+    return null
+  }
+
+  getViewModel({
+    payload,
+    errors,
+    translator,
+    isForceAccess: _isForceAccess = false
+  }: RenderContext) {
     const { hint, name, options = {}, title, viewModel } = this
+
+    const { t, tComponent } = translator
 
     const isRequired = !('required' in options) || options.required !== false
     const hideOptional = 'optionalText' in options && options.optionalText
-    const label = `${title}${!isRequired && !hideOptional ? optionalText : ''}`
+
+    const resolvedTitle =
+      tComponent(this as unknown as ComponentDef, 'title') || title
+    const optionalTag =
+      !isRequired && !hideOptional ? ` ${t('common.optional')}` : ''
+    const label = `${resolvedTitle}${optionalTag}`
 
     if (hint) {
       viewModel.hint = {
-        text: hint
+        text: tComponent(this as unknown as ComponentDef, 'hint') || hint
       }
     }
 
     // Filter component errors only
-    const componentErrors = this.getErrors(errors)
-    const componentError = this.getFirstError(componentErrors)
+    const componentErrors = this.getErrors(translator, errors)
+    const componentError = this.getFirstError(translator, componentErrors)
 
     if (componentErrors) {
       viewModel.errors = componentErrors
@@ -184,15 +215,21 @@ export class FormComponent extends ComponentBase {
     }
   }
 
-  getDisplayStringFromFormValue(value: FormValue | FormPayload): string {
+  getDisplayStringFromFormValue(
+    value: FormValue | FormPayload,
+    _translator: Translator
+  ): string {
     // Map selected values to text
     // eslint-disable-next-line @typescript-eslint/no-base-to-string
     return this.isValue(value) ? value.toString() : ''
   }
 
-  getDisplayStringFromState(state: FormSubmissionState): string {
+  getDisplayStringFromState(
+    state: FormSubmissionState,
+    translator: Translator
+  ): string {
     const value = this.getFormValueFromState(state)
-    return this.getDisplayStringFromFormValue(value)
+    return this.getDisplayStringFromFormValue(value, translator)
   }
 
   getContextValueFromFormValue(

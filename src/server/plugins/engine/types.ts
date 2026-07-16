@@ -11,8 +11,10 @@ import {
 import {
   type PluginProperties,
   type Request,
+  type RequestQuery,
   type ResponseObject
 } from '@hapi/hapi'
+import { type Yar } from '@hapi/yar'
 import { type JoiExpression, type ValidationErrorItem } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
@@ -31,6 +33,7 @@ import {
   type LatLongState,
   type MonthYearState
 } from '~/src/server/plugins/engine/components/types.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type DetailItemField } from '~/src/server/plugins/engine/models/types.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
@@ -199,6 +202,8 @@ export interface FormContext {
   pageMap: Map<string, PageControllerClass>
   componentMap: Map<string, Component>
   referenceNumber: string
+  languages: { name: string; code: string }[]
+  translator: Translator | undefined
 }
 
 export type FormContextRequest = (
@@ -394,6 +399,7 @@ export interface PageViewModelBase extends Partial<ViewContext> {
   feedbackLink?: string
   serviceUrl: string
   phaseTag?: string
+  t?: (key: string, opts?: Record<string, unknown>) => string
 }
 
 export interface ItemDeletePageViewModel extends PageViewModelBase {
@@ -471,6 +477,8 @@ export type SaveAndExitHandler = (
   context: FormContext
 ) => ResponseObject
 
+export type GetLanguageHandler = (query?: RequestQuery, yar?: Yar) => string
+
 export interface ExternalArgs {
   component: ComponentDef
   controller: QuestionPageController
@@ -510,6 +518,7 @@ export interface PluginOptions {
   viewContext: PluginProperties['forms-engine-plugin']['viewContext']
   preparePageEventRequestOptions?: PreparePageEventRequestOptions
   onRequest?: OnRequestCallback
+  getLanguage?: GetLanguageHandler
   baseUrl: string // base URL of the application, protocol and hostname e.g. "https://myapp.com"
   ordnanceSurveyApiKey?: string
   ordnanceSurveyApiSecret?: string
@@ -526,6 +535,7 @@ export interface FormAdapterSubmissionMessageMeta {
   isPreview: boolean
   notificationEmail: string
   versionMetadata?: FormVersionMetadata
+  language?: string
   custom?: Record<string, unknown>
 }
 

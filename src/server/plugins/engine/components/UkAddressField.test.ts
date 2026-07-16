@@ -12,11 +12,16 @@ import {
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { type ViewModel } from '~/src/server/plugins/engine/components/types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import {
   type FormPayload,
   type FormState
 } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
+
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
 
 describe('UkAddressField', () => {
   let model: FormModel
@@ -52,35 +57,50 @@ describe('UkAddressField', () => {
         expect(keys).toHaveProperty(
           'myComponent__addressLine1',
           expect.objectContaining({
-            flags: expect.objectContaining({ label: 'Address line 1' })
+            flags: expect.objectContaining({
+              label: 'components.addressField.line1'
+            })
+            // Sub-field title is a key constant; resolved at request time (Task 8/9).
           })
         )
 
         expect(keys).toHaveProperty(
           'myComponent__addressLine2',
           expect.objectContaining({
-            flags: expect.objectContaining({ label: 'Address line 2' })
+            flags: expect.objectContaining({
+              label: 'components.addressField.line2'
+            })
+            // Sub-field title is a key constant; resolved at request time (Task 8/9).
           })
         )
 
         expect(keys).toHaveProperty(
           'myComponent__town',
           expect.objectContaining({
-            flags: expect.objectContaining({ label: 'Town or city' })
+            flags: expect.objectContaining({
+              label: 'components.addressField.town'
+            })
+            // Sub-field title is a key constant; resolved at request time (Task 8/9).
           })
         )
 
         expect(keys).toHaveProperty(
           'myComponent__county',
           expect.objectContaining({
-            flags: expect.objectContaining({ label: 'County' })
+            flags: expect.objectContaining({
+              label: 'components.addressField.county'
+            })
+            // Sub-field title is a key constant; resolved at request time (Task 8/9).
           })
         )
 
         expect(keys).toHaveProperty(
           `myComponent__postcode`,
           expect.objectContaining({
-            flags: expect.objectContaining({ label: 'Postcode' })
+            flags: expect.objectContaining({
+              label: 'components.addressField.postcode'
+            })
+            // Sub-field title is a key constant; resolved at request time (Task 8/9).
           })
         )
       })
@@ -244,13 +264,16 @@ describe('UkAddressField', () => {
 
         expect(result.errors).toEqual([
           expect.objectContaining({
-            text: 'Enter address line 1'
+            text: 'Enter components.addressField.line1'
+            // Sub-field title is a key constant; resolved at request time (Task 8/9).
           }),
           expect.objectContaining({
-            text: 'Enter town or city'
+            text: 'Enter components.addressField.town'
+            // Sub-field title is a key constant; resolved at request time (Task 8/9).
           }),
           expect.objectContaining({
-            text: 'Enter postcode'
+            text: 'Enter components.addressField.postcode'
+            // Sub-field title is a key constant; resolved at request time (Task 8/9).
           })
         ])
       })
@@ -332,8 +355,8 @@ describe('UkAddressField', () => {
         const state1 = getFormState(address)
         const state2 = getFormState({})
 
-        const answer1 = getAnswer(field, state1)
-        const answer2 = getAnswer(field, state2)
+        const answer1 = getAnswer(field, state1, translator)
+        const answer2 = getAnswer(field, state2, translator)
 
         expect(answer1).toBe(
           'Richard Fairclough House<br>Knutsford Road<br>Warrington<br>Cheshire<br>WA4 1HT<br>'
@@ -405,7 +428,11 @@ describe('UkAddressField', () => {
 
       it('sets Nunjucks component defaults', () => {
         const payload = getFormData(address)
-        const viewModel = field.getViewModel(payload)
+        const viewModel = field.getViewModel({
+          payload,
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -417,6 +444,7 @@ describe('UkAddressField', () => {
               expect.objectContaining({
                 model: getViewModel(address, 'addressLine1', {
                   label: { text: 'Address line 1' },
+                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   attributes: { autocomplete: 'address-line1' }
                 })
               }),
@@ -424,6 +452,7 @@ describe('UkAddressField', () => {
               expect.objectContaining({
                 model: getViewModel(address, 'addressLine2', {
                   label: { text: 'Address line 2 (optional)' },
+                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   attributes: { autocomplete: 'address-line2' },
                   value: address.addressLine2
                 })
@@ -432,6 +461,7 @@ describe('UkAddressField', () => {
               expect.objectContaining({
                 model: getViewModel(address, 'town', {
                   label: { text: 'Town or city' },
+                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   classes: 'govuk-!-width-two-thirds',
                   attributes: { autocomplete: 'address-level2' },
                   value: address.town
@@ -441,6 +471,7 @@ describe('UkAddressField', () => {
               expect.objectContaining({
                 model: getViewModel(address, 'county', {
                   label: { text: 'County (optional)' },
+                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   attributes: { autocomplete: 'address-level1' },
                   value: address.county
                 })
@@ -449,6 +480,7 @@ describe('UkAddressField', () => {
               expect.objectContaining({
                 model: getViewModel(address, 'postcode', {
                   label: { text: 'Postcode' },
+                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   classes: 'govuk-input--width-10',
                   attributes: { autocomplete: 'postal-code' },
                   value: address.postcode
@@ -461,7 +493,11 @@ describe('UkAddressField', () => {
 
       it('sets Nunjucks component fieldset', () => {
         const payload = getFormData(address)
-        const viewModel = field.getViewModel(payload)
+        const viewModel = field.getViewModel({
+          payload,
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel.fieldset).toEqual({
           legend: {
@@ -477,6 +513,20 @@ describe('UkAddressField', () => {
         const errors = field.getAllPossibleErrors()
         expect(errors.baseErrors).not.toBeEmpty()
         expect(errors.advancedSettingsErrors).toBeEmpty()
+      })
+    })
+
+    describe('sub-field title key constants', () => {
+      it('stores sub-field titles as i18next key constants', () => {
+        const addrField = collection.fields[0] as UkAddressField
+        const subFields = addrField.collection.fields
+
+        expect(subFields[0].title).toBe('components.addressField.uprn')
+        expect(subFields[1].title).toBe('components.addressField.line1')
+        expect(subFields[2].title).toBe('components.addressField.line2')
+        expect(subFields[3].title).toBe('components.addressField.town')
+        expect(subFields[4].title).toBe('components.addressField.county')
+        expect(subFields[5].title).toBe('components.addressField.postcode')
       })
     })
   })
@@ -588,7 +638,8 @@ describe('UkAddressField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'Address line 1 must be 100 characters or less'
+                  text: 'components.addressField.line1 must be 100 characters or less'
+                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 })
               ]
             }
@@ -613,7 +664,8 @@ describe('UkAddressField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'Address line 2 must be 100 characters or less'
+                  text: 'components.addressField.line2 must be 100 characters or less'
+                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 })
               ]
             }
@@ -638,7 +690,8 @@ describe('UkAddressField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'Town or city must be 100 characters or less'
+                  text: 'components.addressField.town must be 100 characters or less'
+                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 })
               ]
             }
@@ -663,7 +716,8 @@ describe('UkAddressField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'County must be 100 characters or less'
+                  text: 'components.addressField.county must be 100 characters or less'
+                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 })
               ]
             }
@@ -688,7 +742,8 @@ describe('UkAddressField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'Enter a valid postcode'
+                  text: 'Enter a valid components.addressField.postcode'
+                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 })
               ]
             }
@@ -713,13 +768,16 @@ describe('UkAddressField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'Enter address line 1'
+                  text: 'Enter components.addressField.line1'
+                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 }),
                 expect.objectContaining({
-                  text: 'Enter town or city'
+                  text: 'Enter components.addressField.town'
+                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 }),
                 expect.objectContaining({
-                  text: 'Enter a valid postcode'
+                  text: 'Enter a valid components.addressField.postcode'
+                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 })
               ]
             }
@@ -739,7 +797,7 @@ describe('UkAddressField', () => {
           const result = collection.validate(input)
           expect(result).toEqual(output)
 
-          const errors = collection.getErrors(result.errors)
+          const errors = collection.getErrors(translator, result.errors)
           expect(errors).toEqual(output.errors)
         }
       )

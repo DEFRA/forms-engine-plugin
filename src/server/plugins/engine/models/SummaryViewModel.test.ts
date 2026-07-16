@@ -5,6 +5,7 @@ import {
 } from '@defra/forms-model'
 
 import { FORM_PREFIX } from '~/src/server/constants.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import {
   FormModel,
   SummaryViewModel
@@ -12,6 +13,7 @@ import {
 import { SummaryPageController } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { serverWithSaveAndExit } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import {
   createPage,
   type PageControllerClass
@@ -134,7 +136,12 @@ describe('SummaryViewModel', () => {
     ({ state, keys, values, names, answers }) => {
       beforeEach(() => {
         context = model.getFormContext(request, state)
-        summaryViewModel = new SummaryViewModel(request, page, context)
+        summaryViewModel = new SummaryViewModel(
+          request,
+          page,
+          context,
+          stubTranslator
+        )
       })
 
       it('should add title for each section', () => {
@@ -207,7 +214,12 @@ describe('SummaryViewModel', () => {
       it('should add summary list for each section (preview URL direct access)', () => {
         request.query.force = '' // Preview URL '?force'
         context = model.getFormContext(request, state)
-        summaryViewModel = new SummaryViewModel(request, page, context)
+        summaryViewModel = new SummaryViewModel(
+          request,
+          page,
+          context,
+          stubTranslator
+        )
 
         expect(summaryViewModel.checkAnswers).toHaveLength(2)
 
@@ -252,7 +264,12 @@ describe('SummaryViewModel', () => {
       it('should use correct summary labels', () => {
         request.query.force = '' // Preview URL '?force'
         context = model.getFormContext(request, state)
-        summaryViewModel = new SummaryViewModel(request, page, context)
+        summaryViewModel = new SummaryViewModel(
+          request,
+          page,
+          context,
+          stubTranslator
+        )
 
         expect(summaryViewModel.details).toHaveLength(2)
 
@@ -316,7 +333,12 @@ describe('SummaryViewModel', () => {
 
     const page = createPage(model, definition.pages[2])
 
-    summaryViewModel = new SummaryViewModel(request, page, context)
+    summaryViewModel = new SummaryViewModel(
+      request,
+      page,
+      context,
+      stubTranslator
+    )
 
     expect(summaryViewModel.details).toHaveLength(2)
 
@@ -337,6 +359,106 @@ describe('SummaryViewModel', () => {
       title: 'How you would like to receive your pizza (optional)',
       label: 'How would you like to receive your pizza?'
     })
+  })
+})
+
+describe('SummaryViewModel with per-request Translator', () => {
+  let model: FormModel
+  let page: PageControllerClass
+  let request: FormContextRequest
+  let context: FormContext
+  let mockTranslator: Translator
+
+  beforeEach(() => {
+    model = new FormModel(definition, {
+      basePath: `${FORM_PREFIX}/test`
+    })
+
+    page = createPage(model, definition.pages[2])
+    const pageUrl = new URL('http://example.com/repeat/pizza-order/summary')
+
+    request = buildFormContextRequest({
+      method: 'get',
+      url: pageUrl,
+      path: pageUrl.pathname,
+      params: {
+        path: 'pizza-order',
+        slug: 'repeat'
+      },
+      query: {},
+      app: { model }
+    })
+
+    mockTranslator = {
+      t: jest.fn().mockReturnValue('mocked'),
+      tPage: jest.fn().mockReturnValue('mocked-content') as Translator['tPage'],
+      tComponent: jest
+        .fn()
+        .mockReturnValue('mocked-content') as Translator['tComponent'],
+      tSection: jest
+        .fn()
+        .mockReturnValue('mocked-content') as Translator['tSection'],
+      tListItem: jest
+        .fn()
+        .mockReturnValue('mocked-content') as Translator['tListItem'],
+      tForm: jest.fn().mockReturnValue('mocked-content') as Translator['tForm'],
+      language: 'en-GB'
+    }
+  })
+
+  it('should use the provided translator t function for plugin keys like pages.summary.change', () => {
+    const state: FormState = {
+      $$__referenceNumber: 'foobar',
+      orderType: 'collection',
+      pizza: []
+    }
+
+    context = model.getFormContext(request, state)
+    const viewModel = new SummaryViewModel(
+      request,
+      page,
+      context,
+      mockTranslator
+    )
+    expect(viewModel).toBeDefined()
+
+    expect(mockTranslator.t).toHaveBeenCalledWith('pages.summary.change')
+  })
+
+  it('should use the provided translator t function for pages.summary.notProvided', () => {
+    const state: FormState = {
+      $$__referenceNumber: 'foobar',
+      orderType: 'collection',
+      pizza: []
+    }
+
+    context = model.getFormContext(request, state)
+    const viewModel = new SummaryViewModel(
+      request,
+      page,
+      context,
+      mockTranslator
+    )
+    expect(viewModel).toBeDefined()
+
+    expect(mockTranslator.t).toHaveBeenCalledWith('pages.summary.notProvided')
+  })
+
+  it('should use stubTranslator when no specific translation assertions needed', () => {
+    const state: FormState = {
+      $$__referenceNumber: 'foobar',
+      orderType: 'collection',
+      pizza: []
+    }
+
+    context = model.getFormContext(request, state)
+    const viewModel = new SummaryViewModel(
+      request,
+      page,
+      context,
+      stubTranslator
+    )
+    expect(viewModel).toBeDefined()
   })
 })
 
@@ -379,7 +501,11 @@ describe('SummaryPageController', () => {
       }
 
       const context = model.getFormContext(request, state)
-      const viewModel = controller.getViewModel(request, context)
+      const viewModel = controller.getViewModel(
+        request,
+        context,
+        stubTranslator
+      )
 
       expect(viewModel).toHaveProperty('allowSaveAndExit', true)
     })
@@ -392,7 +518,11 @@ describe('SummaryPageController', () => {
       }
 
       const context = model.getFormContext(request, state)
-      const viewModel = controller.getSummaryViewModel(request, context)
+      const viewModel = controller.getSummaryViewModel(
+        request,
+        context,
+        stubTranslator
+      )
 
       expect(viewModel.pageTitle).toBe(
         'Check your answers before sending your form'
@@ -426,7 +556,11 @@ describe('SummaryPageController', () => {
       }
 
       const context = titleModel.getFormContext(request, state)
-      const viewModel = controller.getSummaryViewModel(request, context)
+      const viewModel = controller.getSummaryViewModel(
+        request,
+        context,
+        stubTranslator
+      )
 
       expect(viewModel.pageTitle).toBe(
         'Check your answers before sending your form'
@@ -464,7 +598,11 @@ describe('SummaryPageController', () => {
       }
 
       const context = titleModel.getFormContext(request, state)
-      const viewModel = controller.getSummaryViewModel(request, context)
+      const viewModel = controller.getSummaryViewModel(
+        request,
+        context,
+        stubTranslator
+      )
 
       expect(viewModel.pageTitle).toBe('Override summary title')
     })

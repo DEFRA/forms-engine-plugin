@@ -22,7 +22,12 @@ import {
   OsGridRefField
 } from '~/src/server/plugins/engine/components/index.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import definition from '~/test/form/definitions/blank.js'
+
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
 
 describe('Location field formatting', () => {
   let model: FormModel
@@ -52,7 +57,9 @@ describe('Location field formatting', () => {
         locationEN__northing: 654321
       }
 
-      const answer = getAnswer(field, state, { format: 'email' })
+      const answer = getAnswer(field, state, stubTranslator, {
+        format: 'email'
+      })
       expect(answer).toBe('Easting: 123456\nNorthing: 654321\n')
     })
 
@@ -62,7 +69,7 @@ describe('Location field formatting', () => {
         locationEN__northing: 654321
       }
 
-      const answer = getAnswer(field, state, { format: 'data' })
+      const answer = getAnswer(field, state, stubTranslator, { format: 'data' })
       expect(answer).toBe('Easting: 123456\nNorthing: 654321')
     })
 
@@ -72,7 +79,9 @@ describe('Location field formatting', () => {
         locationEN__northing: 654321
       }
 
-      const answer = getAnswer(field, state, { format: 'summary' })
+      const answer = getAnswer(field, state, stubTranslator, {
+        format: 'summary'
+      })
       // Should render as HTML from markdown
       expect(answer).toContain('Easting: 123456')
       expect(answer).toContain('Northing: 654321')
@@ -81,7 +90,9 @@ describe('Location field formatting', () => {
     it('returns empty string when no values', () => {
       const state = {}
 
-      const answer = getAnswer(field, state, { format: 'email' })
+      const answer = getAnswer(field, state, stubTranslator, {
+        format: 'email'
+      })
       expect(answer).toBe('')
     })
   })
@@ -105,7 +116,9 @@ describe('Location field formatting', () => {
         locationLL__longitude: -0.127758
       }
 
-      const answer = getAnswer(field, state, { format: 'email' })
+      const answer = getAnswer(field, state, stubTranslator, {
+        format: 'email'
+      })
       expect(answer).toBe('Latitude: 51.51945\nLongitude: -0.127758\n')
     })
 
@@ -115,7 +128,7 @@ describe('Location field formatting', () => {
         locationLL__longitude: -0.127758
       }
 
-      const answer = getAnswer(field, state, { format: 'data' })
+      const answer = getAnswer(field, state, stubTranslator, { format: 'data' })
       expect(answer).toBe('Latitude: 51.51945\nLongitude: -0.127758')
     })
 
@@ -125,7 +138,9 @@ describe('Location field formatting', () => {
         locationLL__longitude: -0.127758
       }
 
-      const answer = getAnswer(field, state, { format: 'summary' })
+      const answer = getAnswer(field, state, stubTranslator, {
+        format: 'summary'
+      })
       // Should render as HTML from markdown
       expect(answer).toContain('Latitude: 51.51945')
       expect(answer).toContain('Longitude: -0.127758')
@@ -134,7 +149,9 @@ describe('Location field formatting', () => {
     it('returns empty string when no values', () => {
       const state = {}
 
-      const answer = getAnswer(field, state, { format: 'email' })
+      const answer = getAnswer(field, state, stubTranslator, {
+        format: 'email'
+      })
       expect(answer).toBe('')
     })
   })
@@ -157,7 +174,9 @@ describe('Location field formatting', () => {
         gridRef: 'TQ123456'
       }
 
-      const answer = getAnswer(field, state, { format: 'email' })
+      const answer = getAnswer(field, state, stubTranslator, {
+        format: 'email'
+      })
       expect(answer).toBe('TQ123456\n')
     })
 
@@ -166,7 +185,7 @@ describe('Location field formatting', () => {
         gridRef: 'TQ123456'
       }
 
-      const answer = getAnswer(field, state, { format: 'data' })
+      const answer = getAnswer(field, state, stubTranslator, { format: 'data' })
       expect(answer).toBe('TQ123456')
     })
 
@@ -175,7 +194,9 @@ describe('Location field formatting', () => {
         gridRef: 'TQ123456'
       }
 
-      const answer = getAnswer(field, state, { format: 'summary' })
+      const answer = getAnswer(field, state, stubTranslator, {
+        format: 'summary'
+      })
       expect(answer).toBe('TQ123456')
     })
   })
@@ -198,7 +219,9 @@ describe('Location field formatting', () => {
         ngField: 'NG12345678'
       }
 
-      const answer = getAnswer(field, state, { format: 'email' })
+      const answer = getAnswer(field, state, stubTranslator, {
+        format: 'email'
+      })
       expect(answer).toBe('NG12345678\n')
     })
 
@@ -207,7 +230,7 @@ describe('Location field formatting', () => {
         ngField: 'NG12345678'
       }
 
-      const answer = getAnswer(field, state, { format: 'data' })
+      const answer = getAnswer(field, state, stubTranslator, { format: 'data' })
       expect(answer).toBe('NG12345678')
     })
 
@@ -216,7 +239,9 @@ describe('Location field formatting', () => {
         ngField: 'NG12345678'
       }
 
-      const answer = getAnswer(field, state, { format: 'summary' })
+      const answer = getAnswer(field, state, stubTranslator, {
+        format: 'summary'
+      })
       expect(answer).toBe('NG12345678')
     })
   })
@@ -239,7 +264,9 @@ describe('Location field formatting', () => {
         geoField: validState
       }
 
-      const answer = getAnswer(field, state, { format: 'email' })
+      const answer = getAnswer(field, state, stubTranslator, {
+        format: 'email'
+      })
       expect(answer).toBe('Added 4 locations\n')
     })
 
@@ -248,7 +275,7 @@ describe('Location field formatting', () => {
         geoField: validState
       }
 
-      const answer = getAnswer(field, state, { format: 'data' })
+      const answer = getAnswer(field, state, stubTranslator, { format: 'data' })
       expect(answer).toBe('a,b,c,d')
     })
 
@@ -257,7 +284,9 @@ describe('Location field formatting', () => {
         geoField: validState
       }
 
-      const answer = getAnswer(field, state, { format: 'summary' })
+      const answer = getAnswer(field, state, stubTranslator, {
+        format: 'summary'
+      })
       expect(answer).toBe('Added 4 locations')
     })
   })
@@ -281,7 +310,9 @@ describe('Location field formatting', () => {
         declField: true
       }
 
-      const answer = getAnswer(field, state, { format: 'email' })
+      const answer = getAnswer(field, state, stubTranslator, {
+        format: 'email'
+      })
       expect(answer).toBe('I understand and agree\n')
     })
 
@@ -290,7 +321,9 @@ describe('Location field formatting', () => {
         declField: false
       }
 
-      const answer = getAnswer(field, state, { format: 'email' })
+      const answer = getAnswer(field, state, stubTranslator, {
+        format: 'email'
+      })
       expect(answer).toBe('Not provided\n')
     })
 
@@ -299,7 +332,7 @@ describe('Location field formatting', () => {
         declField: true
       }
 
-      const answer = getAnswer(field, state, { format: 'data' })
+      const answer = getAnswer(field, state, stubTranslator, { format: 'data' })
       expect(answer).toBe('true')
     })
 
@@ -308,14 +341,14 @@ describe('Location field formatting', () => {
         declField: false
       }
 
-      const answer = getAnswer(field, state, { format: 'data' })
+      const answer = getAnswer(field, state, stubTranslator, { format: 'data' })
       expect(answer).toBe('false')
     })
 
     it('formats for data output when no value', () => {
       const state = {}
 
-      const answer = getAnswer(field, state, { format: 'data' })
+      const answer = getAnswer(field, state, stubTranslator, { format: 'data' })
       expect(answer).toBe('false')
     })
 
@@ -324,7 +357,9 @@ describe('Location field formatting', () => {
         declField: true
       }
 
-      const answer = getAnswer(field, state, { format: 'summary' })
+      const answer = getAnswer(field, state, stubTranslator, {
+        format: 'summary'
+      })
       expect(answer).toBe('I understand and agree')
     })
 
@@ -333,14 +368,18 @@ describe('Location field formatting', () => {
         declField: false
       }
 
-      const answer = getAnswer(field, state, { format: 'summary' })
+      const answer = getAnswer(field, state, stubTranslator, {
+        format: 'summary'
+      })
       expect(answer).toBe('Not provided')
     })
 
     it('formats for summary display when no value', () => {
       const state = {}
 
-      const answer = getAnswer(field, state, { format: 'summary' })
+      const answer = getAnswer(field, state, stubTranslator, {
+        format: 'summary'
+      })
       expect(answer).toBe('Not provided')
     })
   })
@@ -359,7 +398,9 @@ describe('Location field formatting', () => {
         locationEN__northing: 654321
       }
 
-      const answer = getAnswerMarkdown(field, state, { format: 'email' })
+      const answer = getAnswerMarkdown(field, state, translator, {
+        format: 'email'
+      })
       expect(answer).toBe('Easting: 123456\nNorthing: 654321\n')
     })
 
@@ -376,7 +417,9 @@ describe('Location field formatting', () => {
         locationLL__longitude: -0.127758
       }
 
-      const answer = getAnswerMarkdown(field, state, { format: 'email' })
+      const answer = getAnswerMarkdown(field, state, translator, {
+        format: 'email'
+      })
       expect(answer).toBe('Latitude: 51.51945\nLongitude: -0.127758\n')
     })
 
@@ -392,7 +435,9 @@ describe('Location field formatting', () => {
         gridRef: 'TQ123456'
       }
 
-      const answer = getAnswerMarkdown(field, state, { format: 'email' })
+      const answer = getAnswerMarkdown(field, state, translator, {
+        format: 'email'
+      })
       expect(answer).toBe('TQ123456\n')
     })
   })

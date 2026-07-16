@@ -7,8 +7,13 @@ import {
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
+
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
 
 describe('LatLongField', () => {
   let model: FormModel
@@ -46,14 +51,20 @@ describe('LatLongField', () => {
         expect(keys).toHaveProperty(
           'myComponent__latitude',
           expect.objectContaining({
-            flags: expect.objectContaining({ label: 'Latitude' })
+            flags: expect.objectContaining({
+              label: 'components.latLongField.latitude'
+            })
+            // Sub-field title is a key constant; resolved at request time (Task 8/9).
           })
         )
 
         expect(keys).toHaveProperty(
           'myComponent__longitude',
           expect.objectContaining({
-            flags: expect.objectContaining({ label: 'Longitude' })
+            flags: expect.objectContaining({
+              label: 'components.latLongField.longitude'
+            })
+            // Sub-field title is a key constant; resolved at request time (Task 8/9).
           })
         )
       })
@@ -191,8 +202,8 @@ describe('LatLongField', () => {
         })
         const state2 = getFormState({})
 
-        const answer1 = getAnswer(field, state1)
-        const answer2 = getAnswer(field, state2)
+        const answer1 = getAnswer(field, state1, translator)
+        const answer2 = getAnswer(field, state2, translator)
 
         expect(answer1).toBe('Latitude: 51.51945<br>Longitude: -0.127758<br>')
         expect(answer2).toBe('')
@@ -275,7 +286,11 @@ describe('LatLongField', () => {
           latitude: 51.51945,
           longitude: -0.127758
         })
-        const viewModel = field.getViewModel(payload)
+        const viewModel = field.getViewModel({
+          payload,
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -287,13 +302,19 @@ describe('LatLongField', () => {
             },
             items: [
               expect.objectContaining({
-                label: expect.objectContaining({ text: 'Latitude' }),
+                label: expect.objectContaining({
+                  text: 'Latitude'
+                }),
+                // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 name: 'myComponent__latitude',
                 id: 'myComponent__latitude',
                 value: 51.51945
               }),
               expect.objectContaining({
-                label: expect.objectContaining({ text: 'Longitude' }),
+                label: expect.objectContaining({
+                  text: 'Longitude'
+                }),
+                // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 name: 'myComponent__longitude',
                 id: 'myComponent__longitude',
                 value: -0.127758
@@ -312,12 +333,14 @@ describe('LatLongField', () => {
           { model }
         )
 
-        const viewModel = componentWithInstruction.getViewModel(
-          getFormData({
+        const viewModel = componentWithInstruction.getViewModel({
+          payload: getFormData({
             latitude: 51.51945,
             longitude: -0.127758
-          })
-        )
+          }),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         const instructionText =
           'instructionText' in viewModel ? viewModel.instructionText : undefined
@@ -340,7 +363,11 @@ describe('LatLongField', () => {
           }
         ]
 
-        const viewModel = field.getViewModel(payload, errors)
+        const viewModel = field.getViewModel({
+          payload,
+          errors,
+          translator: stubTranslator
+        })
 
         // Check that error is passed to the viewModel
         expect(viewModel.errors).toEqual(errors)
@@ -377,7 +404,7 @@ describe('LatLongField', () => {
           }
         ]
 
-        const viewErrors = field.getViewErrors(errors)
+        const viewErrors = field.getViewErrors(translator, errors)
 
         expect(viewErrors).toHaveLength(2)
         expect(viewErrors).toEqual([
@@ -434,6 +461,16 @@ describe('LatLongField', () => {
               : e.template
           )
         )
+      })
+    })
+
+    describe('sub-field title key constants', () => {
+      it('stores sub-field titles as i18next key constants', () => {
+        const locationField = collection.fields[0] as LatLongField
+        const subFields = locationField.collection.fields
+
+        expect(subFields[0].title).toBe('components.latLongField.latitude')
+        expect(subFields[1].title).toBe('components.latLongField.longitude')
       })
     })
   })
@@ -602,7 +639,8 @@ describe('LatLongField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'Latitude must have no more than 7 decimal places'
+                  text: 'components.latLongField.latitude must have no more than 7 decimal places'
+                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 })
               ]
             }
@@ -619,7 +657,8 @@ describe('LatLongField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'Longitude must have no more than 7 decimal places'
+                  text: 'components.latLongField.longitude must have no more than 7 decimal places'
+                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 })
               ]
             }
@@ -697,7 +736,8 @@ describe('LatLongField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'Latitude must have no more than 7 decimal places'
+                  text: 'components.latLongField.latitude must have no more than 7 decimal places'
+                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 })
               ]
             }
@@ -727,7 +767,8 @@ describe('LatLongField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'Longitude must have no more than 7 decimal places'
+                  text: 'components.latLongField.longitude must have no more than 7 decimal places'
+                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 })
               ]
             }

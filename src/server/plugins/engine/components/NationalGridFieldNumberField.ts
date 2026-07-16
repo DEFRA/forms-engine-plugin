@@ -2,6 +2,8 @@ import { type NationalGridFieldNumberFieldComponent } from '@defra/forms-model'
 
 import { LocationFieldBase } from '~/src/server/plugins/engine/components/LocationFieldBase.js'
 import { createLowerFirstExpression } from '~/src/server/plugins/engine/components/helpers/index.js'
+import { t } from '~/src/server/plugins/engine/i18n/index.js'
+import { type ErrorMessageTemplateList } from '~/src/server/plugins/engine/types.js'
 
 export class NationalGridFieldNumberField extends LocationFieldBase {
   declare options: NationalGridFieldNumberFieldComponent['options']
@@ -13,14 +15,13 @@ export class NationalGridFieldNumberField extends LocationFieldBase {
     const pattern =
       /^((([sS]|[nN])[a-hA-Hj-zJ-Z])|(([tT]|[oO])[abfglmqrvwABFGLMQRVW])|([hH][l-zL-Z])|([jJ][lmqrvwLMQRVW]))\s?([0-9]{4})\s?([0-9]{4})$/
 
-    const patternTemplate =
-      'Enter a valid National Grid field number for {{lowerFirst(#title)}} like NG 1234 5678'
-
     return {
       pattern,
-      patternErrorMessage: createLowerFirstExpression(patternTemplate),
+      patternErrorMessage: createLowerFirstExpression(
+        t('components.nationalGridField.pattern', 'en-GB')
+      ),
       requiredMessage: createLowerFirstExpression(
-        'Enter {{lowerFirst(#title)}}'
+        t('components.nationalGridField.required', 'en-GB')
       )
     }
   }
@@ -30,7 +31,7 @@ export class NationalGridFieldNumberField extends LocationFieldBase {
       {
         type: 'pattern',
         template: createLowerFirstExpression(
-          'Enter a valid National Grid field number for {{lowerFirst(#title)}} like NG 1234 5678'
+          t('components.nationalGridField.pattern', 'en-GB')
         )
       }
     ]
@@ -39,10 +40,23 @@ export class NationalGridFieldNumberField extends LocationFieldBase {
   /**
    * Static version of getAllPossibleErrors that doesn't require a component instance.
    */
-  static getAllPossibleErrors() {
-    const instance = Object.create(
-      NationalGridFieldNumberField.prototype
-    ) as NationalGridFieldNumberField
-    return instance.getAllPossibleErrors()
+  static getAllPossibleErrors(): ErrorMessageTemplateList {
+    return {
+      baseErrors: [
+        {
+          type: 'required',
+          template: createLowerFirstExpression(
+            t('components.nationalGridField.required', 'en-GB')
+          )
+        },
+        {
+          type: 'pattern',
+          template: createLowerFirstExpression(
+            t('components.nationalGridField.pattern', 'en-GB')
+          )
+        }
+      ],
+      advancedSettingsErrors: []
+    }
   }
 }

@@ -6,9 +6,14 @@ import {
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import { listYesNoExamples } from '~/test/fixtures/list.js'
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
+
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
 
 describe('YesNoField', () => {
   let def: YesNoFieldComponent
@@ -143,9 +148,9 @@ describe('YesNoField', () => {
       const state2 = getFormState(false)
       const state3 = getFormState(null)
 
-      const answer1 = getAnswer(field, state1)
-      const answer2 = getAnswer(field, state2)
-      const answer3 = getAnswer(field, state3)
+      const answer1 = getAnswer(field, state1, translator)
+      const answer2 = getAnswer(field, state2, translator)
+      const answer3 = getAnswer(field, state3, translator)
 
       expect(answer1).toBe('Yes')
       expect(answer2).toBe('No')
@@ -215,7 +220,11 @@ describe('YesNoField', () => {
     it('sets Nunjucks component defaults', () => {
       const item = items[0]
 
-      const viewModel = field.getViewModel(getFormData(item.value))
+      const viewModel = field.getViewModel({
+        payload: getFormData(item.value),
+        errors: undefined,
+        translator: stubTranslator
+      })
 
       expect(viewModel).toEqual(
         expect.objectContaining({
@@ -228,7 +237,11 @@ describe('YesNoField', () => {
     })
 
     it.each([...items])('sets Nunjucks component radio items', (item) => {
-      const viewModel = field.getViewModel(getFormData(item.value))
+      const viewModel = field.getViewModel({
+        payload: getFormData(item.value),
+        errors: undefined,
+        translator: stubTranslator
+      })
 
       expect(viewModel.items?.[0]).not.toMatchObject({
         value: '' // First item is never empty

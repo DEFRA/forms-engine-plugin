@@ -6,7 +6,6 @@ import joi, {
 } from 'joi'
 
 import {
-  FormComponent,
   isFormState,
   isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
@@ -16,11 +15,18 @@ import {
   type Field,
   type Guidance
 } from '~/src/server/plugins/engine/components/helpers/components.js'
-import { type ComponentViewModel } from '~/src/server/plugins/engine/components/types.js'
+import {
+  type ComponentViewModel,
+  type RenderContext
+} from '~/src/server/plugins/engine/components/types.js'
 import { getErrors } from '~/src/server/plugins/engine/helpers.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
-import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
+import {
+  buildLanguageMessages,
+  validationOptions as opts
+} from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type FormPayload,
   type FormState,
@@ -28,7 +34,6 @@ import {
   type FormSubmissionState,
   type FormValidationResult
 } from '~/src/server/plugins/engine/types.js'
-import { type FormQuery } from '~/src/server/routes/types.js'
 
 export class ComponentCollection {
   page?: PageControllerClass
@@ -86,49 +91,6 @@ export class ComponentCollection {
         ? stateSchema.concat(collection.stateSchema)
         : stateSchema.keys({ [name]: field.stateSchema })
     }
-
-    // Add parent field title to collection field errors
-    formSchema = formSchema.error((errors) => {
-      return errors.flatMap((error) => {
-        if (!isErrorContext(error.local) || error.local.title) {
-          return error
-        }
-
-        // Use field key or first missing child field
-        let { missing, key = missing?.[0] } = error.local
-
-        // But avoid numeric key used by array payloads
-        if (typeof key === 'number') {
-          key = error.path[0]
-        }
-
-        // Find the parent field
-        const parent = fields.find(
-          (item) => item.name === key?.split('__').shift()
-        )
-
-        // Find the child field
-        const child = (parent?.collection?.fields ?? fields).find(
-          (item) => item.name === key
-        )
-
-        // Update error with child label
-        if (child && (!error.local.label || error.local.label === 'value')) {
-          error.local.label = child.title
-        }
-
-        // Fix error summary links for missing fields
-        if (missing?.length) {
-          error.path = missing
-          error.local.key = missing[0]
-        }
-
-        // Update error with parent title
-        error.local.title ??= parent?.label
-
-        return error
-      })
-    })
 
     if (schema?.peers) {
       formSchema = formSchema.and(...schema.peers, {
@@ -215,8 +177,14 @@ export class ComponentCollection {
   /**
    * Get all errors for all fields in this collection
    */
-  getErrors(errors?: FormSubmissionError[]): FormSubmissionError[] | undefined {
-    return this.getFieldErrors((field) => field.getErrors(errors), errors)
+  getErrors(
+    translator: Translator,
+    errors?: FormSubmissionError[]
+  ): FormSubmissionError[] | undefined {
+    return this.getFieldErrors(
+      (field) => field.getErrors(translator, errors),
+      errors
+    )
   }
 
   /**
@@ -225,25 +193,22 @@ export class ComponentCollection {
    * Composite fields like UKAddress can choose to return more than one error.
    */
   getViewErrors(
+    translator: Translator,
     errors?: FormSubmissionError[]
   ): FormSubmissionError[] | undefined {
-    return this.getFieldErrors((field) => field.getViewErrors(errors), errors)
+    return this.getFieldErrors(
+      (field) => field.getViewErrors(translator, errors),
+      errors
+    )
   }
 
-  getViewModel(
-    payload: FormPayload,
-    errors?: FormSubmissionError[],
-    query: FormQuery = {}
-  ) {
+  getViewModel(context: RenderContext) {
     const { components } = this
 
     const result: ComponentViewModel[] = components.map((component) => {
       const { isFormComponent, type } = component
 
-      const model =
-        component instanceof FormComponent
-          ? component.getViewModel(payload, errors, query)
-          : component.getViewModel()
+      const model = component.getViewModel(context)
 
       return { type, isFormComponent, model }
     })
@@ -251,11 +216,128 @@ export class ComponentCollection {
     return result
   }
 
+  overrideParentTitle(
+    formSchema: joi.ObjectSchema<FormPayload>,
+    translator: Translator | undefined
+  ) {
+    // Add parent field title to collection field errors
+    return formSchema.error((errors) => {
+      return errors.flatMap((error) => {
+        if (!isErrorContext(error.local) || error.local.title) {
+          return error
+        }
+
+        // Use field key or first missing child field
+        let { missing, key = missing?.[0] } = error.local
+
+        // But avoid numeric key used by array payloads
+        if (typeof key === 'number') {
+          key = error.path[0]
+        }
+
+        // Find the parent field
+        const parent = this.fields.find(
+          (item) => item.name === key?.split('__').shift()
+        )
+
+        // Find the child field
+        const child = (parent?.collection?.fields ?? this.fields).find(
+          (item) => item.name === key
+        )
+
+        // Update error with child label
+        if (child && (!error.local.label || error.local.label === 'value')) {
+          error.local.label = child.title
+        }
+
+        // Fix error summary links for missing fields
+        if (missing?.length) {
+          error.path = missing
+          error.local.key = missing[0]
+        }
+
+        // Update error with parent title
+        if (translator && parent) {
+          error.local.title ??= translator.tComponent(
+            parent as ComponentDef,
+            'title'
+          )
+        } else {
+          error.local.title ??= parent?.label
+        }
+
+        return error
+      })
+    })
+  }
+
   /**
    * Validate form payload
    */
-  validate(value: FormPayload = {}): FormValidationResult<FormPayload> {
-    const result = this.formSchema.validate(value, opts)
+  validate(
+    value: FormPayload = {},
+    translator?: Translator
+  ): FormValidationResult<FormPayload> {
+    const messages = translator
+      ? buildLanguageMessages(translator.t)
+      : undefined
+
+    // When translating, override Joi labels (and custom schema messages where
+    // needed) so #label/#title in message templates resolve in the correct language.
+    let schema = this.formSchema
+    // Add parent field title to collection field errors
+    schema = this.overrideParentTitle(schema, translator)
+
+    if (translator) {
+      const { t } = translator
+      const labelOverrides: Record<string, joi.Schema> = {}
+
+      for (const field of this.fields) {
+        if (field.collection) {
+          // Composite field: translate each sub-field's label using the key constant
+          // (e.g. 'components.addressField.line1' → "Llinell cyfeiriad 1") and apply
+          // any field-type-specific message overrides (e.g. objectMissing for dates).
+          const messagesOverride =
+            field.getValidationMessagesOverride(translator)
+          for (const subField of field.collection.fields) {
+            const translatedSubLabel = t(subField.title) || subField.label
+            let patchedSchema = subField.formSchema.label(translatedSubLabel)
+            if (messagesOverride) {
+              patchedSchema = patchedSchema.messages(messagesOverride)
+            }
+            labelOverrides[subField.name] = patchedSchema
+          }
+        } else {
+          const translatedLabel =
+            translator.tComponent(
+              field as unknown as ComponentDef,
+              'shortDescription'
+            ) ||
+            translator.tComponent(field as unknown as ComponentDef, 'title')
+          const messagesOverride =
+            field.getValidationMessagesOverride(translator)
+          let patchedSchema = field.formSchema
+          if (translatedLabel && translatedLabel !== field.label) {
+            patchedSchema = patchedSchema.label(translatedLabel)
+          }
+          if (messagesOverride) {
+            patchedSchema = patchedSchema.messages(messagesOverride)
+          }
+          if (patchedSchema !== field.formSchema) {
+            labelOverrides[field.name] = patchedSchema
+          }
+        }
+      }
+
+      if (Object.keys(labelOverrides).length) {
+        schema = schema.keys(labelOverrides)
+      }
+    }
+
+    const result = schema.validate(value, {
+      ...opts,
+      ...(messages && { messages })
+    })
 
     const details = result.error?.details
 

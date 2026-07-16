@@ -13,6 +13,7 @@ import { type PageController } from '~/src/server/plugins/engine/pageControllers
 import { TerminalPageController } from '~/src/server/plugins/engine/pageControllers/index.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import {
+  type AnyFormRequest,
   type AnyRequest,
   type FormContext,
   type FormContextRequest,
@@ -21,6 +22,7 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 import { FormStatus } from '~/src/server/routes/types.js'
 import { type Services } from '~/src/server/types.js'
+import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 type JourneyState = FormStatus | 'preview'
 
@@ -36,6 +38,7 @@ export interface FormModelOptions {
 
 export interface FormContextOptions extends FormModelOptions {
   errors?: FormSubmissionError[]
+  language?: string
 }
 
 type SummaryRequest = FormContextRequest & {
@@ -119,10 +122,14 @@ export async function getFormContext(
     $$__referenceNumber: cachedState.$$__referenceNumber
   } as unknown as FormSubmissionState
 
+  const language = resolveLanguage(summaryRequest as unknown as AnyFormRequest)
+  const translator = formModel.createTranslator(language)
+
   return formModel.getFormContext(
     summaryRequest,
     formState,
-    options.errors ?? []
+    options.errors ?? [],
+    translator
   )
 }
 
@@ -148,7 +155,6 @@ export async function resolveFormModel(
   }
 
   // The models cache is created lazily per server instance
-
   server.app.models ??= new Map<string, { model: FormModel; updatedAt: Date }>()
 
   const cache = server.app.models

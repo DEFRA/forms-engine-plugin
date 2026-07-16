@@ -18,7 +18,18 @@ export function answer(name) {
     return undefined
   }
 
-  return getAnswer(/** @type {Field} */ (component), context.relevantState)
+  const field = /** @type {Field} */ (component)
+  const { translator } = context
+
+  // Fallback if no translator in the context
+  return getAnswer(
+    field,
+    context.relevantState,
+    translator ?? field.model.createTranslator(),
+    {
+      format: 'summary'
+    }
+  )
 }
 
 /**

@@ -20,6 +20,7 @@ import {
   createError,
   getCacheService
 } from '~/src/server/plugins/engine/helpers.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import {
   SummaryViewModel,
   type FormModel
@@ -89,11 +90,13 @@ export class SummaryPageController extends QuestionPageController {
 
   getSummaryViewModel(
     request: FormContextRequest,
-    context: FormContext
+    context: FormContext,
+    translator: Translator
   ): SummaryViewModel {
-    const viewModel = new SummaryViewModel(request, this, context)
+    const { t } = translator
 
-    const { query } = request
+    const viewModel = new SummaryViewModel(request, this, context, translator)
+
     const { payload, errors, state } = context
 
     const paymentField = this.findPaymentField()
@@ -110,7 +113,8 @@ export class SummaryPageController extends QuestionPageController {
         viewModel.paymentState = paymentState
         viewModel.paymentDetails = this.buildPaymentDetails(
           paymentField,
-          paymentState
+          paymentState,
+          t
         )
       }
 
@@ -126,9 +130,13 @@ export class SummaryPageController extends QuestionPageController {
       }
     }
 
-    const components = this.collection.getViewModel(payload, errors, query)
+    const components = this.collection.getViewModel({
+      payload,
+      errors,
+      translator
+    })
 
-    viewModel.backLink = this.getBackLink(request, context)
+    viewModel.backLink = this.getBackLink(request, context, t)
     viewModel.feedbackLink = this.feedbackLink
     viewModel.phaseTag = this.phaseTag
     viewModel.components = components
@@ -142,32 +150,33 @@ export class SummaryPageController extends QuestionPageController {
     paymentField: PaymentField,
     paymentState: NonNullable<
       ReturnType<PaymentField['getPaymentStateFromState']>
-    >
+    >,
+    t: (key: string, opts?: Record<string, unknown>) => string
   ) {
     const rows = [
       {
-        key: { text: 'Payment for' },
+        key: { text: t('pages.summary.paymentFor') },
         value: { text: paymentState.description }
       },
       {
-        key: { text: 'Total amount' },
+        key: { text: t('pages.summary.totalAmount') },
         value: { text: formatCurrency(paymentState.amount) }
       },
       {
-        key: { text: 'Reference' },
+        key: { text: t('pages.summary.reference') },
         value: { text: paymentState.reference }
       }
     ]
 
     if (paymentState.preAuth?.createdAt) {
       rows.push({
-        key: { text: 'Date of payment' },
+        key: { text: t('pages.summary.dateOfPayment') },
         value: { text: formatPaymentDate(paymentState.preAuth.createdAt) }
       })
     }
 
     return {
-      title: { text: 'Payment details' },
+      title: { text: t('pages.summary.paymentDetailsTitle') },
       summaryList: { rows }
     }
   }
@@ -183,6 +192,9 @@ export class SummaryPageController extends QuestionPageController {
     ) => {
       const { viewName } = this
 
+      const translator = this.getTranslator(request)
+      const { t } = translator
+
       // After GOV.UK Pay callback, auto-submit the form instead of
       // showing CYA again. The payment is already pre-authorized.
       if (request.query.paymentComplete === 'true') {
@@ -195,11 +207,12 @@ export class SummaryPageController extends QuestionPageController {
 
       await this.reconcilePaymentState(request, context)
 
-      const viewModel = this.getSummaryViewModel(request, context)
+      const viewModel = this.getSummaryViewModel(request, context, translator)
 
       viewModel.hasMissingNotificationEmail =
         await this.hasMissingNotificationEmail(request, context)
 
+      viewModel.t = t
       return h.view(viewName, viewModel)
     }
   }
@@ -270,7 +283,8 @@ export class SummaryPageController extends QuestionPageController {
     checkEmailAddressForLiveFormSubmission(notificationEmail, isPreview)
 
     if (notificationEmail) {
-      const viewModel = this.getSummaryViewModel(request, context)
+      const translator = this.getTranslator(request)
+      const viewModel = this.getSummaryViewModel(request, context, translator)
 
       try {
         await submitForm(
@@ -279,7 +293,8 @@ export class SummaryPageController extends QuestionPageController {
           request,
           viewModel,
           model,
-          notificationEmail
+          notificationEmail,
+          translator
         )
       } catch (error) {
         return this.handleSubmissionError(error, request, h)
@@ -388,12 +403,17 @@ export class SummaryPageController extends QuestionPageController {
     request: FormRequestPayload,
     h: FormResponseToolkit
   ) {
+    const { t } = this.getTranslator(request)
+
     const helpUrl = error.helpLink ?? DEFAULT_PAYMENT_HELP_URL
-    const helpLinkHtml = ` or you can <a href="${helpUrl}" target="_blank" rel="noopener noreferrer" class="govuk-link">contact us (opens in new tab)</a> and quote your reference number to arrange a refund`
+    const contactUsLink = `<a href="${helpUrl}" target="_blank" rel="noopener noreferrer" class="govuk-link">${t('pages.summary.contactUsLinkText')}</a>`
+    const helpLinkHtml = t('pages.summary.submissionFailedContactSuffix', {
+      contactUsLink
+    })
 
     const govukError = createError(
       'submission',
-      `There was a problem and your form was not submitted. Try submitting the form again${helpLinkHtml}.`
+      `${t('pages.summary.submissionFailed')}${helpLinkHtml}.`
     )
 
     request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
@@ -420,7 +440,8 @@ export async function submitForm(
   request: FormRequestPayload,
   summaryViewModel: SummaryViewModel,
   model: FormModel,
-  emailAddress: string
+  emailAddress: string,
+  translator: Translator
 ) {
   await finaliseComponents(request, formMetadata, context, model)
 
@@ -434,6 +455,7 @@ export async function submitForm(
   const items = getFormSubmissionData(
     summaryViewModel.context,
     summaryViewModel.details,
+    translator,
     model
   )
 
@@ -444,6 +466,7 @@ export async function submitForm(
       items,
       emailAddress,
       request.yar.id,
+      translator,
       summaryViewModel.context.referenceNumber
     )
 
@@ -523,6 +546,7 @@ function submitData(
   items: DetailItem[],
   retrievalKey: string,
   sessionId: string,
+  translator: Translator,
   referenceNumber: string
 ) {
   const { formSubmissionService } = model.services
@@ -532,8 +556,8 @@ function submitData(
     sessionId,
     retrievalKey,
     referenceNumber,
-    main: buildMainRecords(items),
-    repeaters: buildRepeaterRecords(items)
+    main: buildMainRecords(items, translator),
+    repeaters: buildRepeaterRecords(items, translator)
   }
   return submit(payload)
 }
@@ -541,6 +565,7 @@ function submitData(
 export function getFormSubmissionData(
   context: FormContext,
   details: Detail[],
+  translator: Translator,
   model: FormModel
 ) {
   const items = context.relevantPages
@@ -551,7 +576,7 @@ export function getFormSubmissionData(
     )
     .flat()
 
-  const paymentItems = getPaymentFieldItems(context, model)
+  const paymentItems = getPaymentFieldItems(context, translator, model)
 
   return [...items, ...paymentItems]
 }
@@ -562,6 +587,7 @@ export function getFormSubmissionData(
  */
 function getPaymentFieldItems(
   context: FormContext,
+  translator: Translator,
   model: FormModel
 ): DetailItemField[] {
   const items: DetailItemField[] = []
@@ -577,7 +603,7 @@ function getPaymentFieldItems(
           field,
           state: context.state,
           href: page.href,
-          value: field.getDisplayStringFromState(context.state)
+          value: field.getDisplayStringFromState(context.state, translator)
         })
       }
     }

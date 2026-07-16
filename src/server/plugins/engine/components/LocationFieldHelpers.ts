@@ -6,6 +6,7 @@ import { type LatLongField } from '~/src/server/plugins/engine/components/LatLon
 import {
   type DateInputItem,
   type Label,
+  type RenderContext,
   type ViewModel
 } from '~/src/server/plugins/engine/components/types.js'
 import {
@@ -94,13 +95,12 @@ export function getLocationFieldViewModel(
     name: string
     value: FormValue
   },
-  payload: FormPayload,
-  errors?: FormSubmissionError[]
+  context: RenderContext
 ) {
   const { collection } = component
   const { fieldset: existingFieldset, label } = viewModel
 
-  const subViewModels = collection.getViewModel(payload, errors)
+  const subViewModels = collection.getViewModel(context)
 
   const fieldErrors: string[] = []
   subViewModels.forEach(({ model }) => {

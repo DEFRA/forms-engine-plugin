@@ -5,6 +5,7 @@ import { markdownToHtml } from '@defra/forms-model'
 
 // Static imports so Jest can mock them (dynamic computed-path imports cannot be mocked).
 import { createComponent } from '~/src/server/plugins/engine/components/helpers/components.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import { environment } from '~/src/server/plugins/nunjucks/environment.js'
 
 // Register the markdown filter that the engine plugin normally adds at server init.
@@ -26,7 +27,11 @@ export function renderComponent(fixture) {
     /** @type {unknown} */ (fixture.model)
   )
   const component = createComponent(fixture.def, { model })
-  const viewModel = component.getViewModel(fixture.payload, [])
+  const viewModel = component.getViewModel({
+    payload: fixture.payload,
+    errors: [],
+    translator: stubTranslator
+  })
 
   // Apply large label/legend sizing to match how QuestionPageController styles
   // a single-component page. isPageHeading is intentionally omitted — setting it

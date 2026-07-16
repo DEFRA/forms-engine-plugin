@@ -5,6 +5,7 @@ import {
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import definition from '~/test/form/definitions/basic.js'
 
 describe('NotificationBanner', () => {
@@ -26,7 +27,11 @@ describe('NotificationBanner', () => {
     } satisfies NotificationBannerComponent
 
     const collection = new ComponentCollection([def], { model })
-    const viewModel = collection.guidance[0].getViewModel()
+    const viewModel = collection.guidance[0].getViewModel({
+      payload: {},
+      errors: undefined,
+      translator: stubTranslator
+    })
 
     expect(viewModel).toEqual(
       expect.objectContaining({
@@ -49,7 +54,11 @@ describe('NotificationBanner', () => {
     } satisfies NotificationBannerComponent
 
     const collection = new ComponentCollection([def], { model })
-    const viewModel = collection.guidance[0].getViewModel()
+    const viewModel = collection.guidance[0].getViewModel({
+      payload: {},
+      errors: undefined,
+      translator: stubTranslator
+    })
 
     expect(viewModel).toEqual(
       expect.objectContaining({
@@ -70,7 +79,11 @@ describe('NotificationBanner', () => {
     } satisfies NotificationBannerComponent
 
     const collection = new ComponentCollection([def], { model })
-    const viewModel = collection.guidance[0].getViewModel()
+    const viewModel = collection.guidance[0].getViewModel({
+      payload: {},
+      errors: undefined,
+      translator: stubTranslator
+    })
 
     expect(viewModel).toEqual(
       expect.objectContaining({

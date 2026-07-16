@@ -16,16 +16,18 @@ import {
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
 import {
   type DateInputItem,
-  type MonthYearState
+  type MonthYearState,
+  type RenderContext
 } from '~/src/server/plugins/engine/components/types.js'
 import { parseStrictDate } from '~/src/server/plugins/engine/date-helper.js'
+import { buildValidationMessages } from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
   type FormPayload,
   type FormState,
   type FormStateValue,
-  type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
@@ -62,7 +64,7 @@ export class MonthYearField extends FormComponent {
         {
           type: ComponentType.NumberField,
           name: `${name}__month`,
-          title: 'Month',
+          title: 'components.monthYearField.month',
           schema: { min: 1, max: 12, precision: 0 },
           options: {
             required: isRequired,
@@ -74,7 +76,7 @@ export class MonthYearField extends FormComponent {
         {
           type: ComponentType.NumberField,
           name: `${name}__year`,
-          title: 'Year',
+          title: 'components.monthYearField.year',
           schema: { min: 1000, max: 3000, precision: 0 },
           options: {
             required: isRequired,
@@ -101,7 +103,10 @@ export class MonthYearField extends FormComponent {
     return MonthYearField.isMonthYear(value) ? value : undefined
   }
 
-  getDisplayStringFromFormValue(value: MonthYearState | undefined): string {
+  getDisplayStringFromFormValue(
+    value: MonthYearState | undefined,
+    _translator: Translator
+  ): string {
     if (!value) {
       return ''
     }
@@ -113,10 +118,13 @@ export class MonthYearField extends FormComponent {
     return `${monthString} ${value.year}`
   }
 
-  getDisplayStringFromState(state: FormSubmissionState) {
+  getDisplayStringFromState(
+    state: FormSubmissionState,
+    translator: Translator
+  ) {
     const value = this.getFormValueFromState(state)
 
-    return this.getDisplayStringFromFormValue(value)
+    return this.getDisplayStringFromFormValue(value, translator)
   }
 
   getContextValueFromFormValue(
@@ -145,10 +153,24 @@ export class MonthYearField extends FormComponent {
     return this.getContextValueFromFormValue(value)
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
+  getValidationMessagesOverride(translator: Translator) {
+    const { t } = translator
+    return convertToLanguageMessages({
+      'any.required': buildValidationMessages(t).objectMissing,
+      'number.base': buildValidationMessages(t).objectMissing,
+      'number.precision': buildValidationMessages(t).dateFormat,
+      'number.integer': buildValidationMessages(t).dateFormat,
+      'number.unsafe': buildValidationMessages(t).dateFormat,
+      'number.min': buildValidationMessages(t).dateFormat,
+      'number.max': buildValidationMessages(t).dateFormat
+    })
+  }
+
+  getViewModel(context: RenderContext) {
+    const { errors } = context
     const { collection, name } = this
 
-    const viewModel = super.getViewModel(payload, errors)
+    const viewModel = super.getViewModel(context)
     let { fieldset, label } = viewModel
 
     // Check for component errors only
@@ -156,7 +178,7 @@ export class MonthYearField extends FormComponent {
 
     // Use the component collection to generate the subitems
     const items: DateInputItem[] = collection
-      .getViewModel(payload, errors)
+      .getViewModel(context)
       .map(({ model }) => {
         let { label, type, value, classes, errorMessage } = model
 

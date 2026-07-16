@@ -13,12 +13,14 @@ import joi, {
 } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { type ListItem } from '~/src/server/plugins/engine/components/types.js'
+import {
+  type ListItem,
+  type RenderContext
+} from '~/src/server/plugins/engine/components/types.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
-  type FormPayload,
-  type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 
@@ -100,7 +102,8 @@ export class ListFormComponent extends FormComponent {
   }
 
   getDisplayStringFromFormValue(
-    value: string | number | boolean | Item['value'][] | undefined
+    value: string | number | boolean | Item['value'][] | undefined,
+    translator: Translator
   ): string {
     const { items } = this
 
@@ -108,29 +111,42 @@ export class ListFormComponent extends FormComponent {
 
     return items
       .filter((item) => values.includes(item.value))
-      .map((item) => item.text)
+      .map((item) => translator.tListItem(item, 'text') || item.text)
       .join(', ')
   }
 
-  getDisplayStringFromState(state: FormSubmissionState) {
+  getDisplayStringFromState(
+    state: FormSubmissionState,
+    translator: Translator
+  ) {
     // Allow for array values via subclass
     const value = this.getFormValueFromState(state)
 
-    return this.getDisplayStringFromFormValue(value)
+    return this.getDisplayStringFromFormValue(value, translator)
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
+  getViewModel(context: RenderContext) {
     const { items: listItems } = this
 
-    const viewModel = super.getViewModel(payload, errors)
+    const viewModel = super.getViewModel(context)
     const { value } = viewModel
 
     // Support multiple values for checkboxes
     const values = this.isValue(value) ? [value].flat() : []
 
+    const { tListItem } = context.translator
+
     const items = listItems.map((item) => {
       const selected = values.includes(item.value)
-      const itemModel: ListItem = { ...item, selected }
+      const resolvedText = tListItem(item, 'text') || item.text
+      const resolvedHint = tListItem(item, 'hint') || item.hint?.text
+      const hintAttr = resolvedHint ? { hint: { text: resolvedHint } } : {}
+      const itemModel: ListItem = {
+        ...item,
+        text: resolvedText,
+        selected,
+        ...hintAttr
+      }
 
       if ('id' in itemModel) {
         delete itemModel.id

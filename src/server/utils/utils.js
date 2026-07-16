@@ -2,6 +2,7 @@ import { getTraceId } from '@defra/hapi-tracing'
 import Joi from 'joi'
 
 import { config } from '~/src/config/index.js'
+import { getPluginOptions } from '~/src/server/plugins/engine/helpers.js'
 
 /**
  * Returns a set of headers to use in an HTTP request, merging them with any existing headers in options.
@@ -33,3 +34,16 @@ export function isValidUUID(str) {
   const { error } = Joi.string().uuid().validate(str)
   return error === undefined
 }
+
+/**
+ * @param {AnyFormRequest} request
+ */
+export function resolveLanguage(request) {
+  const { getLanguage } = getPluginOptions(request.server)
+  return getLanguage?.(request.query, request.yar) ?? 'en-GB'
+}
+
+/**
+ * @import { FormMetadata } from '@defra/forms-model'
+ * @import { AnyFormRequest } from '~/src/server/plugins/engine/types.js'
+ */

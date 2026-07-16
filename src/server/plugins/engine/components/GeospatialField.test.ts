@@ -1,5 +1,6 @@
 import {
   ComponentType,
+  type ComponentDef,
   type GeospatialFieldComponent
 } from '@defra/forms-model'
 
@@ -14,9 +15,14 @@ import {
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import { type GeospatialState } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
+
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
 
 describe('GeospatialField', () => {
   let model: FormModel
@@ -150,8 +156,12 @@ describe('GeospatialField', () => {
         const state1 = getFormState(validSingleState)
         const state2 = getFormState(null)
 
-        const answer1 = getAnswer(field, state1)
-        const answer2 = getAnswer(field, state2)
+        const answer1 = getAnswer(field, state1, stubTranslator, {
+          format: 'summary'
+        })
+        const answer2 = getAnswer(field, state2, stubTranslator, {
+          format: 'summary'
+        })
 
         expect(answer1).toBe('Added 1 location')
         expect(answer2).toBe('')
@@ -161,8 +171,12 @@ describe('GeospatialField', () => {
         const state1 = getFormState(validState)
         const state2 = getFormState(null)
 
-        const answer1 = getAnswer(field, state1)
-        const answer2 = getAnswer(field, state2)
+        const answer1 = getAnswer(field, state1, stubTranslator, {
+          format: 'summary'
+        })
+        const answer2 = getAnswer(field, state2, stubTranslator, {
+          format: 'summary'
+        })
 
         expect(answer1).toBe('Added 4 locations')
         expect(answer2).toBe('')
@@ -220,7 +234,11 @@ describe('GeospatialField', () => {
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = field.getViewModel(getFormData('Geospatial'))
+        const viewModel = field.getViewModel({
+          payload: getFormData('Geospatial'),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -261,7 +279,7 @@ describe('GeospatialField', () => {
               value: getFormData([]),
               errors: [
                 expect.objectContaining({
-                  text: 'Define at least 1 features'
+                  text: 'validation.features.min' // 'Define at least 1 features'
                 })
               ]
             }
@@ -311,7 +329,7 @@ describe('GeospatialField', () => {
               value: getFormData([]),
               errors: [
                 expect.objectContaining({
-                  text: 'Define at least 2 features'
+                  text: 'validation.features.min' // 'Define at least 2 features'
                 })
               ]
             }
@@ -333,7 +351,7 @@ describe('GeospatialField', () => {
               value: getFormData(validSingleState),
               errors: [
                 expect.objectContaining({
-                  text: 'Define at least 2 features'
+                  text: 'validation.features.min' // 'Define at least 2 features'
                 })
               ]
             }
@@ -366,7 +384,7 @@ describe('GeospatialField', () => {
               value: getFormData([]),
               errors: [
                 expect.objectContaining({
-                  text: 'Define at least 1 features'
+                  text: 'validation.features.min' // 'Define at least 1 features'
                 })
               ]
             }
@@ -394,7 +412,7 @@ describe('GeospatialField', () => {
               value: getFormData(validState),
               errors: [
                 expect.objectContaining({
-                  text: 'Only 1 features can be defined'
+                  text: 'validation.features.max' // 'Only 1 features can be defined'
                 })
               ]
             }
@@ -421,7 +439,7 @@ describe('GeospatialField', () => {
               value: getFormData([]),
               errors: [
                 expect.objectContaining({
-                  text: 'Define exactly 1 features'
+                  text: 'validation.features.length' // 'Define exactly 1 features'
                 })
               ]
             }
@@ -449,7 +467,7 @@ describe('GeospatialField', () => {
               value: getFormData(validState),
               errors: [
                 expect.objectContaining({
-                  text: 'Define exactly 1 features'
+                  text: 'validation.features.length' // 'Define exactly 1 features'
                 })
               ]
             }
@@ -495,7 +513,7 @@ describe('GeospatialField', () => {
               value: getFormData([]),
               errors: [
                 expect.objectContaining({
-                  text: 'Define at least 2 features'
+                  text: 'validation.features.min' // 'Define at least 2 features'
                 })
               ]
             }
@@ -512,7 +530,7 @@ describe('GeospatialField', () => {
               value: getFormData(validSingleState),
               errors: [
                 expect.objectContaining({
-                  text: 'Define at least 2 features'
+                  text: 'validation.features.min' // 'Define at least 2 features'
                 })
               ]
             }
@@ -563,7 +581,7 @@ describe('GeospatialField', () => {
               value: getFormData(validState),
               errors: [
                 expect.objectContaining({
-                  text: 'Only 1 features can be defined'
+                  text: 'validation.features.max' // 'Only 1 features can be defined'
                 })
               ]
             }
@@ -590,7 +608,7 @@ describe('GeospatialField', () => {
               value: getFormData([]),
               errors: [
                 expect.objectContaining({
-                  text: 'Define exactly 1 features'
+                  text: 'validation.features.length' // 'Define exactly 1 features'
                 })
               ]
             }
@@ -613,7 +631,7 @@ describe('GeospatialField', () => {
               value: getFormData(validState),
               errors: [
                 expect.objectContaining({
-                  text: 'Define exactly 1 features'
+                  text: 'validation.features.length' // Define exactly 1 features
                 })
               ]
             }
@@ -666,7 +684,7 @@ describe('GeospatialField', () => {
       const result = collection.validate(getFormData(invalidSingleState))
       const geospatialField = collection.components.at(0) as GeospatialField
 
-      const errors = geospatialField.getErrors(result.errors)
+      const errors = geospatialField.getErrors(translator, result.errors)
       expect(errors).toEqual([
         expect.objectContaining({
           name: 'description',
@@ -704,15 +722,73 @@ describe('GeospatialField', () => {
         }
       ]
 
+      const mockT = jest.fn().mockReturnValue('translated country error')
+      const mockTranslator = { ...stubTranslator, t: mockT }
+
       const result = collection.validate(getFormData(invalidSingleState))
       const geospatialField = collection.components.at(0) as GeospatialField
 
-      const errors = geospatialField.getErrors(result.errors)
-      expect(errors).toEqual([
+      const viewErrors = geospatialField.getViewErrors(
+        mockTranslator,
+        result.errors
+      )
+
+      expect(mockT).toHaveBeenCalledWith(
+        'components.geospatialField.validation.wrongCountry',
+        { count: 1, country: 'Scotland' }
+      )
+      expect(viewErrors).toEqual([
         expect.objectContaining({
-          name: 0,
           href: '#description_0',
-          text: 'Location 1 must be in Scotland'
+          text: 'translated country error'
+        })
+      ])
+    })
+
+    it('getViewErrors uses translator for description error text', () => {
+      const component = {
+        title: 'Example geospatial field',
+        name: 'myComponent',
+        type: ComponentType.GeospatialField,
+        options: { required: true }
+      } as unknown as ComponentDef
+
+      const collection = new ComponentCollection([component], { model })
+      const invalidSingleState: GeospatialState = [
+        {
+          type: 'Feature',
+          properties: {
+            coordinateGridReference: 'ST 00001',
+            centroidGridReference: 'ST 00001',
+            description: ''
+          },
+          geometry: {
+            coordinates: [-2.5723699109417737, 53.2380485215034],
+            type: 'Point'
+          },
+          id: 'a'
+        }
+      ]
+
+      const mockT = jest.fn().mockReturnValue('translated description error')
+      const mockTranslator = { ...stubTranslator, t: mockT }
+
+      const result = collection.validate(getFormData(invalidSingleState))
+      const geospatialField = collection.components.at(0) as GeospatialField
+
+      const viewErrors = geospatialField.getViewErrors(
+        mockTranslator,
+        result.errors
+      )
+
+      expect(mockT).toHaveBeenCalledWith(
+        'components.geospatialField.validation.descriptionRequired',
+        { count: 1 }
+      )
+      expect(viewErrors).toEqual([
+        expect.objectContaining({
+          href: '#description_0',
+          text: 'translated description error'
         })
       ])
     })

@@ -15,9 +15,11 @@ import {
   getStartPath,
   normalisePath
 } from '~/src/server/plugins/engine/helpers.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
 import {
+  type AnyFormRequest,
   type FormContext,
   type PageViewModelBase
 } from '~/src/server/plugins/engine/types.js'
@@ -28,6 +30,7 @@ import {
   type FormRequestRefs,
   type FormResponseToolkit
 } from '~/src/server/routes/types.js'
+import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 export class PageController {
   /**
@@ -161,6 +164,10 @@ export class PageController {
     return ControllerPath.Status.valueOf()
   }
 
+  protected getTranslator(request: AnyFormRequest): Translator {
+    return this.model.createTranslator(resolveLanguage(request))
+  }
+
   makeGetRouteHandler(): (
     request: FormRequest,
     context: FormContext,
@@ -168,7 +175,11 @@ export class PageController {
   ) => ReturnType<Lifecycle.Method<FormRequestRefs>> {
     return (request, context, h) => {
       const { viewModel, viewName } = this
-      return h.view(viewName, viewModel)
+      const { t } = this.getTranslator(request)
+      return h.view(viewName, {
+        ...viewModel,
+        t
+      })
     }
   }
 

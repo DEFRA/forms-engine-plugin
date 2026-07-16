@@ -3,6 +3,7 @@ import joi, { type ArraySchema } from 'joi'
 
 import { isFormValue } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { SelectionControlField } from '~/src/server/plugins/engine/components/SelectionControlField.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
@@ -41,9 +42,9 @@ export class CheckboxesField extends SelectionControlField {
       .label(this.label)
       .required()
       .messages({
-        'array.min': messageTemplate.arrayMin as string,
-        'array.max': messageTemplate.arrayMax as string,
-        'array.length': messageTemplate.arrayLength as string
+        'array.min': messageTemplate.arrayMin,
+        'array.max': messageTemplate.arrayMax,
+        'array.length': messageTemplate.arrayLength
       })
 
     if (options.required === false) {
@@ -86,7 +87,8 @@ export class CheckboxesField extends SelectionControlField {
   }
 
   getDisplayStringFromFormValue(
-    selected: (string | number | boolean)[] | undefined
+    selected: (string | number | boolean)[] | undefined,
+    translator: Translator
   ) {
     const { items } = this
 
@@ -94,10 +96,9 @@ export class CheckboxesField extends SelectionControlField {
       return ''
     }
 
-    // Map selected values to text
     return items
       .filter((item) => selected.includes(item.value))
-      .map((item) => item.text)
+      .map((item) => translator.tListItem(item, 'text') || item.text)
       .join(', ')
   }
 
@@ -118,12 +119,12 @@ export class CheckboxesField extends SelectionControlField {
     return values ?? []
   }
 
-  getDisplayStringFromState(state: FormSubmissionState) {
-    // Selected checkbox values
+  getDisplayStringFromState(
+    state: FormSubmissionState,
+    translator: Translator
+  ) {
     const selected = this.getFormValueFromState(state) ?? []
-
-    // Map selected values to text
-    return this.getDisplayStringFromFormValue(selected)
+    return this.getDisplayStringFromFormValue(selected, translator)
   }
 
   getContextValueFromState(state: FormSubmissionState) {

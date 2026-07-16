@@ -1,8 +1,3 @@
-import {
-  ComponentType,
-  type FormDefinition,
-  type PageQuestion
-} from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type ResponseObject, type ResponseToolkit } from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
@@ -18,7 +13,6 @@ import {
   getExponentialBackoffDelay,
   getPageHref,
   proceed,
-  setPageTitles,
   type GlobalScope
 } from '~/src/server/plugins/engine/helpers.js'
 import { handleLegacyRedirect } from '~/src/server/plugins/engine/helpers.js'
@@ -545,7 +539,9 @@ describe('Helpers', () => {
         componentDefMap: model.componentDefMap,
         pageMap: model.pageMap,
         componentMap: model.componentMap,
-        referenceNumber: 'foobar'
+        referenceNumber: 'foobar',
+        translator: model.createTranslator(),
+        languages: []
       }
     })
 
@@ -814,55 +810,6 @@ describe('Helpers', () => {
       )
 
       expect(response).toBe(mockRedirectResponse)
-    })
-  })
-
-  describe('setPageTitles', () => {
-    const definition: FormDefinition = {
-      name: 'Test Form',
-      startPage: '/page1',
-      pages: [
-        {
-          path: '/page1',
-          title: '',
-          next: [],
-          components: [
-            {
-              type: ComponentType.TextField,
-              name: 'textfield1',
-              title: 'What is your name?',
-              options: {},
-              schema: {}
-            },
-            {
-              type: ComponentType.TextField,
-              name: 'textfield2',
-              title: 'What is your favourite food?',
-              options: {},
-              schema: {}
-            }
-          ]
-        } satisfies PageQuestion
-      ],
-      lists: [],
-      sections: [],
-      conditions: []
-    }
-
-    beforeEach(() => {
-      jest.clearAllMocks()
-    })
-    it('should set title if missing', () => {
-      const def = structuredClone(definition)
-      setPageTitles(def)
-      expect(def.pages[0].title).toBe('What is your name?')
-    })
-
-    it('should keep title if supplied', () => {
-      const def = structuredClone(definition)
-      def.pages[0].title = 'Page 1 title'
-      setPageTitles(def)
-      expect(def.pages[0].title).toBe('Page 1 title')
     })
   })
 })
