@@ -6,6 +6,7 @@ import { initPreviewCloseLink as initPreviewCloseLinkImp } from '~/src/client/ja
 export { initMaps } from '~/src/client/javascripts/map.js'
 export * as map from '~/src/client/javascripts/map.js'
 export * as geospatialMap from '~/src/client/javascripts/geospatial-map.js'
+export * as sssiDataset from '~/src/client/javascripts/sssi-dataset.js'
 
 export const initAllGovuk = initAllGovukImp
 export const initAllAutocomplete = initAllAutocompleteImp
