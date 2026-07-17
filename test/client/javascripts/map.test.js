@@ -260,6 +260,24 @@ describe('Maps Client JS', () => {
         expect(flyToMock).toHaveBeenCalledTimes(2)
       })
 
+      test('initMaps with sssi layer', () => {
+        const location = document.body.querySelector(
+          '.govuk-form-group.app-location-field'
+        )
+        expect(location).toBeDefined()
+
+        const locationEl = /** @type {HTMLDivElement} */ (location)
+
+        // Set the initial maplayers prior to initMaps
+        locationEl.dataset.maplayers = 'sssi'
+
+        expect(() => initMaps()).not.toThrow()
+
+        expect(mockDatasetsMaplibrePlugin).toHaveBeenCalledWith({
+          datasets: Array(3).fill(expect.any(Object))
+        })
+      })
+
       test('initMaps only applies when there are location components on the page', () => {
         const locations = document.querySelectorAll('.app-location-field')
 
@@ -464,6 +482,24 @@ describe('Maps Client JS', () => {
         expect(flyToMock).toHaveBeenCalledTimes(2)
       })
 
+      test('initMaps with sssi layer', () => {
+        const location = document.body.querySelector(
+          '.govuk-form-group.app-location-field'
+        )
+        expect(location).toBeDefined()
+
+        const locationEl = /** @type {HTMLDivElement} */ (location)
+
+        // Set the initial maplayers prior to initMaps
+        locationEl.dataset.maplayers = 'sssi'
+
+        expect(() => initMaps()).not.toThrow()
+
+        expect(mockDatasetsMaplibrePlugin).toHaveBeenCalledWith({
+          datasets: Array(3).fill(expect.any(Object))
+        })
+      })
+
       test('initMaps only applies when there are location components on the page', () => {
         const locations = document.querySelectorAll('.app-location-field')
 
@@ -604,6 +640,24 @@ describe('Maps Client JS', () => {
         // Expect it to update once as the field is valid
         expect(mockAddMarker).toHaveBeenCalledTimes(1)
         expect(flyToMock).toHaveBeenCalledTimes(1)
+      })
+
+      test('initMaps with sssi layer', () => {
+        const location = document.body.querySelector(
+          '.govuk-form-group.app-location-field'
+        )
+        expect(location).toBeDefined()
+
+        const locationEl = /** @type {HTMLDivElement} */ (location)
+
+        // Set the initial maplayers prior to initMaps
+        locationEl.dataset.maplayers = 'sssi'
+
+        expect(() => initMaps()).not.toThrow()
+
+        expect(mockDatasetsMaplibrePlugin).toHaveBeenCalledWith({
+          datasets: Array(3).fill(expect.any(Object))
+        })
       })
 
       test('initMaps only applies when there are location components on the page', () => {
@@ -914,6 +968,37 @@ describe('Maps Client JS', () => {
 
         expect(mockDatasetsMaplibrePlugin).toHaveBeenCalledWith({
           datasets: Array(2).fill(expect.any(Object))
+        })
+        expect(createInteractPlugin).toHaveBeenCalledWith(expect.any(Object))
+        expect(mockAddPanel).toHaveBeenCalledWith('info', expect.any(Object))
+        expect(mockAddButton).toHaveBeenCalledTimes(3)
+        expect(mockInteractPluginEnable).not.toHaveBeenCalled()
+      })
+
+      test('initMaps with sssi layer', () => {
+        // Reset the document body with an initial value for the country boundary
+        document.body.innerHTML = `
+          <form method="post" novalidate="">
+            <div class="app-geospatial-field" data-maplayers="sssi">
+              <div class="govuk-form-group">
+                <h1 class="govuk-label-wrapper">
+                  <label class="govuk-label govuk-label--l" for="DzDkCy">
+                    Add site geospatial features
+                  </label>
+                </h1>
+                <textarea class="govuk-textarea" id="DzDkCy" name="DzDkCy" rows="5"></textarea>
+              </div>
+            </div>
+            <div class="govuk-button-group">
+              <button type="submit" data-prevent-double-click="true" class="govuk-button" data-module="govuk-button" data-govuk-button-init="">Continue</button>
+            </div>
+          </form>
+        `
+
+        initialiseGeospatialMaps()
+
+        expect(mockDatasetsMaplibrePlugin).toHaveBeenCalledWith({
+          datasets: Array(3).fill(expect.any(Object))
         })
         expect(createInteractPlugin).toHaveBeenCalledWith(expect.any(Object))
         expect(mockAddPanel).toHaveBeenCalledWith('info', expect.any(Object))

@@ -12,7 +12,7 @@ import {
   getCoordinateGridRef,
   getMapLayers
 } from '~/src/client/javascripts/map.js'
-import sssiDatasetPlugin from '~/src/client/javascripts/sssi-dataset.js'
+import sssiDataset from '~/src/client/javascripts/sssi-dataset.js'
 import { formatDelimtedList } from '~/src/client/javascripts/utils.js'
 
 const helpPanelConfig = {
@@ -210,7 +210,7 @@ export function processGeospatial(config, geospatial, index) {
   }
 
   if (mapLayers.includes('sssi')) {
-    plugins.push(sssiDatasetPlugin)
+    plugins.push(createDatasetsPlugin(sssiDataset))
   }
 
   const initConfig = {

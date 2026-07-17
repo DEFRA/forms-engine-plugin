@@ -1,6 +1,3 @@
-// @ts-expect-error - no types
-import createDatasetsPlugin from '@defra/interactive-map/plugins/datasets'
-
 const style = {
   stroke: '#00897B',
   fillPattern: 'diagonal-cross-hatch',
@@ -16,7 +13,7 @@ const walesWFS =
 const scotlandWFS =
   'https://services1.arcgis.com/LM9GyVFsughzHdbO/ArcGIS/rest/services/Sites_of_Special_Scientific_Interest/FeatureServer/0/query?f=geojson&where=1%3D1&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&returnGeometry=true&outFields=*'
 
-export default createDatasetsPlugin({
+export default {
   datasets: [
     {
       id: 'sssi-england',
@@ -88,7 +85,7 @@ export default createDatasetsPlugin({
       showInMenu: false
     }
   ]
-})
+}
 
 /**
  * @typedef {object} TransformRequestOptions
