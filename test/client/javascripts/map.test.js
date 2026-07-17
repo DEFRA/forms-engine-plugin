@@ -912,8 +912,7 @@ describe('Maps Client JS', () => {
         initialiseGeospatialMaps()
 
         expect(mockDatasetsMaplibrePlugin).toHaveBeenCalledWith({
-          datasets: Array(2).fill(expect.any(Object)),
-          layerAdapter: expect.any(Object)
+          datasets: Array(2).fill(expect.any(Object))
         })
         expect(createInteractPlugin).toHaveBeenCalledWith(expect.any(Object))
         expect(mockAddPanel).toHaveBeenCalledWith('info', expect.any(Object))
