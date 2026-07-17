@@ -30,6 +30,11 @@ import {
   initMaps,
   makeTileRequestTransformer
 } from '~/src/client/javascripts/map.js'
+import {
+  sssiEnglandRequestTransformer,
+  sssiScotlandRequestTransformer,
+  sssiWalesRequestTransformer
+} from '~/src/client/javascripts/sssi-dataset.js'
 
 /** @type {jest.Mock} */
 let mockOn
@@ -1796,6 +1801,69 @@ describe('Maps Client JS', () => {
 
       expect(result).toHaveLength(1)
       expect(result.at(0)).toBe('sssi')
+    })
+  })
+
+  describe('SSSI dataset', () => {
+    test('it appends bounding box to the england request URL', () => {
+      const result = sssiEnglandRequestTransformer('https://example.com', {
+        bbox: ['1', '1', '1', '1']
+      })
+
+      expect(result).toEqual({ url: 'https://example.com/?bbox=1%2C1%2C1%2C1' })
+    })
+
+    test('it appends bounding box to the england request URL with other query params', () => {
+      const result = sssiEnglandRequestTransformer(
+        'https://example.com?foo=bar',
+        { bbox: ['1', '1', '1', '1'] }
+      )
+
+      expect(result).toEqual({
+        url: 'https://example.com/?foo=bar&bbox=1%2C1%2C1%2C1'
+      })
+    })
+
+    test('it appends bounding box to the scotland request URL', () => {
+      const result = sssiScotlandRequestTransformer('https://example.com', {
+        bbox: ['1', '1', '1', '1']
+      })
+
+      expect(result).toEqual({
+        url: 'https://example.com/?geometry=1%2C1%2C1%2C1'
+      })
+    })
+
+    test('it appends bounding box to the scotland request URL with other query params', () => {
+      const result = sssiScotlandRequestTransformer(
+        'https://example.com?foo=bar',
+        { bbox: ['1', '1', '1', '1'] }
+      )
+
+      expect(result).toEqual({
+        url: 'https://example.com/?foo=bar&geometry=1%2C1%2C1%2C1'
+      })
+    })
+
+    test('it appends bounding box to the wales request URL', () => {
+      const result = sssiWalesRequestTransformer('https://example.com', {
+        bbox: ['1', '1', '1', '1']
+      })
+
+      expect(result).toEqual({
+        url: 'https://example.com/?bbox=1%2C1%2C1%2C1%2CEPSG%3A4326'
+      })
+    })
+
+    test('it appends bounding box to the wales request URL with other query params', () => {
+      const result = sssiWalesRequestTransformer(
+        'https://example.com?foo=bar',
+        { bbox: ['1', '1', '1', '1'] }
+      )
+
+      expect(result).toEqual({
+        url: 'https://example.com/?foo=bar&bbox=1%2C1%2C1%2C1%2CEPSG%3A4326'
+      })
     })
   })
 })

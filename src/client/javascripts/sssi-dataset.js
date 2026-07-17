@@ -13,6 +13,42 @@ const walesWFS =
 const scotlandWFS =
   'https://services1.arcgis.com/LM9GyVFsughzHdbO/ArcGIS/rest/services/Sites_of_Special_Scientific_Interest/FeatureServer/0/query?f=geojson&where=1%3D1&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&returnGeometry=true&outFields=*'
 
+/**
+ * @type {TransformRequestArgs}
+ */
+export function sssiEnglandRequestTransformer(url, { bbox }) {
+  const uri = new URL(url)
+  uri.searchParams.set('bbox', bbox.join(','))
+
+  return {
+    url: uri.toString()
+  }
+}
+
+/**
+ * @type {TransformRequestArgs}
+ */
+export function sssiWalesRequestTransformer(url, { bbox }) {
+  const uri = new URL(url)
+  uri.searchParams.set('bbox', `${bbox.join(',')},EPSG:4326`)
+
+  return {
+    url: uri.toString()
+  }
+}
+
+/**
+ * @type {TransformRequestArgs}
+ */
+export function sssiScotlandRequestTransformer(url, { bbox }) {
+  const uri = new URL(url)
+  uri.searchParams.set('geometry', bbox.join(','))
+
+  return {
+    url: uri.toString()
+  }
+}
+
 export default {
   datasets: [
     {
@@ -21,17 +57,7 @@ export default {
       dynamicGeoJSON: {
         url: englandWFS,
         idProperty: 'ref_code',
-        /**
-         * @type {TransformRequestArgs}
-         */
-        transformRequest: (url, { bbox }) => {
-          const uri = new URL(url)
-          uri.searchParams.set('bbox', bbox.join(','))
-
-          return {
-            url: uri.toString()
-          }
-        }
+        transformRequest: sssiEnglandRequestTransformer
       },
       minZoom,
       style,
@@ -44,17 +70,7 @@ export default {
       dynamicGeoJSON: {
         url: walesWFS,
         idProperty: 'id',
-        /**
-         * @type {TransformRequestArgs}
-         */
-        transformRequest: (url, { bbox }) => {
-          const uri = new URL(url)
-          uri.searchParams.set('bbox', `${bbox.join(',')},EPSG:4326`)
-
-          return {
-            url: uri.toString()
-          }
-        }
+        transformRequest: sssiWalesRequestTransformer
       },
       minZoom,
       style,
@@ -67,17 +83,7 @@ export default {
       dynamicGeoJSON: {
         url: scotlandWFS,
         idProperty: 'OBJECTID',
-        /**
-         * @type {TransformRequestArgs}
-         */
-        transformRequest: (url, { bbox }) => {
-          const uri = new URL(url)
-          uri.searchParams.set('geometry', bbox.join(','))
-
-          return {
-            url: uri.toString()
-          }
-        }
+        transformRequest: sssiScotlandRequestTransformer
       },
       minZoom,
       style,
