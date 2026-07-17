@@ -617,7 +617,8 @@ describe('prepareEnvironment', () => {
       'checkComponentTemplates',
       'checkErrorTemplates',
       'evaluate',
-      'govukRebrand'
+      'govukRebrand',
+      't'
     ]
 
     prepareNunjucksEnvironment(mockEnv, mockPluginOptions)

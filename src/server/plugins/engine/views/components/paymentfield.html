@@ -11,27 +11,27 @@
   <div class="app-payment-field">
     {% if isPreAuthorised %}
       {# Payment already pre-authorised - show confirmation message #}
-      <h2 class="govuk-heading-m">You have already authorised a payment for this form</h2>
+      <h2 class="govuk-heading-m">{{ t('components.paymentField.preAuthorisedTitle') }}</h2>
 
-      <p class="govuk-body">Continue to submit the form. You will not be charged twice.</p>
+      <p class="govuk-body">{{ t('components.paymentField.preAuthorisedBody') }}</p>
     {% else %}
       {# No pre-authorisation - show payment form #}
-      <h2 class="govuk-heading-m">{{ model.label.text if model.label and model.label.text else "Payment details required" }}</h2>
+      <h2 class="govuk-heading-m">{{ model.label.text if model.label and model.label.text else t('components.paymentField.detailsRequired') }}</h2>
 
       <p class="govuk-body">{{ description }}</p>
 
       {{ govukWarningText({
-        text: "You may see a pending transaction in your bank account but you will only be charged when you submit the form.",
-        iconFallbackText: "Warning"
+        text: t('components.paymentField.pendingTransaction'),
+        iconFallbackText: t('common.warningIconFallback')
       }) }}
 
-      <p class="govuk-body">You can submit the form after you have added your payment details.</p>
+      <p class="govuk-body">{{ t('components.paymentField.canSubmitAfterPayment') }}</p>
 
-      <p class="govuk-body govuk-!-margin-bottom-1">Total amount:</p>
+      <p class="govuk-body govuk-!-margin-bottom-1">{{ t('components.paymentField.totalAmountLabel') }}</p>
       <p class="govuk-heading-l govuk-!-margin-bottom-4 govuk-!-padding-top-0">{{ amount }}</p>
 
       {{ govukButton({
-        text: "Add payment details",
+        text: t('components.paymentField.addPaymentDetails'),
         attributes: {
           name: "action",
           value: "external-" + model.name

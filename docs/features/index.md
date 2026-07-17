@@ -31,3 +31,7 @@ Drive advanced functionality — such as calling APIs and rendering dynamic cont
 ### [Code-based Features](./features/code-based)
 
 Implement highly tailored behaviour by writing custom TypeScript/JavaScript that integrates with forms-engine-plugin's extension points.
+
+## [Multi-language support](./multi-language.md)
+
+Multiple languages, specifically English and Welsh, can be configured.

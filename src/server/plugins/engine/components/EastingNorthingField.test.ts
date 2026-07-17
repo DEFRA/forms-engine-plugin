@@ -10,8 +10,13 @@ import {
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
+
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
 
 describe('EastingNorthingField', () => {
   let model: FormModel
@@ -49,14 +54,20 @@ describe('EastingNorthingField', () => {
         expect(keys).toHaveProperty(
           'myComponent__easting',
           expect.objectContaining({
-            flags: expect.objectContaining({ label: 'Easting' })
+            flags: expect.objectContaining({
+              label: 'components.eastingNorthingField.easting'
+            })
+            // Sub-field title is a key constant; resolved at request time (Task 8/9).
           })
         )
 
         expect(keys).toHaveProperty(
           'myComponent__northing',
           expect.objectContaining({
-            flags: expect.objectContaining({ label: 'Northing' })
+            flags: expect.objectContaining({
+              label: 'components.eastingNorthingField.northing'
+            })
+            // Sub-field title is a key constant; resolved at request time (Task 8/9).
           })
         )
       })
@@ -202,8 +213,8 @@ describe('EastingNorthingField', () => {
         })
         const state2 = getFormState({})
 
-        const answer1 = getAnswer(field, state1)
-        const answer2 = getAnswer(field, state2)
+        const answer1 = getAnswer(field, state1, translator)
+        const answer2 = getAnswer(field, state2, translator)
 
         expect(answer1).toBe('Easting: 12345<br>Northing: 1234567<br>')
         expect(answer2).toBe('')
@@ -286,7 +297,11 @@ describe('EastingNorthingField', () => {
           easting: 12345,
           northing: 1234567
         })
-        const viewModel = field.getViewModel(payload)
+        const viewModel = field.getViewModel({
+          payload,
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -298,13 +313,19 @@ describe('EastingNorthingField', () => {
             },
             items: [
               expect.objectContaining({
-                label: expect.objectContaining({ text: 'Easting' }),
+                label: expect.objectContaining({
+                  text: 'Easting'
+                }),
+                // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 name: 'myComponent__easting',
                 id: 'myComponent__easting',
                 value: 12345
               }),
               expect.objectContaining({
-                label: expect.objectContaining({ text: 'Northing' }),
+                label: expect.objectContaining({
+                  text: 'Northing'
+                }),
+                // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 name: 'myComponent__northing',
                 id: 'myComponent__northing',
                 value: 1234567
@@ -323,12 +344,14 @@ describe('EastingNorthingField', () => {
           { model }
         )
 
-        const viewModel = componentWithInstruction.getViewModel(
-          getFormData({
+        const viewModel = componentWithInstruction.getViewModel({
+          payload: getFormData({
             easting: 12345,
             northing: 1234567
-          })
-        )
+          }),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         const instructionText =
           'instructionText' in viewModel ? viewModel.instructionText : undefined
@@ -351,7 +374,11 @@ describe('EastingNorthingField', () => {
           }
         ]
 
-        const viewModel = field.getViewModel(payload, errors)
+        const viewModel = field.getViewModel({
+          payload,
+          errors,
+          translator: stubTranslator
+        })
 
         // Check that error is passed to the viewModel
         expect(viewModel.errors).toEqual(errors)
@@ -388,7 +415,7 @@ describe('EastingNorthingField', () => {
           }
         ]
 
-        const viewErrors = field.getViewErrors(errors)
+        const viewErrors = field.getViewErrors(translator, errors)
 
         // Should return all errors, not just the first one
         expect(viewErrors).toHaveLength(2)
@@ -445,6 +472,20 @@ describe('EastingNorthingField', () => {
               ? e.template.rendered
               : e.template
           )
+        )
+      })
+    })
+
+    describe('sub-field title key constants', () => {
+      it('stores sub-field titles as i18next key constants', () => {
+        const locationField = collection.fields[0] as EastingNorthingField
+        const subFields = locationField.collection.fields
+
+        expect(subFields[0].title).toBe(
+          'components.eastingNorthingField.easting'
+        )
+        expect(subFields[1].title).toBe(
+          'components.eastingNorthingField.northing'
         )
       })
     })
@@ -516,7 +557,8 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /Easting for .* must be between 1000 and 60000/
+                    /components\.eastingNorthingField\.easting for .* must be between 1000 and 60000/
+                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   )
                 })
               ]
@@ -535,7 +577,8 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /Easting for .* must be between 1000 and 60000/
+                    /components\.eastingNorthingField\.easting for .* must be between 1000 and 60000/
+                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   )
                 })
               ]
@@ -571,7 +614,8 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /Northing for .* must be between 1000 and 1200000/
+                    /components\.eastingNorthingField\.northing for .* must be between 1000 and 1200000/
+                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   )
                 })
               ]
@@ -590,7 +634,8 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /Northing for .* must be between 1000 and 1200000/
+                    /components\.eastingNorthingField\.northing for .* must be between 1000 and 1200000/
+                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   )
                 })
               ]
@@ -621,7 +666,8 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /Easting for .* must be between 1 and 6 digits/
+                    /components\.eastingNorthingField\.easting for .* must be between 1 and 6 digits/
+                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   )
                 })
               ]
@@ -640,7 +686,8 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /Northing for .* must be between 1 and 7 digits/
+                    /components\.eastingNorthingField\.northing for .* must be between 1 and 7 digits/
+                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   )
                 })
               ]

@@ -15,6 +15,7 @@ import {
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import { InvalidComponentStateError } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import {
   createPage,
@@ -324,10 +325,14 @@ describe('FileUploadField', () => {
         const state1 = getFormState(validState)
         const state2 = getFormState(null)
 
-        const answer1 = getAnswer(field, state1)
-        const answer2 = getAnswer(field, state2)
+        const answer1 = getAnswer(field, state1, stubTranslator, {
+          format: 'summary'
+        })
+        const answer2 = getAnswer(field, state2, stubTranslator, {
+          format: 'summary'
+        })
 
-        expect(answer1).toBe('Uploaded 3 files')
+        expect(answer1).toBe('3 files uploaded')
         expect(answer2).toBe('')
       })
 
@@ -382,7 +387,11 @@ describe('FileUploadField', () => {
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = field.getViewModel(getFormData(validState))
+        const viewModel = field.getViewModel({
+          payload: getFormData(validState),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -461,13 +470,12 @@ describe('FileUploadField', () => {
       })
 
       it('sets Nunjucks component defaults (preview URL direct access)', () => {
-        const viewModel = field.getViewModel(
-          getFormData(validState),
-          undefined,
-
-          // Preview URL '?force'
-          { force: '' }
-        )
+        const viewModel = field.getViewModel({
+          payload: getFormData(validState),
+          errors: undefined,
+          translator: stubTranslator,
+          isForceAccess: true
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -521,7 +529,11 @@ describe('FileUploadField', () => {
       })
 
       it('sets Nunjucks component defaults with temp valid state', () => {
-        const viewModel = field.getViewModel(getFormData(validTempState))
+        const viewModel = field.getViewModel({
+          payload: getFormData(validTempState),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -562,7 +574,11 @@ describe('FileUploadField', () => {
       })
 
       it('sets Nunjucks component defaults with temp valid state with errors (on POST)', () => {
-        const viewModel = field.getViewModel(getFormData(validTempState), [])
+        const viewModel = field.getViewModel({
+          payload: getFormData(validTempState),
+          errors: [],
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -892,13 +908,23 @@ describe('FileUploadField', () => {
 
       // Mock request
       mockRequest = {
+        server: { plugins: { 'forms-engine-plugin': {} } },
         app: {
           model: {
             services: {
               formSubmissionService: {
                 persistFiles: mockPersistFiles
               }
-            }
+            },
+            createTranslator: () => ({
+              t: jest.fn((k: string) => k),
+              tPage: jest.fn(),
+              tComponent: jest.fn(),
+              tSection: jest.fn(),
+              tListItem: jest.fn(),
+              tForm: jest.fn(),
+              language: 'en-GB'
+            })
           }
         }
       } as unknown as FormRequestPayload

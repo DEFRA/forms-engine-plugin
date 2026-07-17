@@ -16,7 +16,12 @@ import {
 } from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
 import { createLowerFirstExpression } from '~/src/server/plugins/engine/components/helpers/index.js'
-import { type EastingNorthingState } from '~/src/server/plugins/engine/components/types.js'
+import {
+  type EastingNorthingState,
+  type RenderContext
+} from '~/src/server/plugins/engine/components/types.js'
+import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
@@ -55,18 +60,47 @@ export class EastingNorthingField extends FormComponent {
     const northingMin = schema?.northing?.min ?? DEFAULT_NORTHING_MIN
     const northingMax = schema?.northing?.max ?? DEFAULT_NORTHING_MAX
 
-    const eastingRequired = 'Enter easting'
-    const northingRequired = 'Enter northing'
+    const fieldLabel = lowerFirst(this.label)
 
-    const eastingDigitsMessage = `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 6 digits`
-    const northingDigitsMessage = `{{#label}} for ${lowerFirst(this.label)} must be between 1 and 7 digits`
+    const eastingDigitsMessage = tPlugin(
+      'components.eastingNorthingField.eastingDigits',
+      'en-GB',
+      { fieldLabel }
+    )
+    const northingDigitsMessage = tPlugin(
+      'components.eastingNorthingField.northingDigits',
+      'en-GB',
+      { fieldLabel }
+    )
 
     const customValidationMessages: LanguageMessages =
       convertToLanguageMessages({
-        'any.required': eastingRequired,
-        'number.base': eastingRequired,
-        'number.min': `{{#label}} for ${lowerFirst(this.label)} must be between {{#limit}} and ${eastingMax}`,
-        'number.max': `{{#label}} for ${lowerFirst(this.label)} must be between ${eastingMin} and {{#limit}}`,
+        'any.required': tPlugin(
+          'components.eastingNorthingField.eastingRequired',
+          'en-GB'
+        ),
+        'number.base': tPlugin(
+          'components.eastingNorthingField.eastingRequired',
+          'en-GB'
+        ),
+        'number.min': tPlugin(
+          'components.eastingNorthingField.eastingRange',
+          'en-GB',
+          {
+            fieldLabel,
+            min: eastingMin,
+            max: eastingMax
+          }
+        ),
+        'number.max': tPlugin(
+          'components.eastingNorthingField.eastingRange',
+          'en-GB',
+          {
+            fieldLabel,
+            min: eastingMin,
+            max: eastingMax
+          }
+        ),
         'number.precision': eastingDigitsMessage,
         'number.integer': eastingDigitsMessage,
         'number.unsafe': eastingDigitsMessage
@@ -74,10 +108,32 @@ export class EastingNorthingField extends FormComponent {
 
     const northingValidationMessages: LanguageMessages =
       convertToLanguageMessages({
-        'any.required': northingRequired,
-        'number.base': northingRequired,
-        'number.min': `{{#label}} for ${lowerFirst(this.label)} must be between {{#limit}} and ${northingMax}`,
-        'number.max': `{{#label}} for ${lowerFirst(this.label)} must be between ${northingMin} and {{#limit}}`,
+        'any.required': tPlugin(
+          'components.eastingNorthingField.northingRequired',
+          'en-GB'
+        ),
+        'number.base': tPlugin(
+          'components.eastingNorthingField.northingRequired',
+          'en-GB'
+        ),
+        'number.min': tPlugin(
+          'components.eastingNorthingField.northingRange',
+          'en-GB',
+          {
+            fieldLabel,
+            min: northingMin,
+            max: northingMax
+          }
+        ),
+        'number.max': tPlugin(
+          'components.eastingNorthingField.northingRange',
+          'en-GB',
+          {
+            fieldLabel,
+            min: northingMin,
+            max: northingMax
+          }
+        ),
         'number.precision': northingDigitsMessage,
         'number.integer': northingDigitsMessage,
         'number.unsafe': northingDigitsMessage
@@ -88,7 +144,7 @@ export class EastingNorthingField extends FormComponent {
         {
           type: ComponentType.NumberField,
           name: `${name}__easting`,
-          title: 'Easting',
+          title: 'components.eastingNorthingField.easting',
           schema: {
             min: eastingMin,
             max: eastingMax,
@@ -104,7 +160,7 @@ export class EastingNorthingField extends FormComponent {
         {
           type: ComponentType.NumberField,
           name: `${name}__northing`,
-          title: 'Northing',
+          title: 'components.eastingNorthingField.northing',
           schema: {
             min: northingMin,
             max: northingMax,
@@ -135,7 +191,8 @@ export class EastingNorthingField extends FormComponent {
   }
 
   getDisplayStringFromFormValue(
-    value: EastingNorthingState | undefined
+    value: EastingNorthingState | undefined,
+    _translator: Translator
   ): string {
     if (!value) {
       return ''
@@ -145,10 +202,13 @@ export class EastingNorthingField extends FormComponent {
     return `${value.easting}, ${value.northing}`
   }
 
-  getDisplayStringFromState(state: FormSubmissionState) {
+  getDisplayStringFromState(
+    state: FormSubmissionState,
+    translator: Translator
+  ) {
     const value = this.getFormValueFromState(state)
 
-    return this.getDisplayStringFromFormValue(value)
+    return this.getDisplayStringFromFormValue(value, translator)
   }
 
   getContextValueFromFormValue(
@@ -167,15 +227,16 @@ export class EastingNorthingField extends FormComponent {
     return this.getContextValueFromFormValue(value)
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
-    const viewModel = super.getViewModel(payload, errors)
-    return getLocationFieldViewModel(this, viewModel, payload, errors)
+  getViewModel(context: RenderContext) {
+    const viewModel = super.getViewModel(context)
+    return getLocationFieldViewModel(this, viewModel, context)
   }
 
   getViewErrors(
+    translator: Translator,
     errors?: FormSubmissionError[]
   ): FormSubmissionError[] | undefined {
-    const allErrors = this.getErrors(errors)
+    const allErrors = this.getErrors(translator, errors)
     return deduplicateErrorsByHref(allErrors)
   }
 

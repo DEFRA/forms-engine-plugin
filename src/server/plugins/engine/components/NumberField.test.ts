@@ -7,8 +7,13 @@ import {
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
+
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
 
 describe('NumberField', () => {
   let model: FormModel
@@ -155,8 +160,8 @@ describe('NumberField', () => {
         const state1 = getFormState(2024)
         const state2 = getFormState(null)
 
-        const answer1 = getAnswer(field, state1)
-        const answer2 = getAnswer(field, state2)
+        const answer1 = getAnswer(field, state1, translator)
+        const answer2 = getAnswer(field, state2, translator)
 
         expect(answer1).toBe('2024')
         expect(answer2).toBe('')
@@ -209,7 +214,11 @@ describe('NumberField', () => {
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = field.getViewModel(getFormData(2024))
+        const viewModel = field.getViewModel({
+          payload: getFormData(2024),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -227,7 +236,11 @@ describe('NumberField', () => {
           { model }
         )
 
-        const viewModel = componentCustom.getViewModel(getFormData(99.99))
+        const viewModel = componentCustom.getViewModel({
+          payload: getFormData(99.99),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel.prefix).toEqual({ text: '£' })
         expect(viewModel.suffix).toEqual({ text: 'per item' })
@@ -239,7 +252,11 @@ describe('NumberField', () => {
           { model }
         )
 
-        const viewModel = componentCustom.getViewModel(getFormData(99))
+        const viewModel = componentCustom.getViewModel({
+          payload: getFormData(99),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel.attributes).toHaveProperty('inputmode', 'numeric')
       })
@@ -250,7 +267,11 @@ describe('NumberField', () => {
           { model }
         )
 
-        const viewModel = componentCustom.getViewModel(getFormData(99))
+        const viewModel = componentCustom.getViewModel({
+          payload: getFormData(99),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel.attributes).toHaveProperty('inputmode', 'numeric')
       })
@@ -261,14 +282,22 @@ describe('NumberField', () => {
           { model }
         )
 
-        const viewModel = componentCustom.getViewModel(getFormData(99.99))
+        const viewModel = componentCustom.getViewModel({
+          payload: getFormData(99.99),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel.attributes).not.toHaveProperty('inputmode', 'numeric')
       })
     })
 
     it('sets Nunjucks component value when invalid', () => {
-      const viewModel = field.getViewModel(getFormData('AA'))
+      const viewModel = field.getViewModel({
+        payload: getFormData('AA'),
+        errors: undefined,
+        translator: stubTranslator
+      })
 
       expect(viewModel).toHaveProperty('value', 'AA')
     })

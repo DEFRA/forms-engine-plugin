@@ -1,3 +1,4 @@
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   SummaryPageController,
@@ -13,6 +14,10 @@ import {
 import { type CacheService } from '~/src/server/services/cacheService.js'
 import definition from '~/test/form/definitions/basic.js'
 import definitionPaymentV2Conditional from '~/test/form/definitions/payment-v2-conditional.js'
+
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
 
 describe('SummaryPageController', () => {
   let model: FormModel
@@ -90,6 +95,52 @@ describe('SummaryPageController', () => {
 
   // Note: InvalidComponentStateError handling is comprehensively tested
   // in the integration test: test/form/component-state-errors.test.js
+
+  describe('per-request translator in makeGetRouteHandler', () => {
+    it('should create a per-request translator and pass t to the view', async () => {
+      const mockTranslator: Translator = {
+        t: jest.fn().mockReturnValue('translated'),
+        tPage: jest.fn().mockReturnValue('content') as Translator['tPage'],
+        tComponent: jest
+          .fn()
+          .mockReturnValue('content') as Translator['tComponent'],
+        tSection: jest
+          .fn()
+          .mockReturnValue('content') as Translator['tSection'],
+        tListItem: jest
+          .fn()
+          .mockReturnValue('content') as Translator['tListItem'],
+        tForm: jest.fn().mockReturnValue('content') as Translator['tForm'],
+        language: 'en-GB'
+      }
+
+      const createTranslatorSpy = jest
+        .spyOn(model, 'createTranslator')
+        .mockReturnValue(mockTranslator)
+
+      // Mock model.services.formsService so hasMissingNotificationEmail does not throw
+      jest
+        .spyOn(model.services.formsService, 'getFormMetadata')
+        .mockResolvedValue({ notificationEmail: 'test@test.com' } as never)
+
+      const state: FormSubmissionState = {
+        $$__referenceNumber: 'foobar',
+        licenceLength: 365,
+        fullName: 'John Smith'
+      }
+
+      const context = model.getFormContext(requestPage, state)
+
+      const getHandler = controller.makeGetRouteHandler()
+      await getHandler(requestPage, context, h)
+
+      expect(createTranslatorSpy).toHaveBeenCalledWith('en-GB')
+      expect(h.view).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ t: mockTranslator.t })
+      )
+    })
+  })
 })
 
 describe('SummaryPageController - Payment (DF-832)', () => {
@@ -375,7 +426,7 @@ describe('SummaryPageController - Payment (DF-832)', () => {
       const request = {
         ...requestPage,
         params: { ...requestPage.params, path: 'summary' },
-        yar: { id: 'session-id' },
+        yar: { id: 'session-id', set: jest.fn(), get: jest.fn() },
         logger: { info: jest.fn(), error: jest.fn() }
       } as unknown as FormRequestPayload
 
@@ -413,7 +464,8 @@ describe('SummaryPageController - Payment (DF-832)', () => {
           request,
           viewModel,
           model,
-          'notify@example.com'
+          'notify@example.com',
+          translator
         )
       ).rejects.toMatchObject({
         name: 'PaymentSubmissionError'
@@ -434,7 +486,8 @@ describe('SummaryPageController - Payment (DF-832)', () => {
           request,
           viewModel,
           model,
-          'notify@example.com'
+          'notify@example.com',
+          translator
         )
       ).rejects.toBe(err)
     })
@@ -454,7 +507,8 @@ describe('SummaryPageController - Payment (DF-832)', () => {
         request,
         viewModel,
         model,
-        'notify@example.com'
+        'notify@example.com',
+        translator
       )
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const paymentCall = formSubmissionSubmit.mock.calls[0][0]

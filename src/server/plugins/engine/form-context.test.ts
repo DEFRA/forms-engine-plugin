@@ -68,10 +68,12 @@ const {
 
 describe('getFormContext helper', () => {
   const request = {
-    yar: { set: jest.fn() } as unknown as Request['yar'],
+    yar: { set: jest.fn(), get: jest.fn() } as unknown as Request['yar'],
     server: {
       app: {},
-      realm: { modifiers: { route: { prefix: '' } } }
+      realm: { modifiers: { route: { prefix: '' } } },
+      // eslint-disable-next-line no-useless-computed-key
+      plugins: { ['forms-engine-plugin']: { getLanguage: () => 'en-GB' } }
     } as unknown as Request['server']
   } satisfies Pick<Request, 'yar' | 'server'>
   const slug = 'tb-origin'
@@ -85,11 +87,14 @@ describe('getFormContext helper', () => {
     notificationEmail: 'test@example.com'
   }
   const definition = { pages: [] }
-  let formModel: { getFormContext: jest.Mock }
+  let formModel: { getFormContext: jest.Mock; createTranslator: jest.Mock }
 
   beforeEach(() => {
     jest.clearAllMocks()
-    formModel = { getFormContext: jest.fn().mockResolvedValue(returnedContext) }
+    formModel = {
+      getFormContext: jest.fn().mockResolvedValue(returnedContext),
+      createTranslator: jest.fn().mockReturnValue({})
+    }
     FormModel.mockImplementation(
       (_definition: unknown, modelOptions: FormModelOptions) =>
         Object.assign(formModel, { basePath: modelOptions.basePath })
@@ -131,10 +136,14 @@ describe('getFormContext helper', () => {
       'https://form-context.local/preview/live/tb-origin/summary'
     )
 
+    const translator = formModel.createTranslator.mock.results[0].value
+
+    expect(formModel.createTranslator).toHaveBeenCalledWith('en-GB')
     expect(formModel.getFormContext).toHaveBeenCalledWith(
       summaryRequest,
       expect.objectContaining({ $$__referenceNumber: 'CACHED-REF' }),
-      errors
+      errors,
+      translator
     )
     expect(context).toBe(returnedContext)
   })
@@ -270,17 +279,18 @@ describe('resolveFormModel helper', () => {
 
   test('rebuilds the model when metadata changes and uses preview routing', async () => {
     const refreshedModel = { id: 'refreshed-model' }
+    const metadataWithoutEmail = { ...metadata, notificationEmail: undefined }
+    const metadataWithUpdatedDate = {
+      ...metadataWithoutEmail,
+      live: { updatedAt: new Date('2024-12-01T09:00:00Z') }
+    }
 
     FormModel.mockImplementationOnce(
       () => formModelInstance
     ).mockImplementationOnce(() => refreshedModel)
     mockFormsService.getFormMetadata
-      .mockResolvedValueOnce({ ...metadata, notificationEmail: undefined })
-      .mockResolvedValueOnce({
-        ...metadata,
-        notificationEmail: undefined,
-        live: { updatedAt: new Date('2024-12-01T09:00:00Z') }
-      })
+      .mockResolvedValueOnce(metadataWithoutEmail)
+      .mockResolvedValueOnce(metadataWithUpdatedDate)
 
     const model = await resolveFormModel(server, slug, 'preview', {
       ordnanceSurveyApiKey: 'os-api-key'
@@ -295,12 +305,24 @@ describe('resolveFormModel helper', () => {
       undefined,
       true
     )
-    expect(FormModel).toHaveBeenCalledWith(
+    expect(FormModel).toHaveBeenNthCalledWith(
+      1,
       definition,
       expect.objectContaining({
         basePath: 'forms/preview/live/tb-origin',
         ordnanceSurveyApiKey: 'os-api-key',
-        formId: metadata.id
+        formId: metadataWithoutEmail.id
+      }),
+      mockServices,
+      undefined
+    )
+    expect(FormModel).toHaveBeenNthCalledWith(
+      2,
+      definition,
+      expect.objectContaining({
+        basePath: 'forms/preview/live/tb-origin',
+        ordnanceSurveyApiKey: undefined,
+        formId: metadataWithUpdatedDate.id
       }),
       mockServices,
       undefined

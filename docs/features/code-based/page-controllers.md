@@ -63,11 +63,18 @@ Both are imported from `@defra/forms-engine-plugin/controllers/<ClassName>.js`.
 
 ## Examples
 
-- [Changing the Nunjucks template](#changing-the-nunjucks-template)
-- [Fetching data for the view model](#fetching-data-for-the-view-model)
-- [Intercepting the GET handler](#intercepting-the-get-handler)
-- [Writing to state on POST](#writing-to-state-on-post)
-- [Display-only page (no form components)](#display-only-page-no-form-components)
+- [Custom page controllers](#custom-page-controllers)
+  - [How it works](#how-it-works)
+  - [Choosing a base class](#choosing-a-base-class)
+  - [Examples](#examples)
+    - [Changing the Nunjucks template](#changing-the-nunjucks-template)
+    - [Fetching data for the view model](#fetching-data-for-the-view-model)
+    - [Intercepting the GET handler](#intercepting-the-get-handler)
+    - [Writing to state on POST](#writing-to-state-on-post)
+    - [Display-only page (no form components)](#display-only-page-no-form-components)
+  - [Reference](#reference)
+    - [What QuestionPageController gives you](#what-questionpagecontroller-gives-you)
+    - [Overridable members](#overridable-members)
 
 ### Changing the Nunjucks template
 
@@ -99,11 +106,14 @@ class SelectGrantSchemeController extends QuestionPageController {
     return async (request: FormRequest, context: FormContext, h: FormResponseToolkit) => {
       const farmType = context.state.farmType
 
+      // Support for multiple languages
+      const translator = this.getTranslator(request)
+
       // Fetch grant schemes available for the user's farm type
       const grantSchemes = await getEligibleGrantSchemes(farmType)
 
       // Build the standard view model and add the fetched data
-      const viewModel = this.getViewModel(request, context)
+      const viewModel = this.getViewModel(request, context, translator)
 
       return h.view(this.viewName, { ...viewModel, grantSchemes })
     }
@@ -153,9 +163,12 @@ import type { FormContext, FormRequestPayload, FormResponseToolkit } from '@defr
 class PassportLookupController extends QuestionPageController {
   makePostRouteHandler() {
     return async (request: FormRequestPayload, context: FormContext, h: FormResponseToolkit) => {
+      // Support for multiple languages
+      const translator = this.getTranslator(request)
+
       // Re-render with component validation errors if any
       if (context.errors) {
-        const viewModel = this.getViewModel(request, context)
+        const viewModel = this.getViewModel(request, context, translator)
         return h.view(this.viewName, viewModel)
       }
 
@@ -167,7 +180,7 @@ class PassportLookupController extends QuestionPageController {
       if (!passport) {
         // Re-render with a custom error — the input passed component validation
         // (format/required checks) but was not found in the external system
-        const viewModel = this.getViewModel(request, context)
+        const viewModel = this.getViewModel(request, context, translator)
         viewModel.errors = [{ text: 'Passport number not recognised. Check and try again.' }]
         return h.view(this.viewName, viewModel)
       }
@@ -222,10 +235,10 @@ class IneligiblePageController extends PageController {
 
 ### Overridable members
 
-| Member                           | Description                                                                                                                                                       |
-| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `viewName`                       | The Nunjucks template rendered for this page. Defaults to `'index'`. Set `view` on the page definition to override.                                               |
-| `allowSaveAndExit`               | Whether the "Save and exit" button is shown. `true` on `QuestionPageController`, `false` on `PageController`. Override as a class property to change the default. |
-| `getViewModel(request, context)` | Returns the view model passed to the Nunjucks template. Override to add or modify properties synchronously. Only available on `QuestionPageController`.           |
-| `makeGetRouteHandler()`          | Returns the async GET handler function. Override to control page load behaviour, including async data fetching.                                                   |
-| `makePostRouteHandler()`         | Returns the async POST handler function. Override to control form submission behaviour and write custom data to state.                                            |
+| Member                                       | Description                                                                                                                                                       |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `viewName`                                   | The Nunjucks template rendered for this page. Defaults to `'index'`. Set `view` on the page definition to override.                                               |
+| `allowSaveAndExit`                           | Whether the "Save and exit" button is shown. `true` on `QuestionPageController`, `false` on `PageController`. Override as a class property to change the default. |
+| `getViewModel(request, context, translator)` | Returns the view model passed to the Nunjucks template. Override to add or modify properties synchronously. Only available on `QuestionPageController`.           |
+| `makeGetRouteHandler()`                      | Returns the async GET handler function. Override to control page load behaviour, including async data fetching.                                                   |
+| `makePostRouteHandler()`                     | Returns the async POST handler function. Override to control form submission behaviour and write custom data to state.                                            |

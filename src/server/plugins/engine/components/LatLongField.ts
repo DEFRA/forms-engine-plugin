@@ -13,7 +13,12 @@ import {
 } from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
 import { createLowerFirstExpression } from '~/src/server/plugins/engine/components/helpers/index.js'
-import { type LatLongState } from '~/src/server/plugins/engine/components/types.js'
+import {
+  type LatLongState,
+  type RenderContext
+} from '~/src/server/plugins/engine/components/types.js'
+import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
@@ -51,31 +56,50 @@ export class LatLongField extends FormComponent {
     const longitudeMin = schema?.longitude?.min ?? -13.687
     const longitudeMax = schema?.longitude?.max ?? 1.767
 
-    const latitudeRequired = 'Enter latitude'
-    const longitudeRequired = 'Enter longitude'
+    const fieldLabel = lowerFirst(this.label)
 
     const customValidationMessages: LanguageMessages =
       convertToLanguageMessages({
-        'number.precision':
-          '{{#label}} must have no more than 7 decimal places',
-        'number.unsafe': '{{#label}} must be a valid number'
+        'number.precision': tPlugin(
+          'components.latLongField.precision',
+          'en-GB'
+        ),
+        'number.unsafe': tPlugin('components.latLongField.notANumber', 'en-GB')
       })
 
-    const latitudeRangeMessage = `Latitude for ${lowerFirst(this.label)} must be between ${latitudeMin} and ${latitudeMax}`
-    const longitudeRangeMessage = `Longitude for ${lowerFirst(this.label)} must be between ${longitudeMin} and ${longitudeMax}`
+    const latitudeRangeMessage = tPlugin(
+      'components.latLongField.latitudeRange',
+      'en-GB',
+      { fieldLabel, min: latitudeMin, max: latitudeMax }
+    )
+    const longitudeRangeMessage = tPlugin(
+      'components.latLongField.longitudeRange',
+      'en-GB',
+      { fieldLabel, min: longitudeMin, max: longitudeMax }
+    )
 
     const latitudeMessages: LanguageMessages = convertToLanguageMessages({
       ...customValidationMessages,
-      'any.required': latitudeRequired,
-      'number.base': `Enter a valid latitude for ${lowerFirst(this.label)} like 51.519450`,
+      'any.required': tPlugin(
+        'components.latLongField.latitudeRequired',
+        'en-GB'
+      ),
+      'number.base': tPlugin('components.latLongField.latitudeBase', 'en-GB', {
+        fieldLabel
+      }),
       'number.min': latitudeRangeMessage,
       'number.max': latitudeRangeMessage
     })
 
     const longitudeMessages: LanguageMessages = convertToLanguageMessages({
       ...customValidationMessages,
-      'any.required': longitudeRequired,
-      'number.base': `Enter a valid longitude for ${lowerFirst(this.label)} like -0.127758`,
+      'any.required': tPlugin(
+        'components.latLongField.longitudeRequired',
+        'en-GB'
+      ),
+      'number.base': tPlugin('components.latLongField.longitudeBase', 'en-GB', {
+        fieldLabel
+      }),
       'number.min': longitudeRangeMessage,
       'number.max': longitudeRangeMessage
     })
@@ -85,7 +109,7 @@ export class LatLongField extends FormComponent {
         {
           type: ComponentType.NumberField,
           name: `${name}__latitude`,
-          title: 'Latitude',
+          title: 'components.latLongField.latitude',
           schema: {
             min: latitudeMin,
             max: latitudeMax,
@@ -102,7 +126,7 @@ export class LatLongField extends FormComponent {
         {
           type: ComponentType.NumberField,
           name: `${name}__longitude`,
-          title: 'Longitude',
+          title: 'components.latLongField.longitude',
           schema: {
             min: longitudeMin,
             max: longitudeMax,
@@ -133,7 +157,10 @@ export class LatLongField extends FormComponent {
     return LatLongField.isLatLong(value) ? value : undefined
   }
 
-  getDisplayStringFromFormValue(value: LatLongState | undefined): string {
+  getDisplayStringFromFormValue(
+    value: LatLongState | undefined,
+    _translator: Translator
+  ): string {
     if (!value) {
       return ''
     }
@@ -142,10 +169,13 @@ export class LatLongField extends FormComponent {
     return `${value.latitude}, ${value.longitude}`
   }
 
-  getDisplayStringFromState(state: FormSubmissionState) {
+  getDisplayStringFromState(
+    state: FormSubmissionState,
+    translator: Translator
+  ) {
     const value = this.getFormValueFromState(state)
 
-    return this.getDisplayStringFromFormValue(value)
+    return this.getDisplayStringFromFormValue(value, translator)
   }
 
   getContextValueFromFormValue(value: LatLongState | undefined): string | null {
@@ -163,15 +193,16 @@ export class LatLongField extends FormComponent {
     return this.getContextValueFromFormValue(value)
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
-    const viewModel = super.getViewModel(payload, errors)
-    return getLocationFieldViewModel(this, viewModel, payload, errors)
+  getViewModel(context: RenderContext) {
+    const viewModel = super.getViewModel(context)
+    return getLocationFieldViewModel(this, viewModel, context)
   }
 
   getViewErrors(
+    translator: Translator,
     errors?: FormSubmissionError[]
   ): FormSubmissionError[] | undefined {
-    const allErrors = this.getErrors(errors)
+    const allErrors = this.getErrors(translator, errors)
     return deduplicateErrorsByHref(allErrors)
   }
 

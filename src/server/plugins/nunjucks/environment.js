@@ -6,6 +6,7 @@ import resolvePkg from 'resolve'
 
 import { config } from '~/src/config/index.js'
 import { evaluateTemplate } from '~/src/server/plugins/engine/helpers.js'
+import { t as i18nT } from '~/src/server/plugins/engine/i18n/index.js'
 import * as filters from '~/src/server/plugins/nunjucks/filters/index.js'
 
 const govukFrontendPath = dirname(
@@ -114,6 +115,19 @@ export function govukRebrand() {
 }
 
 environment.addGlobal('govukRebrand', govukRebrand())
+
+/**
+ * Global t() function — en-GB fallback for templates not wired to a specific language.
+ * Per-request page controllers override this by passing t in their view model.
+ * @param {string} key
+ * @param {Record<string, unknown>} [opts]
+ * @returns {string}
+ */
+export function tGlobal(key, opts) {
+  return i18nT(key, 'en-GB', opts)
+}
+
+environment.addGlobal('t', tGlobal)
 
 /**
  * @import { NunjucksContext } from '~/src/server/plugins/nunjucks/types.js'

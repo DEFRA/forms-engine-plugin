@@ -32,6 +32,7 @@ export const formAdapterSubmissionMessageMetaSchema =
     isPreview: Joi.boolean().required(),
     notificationEmail: notificationEmailAddressSchema.required(),
     versionMetadata: formVersionMetadataSchema.optional(),
+    language: Joi.string().optional(),
     custom: Joi.object()
       .pattern(/^/, Joi.any())
       .unknown()

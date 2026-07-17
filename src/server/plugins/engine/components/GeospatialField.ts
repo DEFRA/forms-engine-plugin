@@ -8,10 +8,11 @@ import {
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { getMapLayers } from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
 import { getGeospatialSchema } from '~/src/server/plugins/engine/components/helpers/geospatial.js'
+import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
-  type FormPayload,
   type FormState,
   type FormStateValue,
   type FormSubmissionError,
@@ -32,13 +33,11 @@ export class GeospatialField extends FormComponent {
 
     const { options } = def
 
-    const formSchema = getGeospatialSchema(def)
-      .label(this.label)
-      .messages({
-        'array.min': messageTemplate.featuresMin as string,
-        'array.max': messageTemplate.featuresMax as string,
-        'array.length': messageTemplate.featuresLength as string
-      })
+    const formSchema = getGeospatialSchema(def).label(this.label).messages({
+      'array.min': messageTemplate.featuresMin,
+      'array.max': messageTemplate.featuresMax,
+      'array.length': messageTemplate.featuresLength
+    })
 
     this.formSchema = formSchema
     this.stateSchema = formSchema.default(null)
@@ -59,20 +58,26 @@ export class GeospatialField extends FormComponent {
     return this.isValue(value) ? value : undefined
   }
 
-  getDisplayStringFromFormValue(features: GeospatialState | undefined): string {
+  getDisplayStringFromFormValue(
+    features: GeospatialState | undefined,
+    translator: Translator
+  ): string {
     if (!features?.length) {
       return ''
     }
 
-    const unit = features.length === 1 ? 'location' : 'locations'
-
-    return `Added ${features.length} ${unit}`
+    return translator.t('components.geospatialField.added', {
+      count: features.length
+    })
   }
 
-  getDisplayStringFromState(state: FormSubmissionState) {
+  getDisplayStringFromState(
+    state: FormSubmissionState,
+    translator: Translator
+  ) {
     const features = this.getFormValueFromState(state)
 
-    return this.getDisplayStringFromFormValue(features)
+    return this.getDisplayStringFromFormValue(features, translator)
   }
 
   getContextValueFromFormValue(
@@ -87,8 +92,8 @@ export class GeospatialField extends FormComponent {
     return this.getContextValueFromFormValue(features)
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
-    const viewModel = super.getViewModel(payload, errors)
+  getViewModel(context: RenderContext) {
+    const viewModel = super.getViewModel(context)
     const value =
       typeof viewModel.value === 'string'
         ? viewModel.value
@@ -103,16 +108,25 @@ export class GeospatialField extends FormComponent {
     }
   }
 
-  getErrors(errors?: FormSubmissionError[]): FormSubmissionError[] | undefined {
-    const fieldErrors = super.getErrors(errors)
+  getErrors(
+    translator: Translator,
+    errors?: FormSubmissionError[]
+  ): FormSubmissionError[] | undefined {
+    const fieldErrors = super.getErrors(translator, errors)
 
     fieldErrors?.forEach((err) => {
       if (err.name === 'description') {
         err.href = `#description_${err.path[1]}`
-        err.text = `Enter description for location ${Number(err.path[1]) + 1}`
+        err.text = translator.t(
+          'components.geospatialField.validation.descriptionRequired',
+          { count: Number(err.path[1]) + 1 }
+        )
       } else if (typeof err.name === 'number' && err.context?.country) {
         err.href = `#description_${err.path[1]}`
-        err.text = `Location ${Number(err.path[1]) + 1} must be in ${err.context.country}`
+        err.text = translator.t(
+          'components.geospatialField.validation.wrongCountry',
+          { count: Number(err.path[1]) + 1, country: err.context.country }
+        )
       }
     })
 
@@ -120,9 +134,10 @@ export class GeospatialField extends FormComponent {
   }
 
   getViewErrors(
+    translator: Translator,
     errors?: FormSubmissionError[]
   ): FormSubmissionError[] | undefined {
-    return this.getErrors(errors)
+    return this.getErrors(translator, errors)
   }
 
   isValue(value?: FormStateValue | FormState): value is GeospatialState {

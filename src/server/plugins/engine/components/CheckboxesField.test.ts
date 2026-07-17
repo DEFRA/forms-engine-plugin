@@ -13,6 +13,7 @@ import {
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import {
   listNumber,
   listNumberExamples,
@@ -21,6 +22,10 @@ import {
 } from '~/test/fixtures/list.js'
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
+
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
 
 describe.each([
   {
@@ -304,8 +309,8 @@ describe.each([
           const state1 = getFormState([item.value])
           const state2 = getFormState(null)
 
-          const answer1 = getAnswer(field, state1)
-          const answer2 = getAnswer(field, state2)
+          const answer1 = getAnswer(field, state1, translator)
+          const answer2 = getAnswer(field, state2, translator)
 
           expect(answer1).toBe(outdent`
             <ul>
@@ -322,7 +327,7 @@ describe.each([
         const item2 = options.examples[2]
 
         const state = getFormState([item1.value, item2.value])
-        const answer = getAnswer(field, state)
+        const answer = getAnswer(field, state, translator)
 
         expect(answer).toBe(outdent`
           <ul>
@@ -384,7 +389,11 @@ describe.each([
       it('sets Nunjucks component defaults', () => {
         const item = options.examples[0]
 
-        const viewModel = field.getViewModel(getFormData([item.value]))
+        const viewModel = field.getViewModel({
+          payload: getFormData([item.value]),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -399,7 +408,11 @@ describe.each([
       it.each([...options.examples])(
         'sets Nunjucks component checkbox items',
         (item) => {
-          const viewModel = field.getViewModel(getFormData([item.value]))
+          const viewModel = field.getViewModel({
+            payload: getFormData([item.value]),
+            errors: undefined,
+            translator: stubTranslator
+          })
 
           expect(viewModel.items?.[0]).not.toMatchObject({
             value: '' // First item is never empty
@@ -448,13 +461,19 @@ describe.each([
     describe('getDisplayStringFromFormValue', () => {
       it('returns empty string when value is undefined', () => {
         const checkboxField = field as CheckboxesField
-        const result = checkboxField.getDisplayStringFromFormValue(undefined)
+        const result = checkboxField.getDisplayStringFromFormValue(
+          undefined,
+          translator
+        )
         expect(result).toBe('')
       })
 
       it('returns empty string when value is empty array', () => {
         const checkboxField = field as CheckboxesField
-        const result = checkboxField.getDisplayStringFromFormValue([])
+        const result = checkboxField.getDisplayStringFromFormValue(
+          [],
+          translator
+        )
         expect(result).toBe('')
       })
 
@@ -462,9 +481,10 @@ describe.each([
         'returns text for single selected value',
         (item) => {
           const checkboxField = field as CheckboxesField
-          const result = checkboxField.getDisplayStringFromFormValue([
-            item.value
-          ])
+          const result = checkboxField.getDisplayStringFromFormValue(
+            [item.value],
+            translator
+          )
           expect(result).toBe(item.text)
         }
       )
@@ -474,10 +494,10 @@ describe.each([
         const item1 = options.examples[0]
         const item2 = options.examples[2]
 
-        const result = checkboxField.getDisplayStringFromFormValue([
-          item1.value,
-          item2.value
-        ])
+        const result = checkboxField.getDisplayStringFromFormValue(
+          [item1.value, item2.value],
+          translator
+        )
 
         expect(result).toBe(`${item1.text}, ${item2.text}`)
       })

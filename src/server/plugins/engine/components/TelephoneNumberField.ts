@@ -7,12 +7,9 @@ import {
   INVALID_ERROR_CODE,
   joi
 } from '~/src/server/plugins/engine/components/helpers/telephone.js'
+import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
-import {
-  type ErrorMessageTemplateList,
-  type FormPayload,
-  type FormSubmissionError
-} from '~/src/server/plugins/engine/types.js'
+import { type ErrorMessageTemplateList } from '~/src/server/plugins/engine/types.js'
 
 export class TelephoneNumberField extends FormComponent {
   declare options: TelephoneNumberFieldComponent['options']
@@ -59,8 +56,8 @@ export class TelephoneNumberField extends FormComponent {
     this.options = options
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
-    const viewModel = super.getViewModel(payload, errors)
+  getViewModel(context: RenderContext) {
+    const viewModel = super.getViewModel(context)
     const { attributes } = viewModel
 
     attributes.autocomplete = 'tel'
