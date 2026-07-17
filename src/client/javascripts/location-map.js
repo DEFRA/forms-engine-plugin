@@ -1,13 +1,18 @@
+// @ts-expect-error - no types
+import createDatasetsPlugin from '@defra/interactive-map/plugins/datasets'
+
 import {
   EVENTS,
   centerMap,
   createMap,
   defaultConfig,
   eastingNorthingToLatLong,
+  getMapLayers,
   latLongToEastingNorthing,
   latLongToOsGridRef,
   osGridRefToLatLong
 } from '~/src/client/javascripts/map.js'
+import sssiDataset from '~/src/client/javascripts/sssi-dataset.js'
 
 const LOCATION_FIELD_SELECTOR = 'input.govuk-input'
 
@@ -417,6 +422,12 @@ export function processLocation(config, location, index) {
   const initConfig = getInitMapConfig(location) ?? defaultConfig
 
   locationInputs.after(mapContainer)
+
+  const mapLayers = getMapLayers(location.dataset.maplayers)
+
+  if (mapLayers.includes('sssi')) {
+    initConfig.plugins = [createDatasetsPlugin(sssiDataset)]
+  }
 
   const { map, interactPlugin } = createMap(mapId, initConfig, config)
 

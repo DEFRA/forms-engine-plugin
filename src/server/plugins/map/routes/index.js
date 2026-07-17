@@ -218,5 +218,5 @@ function getGeospatialCountries() {
 /**
  * @import { ServerRoute } from '@hapi/hapi'
  * @import { FeatureCollection } from 'geojson'
- * @import { MapConfiguration, MapProxyGetRequestRefs, MapGeocodeGetRequestRefs, MapReverseGeocodeGetRequestRefs, GeospatialCountriesGetRequestRefs } from '~/src/server/plugins/map/types.js'
+ * @import { MapConfiguration, MapProxyGetRequestRefs, MapGeocodeGetRequestRefs, GeospatialCountriesGetRequestRefs } from '~/src/server/plugins/map/types.js'
  */
