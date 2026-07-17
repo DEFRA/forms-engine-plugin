@@ -96,11 +96,14 @@ export function getMapLayers(
     | LatLongField
     | EastingNorthingField
 ) {
-  return component.options.mapLayers
-    ? Object.keys(component.options.mapLayers)
-        .filter((key) => component.options.mapLayers[key] === true)
-        .join(',')
-    : ''
+  const { mapLayers } = component.options
+  const layers = []
+
+  if (mapLayers?.sssi) {
+    layers.push('sssi')
+  }
+
+  return layers.join(',')
 }
 
 export function getLocationFieldViewModel(
