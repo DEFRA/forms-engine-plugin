@@ -26,6 +26,7 @@ import {
   formSubmitFactory,
   getCentroidGridRef,
   getCoordinateGridRef,
+  getMapLayers,
   initMaps,
   makeTileRequestTransformer
 } from '~/src/client/javascripts/map.js'
@@ -1685,8 +1686,31 @@ describe('Maps Client JS', () => {
       expect(uiManager.getAllowableGeometryTypes()).toEqual(['point', 'line'])
     })
   })
-})
 
-/**
- * @import { GeoJSON } from '~/src/client/javascripts/geospatial-map.js'
- */
+  describe('getMapLayers', () => {
+    test('it should return an empty array for undefined', () => {
+      const result = getMapLayers(undefined)
+
+      expect(result).toHaveLength(0)
+    })
+
+    test('it should return an empty array for empty string', () => {
+      const result = getMapLayers('')
+
+      expect(result).toHaveLength(0)
+    })
+
+    test('it should return an empty array for empty space', () => {
+      const result = getMapLayers(' ')
+
+      expect(result).toHaveLength(0)
+    })
+
+    test("it should return an array with 'sssi'", () => {
+      const result = getMapLayers('sssi')
+
+      expect(result).toHaveLength(1)
+      expect(result.at(0)).toBe('sssi')
+    })
+  })
+})

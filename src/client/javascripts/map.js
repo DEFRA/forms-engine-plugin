@@ -358,6 +358,16 @@ export function centerMap(map, mapProvider, center) {
 }
 
 /**
+ * Parse CSV string layers
+ * @param {string | undefined} layers
+ * @returns {string[]}
+ */
+export function getMapLayers(layers) {
+  const trimmed = layers?.trim()
+  return trimmed ? trimmed.split(',') : []
+}
+
+/**
  * @typedef {object} InteractiveMap - an instance of a InteractiveMap
  * @property {Function} on - register callback listeners to map events
  * @property {Function} addPanel - adds a new panel to the map

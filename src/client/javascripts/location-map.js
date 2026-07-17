@@ -4,6 +4,7 @@ import {
   createMap,
   defaultConfig,
   eastingNorthingToLatLong,
+  getMapLayers,
   latLongToEastingNorthing,
   latLongToOsGridRef,
   osGridRefToLatLong
@@ -419,9 +420,7 @@ export function processLocation(config, location, index) {
 
   locationInputs.after(mapContainer)
 
-  const mapLayers = location.dataset.maplayers
-    ? location.dataset.maplayers.split(',')
-    : []
+  const mapLayers = getMapLayers(location.dataset.maplayers)
 
   if (mapLayers.includes('sssi')) {
     initConfig.plugins = [sssiDatasetPlugin]
