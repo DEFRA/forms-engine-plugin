@@ -1,7 +1,6 @@
 import { randomUUID } from 'node:crypto'
 
 import {
-  type ComponentDef,
   type FormMetadata,
   type PaymentFieldComponent
 } from '@defra/forms-model'
@@ -46,6 +45,7 @@ export class PaymentField extends FormComponent {
   declare options: PaymentFieldComponent['options']
   declare formSchema: ObjectSchema
   declare stateSchema: ObjectSchema
+  declare def: PaymentFieldComponent
   isAppendageStateSingleObject = true
 
   constructor(
@@ -55,6 +55,7 @@ export class PaymentField extends FormComponent {
     super(def, props)
 
     this.options = def.options
+    this.def = def
 
     const paymentStateSchema = joi
       .object({
@@ -128,8 +129,7 @@ export class PaymentField extends FormComponent {
       ...viewModel,
       amount: formatCurrency(amount),
       description:
-        tComponent(this as unknown as ComponentDef, 'paymentDescription') ||
-        this.options.description,
+        tComponent(this.def, 'paymentDescription') || this.options.description,
       paymentState
     }
   }
