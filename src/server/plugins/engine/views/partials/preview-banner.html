@@ -8,7 +8,9 @@
   </p>
 {%- endmacro -%}
 
-{% call govukNotificationBanner() %}
+{% call govukNotificationBanner({
+  titleText: t('pages.preview.bannerTitle')
+}) %}
   {% set previewModeTranslated = t('common.' + previewMode) %}
   {% if not context.isForceAccess %}
     <p class="govuk-notification-banner__heading govuk-!-margin-bottom-0">
