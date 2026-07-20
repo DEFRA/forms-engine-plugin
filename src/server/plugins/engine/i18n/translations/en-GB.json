@@ -267,6 +267,18 @@
       "uploadedFilesHeading": "Uploaded files",
       "filesCount_one": "[[count]] file uploaded",
       "filesCount_other": "[[count]] files uploaded"
+    },
+
+    "characterCount": {
+      "underLimit": {
+        "one": "You have %{count} character remaining",
+        "other": "You have %{count} characters remaining"
+      },
+      "atLimit": "You have 0 characters remaining",
+      "overLimit": {
+        "one": "You have %{count} character too many",
+        "other": "You have %{count} characters too many"
+      }
     }
   }
 }
