@@ -270,6 +270,7 @@
     },
 
     "characterCount": {
+      "_comment": "Note the use of %{count} instead of [[count]]. This is because we are passing to the govuk template, not passing to Joi",
       "underLimit": {
         "one": "You have %{count} character remaining",
         "other": "You have %{count} characters remaining"

@@ -270,6 +270,7 @@
     },
 
     "characterCount": {
+      "_comment": "Note the use of %{count} instead of [[count]]. This is because we are passing to the govuk template, not passing to Joi",
       "underLimit": {
         "one": "Mae gennych %{count} nod ar ôl",
         "other": "Mae gennych %{count} nod ar ôl"
