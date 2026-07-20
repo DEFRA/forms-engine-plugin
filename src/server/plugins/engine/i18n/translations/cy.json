@@ -89,7 +89,8 @@
 
     "fileUpload": {
       "upload": "Uwchlwytho ffeil",
-      "maxFilesReached": "Rydych wedi cyrraedd nifer uchaf y ffeiliau. Tynnwch ffeil i uwchlwytho rhagor."
+      "maxFilesReached": "Rydych wedi cyrraedd nifer uchaf y ffeiliau. Tynnwch ffeil i uwchlwytho rhagor.",
+      "remove": "Tynnu"
     },
 
     "exit": {

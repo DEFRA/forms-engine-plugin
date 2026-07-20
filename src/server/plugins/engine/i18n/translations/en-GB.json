@@ -60,6 +60,8 @@
       "totalAmount": "Total amount",
       "reference": "Reference",
       "dateOfPayment": "Date of payment",
+      "fileUpload_one": "Uploaded [[count]] file",
+      "fileUpload_other": "Uploaded [[count]] files",
       "submissionFailed": "There was a problem and your form was not submitted. Try submitting the form again",
       "submissionFailedContactSuffix": " or you can [[contactUsLink]] and quote your reference number to arrange a refund",
       "contactUsLinkText": "contact us (opens in new tab)",
@@ -89,7 +91,8 @@
 
     "fileUpload": {
       "upload": "Upload file",
-      "maxFilesReached": "You have reached the maximum number of files. Please remove a file to upload more."
+      "maxFilesReached": "You have reached the maximum number of files. Please remove a file to upload more.",
+      "remove": "Remove"
     },
 
     "exit": {
