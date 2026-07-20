@@ -245,7 +245,7 @@
     },
 
     "paymentField": {
-      "detailsRequired": "Angen manylion talu",
+      "detailsRequired": "Angen talu",
       "pendingTransaction": "Mae'n bosibl y gwelwch drafodiad ar y gweill yn eich cyfrif banc ond dim ond pan fyddwch yn cyflwyno'r ffurflen y codir tâl arnoch.",
       "addPaymentDetails": "Ychwanegu manylion talu",
       "cannotTakePayment": "Mae problem ac ni allwn dderbyn taliad. Cysylltwch â ni (manylion yn nhroedyn y ffurflen hon) neu cadwch eich cynnydd a dychwelyd at y ffurflen yn ddiweddarach.",

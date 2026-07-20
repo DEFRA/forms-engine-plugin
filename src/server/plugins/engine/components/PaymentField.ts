@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 
 import {
+  type ComponentDef,
   type FormMetadata,
   type PaymentFieldComponent
 } from '@defra/forms-model'
@@ -110,6 +111,8 @@ export class PaymentField extends FormComponent {
   getViewModel(context: RenderContext) {
     const { payload } = context
     const viewModel = super.getViewModel(context)
+    const { translator } = context
+    const { tComponent } = translator
 
     // Payload is pre-populated from state if a payment has already been made
     const paymentState = this.isPaymentState(payload[this.name] as unknown)
@@ -124,7 +127,9 @@ export class PaymentField extends FormComponent {
     return {
       ...viewModel,
       amount: formatCurrency(amount),
-      description: this.options.description,
+      description:
+        tComponent(this as unknown as ComponentDef, 'paymentDescription') ||
+        this.options.description,
       paymentState
     }
   }

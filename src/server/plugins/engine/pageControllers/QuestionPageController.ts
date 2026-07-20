@@ -176,12 +176,11 @@ export class QuestionPageController extends PageController {
           }
 
           // The question text may have already appended 'optional' in the relevant language
-          const optionalAlreadyAppended = pageTitle.endsWith(
-            ` ${t('common.optional')}`
-          )
+          const optionalWord = t('common.optional')
+          const optionalAlreadyAppended = pageTitle.endsWith(` ${optionalWord}`)
           labelOrLegend.text =
             isOptional && !optionalAlreadyAppended
-              ? `${pageTitle} ${t('common.optional')}`
+              ? `${pageTitle} ${optionalWord}`
               : pageTitle
         }
 

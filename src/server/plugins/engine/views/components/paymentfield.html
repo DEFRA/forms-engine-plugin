@@ -10,13 +10,15 @@
 
   <div class="app-payment-field">
     {% if isPreAuthorised %}
+    <p>model pre-auth:{{ model | dump }}</p>
       {# Payment already pre-authorised - show confirmation message #}
       <h2 class="govuk-heading-m">{{ t('components.paymentField.preAuthorisedTitle') }}</h2>
 
       <p class="govuk-body">{{ t('components.paymentField.preAuthorisedBody') }}</p>
     {% else %}
+    <p>model:{{ model | dump }}</p>
       {# No pre-authorisation - show payment form #}
-      <h2 class="govuk-heading-m">{{ model.label.text if model.label and model.label.text else t('components.paymentField.detailsRequired') }}</h2>
+      <h2 class="govuk-heading-m">{{ t('components.paymentField.detailsRequired') }}</h2>
 
       <p class="govuk-body">{{ description }}</p>
 

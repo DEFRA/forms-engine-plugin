@@ -245,7 +245,7 @@
     },
 
     "paymentField": {
-      "detailsRequired": "Payment details required",
+      "detailsRequired": "Payment required",
       "pendingTransaction": "You may see a pending transaction in your bank account but you will only be charged when you submit the form.",
       "addPaymentDetails": "Add payment details",
       "cannotTakePayment": "There is a problem and we cannot take a payment. Contact us (details in the footer of this form) or save your progress and return to the form later.",
