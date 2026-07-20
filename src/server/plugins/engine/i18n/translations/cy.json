@@ -220,7 +220,7 @@
 
     "yesNoField": {
       "yes": "Ie",
-      "no": "Na",
+      "no": "Nage",
       "validation": {
         "selectYesNoRequired": "{{#label}} - dewiswch ie neu na"
       }
