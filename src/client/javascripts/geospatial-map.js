@@ -1,8 +1,6 @@
 // @ts-expect-error - no types
 import createDatasetsPlugin from '@defra/interactive-map/plugins/datasets'
 // @ts-expect-error - no types
-import { maplibreLayerAdapter } from '@defra/interactive-map/plugins/datasets/adapters/maplibre'
-// @ts-expect-error - no types
 import createDrawPlugin from '@defra/interactive-map/plugins/draw-ml'
 import { bbox } from '@turf/bbox'
 
@@ -11,8 +9,10 @@ import {
   createMap,
   defaultConfig,
   getCentroidGridRef,
-  getCoordinateGridRef
+  getCoordinateGridRef,
+  getMapLayers
 } from '~/src/client/javascripts/map.js'
+import sssiDataset from '~/src/client/javascripts/sssi-dataset.js'
 import { formatDelimtedList } from '~/src/client/javascripts/utils.js'
 
 const helpPanelConfig = {
@@ -173,12 +173,12 @@ export function processGeospatial(config, geospatial, index) {
   const drawPlugin = createDrawPlugin()
   const plugins = [drawPlugin]
   const country = geospatial.dataset.country
+  const mapLayers = getMapLayers(geospatial.dataset.maplayers)
 
   if (country) {
     // Add the country bounds as a dataset plugin to show the valid area on the map
     // and provide feedback to the user when they add features outside of the bounds.
-    const datasetsPlugin = createDatasetsPlugin({
-      layerAdapter: maplibreLayerAdapter,
+    const countriesDatasetPlugin = createDatasetsPlugin({
       datasets: [
         {
           id: 'invalid-area',
@@ -206,7 +206,11 @@ export function processGeospatial(config, geospatial, index) {
       ]
     })
 
-    plugins.push(datasetsPlugin)
+    plugins.push(countriesDatasetPlugin)
+  }
+
+  if (mapLayers.includes('sssi')) {
+    plugins.push(createDatasetsPlugin(sssiDataset))
   }
 
   const initConfig = {

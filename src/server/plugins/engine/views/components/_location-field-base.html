@@ -70,7 +70,9 @@
 
   {% set hasErrors = showFieldsetError and component.model.errorMessage %}
 
-  <div class="govuk-form-group app-location-field {{ "govuk-form-group--error" if hasErrors }}" data-locationtype="{{component.type | lower}}">
+  <div class="govuk-form-group app-location-field {{ "govuk-form-group--error" if hasErrors }}"
+    data-locationtype="{{component.type | lower}}"
+    data-maplayers="{{component.model.mapLayers}}">
     {{ govukFieldset({
       legend: {
         text: component.model.fieldset.legend.text,

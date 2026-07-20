@@ -5,6 +5,7 @@ import { type LatLongField } from '~/src/server/plugins/engine/components/LatLon
 import {
   deduplicateErrorsByHref,
   formatErrorList,
+  getMapLayers,
   joinWithAnd,
   mergeCssClasses
 } from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
@@ -779,6 +780,62 @@ describe('LocationFieldHelpers', () => {
 
       expect(result.errors).toBeTruthy()
       expect(result.errors?.length).toBeGreaterThan(0)
+    })
+  })
+
+  describe('getMapLayers', () => {
+    it('should return sssi layer if the option is set', () => {
+      const def: LatLongFieldComponent = {
+        title: 'Example lat long',
+        name: 'myComponent',
+        type: ComponentType.LatLongField,
+        options: {
+          mapLayers: { sssi: true }
+        },
+        schema: {}
+      }
+
+      const collection = new ComponentCollection([def], { model })
+      const field = collection.fields[0] as LatLongField
+      const result = getMapLayers(field)
+
+      expect(result).toBe('sssi')
+    })
+
+    it('should return empty if no mapLayer options set', () => {
+      const def: LatLongFieldComponent = {
+        title: 'Example lat long',
+        name: 'myComponent',
+        type: ComponentType.LatLongField,
+        options: {
+          mapLayers: undefined
+        },
+        schema: {}
+      }
+
+      const collection = new ComponentCollection([def], { model })
+      const field = collection.fields[0] as LatLongField
+      const result = getMapLayers(field)
+
+      expect(result).toBe('')
+    })
+
+    it('should return empty if no mapLayer layers are set', () => {
+      const def: LatLongFieldComponent = {
+        title: 'Example lat long',
+        name: 'myComponent',
+        type: ComponentType.LatLongField,
+        options: {
+          mapLayers: {}
+        },
+        schema: {}
+      }
+
+      const collection = new ComponentCollection([def], { model })
+      const field = collection.fields[0] as LatLongField
+      const result = getMapLayers(field)
+
+      expect(result).toBe('')
     })
   })
 })

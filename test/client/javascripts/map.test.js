@@ -26,9 +26,15 @@ import {
   formSubmitFactory,
   getCentroidGridRef,
   getCoordinateGridRef,
+  getMapLayers,
   initMaps,
   makeTileRequestTransformer
 } from '~/src/client/javascripts/map.js'
+import {
+  sssiEnglandRequestTransformer,
+  sssiScotlandRequestTransformer,
+  sssiWalesRequestTransformer
+} from '~/src/client/javascripts/sssi-dataset.js'
 
 /** @type {jest.Mock} */
 let mockOn
@@ -259,6 +265,24 @@ describe('Maps Client JS', () => {
         expect(flyToMock).toHaveBeenCalledTimes(2)
       })
 
+      test('initMaps with sssi layer', () => {
+        const location = document.body.querySelector(
+          '.govuk-form-group.app-location-field'
+        )
+        expect(location).toBeDefined()
+
+        const locationEl = /** @type {HTMLDivElement} */ (location)
+
+        // Set the initial maplayers prior to initMaps
+        locationEl.dataset.maplayers = 'sssi'
+
+        expect(() => initMaps()).not.toThrow()
+
+        expect(mockDatasetsMaplibrePlugin).toHaveBeenCalledWith({
+          datasets: Array(3).fill(expect.any(Object))
+        })
+      })
+
       test('initMaps only applies when there are location components on the page', () => {
         const locations = document.querySelectorAll('.app-location-field')
 
@@ -463,6 +487,24 @@ describe('Maps Client JS', () => {
         expect(flyToMock).toHaveBeenCalledTimes(2)
       })
 
+      test('initMaps with sssi layer', () => {
+        const location = document.body.querySelector(
+          '.govuk-form-group.app-location-field'
+        )
+        expect(location).toBeDefined()
+
+        const locationEl = /** @type {HTMLDivElement} */ (location)
+
+        // Set the initial maplayers prior to initMaps
+        locationEl.dataset.maplayers = 'sssi'
+
+        expect(() => initMaps()).not.toThrow()
+
+        expect(mockDatasetsMaplibrePlugin).toHaveBeenCalledWith({
+          datasets: Array(3).fill(expect.any(Object))
+        })
+      })
+
       test('initMaps only applies when there are location components on the page', () => {
         const locations = document.querySelectorAll('.app-location-field')
 
@@ -603,6 +645,24 @@ describe('Maps Client JS', () => {
         // Expect it to update once as the field is valid
         expect(mockAddMarker).toHaveBeenCalledTimes(1)
         expect(flyToMock).toHaveBeenCalledTimes(1)
+      })
+
+      test('initMaps with sssi layer', () => {
+        const location = document.body.querySelector(
+          '.govuk-form-group.app-location-field'
+        )
+        expect(location).toBeDefined()
+
+        const locationEl = /** @type {HTMLDivElement} */ (location)
+
+        // Set the initial maplayers prior to initMaps
+        locationEl.dataset.maplayers = 'sssi'
+
+        expect(() => initMaps()).not.toThrow()
+
+        expect(mockDatasetsMaplibrePlugin).toHaveBeenCalledWith({
+          datasets: Array(3).fill(expect.any(Object))
+        })
       })
 
       test('initMaps only applies when there are location components on the page', () => {
@@ -912,8 +972,38 @@ describe('Maps Client JS', () => {
         initialiseGeospatialMaps()
 
         expect(mockDatasetsMaplibrePlugin).toHaveBeenCalledWith({
-          datasets: Array(2).fill(expect.any(Object)),
-          layerAdapter: expect.any(Object)
+          datasets: Array(2).fill(expect.any(Object))
+        })
+        expect(createInteractPlugin).toHaveBeenCalledWith(expect.any(Object))
+        expect(mockAddPanel).toHaveBeenCalledWith('info', expect.any(Object))
+        expect(mockAddButton).toHaveBeenCalledTimes(3)
+        expect(mockInteractPluginEnable).not.toHaveBeenCalled()
+      })
+
+      test('initMaps with sssi layer', () => {
+        // Reset the document body with an initial value for the country boundary
+        document.body.innerHTML = `
+          <form method="post" novalidate="">
+            <div class="app-geospatial-field" data-maplayers="sssi">
+              <div class="govuk-form-group">
+                <h1 class="govuk-label-wrapper">
+                  <label class="govuk-label govuk-label--l" for="DzDkCy">
+                    Add site geospatial features
+                  </label>
+                </h1>
+                <textarea class="govuk-textarea" id="DzDkCy" name="DzDkCy" rows="5"></textarea>
+              </div>
+            </div>
+            <div class="govuk-button-group">
+              <button type="submit" data-prevent-double-click="true" class="govuk-button" data-module="govuk-button" data-govuk-button-init="">Continue</button>
+            </div>
+          </form>
+        `
+
+        initialiseGeospatialMaps()
+
+        expect(mockDatasetsMaplibrePlugin).toHaveBeenCalledWith({
+          datasets: Array(3).fill(expect.any(Object))
         })
         expect(createInteractPlugin).toHaveBeenCalledWith(expect.any(Object))
         expect(mockAddPanel).toHaveBeenCalledWith('info', expect.any(Object))
@@ -1686,8 +1776,94 @@ describe('Maps Client JS', () => {
       expect(uiManager.getAllowableGeometryTypes()).toEqual(['point', 'line'])
     })
   })
-})
 
-/**
- * @import { GeoJSON } from '~/src/client/javascripts/geospatial-map.js'
- */
+  describe('getMapLayers', () => {
+    test('it should return an empty array for undefined', () => {
+      const result = getMapLayers(undefined)
+
+      expect(result).toHaveLength(0)
+    })
+
+    test('it should return an empty array for empty string', () => {
+      const result = getMapLayers('')
+
+      expect(result).toHaveLength(0)
+    })
+
+    test('it should return an empty array for empty space', () => {
+      const result = getMapLayers(' ')
+
+      expect(result).toHaveLength(0)
+    })
+
+    test("it should return an array with 'sssi'", () => {
+      const result = getMapLayers('sssi')
+
+      expect(result).toHaveLength(1)
+      expect(result.at(0)).toBe('sssi')
+    })
+  })
+
+  describe('SSSI dataset', () => {
+    test('it appends bounding box to the england request URL', () => {
+      const result = sssiEnglandRequestTransformer('https://example.com', {
+        bbox: ['1', '1', '1', '1']
+      })
+
+      expect(result).toEqual({ url: 'https://example.com/?bbox=1%2C1%2C1%2C1' })
+    })
+
+    test('it appends bounding box to the england request URL with other query params', () => {
+      const result = sssiEnglandRequestTransformer(
+        'https://example.com?foo=bar',
+        { bbox: ['1', '1', '1', '1'] }
+      )
+
+      expect(result).toEqual({
+        url: 'https://example.com/?foo=bar&bbox=1%2C1%2C1%2C1'
+      })
+    })
+
+    test('it appends bounding box to the scotland request URL', () => {
+      const result = sssiScotlandRequestTransformer('https://example.com', {
+        bbox: ['1', '1', '1', '1']
+      })
+
+      expect(result).toEqual({
+        url: 'https://example.com/?geometry=1%2C1%2C1%2C1'
+      })
+    })
+
+    test('it appends bounding box to the scotland request URL with other query params', () => {
+      const result = sssiScotlandRequestTransformer(
+        'https://example.com?foo=bar',
+        { bbox: ['1', '1', '1', '1'] }
+      )
+
+      expect(result).toEqual({
+        url: 'https://example.com/?foo=bar&geometry=1%2C1%2C1%2C1'
+      })
+    })
+
+    test('it appends bounding box to the wales request URL', () => {
+      const result = sssiWalesRequestTransformer('https://example.com', {
+        bbox: ['1', '1', '1', '1']
+      })
+
+      expect(result).toEqual({
+        url: 'https://example.com/?bbox=1%2C1%2C1%2C1%2CEPSG%3A4326'
+      })
+    })
+
+    test('it appends bounding box to the wales request URL with other query params', () => {
+      const result = sssiWalesRequestTransformer(
+        'https://example.com?foo=bar',
+        { bbox: ['1', '1', '1', '1'] }
+      )
+
+      expect(result).toEqual({
+        url: 'https://example.com/?foo=bar&bbox=1%2C1%2C1%2C1%2CEPSG%3A4326'
+      })
+    })
+  })
+})
