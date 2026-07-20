@@ -22,6 +22,7 @@ export type FormDefinitionTranslations = Record<
         hint: string
         content: string
         shortDescription: string
+        paymentDescription: string
       }>
     >
     sections: Record<string, Partial<Pick<Section, 'title'>>>

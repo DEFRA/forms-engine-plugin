@@ -111,6 +111,7 @@
         "body": "If you want to receive a test email, [[link]] you want form submissions to go to.",
         "linkText": "enter the email address (opens in new tab)"
       },
+      "bannerTitle": "Important",
       "bannerForce": "This is a preview of a [[previewMode]] form. Do not enter personal information.",
       "bannerText": "This is a preview of a [[previewMode]] form page you are editing.",
       "previousPages": "It depends on answers from earlier pages in the form. In the live version, users will need to complete those questions first."
@@ -245,7 +246,7 @@
     },
 
     "paymentField": {
-      "detailsRequired": "Payment details required",
+      "detailsRequired": "Payment required",
       "pendingTransaction": "You may see a pending transaction in your bank account but you will only be charged when you submit the form.",
       "addPaymentDetails": "Add payment details",
       "cannotTakePayment": "There is a problem and we cannot take a payment. Contact us (details in the footer of this form) or save your progress and return to the form later.",
@@ -266,6 +267,19 @@
       "uploadedFilesHeading": "Uploaded files",
       "filesCount_one": "[[count]] file uploaded",
       "filesCount_other": "[[count]] files uploaded"
+    },
+
+    "characterCount": {
+      "_comment": "Note the use of %{count} instead of [[count]]. This is because we are passing to the govuk template, not passing to Joi",
+      "underLimit": {
+        "one": "You have %{count} character remaining",
+        "other": "You have %{count} characters remaining"
+      },
+      "atLimit": "You have 0 characters remaining",
+      "overLimit": {
+        "one": "You have %{count} character too many",
+        "other": "You have %{count} characters too many"
+      }
     }
   }
 }

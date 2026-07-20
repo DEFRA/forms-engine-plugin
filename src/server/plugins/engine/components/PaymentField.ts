@@ -45,6 +45,7 @@ export class PaymentField extends FormComponent {
   declare options: PaymentFieldComponent['options']
   declare formSchema: ObjectSchema
   declare stateSchema: ObjectSchema
+  declare def: PaymentFieldComponent
   isAppendageStateSingleObject = true
 
   constructor(
@@ -54,6 +55,7 @@ export class PaymentField extends FormComponent {
     super(def, props)
 
     this.options = def.options
+    this.def = def
 
     const paymentStateSchema = joi
       .object({
@@ -110,6 +112,8 @@ export class PaymentField extends FormComponent {
   getViewModel(context: RenderContext) {
     const { payload } = context
     const viewModel = super.getViewModel(context)
+    const { translator } = context
+    const { tComponent } = translator
 
     // Payload is pre-populated from state if a payment has already been made
     const paymentState = this.isPaymentState(payload[this.name] as unknown)
@@ -124,7 +128,8 @@ export class PaymentField extends FormComponent {
     return {
       ...viewModel,
       amount: formatCurrency(amount),
-      description: this.options.description,
+      description:
+        tComponent(this.def, 'paymentDescription') || this.options.description,
       paymentState
     }
   }

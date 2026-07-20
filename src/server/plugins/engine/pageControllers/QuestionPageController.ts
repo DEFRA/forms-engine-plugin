@@ -174,9 +174,14 @@ export class QuestionPageController extends PageController {
           if (!pageTitle) {
             pageTitle = labelOrLegend.text
           }
-          labelOrLegend.text = isOptional
-            ? `${pageTitle} ${t('common.optional')}`
-            : pageTitle
+
+          // The question text may have already appended 'optional' in the relevant language
+          const optionalWord = t('common.optional')
+          const optionalAlreadyAppended = pageTitle.endsWith(` ${optionalWord}`)
+          labelOrLegend.text =
+            isOptional && !optionalAlreadyAppended
+              ? `${pageTitle} ${optionalWord}`
+              : pageTitle
         }
 
         // Fallback if still no pageTitle set

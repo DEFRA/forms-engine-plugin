@@ -3,7 +3,18 @@
 
 {% macro MultilineTextField(component) %}
   {% if component.model.isCharacterOrWordCount == true %}
-    {{ govukCharacterCount(component.model) }}
+    {% set characterParams = component.model | merge({
+      charactersUnderLimitText: {
+        one: t('components.characterCount.underLimit.one'),
+        other: t('components.characterCount.underLimit.other')
+      },
+      charactersAtLimitText: t('components.characterCount.atLimit'),
+      charactersOverLimitText: {
+        one: t('components.characterCount.overLimit.one'),
+        other: t('components.characterCount.overLimit.other')
+      }
+    } ) %}
+    {{ govukCharacterCount(characterParams) }}
   {% else %}
     {{ govukTextarea(component.model) }}
   {% endif %}

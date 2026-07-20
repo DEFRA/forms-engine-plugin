@@ -111,6 +111,7 @@
         "body": "Os hoffech dderbyn e-bost prawf, [[link]] yr hoffech i gyflwyniadau ffurflen fynd iddo.",
         "linkText": "nodwch y cyfeiriad e-bost (yn agor mewn tab newydd)"
       },
+      "bannerTitle": "Pwysig",
       "bannerForce": "Rhagolwg o ffurflen [[previewMode]] yw hon. Peidiwch â rhoi gwybodaeth bersonol.",
       "bannerText": "Dyma ragolwg o dudalen ffurflen [[previewMode]] rydych chi'n ei golygu.",
       "previousPages": "Mae'n dibynnu ar atebion o dudalennau cynharach yn y ffurflen. Yn y fersiwn fyw, bydd angen i ddefnyddwyr gwblhau'r cwestiynau hynny yn gyntaf."
@@ -220,7 +221,7 @@
 
     "yesNoField": {
       "yes": "Ie",
-      "no": "Na",
+      "no": "Nage",
       "validation": {
         "selectYesNoRequired": "{{#label}} - dewiswch ie neu na"
       }
@@ -245,7 +246,7 @@
     },
 
     "paymentField": {
-      "detailsRequired": "Angen manylion talu",
+      "detailsRequired": "Angen talu",
       "pendingTransaction": "Mae'n bosibl y gwelwch drafodiad ar y gweill yn eich cyfrif banc ond dim ond pan fyddwch yn cyflwyno'r ffurflen y codir tâl arnoch.",
       "addPaymentDetails": "Ychwanegu manylion talu",
       "cannotTakePayment": "Mae problem ac ni allwn dderbyn taliad. Cysylltwch â ni (manylion yn nhroedyn y ffurflen hon) neu cadwch eich cynnydd a dychwelyd at y ffurflen yn ddiweddarach.",
@@ -266,6 +267,19 @@
       "uploadedFilesHeading": "Ffeiliau a uwchlwythwyd",
       "filesCount_one": "Uwchlwythwyd [[count]] ffeil",
       "filesCount_other": "Uwchlwythwyd [[count]] ffeil"
+    },
+
+    "characterCount": {
+      "_comment": "Note the use of %{count} instead of [[count]]. This is because we are passing to the govuk template, not passing to Joi",
+      "underLimit": {
+        "one": "Mae gennych %{count} nod ar ôl",
+        "other": "Mae gennych %{count} nod ar ôl"
+      },
+      "atLimit": "Mae gennych 0 nod ar ôl",
+      "overLimit": {
+        "one": "Mae gennych %{count} nod yn ormod",
+        "other": "Mae gennych %{count} nod yn ormod"
+      }
     }
   }
 }
