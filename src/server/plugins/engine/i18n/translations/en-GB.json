@@ -92,7 +92,11 @@
     "fileUpload": {
       "upload": "Upload file",
       "maxFilesReached": "You have reached the maximum number of files. Please remove a file to upload more.",
-      "remove": "Remove"
+      "remove": "Remove",
+      "removeFileTitle": "Are you sure you want to remove this file?",
+      "removeFileBody": "You cannot recover removed files.",
+      "removeFileButton": "Remove file",
+      "cancel": "Cancel"
     },
 
     "exit": {
@@ -265,6 +269,7 @@
     },
 
     "fileUploadField": {
+      "uploading": "Uploading…",
       "uploaded": "Uploaded",
       "uploadFailed": "There was a problem with your uploaded files. Re-upload them before submitting the form again.",
       "uploadedFilesHeading": "Uploaded files",

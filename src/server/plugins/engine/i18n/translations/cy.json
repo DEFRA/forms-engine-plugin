@@ -60,6 +60,12 @@
       "totalAmount": "Cyfanswm",
       "reference": "Cyfeirnod",
       "dateOfPayment": "Dyddiad talu",
+      "fileUpload_zero": "Ni uwchlwythwyd unrhyw ffeiliau",
+      "fileUpload_one": "Uwchlwythwyd [[count]] ffeil",
+      "fileUpload_two": "Uwchlwythwyd dwy feil",
+      "fileUpload_few": "Uwchlwythwyd [[count]] ffeil",
+      "fileUpload_many": "Uwchlwythwyd [[count]] o ffeiliau",
+      "fileUpload_other": "Uwchlwythwyd [[count]] ffeil",
       "submissionFailed": "Roedd problem ac ni chyflwynwyd eich ffurflen. Ceisiwch gyflwyno'r ffurflen eto",
       "submissionFailedContactSuffix": " neu gallwch [[contactUsLink]] a dyfynnu'ch cyfeirnod i drefnu ad-daliad",
       "contactUsLinkText": "cysylltu â ni (yn agor mewn tab newydd)",
@@ -79,18 +85,34 @@
       "change": "Newid",
       "notProvided": "Heb ei ddarparu",
       "visuallyHiddenItem": "eitem [[index]]",
+      "pageTitle_zero": "Nid ydych wedi ychwanegu unrhyw atebion",
       "pageTitle_one": "Rydych wedi ychwanegu [[count]] ateb",
+      "pageTitle_two": "Rydych wedi ychwanegu dau ateb",
+      "pageTitle_few": "Rydych wedi ychwanegu [[count]] ateb",
+      "pageTitle_many": "Rydych wedi ychwanegu [[count]] o atebion",
       "pageTitle_other": "Rydych wedi ychwanegu [[count]] ateb",
+      "tooMany_zero": "Ni allwch ychwanegu unrhyw atebion",
       "tooMany_one": "Dim ond hyd at [[count]] ateb y gallwch ei ychwanegu",
+      "tooMany_two": "Dim ond hyd at ddau gateb y gallwch eu hychwanegu",
+      "tooMany_few": "Dim ond hyd at [[count]] ateb y gallwch eu hychwanegu",
+      "tooMany_many": "Dim ond hyd at [[count]] o atebion y gallwch eu hychwanegu",
       "tooMany_other": "Dim ond hyd at [[count]] ateb y gallwch eu hychwanegu",
+      "tooFew_zero": "Rhaid i chi ychwanegu atebion",
       "tooFew_one": "Rhaid i chi ychwanegu o leiaf [[count]] ateb",
+      "tooFew_two": "Rhaid i chi ychwanegu o leiaf ddau gateb",
+      "tooFew_few": "Rhaid i chi ychwanegu o leiaf [[count]] ateb",
+      "tooFew_many": "Rhaid i chi ychwanegu o leiaf [[count]] o atebion",
       "tooFew_other": "Rhaid i chi ychwanegu o leiaf [[count]] ateb"
     },
 
     "fileUpload": {
       "upload": "Uwchlwytho ffeil",
       "maxFilesReached": "Rydych wedi cyrraedd nifer uchaf y ffeiliau. Tynnwch ffeil i uwchlwytho rhagor.",
-      "remove": "Tynnu"
+      "remove": "Tynnu",
+      "removeFileTitle": "Ydych chi'n siŵr eich bod chi eisiau dileu'r ffeil hon?",
+      "removeFileBody": "Ni allwch adfer ffeiliau a dynnwyd.",
+      "removeFileButton": "Dileu ffeil",
+      "cancel": "Canslo"
     },
 
     "exit": {
@@ -136,7 +158,11 @@
     "findAnAddressInstead": "dod o hyd i gyfeiriad yn lle hynny",
     "noAddressFoundTitle": "Ni chanfuwyd cyfeiriad",
     "noAddressFoundBody": "Ni allem ddod o hyd i gyfeiriad cyfatebol",
+    "addressFound_zero": "Ni chanfuwyd unrhyw gyfeiriadau ar gyfer",
     "addressFound_one": "Canfuwyd [[count]] cyfeiriad ar gyfer",
+    "addressFound_two": "Canfuwyd dau gyfeiriad ar gyfer",
+    "addressFound_few": "Canfuwyd [[count]] chyfeiriad ar gyfer",
+    "addressFound_many": "Canfuwyd [[count]] o gyfeiriadau ar gyfer",
     "addressFound_other": "Canfuwyd [[count]] cyfeiriad ar gyfer",
     "validation": {
       "invalidPostcode": "Nodwch god post dilys neu nodwch gyfeiriad â llaw",
@@ -238,7 +264,11 @@
     },
 
     "geospatialField": {
+      "added_zero": "Ni ychwanegwyd unrhyw leoliadau",
       "added_one": "Ychwanegwyd [[count]] lleoliad",
+      "added_two": "Ychwanegwyd dau leoliad",
+      "added_few": "Ychwanegwyd [[count]] lleoliad",
+      "added_many": "Ychwanegwyd [[count]] o leoliadau",
       "added_other": "Ychwanegwyd [[count]] lleoliad",
       "validation": {
         "descriptionRequired": "Rhowch ddisgrifiad ar gyfer lleoliad [[count]]",
@@ -263,10 +293,15 @@
     },
 
     "fileUploadField": {
+      "uploading": "Yn uwchlwytho…",
       "uploaded": "Wedi'i uwchlwytho",
       "uploadFailed": "Roedd problem gyda'ch ffeiliau a uwchlwythwyd. Uwchlwythwch nhw eto cyn cyflwyno'r ffurflen.",
       "uploadedFilesHeading": "Ffeiliau a uwchlwythwyd",
+      "filesCount_zero": "Uwchlwythwyd [[count]] o ffeiliau",
       "filesCount_one": "Uwchlwythwyd [[count]] ffeil",
+      "filesCount_two": "Uwchlwythwyd [[count]] ffeil",
+      "filesCount_few": "Uwchlwythwyd [[count]] ffeil",
+      "filesCount_many": "Uwchlwythwyd [[count]] o ffeiliau",
       "filesCount_other": "Uwchlwythwyd [[count]] ffeil"
     },
 

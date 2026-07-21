@@ -305,17 +305,19 @@ function pollUploadStatus(uploadId) {
  * @param {HTMLButtonElement} uploadButton - The upload button
  * @param {HTMLButtonElement} continueButton - The continue button
  * @param {File[]} selectedFiles - The selected files
+ * @param {string} uploadingLabel - The text to display while uploading (can be multiple languages)
  */
 function handleStandardFormSubmission(
   formElement,
   fileInput,
   uploadButton,
   continueButton,
-  selectedFiles
+  selectedFiles,
+  uploadingLabel
 ) {
   // Render in reverse so first file ends up at the top of the summary list
   for (let i = selectedFiles.length - 1; i >= 0; i--) {
-    renderSummary(selectedFiles[i], 'Uploading…', formElement)
+    renderSummary(selectedFiles[i], uploadingLabel, formElement)
   }
 
   fileInput.focus()
@@ -405,6 +407,10 @@ function initUpload() {
     return
   }
 
+  const uploadingLabel =
+    document.getElementById('uploadedFilesContainer')?.dataset.uploadinglabel ??
+    '123Uploading…'
+
   const formElement = /** @type {HTMLFormElement} */ (form)
   /** @type {File[]} */
   let selectedFiles = []
@@ -445,7 +451,8 @@ function initUpload() {
       fileInput,
       uploadButton,
       continueButton,
-      selectedFiles
+      selectedFiles,
+      uploadingLabel
     )
 
     handleAjaxFormSubmission(
