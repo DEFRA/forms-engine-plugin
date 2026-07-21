@@ -124,6 +124,7 @@ export interface ViewModel extends Record<string, unknown> {
   upload?: {
     count: number
     summaryList: SummaryList
+    uploadingLabel?: string
   }
 }
 

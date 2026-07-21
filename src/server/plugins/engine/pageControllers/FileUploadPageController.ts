@@ -188,17 +188,19 @@ export class FileUploadPageController extends QuestionPageController {
 
       const { filename } = fileToRemove.status.form.file
 
-      const { t } = this.getTranslator(request)
+      const translator = this.getTranslator(request)
+      const { t } = translator
 
       return h.view(this.fileDeleteViewName, {
         ...viewModel,
         context,
         backLink: this.getBackLink(request, context, t),
-        pageTitle: `Are you sure you want to remove this file?`,
+        pageTitle: t('pages.fileUpload.removeFileTitle'),
         itemTitle: filename,
-        confirmation: { text: 'You cannot recover removed files.' },
-        buttonConfirm: { text: 'Remove file' },
-        buttonCancel: { text: 'Cancel' }
+        confirmation: { text: t('pages.fileUpload.removeFileBody') },
+        buttonConfirm: { text: t('pages.fileUpload.removeFileButton') },
+        buttonCancel: { text: t('pages.fileUpload.cancel') },
+        t
       } satisfies ItemDeletePageViewModel)
     }
   }
@@ -266,6 +268,7 @@ export class FileUploadPageController extends QuestionPageController {
   ): FeaturedFormPageViewModel {
     const { fileUpload } = this
     const { state } = context
+    const { t } = translator
 
     const upload = this.getUploadFromState(state)
 
@@ -276,6 +279,12 @@ export class FileUploadPageController extends QuestionPageController {
     const [formComponent] = components.filter(
       ({ model }) => model.id === fileUpload.name
     )
+
+    formComponent.model.upload = {
+      count: formComponent.model.upload?.count ?? 0,
+      summaryList: formComponent.model.upload?.summaryList ?? { rows: [] },
+      uploadingLabel: t('components.fileUploadField.uploading')
+    }
 
     const index = components.indexOf(formComponent)
 
@@ -290,7 +299,8 @@ export class FileUploadPageController extends QuestionPageController {
       // Split out components before/after
       componentsBefore: components.slice(0, index),
       components: components.slice(index),
-      proxyUrl
+      proxyUrl,
+      t
     }
   }
 
