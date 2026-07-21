@@ -409,7 +409,7 @@ function initUpload() {
 
   const uploadingLabel =
     document.getElementById('uploadedFilesContainer')?.dataset.uploadinglabel ??
-    '123Uploading…'
+    'Uploading…'
 
   const formElement = /** @type {HTMLFormElement} */ (form)
   /** @type {File[]} */
