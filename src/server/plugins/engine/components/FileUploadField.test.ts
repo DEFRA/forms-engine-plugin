@@ -332,7 +332,7 @@ describe('FileUploadField', () => {
           format: 'summary'
         })
 
-        expect(answer1).toBe('3 files uploaded')
+        expect(answer1).toBe('Uploaded 3 files')
         expect(answer2).toBe('')
       })
 

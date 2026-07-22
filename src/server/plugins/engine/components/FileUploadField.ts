@@ -169,7 +169,7 @@ export class FileUploadField extends FormComponent {
       return ''
     }
 
-    return translator.t('components.fileUploadField.filesCount', {
+    return translator.t('pages.summary.fileUpload', {
       count: files.length
     })
   }
@@ -244,7 +244,7 @@ export class FileUploadField extends FormComponent {
 
         items.push({
           href,
-          text: 'Remove',
+          text: t('pages.fileUpload.remove'),
           classes: 'govuk-link--no-visited-state',
           attributes: { id: `${id}__${index}` },
           visuallyHiddenText: file.filename
