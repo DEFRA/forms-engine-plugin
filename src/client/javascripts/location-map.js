@@ -430,6 +430,7 @@ export function processLocation(config, location, index) {
     datasets.push(...sssiDataset)
   }
 
+  // Create a map dataset plugin if there are any present
   if (datasets.length) {
     initConfig.plugins = [createDatasetsPlugin({ datasets })]
   }

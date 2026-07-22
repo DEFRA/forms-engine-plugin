@@ -177,7 +177,7 @@ export function processGeospatial(config, geospatial, index) {
   const mapLayers = getMapLayers(geospatial.dataset.maplayers)
 
   if (country) {
-    // Add the country bounds as a dataset plugin to show the valid area on the map
+    // Add the country bounds to the datasets array to show the valid area on the map
     // and provide feedback to the user when they add features outside of the bounds.
     datasets.push(
       {
@@ -210,6 +210,7 @@ export function processGeospatial(config, geospatial, index) {
     datasets.push(...sssiDataset)
   }
 
+  // Create a map dataset plugin if there are any present
   if (datasets.length) {
     plugins.push(createDatasetsPlugin({ datasets }))
   }
