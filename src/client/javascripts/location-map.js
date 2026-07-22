@@ -423,10 +423,15 @@ export function processLocation(config, location, index) {
 
   locationInputs.after(mapContainer)
 
+  const datasets = []
   const mapLayers = getMapLayers(location.dataset.maplayers)
 
   if (mapLayers.includes('sssi')) {
-    initConfig.plugins = [createDatasetsPlugin(sssiDataset)]
+    datasets.push(...sssiDataset)
+  }
+
+  if (datasets.length) {
+    initConfig.plugins = [createDatasetsPlugin({ datasets })]
   }
 
   const { map, interactPlugin } = createMap(mapId, initConfig, config)

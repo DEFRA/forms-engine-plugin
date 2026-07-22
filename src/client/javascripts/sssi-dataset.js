@@ -49,50 +49,47 @@ export function sssiScotlandRequestTransformer(url, { bbox }) {
   }
 }
 
-export default {
-  datasets: [
-    {
-      id: 'sssi-england',
-      label: 'Sites of Special Scientific Interest',
-      dynamicGeoJSON: {
-        url: englandWFS,
-        idProperty: 'ref_code',
-        transformRequest: sssiEnglandRequestTransformer
-      },
-      minZoom,
-      style,
-      showInKey: true,
-      showInMenu: false
+export default [
+  {
+    id: 'sssi-england',
+    label: 'Sites of Special Scientific Interest',
+    dynamicGeoJSON: {
+      url: englandWFS,
+      idProperty: 'ref_code',
+      transformRequest: sssiEnglandRequestTransformer
     },
-    {
-      id: 'sssi-wales',
-      label: 'SSSI Wales',
-      dynamicGeoJSON: {
-        url: walesWFS,
-        idProperty: 'id',
-        transformRequest: sssiWalesRequestTransformer
-      },
-      minZoom,
-      style,
-      showInKey: false,
-      showInMenu: false
+    minZoom,
+    style,
+    showInKey: true,
+    showInMenu: false
+  },
+  {
+    id: 'sssi-wales',
+    label: 'SSSI Wales',
+    dynamicGeoJSON: {
+      url: walesWFS,
+      idProperty: 'id',
+      transformRequest: sssiWalesRequestTransformer
     },
-    {
-      id: 'sssi-scotland',
-      label: 'SSSI Scotland',
-      dynamicGeoJSON: {
-        url: scotlandWFS,
-        idProperty: 'OBJECTID',
-        transformRequest: sssiScotlandRequestTransformer
-      },
-      minZoom,
-      style,
-      showInKey: false,
-      showInMenu: false
-    }
-  ]
-}
-
+    minZoom,
+    style,
+    showInKey: false,
+    showInMenu: false
+  },
+  {
+    id: 'sssi-scotland',
+    label: 'SSSI Scotland',
+    dynamicGeoJSON: {
+      url: scotlandWFS,
+      idProperty: 'OBJECTID',
+      transformRequest: sssiScotlandRequestTransformer
+    },
+    minZoom,
+    style,
+    showInKey: false,
+    showInMenu: false
+  }
+]
 /**
  * @typedef {object} TransformRequestOptions
  * @property {string[]} bbox - the bounding box coordinates
