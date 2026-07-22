@@ -74,6 +74,10 @@ Override this service if you are not using the Defra Forms hosting infrastructur
 
 Called after `formSubmissionService.submit` completes. Its job is to deliver the submission — by default, as a GOV.UK Notify email.
 
+:::warning[Deprecation Notice: outputService]
+`outputService` currently defaults to a built-in GOV.UK Notify implementation if one is not provided. This default will be removed in an upcoming version of `forms-engine-plugin`, making `outputService` a required argument.
+:::
+
 ```ts
 interface OutputService {
   submit: (
