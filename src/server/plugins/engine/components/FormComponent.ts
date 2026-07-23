@@ -1,5 +1,4 @@
 import {
-  type ComponentDef,
   type FormComponentsDef,
   type FormMetadata,
   type Item
@@ -178,15 +177,14 @@ export class FormComponent extends ComponentBase {
     const isRequired = !('required' in options) || options.required !== false
     const hideOptional = 'optionalText' in options && options.optionalText
 
-    const resolvedTitle =
-      tComponent(this as unknown as ComponentDef, 'title') || title
+    const resolvedTitle = tComponent(this.def, 'title') || title
     const optionalTag =
       !isRequired && !hideOptional ? ` ${t('common.optional')}` : ''
     const label = `${resolvedTitle}${optionalTag}`
 
     if (hint) {
       viewModel.hint = {
-        text: tComponent(this as unknown as ComponentDef, 'hint') || hint
+        text: tComponent(this.def, 'hint') || hint
       }
     }
 

@@ -28,6 +28,7 @@ export class ComponentBase {
 
   isFormComponent = false
   model: FormModel
+  def: ComponentDef
 
   /** joi schemas based on a component defined in the form JSON. This validates a user's answer and is generated from {@link ComponentDef} */
   formSchema: ComponentSchema = joi.string()
@@ -45,6 +46,7 @@ export class ComponentBase {
     this.type = def.type
     this.name = def.name
     this.title = def.title
+    this.def = def
 
     if ('schema' in def) {
       this.schema = def.schema

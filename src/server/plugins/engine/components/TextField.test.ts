@@ -272,7 +272,7 @@ describe('TextField', () => {
             language: 'en-GB'
           }
         })
-        expect(tComponent).toHaveBeenCalledWith(field, 'title')
+        expect(tComponent).toHaveBeenCalledWith(field.def, 'title')
         expect(viewModel.label.text).toBe('Translated title')
       })
 
@@ -295,7 +295,7 @@ describe('TextField', () => {
             language: 'en-GB'
           }
         })
-        expect(tComponent).toHaveBeenCalledWith(hintField, 'hint')
+        expect(tComponent).toHaveBeenCalledWith(hintField.def, 'hint')
         expect(viewModel.hint?.text).toBe('Translated hint')
       })
 
