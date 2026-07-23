@@ -212,12 +212,12 @@ function ItemRepeat(
   translator: Translator
 ): DetailItemRepeat {
   const { collection, repeat } = page
-  const { name, title } = repeat.options
-
+  const { name } = repeat.options
+  const { t, tPage } = translator
+  const title = tPage(page.pageDef, 'repeatTitle') || repeat.options.title
   const values = page.getListFromState(state)
   const count = values.length
-  const value =
-    count === 0 ? '' : translator.t('pages.repeater.pageTitle', { count })
+  const value = count === 0 ? '' : t('pages.repeater.pageTitle', { count })
 
   return {
     name,
