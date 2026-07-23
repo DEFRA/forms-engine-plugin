@@ -3,6 +3,7 @@ import {
   type SubmitResponsePayload
 } from '@defra/forms-model'
 
+import { EN_GB } from '~/src/server/constants.js'
 import { FileUploadField } from '~/src/server/plugins/engine/components/FileUploadField.js'
 import { type Field } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
@@ -238,7 +239,8 @@ describe('Adapter v1 formatter', () => {
       formSlug: 'test-form',
       status: FormStatus.Live,
       isPreview: false,
-      notificationEmail: 'test@example.com'
+      notificationEmail: 'test@example.com',
+      language: EN_GB
     })
 
     expect(parsedBody.data).toEqual({
@@ -866,35 +868,6 @@ describe('Adapter v1 formatter', () => {
       const parsedBody = JSON.parse(body) as FormAdapterSubmissionMessagePayload
 
       expect(parsedBody.meta.versionMetadata).toBeUndefined()
-    })
-  })
-
-  describe('meta.language', () => {
-    const formStatus = { isPreview: false, state: FormStatus.Live }
-
-    it('includes meta.language when the form definition specifies a language', () => {
-      const welshModel = new FormModel(
-        { ...definition, metadata: { language: 'cy' } },
-        { basePath: 'test' }
-      )
-
-      const body = format(
-        context,
-        items,
-        welshModel,
-        submitResponse,
-        formStatus
-      )
-      const parsedBody = JSON.parse(body) as FormAdapterSubmissionMessagePayload
-
-      expect(parsedBody.meta.language).toBe('cy')
-    })
-
-    it('omits meta.language when the form definition has no language set', () => {
-      const body = format(context, items, model, submitResponse, formStatus)
-      const parsedBody = JSON.parse(body) as FormAdapterSubmissionMessagePayload
-
-      expect(parsedBody.meta.language).toBeUndefined()
     })
   })
 })

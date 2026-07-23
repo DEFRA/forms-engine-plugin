@@ -71,6 +71,7 @@ export interface OutputService {
     emailAddress: string,
     items: DetailItem[],
     submitResponse: SubmitResponsePayload,
+    language: string,
     formMetadata?: FormMetadata
   ) => Promise<void>
 }
