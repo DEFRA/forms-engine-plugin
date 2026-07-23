@@ -20,6 +20,10 @@ const templateId = config.get('notifyTemplateId')
  * Optional GOV.UK Notify service for consumers who want email notifications
  * Can be disabled by not providing notifyTemplateId in config
  * Can be overridden by providing a custom outputService in the services config
+ * @deprecated `outputService` currently defaults to this built-in GOV.UK Notify
+ * implementation if one is not provided. This default will be removed in an
+ * upcoming version of `forms-engine-plugin`, making `outputService` a required
+ * argument. Provide your own `outputService` in the services config instead.
  */
 export async function submit(
   context: FormContext,

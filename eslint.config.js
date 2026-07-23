@@ -329,6 +329,20 @@ export default tseslint.config(
     }
   },
 
+  // Deprecated GOV.UK Notify output path override
+  // These modules are themselves deprecated (the default `outputService` and
+  // the formatters it uses) so their internal usage of deprecated symbols is
+  // expected. Remove this block along with the default `outputService`.
+  {
+    files: [
+      'src/server/plugins/engine/outputFormatters/**/*.{js,ts}',
+      'src/server/plugins/engine/services/notifyService*.{js,ts}'
+    ],
+    rules: {
+      '@typescript-eslint/no-deprecated': 'off'
+    }
+  },
+
   // Prettier must be last
   prettierConfig
 )

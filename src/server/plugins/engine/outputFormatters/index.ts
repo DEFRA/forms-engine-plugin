@@ -37,6 +37,14 @@ const formatters: Record<
   }
 }
 
+/**
+ * Resolves the output formatter used by the default GOV.UK Notify based
+ * `outputService`.
+ * @deprecated These formatters exist to build the body of the default GOV.UK
+ * Notify submission email. That default `outputService` will be removed in an
+ * upcoming version of `forms-engine-plugin`, making `outputService` a required
+ * argument. Format the submission yourself in your own `outputService` instead.
+ */
 export function getFormatter(audience: string, version: string) {
   const versions = formatters[audience]
 

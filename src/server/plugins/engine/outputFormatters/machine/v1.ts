@@ -18,6 +18,15 @@ import { type FormContext } from '~/src/server/plugins/engine/types.js'
 
 const designerUrl = config.get('designerUrl')
 
+/**
+ * Formats a submission as machine readable JSON (v1).
+ *
+ * Deprecation notice: its use by the default GOV.UK Notify based
+ * `outputService` is deprecated - that default will be removed in an upcoming
+ * version of `forms-engine-plugin`, making `outputService` a required argument.
+ * This function is deliberately not tagged `@deprecated` because it is also
+ * used by page event structured data, which is unaffected.
+ */
 export function format(
   context: FormContext,
   items: DetailItem[],

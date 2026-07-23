@@ -19,6 +19,14 @@ import {
   type FormContext
 } from '~/src/server/plugins/engine/types.js'
 
+/**
+ * Formats a submission as a form adapter message (v1) for the default GOV.UK
+ * Notify submission email.
+ * @deprecated Used only by the default GOV.UK Notify based `outputService`,
+ * which will be removed in an upcoming version of `forms-engine-plugin`, making
+ * `outputService` a required argument. Format the submission yourself in your
+ * own `outputService` instead.
+ */
 export function format(
   context: FormContext,
   items: DetailItem[],

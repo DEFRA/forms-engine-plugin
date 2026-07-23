@@ -22,6 +22,14 @@ import {
 
 const designerUrl = config.get('designerUrl')
 
+/**
+ * Formats a submission as human readable markdown for the default GOV.UK Notify
+ * submission email.
+ * @deprecated Used only by the default GOV.UK Notify based `outputService`,
+ * which will be removed in an upcoming version of `forms-engine-plugin`, making
+ * `outputService` a required argument. Format the submission yourself in your
+ * own `outputService` instead.
+ */
 export function format(
   _context: FormContext,
   items: DetailItem[],

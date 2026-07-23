@@ -33,6 +33,14 @@ interface PaymentOutput {
 
 const designerUrl = config.get('designerUrl')
 
+/**
+ * Formats a submission as machine readable JSON (v2) for the default GOV.UK
+ * Notify submission email.
+ * @deprecated Used only by the default GOV.UK Notify based `outputService`,
+ * which will be removed in an upcoming version of `forms-engine-plugin`, making
+ * `outputService` a required argument. Format the submission yourself in your
+ * own `outputService` instead.
+ */
 export function format(
   context: FormContext,
   items: DetailItem[],
@@ -97,6 +105,10 @@ export function format(
  *      }
  *    }
  * }
+ * @deprecated Only reachable from the machine v2 and adapter v1 formatters,
+ * which exist to build the body of the default GOV.UK Notify submission email.
+ * That default `outputService` will be removed in an upcoming version of
+ * `forms-engine-plugin`, making `outputService` a required argument.
  */
 export function categoriseData(items: DetailItem[]) {
   const output: {
