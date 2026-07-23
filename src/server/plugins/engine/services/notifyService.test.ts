@@ -1,5 +1,6 @@
 import { type FormMetadata } from '@defra/forms-model'
 
+import { EN_GB } from '~/src/server/constants.js'
 import { escapeMarkdown } from '~/src/server/plugins/engine/components/helpers/index.js'
 import { checkFormStatus } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
@@ -72,7 +73,8 @@ describe('notifyService', () => {
       model,
       'test@defra.gov.uk',
       items,
-      submitResponse
+      submitResponse,
+      EN_GB
     )
 
     expect(sendNotificationMock).toHaveBeenCalledWith(
@@ -108,7 +110,8 @@ describe('notifyService', () => {
       model,
       'test@defra.gov.uk',
       items,
-      submitResponse
+      submitResponse,
+      EN_GB
     )
 
     expect(sendNotificationMock).toHaveBeenCalledWith(
@@ -146,7 +149,8 @@ describe('notifyService', () => {
       model,
       'test@defra.gov.uk',
       items,
-      submitResponse
+      submitResponse,
+      EN_GB
     )
 
     expect(sendNotificationMock).toHaveBeenCalledWith(
@@ -193,6 +197,7 @@ describe('notifyService', () => {
       'test@defra.gov.uk',
       items,
       submitResponse,
+      EN_GB,
       formMetadata
     )
 
@@ -244,7 +249,8 @@ describe('notifyService', () => {
       model,
       'test@defra.gov.uk',
       items,
-      submitResponse
+      submitResponse,
+      EN_GB
     )
 
     expect(getFormatter).toHaveBeenCalledWith('machine', '2')
@@ -296,7 +302,8 @@ describe('notifyService', () => {
         model,
         'test@defra.gov.uk',
         items,
-        submitResponse
+        submitResponse,
+        EN_GB
       )
     ).rejects.toThrow('Notification service unavailable')
 

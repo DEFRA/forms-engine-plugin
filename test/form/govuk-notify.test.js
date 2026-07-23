@@ -3,7 +3,7 @@ import { join } from 'node:path'
 import { StatusCodes } from 'http-status-codes'
 import { outdent } from 'outdent'
 
-import { FORM_PREFIX } from '~/src/server/constants.js'
+import { EN_GB, FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import {
   persistFiles,
@@ -341,7 +341,8 @@ describe('Submission journey test', () => {
       repeaters: [],
       retrievalKey: 'enrique.chase@defra.gov.uk',
       sessionId: expect.any(String),
-      referenceNumber: expect.any(String)
+      referenceNumber: expect.any(String),
+      language: EN_GB
     })
 
     // Status page

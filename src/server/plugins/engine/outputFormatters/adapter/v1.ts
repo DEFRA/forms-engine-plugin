@@ -3,6 +3,7 @@ import {
   type SubmitResponsePayload
 } from '@defra/forms-model'
 
+import { EN_GB } from '~/src/server/constants.js'
 import {
   getFormVersion,
   type checkFormStatus
@@ -42,16 +43,12 @@ export function format(
     formSlug: formMetadata?.slug ?? '',
     status: formStatus.state,
     isPreview: formStatus.isPreview,
-    notificationEmail: formMetadata?.notificationEmail ?? ''
+    notificationEmail: formMetadata?.notificationEmail ?? '',
+    language: context.translator?.language ?? EN_GB
   }
 
   if (versionMetadata) {
     meta.versionMetadata = versionMetadata
-  }
-
-  const definitionLanguage = model.def.metadata?.language
-  if (typeof definitionLanguage === 'string') {
-    meta.language = definitionLanguage
   }
 
   const main = Object.fromEntries(

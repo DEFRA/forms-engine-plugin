@@ -481,6 +481,7 @@ export async function submitForm(
       emailAddress,
       items,
       submitResponse,
+      translator.language,
       formMetadata
     )
   } catch (err) {
@@ -557,7 +558,8 @@ function submitData(
     retrievalKey,
     referenceNumber,
     main: buildMainRecords(items, translator),
-    repeaters: buildRepeaterRecords(items, translator)
+    repeaters: buildRepeaterRecords(items, translator),
+    language: translator.language
   }
   return submit(payload)
 }

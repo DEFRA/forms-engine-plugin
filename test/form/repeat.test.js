@@ -5,7 +5,7 @@ import { hasRepeater } from '@defra/forms-model'
 import { within } from '@testing-library/dom'
 import { StatusCodes } from 'http-status-codes'
 
-import { FORM_PREFIX } from '~/src/server/constants.js'
+import { EN_GB, FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import { isRepeatState } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { getCacheService } from '~/src/server/plugins/engine/helpers.js'
@@ -631,7 +631,8 @@ describe('Repeat POST tests', () => {
       ],
       retrievalKey: 'enrique.chase@defra.gov.uk',
       sessionId: expect.any(String),
-      referenceNumber: expect.any(String)
+      referenceNumber: expect.any(String),
+      language: EN_GB
     })
   })
 
