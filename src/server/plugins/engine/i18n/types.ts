@@ -22,6 +22,7 @@ export type FormDefinitionTranslations = Record<
         hint: string
         content: string
         shortDescription: string
+        errorDescription: string
         paymentDescription: string
       }>
     >
