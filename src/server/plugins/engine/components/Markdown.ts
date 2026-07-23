@@ -1,4 +1,4 @@
-import { type ComponentDef, type MarkdownComponent } from '@defra/forms-model'
+import { type MarkdownComponent } from '@defra/forms-model'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
@@ -28,8 +28,7 @@ export class Markdown extends ComponentBase {
 
     return {
       ...viewModel,
-      content:
-        tComponent(this as unknown as ComponentDef, 'content') || content,
+      content: tComponent(this.def, 'content') || content,
       headerStartLevel: this.headerStartLevel
     }
   }

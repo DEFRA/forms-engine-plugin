@@ -2,7 +2,6 @@ import {
   ComponentType,
   hasFormComponents,
   isFormType,
-  type ComponentDef,
   type DeclarationFieldComponent,
   type Item
 } from '@defra/forms-model'
@@ -148,7 +147,7 @@ export class DeclarationField extends FormComponent {
         'components.declarationField.defaultLabel'
       )
     } = this
-    const content = tComponent(this as unknown as ComponentDef, 'content')
+    const content = tComponent(this.def, 'content')
 
     const viewModel = super.getViewModel(context)
     let { fieldset, label } = viewModel

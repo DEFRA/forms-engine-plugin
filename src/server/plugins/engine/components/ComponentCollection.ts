@@ -308,12 +308,11 @@ export class ComponentCollection {
             labelOverrides[subField.name] = patchedSchema
           }
         } else {
+          const fieldDef = field.def
           const translatedLabel =
-            translator.tComponent(
-              field as unknown as ComponentDef,
-              'shortDescription'
-            ) ||
-            translator.tComponent(field as unknown as ComponentDef, 'title')
+            translator.tComponent(fieldDef, 'errorDescription') ||
+            translator.tComponent(fieldDef, 'shortDescription') ||
+            translator.tComponent(fieldDef, 'title')
           const messagesOverride =
             field.getValidationMessagesOverride(translator)
           let patchedSchema = field.formSchema
