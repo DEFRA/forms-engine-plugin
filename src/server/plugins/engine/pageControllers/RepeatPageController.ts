@@ -406,9 +406,9 @@ export class RepeatPageController extends QuestionPageController {
     const { query } = request
     const { isForceAccess, errors } = context
 
-    const { t } = translator
+    const { t, tPage } = translator
 
-    const { title } = repeat.options
+    const title = tPage(this.pageDef, 'repeatTitle') || repeat.options.title
 
     const summaryList: SummaryList = {
       classes: 'govuk-summary-list--long-actions',

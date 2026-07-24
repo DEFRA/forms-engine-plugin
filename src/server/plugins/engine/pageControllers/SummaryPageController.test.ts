@@ -19,6 +19,10 @@ const translator = new FormModel(definition, {
   basePath: '/'
 }).createTranslator()
 
+const welshTranslator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator('cy')
+
 describe('SummaryPageController', () => {
   let model: FormModel
   let controller: SummaryPageController
@@ -492,7 +496,7 @@ describe('SummaryPageController - Payment (DF-832)', () => {
       ).rejects.toBe(err)
     })
 
-    it('submits with correct payload', async () => {
+    it('submits with correct payload - non-Welsh enabled', async () => {
       const {
         request,
         context,
@@ -539,6 +543,39 @@ describe('SummaryPageController - Payment (DF-832)', () => {
         title: 'Payment date',
         value: ''
       })
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      expect(paymentCall.language).toBeUndefined()
+    })
+
+    it('submits with correct payload - Welsh selected', async () => {
+      model.def.metadata = {
+        translations: {
+          cy: {
+            'form.name': 'Some welsh'
+          }
+        }
+      }
+      const {
+        request,
+        context,
+        viewModel,
+        formMetadata,
+        formSubmissionSubmit
+      } = buildSubmitHarness({ captured: true })
+
+      await submitForm(
+        context,
+        formMetadata,
+        request,
+        viewModel,
+        model,
+        'notify@example.com',
+        welshTranslator
+      )
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      const paymentCall = formSubmissionSubmit.mock.calls[0][0]
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      expect(paymentCall.language).toBe('cy')
     })
   })
 })

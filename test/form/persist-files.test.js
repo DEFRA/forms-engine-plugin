@@ -196,7 +196,8 @@ describe('Submission journey test', () => {
       repeaters: [],
       retrievalKey: 'enrique.chase@defra.gov.uk',
       sessionId: expect.any(String),
-      referenceNumber: expect.any(String)
+      referenceNumber: expect.any(String),
+      language: undefined
     })
 
     expect(submitRes.statusCode).toBe(StatusCodes.SEE_OTHER)
