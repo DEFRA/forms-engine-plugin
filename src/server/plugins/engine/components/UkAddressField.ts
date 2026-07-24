@@ -298,12 +298,14 @@ export class UkAddressField extends FormComponent {
   ) {
     const { controller, component } = args
     const language = resolveLanguage(request)
+    const translator = controller.model.createTranslator(language)
+    const { tComponent } = translator
 
     return dispatch(request, h, {
       formName: controller.model.name,
       componentName: component.name,
       componentHint: component.hint,
-      componentTitle: component.title || controller.title,
+      componentTitle: tComponent(component, 'title') || controller.title,
       step: args.actionArgs.step,
       sourceUrl: args.sourceUrl,
       language

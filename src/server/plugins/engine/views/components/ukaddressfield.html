@@ -61,7 +61,7 @@
               },
               classes: "govuk-button--secondary govuk-!-margin-right-1 govuk-!-margin-bottom-0"
             }) }}
-            <p class="govuk-body govuk-!-margin-bottom-0">or <button class="govuk-link govuk-button--link govuk-!-margin-right-1 govuk-!-margin-bottom-0" name="action" value="external-{{component.model.name}}--step:manual">{{ t('components.addressField.enterManually') }}</button></p>
+            <p class="govuk-body govuk-!-margin-bottom-0">{{ t('common.or')}} <button class="govuk-link govuk-button--link govuk-!-margin-right-1 govuk-!-margin-bottom-0" name="action" value="external-{{component.model.name}}--step:manual">{{ t('components.addressField.enterManually') }}</button></p>
           </div>
           {# Include a line break if this is the last component #}
           {% if components[components.length - 1] == component %}
