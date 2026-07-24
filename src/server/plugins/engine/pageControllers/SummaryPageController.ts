@@ -559,7 +559,11 @@ function submitData(
     referenceNumber,
     main: buildMainRecords(items, translator),
     repeaters: buildRepeaterRecords(items, translator),
-    language: translator.language
+    // Only populate the language property if the form is multi-language enabled
+    // @ts-expect-error - dynamic language property
+    language: model.def.metadata?.translations?.cy
+      ? translator.language
+      : undefined
   }
   return submit(payload)
 }

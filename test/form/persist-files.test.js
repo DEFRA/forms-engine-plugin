@@ -2,7 +2,7 @@ import { join } from 'node:path'
 
 import { StatusCodes } from 'http-status-codes'
 
-import { EN_GB, FORM_PREFIX } from '~/src/server/constants.js'
+import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import {
   persistFiles,
@@ -197,7 +197,7 @@ describe('Submission journey test', () => {
       retrievalKey: 'enrique.chase@defra.gov.uk',
       sessionId: expect.any(String),
       referenceNumber: expect.any(String),
-      language: EN_GB
+      language: undefined
     })
 
     expect(submitRes.statusCode).toBe(StatusCodes.SEE_OTHER)

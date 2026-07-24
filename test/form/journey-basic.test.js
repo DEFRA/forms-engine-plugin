@@ -3,7 +3,7 @@ import { join } from 'node:path'
 import { within } from '@testing-library/dom'
 import { StatusCodes } from 'http-status-codes'
 
-import { EN_GB, FORM_PREFIX } from '~/src/server/constants.js'
+import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import { submit } from '~/src/server/plugins/engine/services/formSubmissionService.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
@@ -417,7 +417,7 @@ describe('Form journey', () => {
         retrievalKey: 'enrique.chase@defra.gov.uk',
         sessionId: expect.any(String),
         referenceNumber: expect.any(String),
-        language: EN_GB
+        language: undefined
       })
 
       expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
