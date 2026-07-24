@@ -481,7 +481,6 @@ export async function submitForm(
       emailAddress,
       items,
       submitResponse,
-      translator.language,
       formMetadata
     )
   } catch (err) {
