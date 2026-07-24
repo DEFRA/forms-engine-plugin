@@ -28,7 +28,6 @@ export async function submit(
   emailAddress: string,
   items: DetailItem[],
   submitResponse: SubmitResponsePayload,
-  _language: string,
   formMetadata?: FormMetadata
 ) {
   if (!templateId) {
