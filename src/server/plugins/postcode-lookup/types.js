@@ -14,12 +14,16 @@
 /**
  * @typedef {{
  *   sourceUrl: string,
+ *   formId: string
  *   formName: string
+ *   formStatus: FormStatus
+ *   componentId: string
  *   componentName: string
  *   componentTitle: string,
  *   componentHint?: string
  *   step?: string
  *   language?: string
+ *   languages?: { name: string, code: string}[]
  * }} PostcodeLookupDispatchData
  */
 
@@ -49,6 +53,7 @@
  * Postcode lookup query params
  * @typedef {object} PostcodeLookupQuery
  * @property {string} [step] - step
+ * @property {string} [language] - language
  */
 
 /**
@@ -140,5 +145,5 @@
 
 /**
  * @import { Request } from '@hapi/hapi'
- * @import { FormPayload } from '~/src/server/plugins/engine/types.js'
+ * @import { FormStatus } from '@defra/forms-model'
  */

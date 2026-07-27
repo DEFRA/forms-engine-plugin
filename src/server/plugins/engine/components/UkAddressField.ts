@@ -1,4 +1,9 @@
-import { ComponentType, type UkAddressFieldComponent } from '@defra/forms-model'
+import {
+  ComponentType,
+  FormStatus,
+  type FormMetadata,
+  type UkAddressFieldComponent
+} from '@defra/forms-model'
 import { type ObjectSchema } from 'joi'
 import lowerFirst from 'lodash/lowerFirst.js'
 
@@ -9,7 +14,9 @@ import {
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
 import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
+import { getCachedFormTranslatorExternalRoutes } from '~/src/server/plugins/engine/i18n/form.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
+import { getAvailableLanguages } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   type FormRequestPayload,
   type FormResponseToolkit
@@ -290,7 +297,6 @@ export class UkAddressField extends FormComponent {
     )
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
   static async dispatcher(
     request: FormRequestPayload,
     h: FormResponseToolkit,
@@ -298,17 +304,32 @@ export class UkAddressField extends FormComponent {
   ) {
     const { controller, component } = args
     const language = resolveLanguage(request)
-    const translator = controller.model.createTranslator(language)
-    const { tComponent } = translator
+
+    const availableLanguages = getAvailableLanguages(controller.model.def)
+    const languages = availableLanguages.length
+      ? { languages: availableLanguages }
+      : {}
+
+    const translator = await getCachedFormTranslatorExternalRoutes(
+      request,
+      { id: controller.model.formId } as unknown as FormMetadata,
+      FormStatus.Draft,
+      language
+    )
+    const { tComponent, tForm } = translator
 
     return dispatch(request, h, {
-      formName: controller.model.name,
+      formName: tForm('title'),
+      formId: controller.model.formId,
+      formStatus: args.isLive ? FormStatus.Live : FormStatus.Draft,
+      componentId: component.id ?? 'unknown',
       componentName: component.name,
-      componentHint: component.hint,
+      componentHint: tComponent(component, 'hint'),
       componentTitle: tComponent(component, 'title') || controller.title,
       step: args.actionArgs.step,
       sourceUrl: args.sourceUrl,
-      language
+      language,
+      ...languages
     })
   }
 }

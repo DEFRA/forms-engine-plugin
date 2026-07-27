@@ -680,6 +680,11 @@ function getReferenceNumber(state: FormSubmissionState): string {
   return state.$$__referenceNumber
 }
 
+/**
+ * Return a list of available languages.
+ * Empty array if only English, or an array of English and Welsh if translations have been defined.
+ * @param {FormDefinition} def
+ */
 export function getAvailableLanguages(
   def: FormDefinition
 ): { name: string; code: string }[] {

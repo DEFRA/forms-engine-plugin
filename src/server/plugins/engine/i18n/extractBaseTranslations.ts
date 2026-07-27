@@ -7,12 +7,18 @@ import { type FormDefinitionTranslations } from '~/src/server/plugins/engine/i18
 
 type BaseTranslations = FormDefinitionTranslations[string]
 
-export function extractBaseTranslations(def: FormDefinition): BaseTranslations {
+export function extractBaseTranslations(
+  def: FormDefinition | undefined
+): BaseTranslations {
   const pages: BaseTranslations['pages'] = {}
   const components: BaseTranslations['components'] = {}
   const sections: BaseTranslations['sections'] = {}
   const listItems: BaseTranslations['listItems'] = {}
   const form: BaseTranslations['form'] = {}
+
+  if (!def) {
+    return { pages, components, sections, listItems, form }
+  }
 
   for (const page of def.pages) {
     if (page.id && page.title) {
