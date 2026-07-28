@@ -22,6 +22,7 @@ export {
   resolveFormModel
 } from '~/src/server/plugins/engine/form-context.js'
 export * from '~/src/server/plugins/engine/form-availability.js'
+export { getAvailableLanguages } from '~/src/server/plugins/engine/i18n/languages.js'
 
 const globals = {
   checkComponentTemplates,

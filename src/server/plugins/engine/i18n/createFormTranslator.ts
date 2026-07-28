@@ -19,6 +19,7 @@ export function createFormTranslator(
   const baseTranslations = extractBaseTranslations(definition)
   const i18nInstance = createFormI18nInstance(baseTranslations)
   loadFormTranslations(definition, i18nInstance)
+  extractMetadataBaseTranslations(metadata, i18nInstance)
 
   const translator = createTranslator(i18nInstance, language)
 
@@ -57,5 +58,26 @@ export function loadFormTranslations(
         )
       }
     }
+  }
+}
+
+export function extractMetadataBaseTranslations(
+  metadata: FormMetadata | undefined,
+  i18nInstance: i18n
+) {
+  if (metadata) {
+    const translations = {
+      'form.title': metadata.title,
+      'form.contact.email.address': metadata.contact?.email?.address ?? '',
+      'form.contact.email.responseTime':
+        metadata.contact?.email?.responseTime ?? '',
+      'form.contact.online.url': metadata.contact?.online?.url ?? '',
+      'form.contact.online.text': metadata.contact?.online?.text ?? '',
+      'form.contact.phone': metadata.contact?.phone ?? '',
+      'form.submissionGuidance': metadata.submissionGuidance ?? '',
+      'form.privacyNoticeText': metadata.privacyNoticeText ?? '',
+      'form.privacyNoticeUrl': metadata.privacyNoticeUrl ?? ''
+    }
+    i18nInstance.addResourceBundle('en-GB', 'form', translations, true, true)
   }
 }

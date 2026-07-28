@@ -1,9 +1,7 @@
 import { type FormMetadata, type FormStatus } from '@defra/forms-model'
 import Boom from '@hapi/boom'
-import { type i18n } from 'i18next'
 import { LRUCache } from 'lru-cache'
 
-import { EN_GB } from '~/src/server/constants.js'
 import { getPluginOptions } from '~/src/server/plugins/engine/helpers.js'
 import { createFormTranslator } from '~/src/server/plugins/engine/i18n/createFormTranslator.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
@@ -84,25 +82,4 @@ export async function getCachedFormTranslatorExternalRoutes(
   cache.set(key, translator)
 
   return translator
-}
-
-export function createTranslator(
-  i18nInstance: i18n,
-  languages: { name: string; code: string }[],
-  language = EN_GB
-): Translator {
-  const t = (key: string, opts?: Record<string, unknown>): string =>
-    i18nInstance.t(key, { lng: language, ...opts })
-
-  const resolveFormContent = (prop: string) => {
-    const key = `form.${prop}`
-    return i18nInstance.t(key, { ns: 'form', lng: language })
-  }
-
-  return {
-    t,
-    tForm: (prop: string) => resolveFormContent(prop),
-    language,
-    languages
-  } as unknown as Translator
 }

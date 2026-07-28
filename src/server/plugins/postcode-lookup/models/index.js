@@ -16,6 +16,7 @@ const countyFieldName = 'county'
 const postcodeFieldName = 'postcode'
 
 const GOVUK_MARGIN_RIGHT_1 = 'govuk-!-margin-right-1'
+const COMMON_BACK = 'common.back'
 
 export const steps = {
   // Step 1: Postcode/building name input
@@ -416,7 +417,7 @@ export function detailsViewModel(data, translator, payload, err) {
 
   const backLink = {
     href: sourceUrl,
-    text: t('common.back')
+    text: t(COMMON_BACK)
   }
 
   const { errors, postcodeQueryError, buildingNameQueryError } =
@@ -494,7 +495,7 @@ export async function selectViewModel(data, translator, payload, err) {
 
   const backLink = {
     href,
-    text: t('common.back')
+    text: t(COMMON_BACK)
   }
 
   const { errors, uprnError } = buildErrors(err)
@@ -578,7 +579,7 @@ export function manualViewModel(data, translator, payload, err) {
 
   const backLink = {
     href,
-    text: t('common.back')
+    text: t(COMMON_BACK)
   }
 
   const {
