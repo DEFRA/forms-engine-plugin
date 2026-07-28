@@ -18,6 +18,10 @@ const translator = new FormModel(definition, {
   basePath: '/'
 }).createTranslator()
 
+const welshTranslator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator('cy')
+
 describe('EastingNorthingField', () => {
   let model: FormModel
 
@@ -487,6 +491,41 @@ describe('EastingNorthingField', () => {
         expect(subFields[1].title).toBe(
           'components.eastingNorthingField.northing'
         )
+      })
+    })
+
+    describe('sub-field message overrides', () => {
+      it('gets sub-field error messages translated', () => {
+        const locationField = collection.fields[0] as EastingNorthingField
+        const subFields = locationField.collection.fields
+
+        const messagesEnglish1 =
+          locationField.getValidationMessagesSubFieldOverride(
+            translator,
+            subFields[0].title
+          )
+        expect(messagesEnglish1['any.required']).toBe('Enter easting')
+
+        const messagesWelsh1 =
+          locationField.getValidationMessagesSubFieldOverride(
+            welshTranslator,
+            subFields[0].title
+          )
+        expect(messagesWelsh1['any.required']).toBe('Nodwch ddwyreiniannau')
+
+        const messagesEnglish2 =
+          locationField.getValidationMessagesSubFieldOverride(
+            translator,
+            subFields[1].title
+          )
+        expect(messagesEnglish2['any.required']).toBe('Enter northing')
+
+        const messagesWelsh2 =
+          locationField.getValidationMessagesSubFieldOverride(
+            welshTranslator,
+            subFields[1].title
+          )
+        expect(messagesWelsh2['any.required']).toBe('Nodwch ogleddiannau')
       })
     })
   })

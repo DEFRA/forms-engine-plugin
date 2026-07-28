@@ -15,6 +15,10 @@ const translator = new FormModel(definition, {
   basePath: '/'
 }).createTranslator()
 
+const welshTranslator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator('cy')
+
 describe('LatLongField', () => {
   let model: FormModel
 
@@ -471,6 +475,41 @@ describe('LatLongField', () => {
 
         expect(subFields[0].title).toBe('components.latLongField.latitude')
         expect(subFields[1].title).toBe('components.latLongField.longitude')
+      })
+    })
+
+    describe('sub-field message overrides', () => {
+      it('gets sub-field error messages translated', () => {
+        const locationField = collection.fields[0] as LatLongField
+        const subFields = locationField.collection.fields
+
+        const messagesEnglish1 =
+          locationField.getValidationMessagesSubFieldOverride(
+            translator,
+            subFields[0].title
+          )
+        expect(messagesEnglish1['any.required']).toBe('Enter latitude')
+
+        const messagesWelsh1 =
+          locationField.getValidationMessagesSubFieldOverride(
+            welshTranslator,
+            subFields[0].title
+          )
+        expect(messagesWelsh1['any.required']).toBe('Nodwch ledred')
+
+        const messagesEnglish2 =
+          locationField.getValidationMessagesSubFieldOverride(
+            translator,
+            subFields[1].title
+          )
+        expect(messagesEnglish2['any.required']).toBe('Enter longitude')
+
+        const messagesWelsh2 =
+          locationField.getValidationMessagesSubFieldOverride(
+            welshTranslator,
+            subFields[1].title
+          )
+        expect(messagesWelsh2['any.required']).toBe('Nodwch hydred')
       })
     })
   })
