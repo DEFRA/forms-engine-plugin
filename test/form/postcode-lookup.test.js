@@ -65,11 +65,12 @@ describe('Postcode lookup form pages', () => {
         baseLayoutPath: 'dxt-devtool-baselayout.html',
         paths: []
       },
+      // @ts-expect-error - partial mock implementation
       viewContext: {},
+      // @ts-expect-error - partial mock implementation
       cacheService: {
         getFlash: jest.fn().mockReturnValue(undefined),
-        setFlash: jest.fn(),
-        clearFlash: jest.fn()
+        setFlash: jest.fn()
       },
       saveAndExit: undefined
     })
