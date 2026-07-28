@@ -50,59 +50,18 @@ export class LatLongField extends FormComponent {
 
     const isRequired = options.required !== false
 
-    // Read schema values from def.schema with fallback defaults
-    const latitudeMin = schema?.latitude?.min ?? 49.85
-    const latitudeMax = schema?.latitude?.max ?? 60.859
-    const longitudeMin = schema?.longitude?.min ?? -13.687
-    const longitudeMax = schema?.longitude?.max ?? 1.767
+    const { latitudeMin, latitudeMax, longitudeMin, longitudeMax } =
+      LatLongField.getMinMax(schema)
 
-    const fieldLabel = lowerFirst(this.label)
-
-    const customValidationMessages: LanguageMessages =
-      convertToLanguageMessages({
-        'number.precision': tPlugin(
-          'components.latLongField.precision',
-          'en-GB'
-        ),
-        'number.unsafe': tPlugin('components.latLongField.notANumber', 'en-GB')
-      })
-
-    const latitudeRangeMessage = tPlugin(
-      'components.latLongField.latitudeRange',
-      'en-GB',
-      { fieldLabel, min: latitudeMin, max: latitudeMax }
-    )
-    const longitudeRangeMessage = tPlugin(
-      'components.latLongField.longitudeRange',
-      'en-GB',
-      { fieldLabel, min: longitudeMin, max: longitudeMax }
-    )
-
-    const latitudeMessages: LanguageMessages = convertToLanguageMessages({
-      ...customValidationMessages,
-      'any.required': tPlugin(
-        'components.latLongField.latitudeRequired',
+    const { latitudeMessages, longitudeMessages } =
+      LatLongField.buildErrorMessages(
+        this.label,
+        latitudeMin,
+        latitudeMax,
+        longitudeMin,
+        longitudeMax,
         'en-GB'
-      ),
-      'number.base': tPlugin('components.latLongField.latitudeBase', 'en-GB', {
-        fieldLabel
-      }),
-      'number.min': latitudeRangeMessage,
-      'number.max': latitudeRangeMessage
-    })
-
-    const longitudeMessages: LanguageMessages = convertToLanguageMessages({
-      ...customValidationMessages,
-      'any.required': tPlugin(
-        'components.latLongField.longitudeRequired',
-        'en-GB'
-      ),
-      'number.base': tPlugin('components.latLongField.longitudeBase', 'en-GB', {
-        fieldLabel
-      }),
-      'number.min': longitudeRangeMessage,
-      'number.max': longitudeRangeMessage
-    })
+      )
 
     this.collection = new ComponentCollection(
       [
@@ -210,6 +169,28 @@ export class LatLongField extends FormComponent {
     return LatLongField.isLatLong(value)
   }
 
+  getValidationMessagesSubFieldOverride(
+    translator: Translator,
+    subFieldTitle: string
+  ): LanguageMessages {
+    const def = this.def as LatLongFieldComponent
+    const { latitudeMin, latitudeMax, longitudeMin, longitudeMax } =
+      LatLongField.getMinMax(def.schema)
+
+    const { latitudeMessages, longitudeMessages } =
+      LatLongField.buildErrorMessages(
+        this.label,
+        latitudeMin,
+        latitudeMax,
+        longitudeMin,
+        longitudeMax,
+        translator.language
+      )
+    return subFieldTitle === 'components.latLongField.latitude'
+      ? latitudeMessages
+      : longitudeMessages
+  }
+
   /**
    * For error preview page that shows all possible errors on a component
    */
@@ -272,5 +253,94 @@ export class LatLongField extends FormComponent {
       NumberField.isNumber(value.latitude) &&
       NumberField.isNumber(value.longitude)
     )
+  }
+
+  static buildErrorMessages(
+    label: string,
+    latitudeMin: number,
+    latitudeMax: number,
+    longitudeMin: number,
+    longitudeMax: number,
+    language: string
+  ) {
+    const fieldLabel = lowerFirst(label)
+
+    const customValidationMessages: LanguageMessages =
+      convertToLanguageMessages({
+        'number.precision': tPlugin(
+          'components.latLongField.precision',
+          language
+        ),
+        'number.unsafe': tPlugin('components.latLongField.notANumber', 'en-GB')
+      })
+
+    const latitudeRangeMessage = tPlugin(
+      'components.latLongField.latitudeRange',
+      language,
+      { fieldLabel, min: latitudeMin, max: latitudeMax }
+    )
+    const longitudeRangeMessage = tPlugin(
+      'components.latLongField.longitudeRange',
+      language,
+      { fieldLabel, min: longitudeMin, max: longitudeMax }
+    )
+
+    const latitudeMessages: LanguageMessages = convertToLanguageMessages({
+      ...customValidationMessages,
+      'any.required': tPlugin(
+        'components.latLongField.latitudeRequired',
+        language
+      ),
+      'number.base': tPlugin('components.latLongField.latitudeBase', language, {
+        fieldLabel
+      }),
+      'number.min': latitudeRangeMessage,
+      'number.max': latitudeRangeMessage
+    })
+
+    const longitudeMessages: LanguageMessages = convertToLanguageMessages({
+      ...customValidationMessages,
+      'any.required': tPlugin(
+        'components.latLongField.longitudeRequired',
+        language
+      ),
+      'number.base': tPlugin(
+        'components.latLongField.longitudeBase',
+        language,
+        {
+          fieldLabel
+        }
+      ),
+      'number.min': longitudeRangeMessage,
+      'number.max': longitudeRangeMessage
+    })
+
+    return {
+      latitudeMessages,
+      longitudeMessages
+    }
+  }
+
+  // Read schema values from def.schema with fallback defaults
+  static getMinMax(
+    schema:
+      | {
+          latitude?: {
+            min?: number
+            max?: number
+          }
+          longitude?: {
+            min?: number
+            max?: number
+          }
+        }
+      | undefined
+  ) {
+    return {
+      latitudeMin: schema?.latitude?.min ?? 49.85,
+      latitudeMax: schema?.latitude?.max ?? 60.859,
+      longitudeMin: schema?.longitude?.min ?? -13.687,
+      longitudeMax: schema?.longitude?.max ?? 1.767
+    }
   }
 }

@@ -1,5 +1,6 @@
 import { ComponentType, type DatePartsFieldComponent } from '@defra/forms-model'
 import { add, format, isValid, parse, startOfToday, sub } from 'date-fns'
+import { cy, enGB } from 'date-fns/locale'
 import { type Context, type CustomValidator, type ObjectSchema } from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
@@ -111,7 +112,7 @@ export class DatePartsField extends FormComponent {
 
   getDisplayStringFromFormValue(
     formValue: DatePartsState | undefined,
-    _translator: Translator
+    translator: Translator
   ) {
     if (!formValue) {
       return ''
@@ -119,7 +120,10 @@ export class DatePartsField extends FormComponent {
 
     return format(
       `${formValue.year}-${formValue.month}-${formValue.day}`,
-      'd MMMM yyyy'
+      'd MMMM yyyy',
+      {
+        locale: translator.language === 'cy' ? cy : enGB
+      }
     )
   }
 

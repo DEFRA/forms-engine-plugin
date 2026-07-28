@@ -164,6 +164,16 @@ export class FormComponent extends ComponentBase {
     return null
   }
 
+  /**
+   * Override for specific sub-fields of a composite field to return translated Joi message overrides.
+   */
+  getValidationMessagesSubFieldOverride(
+    _translator: Translator,
+    _fieldTitle: string
+  ): LanguageMessages | null {
+    return null
+  }
+
   getViewModel({
     payload,
     errors,
