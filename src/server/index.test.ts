@@ -586,7 +586,8 @@ describe('prepareEnvironment', () => {
     'field',
     'page',
     'merge',
-    'markdown'
+    'markdown',
+    'applyUrlParam'
   ]
 
   test('registers base filters', () => {

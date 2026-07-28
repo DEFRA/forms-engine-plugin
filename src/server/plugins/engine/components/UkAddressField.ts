@@ -15,8 +15,8 @@ import {
 import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
 import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { getCachedFormTranslatorExternalRoutes } from '~/src/server/plugins/engine/i18n/form.js'
+import { getAvailableLanguages } from '~/src/server/plugins/engine/i18n/languages.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
-import { getAvailableLanguages } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   type FormRequestPayload,
   type FormResponseToolkit

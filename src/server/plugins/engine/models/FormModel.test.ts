@@ -9,10 +9,7 @@ import {
 } from '@defra/forms-model'
 
 import { todayAsDateOnly } from '~/src/server/plugins/engine/date-helper.js'
-import {
-  FormModel,
-  getAvailableLanguages
-} from '~/src/server/plugins/engine/models/FormModel.js'
+import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { type FormContextRequest } from '~/src/server/plugins/engine/types.js'
 import { FormAction } from '~/src/server/routes/types.js'
@@ -791,29 +788,6 @@ describe('FormModel - Joined Conditions', () => {
       const model = new FormModel(definitionV2, { basePath: 'test' })
       const { tForm } = model.createTranslator('en-GB')
       expect(tForm('title')).toBe('Conditions V2')
-    })
-  })
-
-  describe('getAvailableLanguages', () => {
-    it('should return list of two languages', () => {
-      const def = {
-        metadata: {
-          translations: {
-            cy: {}
-          }
-        }
-      } as unknown as FormDefinition
-      expect(getAvailableLanguages(def)).toEqual([
-        { code: 'en-GB', name: 'English' },
-        { code: 'cy', name: 'Cymraeg' }
-      ])
-    })
-
-    it('should return empty list if no translations', () => {
-      const def = {
-        metadata: {}
-      } as unknown as FormDefinition
-      expect(getAvailableLanguages(def)).toEqual([])
     })
   })
 
