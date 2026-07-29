@@ -1,5 +1,6 @@
 /**
- * Nunjucks filter to add/replace a parameter on a query string of a url
+ * Nunjucks filter to add/replace a parameter on a query string of a url.
+ * Currently only used in forms-runner.
  * @param {string} urlPath - existing relative url with query string
  * @param {string} paramName - name of parameter
  * @param {string} paramValue - value of parameter

@@ -24,7 +24,7 @@ const viewName = 'postcode-lookup-details'
  * Get the session state associated with this journey
  * @param {PostcodeLookupRequest} request
  */
-function getSessionState(request) {
+export function getSessionState(request) {
   /**
    * @type {PostcodeLookupSessionData | null | undefined}
    */
@@ -71,7 +71,7 @@ function flashComponentState(request, componentName, address) {
  * @param {PostcodeLookupDispatchData} initial
  * @param { string | string[] | undefined } language
  */
-async function getDispatchTranslator(request, initial, language) {
+export async function getDispatchTranslator(request, initial, language) {
   const { formId, formStatus } = initial
 
   // Override language if passed as a query param
