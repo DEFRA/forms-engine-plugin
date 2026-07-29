@@ -11,6 +11,7 @@ import {
   type RenderContext,
   type ViewModel
 } from '~/src/server/plugins/engine/components/types.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import {
   type FormPayload,
   type FormSubmissionError,
@@ -33,21 +34,29 @@ function lowercaseMessageStart(message: string): string {
     return 'enter' + message.slice(5)
   }
 
+  if (message.startsWith('Nodwch ')) {
+    return 'nodwch' + message.slice(6)
+  }
+
   // Lowercase first character for any other message
   return message.charAt(0).toLowerCase() + message.slice(1)
 }
 
-export function joinWithAnd(items: string[]): string {
+export function joinWithAnd(items: string[], translator: Translator): string {
+  const { t } = translator
   if (items.length === 2) {
-    return `${items[0]} and ${items[1]}`
+    return `${items[0]} ${t('common.and')} ${items[1]}`
   }
 
   const leading = items.slice(0, -1).join(', ')
   const last = items[items.length - 1]
-  return `${leading} and ${last}`
+  return `${leading} ${t('common.and')} ${last}`
 }
 
-export function formatErrorList(messages: string[]): string {
+export function formatErrorList(
+  messages: string[],
+  translator: Translator
+): string {
   if (!messages.length) {
     return ''
   }
@@ -60,7 +69,7 @@ export function formatErrorList(messages: string[]): string {
     index === 0 ? msg : lowercaseMessageStart(msg)
   )
 
-  return joinWithAnd(formattedMessages)
+  return joinWithAnd(formattedMessages, translator)
 }
 
 export function mergeCssClasses(...classNames: (string | undefined)[]) {
@@ -172,7 +181,9 @@ export function getLocationFieldViewModel(
   if (hasFieldErrors) {
     viewModel.errorMessage = {
       text:
-        fieldErrors.length === 1 ? fieldErrors[0] : formatErrorList(fieldErrors)
+        fieldErrors.length === 1
+          ? fieldErrors[0]
+          : formatErrorList(fieldErrors, context.translator)
     }
   }
 
