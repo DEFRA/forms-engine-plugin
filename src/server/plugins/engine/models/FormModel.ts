@@ -47,6 +47,7 @@ import { loadFormTranslations } from '~/src/server/plugins/engine/i18n/createFor
 import { createTranslator } from '~/src/server/plugins/engine/i18n/createTranslator.js'
 import { extractBaseTranslations } from '~/src/server/plugins/engine/i18n/extractBaseTranslations.js'
 import { createFormI18nInstance } from '~/src/server/plugins/engine/i18n/index.js'
+import { getAvailableLanguages } from '~/src/server/plugins/engine/i18n/languages.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
@@ -678,17 +679,4 @@ function getReferenceNumber(state: FormSubmissionState): string {
   }
 
   return state.$$__referenceNumber
-}
-
-export function getAvailableLanguages(
-  def: FormDefinition
-): { name: string; code: string }[] {
-  // @ts-expect-error - dynamic property
-  if (def.metadata?.translations?.cy) {
-    return [
-      { name: 'English', code: 'en-GB' },
-      { name: 'Cymraeg', code: 'cy' }
-    ]
-  }
-  return []
 }

@@ -16,6 +16,7 @@ const countyFieldName = 'county'
 const postcodeFieldName = 'postcode'
 
 const GOVUK_MARGIN_RIGHT_1 = 'govuk-!-margin-right-1'
+const COMMON_BACK = 'common.back'
 
 export const steps = {
   // Step 1: Postcode/building name input
@@ -403,19 +404,20 @@ function getHref(step) {
 /**
  * The postcode lookup details form view model
  * @param {PostcodeLookupSessionData} data
+ * @param {Translator} translator
  * @param {PostcodeLookupDetailsData} [payload]
  * @param {Error} [err]
  */
-export function detailsViewModel(data, payload, err) {
-  const {
-    componentTitle: pageTitle,
-    formName,
-    sourceUrl,
-    language = 'en-GB'
-  } = data.initial
+export function detailsViewModel(data, translator, payload, err) {
+  const { componentId, componentHint, sourceUrl, languages } = data.initial
+
+  const { t, tComponent, tForm } = translator
+
+  const component = /** @type {ComponentDef} */ ({ id: componentId })
 
   const backLink = {
-    href: sourceUrl
+    href: sourceUrl,
+    text: t(COMMON_BACK)
   }
 
   const { errors, postcodeQueryError, buildingNameQueryError } =
@@ -425,42 +427,54 @@ export function detailsViewModel(data, payload, err) {
     payload ?? data.details,
     postcodeQueryError,
     buildingNameQueryError,
-    language
+    translator.language
   )
 
+  const hint = componentHint && {
+    text: tComponent(component, 'hint')
+  }
+
   const continueButton = {
-    text: i18nT('postcodeLookup.findAddress', language),
+    text: t('postcodeLookup.findAddress'),
     classes: GOVUK_MARGIN_RIGHT_1
   }
   const manualLink = {
-    text: i18nT('postcodeLookup.enterManually', language),
+    text: t('postcodeLookup.enterManually'),
     href: getHref(steps.manual)
   }
+
+  const selector = languages?.length ? { languages } : {}
 
   return {
     step: steps.details,
     showTitle: true,
-    name: formName,
+    name: tForm('title'),
     serviceUrl: sourceUrl,
-    pageTitle,
+    pageTitle: tComponent(component, 'title'),
+    hint,
     backLink,
     errors,
     fields,
-    buttons: { continueButton, manualLink }
+    buttons: { continueButton, manualLink },
+    t,
+    language: translator.language,
+    ...selector
   }
 }
 
 /**
  * The postcode lookup select form view model
  * @param {{ session: PostcodeLookupSessionData, apiKey: string }} data
+ * @param {Translator} translator
  * @param {PostcodeLookupSelectPayload} [payload]
  * @param {Error} [err]
  */
-export async function selectViewModel(data, payload, err) {
+export async function selectViewModel(data, translator, payload, err) {
   const { session, apiKey } = data
   const { details, initial } = session
   const { postcodeQuery, buildingNameQuery } = details
-  const language = initial.language ?? 'en-GB'
+  const language = translator.language
+  const { t, tComponent, tForm } = translator
 
   const {
     hasAddresses,
@@ -471,12 +485,18 @@ export async function selectViewModel(data, payload, err) {
   } = await getAddresses(postcodeQuery, buildingNameQuery, apiKey)
 
   const title = hasAddresses
-    ? initial.componentTitle
-    : i18nT('postcodeLookup.noAddressFoundTitle', language)
+    ? tComponent(
+        /** @type {ComponentDef} */ ({ id: initial.componentId }),
+        'title'
+      )
+    : t('postcodeLookup.noAddressFoundTitle')
   const formPath = initial.sourceUrl
   const href = getHref()
 
-  const backLink = { href }
+  const backLink = {
+    href,
+    text: t(COMMON_BACK)
+  }
 
   const { errors, uprnError } = buildErrors(err)
 
@@ -490,7 +510,7 @@ export async function selectViewModel(data, payload, err) {
     language
   )
 
-  const searchAgainText = i18nT('postcodeLookup.searchAgain', language)
+  const searchAgainText = t('postcodeLookup.searchAgain')
 
   const searchAgainLink = {
     text: searchAgainText,
@@ -499,27 +519,29 @@ export async function selectViewModel(data, payload, err) {
 
   const continueButton = {
     href: hasAddresses ? undefined : href,
-    text: hasAddresses
-      ? i18nT('postcodeLookup.useThisAddress', language)
-      : searchAgainText,
+    text: hasAddresses ? t('postcodeLookup.useThisAddress') : searchAgainText,
     classes: GOVUK_MARGIN_RIGHT_1
   }
   const manualLink = {
-    text: i18nT('postcodeLookup.enterManually', language),
+    text: t('postcodeLookup.enterManually'),
     href: `${href}?step=${steps.manual}`
   }
 
   const addressesFoundText = hasAddresses
-    ? i18nT('postcodeLookup.addressFound', language, { count: addressCount })
+    ? t('postcodeLookup.addressFound', { count: addressCount })
     : undefined
   const noAddressFoundText = !hasAddresses
-    ? i18nT('postcodeLookup.noAddressFoundBody', language)
+    ? t('postcodeLookup.noAddressFoundBody')
     : undefined
+
+  const selector = initial.languages?.length
+    ? { languages: initial.languages }
+    : {}
 
   return {
     step: steps.select,
     showTitle: true,
-    name: title,
+    name: tForm('title'),
     serviceUrl: formPath,
     pageTitle: title,
     backLink,
@@ -533,28 +555,31 @@ export async function selectViewModel(data, payload, err) {
     hasMultipleAddresses,
     addressesFoundText,
     noAddressFoundText,
-    buttons: { continueButton, manualLink }
+    buttons: { continueButton, manualLink },
+    language,
+    ...selector
   }
 }
 
 /**
  * The postcode lookup manual form view model
  * @param {PostcodeLookupSessionData} data
+ * @param {Translator} translator
  * @param {PostcodeLookupManualPayload} [payload]
  * @param {Error} [err]
  */
-export function manualViewModel(data, payload, err) {
-  const {
-    componentTitle,
-    sourceUrl,
-    componentHint,
-    language = 'en-GB'
-  } = data.initial
+export function manualViewModel(data, translator, payload, err) {
+  const { componentId, sourceUrl, componentHint, languages } = data.initial
   const formPath = sourceUrl
   const href = getHref()
 
+  const { t, tComponent, tForm } = translator
+
+  const component = /** @type {ComponentDef} */ ({ id: componentId })
+
   const backLink = {
-    href
+    href,
+    text: t(COMMON_BACK)
   }
 
   const {
@@ -567,7 +592,7 @@ export function manualViewModel(data, payload, err) {
   } = buildErrors(err)
 
   const hint = componentHint && {
-    text: componentHint
+    text: tComponent(component, 'hint')
   }
 
   const fields = getManualFields(
@@ -577,29 +602,34 @@ export function manualViewModel(data, payload, err) {
     townError,
     countyError,
     postcodeError,
-    language
+    translator.language
   )
 
   const continueButton = {
-    text: i18nT('postcodeLookup.useThisAddress', language),
+    text: t('postcodeLookup.useThisAddress'),
     classes: GOVUK_MARGIN_RIGHT_1
   }
   const detailsLink = {
-    text: i18nT('postcodeLookup.findAnAddressInstead', language),
+    text: t('postcodeLookup.findAnAddressInstead'),
     href
   }
+
+  const selector = languages?.length ? { languages } : {}
 
   return {
     step: steps.manual,
     showTitle: true,
-    name: componentTitle,
+    name: tForm('title'),
     serviceUrl: formPath,
-    pageTitle: componentTitle,
+    pageTitle: tComponent(component, 'title'),
     backLink,
     errors,
     hint,
     fields,
-    buttons: { continueButton, detailsLink }
+    buttons: { continueButton, detailsLink },
+    t,
+    language: translator.language,
+    ...selector
   }
 }
 
@@ -607,5 +637,7 @@ export function manualViewModel(data, payload, err) {
 
 /**
  * @import { ObjectSchema, ValidationErrorItem } from 'joi'
+ * @import { ComponentDef } from '@defra/forms-model'
  * @import { Address, PostcodeLookupDetailsData, PostcodeLookupDetailsPayload, PostcodeLookupManualPayload, PostcodeLookupSelectPayload, PostcodeLookupSessionData } from '~/src/server/plugins/postcode-lookup/types.js'
+ * @import { Translator } from '~/src/server/plugins/engine/i18n/types.js'
  */

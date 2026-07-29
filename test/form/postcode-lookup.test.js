@@ -5,7 +5,12 @@ import { StatusCodes } from 'http-status-codes'
 
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
-import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
+import * as engineHelpers from '~/src/server/plugins/engine/helpers.js'
+import {
+  getFormDefinition,
+  getFormMetadata
+} from '~/src/server/plugins/engine/services/formsService.js'
+import * as engineServices from '~/src/server/plugins/engine/services/index.js'
 import {
   search,
   searchByUPRN
@@ -22,15 +27,15 @@ jest.mock('~/src/server/plugins/postcode-lookup/service.js')
  * @param {Server} server
  */
 async function initialiseJourney(server) {
-  const response = await server.inject({
+  const renderResult = await renderResponse(server, {
     url: `${basePath}/address`
   })
 
   // Extract the session cookie
-  const csrfToken = getCookie(response, 'crumb')
-  const headers = getCookieHeader(response, ['session', 'crumb'])
+  const csrfToken = getCookie(renderResult.response, 'crumb')
+  const headers = getCookieHeader(renderResult.response, ['session', 'crumb'])
 
-  return { csrfToken, response, headers }
+  return { csrfToken, response: renderResult.response, headers }
 }
 
 describe('Postcode lookup form pages', () => {
@@ -50,6 +55,25 @@ describe('Postcode lookup form pages', () => {
 
   beforeEach(() => {
     jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+    jest.mocked(getFormDefinition).mockResolvedValue(fixtures.form.definition)
+
+    jest.spyOn(engineHelpers, 'getPluginOptions').mockReturnValue({
+      getLanguage: jest.fn().mockReturnValue('en-GB'),
+      services: engineServices,
+      baseUrl: 'http://localhost:3009',
+      nunjucks: {
+        baseLayoutPath: 'dxt-devtool-baselayout.html',
+        paths: []
+      },
+      // @ts-expect-error - partial mock implementation
+      viewContext: {},
+      // @ts-expect-error - partial mock implementation
+      cacheService: {
+        getFlash: jest.fn().mockReturnValue(undefined),
+        setFlash: jest.fn()
+      },
+      saveAndExit: undefined
+    })
   })
 
   it('should render the source form page with a postcode lookup buttons', async () => {
