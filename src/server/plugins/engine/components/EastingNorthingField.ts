@@ -121,14 +121,18 @@ export class EastingNorthingField extends FormComponent {
 
   getDisplayStringFromFormValue(
     value: EastingNorthingState | undefined,
-    _translator: Translator
+    translator: Translator
   ): string {
     if (!value) {
       return ''
     }
 
+    const { t } = translator
+
+    return `${t('components.eastingNorthingField.easting')}: ${value.easting}\n${t('components.eastingNorthingField.northing')}: ${value.northing}`
+    //return `Easting123: ${value.easting}\nNorthing456: ${value.northing}`
     // CYA page format: <<eastingvalue, northingvalue>>
-    return `${value.easting}, ${value.northing}`
+    // return `${value.easting}, ${value.northing}`
   }
 
   getDisplayStringFromState(
@@ -147,7 +151,7 @@ export class EastingNorthingField extends FormComponent {
       return null
     }
 
-    return `Easting: ${value.easting}\nNorthing: ${value.northing}`
+    return `${value.easting}, ${value.northing}`
   }
 
   getContextValueFromState(state: FormSubmissionState) {

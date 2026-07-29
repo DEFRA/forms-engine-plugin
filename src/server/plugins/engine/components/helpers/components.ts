@@ -343,12 +343,12 @@ export function getAnswerMarkdown(
       .map(escapeMarkdown)
       .join('\n')
       .concat('\n')
-  } else if (
-    field instanceof Components.EastingNorthingField ||
-    field instanceof Components.LatLongField
-  ) {
-    const contextValue = field.getContextValueFromState(state)
-    answerEscaped = contextValue ? `${contextValue}\n` : ''
+  } else if (field instanceof Components.EastingNorthingField) {
+    const features = field.getFormValueFromState(state)
+    answerEscaped = field.getDisplayStringFromFormValue(features, translator)
+  } else if (field instanceof Components.LatLongField) {
+    const features = field.getFormValueFromState(state)
+    answerEscaped = field.getDisplayStringFromFormValue(features, translator)
   } else if (field instanceof Components.GeospatialField) {
     const features = field.getFormValueFromState(state)
     const value = field.getDisplayStringFromFormValue(features, translator)

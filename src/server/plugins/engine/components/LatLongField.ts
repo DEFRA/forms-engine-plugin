@@ -118,14 +118,19 @@ export class LatLongField extends FormComponent {
 
   getDisplayStringFromFormValue(
     value: LatLongState | undefined,
-    _translator: Translator
+    translator: Translator
   ): string {
     if (!value) {
       return ''
     }
 
+    const { t } = translator
+
     // CYA page format: <<latvalue, langvalue>>
-    return `${value.latitude}, ${value.longitude}`
+    // Output format: Latitude: <<entry>>\nLongitude: <<entry>>
+    return `${t('components.latLongField.latitude')}: ${value.latitude}\n${t('components.latLongField.longitude')}: ${value.longitude}`
+
+    // return `${value.latitude}, ${value.longitude}`
   }
 
   getDisplayStringFromState(
@@ -142,8 +147,9 @@ export class LatLongField extends FormComponent {
       return null
     }
 
+    return `${value.latitude}, ${value.longitude}`
     // Output format: Latitude: <<entry>>\nLongitude: <<entry>>
-    return `Latitude: ${value.latitude}\nLongitude: ${value.longitude}`
+    //    return `Latitude: ${value.latitude}\nLongitude: ${value.longitude}`
   }
 
   getContextValueFromState(state: FormSubmissionState) {
