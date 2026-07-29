@@ -70,7 +70,7 @@ describe('Location field formatting', () => {
       }
 
       const answer = getAnswer(field, state, stubTranslator, { format: 'data' })
-      expect(answer).toBe('Easting: 123456\nNorthing: 654321')
+      expect(answer).toBe('123456, 654321')
     })
 
     it('formats for summary display', () => {
@@ -129,7 +129,7 @@ describe('Location field formatting', () => {
       }
 
       const answer = getAnswer(field, state, stubTranslator, { format: 'data' })
-      expect(answer).toBe('Latitude: 51.51945\nLongitude: -0.127758')
+      expect(answer).toBe('51.51945, -0.127758')
     })
 
     it('formats for summary display', () => {

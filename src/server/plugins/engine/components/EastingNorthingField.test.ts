@@ -18,9 +18,22 @@ const translator = new FormModel(definition, {
   basePath: '/'
 }).createTranslator()
 
-const welshTranslator = new FormModel(definition, {
-  basePath: '/'
-}).createTranslator('cy')
+// Note - the form must have at least one Welsh translation otherwise the translator defaults back to English
+const welshTranslator = new FormModel(
+  {
+    ...definition,
+    metadata: {
+      translations: {
+        cy: {
+          dummy: 'Some welsh'
+        }
+      }
+    }
+  },
+  {
+    basePath: '/'
+  }
+).createTranslator('cy')
 
 describe('EastingNorthingField', () => {
   let model: FormModel
@@ -271,7 +284,7 @@ describe('EastingNorthingField', () => {
         const value1 = field.getContextValueFromState(state1)
         const value2 = field.getContextValueFromState(state2)
 
-        expect(value1).toBe('Easting: 12345\nNorthing: 1234567')
+        expect(value1).toBe('12345, 1234567')
         expect(value2).toBeNull()
       })
 
