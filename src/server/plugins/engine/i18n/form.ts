@@ -13,7 +13,7 @@ const cache = new LRUCache({
 })
 
 /**
- * Get translator for runner, for runner-specific boilerplate, plus current form name (synchronous method).
+ * Get translator for plugin, for plugin-specific boilerplate, plus current form name (synchronous method).
  * This is for routes served by the plugin. The translator is injected into the Nunjucks context.
  * @param {string} id - the id of the form
  * @param { string | undefined } title - the title of the form

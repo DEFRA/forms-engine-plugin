@@ -313,7 +313,7 @@ export class UkAddressField extends FormComponent {
     const translator = await getCachedFormTranslatorExternalRoutes(
       request,
       { id: controller.model.formId } as unknown as FormMetadata,
-      FormStatus.Draft,
+      args.isLive ? FormStatus.Live : FormStatus.Draft,
       language
     )
     const { tComponent, tForm } = translator
