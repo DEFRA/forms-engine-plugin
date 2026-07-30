@@ -14,7 +14,7 @@ import {
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
 import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
-import { getCachedFormTranslatorExternalRoutes } from '~/src/server/plugins/engine/i18n/form.js'
+import { getCachedPluginTranslator } from '~/src/server/plugins/engine/i18n/form.js'
 import { getAvailableLanguages } from '~/src/server/plugins/engine/i18n/languages.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import {
@@ -310,7 +310,7 @@ export class UkAddressField extends FormComponent {
       ? { languages: availableLanguages }
       : {}
 
-    const translator = await getCachedFormTranslatorExternalRoutes(
+    const translator = await getCachedPluginTranslator(
       request,
       { id: controller.model.formId } as unknown as FormMetadata,
       args.isLive ? FormStatus.Live : FormStatus.Draft,

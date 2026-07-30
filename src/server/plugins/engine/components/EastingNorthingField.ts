@@ -55,89 +55,18 @@ export class EastingNorthingField extends FormComponent {
 
     const isRequired = options.required !== false
 
-    const eastingMin = schema?.easting?.min ?? DEFAULT_EASTING_MIN
-    const eastingMax = schema?.easting?.max ?? DEFAULT_EASTING_MAX
-    const northingMin = schema?.northing?.min ?? DEFAULT_NORTHING_MIN
-    const northingMax = schema?.northing?.max ?? DEFAULT_NORTHING_MAX
+    const { eastingMin, eastingMax, northingMin, northingMax } =
+      EastingNorthingField.getMinMax(schema)
 
-    const fieldLabel = lowerFirst(this.label)
-
-    const eastingDigitsMessage = tPlugin(
-      'components.eastingNorthingField.eastingDigits',
-      'en-GB',
-      { fieldLabel }
-    )
-    const northingDigitsMessage = tPlugin(
-      'components.eastingNorthingField.northingDigits',
-      'en-GB',
-      { fieldLabel }
-    )
-
-    const customValidationMessages: LanguageMessages =
-      convertToLanguageMessages({
-        'any.required': tPlugin(
-          'components.eastingNorthingField.eastingRequired',
-          'en-GB'
-        ),
-        'number.base': tPlugin(
-          'components.eastingNorthingField.eastingRequired',
-          'en-GB'
-        ),
-        'number.min': tPlugin(
-          'components.eastingNorthingField.eastingRange',
-          'en-GB',
-          {
-            fieldLabel,
-            min: eastingMin,
-            max: eastingMax
-          }
-        ),
-        'number.max': tPlugin(
-          'components.eastingNorthingField.eastingRange',
-          'en-GB',
-          {
-            fieldLabel,
-            min: eastingMin,
-            max: eastingMax
-          }
-        ),
-        'number.precision': eastingDigitsMessage,
-        'number.integer': eastingDigitsMessage,
-        'number.unsafe': eastingDigitsMessage
-      })
-
-    const northingValidationMessages: LanguageMessages =
-      convertToLanguageMessages({
-        'any.required': tPlugin(
-          'components.eastingNorthingField.northingRequired',
-          'en-GB'
-        ),
-        'number.base': tPlugin(
-          'components.eastingNorthingField.northingRequired',
-          'en-GB'
-        ),
-        'number.min': tPlugin(
-          'components.eastingNorthingField.northingRange',
-          'en-GB',
-          {
-            fieldLabel,
-            min: northingMin,
-            max: northingMax
-          }
-        ),
-        'number.max': tPlugin(
-          'components.eastingNorthingField.northingRange',
-          'en-GB',
-          {
-            fieldLabel,
-            min: northingMin,
-            max: northingMax
-          }
-        ),
-        'number.precision': northingDigitsMessage,
-        'number.integer': northingDigitsMessage,
-        'number.unsafe': northingDigitsMessage
-      })
+    const { eastingValidationMessages, northingValidationMessages } =
+      EastingNorthingField.buildErrorMessages(
+        this.label,
+        eastingMin,
+        eastingMax,
+        northingMin,
+        northingMax,
+        'en-GB'
+      )
 
     this.collection = new ComponentCollection(
       [
@@ -154,7 +83,7 @@ export class EastingNorthingField extends FormComponent {
             required: isRequired,
             optionalText: true,
             classes: 'govuk-input--width-10',
-            customValidationMessages
+            customValidationMessages: eastingValidationMessages
           }
         },
         {
@@ -192,14 +121,15 @@ export class EastingNorthingField extends FormComponent {
 
   getDisplayStringFromFormValue(
     value: EastingNorthingState | undefined,
-    _translator: Translator
+    translator: Translator
   ): string {
     if (!value) {
       return ''
     }
 
-    // CYA page format: <<eastingvalue, northingvalue>>
-    return `${value.easting}, ${value.northing}`
+    const { t } = translator
+
+    return `${t('components.eastingNorthingField.easting')}: ${value.easting}\n${t('components.eastingNorthingField.northing')}: ${value.northing}`
   }
 
   getDisplayStringFromState(
@@ -218,7 +148,7 @@ export class EastingNorthingField extends FormComponent {
       return null
     }
 
-    return `Easting: ${value.easting}\nNorthing: ${value.northing}`
+    return `${value.easting}, ${value.northing}`
   }
 
   getContextValueFromState(state: FormSubmissionState) {
@@ -242,6 +172,27 @@ export class EastingNorthingField extends FormComponent {
 
   isState(value?: FormStateValue | FormState) {
     return EastingNorthingField.isEastingNorthing(value)
+  }
+
+  getValidationMessagesSubFieldOverride(
+    translator: Translator,
+    subFieldTitle: string
+  ): LanguageMessages {
+    const def = this.def as EastingNorthingFieldComponent
+    const { eastingMin, eastingMax, northingMin, northingMax } =
+      EastingNorthingField.getMinMax(def.schema)
+    const { eastingValidationMessages, northingValidationMessages } =
+      EastingNorthingField.buildErrorMessages(
+        this.label,
+        eastingMin,
+        eastingMax,
+        northingMin,
+        northingMax,
+        translator.language
+      )
+    return subFieldTitle === 'components.eastingNorthingField.easting'
+      ? eastingValidationMessages
+      : northingValidationMessages
   }
 
   /**
@@ -308,5 +259,120 @@ export class EastingNorthingField extends FormComponent {
       NumberField.isNumber(value.easting) &&
       NumberField.isNumber(value.northing)
     )
+  }
+
+  static buildErrorMessages(
+    label: string,
+    eastingMin: number,
+    eastingMax: number,
+    northingMin: number,
+    northingMax: number,
+    language: string
+  ) {
+    const fieldLabel = lowerFirst(label)
+
+    const eastingDigitsMessage = tPlugin(
+      'components.eastingNorthingField.eastingDigits',
+      language,
+      { fieldLabel }
+    )
+    const northingDigitsMessage = tPlugin(
+      'components.eastingNorthingField.northingDigits',
+      language,
+      { fieldLabel }
+    )
+
+    const eastingValidationMessages: LanguageMessages =
+      convertToLanguageMessages({
+        'any.required': tPlugin(
+          'components.eastingNorthingField.eastingRequired',
+          language
+        ),
+        'number.base': tPlugin(
+          'components.eastingNorthingField.eastingRequired',
+          language
+        ),
+        'number.min': tPlugin(
+          'components.eastingNorthingField.eastingRange',
+          language,
+          {
+            fieldLabel,
+            min: eastingMin,
+            max: eastingMax
+          }
+        ),
+        'number.max': tPlugin(
+          'components.eastingNorthingField.eastingRange',
+          language,
+          {
+            fieldLabel,
+            min: eastingMin,
+            max: eastingMax
+          }
+        ),
+        'number.precision': eastingDigitsMessage,
+        'number.integer': eastingDigitsMessage,
+        'number.unsafe': eastingDigitsMessage
+      })
+
+    const northingValidationMessages: LanguageMessages =
+      convertToLanguageMessages({
+        'any.required': tPlugin(
+          'components.eastingNorthingField.northingRequired',
+          language
+        ),
+        'number.base': tPlugin(
+          'components.eastingNorthingField.northingRequired',
+          language
+        ),
+        'number.min': tPlugin(
+          'components.eastingNorthingField.northingRange',
+          language,
+          {
+            fieldLabel,
+            min: northingMin,
+            max: northingMax
+          }
+        ),
+        'number.max': tPlugin(
+          'components.eastingNorthingField.northingRange',
+          language,
+          {
+            fieldLabel,
+            min: northingMin,
+            max: northingMax
+          }
+        ),
+        'number.precision': northingDigitsMessage,
+        'number.integer': northingDigitsMessage,
+        'number.unsafe': northingDigitsMessage
+      })
+    return {
+      eastingValidationMessages,
+      northingValidationMessages
+    }
+  }
+
+  // Read schema values from def.schema with fallback defaults
+  static getMinMax(
+    schema:
+      | {
+          easting?: {
+            min?: number
+            max?: number
+          }
+          northing?: {
+            min?: number
+            max?: number
+          }
+        }
+      | undefined
+  ) {
+    return {
+      eastingMin: schema?.easting?.min ?? DEFAULT_EASTING_MIN,
+      eastingMax: schema?.easting?.max ?? DEFAULT_EASTING_MAX,
+      northingMin: schema?.northing?.min ?? DEFAULT_NORTHING_MIN,
+      northingMax: schema?.northing?.max ?? DEFAULT_NORTHING_MAX
+    }
   }
 }

@@ -36,7 +36,7 @@ export function buildMainRecords(
 
   for (const item of fieldItems) {
     if (item.field instanceof PaymentField) {
-      records.push(...buildPaymentRecords(item))
+      records.push(...buildPaymentRecords(item, translator))
     } else if (item.field instanceof GeospatialField) {
       // Stringify of GeoJSON is done here rather than inside `getContextValueFromState`
       // so we don't incur the overhead of JSON.stringify on every request when building context
@@ -67,7 +67,10 @@ export function buildMainRecords(
  *
  * Returns an empty array if no payment state exists.
  */
-export function buildPaymentRecords(item: DetailItemField): SubmitRecord[] {
+export function buildPaymentRecords(
+  item: DetailItemField,
+  translator: Translator
+): SubmitRecord[] {
   const paymentState = (item.field as PaymentField).getPaymentStateFromState(
     item.state
   )
@@ -96,7 +99,7 @@ export function buildPaymentRecords(item: DetailItemField): SubmitRecord[] {
       name: `${item.name}_paymentDate`,
       title: 'Payment date',
       value: paymentState.preAuth?.createdAt
-        ? formatPaymentDate(paymentState.preAuth.createdAt)
+        ? formatPaymentDate(paymentState.preAuth.createdAt, translator.language)
         : ''
     }
   ]

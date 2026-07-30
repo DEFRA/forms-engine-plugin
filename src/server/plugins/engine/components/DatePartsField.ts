@@ -25,6 +25,7 @@ import {
   type FormStateValue,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
+import { formatDateForLanguage } from '~/src/server/plugins/payment/helper.js'
 import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 
 export class DatePartsField extends FormComponent {
@@ -111,15 +112,16 @@ export class DatePartsField extends FormComponent {
 
   getDisplayStringFromFormValue(
     formValue: DatePartsState | undefined,
-    _translator: Translator
+    translator: Translator
   ) {
     if (!formValue) {
       return ''
     }
 
-    return format(
+    return formatDateForLanguage(
       `${formValue.year}-${formValue.month}-${formValue.day}`,
-      'd MMMM yyyy'
+      'd MMMM yyyy',
+      translator.language
     )
   }
 

@@ -106,6 +106,7 @@ describe('getPersonalisation', () => {
         amount: 250,
         createdAt: '2026-01-02T11:00:04+0000',
         description: 'Payment desc',
+        descriptionInEng: 'Pay for your licence',
         paymentId: 'payment-id',
         reference: 'payment-ref'
       },

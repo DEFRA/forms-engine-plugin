@@ -1,5 +1,5 @@
 import { EN_GB } from '~/src/server/constants.js'
-import { getCachedFormTranslatorExternalRoutes } from '~/src/server/plugins/engine/i18n/form.js'
+import { getCachedPluginTranslator } from '~/src/server/plugins/engine/i18n/form.js'
 import {
   getDispatchTranslator,
   getSessionState
@@ -42,9 +42,7 @@ describe('postcode-lookup routes', () => {
         })
       )
       const mockTranslator = /** @type {Translator} */ ({ language: EN_GB })
-      jest
-        .mocked(getCachedFormTranslatorExternalRoutes)
-        .mockResolvedValue(mockTranslator)
+      jest.mocked(getCachedPluginTranslator).mockResolvedValue(mockTranslator)
       const initial = /** @type {PostcodeLookupDispatchData} */ ({})
       const res = await getDispatchTranslator(mockRequest, initial, EN_GB)
       expect(mockSet).toHaveBeenCalledWith('language', EN_GB)
@@ -69,9 +67,7 @@ describe('postcode-lookup routes', () => {
         })
       )
       const mockTranslator = /** @type {Translator} */ ({ language: 'cy' })
-      jest
-        .mocked(getCachedFormTranslatorExternalRoutes)
-        .mockResolvedValue(mockTranslator)
+      jest.mocked(getCachedPluginTranslator).mockResolvedValue(mockTranslator)
       const initial = /** @type {PostcodeLookupDispatchData} */ ({})
       const res = await getDispatchTranslator(mockRequest, initial, 'cy')
       expect(mockSet).toHaveBeenCalledWith('language', 'cy')

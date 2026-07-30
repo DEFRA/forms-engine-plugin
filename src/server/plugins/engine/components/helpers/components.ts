@@ -347,8 +347,7 @@ export function getAnswerMarkdown(
     field instanceof Components.EastingNorthingField ||
     field instanceof Components.LatLongField
   ) {
-    const contextValue = field.getContextValueFromState(state)
-    answerEscaped = contextValue ? `${contextValue}\n` : ''
+    answerEscaped = answer ? `${answer}\n` : ''
   } else if (field instanceof Components.GeospatialField) {
     const features = field.getFormValueFromState(state)
     const value = field.getDisplayStringFromFormValue(features, translator)

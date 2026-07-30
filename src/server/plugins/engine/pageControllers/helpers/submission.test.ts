@@ -33,7 +33,7 @@ describe('Submission helpers', () => {
         state: {} as FormSubmissionState
       } as unknown as DetailItemField
 
-      const result = buildPaymentRecords(item)
+      const result = buildPaymentRecords(item, translator)
 
       expect(result).toEqual([])
       expect(mockPaymentField.getPaymentStateFromState).toHaveBeenCalledWith(
@@ -67,7 +67,7 @@ describe('Submission helpers', () => {
         state: {} as FormSubmissionState
       } as unknown as DetailItemField
 
-      const result = buildPaymentRecords(item)
+      const result = buildPaymentRecords(item, translator)
 
       expect(result).toHaveLength(4)
       expect(result[0]).toEqual({
@@ -117,7 +117,7 @@ describe('Submission helpers', () => {
         state: {} as FormSubmissionState
       } as unknown as DetailItemField
 
-      const result = buildPaymentRecords(item)
+      const result = buildPaymentRecords(item, translator)
 
       expect(result[3]).toEqual({
         name: 'payment_paymentDate',

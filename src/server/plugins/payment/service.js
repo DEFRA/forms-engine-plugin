@@ -5,6 +5,7 @@ import {
   buildPaymentInfo,
   convertPenceToPounds
 } from '~/src/server/plugins/engine/routes/payment-helper.js'
+import { toPayLanguageCode } from '~/src/server/plugins/payment/helper.js'
 import { get, post, postJson } from '~/src/server/services/httpService.js'
 
 const PAYMENT_BASE_URL = 'https://publicapi.payments.service.gov.uk'
@@ -38,7 +39,7 @@ export class PaymentService {
    * @param {string} returnUrl
    * @param {string} reference
    * @param {boolean} isLivePayment
-   * @param {{ formId: string, slug: string } | undefined } metadata
+   * @param {{ formId: string, slug: string, language: string } | undefined } metadata
    * @param {string} [email] - optional email to prepopulate on GOV.UK Pay
    */
   async createPayment(
@@ -50,6 +51,8 @@ export class PaymentService {
     metadata,
     email
   ) {
+    const language = toPayLanguageCode(metadata?.language)
+
     try {
       /** @type {CreatePaymentRequest} */
       const payload = {
@@ -58,7 +61,8 @@ export class PaymentService {
         reference,
         metadata,
         return_url: returnUrl,
-        delayed_capture: true
+        delayed_capture: true,
+        language
       }
 
       // Prepopulate email on GOV.UK Pay if provided
