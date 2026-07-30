@@ -1,7 +1,6 @@
 import { format } from 'date-fns'
-import { cy, enGB } from 'date-fns/locale'
 
-import { CY, EN_GB } from '~/src/server/constants.js'
+import { toLanguageLocale } from '~/src/server/plugins/engine/helpers.js'
 import { PaymentService } from '~/src/server/plugins/payment/service.js'
 
 export const DEFAULT_PAYMENT_HELP_URL =
@@ -51,7 +50,7 @@ export function formatPaymentDate(isoString, language) {
  */
 export function formatDateForLanguage(date, formatMask, language) {
   return format(date, formatMask, {
-    locale: toPayLanguageLocale(language)
+    locale: toLanguageLocale(language)
   })
 }
 
@@ -71,40 +70,6 @@ export function formatCurrency(amount, locale = 'en-GB', currency = 'GBP') {
   return formatter.format(amount)
 }
 
-const payLanguageCodes = /** @type { Record<string, string> } */ ({
-  [EN_GB]: 'en',
-  [CY]: 'cy'
-})
-
-const payLanguageLocale = /** @type { Record<string, Locale> } */ ({
-  [EN_GB]: enGB,
-  [CY]: cy
-})
-
-const defaultLanguageCode = 'en'
-const defaultLanguageLocale = enGB
-
-/**
- * Converts a BCP 47 language tag to the ISO 639-1 code GOV.UK Pay accepts.
- * Defaults to English if the language is not supported.
- * @param { string | undefined } language - BCP 47 language code
- * @returns {string} language code required by GOV.UK Pay
- */
-export function toPayLanguageCode(language) {
-  return payLanguageCodes[language ?? 'unknown'] ?? defaultLanguageCode
-}
-
-/**
- * Converts a BCP 47 language tag to the date-fns Locale (for date formatting).
- * Defaults to English if the language is not supported.
- * @param { string | undefined } language - BCP 47 language code
- * @returns {Locale} language locale
- */
-export function toPayLanguageLocale(language) {
-  return payLanguageLocale[language ?? 'unknown'] ?? defaultLanguageLocale
-}
-
 /**
  * @import { FormsService } from '~/src/server/types.js'
- * @import { Locale } from 'date-fns/locale'
  */

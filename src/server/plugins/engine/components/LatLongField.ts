@@ -170,10 +170,7 @@ export class LatLongField extends FormComponent {
     return LatLongField.isLatLong(value)
   }
 
-  getValidationMessagesSubFieldOverride(
-    translator: Translator,
-    subFieldTitle: string
-  ): LanguageMessages {
+  getValidationMessagesOverride(translator: Translator) {
     const def = this.def as LatLongFieldComponent
     const { latitudeMin, latitudeMax, longitudeMin, longitudeMax } =
       LatLongField.getMinMax(def.schema)
@@ -187,9 +184,10 @@ export class LatLongField extends FormComponent {
         longitudeMax,
         translator.language
       )
-    return subFieldTitle === 'components.latLongField.latitude'
-      ? latitudeMessages
-      : longitudeMessages
+    return {
+      [`${this.name}_latitude`]: latitudeMessages,
+      [`${this.name}_longitude`]: longitudeMessages
+    }
   }
 
   /**

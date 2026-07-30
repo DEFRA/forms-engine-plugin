@@ -300,20 +300,13 @@ export class ComponentCollection {
           const messagesOverride =
             field.getValidationMessagesOverride(translator)
           for (const subField of field.collection.fields) {
-            // Check if there is a sub-field override - which takes precedence over 'messagesOverride'
-            // This is for the scenario where the sub-fields do not have common messages but separate ones
-            // e.g. EastingNorthingField where 'any.required' includes the field title translation.
-            const fieldMessagesOverride =
-              field.getValidationMessagesSubFieldOverride(
-                translator,
-                subField.title
-              )
             const translatedSubLabel = t(subField.title) || subField.label
             let patchedSchema = subField.formSchema.label(translatedSubLabel)
-            if (fieldMessagesOverride || messagesOverride) {
-              patchedSchema = patchedSchema.messages(
-                fieldMessagesOverride ?? messagesOverride ?? {}
-              )
+            const subFieldMessages = messagesOverride
+              ? messagesOverride[subField.name]
+              : undefined
+            if (subFieldMessages) {
+              patchedSchema = patchedSchema.messages(subFieldMessages)
             }
             labelOverrides[subField.name] = patchedSchema
           }
@@ -329,8 +322,11 @@ export class ComponentCollection {
           if (translatedLabel && translatedLabel !== field.label) {
             patchedSchema = patchedSchema.label(translatedLabel)
           }
-          if (messagesOverride) {
-            patchedSchema = patchedSchema.messages(messagesOverride)
+          const fieldMessages = messagesOverride
+            ? messagesOverride[field.name]
+            : undefined
+          if (fieldMessages) {
+            patchedSchema = patchedSchema.messages(fieldMessages)
           }
           if (patchedSchema !== field.formSchema) {
             labelOverrides[field.name] = patchedSchema
@@ -349,10 +345,12 @@ export class ComponentCollection {
     })
 
     const details = result.error?.details
+    const language = translator?.language
 
     return {
       value: (result.value ?? {}) as typeof value,
-      errors: this.page?.getErrors(details) ?? getErrors(details)
+      errors:
+        this.page?.getErrors(details, language) ?? getErrors(language, details)
     }
   }
 

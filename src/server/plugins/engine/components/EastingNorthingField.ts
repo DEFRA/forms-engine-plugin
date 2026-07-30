@@ -174,10 +174,7 @@ export class EastingNorthingField extends FormComponent {
     return EastingNorthingField.isEastingNorthing(value)
   }
 
-  getValidationMessagesSubFieldOverride(
-    translator: Translator,
-    subFieldTitle: string
-  ): LanguageMessages {
+  getValidationMessagesOverride(translator: Translator) {
     const def = this.def as EastingNorthingFieldComponent
     const { eastingMin, eastingMax, northingMin, northingMax } =
       EastingNorthingField.getMinMax(def.schema)
@@ -190,9 +187,10 @@ export class EastingNorthingField extends FormComponent {
         northingMax,
         translator.language
       )
-    return subFieldTitle === 'components.eastingNorthingField.easting'
-      ? eastingValidationMessages
-      : northingValidationMessages
+    return {
+      [`${this.name}_easting`]: eastingValidationMessages,
+      [`${this.name}_northing`]: northingValidationMessages
+    }
   }
 
   /**

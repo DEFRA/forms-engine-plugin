@@ -3,6 +3,7 @@ import { type ResponseObject, type ResponseToolkit } from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
 import { ValidationError } from 'joi'
 
+import { EN_GB } from '~/src/server/constants.js'
 import {
   checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
@@ -441,12 +442,44 @@ describe('Helpers', () => {
         undefined
       )
 
-      expect(getErrors(details)).toEqual([
+      expect(getErrors(EN_GB, details)).toEqual([
         {
           path: ['dateField'],
           href: '#dateField',
           name: 'dateField',
           text: 'Date of marriage must be on or before 25 December 2021',
+          context: {
+            key: 'dateField',
+            title: 'date of marriage'
+          }
+        }
+      ])
+    })
+
+    it('formats dates with Welsh month names when language is cy', () => {
+      const { details } = new ValidationError(
+        'Date of marriage example',
+        [
+          {
+            message:
+              'Date of marriage must be on or before 2021-12-25T00:00:00.000Z',
+            path: ['dateField'],
+            type: 'date.max',
+            context: {
+              key: 'dateField',
+              title: 'date of marriage'
+            }
+          }
+        ],
+        undefined
+      )
+
+      expect(getErrors('cy', details)).toEqual([
+        {
+          path: ['dateField'],
+          href: '#dateField',
+          name: 'dateField',
+          text: 'Date of marriage must be on or before 25 Rhagfyr 2021',
           context: {
             key: 'dateField',
             title: 'date of marriage'
@@ -471,7 +504,7 @@ describe('Helpers', () => {
         undefined
       )
 
-      expect(getErrors(details)).toEqual([
+      expect(getErrors(EN_GB, details)).toEqual([
         {
           path: ['yesNoField'],
           href: '#yesNoField',
