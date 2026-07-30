@@ -39,7 +39,7 @@ export class PaymentService {
    * @param {string} returnUrl
    * @param {string} reference
    * @param {boolean} isLivePayment
-   * @param {{ formId: string, slug: string, language: string } | undefined } metadata
+   * @param {{ formId: string, slug: string, language: string, descriptionInEng: string } | undefined } metadata
    * @param {string} [email] - optional email to prepopulate on GOV.UK Pay
    */
   async createPayment(

@@ -294,7 +294,7 @@ export class PaymentField extends FormComponent {
       payCallbackUrl,
       reference,
       isLivePayment,
-      { formId, slug, language },
+      { formId, slug, language, descriptionInEng: options.description },
       prefilledEmail
     )
 
