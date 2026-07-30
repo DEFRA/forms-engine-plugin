@@ -29,10 +29,15 @@ export async function createPaymentService(
 /**
  * Formats a payment date for display
  * @param {string} isoString - ISO date string
+ * @param {string} language - the target language
  * @returns {string} Formatted date string (e.g., "26 January 2026 5:01pm")
  */
-export function formatPaymentDate(isoString) {
-  return format(new Date(isoString), 'd MMMM yyyy h:mmaaa')
+export function formatPaymentDate(isoString, language) {
+  return formatDateForLanguage(
+    new Date(isoString),
+    'd MMMM yyyy h:mmaaa',
+    language
+  )
 }
 
 /**
@@ -40,7 +45,7 @@ export function formatPaymentDate(isoString) {
  * To use additional languages, the appropriate module must be imported from 'date-fns/locale'
  * @param { Date | string } date - the date
  * @param {string} formatMask - the format mask
- * @param {string} language - the language
+ * @param {string} language - the target language
  * @returns {string} Formatted date string (e.g., "26 January 2026 5:01pm")
  */
 export function formatDateForLanguage(date, formatMask, language) {

@@ -114,7 +114,7 @@ export class SummaryPageController extends QuestionPageController {
         viewModel.paymentDetails = this.buildPaymentDetails(
           paymentField,
           paymentState,
-          t
+          translator
         )
       }
 
@@ -151,8 +151,9 @@ export class SummaryPageController extends QuestionPageController {
     paymentState: NonNullable<
       ReturnType<PaymentField['getPaymentStateFromState']>
     >,
-    t: (key: string, opts?: Record<string, unknown>) => string
+    translator: Translator
   ) {
+    const { t } = translator
     const rows = [
       {
         key: { text: t('pages.summary.paymentFor') },
@@ -171,7 +172,12 @@ export class SummaryPageController extends QuestionPageController {
     if (paymentState.preAuth?.createdAt) {
       rows.push({
         key: { text: t('pages.summary.dateOfPayment') },
-        value: { text: formatPaymentDate(paymentState.preAuth.createdAt) }
+        value: {
+          text: formatPaymentDate(
+            paymentState.preAuth.createdAt,
+            translator.language
+          )
+        }
       })
     }
 
