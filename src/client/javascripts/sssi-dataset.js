@@ -90,6 +90,7 @@ export default [
     showInMenu: false
   }
 ]
+
 /**
  * @typedef {object} TransformRequestOptions
  * @property {string[]} bbox - the bounding box coordinates
