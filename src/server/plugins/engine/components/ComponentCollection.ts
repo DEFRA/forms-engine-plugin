@@ -300,7 +300,7 @@ export class ComponentCollection {
           const messagesOverride =
             field.getValidationMessagesOverride(translator)
           for (const subField of field.collection.fields) {
-            // Check if there is a sub-field override - which takes precendence over 'messagesOverride'
+            // Check if there is a sub-field override - which takes precedence over 'messagesOverride'
             // This is for the scenario where the sub-fields do not have common messages but separate ones
             // e.g. EastingNorthingField where 'any.required' includes the field title translation.
             const fieldMessagesOverride =

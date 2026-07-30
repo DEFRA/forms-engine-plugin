@@ -63,6 +63,7 @@ export class PaymentField extends FormComponent {
         reference: joi.string().required(),
         amount: joi.number().required(),
         description: joi.string().required(),
+        descriptionInEng: joi.string().optional(),
         uuid: joi.string().uuid().required(),
         formId: joi.string().required(),
         isLivePayment: joi.boolean().required(),
@@ -315,6 +316,7 @@ export class PaymentField extends FormComponent {
       reference,
       amount: resolvedAmount,
       description,
+      descriptionInEng: options.description,
       paymentId: payment.paymentId,
       componentName,
       returnUrl: summaryUrl,
@@ -451,6 +453,7 @@ export interface PaymentSessionData {
   reference: string
   amount: number
   description: string
+  descriptionInEng?: string
   paymentId: string
   componentName: string
   returnUrl: string

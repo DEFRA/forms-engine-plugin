@@ -113,6 +113,8 @@ export class MonthYearField extends FormComponent {
     }
 
     const date = new Date()
+    // Force to first day of month in case current date was say 31st and specified month has fewer than 31 days
+    date.setDate(1)
     date.setMonth(value.month - 1)
 
     const monthString = formatDateForLanguage(date, 'LLLL', translator.language)

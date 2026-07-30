@@ -30,15 +30,7 @@ export type LocationField =
  * - "latitude must be..." -> "latitude must be..."
  */
 function lowercaseMessageStart(message: string): string {
-  if (message.startsWith('Enter ')) {
-    return 'enter' + message.slice(5)
-  }
-
-  if (message.startsWith('Nodwch ')) {
-    return 'nodwch' + message.slice(6)
-  }
-
-  // Lowercase first character for any other message
+  // Lowercase first character for a message
   return message.charAt(0).toLowerCase() + message.slice(1)
 }
 

@@ -272,7 +272,7 @@ export class LatLongField extends FormComponent {
           'components.latLongField.precision',
           language
         ),
-        'number.unsafe': tPlugin('components.latLongField.notANumber', 'en-GB')
+        'number.unsafe': tPlugin('components.latLongField.notANumber', language)
       })
 
     const latitudeRangeMessage = tPlugin(

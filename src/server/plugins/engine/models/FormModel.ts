@@ -244,7 +244,7 @@ export class FormModel {
   /** Returns a scoped translator pair for the given language. */
   createTranslator(language = EN_GB): Translator {
     // @ts-expect-error - dynamic language lookup
-    if (!this.def.metadata?.translations?.cy) {
+    if (!this.def.metadata?.translations?.[language]) {
       // If not translations defined in the FormDefinition, always default to English
       language = EN_GB
     }
