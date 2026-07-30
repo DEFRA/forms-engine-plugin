@@ -1,6 +1,5 @@
 import { ComponentType, type MonthYearFieldComponent } from '@defra/forms-model'
 import { format, isValid, parse } from 'date-fns'
-import { cy, enGB } from 'date-fns/locale'
 import {
   type Context,
   type CustomValidator,
@@ -31,6 +30,7 @@ import {
   type FormStateValue,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
+import { formatDateForLanguage } from '~/src/server/plugins/payment/helper.js'
 import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 
 export class MonthYearField extends FormComponent {
@@ -115,9 +115,7 @@ export class MonthYearField extends FormComponent {
     const date = new Date()
     date.setMonth(value.month - 1)
 
-    const monthString = format(date, 'LLLL', {
-      locale: translator.language === 'cy' ? cy : enGB
-    })
+    const monthString = formatDateForLanguage(date, 'LLLL', translator.language)
     return `${monthString} ${value.year}`
   }
 

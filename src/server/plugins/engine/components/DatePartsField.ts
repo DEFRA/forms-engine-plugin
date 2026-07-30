@@ -1,6 +1,5 @@
 import { ComponentType, type DatePartsFieldComponent } from '@defra/forms-model'
 import { add, format, isValid, parse, startOfToday, sub } from 'date-fns'
-import { cy, enGB } from 'date-fns/locale'
 import { type Context, type CustomValidator, type ObjectSchema } from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
@@ -26,6 +25,7 @@ import {
   type FormStateValue,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
+import { formatDateForLanguage } from '~/src/server/plugins/payment/helper.js'
 import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 
 export class DatePartsField extends FormComponent {
@@ -118,12 +118,10 @@ export class DatePartsField extends FormComponent {
       return ''
     }
 
-    return format(
+    return formatDateForLanguage(
       `${formValue.year}-${formValue.month}-${formValue.day}`,
       'd MMMM yyyy',
-      {
-        locale: translator.language === 'cy' ? cy : enGB
-      }
+      translator.language
     )
   }
 

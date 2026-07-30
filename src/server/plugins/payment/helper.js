@@ -1,4 +1,5 @@
 import { format } from 'date-fns'
+import { cy, enGB } from 'date-fns/locale'
 
 import { PaymentService } from '~/src/server/plugins/payment/service.js'
 
@@ -32,6 +33,20 @@ export async function createPaymentService(
  */
 export function formatPaymentDate(isoString) {
   return format(new Date(isoString), 'd MMMM yyyy h:mmaaa')
+}
+
+/**
+ * Formats a date for display in a specific language.
+ * To use additional languages, the appropriate module must be imported from 'date-fns/locale'
+ * @param { Date | string } date - the date
+ * @param {string} formatMask - the format mask
+ * @param {string} language - the language
+ * @returns {string} Formatted date string (e.g., "26 January 2026 5:01pm")
+ */
+export function formatDateForLanguage(date, formatMask, language) {
+  return format(date, formatMask, {
+    locale: language === 'cy' ? cy : enGB
+  })
 }
 
 /**
