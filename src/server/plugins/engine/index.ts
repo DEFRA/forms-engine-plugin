@@ -28,6 +28,7 @@ export {
   loadFormTranslations
 } from '~/src/server/plugins/engine/i18n/createFormTranslator.js'
 export { extractBaseTranslations } from '~/src/server/plugins/engine/i18n/extractBaseTranslations.js'
+export { applyUrlParam } from '~/src/server/plugins/nunjucks/filters/applyUrlParam.js'
 
 const globals = {
   checkComponentTemplates,
