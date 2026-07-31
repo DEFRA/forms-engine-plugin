@@ -64,9 +64,9 @@ export class YesNoField extends SelectionControlField {
   getValidationMessagesOverride(translator: Translator) {
     const { selectYesNoRequired } = buildValidationMessages(translator.t)
     return {
-      [this.name]: convertToLanguageMessages({
+      [this.name]: {
         'any.required': selectYesNoRequired
-      })
+      }
     }
   }
 
