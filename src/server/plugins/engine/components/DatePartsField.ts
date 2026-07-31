@@ -160,15 +160,17 @@ export class DatePartsField extends FormComponent {
 
   getValidationMessagesOverride(translator: Translator) {
     const { t } = translator
-    return convertToLanguageMessages({
-      'any.required': buildValidationMessages(t).objectMissing,
-      'number.base': buildValidationMessages(t).objectMissing,
-      'number.precision': buildValidationMessages(t).dateFormat,
-      'number.integer': buildValidationMessages(t).dateFormat,
-      'number.unsafe': buildValidationMessages(t).dateFormat,
-      'number.min': buildValidationMessages(t).dateFormat,
-      'number.max': buildValidationMessages(t).dateFormat
-    })
+    return {
+      [this.name]: convertToLanguageMessages({
+        'any.required': buildValidationMessages(t).objectMissing,
+        'number.base': buildValidationMessages(t).objectMissing,
+        'number.precision': buildValidationMessages(t).dateFormat,
+        'number.integer': buildValidationMessages(t).dateFormat,
+        'number.unsafe': buildValidationMessages(t).dateFormat,
+        'number.min': buildValidationMessages(t).dateFormat,
+        'number.max': buildValidationMessages(t).dateFormat
+      })
+    }
   }
 
   getViewModel(context: RenderContext) {

@@ -120,10 +120,12 @@ export class DeclarationField extends FormComponent {
     const { declarationRequired } = buildValidationMessages(translator.t)
     const msg = declarationRequired as unknown as string
     return {
-      'any.required': msg,
-      'any.unknown': msg,
-      'array.includesRequiredUnknowns': msg
-    } as unknown as LanguageMessages
+      [this.name]: {
+        'any.required': msg,
+        'any.unknown': msg,
+        'array.includesRequiredUnknowns': msg
+      } as unknown as LanguageMessages
+    }
   }
 
   getDisplayStringFromFormValue(

@@ -9,6 +9,7 @@ import { OsGridRefField } from '~/src/server/plugins/engine/components/OsGridRef
 import { createComponent } from '~/src/server/plugins/engine/components/helpers/components.js'
 import {
   createLowerFirstExpression,
+  getTranslatedLabel,
   lowerFirstExpressionOptions,
   lowerFirstPreserveProperNouns
 } from '~/src/server/plugins/engine/components/helpers/index.js'
@@ -18,6 +19,8 @@ import definition from '~/test/form/definitions/basic.js'
 const formModel = new FormModel(definition, {
   basePath: 'test'
 })
+
+const translator = formModel.createTranslator()
 
 describe('helpers tests', () => {
   test('should throw if invalid type', () => {
@@ -215,5 +218,31 @@ describe('lowerFirst expression helpers', () => {
 
     expect(expression).toBeDefined()
     expect(expression).toHaveProperty('rendered', template)
+  })
+})
+
+describe('getTranslatedLabel', () => {
+  test('returns title when no error desc or short desc', () => {
+    const component = {
+      title: 'comp title'
+    } as unknown as ComponentDef
+    expect(getTranslatedLabel(component, translator)).toBe('comp title')
+  })
+
+  test('returns short desc when no error desc', () => {
+    const component = {
+      title: 'comp title',
+      shortDescription: 'comp short desc'
+    } as unknown as ComponentDef
+    expect(getTranslatedLabel(component, translator)).toBe('comp short desc')
+  })
+
+  test('returns error desc when one exists', () => {
+    const component = {
+      title: 'comp title',
+      shortDescription: 'comp short desc',
+      errorDescription: 'comp error desc'
+    } as unknown as ComponentDef
+    expect(getTranslatedLabel(component, translator)).toBe('comp error desc')
   })
 })

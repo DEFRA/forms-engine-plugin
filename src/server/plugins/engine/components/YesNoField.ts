@@ -4,7 +4,6 @@ import {
   yesNoListName,
   type YesNoFieldComponent
 } from '@defra/forms-model'
-import { type LanguageMessages } from 'joi'
 
 import { SelectionControlField } from '~/src/server/plugins/engine/components/SelectionControlField.js'
 import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers/index.js'
@@ -55,11 +54,13 @@ export class YesNoField extends SelectionControlField {
     this.options = options
   }
 
-  getValidationMessagesOverride(translator: Translator): LanguageMessages {
+  getValidationMessagesOverride(translator: Translator) {
     const { selectYesNoRequired } = buildValidationMessages(translator.t)
-    return convertToLanguageMessages({
-      'any.required': selectYesNoRequired
-    })
+    return {
+      [this.name]: convertToLanguageMessages({
+        'any.required': selectYesNoRequired
+      })
+    }
   }
 
   /**

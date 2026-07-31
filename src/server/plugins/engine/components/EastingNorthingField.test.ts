@@ -510,35 +510,30 @@ describe('EastingNorthingField', () => {
     describe('sub-field message overrides', () => {
       it('gets sub-field error messages translated', () => {
         const locationField = collection.fields[0] as EastingNorthingField
-        const subFields = locationField.collection.fields
 
         const messagesEnglish1 =
-          locationField.getValidationMessagesSubFieldOverride(
-            translator,
-            subFields[0].title
-          )
-        expect(messagesEnglish1['any.required']).toBe('Enter easting')
+          locationField.getValidationMessagesOverride(translator)
+        expect(messagesEnglish1.myComponent__easting['any.required']).toBe(
+          'Enter easting'
+        )
 
         const messagesWelsh1 =
-          locationField.getValidationMessagesSubFieldOverride(
-            welshTranslator,
-            subFields[0].title
-          )
-        expect(messagesWelsh1['any.required']).toBe('Nodwch ddwyreiniannau')
+          locationField.getValidationMessagesOverride(welshTranslator)
+        expect(messagesWelsh1.myComponent__easting['any.required']).toBe(
+          'Nodwch ddwyreiniannau'
+        )
 
         const messagesEnglish2 =
-          locationField.getValidationMessagesSubFieldOverride(
-            translator,
-            subFields[1].title
-          )
-        expect(messagesEnglish2['any.required']).toBe('Enter northing')
+          locationField.getValidationMessagesOverride(translator)
+        expect(messagesEnglish2.myComponent__northing['any.required']).toBe(
+          'Enter northing'
+        )
 
         const messagesWelsh2 =
-          locationField.getValidationMessagesSubFieldOverride(
-            welshTranslator,
-            subFields[1].title
-          )
-        expect(messagesWelsh2['any.required']).toBe('Nodwch ogleddiannau')
+          locationField.getValidationMessagesOverride(welshTranslator)
+        expect(messagesWelsh2.myComponent__northing['any.required']).toBe(
+          'Nodwch ogleddiannau'
+        )
       })
     })
   })

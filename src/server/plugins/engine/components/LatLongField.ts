@@ -12,7 +12,10 @@ import {
   getLocationFieldViewModel
 } from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
-import { createLowerFirstExpression } from '~/src/server/plugins/engine/components/helpers/index.js'
+import {
+  createLowerFirstExpression,
+  getTranslatedLabel
+} from '~/src/server/plugins/engine/components/helpers/index.js'
 import {
   type LatLongState,
   type RenderContext
@@ -170,26 +173,24 @@ export class LatLongField extends FormComponent {
     return LatLongField.isLatLong(value)
   }
 
-  getValidationMessagesSubFieldOverride(
-    translator: Translator,
-    subFieldTitle: string
-  ): LanguageMessages {
+  getValidationMessagesOverride(translator: Translator) {
     const def = this.def as LatLongFieldComponent
+    const translatedLabel = getTranslatedLabel(def, translator)
     const { latitudeMin, latitudeMax, longitudeMin, longitudeMax } =
       LatLongField.getMinMax(def.schema)
-
     const { latitudeMessages, longitudeMessages } =
       LatLongField.buildErrorMessages(
-        this.label,
+        translatedLabel,
         latitudeMin,
         latitudeMax,
         longitudeMin,
         longitudeMax,
         translator.language
       )
-    return subFieldTitle === 'components.latLongField.latitude'
-      ? latitudeMessages
-      : longitudeMessages
+    return {
+      [`${this.name}__latitude`]: latitudeMessages,
+      [`${this.name}__longitude`]: longitudeMessages
+    }
   }
 
   /**
