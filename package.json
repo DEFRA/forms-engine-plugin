@@ -92,7 +92,7 @@
   },
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
-    "@defra/forms-model": "^3.0.692",
+    "@defra/forms-model": "^3.0.693",
     "@defra/hapi-tracing": "^1.29.0",
     "@defra/interactive-map": "^0.0.33-alpha",
     "@elastic/ecs-pino-format": "^1.5.0",
@@ -112,6 +112,7 @@
     "@turf/bbox": "^7.3.4",
     "@turf/boolean-within": "^7.3.5",
     "@turf/centroid": "^7.3.4",
+    "@turf/helpers": "^7.3.5",
     "@types/humanize-duration": "^3.27.4",
     "accessible-autocomplete": "^3.0.1",
     "atob": "^2.1.2",
