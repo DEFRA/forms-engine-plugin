@@ -50,6 +50,7 @@ export const formAdapterSubmissionMessageDataSchema =
         reference: Joi.string().required(),
         amount: Joi.number().required(),
         description: Joi.string().required(),
+        descriptionInEng: Joi.string().optional(),
         createdAt: Joi.string().required()
       })
       .optional(),

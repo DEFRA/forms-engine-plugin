@@ -157,10 +157,13 @@ export class FormComponent extends ComponentBase {
    * Override in composite fields to return translated Joi message overrides for
    * their sub-fields, applied at validation time so schema-level English messages
    * are replaced with the correct language. Return null to skip message patching.
+   * The return object may contain message overrides at component-level, or sub-field-level.
+   * This would allow different error message overrides per field within a collection e.g.
+   * for EastingNothingField
    */
   getValidationMessagesOverride(
     _translator: Translator
-  ): LanguageMessages | null {
+  ): Record<string, LanguageMessages> | null {
     return null
   }
 

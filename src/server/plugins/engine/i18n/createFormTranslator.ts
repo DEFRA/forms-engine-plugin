@@ -6,6 +6,7 @@ import {
 } from '@defra/forms-model'
 import { type i18n } from 'i18next'
 
+import { CY } from '~/src/server/constants.js'
 import { createTranslator } from '~/src/server/plugins/engine/i18n/createTranslator.js'
 import { extractBaseTranslations } from '~/src/server/plugins/engine/i18n/extractBaseTranslations.js'
 import { createFormI18nInstance } from '~/src/server/plugins/engine/i18n/index.js'
@@ -43,7 +44,7 @@ export function loadFormTranslations(
       i18nInstance.addResourceBundle(lng, 'form', resources, true, true)
 
       // Temporary workaround - until we develop a better solution
-      if (lng === 'cy') {
+      if (lng === CY) {
         i18nInstance.addResource(
           lng,
           'form',

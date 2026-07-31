@@ -30,6 +30,7 @@ import {
   type FormStateValue,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
+import { formatDateForLanguage } from '~/src/server/plugins/payment/helper.js'
 import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 
 export class MonthYearField extends FormComponent {
@@ -105,16 +106,18 @@ export class MonthYearField extends FormComponent {
 
   getDisplayStringFromFormValue(
     value: MonthYearState | undefined,
-    _translator: Translator
+    translator: Translator
   ): string {
     if (!value) {
       return ''
     }
 
     const date = new Date()
+    // Force to first day of month in case current date was say 31st and specified month has fewer than 31 days
+    date.setDate(1)
     date.setMonth(value.month - 1)
 
-    const monthString = date.toLocaleString('default', { month: 'long' })
+    const monthString = formatDateForLanguage(date, 'LLLL', translator.language)
     return `${monthString} ${value.year}`
   }
 
@@ -155,15 +158,17 @@ export class MonthYearField extends FormComponent {
 
   getValidationMessagesOverride(translator: Translator) {
     const { t } = translator
-    return convertToLanguageMessages({
-      'any.required': buildValidationMessages(t).objectMissing,
-      'number.base': buildValidationMessages(t).objectMissing,
-      'number.precision': buildValidationMessages(t).dateFormat,
-      'number.integer': buildValidationMessages(t).dateFormat,
-      'number.unsafe': buildValidationMessages(t).dateFormat,
-      'number.min': buildValidationMessages(t).dateFormat,
-      'number.max': buildValidationMessages(t).dateFormat
-    })
+    return {
+      [this.name]: convertToLanguageMessages({
+        'any.required': buildValidationMessages(t).objectMissing,
+        'number.base': buildValidationMessages(t).objectMissing,
+        'number.precision': buildValidationMessages(t).dateFormat,
+        'number.integer': buildValidationMessages(t).dateFormat,
+        'number.unsafe': buildValidationMessages(t).dateFormat,
+        'number.min': buildValidationMessages(t).dateFormat,
+        'number.max': buildValidationMessages(t).dateFormat
+      })
+    }
   }
 
   getViewModel(context: RenderContext) {

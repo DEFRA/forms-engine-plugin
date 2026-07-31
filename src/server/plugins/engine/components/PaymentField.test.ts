@@ -347,6 +347,7 @@ describe('PaymentField', () => {
           amount: 100,
           componentName: 'myComponent',
           description: 'Test payment description',
+          descriptionInEng: 'Test payment description',
           failureUrl: 'http://localhost:3009/test-payment',
           formId: 'formid',
           isLivePayment: false,

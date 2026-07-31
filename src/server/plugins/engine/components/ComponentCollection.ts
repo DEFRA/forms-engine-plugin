@@ -15,6 +15,7 @@ import {
   type Field,
   type Guidance
 } from '~/src/server/plugins/engine/components/helpers/components.js'
+import { getTranslatedLabel } from '~/src/server/plugins/engine/components/helpers/index.js'
 import {
   type ComponentViewModel,
   type RenderContext
@@ -302,25 +303,28 @@ export class ComponentCollection {
           for (const subField of field.collection.fields) {
             const translatedSubLabel = t(subField.title) || subField.label
             let patchedSchema = subField.formSchema.label(translatedSubLabel)
-            if (messagesOverride) {
-              patchedSchema = patchedSchema.messages(messagesOverride)
+            const subFieldMessages = messagesOverride
+              ? messagesOverride[subField.name]
+              : undefined
+            if (subFieldMessages) {
+              patchedSchema = patchedSchema.messages(subFieldMessages)
             }
             labelOverrides[subField.name] = patchedSchema
           }
         } else {
           const fieldDef = field.def
-          const translatedLabel =
-            translator.tComponent(fieldDef, 'errorDescription') ||
-            translator.tComponent(fieldDef, 'shortDescription') ||
-            translator.tComponent(fieldDef, 'title')
+          const translatedLabel = getTranslatedLabel(fieldDef, translator)
           const messagesOverride =
             field.getValidationMessagesOverride(translator)
           let patchedSchema = field.formSchema
           if (translatedLabel && translatedLabel !== field.label) {
             patchedSchema = patchedSchema.label(translatedLabel)
           }
-          if (messagesOverride) {
-            patchedSchema = patchedSchema.messages(messagesOverride)
+          const fieldMessages = messagesOverride
+            ? messagesOverride[field.name]
+            : undefined
+          if (fieldMessages) {
+            patchedSchema = patchedSchema.messages(fieldMessages)
           }
           if (patchedSchema !== field.formSchema) {
             labelOverrides[field.name] = patchedSchema
@@ -339,10 +343,12 @@ export class ComponentCollection {
     })
 
     const details = result.error?.details
+    const language = translator?.language
 
     return {
       value: (result.value ?? {}) as typeof value,
-      errors: this.page?.getErrors(details) ?? getErrors(details)
+      errors:
+        this.page?.getErrors(details, language) ?? getErrors(language, details)
     }
   }
 

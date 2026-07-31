@@ -2,6 +2,8 @@ import { type ComponentDef } from '@defra/forms-model'
 import joi, { type JoiExpression, type ReferenceOptions } from 'joi'
 import lowerFirst from 'lodash/lowerFirst.js'
 
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
+
 /**
  * Prevent Markdown formatting
  * @see {@link https://pandoc.org/chunkedhtml-demo/8.11-backslash-escapes.html}
@@ -66,3 +68,20 @@ export const lowerFirstExpressionOptions = {
  */
 export const createLowerFirstExpression = (template: string): JoiExpression =>
   joi.expression(template, lowerFirstExpressionOptions) as JoiExpression
+
+/**
+ * Translate a component label, in precedence order of errorDescription, then shortDesciption, then title
+ * @param {ComponentDef} component
+ * @param {Translator} translator
+ */
+export function getTranslatedLabel(
+  component: ComponentDef,
+  translator: Translator
+) {
+  const { tComponent } = translator
+  const translatedLabel =
+    tComponent(component, 'errorDescription') ||
+    tComponent(component, 'shortDescription') ||
+    tComponent(component, 'title')
+  return translatedLabel
+}

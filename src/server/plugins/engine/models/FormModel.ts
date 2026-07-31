@@ -31,6 +31,7 @@ import { type i18n } from 'i18next'
 import joi from 'joi'
 
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
+import { EN_GB } from '~/src/server/constants.js'
 import { type ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
 import {} from '~/src/server/plugins/engine/components/YesNoField.js'
 import {
@@ -241,7 +242,12 @@ export class FormModel {
   }
 
   /** Returns a scoped translator pair for the given language. */
-  createTranslator(language = 'en-GB'): Translator {
+  createTranslator(language = EN_GB): Translator {
+    // @ts-expect-error - dynamic language lookup
+    if (!this.def.metadata?.translations?.[language]) {
+      // If not translations defined in the FormDefinition, always default to English
+      language = EN_GB
+    }
     return createTranslator(this.i18nInstance, language)
   }
 
@@ -663,7 +669,7 @@ function validateFormState(
 
   // Add relevant state errors
   if (error) {
-    const errorsState = error.details.map(getError)
+    const errorsState = error.details.map((item) => getError(EN_GB, item))
     return { ...context, errors: errors.concat(errorsState) }
   }
 

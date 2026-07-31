@@ -3,6 +3,7 @@ import { ComponentType, type ComponentDef } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type ValidationErrorItem, type ValidationResult } from 'joi'
 
+import { EN_GB } from '~/src/server/constants.js'
 import {
   FileUploadField,
   tempItemSchema
@@ -1116,7 +1117,7 @@ describe('FileUploadPageController', () => {
           type: 'any.required'
         }
         const errors = controller.getErrors([errorDetail])
-        expect(errors).toEqual([getError(errorDetail)])
+        expect(errors).toEqual([getError(EN_GB, errorDetail)])
       })
 
       it('handles upload root errors using getError helper', () => {
@@ -1126,7 +1127,7 @@ describe('FileUploadPageController', () => {
           type: 'any.required'
         }
         const errors = controller.getErrors([errorDetail])
-        expect(errors).toEqual([getError(errorDetail)])
+        expect(errors).toEqual([getError(EN_GB, errorDetail)])
       })
     })
 

@@ -1,3 +1,4 @@
+import { EN_GB } from '~/src/server/constants.js'
 import { PaymentService } from '~/src/server/plugins/payment/service.js'
 import { get, post, postJson } from '~/src/server/services/httpService.js'
 
@@ -35,7 +36,11 @@ describe('payment service', () => {
 
       const referenceNumber = 'ABC-DEF-123'
       const returnUrl = 'http://localhost:3009/payment-callback-handler'
-      const metadata = { formId: 'form-id', slug: 'my-form-slug' }
+      const metadata = {
+        formId: 'form-id',
+        slug: 'my-form-slug',
+        language: EN_GB
+      }
       const payment = await service.createPayment(
         100,
         'Payment description',
@@ -55,7 +60,11 @@ describe('payment service', () => {
 
       const referenceNumber = 'ABC-DEF-123'
       const returnUrl = 'http://localhost:3009/payment-callback-handler'
-      const metadata = { formId: 'form-id', slug: 'my-form-slug' }
+      const metadata = {
+        formId: 'form-id',
+        slug: 'my-form-slug',
+        language: EN_GB
+      }
       const res = await service.createPayment(
         100,
         'Payment description',
@@ -84,7 +93,11 @@ describe('payment service', () => {
 
       const referenceNumber = 'ABC-DEF-123'
       const returnUrl = 'http://localhost:3009/payment-callback-handler'
-      const metadata = { formId: 'form-id', slug: 'my-form-slug' }
+      const metadata = {
+        formId: 'form-id',
+        slug: 'my-form-slug',
+        language: 'cy'
+      }
       const res = await service.createPayment(
         100,
         'Payment description',

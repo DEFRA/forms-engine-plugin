@@ -18,6 +18,23 @@ const translator = new FormModel(definition, {
   basePath: '/'
 }).createTranslator()
 
+// Note - the form must have at least one Welsh translation otherwise the translator defaults back to English
+const welshTranslator = new FormModel(
+  {
+    ...definition,
+    metadata: {
+      translations: {
+        cy: {
+          dummy: 'Some welsh'
+        }
+      }
+    }
+  },
+  {
+    basePath: '/'
+  }
+).createTranslator('cy')
+
 describe('EastingNorthingField', () => {
   let model: FormModel
 
@@ -267,7 +284,7 @@ describe('EastingNorthingField', () => {
         const value1 = field.getContextValueFromState(state1)
         const value2 = field.getContextValueFromState(state2)
 
-        expect(value1).toBe('Easting: 12345\nNorthing: 1234567')
+        expect(value1).toBe('12345, 1234567')
         expect(value2).toBeNull()
       })
 
@@ -486,6 +503,36 @@ describe('EastingNorthingField', () => {
         )
         expect(subFields[1].title).toBe(
           'components.eastingNorthingField.northing'
+        )
+      })
+    })
+
+    describe('sub-field message overrides', () => {
+      it('gets sub-field error messages translated', () => {
+        const locationField = collection.fields[0] as EastingNorthingField
+
+        const messagesEnglish1 =
+          locationField.getValidationMessagesOverride(translator)
+        expect(messagesEnglish1.myComponent__easting['any.required']).toBe(
+          'Enter easting'
+        )
+
+        const messagesWelsh1 =
+          locationField.getValidationMessagesOverride(welshTranslator)
+        expect(messagesWelsh1.myComponent__easting['any.required']).toBe(
+          'Nodwch ddwyreiniannau'
+        )
+
+        const messagesEnglish2 =
+          locationField.getValidationMessagesOverride(translator)
+        expect(messagesEnglish2.myComponent__northing['any.required']).toBe(
+          'Enter northing'
+        )
+
+        const messagesWelsh2 =
+          locationField.getValidationMessagesOverride(welshTranslator)
+        expect(messagesWelsh2.myComponent__northing['any.required']).toBe(
+          'Nodwch ogleddiannau'
         )
       })
     })

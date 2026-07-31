@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes'
 
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
+import { toPayLanguageCode } from '~/src/server/plugins/engine/helpers.js'
 import {
   buildPaymentInfo,
   convertPenceToPounds
@@ -38,7 +39,7 @@ export class PaymentService {
    * @param {string} returnUrl
    * @param {string} reference
    * @param {boolean} isLivePayment
-   * @param {{ formId: string, slug: string } | undefined } metadata
+   * @param {{ formId: string, slug: string, language: string } | undefined } metadata
    * @param {string} [email] - optional email to prepopulate on GOV.UK Pay
    */
   async createPayment(
@@ -50,6 +51,8 @@ export class PaymentService {
     metadata,
     email
   ) {
+    const language = toPayLanguageCode(metadata?.language)
+
     try {
       /** @type {CreatePaymentRequest} */
       const payload = {
@@ -58,7 +61,8 @@ export class PaymentService {
         reference,
         metadata,
         return_url: returnUrl,
-        delayed_capture: true
+        delayed_capture: true,
+        language
       }
 
       // Prepopulate email on GOV.UK Pay if provided

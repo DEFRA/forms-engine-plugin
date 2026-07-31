@@ -558,6 +558,7 @@ export interface FormAdapterPayment {
   reference: string
   amount: number
   description: string
+  descriptionInEng?: string
   createdAt: string
 }
 

@@ -3,7 +3,7 @@ import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
 import { EXTERNAL_STATE_APPENDAGE } from '~/src/server/constants.js'
-import { getCachedFormTranslatorExternalRoutes } from '~/src/server/plugins/engine/i18n/form.js'
+import { getCachedPluginTranslator } from '~/src/server/plugins/engine/i18n/form.js'
 import {
   JOURNEY_BASE_URL,
   createDetailsPayloadSchema,
@@ -82,7 +82,7 @@ export async function getDispatchTranslator(request, initial, language) {
   const typedReq = /** @type {AnyFormRequest} */ (/** @type {any} */ (request))
   const lang = resolveLanguage(typedReq)
 
-  const translator = await getCachedFormTranslatorExternalRoutes(
+  const translator = await getCachedPluginTranslator(
     typedReq,
     /** @type {FormMetadata} */ ({ id: formId }),
     formStatus,

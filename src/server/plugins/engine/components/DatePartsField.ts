@@ -25,6 +25,7 @@ import {
   type FormStateValue,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
+import { formatDateForLanguage } from '~/src/server/plugins/payment/helper.js'
 import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 
 export class DatePartsField extends FormComponent {
@@ -111,15 +112,16 @@ export class DatePartsField extends FormComponent {
 
   getDisplayStringFromFormValue(
     formValue: DatePartsState | undefined,
-    _translator: Translator
+    translator: Translator
   ) {
     if (!formValue) {
       return ''
     }
 
-    return format(
+    return formatDateForLanguage(
       `${formValue.year}-${formValue.month}-${formValue.day}`,
-      'd MMMM yyyy'
+      'd MMMM yyyy',
+      translator.language
     )
   }
 
@@ -158,15 +160,17 @@ export class DatePartsField extends FormComponent {
 
   getValidationMessagesOverride(translator: Translator) {
     const { t } = translator
-    return convertToLanguageMessages({
-      'any.required': buildValidationMessages(t).objectMissing,
-      'number.base': buildValidationMessages(t).objectMissing,
-      'number.precision': buildValidationMessages(t).dateFormat,
-      'number.integer': buildValidationMessages(t).dateFormat,
-      'number.unsafe': buildValidationMessages(t).dateFormat,
-      'number.min': buildValidationMessages(t).dateFormat,
-      'number.max': buildValidationMessages(t).dateFormat
-    })
+    return {
+      [this.name]: convertToLanguageMessages({
+        'any.required': buildValidationMessages(t).objectMissing,
+        'number.base': buildValidationMessages(t).objectMissing,
+        'number.precision': buildValidationMessages(t).dateFormat,
+        'number.integer': buildValidationMessages(t).dateFormat,
+        'number.unsafe': buildValidationMessages(t).dateFormat,
+        'number.min': buildValidationMessages(t).dateFormat,
+        'number.max': buildValidationMessages(t).dateFormat
+      })
+    }
   }
 
   getViewModel(context: RenderContext) {

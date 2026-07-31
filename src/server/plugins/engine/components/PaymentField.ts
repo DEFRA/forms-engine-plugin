@@ -63,6 +63,7 @@ export class PaymentField extends FormComponent {
         reference: joi.string().required(),
         amount: joi.number().required(),
         description: joi.string().required(),
+        descriptionInEng: joi.string().optional(),
         uuid: joi.string().uuid().required(),
         formId: joi.string().required(),
         isLivePayment: joi.boolean().required(),
@@ -239,8 +240,9 @@ export class PaymentField extends FormComponent {
   ): Promise<unknown> {
     const { options, name: componentName } = args.component
     const { model } = args.controller
-    const language = resolveLanguage(request)
-    const { t } = model.createTranslator(language)
+    const { language, t, tComponent } = model.createTranslator(
+      resolveLanguage(request)
+    )
     const state = await args.controller.getState(request)
     const { baseUrl } = getPluginOptions(request.server)
     const summaryUrl = `${baseUrl}/${model.basePath}/summary`
@@ -272,7 +274,8 @@ export class PaymentField extends FormComponent {
       return h.redirect(summaryUrl).code(StatusCodes.SEE_OTHER)
     }
 
-    const description = options.description
+    const description =
+      tComponent(args.component, 'paymentDescription') || options.description
 
     const slug = `/${model.basePath}`
 
@@ -292,7 +295,7 @@ export class PaymentField extends FormComponent {
       payCallbackUrl,
       reference,
       isLivePayment,
-      { formId, slug },
+      { formId, slug, language },
       prefilledEmail
     )
 
@@ -313,6 +316,7 @@ export class PaymentField extends FormComponent {
       reference,
       amount: resolvedAmount,
       description,
+      descriptionInEng: options.description,
       paymentId: payment.paymentId,
       componentName,
       returnUrl: summaryUrl,
@@ -449,6 +453,7 @@ export interface PaymentSessionData {
   reference: string
   amount: number
   description: string
+  descriptionInEng?: string
   paymentId: string
   componentName: string
   returnUrl: string

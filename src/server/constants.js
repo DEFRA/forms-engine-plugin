@@ -5,4 +5,5 @@ export const EXTERNAL_STATE_PAYLOAD = 'EXTERNAL_STATE_PAYLOAD'
 export const EXTERNAL_STATE_APPENDAGE = 'EXTERNAL_STATE_APPENDAGE'
 export const COMPONENT_STATE_ERROR = 'COMPONENT_STATE_ERROR'
 export const PAYMENT_EXPIRED_NOTIFICATION = 'PAYMENT_EXPIRED_NOTIFICATION'
-export const EN_GB = 'en-GB'
+export const EN_GB = 'en-GB' // English language
+export const CY = 'cy' // Welsh language

@@ -15,6 +15,23 @@ const translator = new FormModel(definition, {
   basePath: '/'
 }).createTranslator()
 
+// Note - the form must have at least one Welsh translation otherwise the translator defaults back to English
+const welshTranslator = new FormModel(
+  {
+    ...definition,
+    metadata: {
+      translations: {
+        cy: {
+          dummy: 'Some welsh'
+        }
+      }
+    }
+  },
+  {
+    basePath: '/'
+  }
+).createTranslator('cy')
+
 describe('LatLongField', () => {
   let model: FormModel
 
@@ -246,7 +263,7 @@ describe('LatLongField', () => {
         expect(value2).toBeUndefined()
       })
 
-      it('returns context for conditions and form submission', () => {
+      it('returns context for conditions', () => {
         const state1 = getFormState({
           latitude: 51.51945,
           longitude: -0.127758
@@ -256,7 +273,7 @@ describe('LatLongField', () => {
         const value1 = field.getContextValueFromState(state1)
         const value2 = field.getContextValueFromState(state2)
 
-        expect(value1).toBe('Latitude: 51.51945\nLongitude: -0.127758')
+        expect(value1).toBe('51.51945, -0.127758')
         expect(value2).toBeNull()
       })
 
@@ -471,6 +488,36 @@ describe('LatLongField', () => {
 
         expect(subFields[0].title).toBe('components.latLongField.latitude')
         expect(subFields[1].title).toBe('components.latLongField.longitude')
+      })
+    })
+
+    describe('sub-field message overrides', () => {
+      it('gets sub-field error messages translated', () => {
+        const locationField = collection.fields[0] as LatLongField
+
+        const messagesEnglish1 =
+          locationField.getValidationMessagesOverride(translator)
+        expect(messagesEnglish1.myComponent__latitude['any.required']).toBe(
+          'Enter latitude'
+        )
+
+        const messagesWelsh1 =
+          locationField.getValidationMessagesOverride(welshTranslator)
+        expect(messagesWelsh1.myComponent__latitude['any.required']).toBe(
+          'Nodwch ledred'
+        )
+
+        const messagesEnglish2 =
+          locationField.getValidationMessagesOverride(translator)
+        expect(messagesEnglish2.myComponent__longitude['any.required']).toBe(
+          'Enter longitude'
+        )
+
+        const messagesWelsh2 =
+          locationField.getValidationMessagesOverride(welshTranslator)
+        expect(messagesWelsh2.myComponent__longitude['any.required']).toBe(
+          'Nodwch hydred'
+        )
       })
     })
   })
