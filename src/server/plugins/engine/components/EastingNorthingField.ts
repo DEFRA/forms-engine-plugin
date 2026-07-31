@@ -1,6 +1,5 @@
 import {
   ComponentType,
-  type ComponentDef,
   type EastingNorthingFieldComponent
 } from '@defra/forms-model'
 import { type LanguageMessages, type ObjectSchema } from 'joi'
@@ -179,9 +178,9 @@ export class EastingNorthingField extends FormComponent {
     const def = this.def as EastingNorthingFieldComponent
     const { language, tComponent } = translator
     const translatedLabel =
-      tComponent(this as ComponentDef, 'errorDescription') ||
-      tComponent(this as ComponentDef, 'shortDescription') ||
-      tComponent(this as ComponentDef, 'title')
+      tComponent(def, 'errorDescription') ||
+      tComponent(def, 'shortDescription') ||
+      tComponent(def, 'title')
     const { eastingMin, eastingMax, northingMin, northingMax } =
       EastingNorthingField.getMinMax(def.schema)
     const { eastingValidationMessages, northingValidationMessages } =

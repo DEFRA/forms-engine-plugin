@@ -1,8 +1,4 @@
-import {
-  ComponentType,
-  type ComponentDef,
-  type LatLongFieldComponent
-} from '@defra/forms-model'
+import { ComponentType, type LatLongFieldComponent } from '@defra/forms-model'
 import { type LanguageMessages, type ObjectSchema } from 'joi'
 import lowerFirst from 'lodash/lowerFirst.js'
 
@@ -178,9 +174,9 @@ export class LatLongField extends FormComponent {
     const def = this.def as LatLongFieldComponent
     const { language, tComponent } = translator
     const translatedLabel =
-      tComponent(this as ComponentDef, 'errorDescription') ||
-      tComponent(this as ComponentDef, 'shortDescription') ||
-      tComponent(this as ComponentDef, 'title')
+      tComponent(def, 'errorDescription') ||
+      tComponent(def, 'shortDescription') ||
+      tComponent(def, 'title')
     const { latitudeMin, latitudeMax, longitudeMin, longitudeMax } =
       LatLongField.getMinMax(def.schema)
     const { latitudeMessages, longitudeMessages } =
