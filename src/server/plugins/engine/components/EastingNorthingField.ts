@@ -188,8 +188,8 @@ export class EastingNorthingField extends FormComponent {
         translator.language
       )
     return {
-      [`${this.name}_easting`]: eastingValidationMessages,
-      [`${this.name}_northing`]: northingValidationMessages
+      [`${this.name}__easting`]: eastingValidationMessages,
+      [`${this.name}__northing`]: northingValidationMessages
     }
   }
 

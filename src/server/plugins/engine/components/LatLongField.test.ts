@@ -497,25 +497,25 @@ describe('LatLongField', () => {
 
         const messagesEnglish1 =
           locationField.getValidationMessagesOverride(translator)
-        expect(messagesEnglish1.myComponent_latitude['any.required']).toBe(
+        expect(messagesEnglish1.myComponent__latitude['any.required']).toBe(
           'Enter latitude'
         )
 
         const messagesWelsh1 =
           locationField.getValidationMessagesOverride(welshTranslator)
-        expect(messagesWelsh1.myComponent_latitude['any.required']).toBe(
+        expect(messagesWelsh1.myComponent__latitude['any.required']).toBe(
           'Nodwch ledred'
         )
 
         const messagesEnglish2 =
           locationField.getValidationMessagesOverride(translator)
-        expect(messagesEnglish2.myComponent_longitude['any.required']).toBe(
+        expect(messagesEnglish2.myComponent__longitude['any.required']).toBe(
           'Enter longitude'
         )
 
         const messagesWelsh2 =
           locationField.getValidationMessagesOverride(welshTranslator)
-        expect(messagesWelsh2.myComponent_longitude['any.required']).toBe(
+        expect(messagesWelsh2.myComponent__longitude['any.required']).toBe(
           'Nodwch hydred'
         )
       })

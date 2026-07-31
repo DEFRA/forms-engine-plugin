@@ -513,25 +513,25 @@ describe('EastingNorthingField', () => {
 
         const messagesEnglish1 =
           locationField.getValidationMessagesOverride(translator)
-        expect(messagesEnglish1.myComponent_easting['any.required']).toBe(
+        expect(messagesEnglish1.myComponent__easting['any.required']).toBe(
           'Enter easting'
         )
 
         const messagesWelsh1 =
           locationField.getValidationMessagesOverride(welshTranslator)
-        expect(messagesWelsh1.myComponent_easting['any.required']).toBe(
+        expect(messagesWelsh1.myComponent__easting['any.required']).toBe(
           'Nodwch ddwyreiniannau'
         )
 
         const messagesEnglish2 =
           locationField.getValidationMessagesOverride(translator)
-        expect(messagesEnglish2.myComponent_northing['any.required']).toBe(
+        expect(messagesEnglish2.myComponent__northing['any.required']).toBe(
           'Enter northing'
         )
 
         const messagesWelsh2 =
           locationField.getValidationMessagesOverride(welshTranslator)
-        expect(messagesWelsh2.myComponent_northing['any.required']).toBe(
+        expect(messagesWelsh2.myComponent__northing['any.required']).toBe(
           'Nodwch ogleddiannau'
         )
       })

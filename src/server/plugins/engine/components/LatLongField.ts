@@ -185,8 +185,8 @@ export class LatLongField extends FormComponent {
         translator.language
       )
     return {
-      [`${this.name}_latitude`]: latitudeMessages,
-      [`${this.name}_longitude`]: longitudeMessages
+      [`${this.name}__latitude`]: latitudeMessages,
+      [`${this.name}__longitude`]: longitudeMessages
     }
   }
 
