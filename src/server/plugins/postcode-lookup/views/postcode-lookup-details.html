@@ -33,7 +33,7 @@
             <!-- Postcode lookup select -->
             <!-- Postcode lookup details display -->
             {%- set detailsHtml -%}
-              <strong>{{ details.postcodeQuery }}</strong>{% if details.buildingNameQuery %} {{ t('common.or')}} <strong>{{ details.buildingNameQuery }}</strong>{% endif %}
+              <strong>{{ details.postcodeQuery }}</strong>{% if details.buildingNameQuery %} {{ t('common.and')}} <strong>{{ details.buildingNameQuery }}</strong>{% endif %}
             {%- endset -%}
 
             {% if hasAddresses %}
