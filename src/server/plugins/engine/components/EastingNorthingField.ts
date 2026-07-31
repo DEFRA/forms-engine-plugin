@@ -15,7 +15,10 @@ import {
   getLocationFieldViewModel
 } from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
-import { createLowerFirstExpression } from '~/src/server/plugins/engine/components/helpers/index.js'
+import {
+  createLowerFirstExpression,
+  getTranslatedLabel
+} from '~/src/server/plugins/engine/components/helpers/index.js'
 import {
   type EastingNorthingState,
   type RenderContext
@@ -176,11 +179,7 @@ export class EastingNorthingField extends FormComponent {
 
   getValidationMessagesOverride(translator: Translator) {
     const def = this.def as EastingNorthingFieldComponent
-    const { language, tComponent } = translator
-    const translatedLabel =
-      tComponent(def, 'errorDescription') ||
-      tComponent(def, 'shortDescription') ||
-      tComponent(def, 'title')
+    const translatedLabel = getTranslatedLabel(def, translator)
     const { eastingMin, eastingMax, northingMin, northingMax } =
       EastingNorthingField.getMinMax(def.schema)
     const { eastingValidationMessages, northingValidationMessages } =
@@ -190,7 +189,7 @@ export class EastingNorthingField extends FormComponent {
         eastingMax,
         northingMin,
         northingMax,
-        language
+        translator.language
       )
     return {
       [`${this.name}__easting`]: eastingValidationMessages,

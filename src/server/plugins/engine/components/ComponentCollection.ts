@@ -15,6 +15,7 @@ import {
   type Field,
   type Guidance
 } from '~/src/server/plugins/engine/components/helpers/components.js'
+import { getTranslatedLabel } from '~/src/server/plugins/engine/components/helpers/index.js'
 import {
   type ComponentViewModel,
   type RenderContext
@@ -312,10 +313,7 @@ export class ComponentCollection {
           }
         } else {
           const fieldDef = field.def
-          const translatedLabel =
-            translator.tComponent(fieldDef, 'errorDescription') ||
-            translator.tComponent(fieldDef, 'shortDescription') ||
-            translator.tComponent(fieldDef, 'title')
+          const translatedLabel = getTranslatedLabel(fieldDef, translator)
           const messagesOverride =
             field.getValidationMessagesOverride(translator)
           let patchedSchema = field.formSchema
