@@ -767,6 +767,66 @@ describe('EastingNorthingField', () => {
             }
           }
         ]
+      },
+      {
+        description: 'Country validation invalid',
+        component: {
+          title: 'Example easting northing',
+          name: 'myComponent',
+          type: ComponentType.EastingNorthingField,
+          options: {
+            countries: ['wales']
+          },
+          schema: {}
+        } satisfies EastingNorthingFieldComponent,
+        assertions: [
+          {
+            input: getFormData({
+              easting: '332218',
+              northing: '283862'
+            }),
+            output: {
+              value: getFormData({
+                easting: 332218,
+                northing: 283862
+              }),
+              errors: [
+                expect.objectContaining({
+                  text: expect.stringMatching(
+                    /myComponent failed custom validation because/
+                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                  )
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Country validation valid',
+        component: {
+          title: 'Example easting northing',
+          name: 'myComponent',
+          type: ComponentType.EastingNorthingField,
+          options: {
+            countries: ['wales']
+          },
+          schema: {}
+        } satisfies EastingNorthingFieldComponent,
+        assertions: [
+          {
+            input: getFormData({
+              easting: '326781',
+              northing: '269766'
+            }),
+            output: {
+              value: getFormData({
+                easting: 326781,
+                northing: 269766
+              })
+            }
+          }
+        ]
       }
     ])('$description', ({ component: def, assertions }) => {
       let collection: ComponentCollection
