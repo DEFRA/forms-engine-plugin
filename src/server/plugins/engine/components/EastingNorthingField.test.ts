@@ -11,6 +11,7 @@ import {
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
+import { type EastingNorthingState } from '~/src/server/plugins/engine/types/index.js'
 import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
 
@@ -870,6 +871,48 @@ describe('EastingNorthingField', () => {
           expect(result).toEqual(output)
         }
       )
+    })
+
+    it('getErrors formats country boundary errors', () => {
+      const component = {
+        title: 'Example bounded EN field',
+        name: 'myComponent',
+        type: ComponentType.EastingNorthingField,
+        options: {
+          countries: ['scotland'],
+          required: true
+        }
+      } satisfies EastingNorthingFieldComponent
+
+      const collection = new ComponentCollection([component], { model })
+      const invalidSingleState: EastingNorthingState = {
+        easting: 350005,
+        northing: 315469
+      }
+
+      const mockT = jest.fn().mockReturnValue('translated country error')
+      const mockTranslator = { ...stubTranslator, t: mockT }
+
+      const result = collection.validate(getFormData(invalidSingleState))
+      const eastingNorthingField = collection.components.at(
+        0
+      ) as EastingNorthingField
+
+      const viewErrors = eastingNorthingField.getViewErrors(
+        mockTranslator,
+        result.errors
+      )
+
+      expect(mockT).toHaveBeenCalledWith(
+        'components.eastingNorthingField.wrongCountry',
+        { country: 'Scotland' }
+      )
+      expect(viewErrors).toEqual([
+        expect.objectContaining({
+          href: '#myComponent',
+          text: 'translated country error'
+        })
+      ])
     })
   })
 })
