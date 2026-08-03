@@ -769,7 +769,7 @@ describe('EastingNorthingField', () => {
         ]
       },
       {
-        description: 'Country validation invalid',
+        description: 'Country validation (invalid value)',
         component: {
           title: 'Example easting northing',
           name: 'myComponent',
@@ -803,7 +803,7 @@ describe('EastingNorthingField', () => {
         ]
       },
       {
-        description: 'Country validation valid',
+        description: 'Country validation (valid value)',
         component: {
           title: 'Example easting northing',
           name: 'myComponent',
@@ -827,11 +827,39 @@ describe('EastingNorthingField', () => {
             }
           }
         ]
+      },
+      {
+        description: 'Country validation (invalid country)',
+        component: {
+          title: 'Example easting northing',
+          name: 'myComponent',
+          type: ComponentType.EastingNorthingField,
+          options: {
+            // @ts-expect-error -- testing invalid country value
+            countries: ['invalid']
+          },
+          schema: {}
+        } satisfies EastingNorthingFieldComponent,
+        assertions: [
+          {
+            input: getFormData({
+              easting: '326781',
+              northing: '269766'
+            }),
+            output: {
+              value: getFormData({
+                easting: 326781,
+                northing: 269766
+              })
+            }
+          }
+        ]
       }
     ])('$description', ({ component: def, assertions }) => {
       let collection: ComponentCollection
 
       beforeEach(() => {
+        // @ts-expect-error -- testing invalid country value
         collection = new ComponentCollection([def], { model })
       })
 
