@@ -6,13 +6,16 @@ import {
   isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
+import { buildValidationMessages } from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
+import { type Translator } from '~/src/server/plugins/engine/types/index.js'
 import {
   type ErrorMessageTemplateList,
   type FormState,
   type FormStateValue,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
+import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 
 export class NumberField extends FormComponent {
   declare options: NumberFieldComponent['options']
@@ -128,6 +131,20 @@ export class NumberField extends FormComponent {
 
   isValue(value?: FormStateValue | FormState) {
     return NumberField.isNumber(value)
+  }
+
+  getValidationMessagesOverride(translator: Translator) {
+    const { t } = translator
+    return {
+      [this.name]: convertToLanguageMessages({
+        'any.required': buildValidationMessages(t).objectRequired,
+        'number.base': buildValidationMessages(t).objectMissing,
+        'number.precision': buildValidationMessages(t).numberPrecision,
+        'number.integer': buildValidationMessages(t).numberInteger,
+        'number.min': buildValidationMessages(t).numberMin,
+        'number.max': buildValidationMessages(t).numberMax
+      })
+    }
   }
 
   /**

@@ -14,7 +14,17 @@
     "numberInteger": "Rhaid i {{#label}} fod yn rhif cyfan",
     "numberMin": "Rhaid i {{#label}} fod yn {{#limit}} neu uwch",
     "numberMax": "Rhaid i {{#label}} fod yn {{#limit}} neu is",
-    "maxWords": "Rhaid i {{#label}} fod yn {{#limit}} o eiriau neu lai"
+    "maxWords": "Rhaid i {{#label}} fod yn {{#limit}} o eiriau neu lai",
+    "unicode": "Mae {{#label}} yn cynnwys nodau annilys, er enghraifft, dashes hirion",
+    "arrayMin": "Dewiswch o leiaf {{#limit}} o opsiynau o'r rhestr",
+    "arrayMax": "Dim ond {{#limit}} y gellir eu dewis o'r rhestr",
+    "arrayLength": "Dewiswch ddim ond {{#limit}} o opsiynau o'r rhestr",
+    "featuresMin": "Diffiniwch o leiaf {{#limit}} nodwedd",
+    "featuresMax": "Dim ond {{#limit}} nodwedd y gellir eu diffinio",
+    "featuresLength": "Diffiniwch nodweddion {{#limit}} yn union",
+    "filesMin": "Rhaid i chi uwchlwytho {{#limit}} o ffeiliau neu fwy",
+    "filesMax": "Dim ond {{#limit}} o ffeiliau neu lai y gallwch eu huwchlwytho",
+    "filesLength": "Rhaid i chi uwchlwytho'n union {{#limit}} o ffeiliau"
   },
 
   "errors": {
@@ -31,7 +41,11 @@
     "draft": "ddrafft",
     "live": "fyw",
     "or": "neu",
-    "and": "a"
+    "and": "a",
+    "england": "Lloegr",
+    "wales": "Cymru",
+    "northernIreland": "Gogledd Iwerddon",
+    "scotland": "Yr Alban"
   },
 
   "pages": {
@@ -252,7 +266,7 @@
       "yes": "Ie",
       "no": "Nage",
       "validation": {
-        "selectYesNoRequired": "{{#label}} - dewiswch ie neu na"
+        "selectYesNoRequired": "{{#label}} - dewiswch ie neu nage"
       }
     },
 

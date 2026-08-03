@@ -279,7 +279,7 @@ describe('GeospatialField', () => {
               value: getFormData([]),
               errors: [
                 expect.objectContaining({
-                  text: 'validation.features.min' // 'Define at least 1 features'
+                  text: 'Define at least 1 features'
                 })
               ]
             }
@@ -329,7 +329,7 @@ describe('GeospatialField', () => {
               value: getFormData([]),
               errors: [
                 expect.objectContaining({
-                  text: 'validation.features.min' // 'Define at least 2 features'
+                  text: 'Define at least 2 features'
                 })
               ]
             }
@@ -351,7 +351,7 @@ describe('GeospatialField', () => {
               value: getFormData(validSingleState),
               errors: [
                 expect.objectContaining({
-                  text: 'validation.features.min' // 'Define at least 2 features'
+                  text: 'Define at least 2 features'
                 })
               ]
             }
@@ -384,7 +384,7 @@ describe('GeospatialField', () => {
               value: getFormData([]),
               errors: [
                 expect.objectContaining({
-                  text: 'validation.features.min' // 'Define at least 1 features'
+                  text: 'Define at least 1 features'
                 })
               ]
             }
@@ -412,7 +412,7 @@ describe('GeospatialField', () => {
               value: getFormData(validState),
               errors: [
                 expect.objectContaining({
-                  text: 'validation.features.max' // 'Only 1 features can be defined'
+                  text: 'Only 1 features can be defined'
                 })
               ]
             }
@@ -439,7 +439,7 @@ describe('GeospatialField', () => {
               value: getFormData([]),
               errors: [
                 expect.objectContaining({
-                  text: 'validation.features.length' // 'Define exactly 1 features'
+                  text: 'Define exactly 1 features'
                 })
               ]
             }
@@ -467,7 +467,7 @@ describe('GeospatialField', () => {
               value: getFormData(validState),
               errors: [
                 expect.objectContaining({
-                  text: 'validation.features.length' // 'Define exactly 1 features'
+                  text: 'Define exactly 1 features'
                 })
               ]
             }
@@ -513,7 +513,7 @@ describe('GeospatialField', () => {
               value: getFormData([]),
               errors: [
                 expect.objectContaining({
-                  text: 'validation.features.min' // 'Define at least 2 features'
+                  text: 'Define at least 2 features'
                 })
               ]
             }
@@ -530,7 +530,7 @@ describe('GeospatialField', () => {
               value: getFormData(validSingleState),
               errors: [
                 expect.objectContaining({
-                  text: 'validation.features.min' // 'Define at least 2 features'
+                  text: 'Define at least 2 features'
                 })
               ]
             }
@@ -581,7 +581,7 @@ describe('GeospatialField', () => {
               value: getFormData(validState),
               errors: [
                 expect.objectContaining({
-                  text: 'validation.features.max' // 'Only 1 features can be defined'
+                  text: 'Only 1 features can be defined'
                 })
               ]
             }
@@ -608,7 +608,7 @@ describe('GeospatialField', () => {
               value: getFormData([]),
               errors: [
                 expect.objectContaining({
-                  text: 'validation.features.length' // 'Define exactly 1 features'
+                  text: 'Define exactly 1 features'
                 })
               ]
             }
@@ -631,7 +631,7 @@ describe('GeospatialField', () => {
               value: getFormData(validState),
               errors: [
                 expect.objectContaining({
-                  text: 'validation.features.length' // Define exactly 1 features
+                  text: 'Define exactly 1 features'
                 })
               ]
             }
@@ -722,7 +722,7 @@ describe('GeospatialField', () => {
         }
       ]
 
-      const mockT = jest.fn().mockReturnValue('translated country error')
+      const mockT = jest.fn().mockReturnValue('Translated country')
       const mockTranslator = { ...stubTranslator, t: mockT }
 
       const result = collection.validate(getFormData(invalidSingleState))
@@ -735,12 +735,12 @@ describe('GeospatialField', () => {
 
       expect(mockT).toHaveBeenCalledWith(
         'components.geospatialField.validation.wrongCountry',
-        { count: 1, country: 'Scotland' }
+        { count: 1, country: 'Translated country' }
       )
       expect(viewErrors).toEqual([
         expect.objectContaining({
           href: '#description_0',
-          text: 'translated country error'
+          text: 'Translated country'
         })
       ])
     })

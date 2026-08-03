@@ -11,7 +11,9 @@ import {
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers/index.js'
 import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
+import { buildValidationMessages } from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
+import { type Translator } from '~/src/server/plugins/engine/types/index.js'
 import {
   type ErrorMessageTemplateList,
   type FormState,
@@ -43,7 +45,9 @@ export abstract class LocationFieldBase extends FormComponent {
   declare stateSchema: StringSchema
   instructionText?: string
 
-  protected abstract getValidationConfig(): ValidationConfig
+  protected abstract getValidationConfig(
+    translator: Translator | undefined
+  ): ValidationConfig
   protected abstract getErrorTemplates(): {
     type: string
     template: JoiExpression
@@ -61,7 +65,7 @@ export abstract class LocationFieldBase extends FormComponent {
 
     addClassOptionIfNone(locationOptions, 'govuk-input--width-10')
 
-    const config = this.getValidationConfig()
+    const config = this.getValidationConfig(undefined)
     const requiredMessage = config.requiredMessage ?? messageTemplate.required
 
     const messages = convertToLanguageMessages({
@@ -131,8 +135,22 @@ export abstract class LocationFieldBase extends FormComponent {
     return viewModel
   }
 
+  getValidationMessagesOverride(translator: Translator) {
+    const { t } = translator
+    const config = this.getValidationConfig(translator)
+    return {
+      [this.name]: convertToLanguageMessages({
+        'any.required':
+          config.requiredMessage ?? buildValidationMessages(t).objectRequired,
+        'string.empty':
+          config.requiredMessage ?? buildValidationMessages(t).objectRequired,
+        'string.pattern.base': config.patternErrorMessage
+      })
+    }
+  }
+
   getAllPossibleErrors(): ErrorMessageTemplateList {
-    const config = this.getValidationConfig()
+    const config = this.getValidationConfig(undefined)
 
     return {
       baseErrors: [

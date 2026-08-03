@@ -5,11 +5,13 @@ import {
 import Boom from '@hapi/boom'
 import joi, { type ArraySchema } from 'joi'
 
+import { EN_GB } from '~/src/server/constants.js'
 import {
   FormComponent,
   isUploadState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
+import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { InvalidComponentStateError } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
@@ -33,6 +35,7 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 import { render } from '~/src/server/plugins/nunjucks/index.js'
 import { type FormRequestPayload } from '~/src/server/routes/types.js'
+import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 export const uploadIdSchema = joi.string().uuid().required()
@@ -141,6 +144,8 @@ export class FileUploadField extends FormComponent {
     } else {
       formSchema = formSchema.length(schema.length)
     }
+
+    formSchema = formSchema.messages(FileUploadField.buildErrorMessages(EN_GB))
 
     this.formSchema = formSchema.items(formItemSchema)
     this.stateSchema = formSchema
@@ -300,6 +305,13 @@ export class FileUploadField extends FormComponent {
     return isUploadState(value)
   }
 
+  getValidationMessagesOverride(translator: Translator) {
+    const { language } = translator
+    return {
+      [this.name]: FileUploadField.buildErrorMessages(language)
+    }
+  }
+
   /**
    * For error preview page that shows all possible errors on a component
    */
@@ -402,5 +414,13 @@ export class FileUploadField extends FormComponent {
         }
       ]
     }
+  }
+
+  static buildErrorMessages(language: string) {
+    return convertToLanguageMessages({
+      'array.min': tPlugin('validation.filesMin', language),
+      'array.max': tPlugin('validation.filesMax', language),
+      'array.length': tPlugin('validation.filesLength', language)
+    })
   }
 }

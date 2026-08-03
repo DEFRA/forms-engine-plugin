@@ -58,7 +58,21 @@ export const messages: LanguageMessagesExt = {
   'date.min': messageTemplate.dateMin,
   'date.max': messageTemplate.dateMax,
 
-  'object.invalidjson': messageTemplate.format
+  'array.min': messageTemplate.arrayMin,
+  'array.max': messageTemplate.arrayMax,
+  'array.length': messageTemplate.arrayLength,
+
+  'features.min': messageTemplate.featuresMin,
+  'features.max': messageTemplate.featuresMax,
+  'features.length': messageTemplate.featuresLength,
+
+  'files.min': messageTemplate.filesMin,
+  'files.max': messageTemplate.filesMax,
+  'filees.length': messageTemplate.filesLength,
+
+  'object.invalidjson': messageTemplate.format,
+
+  'phoneNumber.invalid': messageTemplate.format
 }
 
 export const messagesPre: LanguageMessages =
@@ -76,6 +90,7 @@ export function buildLanguageMessages(
     'string.email': vm.format,
     'string.pattern.base': vm.pattern,
     'string.maxWords': vm.maxWords,
+    'string.unicode': vm.unicode,
     'number.base': vm.number,
     'number.precision': vm.numberPrecision,
     'number.integer': vm.numberInteger,
@@ -91,7 +106,17 @@ export function buildLanguageMessages(
     'date.format': vm.dateFormat,
     'date.min': vm.dateMin,
     'date.max': vm.dateMax,
-    'object.invalidjson': vm.format
+    'array.min': vm.arrayMin,
+    'array.max': vm.arrayMax,
+    'array.length': vm.arrayLength,
+    'features.min': vm.featuresMin,
+    'features.max': vm.featuresMax,
+    'features.length': vm.featuresLength,
+    'files.min': vm.filesMin,
+    'files.max': vm.filesMax,
+    'files.length': vm.filesLength,
+    'object.invalidjson': vm.format,
+    'phoneNumber.invalid': vm.format
   } as unknown as LanguageMessages
 }
 

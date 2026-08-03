@@ -40,7 +40,8 @@ export class EmailAddressField extends FormComponent {
       formSchema = formSchema.messages({
         'any.required': message,
         'string.empty': message,
-        'string.email': message
+        'string.email': message,
+        'string.unicode': message
       })
     } else if (options.customValidationMessages) {
       formSchema = formSchema.messages(options.customValidationMessages)
