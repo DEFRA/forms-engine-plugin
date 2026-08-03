@@ -266,4 +266,154 @@ describe('YesNoField', () => {
       expect(errors.advancedSettingsErrors).toBeEmpty()
     })
   })
+
+  describe('Validation', () => {
+    describe.each([
+      {
+        description: 'Use error description if it exists',
+        component: {
+          title: 'Have you been a UK resident for more than 5 years?',
+          errorDescription: 'UK resident',
+          shortDescription: 'UK resident for more than 5 years',
+          name: 'myComponent',
+          type: ComponentType.YesNoField,
+          options: {}
+        } satisfies YesNoFieldComponent,
+        assertions: [
+          {
+            input: getFormData(),
+            output: {
+              value: getFormData(),
+              errors: [
+                expect.objectContaining({
+                  text: 'UK resident - select yes or no'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description:
+          'Use short description if it exists and error description does not',
+        component: {
+          title: 'Have you been a UK resident for more than 5 years?',
+          shortDescription: 'UK resident for more than 5 years',
+          name: 'myComponent',
+          type: ComponentType.YesNoField,
+          options: {}
+        } satisfies YesNoFieldComponent,
+        assertions: [
+          {
+            input: getFormData(),
+            output: {
+              value: getFormData(),
+              errors: [
+                expect.objectContaining({
+                  text: 'UK resident for more than 5 years - select yes or no'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Custom validation message',
+        component: {
+          title: 'Have you been a UK resident for more than 5 years?',
+          shortDescription: 'UK resident for more than 5 years',
+          name: 'myComponent',
+          type: ComponentType.YesNoField,
+          options: {
+            customValidationMessage: 'This is a custom error',
+            customValidationMessages: {
+              'any.required': 'This is not used'
+            }
+          }
+        } satisfies YesNoFieldComponent,
+        assertions: [
+          {
+            input: getFormData(),
+            output: {
+              value: getFormData(),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom error'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData(),
+            output: {
+              value: getFormData(),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom error'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Custom validation messages (multiple)',
+        component: {
+          title: 'Have you been a UK resident for more than 5 years?',
+          shortDescription: 'UK resident for more than 5 years',
+          name: 'myComponent',
+          type: ComponentType.YesNoField,
+          options: {
+            customValidationMessages: {
+              'any.required': 'This is a custom required error'
+            }
+          }
+        } satisfies YesNoFieldComponent,
+        assertions: [
+          {
+            input: getFormData(),
+            output: {
+              value: getFormData(),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom required error'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Optional field',
+        component: {
+          title: 'Example field',
+          name: 'myComponent',
+          type: ComponentType.YesNoField,
+          options: {
+            required: false
+          }
+        } satisfies YesNoFieldComponent,
+        assertions: [
+          {
+            input: getFormData(),
+            output: { value: getFormData() }
+          }
+        ]
+      }
+    ])('$description', ({ component: def, assertions }) => {
+      let collection: ComponentCollection
+
+      beforeEach(() => {
+        collection = new ComponentCollection([def], { model })
+      })
+
+      it.each([...assertions])(
+        'validates custom example',
+        ({ input, output }) => {
+          const result = collection.validate(input)
+          expect(result).toEqual(output)
+        }
+      )
+    })
+  })
 })
