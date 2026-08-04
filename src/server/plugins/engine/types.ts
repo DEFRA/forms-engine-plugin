@@ -245,11 +245,15 @@ export type FileUpload = {
 } & (
   | {
       fileStatus: FileStatus.complete | FileStatus.rejected | FileStatus.pending
+      errorCode?: string
       errorMessage?: string
+      errorParams?: Record<string, number | string | string[]>
     }
   | {
       fileStatus: FileStatus.complete
+      errorCode?: string
       errorMessage?: undefined
+      errorParams?: Record<string, number | string | string[]>
     }
 )
 

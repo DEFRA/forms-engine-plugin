@@ -129,7 +129,13 @@
       "removeFileTitle": "Ydych chi'n siŵr eich bod chi eisiau dileu'r ffeil hon?",
       "removeFileBody": "Ni allwch adfer ffeiliau a dynnwyd.",
       "removeFileButton": "Dileu ffeil",
-      "cancel": "Canslo"
+      "cancel": "Canslo",
+      "FILE_VIRUS": "Mae'r ffeil a ddewiswyd yn cynnwys firws",
+      "FILE_EMPTY": "Mae'r ffeil a ddewiswyd yn wag",
+      "FILE_TOO_LARGE": "Rhaid i'r ffeil a ddewiswyd fod yn llai na [[maxFileSizeFormatted]]",
+      "FILE_INVALID_TYPE": "Rhaid i'r ffeil a ddewiswyd fod yn [[fileExtensions]]",
+      "FILE_UPLOAD_FAILED": "Ni ellid uwchlwytho'r ffeil a ddewiswyd - rhowch gynnig arall arni",
+      "FILE_ERROR_UNKNOWN": "Gwall anhysbys"
     },
 
     "exit": {
@@ -319,7 +325,10 @@
       "filesCount_two": "Uwchlwythwyd [[count]] ffeil",
       "filesCount_few": "Uwchlwythwyd [[count]] ffeil",
       "filesCount_many": "Uwchlwythwyd [[count]] o ffeiliau",
-      "filesCount_other": "Uwchlwythwyd [[count]] ffeil"
+      "filesCount_other": "Uwchlwythwyd [[count]] ffeil",
+      "chooseFile": "Dewiswch ffeil",
+      "dropFile": "neu ollwng ffeil",
+      "noFileChosen": "Dim ffeil wedi'i dewis"
     },
 
     "characterCount": {
