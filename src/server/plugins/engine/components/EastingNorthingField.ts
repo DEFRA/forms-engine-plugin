@@ -34,7 +34,6 @@ import {
   type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
-import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 
 // British National Grid coordinate limits
 const DEFAULT_EASTING_MIN = 0
@@ -284,71 +283,69 @@ export class EastingNorthingField extends FormComponent {
       { fieldLabel }
     )
 
-    const eastingValidationMessages: LanguageMessages =
-      convertToLanguageMessages({
-        'any.required': tPlugin(
-          'components.eastingNorthingField.eastingRequired',
-          language
-        ),
-        'number.base': tPlugin(
-          'components.eastingNorthingField.eastingRequired',
-          language
-        ),
-        'number.min': tPlugin(
-          'components.eastingNorthingField.eastingRange',
-          language,
-          {
-            fieldLabel,
-            min: eastingMin,
-            max: eastingMax
-          }
-        ),
-        'number.max': tPlugin(
-          'components.eastingNorthingField.eastingRange',
-          language,
-          {
-            fieldLabel,
-            min: eastingMin,
-            max: eastingMax
-          }
-        ),
-        'number.precision': eastingDigitsMessage,
-        'number.integer': eastingDigitsMessage,
-        'number.unsafe': eastingDigitsMessage
-      })
+    const eastingValidationMessages: LanguageMessages = {
+      'any.required': tPlugin(
+        'components.eastingNorthingField.eastingRequired',
+        language
+      ),
+      'number.base': tPlugin(
+        'components.eastingNorthingField.eastingRequired',
+        language
+      ),
+      'number.min': tPlugin(
+        'components.eastingNorthingField.eastingRange',
+        language,
+        {
+          fieldLabel,
+          min: eastingMin,
+          max: eastingMax
+        }
+      ),
+      'number.max': tPlugin(
+        'components.eastingNorthingField.eastingRange',
+        language,
+        {
+          fieldLabel,
+          min: eastingMin,
+          max: eastingMax
+        }
+      ),
+      'number.precision': eastingDigitsMessage,
+      'number.integer': eastingDigitsMessage,
+      'number.unsafe': eastingDigitsMessage
+    }
 
-    const northingValidationMessages: LanguageMessages =
-      convertToLanguageMessages({
-        'any.required': tPlugin(
-          'components.eastingNorthingField.northingRequired',
-          language
-        ),
-        'number.base': tPlugin(
-          'components.eastingNorthingField.northingRequired',
-          language
-        ),
-        'number.min': tPlugin(
-          'components.eastingNorthingField.northingRange',
-          language,
-          {
-            fieldLabel,
-            min: northingMin,
-            max: northingMax
-          }
-        ),
-        'number.max': tPlugin(
-          'components.eastingNorthingField.northingRange',
-          language,
-          {
-            fieldLabel,
-            min: northingMin,
-            max: northingMax
-          }
-        ),
-        'number.precision': northingDigitsMessage,
-        'number.integer': northingDigitsMessage,
-        'number.unsafe': northingDigitsMessage
-      })
+    const northingValidationMessages: LanguageMessages = {
+      'any.required': tPlugin(
+        'components.eastingNorthingField.northingRequired',
+        language
+      ),
+      'number.base': tPlugin(
+        'components.eastingNorthingField.northingRequired',
+        language
+      ),
+      'number.min': tPlugin(
+        'components.eastingNorthingField.northingRange',
+        language,
+        {
+          fieldLabel,
+          min: northingMin,
+          max: northingMax
+        }
+      ),
+      'number.max': tPlugin(
+        'components.eastingNorthingField.northingRange',
+        language,
+        {
+          fieldLabel,
+          min: northingMin,
+          max: northingMax
+        }
+      ),
+      'number.precision': northingDigitsMessage,
+      'number.integer': northingDigitsMessage,
+      'number.unsafe': northingDigitsMessage
+    }
     return {
       eastingValidationMessages,
       northingValidationMessages

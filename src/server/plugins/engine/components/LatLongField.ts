@@ -31,7 +31,6 @@ import {
   type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
-import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 
 // Precision constants
 // UK latitude/longitude requires high precision for accurate location (within ~11mm)
@@ -267,14 +266,13 @@ export class LatLongField extends FormComponent {
   ) {
     const fieldLabel = lowerFirst(label)
 
-    const customValidationMessages: LanguageMessages =
-      convertToLanguageMessages({
-        'number.precision': tPlugin(
-          'components.latLongField.precision',
-          language
-        ),
-        'number.unsafe': tPlugin('components.latLongField.notANumber', language)
-      })
+    const customValidationMessages: LanguageMessages = {
+      'number.precision': tPlugin(
+        'components.latLongField.precision',
+        language
+      ),
+      'number.unsafe': tPlugin('components.latLongField.notANumber', language)
+    }
 
     const latitudeRangeMessage = tPlugin(
       'components.latLongField.latitudeRange',
@@ -287,7 +285,7 @@ export class LatLongField extends FormComponent {
       { fieldLabel, min: longitudeMin, max: longitudeMax }
     )
 
-    const latitudeMessages: LanguageMessages = convertToLanguageMessages({
+    const latitudeMessages: LanguageMessages = {
       ...customValidationMessages,
       'any.required': tPlugin(
         'components.latLongField.latitudeRequired',
@@ -298,9 +296,9 @@ export class LatLongField extends FormComponent {
       }),
       'number.min': latitudeRangeMessage,
       'number.max': latitudeRangeMessage
-    })
+    }
 
-    const longitudeMessages: LanguageMessages = convertToLanguageMessages({
+    const longitudeMessages: LanguageMessages = {
       ...customValidationMessages,
       'any.required': tPlugin(
         'components.latLongField.longitudeRequired',
@@ -315,7 +313,7 @@ export class LatLongField extends FormComponent {
       ),
       'number.min': longitudeRangeMessage,
       'number.max': longitudeRangeMessage
-    })
+    }
 
     return {
       latitudeMessages,

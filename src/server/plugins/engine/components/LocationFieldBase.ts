@@ -20,7 +20,6 @@ import {
   type FormStateValue,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
-import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 
 interface LocationFieldOptions {
   instructionText?: string
@@ -68,11 +67,11 @@ export abstract class LocationFieldBase extends FormComponent {
     const config = this.getValidationConfig(undefined)
     const requiredMessage = config.requiredMessage ?? messageTemplate.required
 
-    const messages = convertToLanguageMessages({
+    const messages = {
       'any.required': requiredMessage,
       'string.empty': requiredMessage,
       'string.pattern.base': config.patternErrorMessage
-    })
+    } as LanguageMessages
 
     let formSchema = joi
       .string()
@@ -139,13 +138,13 @@ export abstract class LocationFieldBase extends FormComponent {
     const { t } = translator
     const config = this.getValidationConfig(translator)
     return {
-      [this.name]: convertToLanguageMessages({
+      [this.name]: {
         'any.required':
           config.requiredMessage ?? buildValidationMessages(t).objectRequired,
         'string.empty':
           config.requiredMessage ?? buildValidationMessages(t).objectRequired,
         'string.pattern.base': config.patternErrorMessage
-      })
+      } as LanguageMessages
     }
   }
 

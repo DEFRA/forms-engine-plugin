@@ -1,5 +1,9 @@
 import { type NumberFieldComponent } from '@defra/forms-model'
-import joi, { type CustomValidator, type NumberSchema } from 'joi'
+import joi, {
+  type CustomValidator,
+  type LanguageMessages,
+  type NumberSchema
+} from 'joi'
 
 import {
   FormComponent,
@@ -15,7 +19,6 @@ import {
   type FormStateValue,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
-import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 
 export class NumberField extends FormComponent {
   declare options: NumberFieldComponent['options']
@@ -136,14 +139,14 @@ export class NumberField extends FormComponent {
   getValidationMessagesOverride(translator: Translator) {
     const { t } = translator
     return {
-      [this.name]: convertToLanguageMessages({
+      [this.name]: {
         'any.required': buildValidationMessages(t).objectRequired,
         'number.base': buildValidationMessages(t).objectMissing,
         'number.precision': buildValidationMessages(t).numberPrecision,
         'number.integer': buildValidationMessages(t).numberInteger,
         'number.min': buildValidationMessages(t).numberMin,
         'number.max': buildValidationMessages(t).numberMax
-      })
+      } as LanguageMessages
     }
   }
 

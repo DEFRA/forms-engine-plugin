@@ -1,5 +1,5 @@
 import { type CheckboxesFieldComponent, type Item } from '@defra/forms-model'
-import joi, { type ArraySchema } from 'joi'
+import joi, { type ArraySchema, type LanguageMessages } from 'joi'
 
 import { isFormValue } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { SelectionControlField } from '~/src/server/plugins/engine/components/SelectionControlField.js'
@@ -14,7 +14,6 @@ import {
   type FormStateValue,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
-import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 
 export class CheckboxesField extends SelectionControlField {
   declare options: CheckboxesFieldComponent['options']
@@ -138,11 +137,11 @@ export class CheckboxesField extends SelectionControlField {
   getValidationMessagesOverride(translator: Translator) {
     const { t } = translator
     return {
-      [this.name]: convertToLanguageMessages({
+      [this.name]: {
         'array.min': buildValidationMessages(t).arrayMin,
         'array.max': buildValidationMessages(t).arrayMax,
         'array.length': buildValidationMessages(t).arrayLength
-      })
+      } as LanguageMessages
     }
   }
 

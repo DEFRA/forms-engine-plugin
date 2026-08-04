@@ -35,7 +35,6 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 import { render } from '~/src/server/plugins/nunjucks/index.js'
 import { type FormRequestPayload } from '~/src/server/routes/types.js'
-import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 export const uploadIdSchema = joi.string().uuid().required()
@@ -417,10 +416,10 @@ export class FileUploadField extends FormComponent {
   }
 
   static buildErrorMessages(language: string) {
-    return convertToLanguageMessages({
+    return {
       'array.min': tPlugin('validation.filesMin', language),
       'array.max': tPlugin('validation.filesMax', language),
       'array.length': tPlugin('validation.filesLength', language)
-    })
+    }
   }
 }
