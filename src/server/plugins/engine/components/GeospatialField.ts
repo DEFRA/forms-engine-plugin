@@ -125,7 +125,12 @@ export class GeospatialField extends FormComponent {
         err.href = `#description_${err.path[1]}`
         err.text = translator.t(
           'components.geospatialField.validation.wrongCountry',
-          { count: Number(err.path[1]) + 1, country: err.context.country }
+          {
+            count: Number(err.path[1]) + 1,
+            country: translator.t(
+              `common.${(err.context.country as string).toLowerCase()}`
+            )
+          }
         )
       }
     })

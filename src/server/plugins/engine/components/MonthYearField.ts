@@ -31,7 +31,6 @@ import {
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import { formatDateForLanguage } from '~/src/server/plugins/payment/helper.js'
-import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 
 export class MonthYearField extends FormComponent {
   declare options: MonthYearFieldComponent['options']
@@ -49,16 +48,15 @@ export class MonthYearField extends FormComponent {
 
     const isRequired = options.required !== false
 
-    const customValidationMessages: LanguageMessages =
-      convertToLanguageMessages({
-        'any.required': messageTemplate.objectMissing,
-        'number.base': messageTemplate.objectMissing,
-        'number.precision': messageTemplate.dateFormat,
-        'number.integer': messageTemplate.dateFormat,
-        'number.unsafe': messageTemplate.dateFormat,
-        'number.min': messageTemplate.dateFormat,
-        'number.max': messageTemplate.dateFormat
-      })
+    const customValidationMessages = {
+      'any.required': messageTemplate.objectMissing,
+      'number.base': messageTemplate.objectMissing,
+      'number.precision': messageTemplate.dateFormat,
+      'number.integer': messageTemplate.dateFormat,
+      'number.unsafe': messageTemplate.dateFormat,
+      'number.min': messageTemplate.dateFormat,
+      'number.max': messageTemplate.dateFormat
+    } as LanguageMessages
 
     this.collection = new ComponentCollection(
       [
@@ -158,16 +156,18 @@ export class MonthYearField extends FormComponent {
 
   getValidationMessagesOverride(translator: Translator) {
     const { t } = translator
+    const messages = {
+      'any.required': buildValidationMessages(t).objectMissing,
+      'number.base': buildValidationMessages(t).objectMissing,
+      'number.precision': buildValidationMessages(t).dateFormat,
+      'number.integer': buildValidationMessages(t).dateFormat,
+      'number.unsafe': buildValidationMessages(t).dateFormat,
+      'number.min': buildValidationMessages(t).dateFormat,
+      'number.max': buildValidationMessages(t).dateFormat
+    } as LanguageMessages
     return {
-      [this.name]: convertToLanguageMessages({
-        'any.required': buildValidationMessages(t).objectMissing,
-        'number.base': buildValidationMessages(t).objectMissing,
-        'number.precision': buildValidationMessages(t).dateFormat,
-        'number.integer': buildValidationMessages(t).dateFormat,
-        'number.unsafe': buildValidationMessages(t).dateFormat,
-        'number.min': buildValidationMessages(t).dateFormat,
-        'number.max': buildValidationMessages(t).dateFormat
-      })
+      [`${this.name}__month`]: messages,
+      [`${this.name}__year`]: messages
     }
   }
 

@@ -1,14 +1,16 @@
 import { type OsGridRefFieldComponent } from '@defra/forms-model'
 
+import { EN_GB } from '~/src/server/constants.js'
 import { LocationFieldBase } from '~/src/server/plugins/engine/components/LocationFieldBase.js'
 import { createLowerFirstExpression } from '~/src/server/plugins/engine/components/helpers/index.js'
 import { t } from '~/src/server/plugins/engine/i18n/index.js'
+import { type Translator } from '~/src/server/plugins/engine/types/index.js'
 import { type ErrorMessageTemplateList } from '~/src/server/plugins/engine/types.js'
 
 export class OsGridRefField extends LocationFieldBase {
   declare options: OsGridRefFieldComponent['options']
 
-  protected getValidationConfig() {
+  protected getValidationConfig(translator: Translator | undefined) {
     // Regex for OS national grid references (NGR)
     // Validates specific valid OS grid letter combinations with:
     // - 2 letters & 6 digits in 2 blocks of 3 e.g. ST 678 678
@@ -21,10 +23,14 @@ export class OsGridRefField extends LocationFieldBase {
     return {
       pattern,
       patternErrorMessage: createLowerFirstExpression(
-        t('components.osGridRefField.pattern', 'en-GB')
+        translator
+          ? translator.t('components.osGridRefField.pattern')
+          : t('components.osGridRefField.pattern', EN_GB)
       ),
       requiredMessage: createLowerFirstExpression(
-        t('components.osGridRefField.required', 'en-GB')
+        translator
+          ? translator.t('components.osGridRefField.required')
+          : t('components.osGridRefField.required', EN_GB)
       )
     }
   }

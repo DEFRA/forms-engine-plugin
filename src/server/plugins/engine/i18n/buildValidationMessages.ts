@@ -56,13 +56,16 @@ export function buildValidationMessages(t: (key: string) => string) {
     dateMin: t('components.dateField.validation.dateMin'),
     dateMax: t('components.dateField.validation.dateMax'),
 
-    unicode: 'validation.unicode',
-    arrayMin: 'validation.array.min',
-    arrayMax: 'validation.array.max',
-    arrayLength: 'validation.array.length',
-    featuresMin: 'validation.features.min',
-    featuresMax: 'validation.features.max',
-    featuresLength: 'validation.features.length'
+    unicode: t('validation.unicode'),
+    arrayMin: t('validation.arrayMin'),
+    arrayMax: t('validation.arrayMax'),
+    arrayLength: t('validation.arrayLength'),
+    featuresMin: t('validation.featuresMin'),
+    featuresMax: t('validation.featuresMax'),
+    featuresLength: t('validation.featuresLength'),
+    filesMin: t('validation.filesMin'),
+    filesMax: t('validation.filesMax'),
+    filesLength: t('validation.filesLength')
   }
 }
 

@@ -649,7 +649,7 @@ describe('FileUploadField', () => {
               value: getFormData([]),
               errors: [
                 expect.objectContaining({
-                  text: 'Example file upload field must contain at least 1 items'
+                  text: 'You must upload 1 files or more'
                 })
               ]
             }
@@ -660,7 +660,7 @@ describe('FileUploadField', () => {
               value: getFormData(validState),
               errors: [
                 expect.objectContaining({
-                  text: 'Example file upload field must contain less than or equal to 2 items'
+                  text: 'You can only upload 2 files or less'
                 })
               ]
             }
@@ -683,7 +683,7 @@ describe('FileUploadField', () => {
               value: getFormData([]),
               errors: [
                 expect.objectContaining({
-                  text: 'Example file upload field must contain at least 1 items'
+                  text: 'You must upload 1 files or more'
                 })
               ]
             }
@@ -708,7 +708,7 @@ describe('FileUploadField', () => {
               value: getFormData([]),
               errors: [
                 expect.objectContaining({
-                  text: 'Example file upload field must contain 4 items'
+                  text: 'You must upload exactly 4 files'
                 })
               ]
             }
@@ -719,7 +719,7 @@ describe('FileUploadField', () => {
               value: getFormData(validState),
               errors: [
                 expect.objectContaining({
-                  text: 'Example file upload field must contain 4 items'
+                  text: 'You must upload exactly 4 files'
                 })
               ]
             }
@@ -730,7 +730,7 @@ describe('FileUploadField', () => {
               value: getFormData([...validState, ...validState]),
               errors: [
                 expect.objectContaining({
-                  text: 'Example file upload field must contain 4 items'
+                  text: 'You must upload exactly 4 files'
                 })
               ]
             }
@@ -790,7 +790,7 @@ describe('FileUploadField', () => {
               value: getFormData([]),
               errors: [
                 expect.objectContaining({
-                  text: 'Example file upload field must contain at least 1 items'
+                  text: 'You must upload 1 files or more'
                 })
               ]
             }
@@ -801,7 +801,7 @@ describe('FileUploadField', () => {
               value: getFormData(validState),
               errors: [
                 expect.objectContaining({
-                  text: 'Example file upload field must contain less than or equal to 2 items'
+                  text: 'You can only upload 2 files or less'
                 })
               ]
             }
@@ -834,7 +834,7 @@ describe('FileUploadField', () => {
               value: getFormData([]),
               errors: [
                 expect.objectContaining({
-                  text: 'Example file upload field must contain 4 items'
+                  text: 'You must upload exactly 4 files'
                 })
               ]
             }
@@ -845,7 +845,7 @@ describe('FileUploadField', () => {
               value: getFormData(validState),
               errors: [
                 expect.objectContaining({
-                  text: 'Example file upload field must contain 4 items'
+                  text: 'You must upload exactly 4 files'
                 })
               ]
             }
@@ -856,7 +856,7 @@ describe('FileUploadField', () => {
               value: getFormData([...validState, ...validState]),
               errors: [
                 expect.objectContaining({
-                  text: 'Example file upload field must contain 4 items'
+                  text: 'You must upload exactly 4 files'
                 })
               ]
             }

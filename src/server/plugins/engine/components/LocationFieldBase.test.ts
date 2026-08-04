@@ -5,11 +5,12 @@ import { type LanguageMessages } from 'joi'
 import { LocationFieldBase } from '~/src/server/plugins/engine/components/LocationFieldBase.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
+import { type Translator } from '~/src/server/plugins/engine/types/index.js'
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData } from '~/test/helpers/component-helpers.js'
 
 class TestLocationField extends LocationFieldBase {
-  protected getValidationConfig() {
+  protected getValidationConfig(_translator: Translator) {
     return {
       pattern: /^TEST\d{4}$/i,
       patternErrorMessage: 'Enter a valid test code like TEST1234',

@@ -473,8 +473,7 @@ export async function selectViewModel(data, translator, payload, err) {
   const { session, apiKey } = data
   const { details, initial } = session
   const { postcodeQuery, buildingNameQuery } = details
-  const language = translator.language
-  const { t, tComponent, tForm } = translator
+  const { language, t, tComponent, tForm } = translator
 
   const {
     hasAddresses,
@@ -556,6 +555,7 @@ export async function selectViewModel(data, translator, payload, err) {
     addressesFoundText,
     noAddressFoundText,
     buttons: { continueButton, manualLink },
+    t,
     language,
     ...selector
   }

@@ -1,6 +1,11 @@
 import { ComponentType, type DatePartsFieldComponent } from '@defra/forms-model'
 import { add, format, isValid, parse, startOfToday, sub } from 'date-fns'
-import { type Context, type CustomValidator, type ObjectSchema } from 'joi'
+import {
+  type Context,
+  type CustomValidator,
+  type LanguageMessages,
+  type ObjectSchema
+} from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import {
@@ -26,7 +31,6 @@ import {
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import { formatDateForLanguage } from '~/src/server/plugins/payment/helper.js'
-import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 
 export class DatePartsField extends FormComponent {
   declare options: DatePartsFieldComponent['options']
@@ -44,7 +48,7 @@ export class DatePartsField extends FormComponent {
 
     const isRequired = options.required !== false
 
-    const customValidationMessages = convertToLanguageMessages({
+    const customValidationMessages = {
       'any.required': messageTemplate.objectMissing,
       'number.base': messageTemplate.objectMissing,
       'number.precision': messageTemplate.dateFormat,
@@ -52,7 +56,7 @@ export class DatePartsField extends FormComponent {
       'number.unsafe': messageTemplate.dateFormat,
       'number.min': messageTemplate.dateFormat,
       'number.max': messageTemplate.dateFormat
-    })
+    } as LanguageMessages
 
     this.collection = new ComponentCollection(
       [
@@ -160,16 +164,19 @@ export class DatePartsField extends FormComponent {
 
   getValidationMessagesOverride(translator: Translator) {
     const { t } = translator
+    const messages = {
+      'any.required': buildValidationMessages(t).objectMissing,
+      'number.base': buildValidationMessages(t).objectMissing,
+      'number.precision': buildValidationMessages(t).dateFormat,
+      'number.integer': buildValidationMessages(t).dateFormat,
+      'number.unsafe': buildValidationMessages(t).dateFormat,
+      'number.min': buildValidationMessages(t).dateFormat,
+      'number.max': buildValidationMessages(t).dateFormat
+    } as LanguageMessages
     return {
-      [this.name]: convertToLanguageMessages({
-        'any.required': buildValidationMessages(t).objectMissing,
-        'number.base': buildValidationMessages(t).objectMissing,
-        'number.precision': buildValidationMessages(t).dateFormat,
-        'number.integer': buildValidationMessages(t).dateFormat,
-        'number.unsafe': buildValidationMessages(t).dateFormat,
-        'number.min': buildValidationMessages(t).dateFormat,
-        'number.max': buildValidationMessages(t).dateFormat
-      })
+      [`${this.name}__day`]: messages,
+      [`${this.name}__month`]: messages,
+      [`${this.name}__year`]: messages
     }
   }
 

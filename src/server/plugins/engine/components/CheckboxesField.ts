@@ -1,8 +1,9 @@
 import { type CheckboxesFieldComponent, type Item } from '@defra/forms-model'
-import joi, { type ArraySchema } from 'joi'
+import joi, { type ArraySchema, type LanguageMessages } from 'joi'
 
 import { isFormValue } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { SelectionControlField } from '~/src/server/plugins/engine/components/SelectionControlField.js'
+import { buildValidationMessages } from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
@@ -131,6 +132,17 @@ export class CheckboxesField extends SelectionControlField {
     const values = this.getFormValueFromState(state)
 
     return this.getContextValueFromFormValue(values)
+  }
+
+  getValidationMessagesOverride(translator: Translator) {
+    const { t } = translator
+    return {
+      [this.name]: {
+        'array.min': buildValidationMessages(t).arrayMin,
+        'array.max': buildValidationMessages(t).arrayMax,
+        'array.length': buildValidationMessages(t).arrayLength
+      } as LanguageMessages
+    }
   }
 
   /**
