@@ -301,6 +301,7 @@ export function checkEmailAddressForLiveFormSubmission(
 
 /**
  * Parses the errors from {@link Schema.validate} so they can be rendered by govuk-frontend templates
+ * @param language - the target language for translations
  * @param [details] - provided by {@link Schema.validate}
  */
 export function getErrors(

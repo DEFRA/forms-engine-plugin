@@ -214,7 +214,7 @@ export class UkAddressField extends FormComponent {
 
         /**
          * For screen readers, only hide legend visually. This can be overridden
-         * by single component {@link QuestionPageController | `showTitle` handling}
+         * by single component (see QuestionPageController and showTitle handling)
          */
         classes: options.hideTitle
           ? 'govuk-visually-hidden'
