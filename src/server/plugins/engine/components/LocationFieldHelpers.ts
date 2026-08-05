@@ -1,6 +1,6 @@
 import { type Context, type CustomValidator } from 'joi'
 
-import { type EastingNorthingField } from '~/src/server/plugins/engine/components/EastingNorthingField.js'
+import { EastingNorthingField } from '~/src/server/plugins/engine/components/EastingNorthingField.js'
 import { isFormValue } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type GeospatialField } from '~/src/server/plugins/engine/components/GeospatialField.js'
 import { type LatLongField } from '~/src/server/plugins/engine/components/LatLongField.js'
@@ -190,7 +190,11 @@ export function getLocationFieldViewModel(
     ...viewModel,
     fieldset,
     items,
-    mapLayers: getMapLayers(component)
+    mapLayers: getMapLayers(component),
+    country:
+      component instanceof EastingNorthingField
+        ? component.options.countries?.at(0)
+        : undefined
   }
 
   if (component.options.instructionText) {
