@@ -144,7 +144,11 @@
     "formUnavailable": {
       "title": "Sorry, this form is unavailable",
       "subHeading": "'[[formTitle]]' is no longer available.",
-      "contactDetailsHeading": "Contact details for [[organisationName]]"
+      "contactDetailsHeading": "Contact details for [[organisationName]]",
+      "telephone": "Telephone",
+      "callCharges": "Find out about call charges",
+      "email": "Email",
+      "onlineContactForm": "Online contact form"
     }
   },
 

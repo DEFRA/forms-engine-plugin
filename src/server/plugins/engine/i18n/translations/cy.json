@@ -160,7 +160,11 @@
     "formUnavailable": {
       "title": "Mae'n ddrwg gennyf, nid yw'r ffurflen hon ar gael",
       "subHeading": "Nid yw '[[formTitle]]' ar gael mwyach.",
-      "contactDetailsHeading": "Manylion cyswllt ar gyfer [[organisationName]]"
+      "contactDetailsHeading": "Manylion cyswllt ar gyfer [[organisationName]]",
+      "telephone": "Ffôn",
+      "callCharges": "Dysgwch am gostau galwadau",
+      "email": "E-bost",
+      "onlineContactForm": "Ffurflen gyswllt ar-lein"
     }
   },
 

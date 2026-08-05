@@ -286,6 +286,7 @@ export class FileUploadPageController extends QuestionPageController {
       uploadingLabel: t('components.fileUploadField.uploading')
     }
 
+    console.log('formComponent.model', formComponent.model)
     const index = components.indexOf(formComponent)
 
     const proxyUrl = getProxyUrlForLocalDevelopment(upload?.uploadUrl)
