@@ -244,7 +244,8 @@
       "eastingDigits": "Rhaid i {{#label}} ar gyfer [[fieldLabel]] fod rhwng 1 a 6 digid",
       "northingDigits": "Rhaid i {{#label}} ar gyfer [[fieldLabel]] fod rhwng 1 a 7 digid",
       "eastingRange": "Rhaid i {{#label}} ar gyfer [[fieldLabel]] fod rhwng [[min]] a [[max]]",
-      "northingRange": "Rhaid i {{#label}} ar gyfer [[fieldLabel]] fod rhwng [[min]] a [[max]]"
+      "northingRange": "Rhaid i {{#label}} ar gyfer [[fieldLabel]] fod rhwng [[min]] a [[max]]",
+      "wrongCountry": "Rhaid i leoliad fod y tu mewn i [[country]]"
     },
 
     "nationalGridField": {

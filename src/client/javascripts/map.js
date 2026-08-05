@@ -368,6 +368,48 @@ export function getMapLayers(layers) {
 }
 
 /**
+ * Adds the country layers to a datasets array
+ * @param {string} apiPath
+ * @param {string} [country]
+ */
+export function getMapCountryLayers(apiPath, country) {
+  /** @type {any[]} */
+  const datasets = []
+
+  if (country) {
+    // Add the country bounds to the datasets array to show the valid area on the map
+    // and provide feedback to the user when they add features outside of the bounds.
+    datasets.push(
+      {
+        id: 'invalid-area',
+        label: 'Invalid areas',
+        geojson: `${apiPath}/maps/countries.geojson?omit=${country}`,
+        showInKey: false,
+        showInMenu: false,
+        style: {
+          stroke: 'gray',
+          strokeWidth: 1,
+          fill: 'rgba(211,211,211,0.8)'
+        }
+      },
+      {
+        id: 'valid-area',
+        label: 'Valid areas',
+        geojson: `${apiPath}/maps/countries.geojson?only=${country}`,
+        showInKey: false,
+        showInMenu: false,
+        style: {
+          stroke: 'rgba(0,112,60,1)',
+          strokeWidth: 1
+        }
+      }
+    )
+  }
+
+  return datasets
+}
+
+/**
  * @typedef {object} InteractiveMap - an instance of a InteractiveMap
  * @property {Function} on - register callback listeners to map events
  * @property {Function} addPanel - adds a new panel to the map

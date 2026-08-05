@@ -224,7 +224,8 @@
       "eastingDigits": "{{#label}} for [[fieldLabel]] must be between 1 and 6 digits",
       "northingDigits": "{{#label}} for [[fieldLabel]] must be between 1 and 7 digits",
       "eastingRange": "{{#label}} for [[fieldLabel]] must be between [[min]] and [[max]]",
-      "northingRange": "{{#label}} for [[fieldLabel]] must be between [[min]] and [[max]]"
+      "northingRange": "{{#label}} for [[fieldLabel]] must be between [[min]] and [[max]]",
+      "wrongCountry": "Location must be within [[country]]"
     },
 
     "nationalGridField": {
