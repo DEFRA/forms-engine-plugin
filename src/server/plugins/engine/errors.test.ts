@@ -3,6 +3,7 @@ import { type FormDefinition } from '@defra/forms-model'
 import {
   ConditionBuildError,
   InvalidFormDefinitionError,
+  SchemaValidationError,
   UnknownComponentTypeError,
   UnknownPageControllerError
 } from '~/src/server/plugins/engine/errors.js'
@@ -163,5 +164,37 @@ describe('typed errors thrown from real failure sites', () => {
     expect((thrown as UnknownPageControllerError).controllerName).toBe(
       'NoSuchPageController'
     )
+  })
+})
+
+describe('SchemaValidationError', () => {
+  it('is thrown by FormModel for a schema-invalid definition, wrapping the raw Joi error', () => {
+    const schemaInvalidDef = structuredClone(brokenConditionDef)
+    schemaInvalidDef.conditions = []
+    // duplicate page path violates the schema's uniqueness rule
+    schemaInvalidDef.pages.push(structuredClone(schemaInvalidDef.pages[0]))
+
+    const build = () => new FormModel(schemaInvalidDef, { basePath: 'test' })
+
+    let thrown: unknown
+    try {
+      build()
+    } catch (err) {
+      thrown = err
+    }
+
+    expect(thrown).toBeInstanceOf(SchemaValidationError)
+    expect(thrown).toBeInstanceOf(InvalidFormDefinitionError)
+
+    const schemaError = thrown as SchemaValidationError
+    expect(schemaError.name).toBe('SchemaValidationError')
+    expect(schemaError.message).toContain('Invalid form definition:')
+
+    const cause = schemaError.cause as {
+      isJoi?: boolean
+      details?: unknown[]
+    }
+    expect(cause.isJoi).toBe(true)
+    expect(Array.isArray(cause.details)).toBe(true)
   })
 })

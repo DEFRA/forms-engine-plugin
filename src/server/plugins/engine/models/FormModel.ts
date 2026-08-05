@@ -39,7 +39,10 @@ import {
   type Component
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { todayAsDateOnly } from '~/src/server/plugins/engine/date-helper.js'
-import { ConditionBuildError } from '~/src/server/plugins/engine/errors.js'
+import {
+  ConditionBuildError,
+  SchemaValidationError
+} from '~/src/server/plugins/engine/errors.js'
 import {
   findPage,
   getError,
@@ -125,7 +128,7 @@ export class FormModel {
     const result = schema.validate(def, { abortEarly: false })
 
     if (result.error) {
-      throw result.error
+      throw new SchemaValidationError(result.error)
     }
 
     // Make a clone of the shallow copy returned
