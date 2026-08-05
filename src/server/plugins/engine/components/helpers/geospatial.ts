@@ -5,8 +5,13 @@ import {
 } from '@defra/forms-model'
 import Bourne from '@hapi/bourne'
 import { booleanWithin } from '@turf/boolean-within'
+import { point } from '@turf/helpers'
+// @ts-expect-error - no types
+import OsGridRef from 'geodesy/osgridref.js'
 import JoiBase, { type CustomValidator } from 'joi'
 
+import { type EastingNorthingField } from '~/src/server/plugins/engine/components/EastingNorthingField.js'
+import { type EastingNorthingState } from '~/src/server/plugins/engine/components/types.js'
 import {
   type Coordinates,
   type Feature,
@@ -170,4 +175,52 @@ export function getGeospatialSchema(
       .unique('id'),
     def
   )
+}
+
+export function getEastingNorthingCountryValidator(
+  field: EastingNorthingField,
+  country: GeospatialFieldOptionsCountry
+) {
+  const validateCountryBounds: CustomValidator = (value, helpers) => {
+    const countryFeature = countries.features.find(
+      (feature) => feature.id === country
+    )
+
+    if (!countryFeature) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return value
+    }
+
+    const eastingNorthing = field.getFormValueFromState(
+      value as EastingNorthingState
+    )
+
+    if (!eastingNorthing) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return value
+    }
+
+    const gridRef = new OsGridRef(
+      eastingNorthing.easting,
+      eastingNorthing.northing
+    )
+    const latLong = gridRef.toLatLon()
+    const coord = point([latLong.longitude, latLong.latitude])
+    const within = booleanWithin(coord, countryFeature)
+
+    if (!within) {
+      return helpers.error(
+        'any.custom',
+        {
+          country: countriesDesc[country as GeospatialFieldOptionsCountryEnum]
+        },
+        { path: [field.name] }
+      )
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return value
+  }
+
+  return validateCountryBounds
 }

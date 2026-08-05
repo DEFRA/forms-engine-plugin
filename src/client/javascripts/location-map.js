@@ -7,6 +7,7 @@ import {
   createMap,
   defaultConfig,
   eastingNorthingToLatLong,
+  getMapCountryLayers,
   getMapLayers,
   latLongToEastingNorthing,
   latLongToOsGridRef,
@@ -423,8 +424,9 @@ export function processLocation(config, location, index) {
 
   locationInputs.after(mapContainer)
 
-  const datasets = []
+  const country = location.dataset.country
   const mapLayers = getMapLayers(location.dataset.maplayers)
+  const datasets = getMapCountryLayers(config.apiPath, country)
 
   if (mapLayers.includes('sssi')) {
     datasets.push(...sssiDataset)

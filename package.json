@@ -112,6 +112,7 @@
     "@turf/bbox": "^7.3.4",
     "@turf/boolean-within": "^7.3.5",
     "@turf/centroid": "^7.3.4",
+    "@turf/helpers": "^7.3.5",
     "@types/humanize-duration": "^3.27.4",
     "accessible-autocomplete": "^3.0.1",
     "atob": "^2.1.2",
