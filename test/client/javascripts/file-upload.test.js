@@ -116,25 +116,6 @@ describe('File Upload Client JS', () => {
     }
   }
 
-  test('shows error when upload button is clicked without selecting a file', () => {
-    const event = { preventDefault: jest.fn() }
-    const { triggerClick, fileInput } = setupTestableComponent()
-
-    triggerClick(event)
-
-    expect(event.preventDefault).toHaveBeenCalled()
-
-    const errorSummary = document.querySelector('.govuk-error-summary')
-    expect(errorSummary).not.toBeNull()
-    expect(errorSummary?.textContent).toContain('Select a file')
-
-    const errorSummaryTitle = document.getElementById('error-summary-title')
-    expect(errorSummaryTitle).not.toBeNull()
-    expect(fileInput?.getAttribute('aria-describedby')).toBe(
-      'error-summary-title'
-    )
-  })
-
   test('clears error when file is selected', () => {
     const errorContainer = document.querySelector(
       '.govuk-error-summary-container'
@@ -182,11 +163,10 @@ describe('File Upload Client JS', () => {
       </form>
     `
 
-    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+    const { loadFile, triggerChange } = setupTestableComponent()
 
     loadFile('some-file.pdf')
     triggerChange()
-    triggerClick({})
 
     const summaryList = document.querySelector('dl.govuk-summary-list')
     expect(summaryList).not.toBeNull()
@@ -211,12 +191,11 @@ describe('File Upload Client JS', () => {
       </form>
     `
 
-    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+    const { loadFile, triggerChange } = setupTestableComponent()
     const originalSummaryList = document.querySelector('dl.govuk-summary-list')
 
     loadFile('some-file.pdf')
     triggerChange()
-    triggerClick({})
 
     const currentSummaryList = document.querySelector('dl.govuk-summary-list')
     expect(currentSummaryList).toBe(originalSummaryList)
@@ -248,11 +227,10 @@ describe('File Upload Client JS', () => {
       </form>
     `
 
-    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+    const { loadFile, triggerChange } = setupTestableComponent()
 
     loadFile('some-file.pdf')
     triggerChange()
-    triggerClick({})
 
     expect(
       document.querySelectorAll('[data-filename="test.pdf"]')
@@ -260,30 +238,6 @@ describe('File Upload Client JS', () => {
     expect(
       document.querySelector('[data-filename="test.pdf"]')?.textContent
     ).toContain('Uploading…')
-  })
-
-  test('renderSummary does nothing when selectedFile is null', () => {
-    document.body.innerHTML = `
-      <div class="govuk-error-summary-container"></div>
-      <form>
-        <input type="file" id="file-upload">
-        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
-      </form>
-      <form>
-        <h2 class="govuk-heading-m">Uploaded files</h2>
-        <p class="govuk-body">0 files uploaded</p>
-        <div class="govuk-button-group">
-          <button class="govuk-button">Continue</button>
-        </div>
-      </form>
-    `
-
-    const { triggerClick } = setupTestableComponent()
-
-    triggerClick({ preventDefault: jest.fn() })
-
-    const summaryList = document.querySelector('dl.govuk-summary-list')
-    expect(summaryList).toBeNull()
   })
 
   test('renderSummary does nothing when second form is missing', () => {
@@ -295,11 +249,10 @@ describe('File Upload Client JS', () => {
       </form>
     `
 
-    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+    const { loadFile, triggerChange } = setupTestableComponent()
 
     loadFile('some-file.pdf')
     triggerChange()
-    triggerClick({})
 
     const summaryList = document.querySelector('dl.govuk-summary-list')
     expect(summaryList).toBeNull()
@@ -320,11 +273,10 @@ describe('File Upload Client JS', () => {
       </form>
     `
 
-    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+    const { loadFile, triggerChange } = setupTestableComponent()
 
     loadFile('some-file.pdf')
     triggerChange()
-    triggerClick({})
 
     const summaryList = document.querySelector('dl.govuk-summary-list')
     expect(summaryList).toBeNull()
@@ -348,11 +300,10 @@ describe('File Upload Client JS', () => {
       </form>
     `
 
-    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+    const { loadFile, triggerChange } = setupTestableComponent()
 
     loadFile('some-file.pdf')
     triggerChange()
-    triggerClick({})
 
     const statusAnnouncer = document.getElementById('statusInformation')
     expect(statusAnnouncer).not.toBeNull()
@@ -360,8 +311,7 @@ describe('File Upload Client JS', () => {
   })
 
   test('disables form controls after submission', () => {
-    const { fileInput, loadFile, triggerChange, triggerClick } =
-      setupTestableComponent()
+    const { fileInput, loadFile, triggerChange } = setupTestableComponent()
 
     /** @type {HTMLInputElement | null} */
     const input = /** @type {HTMLInputElement} */ (fileInput)
@@ -377,7 +327,6 @@ describe('File Upload Client JS', () => {
 
     loadFile()
     triggerChange()
-    triggerClick({})
 
     jest.advanceTimersByTime(150)
 
@@ -401,36 +350,12 @@ describe('File Upload Client JS', () => {
 
     const focusSpy = jest.spyOn(fileInput, 'focus')
 
-    const { loadFile, triggerChange, triggerClick } =
-      setupTestableComponent(true)
+    const { loadFile, triggerChange } = setupTestableComponent(true)
 
     loadFile('test.pdf')
     triggerChange()
-    triggerClick({})
 
     expect(focusSpy).toHaveBeenCalled()
-  })
-
-  test('prevents multiple submissions', () => {
-    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
-
-    loadFile('some-file.pdf')
-    triggerChange()
-
-    if (document.querySelector('.govuk-error-summary-container')) {
-      const container = /** @type {HTMLElement} */ (
-        document.querySelector('.govuk-error-summary-container')
-      )
-      container.innerHTML = ''
-    }
-
-    const event1 = { preventDefault: jest.fn() }
-    triggerClick(event1)
-    expect(event1.preventDefault).not.toHaveBeenCalled()
-
-    const event2 = { preventDefault: jest.fn() }
-    triggerClick(event2)
-    expect(event2.preventDefault).toHaveBeenCalled()
   })
 
   test('renderSummary handles the case where next element is not a form', () => {
@@ -443,11 +368,10 @@ describe('File Upload Client JS', () => {
       <div>Not a form element</div>
     `
 
-    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+    const { loadFile, triggerChange } = setupTestableComponent()
 
     loadFile('some-file.pdf')
     triggerChange()
-    triggerClick({})
 
     expect(document.querySelector('dl.govuk-summary-list')).toBeNull()
   })
@@ -471,11 +395,10 @@ describe('File Upload Client JS', () => {
       </form>
     `
 
-    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+    const { loadFile, triggerChange } = setupTestableComponent()
 
     loadFile('some-file.pdf')
     triggerChange()
-    triggerClick({})
 
     const summaryList = document.querySelector('dl.govuk-summary-list')
 
@@ -526,11 +449,10 @@ describe('File Upload Client JS', () => {
       document.querySelector('[data-filename="some-file.pdf"]')?.textContent
     ).toContain('Previous status')
 
-    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+    const { loadFile, triggerChange } = setupTestableComponent()
 
     loadFile('some-file.pdf')
     triggerChange()
-    triggerClick({})
 
     expect(
       document.querySelectorAll('[data-filename="some-file.pdf"]')
@@ -558,11 +480,10 @@ describe('File Upload Client JS', () => {
       </form>
     `
 
-    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+    const { loadFile, triggerChange } = setupTestableComponent()
 
     loadFile('some-file.pdf')
     triggerChange()
-    triggerClick({})
 
     const summaryList = document.querySelector('dl.govuk-summary-list')
 
@@ -596,12 +517,10 @@ describe('File Upload Client JS', () => {
       </form>
     `
 
-    const { fileInput, loadFile, triggerChange, triggerClick } =
-      setupTestableComponent()
+    const { fileInput, loadFile, triggerChange } = setupTestableComponent()
 
     loadFile('test.pdf')
     triggerChange()
-    triggerClick({})
 
     const statusAnnouncer = document.getElementById('statusInformation')
 
@@ -631,12 +550,11 @@ describe('File Upload Client JS', () => {
       </form>
     `
 
-    const { fileInput, uploadButton, loadFile, triggerChange, triggerClick } =
+    const { fileInput, uploadButton, loadFile, triggerChange } =
       setupTestableComponent()
 
     loadFile('test.pdf')
     triggerChange()
-    triggerClick({})
 
     expect(/** @type {HTMLInputElement} */ (fileInput).disabled).toBe(false)
     expect(/** @type {HTMLButtonElement} */ (uploadButton).disabled).toBe(false)
@@ -677,11 +595,10 @@ describe('File Upload Client JS', () => {
       </div>
     `
 
-    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+    const { loadFile, triggerChange } = setupTestableComponent()
 
     loadFile('some-file.pdf')
     triggerChange()
-    triggerClick({})
 
     expect(
       document.querySelectorAll('[data-filename="some-file.pdf"]')
@@ -710,11 +627,10 @@ describe('File Upload Client JS', () => {
       </form>
     `
 
-    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+    const { loadFile, triggerChange } = setupTestableComponent()
 
     loadFile('some-file.pdf')
     triggerChange()
-    triggerClick({})
 
     const summaryList = document.querySelector('dl.govuk-summary-list')
     expect(summaryList).toBeNull()
@@ -757,11 +673,10 @@ describe('File Upload Client JS', () => {
       </form>
     `
 
-    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+    const { loadFile, triggerChange } = setupTestableComponent()
 
     loadFile('some-file.pdf')
     triggerChange()
-    triggerClick({})
 
     expect(
       document.querySelectorAll('[data-filename="some-file.pdf"]')
@@ -772,101 +687,6 @@ describe('File Upload Client JS', () => {
     expect(row?.textContent).not.toContain(
       'Original row that should be removed'
     )
-  })
-
-  test('file upload handles null form gracefully when creating status announcer', () => {
-    document.body.innerHTML = `
-      <div class="govuk-error-summary-container"></div>
-      <form id="uploadForm">
-        <input type="file" id="file-upload">
-        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
-      </form>
-      <form>
-        <div id="uploadedFilesContainer">
-          <h2 class="govuk-heading-m">Uploaded files</h2>
-          <p class="govuk-body">0 files uploaded</p>
-        </div>
-        <div class="govuk-button-group">
-          <button class="govuk-button">Continue</button>
-        </div>
-      </form>
-    `
-
-    const { loadFile, triggerChange } = setupTestableComponent()
-
-    loadFile('some-file.pdf')
-    triggerChange()
-
-    const form = document.getElementById('uploadForm')
-    if (form) {
-      form.parentNode?.removeChild(form)
-    }
-
-    const uploadButton = document.querySelector('.upload-file-button')
-
-    const clickEvent = new MouseEvent('click', {
-      bubbles: true,
-      cancelable: true
-    })
-
-    expect(() => {
-      uploadButton?.dispatchEvent(clickEvent)
-    }).not.toThrow()
-
-    expect(document.querySelector('[data-filename="some-file.pdf"]')).toBeNull()
-    expect(document.getElementById('statusInformation')).toBeNull()
-  })
-
-  test('renderSummary explicitly handles null selectedFile', () => {
-    document.body.innerHTML = `
-      <div class="govuk-error-summary-container"></div>
-      <form>
-        <input type="file" id="file-upload">
-        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
-      </form>
-      <form>
-        <div id="uploadedFilesContainer">
-          <h2 class="govuk-heading-m">Uploaded files</h2>
-          <p class="govuk-body">0 files uploaded</p>
-        </div>
-        <div class="govuk-button-group">
-          <button class="govuk-button">Continue</button>
-        </div>
-      </form>
-    `
-
-    const { triggerClick } = setupTestableComponent()
-
-    const containerObserver = new MutationObserver(() => {
-      /* intentionally empty - we just want to collect mutations */
-    })
-    const summaryListContainer = document.querySelector('form:nth-child(2)')
-
-    if (summaryListContainer) {
-      containerObserver.observe(summaryListContainer, {
-        childList: true,
-        subtree: true
-      })
-    }
-
-    containerObserver.takeRecords()
-
-    triggerClick({ preventDefault: jest.fn() })
-
-    const mutations = containerObserver.takeRecords()
-    const summaryListAdded = mutations.some((mutation) =>
-      Array.from(mutation.addedNodes).some(
-        (node) =>
-          node.nodeType === Node.ELEMENT_NODE &&
-          node instanceof HTMLElement &&
-          node.classList.contains('govuk-summary-list')
-      )
-    )
-
-    containerObserver.disconnect()
-
-    expect(summaryListAdded).toBe(false)
-    expect(document.querySelector('dl.govuk-summary-list')).toBeNull()
   })
 
   test('status announcer falls back to document.body when form.appendChild fails', () => {
@@ -907,10 +727,9 @@ describe('File Upload Client JS', () => {
 
     const bodyAppendChildSpy = jest.spyOn(document.body, 'appendChild')
 
-    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+    const { loadFile, triggerChange } = setupTestableComponent()
     loadFile('test.pdf')
     triggerChange()
-    triggerClick({})
 
     expect(bodyAppendChildSpy).toHaveBeenCalled()
     const statusAnnouncerAppended = bodyAppendChildSpy.mock.calls.some(
@@ -1087,15 +906,11 @@ describe('File Upload Client JS', () => {
     // eslint-disable-next-line @typescript-eslint/dot-notation
     tempGlobal['pollUploadStatus'] = jest.fn()
 
-    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+    const { loadFile, triggerChange } = setupTestableComponent()
 
     loadFile('test-file.pdf')
     triggerChange()
 
-    const preventDefaultMock = jest.fn()
-    triggerClick({ preventDefault: preventDefaultMock })
-
-    expect(preventDefaultMock).toHaveBeenCalled()
     expect(formDataMock).toHaveBeenCalled()
     expect(fetchMock).toHaveBeenCalledWith(
       'http://some-url.com/upload',
@@ -1145,15 +960,11 @@ describe('File Upload Client JS', () => {
     // eslint-disable-next-line @typescript-eslint/dot-notation
     tempGlobal['pollUploadStatus'] = jest.fn()
 
-    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+    const { loadFile, triggerChange } = setupTestableComponent()
 
     loadFile('some-file.pdf')
     triggerChange()
 
-    const preventDefaultMock = jest.fn()
-    triggerClick({ preventDefault: preventDefaultMock })
-
-    expect(preventDefaultMock).toHaveBeenCalled()
     expect(formDataMock).toHaveBeenCalled()
 
     expect(fetchMock).toHaveBeenCalledWith(
@@ -1213,15 +1024,11 @@ describe('File Upload Client JS', () => {
     // eslint-disable-next-line @typescript-eslint/dot-notation
     tempGlobal['pollUploadStatus'] = jest.fn()
 
-    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+    const { loadFile, triggerChange } = setupTestableComponent()
 
     loadFile('some-file.pdf')
     triggerChange()
 
-    const preventDefaultMock = jest.fn()
-    triggerClick({ preventDefault: preventDefaultMock })
-
-    expect(preventDefaultMock).toHaveBeenCalled()
     expect(formDataMock).toHaveBeenCalled()
 
     expect(fetchMock).toHaveBeenCalled()

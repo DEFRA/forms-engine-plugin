@@ -424,6 +424,7 @@ function initUpload() {
 
     if (fileInput.files && fileInput.files.length > 0) {
       selectedFiles = Array.from(fileInput.files)
+      uploadButton.click()
     }
   })
 
