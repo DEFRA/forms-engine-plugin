@@ -15,6 +15,7 @@ import {
   getLocationFieldViewModel
 } from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
+import { getEastingNorthingCountryValidator } from '~/src/server/plugins/engine/components/helpers/geospatial.js'
 import {
   createLowerFirstExpression,
   getTranslatedLabel
@@ -112,6 +113,18 @@ export class EastingNorthingField extends FormComponent {
     )
 
     this.options = options
+
+    const country = options.countries?.at(0)
+
+    if (country) {
+      this.collection.formSchema = this.collection.formSchema.custom(
+        getEastingNorthingCountryValidator(this, country)
+      )
+      this.collection.stateSchema = this.collection.stateSchema.custom(
+        getEastingNorthingCountryValidator(this, country)
+      )
+    }
+
     this.formSchema = this.collection.formSchema
     this.stateSchema = this.collection.stateSchema
   }
@@ -162,6 +175,24 @@ export class EastingNorthingField extends FormComponent {
   getViewModel(context: RenderContext) {
     const viewModel = super.getViewModel(context)
     return getLocationFieldViewModel(this, viewModel, context)
+  }
+
+  getErrors(
+    translator: Translator,
+    errors?: FormSubmissionError[]
+  ): FormSubmissionError[] | undefined {
+    const fieldErrors = super.getErrors(translator, errors)
+
+    fieldErrors?.forEach((err) => {
+      if (err.context?.country) {
+        err.text = translator.t(
+          'components.eastingNorthingField.wrongCountry',
+          { country: err.context.country }
+        )
+      }
+    })
+
+    return fieldErrors
   }
 
   getViewErrors(

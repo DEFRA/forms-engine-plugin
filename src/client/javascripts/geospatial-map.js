@@ -10,6 +10,7 @@ import {
   defaultConfig,
   getCentroidGridRef,
   getCoordinateGridRef,
+  getMapCountryLayers,
   getMapLayers
 } from '~/src/client/javascripts/map.js'
 import sssiDataset from '~/src/client/javascripts/sssi-dataset.js'
@@ -172,39 +173,9 @@ export function processGeospatial(config, geospatial, index) {
   const bounds = geojson.features.length ? getBoundingBox(geojson) : undefined
   const drawPlugin = createDrawPlugin()
   const plugins = [drawPlugin]
-  const datasets = []
   const country = geospatial.dataset.country
   const mapLayers = getMapLayers(geospatial.dataset.maplayers)
-
-  if (country) {
-    // Add the country bounds to the datasets array to show the valid area on the map
-    // and provide feedback to the user when they add features outside of the bounds.
-    datasets.push(
-      {
-        id: 'invalid-area',
-        label: 'Invalid areas',
-        geojson: `${config.apiPath}/maps/countries.geojson?omit=${country}`,
-        showInKey: false,
-        showInMenu: false,
-        style: {
-          stroke: 'gray',
-          strokeWidth: 1,
-          fill: 'rgba(211,211,211,0.8)'
-        }
-      },
-      {
-        id: 'valid-area',
-        label: 'Valid areas',
-        geojson: `${config.apiPath}/maps/countries.geojson?only=${country}`,
-        showInKey: false,
-        showInMenu: false,
-        style: {
-          stroke: 'rgba(0,112,60,1)',
-          strokeWidth: 1
-        }
-      }
-    )
-  }
+  const datasets = getMapCountryLayers(config.apiPath, country)
 
   if (mapLayers.includes('sssi')) {
     datasets.push(...sssiDataset)
