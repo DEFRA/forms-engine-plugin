@@ -294,7 +294,6 @@ export class FileUploadPageController extends QuestionPageController {
       noFileChosenText: t('components.fileUploadField.noFileChosen')
     }
 
-    console.log('formComponent.model', formComponent.model)
     const index = components.indexOf(formComponent)
 
     const proxyUrl = getProxyUrlForLocalDevelopment(upload?.uploadUrl)

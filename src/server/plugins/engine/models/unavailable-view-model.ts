@@ -6,19 +6,16 @@ import {
 
 import { createFormTranslator } from '~/src/server/plugins/engine/i18n/createFormTranslator.js'
 import { getAvailableLanguages } from '~/src/server/plugins/engine/i18n/languages.js'
+import { type Translator } from '~/src/server/plugins/engine/types/index.js'
 
 export interface UnavailableViewModel {
   pageTitle: string
   formTitle: string
   organisationName: string
   contact?: FormMetadataContact
-  t: (key: string, options?: Record<string, unknown>) => string
+  context: { translator: Translator }
   language: string
   languages: { code: string; name: string }[]
-}
-
-function getTranslation(t: (key: string, options?: Record<string, unknown>) => string, key: string, fallback: string) {
-
 }
 
 export function unavailableViewModel(
@@ -27,13 +24,13 @@ export function unavailableViewModel(
   language: string
 ): UnavailableViewModel {
   const translator = createFormTranslator(metadata, definition, language)
-  const { t } = translator
+  const { t, tForm } = translator
   return {
     pageTitle: t('pages.formUnavailable.title'),
-    formTitle: t('form.title') ?? metadata.title,
+    formTitle: tForm('title') || metadata.title,
     organisationName: metadata.organisation,
     contact: metadata.contact,
-    t: translator.t,
+    context: { translator },
     language,
     // Always get Welsh and English
     languages: getAvailableLanguages({
