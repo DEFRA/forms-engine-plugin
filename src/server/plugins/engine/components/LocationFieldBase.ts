@@ -125,9 +125,11 @@ export abstract class LocationFieldBase extends FormComponent {
     const viewModel = super.getViewModel(context)
 
     if (this.instructionText) {
+      const { tComponent } = context.translator
       return {
         ...viewModel,
-        instructionText: this.instructionText
+        instructionText:
+          tComponent(this.def, 'instructionText') || this.instructionText
       }
     }
 

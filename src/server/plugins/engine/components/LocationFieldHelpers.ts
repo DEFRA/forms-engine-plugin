@@ -198,9 +198,15 @@ export function getLocationFieldViewModel(
   }
 
   if (component.options.instructionText) {
+    const { t, tComponent } = context.translator
+
     return {
       ...result,
-      instructionText: component.options.instructionText
+      instructionSummary: t('components.locationFieldBase.howToFind'),
+      instructionText:
+        tComponent(component.def, 'instructionText') ||
+        component.options.instructionText,
+      t
     }
   }
 
