@@ -44,6 +44,24 @@ export function resolveLanguage(request) {
 }
 
 /**
- * @import { FormMetadata } from '@defra/forms-model'
+ * Create a comma-separated list with the last seperator being 'or'
+ * @param { string[] | undefined } items
+ * @param {string} [finalSeparator]
+ */
+export function joinWithOr(items, finalSeparator = 'or') {
+  if (!items || items.length === 0) {
+    return ''
+  }
+  if (items.length === 1) {
+    return items[0]
+  }
+  if (items.length === 2) {
+    return `${items[0]} ${finalSeparator} ${items[1]}`
+  }
+
+  return `${items.slice(0, -1).join(', ')} ${finalSeparator} ${items.at(-1)}`
+}
+
+/**
  * @import { AnyFormRequest } from '~/src/server/plugins/engine/types.js'
  */
