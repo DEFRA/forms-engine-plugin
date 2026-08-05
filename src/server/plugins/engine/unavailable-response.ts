@@ -2,6 +2,8 @@ import { type Request, type ResponseToolkit, type Server } from '@hapi/hapi'
 
 import { isOfflineBoom } from '~/src/server/plugins/engine/form-availability.js'
 import { unavailableViewModel } from '~/src/server/plugins/engine/models/unavailable-view-model.js'
+import { type AnyFormRequest } from '~/src/server/plugins/engine/types.js'
+import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 /**
  * Registers a server-wide onPreResponse extension that intercepts the offline
@@ -19,8 +21,10 @@ export function registerUnavailableResponse(server: Server) {
 
     const { metadata } = response.data
 
+    const language = resolveLanguage(request as unknown as AnyFormRequest)
+
     return h
-      .view('unavailable', unavailableViewModel(metadata))
+      .view('unavailable', unavailableViewModel(metadata, language))
       .header('Cache-Control', 'no-store, no-cache, must-revalidate')
       .header('X-Robots-Tag', 'noindex, nofollow')
       .code(200)

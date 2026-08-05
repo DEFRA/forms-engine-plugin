@@ -155,6 +155,12 @@
       "bannerForce": "Rhagolwg o ffurflen [[previewMode]] yw hon. Peidiwch â rhoi gwybodaeth bersonol.",
       "bannerText": "Dyma ragolwg o dudalen ffurflen [[previewMode]] rydych chi'n ei golygu.",
       "previousPages": "Mae'n dibynnu ar atebion o dudalennau cynharach yn y ffurflen. Yn y fersiwn fyw, bydd angen i ddefnyddwyr gwblhau'r cwestiynau hynny yn gyntaf."
+    },
+
+    "formUnavailable": {
+      "title": "Mae'n ddrwg gennyf, nid yw'r ffurflen hon ar gael",
+      "subHeading": "Nid yw '[[formTitle]]' ar gael mwyach.",
+      "contactDetailsHeading": "Manylion cyswllt ar gyfer [[organisationName]]"
     }
   },
 
