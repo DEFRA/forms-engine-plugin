@@ -15,7 +15,7 @@
     {% if formAction %}
       {{ govukButton({
         text: t('pages.fileUpload.upload'),
-        classes: "govuk-button--secondary upload-file-button",
+        classes: "govuk-button--secondary upload-file-button js-hidden",
         preventDoubleClick: true,
         disabled: context.isForceAccess
       }) }}

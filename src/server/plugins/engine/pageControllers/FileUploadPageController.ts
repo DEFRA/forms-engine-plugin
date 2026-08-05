@@ -42,6 +42,7 @@ import {
   type FormRequestPayload,
   type FormResponseToolkit
 } from '~/src/server/routes/types.js'
+import { joinWithOr } from '~/src/server/utils/utils.js'
 
 const MAX_UPLOADS = 25
 const CDP_UPLOAD_TIMEOUT_MS = 60000 // 1 minute
@@ -285,6 +286,13 @@ export class FileUploadPageController extends QuestionPageController {
       summaryList: formComponent.model.upload?.summaryList ?? { rows: [] },
       uploadingLabel: t('components.fileUploadField.uploading')
     }
+    formComponent.model = {
+      ...formComponent.model,
+      javascript: true,
+      chooseFilesButtonText: t('components.fileUploadField.chooseFile'),
+      dropInstructionText: t('components.fileUploadField.dropFile'),
+      noFileChosenText: t('components.fileUploadField.noFileChosen')
+    }
 
     const index = components.indexOf(formComponent)
 
@@ -451,6 +459,9 @@ export class FileUploadPageController extends QuestionPageController {
 
     const allErrors: FormSubmissionError[] = []
 
+    const translator = this.getTranslator(request)
+    const { t } = translator
+
     for (const file of uploadedFiles) {
       if (file.fileStatus === FileStatus.complete) {
         const perFileState: FileState = {
@@ -465,7 +476,14 @@ export class FileUploadPageController extends QuestionPageController {
         // Collect the error for rejected/pending files.
         const { fileUpload } = this
         const name = fileUpload.name
-        const text = file.errorMessage ?? 'Unknown error'
+        const errorParams = this.expandErrorParams(
+          file.errorParams,
+          t('common.or')
+        )
+        const text = t(
+          `pages.fileUpload.${file.errorCode ?? 'FILE_ERROR_UNKNOWN'}`,
+          errorParams
+        )
         allErrors.push({ path: [name], href: `#${name}`, name, text })
       }
     }
@@ -480,6 +498,29 @@ export class FileUploadPageController extends QuestionPageController {
         upload: { [this.path]: { files, upload } }
       })
     }
+  }
+
+  /**
+   * Process the error parameters so any arrays get expanded (joined), ready to be passed into the error message
+   * @param errorParams - received from the file upload (may be a number, a string, or a string array)
+   * @param finalSeparator - 'or' in English, and 'neu' in Welsh
+   */
+  private expandErrorParams(
+    errorParams: Record<string, number | string | string[]> | undefined,
+    finalSeparator: string
+  ) {
+    if (!errorParams) {
+      return {}
+    }
+    const expanded = {} as Record<string, number | string>
+    for (const [key, value] of Object.entries(errorParams)) {
+      if (Array.isArray(value)) {
+        expanded[key] = joinWithOr(value, finalSeparator)
+      } else {
+        expanded[key] = value
+      }
+    }
+    return expanded
   }
 
   /**

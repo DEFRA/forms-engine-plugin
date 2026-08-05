@@ -52,7 +52,9 @@ export const tempFileSchema = fileSchema.append({
     .string()
     .valid(FileStatus.complete, FileStatus.rejected, FileStatus.pending)
     .required(),
-  errorMessage: joi.string().optional()
+  errorMessage: joi.string().optional(),
+  errorCode: joi.string().optional(),
+  errorParams: joi.any().optional()
 })
 
 export const formFileSchema = fileSchema.append({

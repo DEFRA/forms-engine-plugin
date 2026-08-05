@@ -113,7 +113,13 @@
       "removeFileTitle": "Are you sure you want to remove this file?",
       "removeFileBody": "You cannot recover removed files.",
       "removeFileButton": "Remove file",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "FILE_VIRUS": "The selected file contains a virus",
+      "FILE_EMPTY": "The selected file is empty",
+      "FILE_TOO_LARGE": "The selected file must be smaller than [[maxFileSizeFormatted]]",
+      "FILE_INVALID_TYPE": "The selected file must be a [[fileExtensions]]",
+      "FILE_UPLOAD_FAILED": "The selected file could not be uploaded - try again",
+      "FILE_ERROR_UNKNOWN": "Unknown error"
     },
 
     "exit": {
@@ -292,7 +298,10 @@
       "uploadFailed": "There was a problem with your uploaded files. Re-upload them before submitting the form again.",
       "uploadedFilesHeading": "Uploaded files",
       "filesCount_one": "[[count]] file uploaded",
-      "filesCount_other": "[[count]] files uploaded"
+      "filesCount_other": "[[count]] files uploaded",
+      "chooseFile": "Choose file",
+      "dropFile": "or drop file",
+      "noFileChosen": "No file chosen"
     },
 
     "characterCount": {

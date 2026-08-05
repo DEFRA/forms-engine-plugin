@@ -1,7 +1,11 @@
 import { getTraceId } from '@defra/hapi-tracing'
 
 import { config } from '~/src/config/index.js'
-import { applyTraceHeaders, isValidUUID } from '~/src/server/utils/utils.js'
+import {
+  applyTraceHeaders,
+  isValidUUID,
+  joinWithOr
+} from '~/src/server/utils/utils.js'
 
 jest.mock('@defra/hapi-tracing')
 
@@ -65,5 +69,30 @@ describe('Header helper functions', () => {
     { uuid: 'h4f84ef8-b5e1-4544-94aa-1b671d50d8cb', valid: false }
   ])('should validate uuid appropriately %s', ({ uuid, valid }) => {
     expect(isValidUUID(uuid)).toBe(valid)
+  })
+
+  describe('joinWithOr', () => {
+    it('should handle undefined array', () => {
+      expect(joinWithOr(undefined)).toBe('')
+    })
+    it('should handle empty array', () => {
+      expect(joinWithOr([])).toBe('')
+    })
+    it('should handle one item', () => {
+      expect(joinWithOr(['item1'])).toBe('item1')
+    })
+    it('should handle two items', () => {
+      expect(joinWithOr(['item1', 'item2'])).toBe('item1 or item2')
+    })
+    it('should handle three items', () => {
+      expect(joinWithOr(['item1', 'item2', 'item3'])).toBe(
+        'item1, item2 or item3'
+      )
+    })
+    it('should handle a different last separator', () => {
+      expect(joinWithOr(['item1', 'item2', 'item3'], 'and')).toBe(
+        'item1, item2 and item3'
+      )
+    })
   })
 })
