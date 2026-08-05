@@ -19,12 +19,12 @@ export function registerUnavailableResponse(server: Server) {
       return h.continue
     }
 
-    const { metadata } = response.data
+    const { metadata, definition } = response.data
 
     const language = resolveLanguage(request as unknown as AnyFormRequest)
 
     return h
-      .view('unavailable', unavailableViewModel(metadata, language))
+      .view('unavailable', unavailableViewModel(metadata, definition, language))
       .header('Cache-Control', 'no-store, no-cache, must-revalidate')
       .header('X-Robots-Tag', 'noindex, nofollow')
       .code(200)

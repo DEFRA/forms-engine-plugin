@@ -23,8 +23,12 @@ export interface UnavailableViewModel {
 
 export function unavailableViewModel(
   metadata: FormMetadata,
+  definition: FormDefinition | undefined,
   language: string
 ): UnavailableViewModel {
+  const formTranslations = definition
+    ? definition.metadata.translations[language]
+    : {}
   return {
     pageTitle: t('pages.formUnavailable.title', language),
     formTitle: metadata.title,
