@@ -116,6 +116,26 @@ describe('File Upload Client JS', () => {
     }
   }
 
+  // This will be reworked in a later PR - skip for now
+  test.skip('shows error when upload button is clicked without selecting a file', () => {
+    const event = { preventDefault: jest.fn() }
+    const { triggerClick, fileInput } = setupTestableComponent()
+
+    triggerClick(event)
+
+    expect(event.preventDefault).toHaveBeenCalled()
+
+    const errorSummary = document.querySelector('.govuk-error-summary')
+    expect(errorSummary).not.toBeNull()
+    expect(errorSummary?.textContent).toContain('Select a file')
+
+    const errorSummaryTitle = document.getElementById('error-summary-title')
+    expect(errorSummaryTitle).not.toBeNull()
+    expect(fileInput?.getAttribute('aria-describedby')).toBe(
+      'error-summary-title'
+    )
+  })
+
   test('clears error when file is selected', () => {
     const errorContainer = document.querySelector(
       '.govuk-error-summary-container'
@@ -240,6 +260,7 @@ describe('File Upload Client JS', () => {
     ).toContain('Uploading…')
   })
 
+  // This will be reworked in a later PR - skip for now
   test.skip('renderSummary does nothing when selectedFile is null', () => {
     document.body.innerHTML = `
       <div class="govuk-error-summary-container"></div>
@@ -382,6 +403,7 @@ describe('File Upload Client JS', () => {
     expect(focusSpy).toHaveBeenCalled()
   })
 
+  // This will be reworked in a later PR - skip for now
   test.skip('prevents multiple submissions', () => {
     const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
 
@@ -735,6 +757,7 @@ describe('File Upload Client JS', () => {
     )
   })
 
+  // This will be reworked in a later PR - skip for now
   test.skip('file upload handles null form gracefully when creating status announcer', () => {
     document.body.innerHTML = `
       <div class="govuk-error-summary-container"></div>
@@ -778,6 +801,7 @@ describe('File Upload Client JS', () => {
     expect(document.getElementById('statusInformation')).toBeNull()
   })
 
+  // This will be reworked in a later PR - skip for now
   test.skip('renderSummary explicitly handles null selectedFile', () => {
     document.body.innerHTML = `
       <div class="govuk-error-summary-container"></div>
