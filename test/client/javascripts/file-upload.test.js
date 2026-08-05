@@ -116,7 +116,7 @@ describe('File Upload Client JS', () => {
     }
   }
 
-  // This will be reworked in a later PR - skip for now
+  // Reason: This will be reworked in a later PR - skip for now
   test.skip('shows error when upload button is clicked without selecting a file', () => {
     const event = { preventDefault: jest.fn() }
     const { triggerClick, fileInput } = setupTestableComponent()
@@ -260,7 +260,7 @@ describe('File Upload Client JS', () => {
     ).toContain('Uploading…')
   })
 
-  // This will be reworked in a later PR - skip for now
+  // Reason: This will be reworked in a later PR - skip for now
   test.skip('renderSummary does nothing when selectedFile is null', () => {
     document.body.innerHTML = `
       <div class="govuk-error-summary-container"></div>
@@ -403,7 +403,7 @@ describe('File Upload Client JS', () => {
     expect(focusSpy).toHaveBeenCalled()
   })
 
-  // This will be reworked in a later PR - skip for now
+  // Reason: This will be reworked in a later PR - skip for now
   test.skip('prevents multiple submissions', () => {
     const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
 
@@ -757,7 +757,7 @@ describe('File Upload Client JS', () => {
     )
   })
 
-  // This will be reworked in a later PR - skip for now
+  // Reason: This will be reworked in a later PR - skip for now
   test.skip('file upload handles null form gracefully when creating status announcer', () => {
     document.body.innerHTML = `
       <div class="govuk-error-summary-container"></div>
@@ -801,7 +801,7 @@ describe('File Upload Client JS', () => {
     expect(document.getElementById('statusInformation')).toBeNull()
   })
 
-  // This will be reworked in a later PR - skip for now
+  // Reason: This will be reworked in a later PR - skip for now
   test.skip('renderSummary explicitly handles null selectedFile', () => {
     document.body.innerHTML = `
       <div class="govuk-error-summary-container"></div>
