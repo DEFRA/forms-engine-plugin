@@ -39,6 +39,7 @@ import {
   type Component
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { todayAsDateOnly } from '~/src/server/plugins/engine/date-helper.js'
+import { ConditionBuildError } from '~/src/server/plugins/engine/errors.js'
 import {
   findPage,
   getError,
@@ -292,7 +293,13 @@ export class FormModel {
     })
 
     const { name, displayName, value } = condition
-    const expr = this.toConditionExpression(value, parser)
+
+    let expr
+    try {
+      expr = this.toConditionExpression(value, parser)
+    } catch (cause) {
+      throw new ConditionBuildError(displayName, { cause })
+    }
 
     const fn = (evaluationState: FormState) => {
       const ctx = this.toConditionContext(evaluationState, this.conditions)
