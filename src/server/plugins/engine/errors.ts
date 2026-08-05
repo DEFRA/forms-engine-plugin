@@ -1,0 +1,53 @@
+/**
+ * Base class for errors caused by a form definition that passed schema
+ * validation but cannot be used by the engine. Never thrown directly —
+ * throw a subclass. Consumers (e.g. forms-runner error pages) detect the
+ * family with `instanceof InvalidFormDefinitionError`.
+ */
+export class InvalidFormDefinitionError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options)
+    this.name = 'InvalidFormDefinitionError'
+  }
+}
+
+/**
+ * Thrown when a condition in the definition cannot be compiled into an
+ * evaluatable expression (e.g. it references the wrong component or list).
+ */
+export class ConditionBuildError extends InvalidFormDefinitionError {
+  public readonly conditionName: string
+
+  constructor(conditionName: string, options?: ErrorOptions) {
+    super(`Failed to build condition '${conditionName}'`, options)
+    this.name = 'ConditionBuildError'
+    this.conditionName = conditionName
+  }
+}
+
+/**
+ * Thrown when a page names a controller that is neither built in nor
+ * registered by the host application.
+ */
+export class UnknownPageControllerError extends InvalidFormDefinitionError {
+  public readonly controllerName: string
+
+  constructor(controllerName: string) {
+    super(`Page controller ${controllerName} does not exist`)
+    this.name = 'UnknownPageControllerError'
+    this.controllerName = controllerName
+  }
+}
+
+/**
+ * Thrown when a component declares a type with no registered implementation.
+ */
+export class UnknownComponentTypeError extends InvalidFormDefinitionError {
+  public readonly componentType: string
+
+  constructor(componentType: string) {
+    super(`Component type ${componentType} does not exist`)
+    this.name = 'UnknownComponentTypeError'
+    this.componentType = componentType
+  }
+}
