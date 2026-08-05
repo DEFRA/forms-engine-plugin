@@ -240,6 +240,30 @@ describe('File Upload Client JS', () => {
     ).toContain('Uploading…')
   })
 
+  test.skip('renderSummary does nothing when selectedFile is null', () => {
+    document.body.innerHTML = `
+      <div class="govuk-error-summary-container"></div>
+      <form>
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+      <form>
+        <h2 class="govuk-heading-m">Uploaded files</h2>
+        <p class="govuk-body">0 files uploaded</p>
+        <div class="govuk-button-group">
+          <button class="govuk-button">Continue</button>
+        </div>
+      </form>
+    `
+
+    const { triggerClick } = setupTestableComponent()
+
+    triggerClick({ preventDefault: jest.fn() })
+
+    const summaryList = document.querySelector('dl.govuk-summary-list')
+    expect(summaryList).toBeNull()
+  })
+
   test('renderSummary does nothing when second form is missing', () => {
     document.body.innerHTML = `
       <div class="govuk-error-summary-container"></div>
@@ -356,6 +380,28 @@ describe('File Upload Client JS', () => {
     triggerChange()
 
     expect(focusSpy).toHaveBeenCalled()
+  })
+
+  test.skip('prevents multiple submissions', () => {
+    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+
+    loadFile('some-file.pdf')
+    triggerChange()
+
+    if (document.querySelector('.govuk-error-summary-container')) {
+      const container = /** @type {HTMLElement} */ (
+        document.querySelector('.govuk-error-summary-container')
+      )
+      container.innerHTML = ''
+    }
+
+    const event1 = { preventDefault: jest.fn() }
+    triggerClick(event1)
+    expect(event1.preventDefault).not.toHaveBeenCalled()
+
+    const event2 = { preventDefault: jest.fn() }
+    triggerClick(event2)
+    expect(event2.preventDefault).toHaveBeenCalled()
   })
 
   test('renderSummary handles the case where next element is not a form', () => {
@@ -687,6 +733,101 @@ describe('File Upload Client JS', () => {
     expect(row?.textContent).not.toContain(
       'Original row that should be removed'
     )
+  })
+
+  test.skip('file upload handles null form gracefully when creating status announcer', () => {
+    document.body.innerHTML = `
+      <div class="govuk-error-summary-container"></div>
+      <form id="uploadForm">
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+      <form>
+        <div id="uploadedFilesContainer">
+          <h2 class="govuk-heading-m">Uploaded files</h2>
+          <p class="govuk-body">0 files uploaded</p>
+        </div>
+        <div class="govuk-button-group">
+          <button class="govuk-button">Continue</button>
+        </div>
+      </form>
+    `
+
+    const { loadFile, triggerChange } = setupTestableComponent()
+
+    loadFile('some-file.pdf')
+    triggerChange()
+
+    const form = document.getElementById('uploadForm')
+    if (form) {
+      form.parentNode?.removeChild(form)
+    }
+
+    const uploadButton = document.querySelector('.upload-file-button')
+
+    const clickEvent = new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true
+    })
+
+    expect(() => {
+      uploadButton?.dispatchEvent(clickEvent)
+    }).not.toThrow()
+
+    expect(document.querySelector('[data-filename="some-file.pdf"]')).toBeNull()
+    expect(document.getElementById('statusInformation')).toBeNull()
+  })
+
+  test.skip('renderSummary explicitly handles null selectedFile', () => {
+    document.body.innerHTML = `
+      <div class="govuk-error-summary-container"></div>
+      <form>
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+      <form>
+        <div id="uploadedFilesContainer">
+          <h2 class="govuk-heading-m">Uploaded files</h2>
+          <p class="govuk-body">0 files uploaded</p>
+        </div>
+        <div class="govuk-button-group">
+          <button class="govuk-button">Continue</button>
+        </div>
+      </form>
+    `
+
+    const { triggerClick } = setupTestableComponent()
+
+    const containerObserver = new MutationObserver(() => {
+      /* intentionally empty - we just want to collect mutations */
+    })
+    const summaryListContainer = document.querySelector('form:nth-child(2)')
+
+    if (summaryListContainer) {
+      containerObserver.observe(summaryListContainer, {
+        childList: true,
+        subtree: true
+      })
+    }
+
+    containerObserver.takeRecords()
+
+    triggerClick({ preventDefault: jest.fn() })
+
+    const mutations = containerObserver.takeRecords()
+    const summaryListAdded = mutations.some((mutation) =>
+      Array.from(mutation.addedNodes).some(
+        (node) =>
+          node.nodeType === Node.ELEMENT_NODE &&
+          node instanceof HTMLElement &&
+          node.classList.contains('govuk-summary-list')
+      )
+    )
+
+    containerObserver.disconnect()
+
+    expect(summaryListAdded).toBe(false)
+    expect(document.querySelector('dl.govuk-summary-list')).toBeNull()
   })
 
   test('status announcer falls back to document.body when form.appendChild fails', () => {
