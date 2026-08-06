@@ -6,6 +6,11 @@ import { type ValidationError } from 'joi'
  * engine. Never thrown directly — throw a subclass. Consumers (e.g.
  * forms-runner error pages) detect the family with
  * `instanceof InvalidFormDefinitionError`.
+ *
+ * When subclassing, remember that the message and the messages of any
+ * `cause` chain are shown to form authors on preview error pages. Only
+ * describe the problem with the form itself — never include sensitive
+ * details such as file paths, configuration values or secrets.
  */
 export class InvalidFormDefinitionError extends Error {
   constructor(message: string, options?: ErrorOptions) {
