@@ -26,7 +26,7 @@ export const DEFAULT_LANG = ENGLISH_LANG
 /**
  * @type {Record<LanguageCode, LanguageTexts>}
  */
-export const texts = {
+export const languageTexts = {
   [ENGLISH_LANG]: {
     typeDescriptions: {
       Point: 'Point',
@@ -117,7 +117,7 @@ export const texts = {
  * @param {LanguageCode} lang - the lanugae code
  */
 export function getTexts(lang = DEFAULT_LANG) {
-  return texts[lang]
+  return languageTexts[lang]
 }
 
 const helpPanelConfig = {
