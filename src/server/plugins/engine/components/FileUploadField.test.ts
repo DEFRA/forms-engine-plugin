@@ -649,7 +649,7 @@ describe('FileUploadField', () => {
               value: getFormData([]),
               errors: [
                 expect.objectContaining({
-                  text: 'You must upload 1 files or more'
+                  text: 'You must upload 1 file or more'
                 })
               ]
             }
@@ -683,7 +683,7 @@ describe('FileUploadField', () => {
               value: getFormData([]),
               errors: [
                 expect.objectContaining({
-                  text: 'You must upload 1 files or more'
+                  text: 'You must upload 1 file or more'
                 })
               ]
             }
@@ -790,7 +790,7 @@ describe('FileUploadField', () => {
               value: getFormData([]),
               errors: [
                 expect.objectContaining({
-                  text: 'You must upload 1 files or more'
+                  text: 'You must upload 1 file or more'
                 })
               ]
             }

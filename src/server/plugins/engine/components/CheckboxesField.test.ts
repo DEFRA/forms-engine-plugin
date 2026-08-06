@@ -503,4 +503,87 @@ describe.each([
       })
     })
   })
+
+  describe('Validation', () => {
+    describe.each([
+      {
+        description: 'Schema min and max',
+        component: {
+          title: 'Example checkboxes field',
+          name: 'myComponent',
+          type: ComponentType.CheckboxesField,
+          options: {},
+          list: 'listString',
+          schema: {
+            min: 1,
+            max: 2
+          }
+        } satisfies CheckboxesFieldComponent,
+        assertions: [
+          {
+            input: getFormData([]),
+            output: {
+              value: getFormData([]),
+              errors: [
+                expect.objectContaining({
+                  text: 'Select at least 1 option from the list'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData(['1', '2', '3']),
+            output: {
+              value: getFormData(['1', '2', '3']),
+              errors: [
+                expect.objectContaining({
+                  text: 'Only 2 options can be selected from the list'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Schema length',
+        component: {
+          title: 'Example checkboxes field',
+          name: 'myComponent',
+          type: ComponentType.CheckboxesField,
+          options: {},
+          list: 'listString',
+          schema: {
+            length: 4
+          }
+        } satisfies CheckboxesFieldComponent,
+        assertions: [
+          {
+            input: getFormData(['1', '2', '3', '4', '4']),
+            output: {
+              value: getFormData(['1', '2', '3', '4', '4']),
+              errors: [
+                expect.objectContaining({
+                  text: 'Select only 4 options from the list'
+                })
+              ]
+            }
+          }
+        ]
+      }
+    ])('$description', ({ component: def, assertions }) => {
+      let collection: ComponentCollection
+
+      beforeEach(() => {
+        collection = new ComponentCollection([def], { model })
+      })
+
+      it.each([...assertions])(
+        'validates custom example',
+        ({ input, output }) => {
+          const result = collection.validate(input)
+          expect(result).toEqual(output)
+        }
+      )
+    })
+  })
 })

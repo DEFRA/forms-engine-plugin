@@ -103,25 +103,43 @@ const featureSchema = Joi.object<Feature>().keys({
   geometry: featureGeometrySchema
 })
 
+export function determineLimits(
+  def: GeospatialFieldComponent,
+  isOptional: boolean
+) {
+  const { schema: constraints } = def
+  const limits: { min?: number; max?: number; length?: number } = {}
+  if (typeof constraints?.length === 'number') {
+    limits.length = constraints.length
+  } else {
+    if (typeof constraints?.min === 'number') {
+      limits.min = constraints.min
+    } else if (!isOptional) {
+      limits.min = 1
+    }
+
+    limits.max = typeof constraints?.max === 'number' ? constraints.max : 50
+  }
+  return limits
+}
+
 function applySchemaConstraints(
   schema: JoiBase.ArraySchema<Feature[]>,
   def: GeospatialFieldComponent
 ) {
-  const { options, schema: constraints } = def
+  const { options } = def
   const isOptional = options.required === false
 
-  if (typeof constraints?.length === 'number') {
-    schema = schema.length(constraints.length)
-  } else {
-    if (typeof constraints?.min === 'number') {
-      schema = schema.min(constraints.min)
-    } else if (!isOptional) {
-      schema = schema.min(1)
-    }
+  const limits = determineLimits(def, isOptional)
 
-    schema = schema.max(
-      typeof constraints?.max === 'number' ? constraints.max : 50
-    )
+  if (limits.length !== undefined) {
+    schema = schema.length(limits.length)
+  }
+  if (limits.min !== undefined) {
+    schema = schema.min(limits.min)
+  }
+  if (limits.max !== undefined) {
+    schema = schema.max(limits.max)
   }
 
   if (isOptional) {
