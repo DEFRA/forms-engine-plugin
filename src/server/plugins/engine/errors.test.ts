@@ -1,5 +1,8 @@
-import { type FormDefinition } from '@defra/forms-model'
-
+import {
+  buildBrokenConditionDefinition,
+  buildSchemaInvalidDefinition,
+  buildUnknownControllerDefinition
+} from '~/src/server/plugins/engine/__stubs__/definitions.js'
 import {
   ConditionBuildError,
   InvalidFormDefinitionError,
@@ -42,96 +45,10 @@ describe('InvalidFormDefinitionError hierarchy', () => {
   })
 })
 
-const brokenConditionDef = {
-  name: 'Broken condition fixture',
-  engine: 'V2',
-  schema: 2,
-  startPage: '/summary',
-  pages: [
-    {
-      id: '449c053b-9201-4312-9a75-187afc6ba48b',
-      path: '/licence',
-      title: 'Licence',
-      components: [
-        {
-          id: 'a7c0242f-2a31-45b2-8c71-ff2ac7f53288',
-          name: 'xVrYaJ',
-          type: 'YesNoField',
-          title: 'Do you have a licence?',
-          shortDescription: 'Licence',
-          options: { required: true },
-          schema: {},
-          list: '4fa26e9c-07cf-47cd-a9dd-5cec0dd3f544'
-        }
-      ],
-      next: []
-    },
-    {
-      id: '449c053b-9201-4312-9a75-187afc6ba48c',
-      path: '/summary',
-      title: 'Summary',
-      controller: 'SummaryPageController',
-      components: [],
-      next: []
-    }
-  ],
-  lists: [
-    {
-      id: '4fa26e9c-07cf-47cd-a9dd-5cec0dd3f544',
-      name: 'XtfRYR',
-      title: 'User type list',
-      type: 'string',
-      items: [
-        {
-          id: '55fe0067-d011-4d33-886c-e1aa266637c3',
-          text: 'existing user',
-          value: 'existing user'
-        },
-        {
-          id: '2277c7e5-7fef-46c6-993b-d294116d6d6b',
-          text: 'new user',
-          value: 'new user'
-        }
-      ]
-    }
-  ],
-  sections: [],
-  conditions: [
-    {
-      id: '3f9d3a35-6dee-4706-806c-3f776129f631',
-      displayName: 'Existing user',
-      items: [
-        {
-          id: '7d7f58ee-c860-4d24-8a13-de5cb9af53d8',
-          componentId: 'a7c0242f-2a31-45b2-8c71-ff2ac7f53288',
-          operator: 'is',
-          type: 'ListItemRef',
-          value: {
-            listId: '4fa26e9c-07cf-47cd-a9dd-5cec0dd3f544',
-            itemId: ['55fe0067-d011-4d33-886c-e1aa266637c3']
-          }
-        }
-      ]
-    }
-  ]
-} as unknown as FormDefinition
-
-const unknownControllerDef = {
-  ...structuredClone(brokenConditionDef),
-  name: 'Unknown controller fixture',
-  conditions: []
-} as unknown as FormDefinition
-// remove the bogus list and point page 1 at a controller that does not exist
-const brokenPage = unknownControllerDef.pages[0] as unknown as {
-  components: { list?: string }[]
-  controller: string
-}
-delete brokenPage.components[0].list
-brokenPage.controller = 'NoSuchPageController'
-
 describe('typed errors thrown from real failure sites', () => {
   it('FormModel throws ConditionBuildError for an uncompilable condition', () => {
-    const build = () => new FormModel(brokenConditionDef, { basePath: 'test' })
+    const build = () =>
+      new FormModel(buildBrokenConditionDefinition(), { basePath: 'test' })
 
     expect(build).toThrow(ConditionBuildError)
 
@@ -150,7 +67,7 @@ describe('typed errors thrown from real failure sites', () => {
 
   it('FormModel throws UnknownPageControllerError for an unregistered controller', () => {
     const build = () =>
-      new FormModel(unknownControllerDef, { basePath: 'test' })
+      new FormModel(buildUnknownControllerDefinition(), { basePath: 'test' })
 
     expect(build).toThrow(UnknownPageControllerError)
 
@@ -169,12 +86,8 @@ describe('typed errors thrown from real failure sites', () => {
 
 describe('SchemaValidationError', () => {
   it('is thrown by FormModel for a schema-invalid definition, wrapping the raw Joi error', () => {
-    const schemaInvalidDef = structuredClone(brokenConditionDef)
-    schemaInvalidDef.conditions = []
-    // duplicate page path violates the schema's uniqueness rule
-    schemaInvalidDef.pages.push(structuredClone(schemaInvalidDef.pages[0]))
-
-    const build = () => new FormModel(schemaInvalidDef, { basePath: 'test' })
+    const build = () =>
+      new FormModel(buildSchemaInvalidDefinition(), { basePath: 'test' })
 
     let thrown: unknown
     try {
