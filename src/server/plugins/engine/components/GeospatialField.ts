@@ -159,6 +159,13 @@ export class GeospatialField extends FormComponent {
     return isGeospatialState(value)
   }
 
+  getValidationMessagesOverride(translator: Translator) {
+    const { language } = translator
+    return {
+      [this.name]: GeospatialField.buildErrorMessages(language, this.limits)
+    }
+  }
+
   /**
    * For error preview page that shows all possible errors on a component
    */
