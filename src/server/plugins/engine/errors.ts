@@ -62,6 +62,10 @@ export class UnknownComponentTypeError extends InvalidFormDefinitionError {
  * remain diagnostic for consumers that only read `error.message`.
  */
 export class SchemaValidationError extends InvalidFormDefinitionError {
+  // Error types `cause` as unknown; this constructor only accepts a Joi
+  // ValidationError, so narrow the declaration for consumers (type-only).
+  declare cause: ValidationError
+
   constructor(cause: ValidationError) {
     super(`Invalid form definition: ${cause.message}`, { cause })
     this.name = 'SchemaValidationError'

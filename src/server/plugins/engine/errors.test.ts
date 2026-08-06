@@ -103,11 +103,7 @@ describe('SchemaValidationError', () => {
     expect(schemaError.name).toBe('SchemaValidationError')
     expect(schemaError.message).toContain('Invalid form definition:')
 
-    const cause = schemaError.cause as {
-      isJoi?: boolean
-      details?: unknown[]
-    }
-    expect(cause.isJoi).toBe(true)
-    expect(Array.isArray(cause.details)).toBe(true)
+    expect(schemaError.cause.isJoi).toBe(true)
+    expect(Array.isArray(schemaError.cause.details)).toBe(true)
   })
 })
