@@ -297,18 +297,19 @@ export function processGeospatial(config, geospatial, index) {
   const options = {
     geometryTypes
   }
+  const lang = /** @type {LanguageCode} */ (
+    geospatial.dataset.lang ?? DEFAULT_LANG
+  )
   const uiManager = getUIManager(
     geojson,
     map,
     mapId,
     listEl,
     geospatialInput,
-    options
+    options,
+    lang
   )
 
-  const lang = /** @type {LanguageCode} */ (
-    geospatial.dataset.lang ?? DEFAULT_LANG
-  )
   const languageManager = {
     lang,
     texts: getTexts(lang)
@@ -358,15 +359,17 @@ export function addFeatureToMap(feature, drawPlugin, map) {
  * @param {string} mapId - the ID of the map
  * @param {boolean} [disabled] - render the list with disabled links
  * @param {boolean} [readonly] - render the list in readonly mode
+ * @param {LanguageCode} [lang] - the language for the feature details
  */
 export function createFeaturesHTML(
   features,
   mapId,
   disabled = false,
-  readonly = false
+  readonly = false,
+  lang = DEFAULT_LANG
 ) {
   return `<dl class="govuk-summary-list">
-    ${features.map((feature, index) => createFeatureHTML(feature, index, mapId, disabled, readonly)).join('\n')}
+    ${features.map((feature, index) => createFeatureHTML(feature, index, mapId, disabled, readonly, lang)).join('\n')}
   </dl>`
 }
 
@@ -620,11 +623,24 @@ function getFeaturesManager(geojson) {
  * @param {string} mapId - the ID of the map
  * @param {HTMLDivElement} listEl - where to render the feature list
  * @param {Function} renderValue - function that renders the features JSON into the hidden textarea
+ * @param {LanguageCode} [lang] - the language for the feature details
  * @returns {RenderList}
  */
-function getListRenderer(geojson, mapId, listEl, renderValue) {
+function getListRenderer(
+  geojson,
+  mapId,
+  listEl,
+  renderValue,
+  lang = DEFAULT_LANG
+) {
   return function renderList(disabled = false) {
-    const html = createFeaturesHTML(geojson.features, mapId, disabled)
+    const html = createFeaturesHTML(
+      geojson.features,
+      mapId,
+      disabled,
+      false,
+      lang
+    )
 
     listEl.innerHTML = html
 
@@ -652,6 +668,7 @@ function getValueRenderer(geojson, geospatialInput) {
  * @param {HTMLDivElement} listEl - where to render the feature list
  * @param {HTMLTextAreaElement} geospatialInput - the geospatial textarea
  * @param { UIManagerOptions | undefined } options - extra options such as allowable geometry types
+ * @param {LanguageCode} [lang] - the language for the feature details
  */
 export function getUIManager(
   geojson,
@@ -659,7 +676,8 @@ export function getUIManager(
   mapId,
   listEl,
   geospatialInput,
-  options
+  options,
+  lang = DEFAULT_LANG
 ) {
   /**
    * Get a CSV list of geometry types the user can create
@@ -704,7 +722,7 @@ export function getUIManager(
   }
 
   const renderValue = getValueRenderer(geojson, geospatialInput)
-  const renderList = getListRenderer(geojson, mapId, listEl, renderValue)
+  const renderList = getListRenderer(geojson, mapId, listEl, renderValue, lang)
 
   /** @type {UIManager} */
   return {
@@ -1241,6 +1259,7 @@ function onListElKeydownFactory() {
  * Renders the features into the list
  * @callback RenderList
  * @param {boolean} [disabled] - whether to render the list with disabled links
+ * @param {LanguageCode} [lang] - the language for the feature details
  * @returns {void}
  */
 
