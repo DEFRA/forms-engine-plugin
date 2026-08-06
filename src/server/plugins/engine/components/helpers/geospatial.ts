@@ -1,5 +1,4 @@
 import {
-  GeospatialFieldOptionsCountryEnum,
   type GeospatialFieldComponent,
   type GeospatialFieldOptionsCountry
 } from '@defra/forms-model'
@@ -19,13 +18,6 @@ import {
   type Geometry
 } from '~/src/server/plugins/engine/types.js'
 import { countries } from '~/src/server/plugins/map/routes/index.js'
-
-const countriesDesc: Record<GeospatialFieldOptionsCountryEnum, string> = {
-  [GeospatialFieldOptionsCountryEnum.England]: 'England',
-  [GeospatialFieldOptionsCountryEnum.NorthernIreland]: 'Northern Ireland',
-  [GeospatialFieldOptionsCountryEnum.Scotland]: 'Scotland',
-  [GeospatialFieldOptionsCountryEnum.Wales]: 'Wales'
-}
 
 const Joi = JoiBase.extend({
   type: 'array',
@@ -161,7 +153,7 @@ export function getGeospatialSchema(
 
     if (!result) {
       return helpers.error('any.custom', {
-        country: countriesDesc[country as GeospatialFieldOptionsCountryEnum]
+        country
       })
     }
 
@@ -212,7 +204,7 @@ export function getEastingNorthingCountryValidator(
       return helpers.error(
         'any.custom',
         {
-          country: countriesDesc[country as GeospatialFieldOptionsCountryEnum]
+          country
         },
         { path: [field.name] }
       )
