@@ -24,7 +24,7 @@ describe('InvalidFormDefinitionError hierarchy', () => {
     expect(err.cause).toBe(cause)
   })
 
-  it('UnknownPageControllerError keeps the legacy message text', () => {
+  it('UnknownPageControllerError carries the controller name', () => {
     const err = new UnknownPageControllerError('NoSuchPageController')
 
     expect(err).toBeInstanceOf(InvalidFormDefinitionError)
@@ -35,7 +35,7 @@ describe('InvalidFormDefinitionError hierarchy', () => {
     )
   })
 
-  it('UnknownComponentTypeError keeps the legacy message text', () => {
+  it('UnknownComponentTypeError carries the component type', () => {
     const err = new UnknownComponentTypeError('NopeField')
 
     expect(err).toBeInstanceOf(InvalidFormDefinitionError)
