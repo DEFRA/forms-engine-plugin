@@ -128,6 +128,20 @@ export function buildUnknownControllerDefinition(): FormDefinition {
 }
 
 /**
+ * Schema-valid (component types are free strings in the schema), but the
+ * question uses a type the engine has no component class for.
+ */
+export function buildUnknownComponentDefinition(): FormDefinition {
+  const definition = buildDefinition()
+
+  definition.name = 'Unknown component fixture'
+  const questionPage = definition.pages[0] as PageQuestion
+  questionPage.components[0].type = 'MyUnknownField' as unknown as ComponentType
+
+  return definition
+}
+
+/**
  * A definition that fails schema validation: the question page appears
  * twice, violating the pages uniqueness rule.
  */

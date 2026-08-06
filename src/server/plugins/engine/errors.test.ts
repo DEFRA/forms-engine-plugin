@@ -1,6 +1,7 @@
 import {
   buildBrokenConditionDefinition,
   buildSchemaInvalidDefinition,
+  buildUnknownComponentDefinition,
   buildUnknownControllerDefinition
 } from '~/src/server/plugins/engine/__stubs__/definitions.js'
 import {
@@ -80,6 +81,26 @@ describe('typed errors thrown from real failure sites', () => {
 
     expect((thrown as UnknownPageControllerError).controllerName).toBe(
       'NoSuchPageController'
+    )
+  })
+})
+
+describe('typed errors thrown from real failure sites (components)', () => {
+  it('FormModel throws UnknownComponentTypeError for an unregistered component type', () => {
+    const build = () =>
+      new FormModel(buildUnknownComponentDefinition(), { basePath: 'test' })
+
+    expect(build).toThrow(UnknownComponentTypeError)
+
+    let thrown: unknown
+    try {
+      build()
+    } catch (err) {
+      thrown = err
+    }
+
+    expect((thrown as UnknownComponentTypeError).componentType).toBe(
+      'MyUnknownField'
     )
   })
 })
