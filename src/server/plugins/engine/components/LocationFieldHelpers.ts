@@ -194,7 +194,8 @@ export function getLocationFieldViewModel(
     country:
       component instanceof EastingNorthingField
         ? component.options.countries?.at(0)
-        : undefined
+        : undefined,
+    lang: context.translator.language
   }
 
   if (component.options.instructionText) {

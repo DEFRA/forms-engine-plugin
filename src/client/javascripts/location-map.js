@@ -2,6 +2,11 @@
 import createDatasetsPlugin from '@defra/interactive-map/plugins/datasets'
 
 import {
+  DEFAULT_LANG,
+  ENGLISH_LANG,
+  WELSH_LANG
+} from '~/src/client/javascripts/map-constants.js'
+import {
   EVENTS,
   centerMap,
   createMap,
@@ -16,6 +21,39 @@ import {
 import sssiDataset from '~/src/client/javascripts/sssi-dataset.js'
 
 const LOCATION_FIELD_SELECTOR = 'input.govuk-input'
+
+/**
+ * @type {Record<LanguageCode, LocationLanguageTexts>}
+ */
+export const languageTexts = {
+  [ENGLISH_LANG]: {
+    panel: {
+      label: 'How to use this map',
+      point1: 'Search for a place or postcode',
+      point2: 'Use the + and - icons to zoom in and out',
+      point3: 'Use a mouse or keyboard to centre the point at the location',
+      point4: 'Click to add the location to the map'
+    }
+  },
+  [WELSH_LANG]: {
+    panel: {
+      label: "Sut i ddefnyddio'r map hwn",
+      point1: 'Chwilio am sir, lle neu god post',
+      point2: 'Defnyddiwch yr eiconau + a - i chwyddo i mewn ac allan',
+      point3:
+        "Defnyddiwch lyfliwr neu allweddlon i ganolbwyntio'r pwynt yn y lleoliad",
+      point4: "Cliciwch i ychwanegu'r lleoliad i'r map"
+    }
+  }
+}
+
+/**
+ * Get the map texts for the given language code
+ * @param {LanguageCode} lang - the lanugae code
+ */
+export function getTexts(lang = DEFAULT_LANG) {
+  return languageTexts[lang]
+}
 
 /**
  * Gets initial map config for a location field
@@ -437,6 +475,11 @@ export function processLocation(config, location, index) {
     initConfig.plugins = [createDatasetsPlugin({ datasets })]
   }
 
+  const lang = /** @type {LanguageCode} */ (
+    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+    location.dataset.lang || DEFAULT_LANG
+  )
+
   const { map, interactPlugin } = createMap(mapId, initConfig, config)
 
   map.on(
@@ -461,11 +504,13 @@ export function processLocation(config, location, index) {
           throw new Error('Not implemented')
       }
 
+      const texts = getTexts(lang)
+
       // Add info panel
       map.addPanel('info', {
         focus: false,
         showLabel: true,
-        label: 'How to use the map',
+        label: texts.panel.label,
         mobile: {
           slot: 'drawer',
           open: true,
@@ -484,7 +529,7 @@ export function processLocation(config, location, index) {
           dismissible: true,
           modal: false
         },
-        html: '<ul><li>Search for a place or postcode</li><li>Use the + and - icons to zoom in and out</li><li>Use a mouse or keyboard to centre the point at the location</li><li>Click to add the location to the map</li></ul>'
+        html: `<ul><li>${texts.panel.point1}</li><li>${texts.panel.point2}</li><li>${texts.panel.point3}</li><li>${texts.panel.point4}</li></ul>`
       })
 
       // Enable the interact plugin
@@ -494,5 +539,20 @@ export function processLocation(config, location, index) {
 }
 
 /**
+ * @typedef {object} LocationPanelTexts
+ * @property {string} label - the label for the info panel
+ * @property {string} point1 - the text for bullet point 1 in the info panel
+ * @property {string} point2 - the text for bullet point 2 in the info panel
+ * @property {string} point3 - the text for bullet point 3 in the info panel
+ * @property {string} point4 - the text for bullet point 4 in the info panel
+ */
+
+/**
+ * @typedef {object} LocationLanguageTexts
+ * @property {LocationPanelTexts} panel - texts for the info panel
+ */
+
+/**
+ * @import { LanguageCode } from '~/src/client/javascripts/map.js'
  * @import { InteractiveMap, InteractiveMapInitConfig, MapCenter, MapLibreMap, MapsEnvironmentConfig } from '~/src/client/javascripts/map.js'
  */

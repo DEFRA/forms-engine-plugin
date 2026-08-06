@@ -5,6 +5,11 @@ import createDrawPlugin from '@defra/interactive-map/plugins/draw-ml'
 import { bbox } from '@turf/bbox'
 
 import {
+  DEFAULT_LANG,
+  ENGLISH_LANG,
+  WELSH_LANG
+} from '~/src/client/javascripts/map-constants.js'
+import {
   EVENTS,
   createMap,
   defaultConfig,
@@ -16,15 +21,8 @@ import {
 import sssiDataset from '~/src/client/javascripts/sssi-dataset.js'
 import { formatDelimtedList } from '~/src/client/javascripts/utils.js'
 
-/** @type {LanguageCode} */
-export const ENGLISH_LANG = 'en-GB'
-/** @type {LanguageCode} */
-export const WELSH_LANG = 'cy'
-/** @type {LanguageCode} */
-export const DEFAULT_LANG = ENGLISH_LANG
-
 /**
- * @type {Record<LanguageCode, LanguageTexts>}
+ * @type {Record<LanguageCode, GeospatialLanguageTexts>}
  */
 export const languageTexts = {
   [ENGLISH_LANG]: {
@@ -144,7 +142,7 @@ const helpPanelConfig = {
 }
 
 /**
- * @param {PanelTexts} texts
+ * @param {GeospatialPanelTexts} texts
  * @param {boolean} allowLine
  * @param {boolean} allowShape
  */
@@ -162,7 +160,7 @@ function getLineOrShapeText(texts, allowLine, allowShape) {
 }
 
 /**
- * @param {PanelTexts} texts
+ * @param {GeospatialPanelTexts} texts
  * @param {boolean} allowPoint
  * @param {boolean} allowLine
  * @param {boolean} allowShape
@@ -184,7 +182,7 @@ function getAllowedTypesPhrase(texts, allowPoint, allowLine, allowShape) {
 }
 
 /**
- * @param {PanelTexts} texts
+ * @param {GeospatialPanelTexts} texts
  * @param {boolean} allowPoint
  * @param {boolean} allowLine
  * @param {boolean} allowShape
@@ -298,7 +296,8 @@ export function processGeospatial(config, geospatial, index) {
     geometryTypes
   }
   const lang = /** @type {LanguageCode} */ (
-    geospatial.dataset.lang ?? DEFAULT_LANG
+    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+    geospatial.dataset.lang || DEFAULT_LANG
   )
   const uiManager = getUIManager(
     geojson,
@@ -1315,11 +1314,6 @@ function onListElKeydownFactory() {
  */
 
 /**
- * Supported language codes
- * @typedef {('en-GB'|'cy')} LanguageCode
- */
-
-/**
  * @typedef {object} GeometryTexts
  * @property {string} Point - the label for a point feature in the list
  * @property {string} LineString - the label for a line string feature in the list
@@ -1327,7 +1321,7 @@ function onListElKeydownFactory() {
  */
 
 /**
- * @typedef {object} PanelTexts
+ * @typedef {object} GeospatialPanelTexts
  * @property {string} label - the label for the info panel
  * @property {string} ledeIntro - the lede intro text for the info panel
  * @property {string} ledeOutro - the lede outro text for the info panel
@@ -1345,9 +1339,9 @@ function onListElKeydownFactory() {
  */
 
 /**
- * @typedef {object} LanguageTexts
+ * @typedef {object} GeospatialLanguageTexts
  * @property {GeometryTexts} typeDescriptions - the descriptions of the geometry types
- * @property {PanelTexts} panel - texts for the info panel
+ * @property {GeospatialPanelTexts} panel - texts for the info panel
  * @property {GeometryTexts} buttons - the labels for the action buttons
  * @property {string} itemLabel1 - the first part of the label for a feature in the list
  * @property {string} itemLabel2 - the second part of the label for a feature in the list
@@ -1366,7 +1360,7 @@ function onListElKeydownFactory() {
 /**
  * @typedef {object} LanguageManager
  * @property {LanguageCode} lang - the language for the interactive map
- * @property {LanguageTexts} texts - the descriptions of the geometry types
+ * @property {GeospatialLanguageTexts} texts - the descriptions of the geometry types
  */
 
 /**
@@ -1382,5 +1376,6 @@ function onListElKeydownFactory() {
  */
 
 /**
+ * @import { LanguageCode } from '~/src/client/javascripts/map.js'
  * @import { MapLibreMap, UIManagerOptions } from '~/src/client/javascripts/map.js'
  */

@@ -17,13 +17,13 @@ import createSearchPlugin from '@defra/interactive-map/plugins/search'
 import maplibreProvider from '@defra/interactive-map/providers/maplibre'
 
 import {
-  ENGLISH_LANG,
   createFeatureHTML,
   createFeaturesHTML,
   getHelpPanelHtml,
   getTexts,
   getUIManager
 } from '~/src/client/javascripts/geospatial-map.js'
+import { ENGLISH_LANG } from '~/src/client/javascripts/map-constants.js'
 import {
   formSubmitFactory,
   getCentroidGridRef,
