@@ -101,6 +101,7 @@ export class GeospatialField extends FormComponent {
 
     return {
       ...viewModel,
+      lang: context.translator.language,
       country: this.options.countries?.at(0),
       geometryTypes: this.options.geometryTypes,
       mapLayers: getMapLayers(this),
