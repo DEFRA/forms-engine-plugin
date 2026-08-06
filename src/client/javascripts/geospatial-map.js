@@ -16,10 +16,113 @@ import {
 import sssiDataset from '~/src/client/javascripts/sssi-dataset.js'
 import { formatDelimtedList } from '~/src/client/javascripts/utils.js'
 
+/** @type {LanguageCode} */
+export const ENGLISH_LANG = 'en-GB'
+/** @type {LanguageCode} */
+export const WELSH_LANG = 'cy'
+/** @type {LanguageCode} */
+export const DEFAULT_LANG = ENGLISH_LANG
+
+/**
+ * @type {Record<LanguageCode, LanguageTexts>}
+ */
+export const texts = {
+  [ENGLISH_LANG]: {
+    typeDescriptions: {
+      Point: 'Point',
+      LineString: 'Line',
+      Polygon: 'Shape'
+    },
+    panel: {
+      label: 'How to use this map',
+      ledeIntro: 'You can add',
+      ledeOutro: 'to the map.',
+      lineText: 'a line',
+      shapeText: 'a shape',
+      lineOrShapeText: 'a line or shape',
+      typesPhrasePoint: 'points',
+      typesPhraseLine: 'lines',
+      typesPhraseShape: 'shapes',
+      typesPhraseOr: 'or',
+      point1: 'Search for a county, place or postcode',
+      point2: 'Use the + and - icons to zoom in and out',
+      point3: "Double‑click, or select 'Done', when you have finished drawing",
+      point4: 'Give the location a name'
+    },
+    buttons: {
+      Point: 'Add point',
+      LineString: 'Add line',
+      Polygon: 'Add shape'
+    },
+    itemLabel1: 'Location',
+    itemLabel2: 'description',
+    itemUpdateLink: 'Update',
+    itemDeleteLink: 'Delete',
+    itemFocusLink: 'Show',
+    itemVisuallyHidden: 'location',
+    details: {
+      summary: 'Coordinates',
+      type: 'Type',
+      centroidGridReference: 'Centre grid reference',
+      firstPointGridReference: 'First point grid reference',
+      detailedCoordinates: 'Detailed coordinates'
+    }
+  },
+  [WELSH_LANG]: {
+    typeDescriptions: {
+      Point: 'Pwynt',
+      LineString: 'Llinell',
+      Polygon: 'Siâp'
+    },
+    panel: {
+      label: "Sut i ddefnyddio'r map hwn",
+      ledeIntro: 'Gallwch ychwanegu',
+      ledeOutro: "i'r map.",
+      lineText: 'llinell',
+      shapeText: 'siâp',
+      lineOrShapeText: 'llinell neu siâp',
+      typesPhrasePoint: 'pwyntiau',
+      typesPhraseLine: 'lliniau',
+      typesPhraseShape: 'siâpiau',
+      typesPhraseOr: 'neu',
+      point1: 'Chwilio am sir, lle neu god post',
+      point2: 'Defnyddiwch yr eiconau + a - i chwyddo i mewn ac allan',
+      point3:
+        "Cliciwch ddwywaith, neu dewiswch 'Wedi gorffen', pan fyddwch wedi",
+      point4: "Rhowch enw i'r lleoliad"
+    },
+    buttons: {
+      Point: 'Ychwanegu pwynt',
+      LineString: 'Ychwanegu llinell',
+      Polygon: 'Ychwanegu siâp'
+    },
+    itemLabel1: 'Lleoliad',
+    itemLabel2: 'disgrifiad',
+    itemUpdateLink: 'Diweddaru',
+    itemDeleteLink: 'Dileu',
+    itemFocusLink: 'Dangos',
+    itemVisuallyHidden: 'lleoliad',
+    details: {
+      summary: 'Cyfesurynnau',
+      type: 'Math',
+      centroidGridReference: 'Canol cyfeirnod grid',
+      firstPointGridReference: 'Cyfeirnod grid y pwynt cyntaf',
+      detailedCoordinates: 'Cyfesurynnau manwl'
+    }
+  }
+}
+
+/**
+ * Get the map texts for the given language code
+ * @param {LanguageCode} lang - the lanugae code
+ */
+export function getTexts(lang = DEFAULT_LANG) {
+  return texts[lang]
+}
+
 const helpPanelConfig = {
   focus: false,
   showLabel: true,
-  label: 'How to use this map',
   mobile: {
     slot: 'drawer',
     open: true,
@@ -41,59 +144,63 @@ const helpPanelConfig = {
 }
 
 /**
+ * @param {PanelTexts} texts
  * @param {boolean} allowLine
  * @param {boolean} allowShape
  */
-function getLineOrShapeText(allowLine, allowShape) {
+function getLineOrShapeText(texts, allowLine, allowShape) {
   if (allowLine && allowShape) {
-    return 'a line or shape'
+    return texts.lineOrShapeText
   }
   if (allowLine) {
-    return 'a line'
+    return texts.lineText
   }
   if (allowShape) {
-    return 'a shape'
+    return texts.shapeText
   }
   return ''
 }
 
 /**
+ * @param {PanelTexts} texts
  * @param {boolean} allowPoint
  * @param {boolean} allowLine
  * @param {boolean} allowShape
  */
-function getAllowedTypesPhrase(allowPoint, allowLine, allowShape) {
+function getAllowedTypesPhrase(texts, allowPoint, allowLine, allowShape) {
   const items = []
 
   if (allowPoint) {
-    items.push('points')
+    items.push(texts.typesPhrasePoint)
   }
   if (allowLine) {
-    items.push('lines')
+    items.push(texts.typesPhraseLine)
   }
   if (allowShape) {
-    items.push('shapes')
+    items.push(texts.typesPhraseShape)
   }
 
-  return formatDelimtedList(items, ',', 'or')
+  return formatDelimtedList(items, ',', texts.typesPhraseOr)
 }
 
 /**
+ * @param {PanelTexts} texts
  * @param {boolean} allowPoint
  * @param {boolean} allowLine
  * @param {boolean} allowShape
  */
-export function getHelpPanelHtml(allowPoint, allowLine, allowShape) {
-  const lineOrShapeText = getLineOrShapeText(allowLine, allowShape)
-  const doneExtra = lineOrShapeText
-    ? `<li>Double‑click, or select 'Done', when you have finished drawing ${lineOrShapeText}</li>`
+export function getHelpPanelHtml(texts, allowPoint, allowLine, allowShape) {
+  const lineOrShapeText = getLineOrShapeText(texts, allowLine, allowShape)
+  const point3 = lineOrShapeText
+    ? `<li>${texts.point3} ${lineOrShapeText}</li>`
     : ''
   const allowedTypesText = getAllowedTypesPhrase(
+    texts,
     allowPoint,
     allowLine,
     allowShape
   )
-  return `<p class="govuk-body-s govuk-!-margin-bottom-2">You can add ${allowedTypesText} to the map.</p><ul class="govuk-list govuk-list--number govuk-body-s"><li>Search for a county, place or postcode</li><li>Use the + and - icons to zoom in and out</li>${doneExtra}<li>Give the location a name</li></ul>`
+  return `<p class="govuk-body-s govuk-!-margin-bottom-2">${texts.ledeIntro} ${allowedTypesText} ${texts.ledeOutro}</p><ul class="govuk-list govuk-list--number govuk-body-s"><li>${texts.point1}</li><li>${texts.point2}</li>${point3}<li>${texts.point4}</li></ul>`
 }
 
 const lineFeatureProperties = {
@@ -106,15 +213,6 @@ const polygonFeatureProperties = {
   stroke: 'rgb(0, 0, 0)',
   fill: 'rgba(255, 221, 0, 0.2)',
   strokeWidth: 2
-}
-
-/**
- * @type {Record<'Point' | 'LineString' | 'Polygon', string>}
- */
-const typeDescriptions = {
-  Point: 'Point',
-  LineString: 'Line',
-  Polygon: 'Shape'
 }
 
 const POINT_SVG =
@@ -208,10 +306,19 @@ export function processGeospatial(config, geospatial, index) {
     options
   )
 
+  const lang = /** @type {LanguageCode} */ (
+    geospatial.dataset.lang ?? DEFAULT_LANG
+  )
+  const languageManager = {
+    lang,
+    texts: getTexts(lang)
+  }
+
   /**
    * @type {Context}
    */
   const context = {
+    languageManager,
     map,
     featuresManager,
     activeFeatureManager,
@@ -279,14 +386,17 @@ export function focusFeature(feature, mapProvider) {
  * @param {string} mapId - the ID of the map
  * @param {boolean} [disabled] - render the list with disabled links
  * @param {boolean} [readonly] - render the list item in readonly mode
+ * @param {LanguageCode} [lang] - the language for the feature details
  */
 export function createFeatureHTML(
   feature,
   index,
   mapId,
   disabled = false,
-  readonly = false
+  readonly = false,
+  lang = DEFAULT_LANG
 ) {
+  const texts = getTexts(lang)
   const flattened = feature.geometry.coordinates.flat(2)
 
   const points = []
@@ -302,18 +412,18 @@ export function createFeatureHTML(
   // Change action link
   const changeAction = () => `<li class="govuk-summary-list__actions-list-item">
   <a class="govuk-link govuk-link--no-visited-state ${disabled ? 'govuk-link--disabled' : ''}" href="#${mapId}" data-action="edit" data-id="${feature.id}"
-    data-type="${feature.geometry.type}">Update<span class="govuk-visually-hidden"> location</span></a>
+    data-type="${feature.geometry.type}">${texts.itemUpdateLink}<span class="govuk-visually-hidden"> ${texts.itemVisuallyHidden}</span></a>
 </li>`
 
   // Delete action link
   const deleteAction = () => `<li class="govuk-summary-list__actions-list-item">
   <a class="govuk-link govuk-link--no-visited-state ${disabled ? 'govuk-link--disabled' : ''}" href="#" data-action="delete" data-id="${feature.id}"
-    data-type="${feature.geometry.type}">Delete<span class="govuk-visually-hidden"> location</span></a>
+    data-type="${feature.geometry.type}">${texts.itemDeleteLink}<span class="govuk-visually-hidden"> ${texts.itemVisuallyHidden}</span></a>
 </li>`
 
   // Focus action link
   const focusAction = () => `<li class="govuk-summary-list__actions-list-item">
-  <a class="govuk-link govuk-link--no-visited-state" href="#${mapId}" data-action="focus" data-id="${feature.id}">Show<span class="govuk-visually-hidden"> location</span></a>
+  <a class="govuk-link govuk-link--no-visited-state" href="#${mapId}" data-action="focus" data-id="${feature.id}">${texts.itemFocusLink}<span class="govuk-visually-hidden"> ${texts.itemVisuallyHidden}</span></a>
 </li>`
 
   const links = readonly ? focusAction() : `${changeAction()}${deleteAction()}`
@@ -323,7 +433,7 @@ export function createFeatureHTML(
   return `<div class="govuk-summary-list__row govuk-summary-list__row--no-border">
   <dt class="govuk-summary-list__key">
     <div class="govuk-form-group">
-      <label class="govuk-label govuk-label--s" ${readonly ? '' : `for="description_${index}"`}>Location ${index + 1} description</label>
+      <label class="govuk-label govuk-label--s" ${readonly ? '' : `for="description_${index}"`}>${texts.itemLabel1} ${index + 1} ${texts.itemLabel2}</label>
       ${description}
     </div>
   </dt>
@@ -334,24 +444,24 @@ export function createFeatureHTML(
 <div class="govuk-summary-list__row">
   <details class="govuk-details govuk-!-margin-bottom-2">
     <summary class="govuk-details__summary">
-      <span class="govuk-details__summary-text">Coordinates</span>
+      <span class="govuk-details__summary-text">${texts.details.summary}</span>
     </summary>
     <div class="govuk-details__text">
       <dl class="govuk-summary-list">
         <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">Type</dt>
-          <dd class="govuk-summary-list__value">${typeDescriptions[feature.geometry.type]}</dd>
+          <dt class="govuk-summary-list__key">${texts.details.type}</dt>
+          <dd class="govuk-summary-list__value">${texts.typeDescriptions[feature.geometry.type]}</dd>
         </div>
         <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">Centre grid reference</dt>
+          <dt class="govuk-summary-list__key">${texts.details.centroidGridReference}</dt>
           <dd class="govuk-summary-list__value">${feature.properties.centroidGridReference}</dd>
         </div>
         <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">First point grid reference</dt>
+          <dt class="govuk-summary-list__key">${texts.details.firstPointGridReference}</dt>
           <dd class="govuk-summary-list__value">${feature.properties.coordinateGridReference}</dd>
         </div>
         <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">Detailed coordinates</dt>
+          <dt class="govuk-summary-list__key">${texts.details.detailedCoordinates}</dt>
           <dd class="govuk-summary-list__value">
             <ol class="govuk-list govuk-list--number">${coordinates}</ol>
           </dd>
@@ -661,17 +771,19 @@ function onMapReadyFactory(context) {
     const allowPoint = types.includes('point')
     const allowLine = types.includes('line')
     const allowShape = types.includes('shape')
+    const { texts } = context.languageManager
 
     // Add info panel
     map.addPanel('info', {
       ...helpPanelConfig,
-      html: getHelpPanelHtml(allowPoint, allowLine, allowShape)
+      label: texts.panel.label,
+      html: getHelpPanelHtml(texts.panel, allowPoint, allowLine, allowShape)
     })
 
     if (allowPoint) {
       map.addButton('btnAddPoint', {
         variant: 'tertiary',
-        label: 'Add point',
+        label: texts.buttons.Point,
         iconSvgContent: POINT_SVG,
         onClick: () => {
           resetActiveFeature()
@@ -688,7 +800,7 @@ function onMapReadyFactory(context) {
     if (allowShape) {
       map.addButton('btnAddPolygon', {
         variant: 'tertiary',
-        label: 'Add shape',
+        label: texts.buttons.Polygon,
         iconSvgContent: POLYGON_SVG,
         onClick: () => {
           resetActiveFeature()
@@ -705,7 +817,7 @@ function onMapReadyFactory(context) {
     if (allowLine) {
       map.addButton('btnAddLine', {
         variant: 'tertiary',
-        label: 'Add line',
+        label: texts.buttons.LineString,
         iconSvgContent: LINE_SVG,
         onClick: () => {
           resetActiveFeature()
@@ -1184,7 +1296,63 @@ function onListElKeydownFactory() {
  */
 
 /**
+ * Supported language codes
+ * @typedef {('en-GB'|'cy')} LanguageCode
+ */
+
+/**
+ * @typedef {object} GeometryTexts
+ * @property {string} Point - the label for a point feature in the list
+ * @property {string} LineString - the label for a line string feature in the list
+ * @property {string} Polygon - the label for a polygon feature in the list
+ */
+
+/**
+ * @typedef {object} PanelTexts
+ * @property {string} label - the label for the info panel
+ * @property {string} ledeIntro - the lede intro text for the info panel
+ * @property {string} ledeOutro - the lede outro text for the info panel
+ * @property {string} lineText - the label for the info panel line text
+ * @property {string} shapeText - the label for the info panel shape text
+ * @property {string} point1 - the text for bullet point 1 in the info panel
+ * @property {string} point2 - the text for bullet point 2 in the info panel
+ * @property {string} point3 - the text for bullet point 3 in the info panel
+ * @property {string} point4 - the text for bullet point 4 in the info panel
+ * @property {string} lineOrShapeText - the label for the info panel line or shape text
+ * @property {string} typesPhrasePoint - the label for the info panel types phrase point
+ * @property {string} typesPhraseLine - the label for the info panel types phrase line
+ * @property {string} typesPhraseShape - the label for the info panel types phrase shape
+ * @property {string} typesPhraseOr - the label for the info panel types phrase "or"
+ */
+
+/**
+ * @typedef {object} LanguageTexts
+ * @property {GeometryTexts} typeDescriptions - the descriptions of the geometry types
+ * @property {PanelTexts} panel - texts for the info panel
+ * @property {GeometryTexts} buttons - the labels for the action buttons
+ * @property {string} itemLabel1 - the first part of the label for a feature in the list
+ * @property {string} itemLabel2 - the second part of the label for a feature in the list
+ * @property {string} itemUpdateLink - the label for the "update" link for a feature in the list
+ * @property {string} itemDeleteLink - the label for the "delete" link for a feature in the list
+ * @property {string} itemFocusLink - the label for the "focus" link for a feature in the list
+ * @property {string} itemVisuallyHidden - visually hidden text to add context to action links
+ * @property {object} details - labels for the details section of a feature in the list
+ * @property {string} details.summary - label for the summary of a feature in the list
+ * @property {string} details.type - label for the type of a feature in the list
+ * @property {string} details.centroidGridReference - label for the centroid grid reference of a feature in the list
+ * @property {string} details.firstPointGridReference - label for the first point grid reference of a feature in the list
+ * @property {string} details.detailedCoordinates - label for the detailed coordinates of a feature in the list
+ */
+
+/**
+ * @typedef {object} LanguageManager
+ * @property {LanguageCode} lang - the language for the interactive map
+ * @property {LanguageTexts} texts - the descriptions of the geometry types
+ */
+
+/**
  * @typedef {object} Context
+ * @property {LanguageManager} languageManager - the language manager for the interactive map
  * @property {InteractiveMap} map - the interactive map
  * @property {MapLibreMap} [mapProvider] - the interactive map provider
  * @property {FeaturesManager} featuresManager - the features manager
