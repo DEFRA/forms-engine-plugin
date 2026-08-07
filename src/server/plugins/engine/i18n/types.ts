@@ -24,6 +24,7 @@ export type FormDefinitionTranslations = Record<
         shortDescription: string
         errorDescription: string
         paymentDescription: string
+        instructionText: string
       }>
     >
     sections: Record<string, Partial<Pick<Section, 'title'>>>

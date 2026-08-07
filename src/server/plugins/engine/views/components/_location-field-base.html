@@ -61,7 +61,7 @@
   {% set detailsHtml %}
     {% if component.model.instructionText %}
       {{ govukDetails({
-        summaryText: t('components.locationFieldBase.howToFind'),
+        summaryText: component.model.instructionSummary,
         html: component.model.instructionText | markdown | safe,
         classes: "govuk-!-margin-top-3"
       }) }}
