@@ -1,14 +1,19 @@
 import { type GeospatialFieldComponent } from '@defra/forms-model'
 import { type ArraySchema } from 'joi'
 
+import { EN_GB } from '~/src/server/constants.js'
 import { type ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import {
   FormComponent,
   isGeospatialState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { getMapLayers } from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
-import { getGeospatialSchema } from '~/src/server/plugins/engine/components/helpers/geospatial.js'
+import {
+  determineLimits,
+  getGeospatialSchema
+} from '~/src/server/plugins/engine/components/helpers/geospatial.js'
 import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
+import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
@@ -24,6 +29,7 @@ export class GeospatialField extends FormComponent {
   declare options: GeospatialFieldComponent['options']
   declare formSchema: ArraySchema<GeospatialState>
   declare stateSchema: ArraySchema<GeospatialState>
+  declare limits: { min?: number; max?: number; length?: number }
 
   constructor(
     def: GeospatialFieldComponent,
@@ -33,20 +39,24 @@ export class GeospatialField extends FormComponent {
 
     const { options } = def
 
-    const formSchema = getGeospatialSchema(def).label(this.label).messages({
-      'array.min': messageTemplate.featuresMin,
-      'array.max': messageTemplate.featuresMax,
-      'array.length': messageTemplate.featuresLength
-    })
+    let formSchema = getGeospatialSchema(def).label(this.label)
+
+    const isOptional = options.required === false
+    const limits = determineLimits(def, isOptional)
+
+    formSchema = formSchema.messages(
+      GeospatialField.buildErrorMessages(EN_GB, limits)
+    )
 
     this.formSchema = formSchema
     this.stateSchema = formSchema.default(null)
 
-    if (options.required === false) {
+    if (isOptional) {
       this.stateSchema = this.stateSchema.allow(null)
     }
 
     this.options = options
+    this.limits = limits
   }
 
   getFormValueFromState(state: FormSubmissionState) {
@@ -127,9 +137,7 @@ export class GeospatialField extends FormComponent {
           'components.geospatialField.validation.wrongCountry',
           {
             count: Number(err.path[1]) + 1,
-            country: translator.t(
-              `common.${(err.context.country as string).toLowerCase()}`
-            )
+            country: translator.t(`common.${err.context.country}`)
           }
         )
       }
@@ -147,6 +155,13 @@ export class GeospatialField extends FormComponent {
 
   isValue(value?: FormStateValue | FormState): value is GeospatialState {
     return isGeospatialState(value)
+  }
+
+  getValidationMessagesOverride(translator: Translator) {
+    const { language } = translator
+    return {
+      [this.name]: GeospatialField.buildErrorMessages(language, this.limits)
+    }
   }
 
   /**
@@ -169,11 +184,28 @@ export class GeospatialField extends FormComponent {
         { type: 'required', template: messageTemplate.selectRequired },
         {
           type: 'array.min',
-          template: '{{#title}} must contain at least 1 items'
+          template: '{{#title}} must contain at least 1 item'
         },
         { type: 'object.invalidjson', template: messageTemplate.format }
       ],
       advancedSettingsErrors: []
+    }
+  }
+
+  static buildErrorMessages(
+    language: string,
+    limits: { min?: number; max?: number; length?: number } = {}
+  ) {
+    return {
+      'array.min': tPlugin('validation.featuresMin', language, {
+        count: limits.min ?? 1
+      }),
+      'array.max': tPlugin('validation.featuresMax', language, {
+        count: limits.max ?? 1
+      }),
+      'array.length': tPlugin('validation.featuresLength', language, {
+        count: limits.length ?? 1
+      })
     }
   }
 }

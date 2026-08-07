@@ -4,7 +4,8 @@ import { buildValidationMessages } from '~/src/server/plugins/engine/i18n/buildV
 import { t } from '~/src/server/plugins/engine/i18n/index.js'
 
 describe('buildValidationMessages', () => {
-  const tEnGB = (key: string) => t(key, 'en-GB')
+  const tEnGB = (key: string, options?: Record<string, unknown>) =>
+    t(key, 'en-GB', options)
   const messages = buildValidationMessages(tEnGB)
 
   it('required is a JoiExpression resolving to the correct template', () => {
