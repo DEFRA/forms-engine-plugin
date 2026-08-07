@@ -247,7 +247,16 @@
     },
 
     "locationFieldBase": {
-      "howToFind": "How to find location details"
+      "howToFind": "How to find location details",
+      "map": {
+        "helpPanel": {
+          "label": "How to use this map",
+          "point1": "Search for a place or postcode",
+          "point2": "Use the + and - icons to zoom in and out",
+          "point3": "Use a mouse or keyboard to centre the point at the location",
+          "point4": "Click to add the location to the map"
+        }
+      }
     },
 
     "yesNoField": {

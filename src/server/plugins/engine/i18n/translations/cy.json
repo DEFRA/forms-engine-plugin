@@ -267,7 +267,16 @@
     },
 
     "locationFieldBase": {
-      "howToFind": "Sut i ddod o hyd i fanylion lleoliad"
+      "howToFind": "Sut i ddod o hyd i fanylion lleoliad",
+      "map": {
+        "helpPanel": {
+          "label": "Sut i ddefnyddio'r map hwn",
+          "point1": "Chwilio am sir, lle neu god post",
+          "point2": "Defnyddiwch yr eiconau + a - i chwyddo i mewn ac allan",
+          "point3": "Defnyddiwch lyfliwr neu allweddlon i ganolbwyntio'r pwynt yn y lleoliad",
+          "point4": "Cliciwch i ychwanegu'r lleoliad i'r map"
+        }
+      }
     },
 
     "yesNoField": {

@@ -19,6 +19,11 @@ import {
   osGridRefToLatLong
 } from '~/src/client/javascripts/map.js'
 import sssiDataset from '~/src/client/javascripts/sssi-dataset.js'
+import cy from '~/src/server/plugins/engine/i18n/translations/cy.json' with { type: 'json' }
+import enGB from '~/src/server/plugins/engine/i18n/translations/en-GB.json' with { type: 'json' }
+
+const englishTranslations = enGB.components.locationFieldBase.map
+const welshTranslations = cy.components.locationFieldBase.map
 
 const LOCATION_FIELD_SELECTOR = 'input.govuk-input'
 
@@ -26,25 +31,8 @@ const LOCATION_FIELD_SELECTOR = 'input.govuk-input'
  * @type {Record<LanguageCode, LocationLanguageTexts>}
  */
 export const languageTexts = {
-  [ENGLISH_LANG]: {
-    panel: {
-      label: 'How to use this map',
-      point1: 'Search for a place or postcode',
-      point2: 'Use the + and - icons to zoom in and out',
-      point3: 'Use a mouse or keyboard to centre the point at the location',
-      point4: 'Click to add the location to the map'
-    }
-  },
-  [WELSH_LANG]: {
-    panel: {
-      label: "Sut i ddefnyddio'r map hwn",
-      point1: 'Chwilio am sir, lle neu god post',
-      point2: 'Defnyddiwch yr eiconau + a - i chwyddo i mewn ac allan',
-      point3:
-        "Defnyddiwch lyfliwr neu allweddlon i ganolbwyntio'r pwynt yn y lleoliad",
-      point4: "Cliciwch i ychwanegu'r lleoliad i'r map"
-    }
-  }
+  [ENGLISH_LANG]: englishTranslations,
+  [WELSH_LANG]: welshTranslations
 }
 
 /**
@@ -510,7 +498,7 @@ export function processLocation(config, location, index) {
       map.addPanel('info', {
         focus: false,
         showLabel: true,
-        label: texts.panel.label,
+        label: texts.helpPanel.label,
         mobile: {
           slot: 'drawer',
           open: true,
@@ -529,7 +517,7 @@ export function processLocation(config, location, index) {
           dismissible: true,
           modal: false
         },
-        html: `<ul><li>${texts.panel.point1}</li><li>${texts.panel.point2}</li><li>${texts.panel.point3}</li><li>${texts.panel.point4}</li></ul>`
+        html: `<ul><li>${texts.helpPanel.point1}</li><li>${texts.helpPanel.point2}</li><li>${texts.helpPanel.point3}</li><li>${texts.helpPanel.point4}</li></ul>`
       })
 
       // Enable the interact plugin
@@ -549,7 +537,7 @@ export function processLocation(config, location, index) {
 
 /**
  * @typedef {object} LocationLanguageTexts
- * @property {LocationPanelTexts} panel - texts for the info panel
+ * @property {LocationPanelTexts} helpPanel - texts for the info panel
  */
 
 /**
