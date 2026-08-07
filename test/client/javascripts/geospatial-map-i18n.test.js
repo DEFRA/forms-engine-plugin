@@ -10,10 +10,10 @@ describe('geospatial map translations', () => {
   it('uses the shared server translation values for the English map UI', () => {
     const texts = getTexts(ENGLISH_LANG)
 
-    expect(texts.panel.label).toBe(
+    expect(texts.helpPanel.label).toBe(
       enGB.components.geospatialField.map.helpPanel.label
     )
-    expect(texts.buttons.Point).toBe(
+    expect(texts.buttons.point).toBe(
       enGB.components.geospatialField.map.buttons.point
     )
   })
@@ -21,10 +21,10 @@ describe('geospatial map translations', () => {
   it('uses the shared server translation values for the Welsh map UI', () => {
     const texts = getTexts(WELSH_LANG)
 
-    expect(texts.panel.label).toBe(
+    expect(texts.helpPanel.label).toBe(
       cy.components.geospatialField.map.helpPanel.label
     )
-    expect(texts.buttons.Point).toBe(
+    expect(texts.buttons.point).toBe(
       cy.components.geospatialField.map.buttons.point
     )
   })
