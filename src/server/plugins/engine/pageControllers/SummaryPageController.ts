@@ -1,4 +1,5 @@
 import {
+  Engine,
   hasComponentsEvenIfNoNext,
   type FormMetadata,
   type Page,
@@ -38,7 +39,9 @@ import {
   PaymentSubmissionError
 } from '~/src/server/plugins/engine/pageControllers/errors.js'
 import {
+  buildConditionEvaluations,
   buildMainRecords,
+  buildNotificationTargets,
   buildRepeaterRecords
 } from '~/src/server/plugins/engine/pageControllers/helpers/submission.js'
 import {
@@ -473,7 +476,9 @@ export async function submitForm(
       emailAddress,
       request.yar.id,
       translator,
-      summaryViewModel.context.referenceNumber
+      summaryViewModel.context.referenceNumber,
+      context,
+      formMetadata
     )
 
     if (submitResponse === undefined) {
@@ -553,7 +558,9 @@ function submitData(
   retrievalKey: string,
   sessionId: string,
   translator: Translator,
-  referenceNumber: string
+  referenceNumber: string,
+  context: FormContext,
+  formMetadata: FormMetadata
 ) {
   const { formSubmissionService } = model.services
   const { submit } = formSubmissionService
@@ -564,6 +571,17 @@ function submitData(
     referenceNumber,
     main: buildMainRecords(items, translator),
     repeaters: buildRepeaterRecords(items, translator),
+    // Condition ids are only stable in V2, so there is nothing to report
+    // against for a V1 definition
+    conditionEvaluations:
+      model.engine === Engine.V2
+        ? buildConditionEvaluations(model, context)
+        : undefined,
+    notificationTargets: buildNotificationTargets(
+      model,
+      context,
+      formMetadata.notificationEmail
+    ),
     // Only populate the language property if the form is multi-language enabled
     // @ts-expect-error - dynamic language property
     language: model.def.metadata?.translations?.cy

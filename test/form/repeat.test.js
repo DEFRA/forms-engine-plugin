@@ -632,7 +632,15 @@ describe('Repeat POST tests', () => {
       retrievalKey: 'enrique.chase@defra.gov.uk',
       sessionId: expect.any(String),
       referenceNumber: expect.any(String),
-      language: undefined
+      language: undefined,
+      conditionEvaluations: undefined,
+      notificationTargets: [
+        {
+          emailAddress: 'enrique.chase@defra.gov.uk',
+          audience: 'human',
+          version: '1'
+        }
+      ]
     })
   })
 

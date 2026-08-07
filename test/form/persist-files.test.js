@@ -197,7 +197,15 @@ describe('Submission journey test', () => {
       retrievalKey: 'enrique.chase@defra.gov.uk',
       sessionId: expect.any(String),
       referenceNumber: expect.any(String),
-      language: undefined
+      language: undefined,
+      conditionEvaluations: undefined,
+      notificationTargets: [
+        {
+          emailAddress: 'enrique.chase@defra.gov.uk',
+          audience: 'human',
+          version: '1'
+        }
+      ]
     })
 
     expect(submitRes.statusCode).toBe(StatusCodes.SEE_OTHER)
