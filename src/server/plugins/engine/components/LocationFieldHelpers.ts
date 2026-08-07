@@ -203,7 +203,9 @@ export function getLocationFieldViewModel(
     return {
       ...result,
       instructionSummary: t('components.locationFieldBase.howToFind'),
-      instructionText: tComponent(component.def, 'instructionText'),
+      instructionText:
+        tComponent(component.def, 'instructionText') ||
+        component.options.instructionText,
       t
     }
   }
