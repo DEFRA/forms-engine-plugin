@@ -120,6 +120,7 @@ function getTypeDescription(feature, typeDescriptions) {
       return typeDescriptions.polygon
   }
 }
+
 /**
  * @param {GeospatialPanelTexts} texts
  * @param {boolean} allowPoint
