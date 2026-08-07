@@ -270,6 +270,47 @@
     "geospatialField": {
       "added_one": "Added [[count]] location",
       "added_other": "Added [[count]] locations",
+      "map": {
+        "helpPanel": {
+          "label": "How to use this map",
+          "ledeIntro": "You can add",
+          "ledeOutro": "to the map.",
+          "lineText": "a line",
+          "shapeText": "a shape",
+          "lineOrShapeText": "a line or shape",
+          "typesPhrasePoint": "points",
+          "typesPhraseLine": "lines",
+          "typesPhraseShape": "shapes",
+          "typesPhraseOr": "or",
+          "point1": "Search for a county, place or postcode",
+          "point2": "Use the + and - icons to zoom in and out",
+          "point3": "Double‑click, or select 'Done', when you have finished drawing",
+          "point4": "Give the location a name"
+        },
+        "typeDescriptions": {
+          "point": "Point",
+          "line": "Line",
+          "polygon": "Shape"
+        },
+        "buttons": {
+          "point": "Add point",
+          "line": "Add line",
+          "polygon": "Add shape"
+        },
+        "itemLabel1": "Location",
+        "itemLabel2": "description",
+        "itemUpdateLink": "Update",
+        "itemDeleteLink": "Delete",
+        "itemFocusLink": "Show",
+        "itemVisuallyHidden": "location",
+        "details": {
+          "summary": "Coordinates",
+          "type": "Type",
+          "centroidGridReference": "Centre grid reference",
+          "firstPointGridReference": "First point grid reference",
+          "detailedCoordinates": "Detailed coordinates"
+        }
+      },
       "validation": {
         "descriptionRequired": "Enter description for location [[count]]",
         "wrongCountry": "Location [[count]] must be within [[country]]"

@@ -20,94 +20,18 @@ import {
 } from '~/src/client/javascripts/map.js'
 import sssiDataset from '~/src/client/javascripts/sssi-dataset.js'
 import { formatDelimtedList } from '~/src/client/javascripts/utils.js'
+import cy from '~/src/server/plugins/engine/i18n/translations/cy.json' with { type: 'json' }
+import enGB from '~/src/server/plugins/engine/i18n/translations/en-GB.json' with { type: 'json' }
+
+const englishTranslations = enGB.components.geospatialField.map
+const welshTranslations = cy.components.geospatialField.map
 
 /**
  * @type {Record<LanguageCode, GeospatialLanguageTexts>}
  */
 export const languageTexts = {
-  [ENGLISH_LANG]: {
-    typeDescriptions: {
-      Point: 'Point',
-      LineString: 'Line',
-      Polygon: 'Shape'
-    },
-    panel: {
-      label: 'How to use this map',
-      ledeIntro: 'You can add',
-      ledeOutro: 'to the map.',
-      lineText: 'a line',
-      shapeText: 'a shape',
-      lineOrShapeText: 'a line or shape',
-      typesPhrasePoint: 'points',
-      typesPhraseLine: 'lines',
-      typesPhraseShape: 'shapes',
-      typesPhraseOr: 'or',
-      point1: 'Search for a county, place or postcode',
-      point2: 'Use the + and - icons to zoom in and out',
-      point3: "Double‑click, or select 'Done', when you have finished drawing",
-      point4: 'Give the location a name'
-    },
-    buttons: {
-      Point: 'Add point',
-      LineString: 'Add line',
-      Polygon: 'Add shape'
-    },
-    itemLabel1: 'Location',
-    itemLabel2: 'description',
-    itemUpdateLink: 'Update',
-    itemDeleteLink: 'Delete',
-    itemFocusLink: 'Show',
-    itemVisuallyHidden: 'location',
-    details: {
-      summary: 'Coordinates',
-      type: 'Type',
-      centroidGridReference: 'Centre grid reference',
-      firstPointGridReference: 'First point grid reference',
-      detailedCoordinates: 'Detailed coordinates'
-    }
-  },
-  [WELSH_LANG]: {
-    typeDescriptions: {
-      Point: 'Pwynt',
-      LineString: 'Llinell',
-      Polygon: 'Siâp'
-    },
-    panel: {
-      label: "Sut i ddefnyddio'r map hwn",
-      ledeIntro: 'Gallwch ychwanegu',
-      ledeOutro: "i'r map.",
-      lineText: 'llinell',
-      shapeText: 'siâp',
-      lineOrShapeText: 'llinell neu siâp',
-      typesPhrasePoint: 'pwyntiau',
-      typesPhraseLine: 'lliniau',
-      typesPhraseShape: 'siâpiau',
-      typesPhraseOr: 'neu',
-      point1: 'Chwilio am sir, lle neu god post',
-      point2: 'Defnyddiwch yr eiconau + a - i chwyddo i mewn ac allan',
-      point3:
-        "Cliciwch ddwywaith, neu dewiswch 'Wedi gorffen', pan fyddwch wedi",
-      point4: "Rhowch enw i'r lleoliad"
-    },
-    buttons: {
-      Point: 'Ychwanegu pwynt',
-      LineString: 'Ychwanegu llinell',
-      Polygon: 'Ychwanegu siâp'
-    },
-    itemLabel1: 'Lleoliad',
-    itemLabel2: 'disgrifiad',
-    itemUpdateLink: 'Diweddaru',
-    itemDeleteLink: 'Dileu',
-    itemFocusLink: 'Dangos',
-    itemVisuallyHidden: 'lleoliad',
-    details: {
-      summary: 'Cyfesurynnau',
-      type: 'Math',
-      centroidGridReference: 'Canol cyfeirnod grid',
-      firstPointGridReference: 'Cyfeirnod grid y pwynt cyntaf',
-      detailedCoordinates: 'Cyfesurynnau manwl'
-    }
-  }
+  [ENGLISH_LANG]: englishTranslations,
+  [WELSH_LANG]: welshTranslations
 }
 
 /**
@@ -181,6 +105,21 @@ function getAllowedTypesPhrase(texts, allowPoint, allowLine, allowShape) {
   return formatDelimtedList(items, ',', texts.typesPhraseOr)
 }
 
+/**
+ * Gets the type description for a given feature
+ * @param {Feature} feature - the geojson feature
+ * @param {GeometryTexts} typeDescriptions
+ */
+function getTypeDescription(feature, typeDescriptions) {
+  switch (feature.geometry.type) {
+    case 'Point':
+      return typeDescriptions.point
+    case 'LineString':
+      return typeDescriptions.line
+    case 'Polygon':
+      return typeDescriptions.polygon
+  }
+}
 /**
  * @param {GeospatialPanelTexts} texts
  * @param {boolean} allowPoint
@@ -429,8 +368,8 @@ export function createFeatureHTML(
 </li>`
 
   const links = readonly ? focusAction() : `${changeAction()}${deleteAction()}`
-
   const actions = `<ul class="govuk-summary-list__actions-list">${links}</ul>`
+  const typeDescription = getTypeDescription(feature, texts.typeDescriptions)
 
   return `<div class="govuk-summary-list__row govuk-summary-list__row--no-border">
   <dt class="govuk-summary-list__key">
@@ -452,7 +391,7 @@ export function createFeatureHTML(
       <dl class="govuk-summary-list">
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">${texts.details.type}</dt>
-          <dd class="govuk-summary-list__value">${texts.typeDescriptions[feature.geometry.type]}</dd>
+          <dd class="govuk-summary-list__value">${typeDescription}</dd>
         </div>
         <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">${texts.details.centroidGridReference}</dt>
@@ -793,14 +732,14 @@ function onMapReadyFactory(context) {
     // Add info panel
     map.addPanel('info', {
       ...helpPanelConfig,
-      label: texts.panel.label,
-      html: getHelpPanelHtml(texts.panel, allowPoint, allowLine, allowShape)
+      label: texts.helpPanel.label,
+      html: getHelpPanelHtml(texts.helpPanel, allowPoint, allowLine, allowShape)
     })
 
     if (allowPoint) {
       map.addButton('btnAddPoint', {
         variant: 'tertiary',
-        label: texts.buttons.Point,
+        label: texts.buttons.point,
         iconSvgContent: POINT_SVG,
         onClick: () => {
           resetActiveFeature()
@@ -817,7 +756,7 @@ function onMapReadyFactory(context) {
     if (allowShape) {
       map.addButton('btnAddPolygon', {
         variant: 'tertiary',
-        label: texts.buttons.Polygon,
+        label: texts.buttons.polygon,
         iconSvgContent: POLYGON_SVG,
         onClick: () => {
           resetActiveFeature()
@@ -834,7 +773,7 @@ function onMapReadyFactory(context) {
     if (allowLine) {
       map.addButton('btnAddLine', {
         variant: 'tertiary',
-        label: texts.buttons.LineString,
+        label: texts.buttons.line,
         iconSvgContent: LINE_SVG,
         onClick: () => {
           resetActiveFeature()
@@ -1315,9 +1254,9 @@ function onListElKeydownFactory() {
 
 /**
  * @typedef {object} GeometryTexts
- * @property {string} Point - the label for a point feature in the list
- * @property {string} LineString - the label for a line string feature in the list
- * @property {string} Polygon - the label for a polygon feature in the list
+ * @property {string} point - the label for a point feature in the list
+ * @property {string} line - the label for a line string feature in the list
+ * @property {string} polygon - the label for a polygon feature in the list
  */
 
 /**
@@ -1341,7 +1280,7 @@ function onListElKeydownFactory() {
 /**
  * @typedef {object} GeospatialLanguageTexts
  * @property {GeometryTexts} typeDescriptions - the descriptions of the geometry types
- * @property {GeospatialPanelTexts} panel - texts for the info panel
+ * @property {GeospatialPanelTexts} helpPanel - texts for the info panel
  * @property {GeometryTexts} buttons - the labels for the action buttons
  * @property {string} itemLabel1 - the first part of the label for a feature in the list
  * @property {string} itemLabel2 - the second part of the label for a feature in the list

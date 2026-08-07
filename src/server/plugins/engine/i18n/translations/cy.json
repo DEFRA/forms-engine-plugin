@@ -294,6 +294,47 @@
       "added_few": "Ychwanegwyd [[count]] lleoliad",
       "added_many": "Ychwanegwyd [[count]] o leoliadau",
       "added_other": "Ychwanegwyd [[count]] lleoliad",
+      "map": {
+        "helpPanel": {
+          "label": "Sut i ddefnyddio'r map hwn",
+          "ledeIntro": "Gallwch ychwanegu",
+          "ledeOutro": "i'r map.",
+          "lineText": "llinell",
+          "shapeText": "siâp",
+          "lineOrShapeText": "llinell neu siâp",
+          "typesPhrasePoint": "pwyntiau",
+          "typesPhraseLine": "lliniau",
+          "typesPhraseShape": "siâpiau",
+          "typesPhraseOr": "neu",
+          "point1": "Chwilio am sir, lle neu god post",
+          "point2": "Defnyddiwch yr eiconau + a - i chwyddo i mewn ac allan",
+          "point3": "Cliciwch ddwywaith, neu dewiswch 'Wedi gorffen', pan fyddwch wedi",
+          "point4": "Rhowch enw i'r lleoliad"
+        },
+        "typeDescriptions": {
+          "point": "Pwynt",
+          "line": "Llinell",
+          "polygon": "Siâp"
+        },
+        "buttons": {
+          "point": "Ychwanegu pwynt",
+          "line": "Ychwanegu llinell",
+          "polygon": "Ychwanegu siâp"
+        },
+        "itemLabel1": "Lleoliad",
+        "itemLabel2": "disgrifiad",
+        "itemUpdateLink": "Diweddaru",
+        "itemDeleteLink": "Dileu",
+        "itemFocusLink": "Dangos",
+        "itemVisuallyHidden": "lleoliad",
+        "details": {
+          "summary": "Cyfesurynnau",
+          "type": "Math",
+          "centroidGridReference": "Canol cyfeirnod grid",
+          "firstPointGridReference": "Cyfeirnod grid y pwynt cyntaf",
+          "detailedCoordinates": "Cyfesurynnau manwl"
+        }
+      },
       "validation": {
         "descriptionRequired": "Rhowch ddisgrifiad ar gyfer lleoliad [[count]]",
         "wrongCountry": "Rhaid i leoliad [[count]] fod y tu mewn i [[country]]"
