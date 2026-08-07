@@ -137,9 +137,7 @@ export class GeospatialField extends FormComponent {
           'components.geospatialField.validation.wrongCountry',
           {
             count: Number(err.path[1]) + 1,
-            country: translator.t(
-              `common.${(err.context.country as string).toLowerCase()}`
-            )
+            country: translator.t(`common.${err.context.country}`)
           }
         )
       }
