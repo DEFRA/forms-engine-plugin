@@ -113,6 +113,7 @@ export class FileUploadField extends FormComponent {
   declare schema: FileUploadFieldComponent['schema']
   declare formSchema: ArraySchema<FileState>
   declare stateSchema: ArraySchema<FileState>
+  declare limits: { min?: number; max?: number; length?: number }
 
   constructor(
     def: FileUploadFieldComponent,
@@ -132,21 +133,31 @@ export class FileUploadField extends FormComponent {
       formSchema = formSchema.optional()
     }
 
+    const limits: { min?: number; max?: number; length?: number } = {}
+
     if (typeof schema.length !== 'number') {
       if (typeof schema.max === 'number') {
         formSchema = formSchema.max(schema.max)
+        limits.max = schema.max
       }
 
       if (typeof schema.min === 'number') {
         formSchema = formSchema.min(schema.min)
+        limits.min = schema.min
       } else if (options.required !== false) {
         formSchema = formSchema.min(1)
+        limits.min = 1
       }
     } else {
       formSchema = formSchema.length(schema.length)
+      limits.length = schema.length
     }
 
-    formSchema = formSchema.messages(FileUploadField.buildErrorMessages(EN_GB))
+    this.limits = limits
+
+    formSchema = formSchema.messages(
+      FileUploadField.buildErrorMessages(EN_GB, limits)
+    )
 
     this.formSchema = formSchema.items(formItemSchema)
     this.stateSchema = formSchema
@@ -309,7 +320,7 @@ export class FileUploadField extends FormComponent {
   getValidationMessagesOverride(translator: Translator) {
     const { language } = translator
     return {
-      [this.name]: FileUploadField.buildErrorMessages(language)
+      [this.name]: FileUploadField.buildErrorMessages(language, this.limits)
     }
   }
 
@@ -417,11 +428,20 @@ export class FileUploadField extends FormComponent {
     }
   }
 
-  static buildErrorMessages(language: string) {
+  static buildErrorMessages(
+    language: string,
+    limits: { min?: number; max?: number; length?: number } = {}
+  ) {
     return {
-      'array.min': tPlugin('validation.filesMin', language),
-      'array.max': tPlugin('validation.filesMax', language),
-      'array.length': tPlugin('validation.filesLength', language)
+      'array.min': tPlugin('validation.filesMin', language, {
+        count: limits.min ?? 1
+      }),
+      'array.max': tPlugin('validation.filesMax', language, {
+        count: limits.max ?? 1
+      }),
+      'array.length': tPlugin('validation.filesLength', language, {
+        count: limits.length ?? 1
+      })
     }
   }
 }
