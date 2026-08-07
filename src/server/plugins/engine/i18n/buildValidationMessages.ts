@@ -16,7 +16,9 @@ const opts = {
  * because Joi cannot resolve custom functions from a plain string.
  * Plain strings with only built-in tokens ({{#label}}, {{#limit}}) work without wrapping.
  */
-export function buildValidationMessages(t: (key: string) => string) {
+export function buildValidationMessages(
+  t: (key: string, options?: Record<string, unknown>) => string
+) {
   return {
     // Expressions — contain lowerFirst custom function
     required: joi.expression(t('validation.required'), opts) as JoiExpression,
@@ -57,15 +59,18 @@ export function buildValidationMessages(t: (key: string) => string) {
     dateMax: t('components.dateField.validation.dateMax'),
 
     unicode: t('validation.unicode'),
-    arrayMin: t('validation.arrayMin'),
-    arrayMax: t('validation.arrayMax'),
-    arrayLength: t('validation.arrayLength'),
-    featuresMin: t('validation.featuresMin'),
-    featuresMax: t('validation.featuresMax'),
-    featuresLength: t('validation.featuresLength'),
-    filesMin: t('validation.filesMin'),
-    filesMax: t('validation.filesMax'),
-    filesLength: t('validation.filesLength')
+    // These generic templates are shared across fields with differing limits, so a
+    // fixed singular count is used here — components needing accurate singular/plural
+    // text (e.g. FileUploadField) build their own per-instance messages instead.
+    arrayMin: t('validation.arrayMin', { count: 1 }),
+    arrayMax: t('validation.arrayMax', { count: 1 }),
+    arrayLength: t('validation.arrayLength', { count: 1 }),
+    featuresMin: t('validation.featuresMin', { count: 1 }),
+    featuresMax: t('validation.featuresMax', { count: 1 }),
+    featuresLength: t('validation.featuresLength', { count: 1 }),
+    filesMin: t('validation.filesMin', { count: 1 }),
+    filesMax: t('validation.filesMax', { count: 1 }),
+    filesLength: t('validation.filesLength', { count: 1 })
   }
 }
 
