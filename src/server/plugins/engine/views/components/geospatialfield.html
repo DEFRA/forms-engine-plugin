@@ -2,6 +2,7 @@
 
 {% macro GeospatialField(component) %}
   <div class="app-geospatial-field"
+    data-lang="{{component.model.lang}}"
     data-country="{{component.model.country}}"
     data-geometryTypes="{{component.model.geometryTypes}}"
     data-maplayers="{{component.model.mapLayers}}">

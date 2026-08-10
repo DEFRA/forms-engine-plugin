@@ -13,6 +13,7 @@ describe('form-availability', () => {
       expect(() =>
         assertFormAvailable(
           { ...metadata, offline: false },
+          undefined,
           FormStatus.Live,
           false
         )
@@ -20,6 +21,7 @@ describe('form-availability', () => {
       expect(() =>
         assertFormAvailable(
           { ...metadata, offline: undefined },
+          undefined,
           FormStatus.Live,
           false
         )
@@ -30,6 +32,7 @@ describe('form-availability', () => {
       expect(() =>
         assertFormAvailable(
           { ...metadata, offline: false },
+          undefined,
           FormStatus.Draft,
           true
         )
@@ -37,6 +40,7 @@ describe('form-availability', () => {
       expect(() =>
         assertFormAvailable(
           { ...metadata, offline: undefined },
+          undefined,
           FormStatus.Live,
           true
         )
@@ -47,6 +51,7 @@ describe('form-availability', () => {
       expect(() =>
         assertFormAvailable(
           { ...metadata, offline: true },
+          undefined,
           FormStatus.Live,
           false
         )

@@ -890,7 +890,7 @@ describe('EastingNorthingField', () => {
         northing: 315469
       }
 
-      const mockT = jest.fn().mockReturnValue('translated country error')
+      const mockT = jest.fn().mockReturnValue('translated country')
       const mockTranslator = { ...stubTranslator, t: mockT }
 
       const result = collection.validate(getFormData(invalidSingleState))
@@ -905,12 +905,12 @@ describe('EastingNorthingField', () => {
 
       expect(mockT).toHaveBeenCalledWith(
         'components.eastingNorthingField.wrongCountry',
-        { country: 'Scotland' }
+        { country: 'translated country' }
       )
       expect(viewErrors).toEqual([
         expect.objectContaining({
           href: '#myComponent',
-          text: 'translated country error'
+          text: 'translated country'
         })
       ])
     })

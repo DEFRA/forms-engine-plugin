@@ -26,7 +26,7 @@ export const opts = {
  * import messageTemplate directly and get the English version.
  */
 export const messageTemplate: ValidationMessages = buildValidationMessages(
-  (key) => t(key, 'en-GB')
+  (key, options) => t(key, 'en-GB', options)
 )
 
 export const messages: LanguageMessagesExt = {
@@ -79,7 +79,7 @@ export const messagesPre: LanguageMessages =
   messages as unknown as LanguageMessages
 
 export function buildLanguageMessages(
-  t: (key: string) => string
+  t: (key: string, options?: Record<string, unknown>) => string
 ): LanguageMessages {
   const vm = buildValidationMessages(t)
   return {

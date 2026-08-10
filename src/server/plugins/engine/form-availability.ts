@@ -1,9 +1,14 @@
-import { FormStatus, type FormMetadata } from '@defra/forms-model'
+import {
+  FormStatus,
+  type FormDefinition,
+  type FormMetadata
+} from '@defra/forms-model'
 import Boom from '@hapi/boom'
 
 export interface OfflineBoomData {
   offline: true
   metadata: FormMetadata
+  definition: FormDefinition | undefined
 }
 
 /**
@@ -13,6 +18,7 @@ export interface OfflineBoomData {
  */
 export function assertFormAvailable(
   metadata: FormMetadata,
+  definition: FormDefinition | undefined,
   formState: FormStatus,
   isPreview: boolean
 ): void {
@@ -21,7 +27,7 @@ export function assertFormAvailable(
     formState === FormStatus.Live &&
     !isPreview
   ) {
-    const data: OfflineBoomData = { offline: true, metadata }
+    const data: OfflineBoomData = { offline: true, metadata, definition }
     throw Boom.boomify(new Error(`Form ${metadata.slug} is offline`), {
       statusCode: 503,
       data
