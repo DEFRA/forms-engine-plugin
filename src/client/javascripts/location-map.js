@@ -47,7 +47,7 @@ export function getTexts(lang = DEFAULT_LANG) {
  * Gets initial map config for a location field
  * @param {HTMLDivElement} locationField - the location field element
  */
-function getInitMapConfig(locationField) {
+export function getInitMapConfig(locationField) {
   const locationType = locationField.dataset.locationtype
 
   switch (locationType) {
