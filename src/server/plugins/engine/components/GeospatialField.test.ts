@@ -279,7 +279,7 @@ describe('GeospatialField', () => {
               value: getFormData([]),
               errors: [
                 expect.objectContaining({
-                  text: 'Define at least 1 features'
+                  text: 'Define at least 1 feature'
                 })
               ]
             }
@@ -384,7 +384,7 @@ describe('GeospatialField', () => {
               value: getFormData([]),
               errors: [
                 expect.objectContaining({
-                  text: 'Define at least 1 features'
+                  text: 'Define at least 1 feature'
                 })
               ]
             }
@@ -412,7 +412,7 @@ describe('GeospatialField', () => {
               value: getFormData(validState),
               errors: [
                 expect.objectContaining({
-                  text: 'Only 1 features can be defined'
+                  text: 'Only 1 feature can be defined'
                 })
               ]
             }
@@ -439,7 +439,7 @@ describe('GeospatialField', () => {
               value: getFormData([]),
               errors: [
                 expect.objectContaining({
-                  text: 'Define exactly 1 features'
+                  text: 'Define exactly 1 feature'
                 })
               ]
             }
@@ -467,7 +467,7 @@ describe('GeospatialField', () => {
               value: getFormData(validState),
               errors: [
                 expect.objectContaining({
-                  text: 'Define exactly 1 features'
+                  text: 'Define exactly 1 feature'
                 })
               ]
             }
@@ -581,7 +581,7 @@ describe('GeospatialField', () => {
               value: getFormData(validState),
               errors: [
                 expect.objectContaining({
-                  text: 'Only 1 features can be defined'
+                  text: 'Only 1 feature can be defined'
                 })
               ]
             }
@@ -608,7 +608,7 @@ describe('GeospatialField', () => {
               value: getFormData([]),
               errors: [
                 expect.objectContaining({
-                  text: 'Define exactly 1 features'
+                  text: 'Define exactly 1 feature'
                 })
               ]
             }
@@ -631,7 +631,7 @@ describe('GeospatialField', () => {
               value: getFormData(validState),
               errors: [
                 expect.objectContaining({
-                  text: 'Define exactly 1 features'
+                  text: 'Define exactly 1 feature'
                 })
               ]
             }

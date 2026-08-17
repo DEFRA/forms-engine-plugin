@@ -56,12 +56,13 @@ export async function getFormModel(
   const formState = resolveState(state)
 
   const metadata = await formsService.getFormMetadata(slug)
-  assertFormAvailable(metadata, formState, isPreview)
 
   const definition = await formsService.getFormDefinition(
     metadata.id,
     formState
   )
+
+  assertFormAvailable(metadata, definition, formState, isPreview)
 
   if (!definition) {
     throw Boom.notFound(
@@ -145,7 +146,6 @@ export async function resolveFormModel(
   const metadata = await formsService.getFormMetadata(slug)
   const formState = resolveState(state)
   const isPreview = options.isPreview ?? isPreviewState(state, options)
-  assertFormAvailable(metadata, formState, isPreview)
   const stateMetadata = metadata[formState]
 
   if (!stateMetadata) {
@@ -198,6 +198,8 @@ export async function resolveFormModel(
     entry = { model, updatedAt: stateMetadata.updatedAt }
     cache.set(cacheKey, entry)
   }
+
+  assertFormAvailable(metadata, entry.model.def, formState, isPreview)
 
   return entry.model
 }

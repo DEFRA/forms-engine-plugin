@@ -616,7 +616,7 @@ describe('Form fields (required)', () => {
           'Mae Welsh Email address field yn cynnwys nodau annilys, er enghraifft, dashes hirion'
         )
         expect($errors[15].textContent).toBe(
-          "Dewiswch o leiaf 2 o opsiynau o'r rhestr"
+          "Dewiswch o leiaf ddau opsiwn o'r rhestr"
         )
         expect($errors[18].textContent).toBe(
           'Rhaid i leoliad 1 fod y tu mewn i Lloegr'

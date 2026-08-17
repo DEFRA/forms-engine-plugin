@@ -187,7 +187,7 @@ export class EastingNorthingField extends FormComponent {
       if (err.context?.country) {
         err.text = translator.t(
           'components.eastingNorthingField.wrongCountry',
-          { country: err.context.country }
+          { country: translator.t(`common.${err.context.country}`) }
         )
       }
     })

@@ -9,6 +9,7 @@ import {
 } from '@defra/forms-model'
 
 import { todayAsDateOnly } from '~/src/server/plugins/engine/date-helper.js'
+import { SchemaValidationError } from '~/src/server/plugins/engine/errors.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { type FormContextRequest } from '~/src/server/plugins/engine/types.js'
@@ -107,13 +108,22 @@ describe('FormModel', () => {
       ).toBeDefined()
     })
 
-    it('throws an error if schema validation fails', () => {
+    it('throws a SchemaValidationError if schema validation fails', () => {
+      const validationError = new Error('Validation error')
       formDefinitionV2Schema.validate = jest.fn().mockReturnValueOnce({
-        error: 'Validation error'
+        error: validationError
       })
 
       expect(() => new FormModel(definitionV2, { basePath: 'test' })).toThrow(
-        'Validation error'
+        SchemaValidationError
+      )
+
+      formDefinitionV2Schema.validate = jest.fn().mockReturnValueOnce({
+        error: validationError
+      })
+
+      expect(() => new FormModel(definitionV2, { basePath: 'test' })).toThrow(
+        'Invalid form definition: Validation error'
       )
     })
 

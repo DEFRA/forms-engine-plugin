@@ -460,3 +460,8 @@ export function getMapCountryLayers(apiPath, country) {
 /**
  * @import { Feature } from '~/src/server/plugins/engine/types.js'
  */
+
+/**
+ * Supported language codes
+ * @typedef {('en-GB'|'cy')} LanguageCode
+ */

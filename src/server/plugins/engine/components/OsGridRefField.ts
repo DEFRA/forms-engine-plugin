@@ -2,13 +2,26 @@ import { type OsGridRefFieldComponent } from '@defra/forms-model'
 
 import { EN_GB } from '~/src/server/constants.js'
 import { LocationFieldBase } from '~/src/server/plugins/engine/components/LocationFieldBase.js'
+import { getMapLayers } from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
 import { createLowerFirstExpression } from '~/src/server/plugins/engine/components/helpers/index.js'
+import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { t } from '~/src/server/plugins/engine/i18n/index.js'
 import { type Translator } from '~/src/server/plugins/engine/types/index.js'
 import { type ErrorMessageTemplateList } from '~/src/server/plugins/engine/types.js'
 
 export class OsGridRefField extends LocationFieldBase {
   declare options: OsGridRefFieldComponent['options']
+
+  getViewModel(context: RenderContext) {
+    const viewModel = super.getViewModel(context)
+
+    Object.assign(viewModel, {
+      lang: context.translator.language,
+      mapLayers: getMapLayers(this)
+    })
+
+    return viewModel
+  }
 
   protected getValidationConfig(translator: Translator | undefined) {
     // Regex for OS national grid references (NGR)

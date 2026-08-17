@@ -6,6 +6,7 @@ import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFo
 import { escapeMarkdown } from '~/src/server/plugins/engine/components/helpers/index.js'
 import * as Components from '~/src/server/plugins/engine/components/index.js'
 import { markdown } from '~/src/server/plugins/engine/components/markdownParser.js'
+import { UnknownComponentTypeError } from '~/src/server/plugins/engine/errors.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type FormState } from '~/src/server/plugins/engine/types.js'
 
@@ -210,7 +211,7 @@ export function createComponent(
   }
 
   if (typeof component === 'undefined') {
-    throw new Error(`Component type ${def.type} does not exist`)
+    throw new UnknownComponentTypeError(def.type)
   }
 
   return component

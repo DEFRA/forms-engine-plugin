@@ -6,7 +6,9 @@ import {
   type Server
 } from '@hapi/hapi'
 
+import { EN_GB } from '~/src/server/constants.js'
 import * as availability from '~/src/server/plugins/engine/form-availability.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import * as viewModel from '~/src/server/plugins/engine/models/unavailable-view-model.js'
 import { registerUnavailableResponse } from '~/src/server/plugins/engine/unavailable-response.js'
 import { metadata } from '~/test/fixtures/form.js'
@@ -56,7 +58,14 @@ describe('registerUnavailableResponse', () => {
       statusCode: 503,
       data: offlineData
     })
-    const mockRequest = { response: mockResponse } as Request
+    const mockRequest = {
+      response: mockResponse,
+      server: {
+        plugins: {
+          'forms-engine-plugin': {}
+        }
+      }
+    } as Request
 
     const mockViewResponse = {
       header: jest.fn().mockReturnThis(),
@@ -75,18 +84,31 @@ describe('registerUnavailableResponse', () => {
       .mockReturnValue({
         pageTitle: 'Unavailable',
         formTitle: 'Test',
-        organisationName: 'Defra'
+        organisationName: 'Defra',
+        language: EN_GB,
+        languages: [
+          { code: 'en-GB', name: 'English' },
+          { code: 'cy', name: 'Cymraeg' }
+        ],
+        context: { translator: {} as unknown as Translator }
       })
 
     const result = await extensionHandler(mockRequest, mockH)
 
     expect(availability.isOfflineBoom).toHaveBeenCalledWith(mockResponse)
-    expect(viewModel.unavailableViewModel).toHaveBeenCalledWith(metadata)
-    expect(mockH.view).toHaveBeenCalledWith('unavailable', {
-      pageTitle: 'Unavailable',
-      formTitle: 'Test',
-      organisationName: 'Defra'
-    })
+    expect(viewModel.unavailableViewModel).toHaveBeenCalledWith(
+      metadata,
+      undefined,
+      'en-GB'
+    )
+    expect(mockH.view).toHaveBeenCalledWith(
+      'unavailable',
+      expect.objectContaining({
+        pageTitle: 'Unavailable',
+        formTitle: 'Test',
+        organisationName: 'Defra'
+      })
+    )
     expect(mockViewResponse.header).toHaveBeenCalledWith(
       'Cache-Control',
       'no-store, no-cache, must-revalidate'

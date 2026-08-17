@@ -16,15 +16,24 @@
     "numberMax": "{{#label}} must be {{#limit}} or lower",
     "maxWords": "{{#label}} must be {{#limit}} words or fewer",
     "unicode": "{{#label}} includes invalid characters, for example, long dashes",
-    "arrayMin": "Select at least {{#limit}} options from the list",
-    "arrayMax": "Only {{#limit}} can be selected from the list",
-    "arrayLength": "Select only {{#limit}} options from the list",
-    "featuresMin": "Define at least {{#limit}} features",
-    "featuresMax": "Only {{#limit}} features can be defined",
-    "featuresLength": "Define exactly {{#limit}} features",
-    "filesMin": "You must upload {{#limit}} files or more",
-    "filesMax": "You can only upload {{#limit}} files or less",
-    "filesLength": "You must upload exactly {{#limit}} files"
+    "arrayMin_one": "Select at least {{#limit}} option from the list",
+    "arrayMin_other": "Select at least {{#limit}} options from the list",
+    "arrayMax_one": "Only {{#limit}} option can be selected from the list",
+    "arrayMax_other": "Only {{#limit}} options can be selected from the list",
+    "arrayLength_one": "Select only {{#limit}} option from the list",
+    "arrayLength_other": "Select only {{#limit}} options from the list",
+    "featuresMin_one": "Define at least {{#limit}} feature",
+    "featuresMin_other": "Define at least {{#limit}} features",
+    "featuresMax_one": "Only {{#limit}} feature can be defined",
+    "featuresMax_other": "Only {{#limit}} features can be defined",
+    "featuresLength_one": "Define exactly {{#limit}} feature",
+    "featuresLength_other": "Define exactly {{#limit}} features",
+    "filesMin_one": "You must upload {{#limit}} file or more",
+    "filesMin_other": "You must upload {{#limit}} files or more",
+    "filesMax_one": "You can only upload {{#limit}} file or less",
+    "filesMax_other": "You can only upload {{#limit}} files or less",
+    "filesLength_one": "You must upload exactly {{#limit}} file",
+    "filesLength_other": "You must upload exactly {{#limit}} files"
   },
 
   "errors": {
@@ -44,7 +53,7 @@
     "and": "and",
     "england": "England",
     "wales": "Wales",
-    "northernIreland": "Northern Ireland",
+    "northern-ireland": "Northern Ireland",
     "scotland": "Scotland",
     "sendFeedback": "Send feedback"
   },
@@ -145,6 +154,16 @@
       "bannerForce": "This is a preview of a [[previewMode]] form. Do not enter personal information.",
       "bannerText": "This is a preview of a [[previewMode]] form page you are editing.",
       "previousPages": "It depends on answers from earlier pages in the form. In the live version, users will need to complete those questions first."
+    },
+
+    "formUnavailable": {
+      "title": "Sorry, this form is unavailable",
+      "subHeading": "'[[formTitle]]' is no longer available.",
+      "contactDetailsHeading": "Contact details for [[organisationName]]",
+      "telephone": "Telephone",
+      "callCharges": "Find out about call charges",
+      "email": "Email",
+      "onlineContactForm": "Online contact form"
     }
   },
 
@@ -247,7 +266,16 @@
     },
 
     "locationFieldBase": {
-      "howToFind": "How to find location details"
+      "howToFind": "How to find location details",
+      "map": {
+        "helpPanel": {
+          "label": "How to use this map",
+          "point1": "Search for a place or postcode",
+          "point2": "Use the + and - icons to zoom in and out",
+          "point3": "Use a mouse or keyboard to centre the point at the location",
+          "point4": "Click to add the location to the map"
+        }
+      }
     },
 
     "yesNoField": {
@@ -270,6 +298,47 @@
     "geospatialField": {
       "added_one": "Added [[count]] location",
       "added_other": "Added [[count]] locations",
+      "map": {
+        "helpPanel": {
+          "label": "How to use this map",
+          "ledeIntro": "You can add",
+          "ledeOutro": "to the map.",
+          "lineText": "a line",
+          "shapeText": "a shape",
+          "lineOrShapeText": "a line or shape",
+          "typesPhrasePoint": "points",
+          "typesPhraseLine": "lines",
+          "typesPhraseShape": "shapes",
+          "typesPhraseOr": "or",
+          "point1": "Search for a county, place or postcode",
+          "point2": "Use the + and - icons to zoom in and out",
+          "point3": "Double‑click, or select 'Done', when you have finished drawing",
+          "point4": "Give the location a name"
+        },
+        "typeDescriptions": {
+          "point": "Point",
+          "line": "Line",
+          "polygon": "Shape"
+        },
+        "buttons": {
+          "point": "Add point",
+          "line": "Add line",
+          "polygon": "Add shape"
+        },
+        "itemLabel1": "Location",
+        "itemLabel2": "description",
+        "itemUpdateLink": "Update",
+        "itemDeleteLink": "Delete",
+        "itemFocusLink": "Show",
+        "itemVisuallyHidden": "location",
+        "details": {
+          "summary": "Coordinates",
+          "type": "Type",
+          "centroidGridReference": "Centre grid reference",
+          "firstPointGridReference": "First point grid reference",
+          "detailedCoordinates": "Detailed coordinates"
+        }
+      },
       "validation": {
         "descriptionRequired": "Enter description for location [[count]]",
         "wrongCountry": "Location [[count]] must be within [[country]]"
