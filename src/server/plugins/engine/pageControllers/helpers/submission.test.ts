@@ -769,15 +769,20 @@ describe('buildNotificationTargets', () => {
   })
 
   it('should deduplicate an address configured more than once in the same format', () => {
+    // One duplicate: the notification email is already part of the form
+    // metadata and will be included in the outputs. Adding it here a second
+    // time in uppercase.
+    //
+    // The casework@defra.gov.uk e-mail will not be seen as a duplicate
+    // because the second instance has a condtion attached to it.
     const model = modelWithOutputs([
-      output(notificationEmail),
       output(notificationEmail.toUpperCase()),
       output('casework@defra.gov.uk'),
       output('casework@defra.gov.uk', isBobConditionId)
     ])
 
     expect(build(model, { userName: 'Bob', isOverEighteen: true })).toEqual([
-      target(notificationEmail),
+      target(notificationEmail), // The first casing is the one kept, which is the one from the metadata (ie lowercase version)
       target('casework@defra.gov.uk')
     ])
   })

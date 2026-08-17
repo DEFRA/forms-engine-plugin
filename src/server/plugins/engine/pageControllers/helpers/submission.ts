@@ -213,11 +213,16 @@ export function buildConditionEvaluations(
  * the final answers.
  *
  * The notification email carries the same audience and version the form is
- * already sent with, so a form with no outputs behaves as it always has.
+ * already sent with, so a form with no outputs behaves as it always has. Where
+ * the definition does not say, `defaultOutput` decides - and it has to be the
+ * caller's decision, because the consumers disagree: the engine's own notify
+ * service falls back to human v1, while the adapter message is consumed by
+ * forms-notify-listener, which has always fallen back to human v2. Getting
+ * this wrong silently changes the format recipients receive.
  * @see {@link file://./../../services/notifyService.ts}
  *
  * Targets are deduplicated on address, audience and version together, keeping
- * the first spelling of the address seen. An address configured both as the
+ * the first casing of the address seen. An address configured both as the
  * notification email and as an output should not receive the same email twice,
  * but the same address may legitimately receive both the human-readable and
  * the machine-processable output.
@@ -227,7 +232,11 @@ export function buildConditionEvaluations(
 export function buildNotificationTargets(
   model: FormModel,
   context: FormContext,
-  notificationEmail?: string
+  notificationEmail?: string,
+  defaultOutput: { audience: OutputAudience; version: string } = {
+    audience: 'human',
+    version: '1'
+  }
 ): SubmitNotificationTarget[] {
   const { evaluationState } = context
   const targets = new Map<string, SubmitNotificationTarget>()
@@ -248,8 +257,8 @@ export function buildNotificationTargets(
 
   add(
     notificationEmail,
-    model.def.output?.audience ?? 'human', // Same defaults as src/server/plugins/engine/services/notifyService.ts at time of writing
-    model.def.output?.version ?? '1'
+    model.def.output?.audience ?? defaultOutput.audience,
+    model.def.output?.version ?? defaultOutput.version
   )
 
   for (const output of model.def.outputs ?? []) {

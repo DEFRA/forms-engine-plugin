@@ -7,6 +7,7 @@ import { type checkFormStatus } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type DetailItem } from '~/src/server/plugins/engine/models/types.js'
 import { format as formatAdapterV1 } from '~/src/server/plugins/engine/outputFormatters/adapter/v1.js'
+import { format as formatAdapterV2 } from '~/src/server/plugins/engine/outputFormatters/adapter/v2.js'
 import { format as formatHumanV1 } from '~/src/server/plugins/engine/outputFormatters/human/v1.js'
 import { format as formatMachineV1 } from '~/src/server/plugins/engine/outputFormatters/machine/v1.js'
 import { format as formatMachineV2 } from '~/src/server/plugins/engine/outputFormatters/machine/v2.js'
@@ -33,7 +34,8 @@ const formatters: Record<
     '2': formatMachineV2
   },
   adapter: {
-    '1': formatAdapterV1
+    '1': formatAdapterV1,
+    '2': formatAdapterV2
   }
 }
 

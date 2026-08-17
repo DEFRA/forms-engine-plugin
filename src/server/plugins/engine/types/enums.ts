@@ -11,5 +11,11 @@ export enum FileStatus {
 }
 
 export enum FormAdapterSubmissionSchemaVersion {
-  V1 = 1
+  V1 = 1,
+
+  /**
+   * Adds `notificationTargets` - the resolved list of addresses the submission
+   * should be sent to, with any output conditions already evaluated.
+   */
+  V2 = 2
 }
