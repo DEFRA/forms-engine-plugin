@@ -382,5 +382,52 @@ describe('Schema validation', () => {
       )
       expect(error).toBeDefined()
     })
+
+    describe('conditionEvaluations', () => {
+      const evaluation = {
+        conditionId: 'd15aff7a-6224-40a2-8e5f-51a5af2f7910',
+        outcome: 'true',
+        references: [
+          {
+            componentId: '87b987e8-bcf9-4ff9-92af-57c34c45995a',
+            componentName: 'userName',
+            answered: true
+          }
+        ]
+      }
+
+      it('accepts a V2 payload carrying condition evaluations', () => {
+        const { error } = formAdapterSubmissionMessagePayloadSchema.validate({
+          ...payloadV2([target]),
+          conditionEvaluations: [evaluation]
+        })
+        expect(error).toBeUndefined()
+      })
+
+      it('accepts a V2 payload without them - a V1-engine form has none', () => {
+        const { error } = formAdapterSubmissionMessagePayloadSchema.validate(
+          payloadV2([target])
+        )
+        expect(error).toBeUndefined()
+      })
+
+      it('rejects them on a V1 payload, so an old message cannot carry them', () => {
+        const { error } = formAdapterSubmissionMessagePayloadSchema.validate({
+          meta: v1Meta,
+          data: validData,
+          result,
+          conditionEvaluations: [evaluation]
+        })
+        expect(error).toBeDefined()
+      })
+
+      it('rejects a malformed evaluation', () => {
+        const { error } = formAdapterSubmissionMessagePayloadSchema.validate({
+          ...payloadV2([target]),
+          conditionEvaluations: [{ conditionId: 'abc' }]
+        })
+        expect(error).toBeDefined()
+      })
+    })
   })
 })

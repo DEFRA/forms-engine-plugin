@@ -1,4 +1,5 @@
 import {
+  Engine,
   type FormMetadata,
   type SubmitResponsePayload
 } from '@defra/forms-model'
@@ -7,7 +8,10 @@ import { type checkFormStatus } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type DetailItem } from '~/src/server/plugins/engine/models/types.js'
 import { buildPayload } from '~/src/server/plugins/engine/outputFormatters/adapter/common.js'
-import { buildNotificationTargets } from '~/src/server/plugins/engine/pageControllers/helpers/submission.js'
+import {
+  buildConditionEvaluations,
+  buildNotificationTargets
+} from '~/src/server/plugins/engine/pageControllers/helpers/submission.js'
 import { FormAdapterSubmissionSchemaVersion } from '~/src/server/plugins/engine/types/enums.js'
 import { type FormContext } from '~/src/server/plugins/engine/types.js'
 
@@ -49,6 +53,14 @@ export function format(
     // form with no `output` starts being sent against a different template.
     { audience: 'human', version: '2' }
   )
+
+  // Recorded so the submission record stores why the submission went where it
+  // did. Condition ids are only stable in V2, so there is nothing to report
+  // against for a V1 definition.
+  payload.conditionEvaluations =
+    model.engine === Engine.V2
+      ? buildConditionEvaluations(model, context)
+      : undefined
 
   return JSON.stringify(payload)
 }

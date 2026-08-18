@@ -1,5 +1,7 @@
 import {
   FormStatus,
+  formSubmitConditionEvaluationSchema,
+  formSubmitNotificationTargetSchema,
   formVersionMetadataSchema,
   idSchema,
   notificationEmailAddressSchema,
@@ -81,21 +83,8 @@ export const formAdapterSubmissionMessageResultSchema =
       .required()
   })
 
-export const formAdapterNotificationTargetSchema =
-  Joi.object<FormAdapterNotificationTarget>().keys({
-    emailAddress: Joi.string()
-      .email({ tlds: { allow: false } })
-      .required()
-      .description('Address the submission should be sent to'),
-    audience: Joi.string()
-      .valid('human', 'machine')
-      .required()
-      .description(
-        'Whether to send the human-readable or machine-processable output'
-      ),
-    version: Joi.string()
-      .required()
-      .description('Version of the output format to send'),
+export const formAdapterNotificationTargetSchema: Joi.ObjectSchema<FormAdapterNotificationTarget> =
+  formSubmitNotificationTargetSchema.append<FormAdapterNotificationTarget>({
     type: Joi.string()
       .valid('submission', 'confirmation')
       .optional()
@@ -124,5 +113,17 @@ export const formAdapterSubmissionMessagePayloadSchema =
       })
       .description(
         'Addresses to send this submission to, with output conditions already evaluated'
+      ),
+    conditionEvaluations: Joi.array()
+      .items(formSubmitConditionEvaluationSchema)
+      .when(Joi.ref('meta.schemaVersion'), {
+        is: FormAdapterSubmissionSchemaVersion.V2,
+        // Optional even on V2 - only V2 *engine* forms have stable condition
+        // ids to report against, and a V2 message can carry a V1-engine form
+        then: Joi.optional(),
+        otherwise: Joi.forbidden()
+      })
+      .description(
+        'Outcome of every condition in the form definition, evaluated against the final answers at submission'
       )
   })

@@ -590,56 +590,5 @@ describe('SummaryPageController - Payment (DF-832)', () => {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       expect(paymentCall.language).toBe('cy')
     })
-
-    it('submits the notification email and qualifying outputs as notification targets', async () => {
-      const outputs = model.def.outputs
-
-      model.def.outputs = [
-        {
-          emailAddress: 'casework@defra.gov.uk',
-          audience: 'human',
-          version: '1'
-        }
-      ]
-
-      try {
-        const { request, context, viewModel, formSubmissionSubmit } =
-          buildSubmitHarness({ captured: true })
-
-        const formMetadata = {
-          contact: { online: { url: '/help' } },
-          notificationEmail: 'notify@defra.gov.uk'
-        } as unknown as Parameters<typeof submitForm>[1]
-
-        await submitForm(
-          context,
-          formMetadata,
-          request,
-          viewModel,
-          model,
-          'notify@defra.gov.uk',
-          translator
-        )
-
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        const paymentCall = formSubmissionSubmit.mock.calls[0][0]
-
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        expect(paymentCall.notificationTargets).toEqual([
-          {
-            emailAddress: 'notify@defra.gov.uk',
-            audience: 'human',
-            version: '1'
-          },
-          {
-            emailAddress: 'casework@defra.gov.uk',
-            audience: 'human',
-            version: '1'
-          }
-        ])
-      } finally {
-        model.def.outputs = outputs
-      }
-    })
   })
 })

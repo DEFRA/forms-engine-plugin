@@ -6,6 +6,7 @@ import {
   type List,
   type Page,
   type PaymentFieldComponent,
+  type SubmitConditionEvaluation,
   type SubmitNotificationTarget,
   type UkAddressFieldComponent
 } from '@defra/forms-model'
@@ -664,6 +665,18 @@ export interface FormAdapterSubmissionMessagePayload {
    * from the form definition themselves.
    */
   notificationTargets?: FormAdapterNotificationTarget[]
+
+  /**
+   * The outcome of every condition in the form definition, evaluated against
+   * the final answers at the point of submission.
+   *
+   * Carried on the message so it is stored against the submission record - an
+   * audit of why the submission went where it did.
+   *
+   * From {@link FormAdapterSubmissionSchemaVersion.V2}, and only for V2-engine
+   * forms - V1 conditions have no stable ids to report against.
+   */
+  conditionEvaluations?: SubmitConditionEvaluation[]
 }
 
 export interface FormAdapterSubmissionMessage extends FormAdapterSubmissionMessagePayload {

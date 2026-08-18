@@ -16,8 +16,12 @@ import { format } from '~/src/server/plugins/engine/outputFormatters/adapter/v2.
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { FormAdapterSubmissionSchemaVersion } from '~/src/server/plugins/engine/types/index.js'
 import { formAdapterSubmissionMessagePayloadSchema } from '~/src/server/plugins/engine/types/schema.js'
-import { type FormAdapterSubmissionMessagePayload } from '~/src/server/plugins/engine/types.js'
+import {
+  type FormAdapterSubmissionMessagePayload,
+  type FormContext
+} from '~/src/server/plugins/engine/types.js'
 import { FormStatus } from '~/src/server/routes/types.js'
+import joinedConditionsDefinition from '~/test/form/definitions/joined-conditions-simple-v2.js'
 import definition from '~/test/form/definitions/repeat-mixed.js'
 
 const submitResponse = {
@@ -211,6 +215,58 @@ describe('Adapter v2 formatter', () => {
       // so a formatter and schema that disagree would fail every submission
       const { error } = formAdapterSubmissionMessagePayloadSchema.validate(
         payload,
+        { abortEarly: false, allowUnknown: false }
+      )
+
+      expect(error).toBeUndefined()
+    })
+  })
+
+  describe('conditionEvaluations', () => {
+    const v2Model = new FormModel(joinedConditionsDefinition, {
+      basePath: 'test'
+    })
+
+    // buildPayload only reads the reference number and translator from the
+    // context, so the page-walk state the real engine would carry is not needed
+    const v2Context = {
+      referenceNumber: 'foobar',
+      evaluationState: { userName: 'Bob', isOverEighteen: true }
+    } as unknown as FormContext
+
+    const formatV2Definition = () =>
+      JSON.parse(
+        format(v2Context, items, v2Model, submitResponse, formStatus, {
+          id: '68a8b0449ab460290c28940a',
+          slug: 'joined-conditions',
+          notificationEmail: 'submissions@example.com'
+        } as FormMetadata)
+      ) as FormAdapterSubmissionMessagePayload
+
+    it('records the outcome of every condition for a V2 definition', () => {
+      const { conditionEvaluations } = formatV2Definition()
+
+      expect(conditionEvaluations).toHaveLength(3)
+      expect(conditionEvaluations?.[0]).toMatchObject({
+        conditionId: 'd15aff7a-6224-40a2-8e5f-51a5af2f7910',
+        outcome: 'true',
+        references: [
+          {
+            componentId: '87b987e8-bcf9-4ff9-92af-57c34c45995a',
+            componentName: 'userName',
+            answered: true
+          }
+        ]
+      })
+    })
+
+    it('is omitted for a V1 definition', () => {
+      expect(formatWith()).not.toHaveProperty('conditionEvaluations')
+    })
+
+    it('produces a payload the schema accepts', () => {
+      const { error } = formAdapterSubmissionMessagePayloadSchema.validate(
+        formatV2Definition(),
         { abortEarly: false, allowUnknown: false }
       )
 
