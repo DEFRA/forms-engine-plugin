@@ -145,7 +145,7 @@ describe('Adapter v2 formatter', () => {
   })
 
   describe('notificationTargets', () => {
-    it('always includes the form notification email', () => {
+    it('includes the form notification email when there are no outputs', () => {
       expect(formatWith().notificationTargets).toEqual([
         {
           emailAddress: 'submissions@example.com',
@@ -174,17 +174,12 @@ describe('Adapter v2 formatter', () => {
       expect(targets?.[0]).toMatchObject({ audience: 'machine', version: '1' })
     })
 
-    it('includes unconditional outputs alongside the notification email', () => {
+    it('replaces the notification email with the configured outputs', () => {
       const targets = formatWith([
         { emailAddress: 'team@example.com', audience: 'machine', version: '2' }
       ]).notificationTargets
 
       expect(targets).toEqual([
-        {
-          emailAddress: 'submissions@example.com',
-          audience: 'human',
-          version: '2'
-        },
         { emailAddress: 'team@example.com', audience: 'machine', version: '2' }
       ])
     })

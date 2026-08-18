@@ -709,6 +709,27 @@ describe('buildNotificationTargets', () => {
     ])
   })
 
+  it('should drop the notification email once an output qualifies', () => {
+    // The notification email is a fallback only - outputs replace it rather
+    // than adding to it, so it must not receive a copy as well.
+    const model = modelWithOutputs([output('casework@defra.gov.uk')])
+
+    expect(build(model, { userName: 'Bob', isOverEighteen: true })).toEqual([
+      target('casework@defra.gov.uk')
+    ])
+  })
+
+  it('should fall back to the notification email when every output is gated out', () => {
+    const model = modelWithOutputs([
+      output('bob@defra.gov.uk', isBobConditionId),
+      output('over-eighteen@defra.gov.uk', isOverEighteenConditionId)
+    ])
+
+    expect(build(model, { userName: 'Alice', isOverEighteen: false })).toEqual([
+      target(notificationEmail)
+    ])
+  })
+
   it('should include unconditional outputs', () => {
     const model = modelWithOutputs([
       output('casework@defra.gov.uk'),
@@ -716,7 +737,6 @@ describe('buildNotificationTargets', () => {
     ])
 
     expect(build(model, { userName: 'Alice', isOverEighteen: false })).toEqual([
-      target(notificationEmail),
       target('casework@defra.gov.uk'),
       target('archive@defra.gov.uk')
     ])
@@ -728,7 +748,6 @@ describe('buildNotificationTargets', () => {
     ])
 
     expect(build(model, { userName: 'Bob', isOverEighteen: true })).toEqual([
-      target(notificationEmail),
       target('casework@defra.gov.uk', 'machine', '2')
     ])
   })
@@ -739,7 +758,6 @@ describe('buildNotificationTargets', () => {
     ])
 
     expect(build(model, { userName: 'Bob', isOverEighteen: true })).toEqual([
-      target(notificationEmail),
       target('over-eighteen@defra.gov.uk')
     ])
   })
@@ -762,28 +780,23 @@ describe('buildNotificationTargets', () => {
     ])
 
     expect(build(model, { userName: 'Bob', isOverEighteen: false })).toEqual([
-      target(notificationEmail),
       target('casework@defra.gov.uk'),
       target('bob@defra.gov.uk')
     ])
   })
 
   it('should deduplicate an address configured more than once in the same format', () => {
-    // One duplicate: the notification email is already part of the form
-    // metadata and will be included in the outputs. Adding it here a second
-    // time in uppercase.
-    //
-    // The casework@defra.gov.uk e-mail will not be seen as a duplicate
-    // because the second instance has a condtion attached to it.
+    // The definition rejects the same address twice in the same format
+    // outright, so the only way to reach a runtime duplicate is a conditional
+    // output that resolves to an address an unconditional one already covers.
+    // The casing differs to prove the match is case-insensitive.
     const model = modelWithOutputs([
-      output(notificationEmail.toUpperCase()),
       output('casework@defra.gov.uk'),
-      output('casework@defra.gov.uk', isBobConditionId)
+      output('CASEWORK@DEFRA.GOV.UK', isBobConditionId)
     ])
 
     expect(build(model, { userName: 'Bob', isOverEighteen: true })).toEqual([
-      target(notificationEmail), // The first casing is the one kept, which is the one from the metadata (ie lowercase version)
-      target('casework@defra.gov.uk')
+      target('casework@defra.gov.uk') // The first casing seen is the one kept
     ])
   })
 
@@ -796,7 +809,6 @@ describe('buildNotificationTargets', () => {
     ])
 
     expect(build(model, { userName: 'Bob', isOverEighteen: true })).toEqual([
-      target(notificationEmail),
       target(notificationEmail, 'machine', '1'),
       target('casework@defra.gov.uk'),
       target('casework@defra.gov.uk', 'machine', '1'),
@@ -839,9 +851,6 @@ describe('buildNotificationTargets', () => {
       { basePath: '/' }
     )
 
-    expect(build(v1Model, {})).toEqual([
-      target(notificationEmail),
-      target('casework@defra.gov.uk')
-    ])
+    expect(build(v1Model, {})).toEqual([target('casework@defra.gov.uk')])
   })
 })
