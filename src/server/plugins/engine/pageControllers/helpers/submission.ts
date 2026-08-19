@@ -3,15 +3,11 @@ import {
   type ConditionDataV2,
   type ConditionRefDataV2,
   type ConditionWrapperV2,
-  type Output,
-  type OutputAudience,
   type SubmitConditionEvaluation,
   type SubmitConditionReference,
-  type SubmitNotificationTarget,
   type SubmitPayload
 } from '@defra/forms-model'
 
-import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { GeospatialField } from '~/src/server/plugins/engine/components/GeospatialField.js'
 import { PaymentField } from '~/src/server/plugins/engine/components/PaymentField.js'
 import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
@@ -164,6 +160,13 @@ export function buildRepeaterRecords(
  * Records the outcome of every condition in the form definition, evaluated
  * against the answers as they stand at the point of submission.
  *
+ * Evaluated here rather than by the consumer because only the engine holds
+ * the context to evaluate against: `evaluationState` is built by walking the
+ * form from its start page along the path taken, applying page conditions as
+ * it goes. A consumer receives the flat submitted answers, not that walked
+ * state, and reproducing the walk in a second codebase would leave two
+ * implementations of the same logic free to diverge.
+ *
  * Each record carries the components the condition depends on and whether each
  * was answered. An unanswered question still yields a boolean - negative
  * operators such as "is not" return `true` against the seeded `null` - so the
@@ -205,75 +208,6 @@ export function buildConditionEvaluations(
         references: [...references.values()]
       }
     })
-}
-
-/**
- * Resolves where this submission should be sent: every output that qualifies
- * against the final answers, or the form's notification email ("Submitted
- * forms sent to") when nothing else qualifies.
- *
- * Outputs take over from the notification email entirely - the notification
- * email is only a fallback, so that a form with no outputs, or one whose
- * outputs are all gated behind conditions that failed, still has somewhere to
- * go rather than being dropped.
- *
- * That fallback carries the same audience and version the form is already sent
- * with. Where the definition does not say, `defaultOutput` decides - and it has
- * to be the caller's decision, because the consumers disagree: the engine's own
- * notify service falls back to human v1, while the adapter message is consumed
- * by forms-notify-listener, which has always fallen back to human v2. Getting
- * this wrong silently changes the format recipients receive.
- * @see {@link file://./../../services/notifyService.ts}
- *
- * Targets are deduplicated on address, audience and version together, keeping
- * the first casing of the address seen. The same address may legitimately
- * receive both the human-readable and the machine-processable output.
- *
- * Applies to V1 and V2. V1 outputs carry no condition, so they all qualify.
- */
-export function buildNotificationTargets(
-  model: FormModel,
-  context: FormContext,
-  notificationEmail?: string,
-  defaultOutput: { audience: OutputAudience; version: string } = {
-    audience: 'human',
-    version: '1'
-  }
-): SubmitNotificationTarget[] {
-  const { evaluationState } = context
-  const targets = new Map<string, SubmitNotificationTarget>()
-
-  const add = (
-    emailAddress: string | undefined,
-    audience: OutputAudience,
-    version: string
-  ) => {
-    if (emailAddress) {
-      const key = `${emailAddress.toLowerCase()}|${audience}|${version}`
-
-      if (!targets.has(key)) {
-        targets.set(key, { emailAddress, audience, version })
-      }
-    }
-  }
-
-  for (const output of model.def.outputs ?? []) {
-    if (outputQualifies(model, output, evaluationState)) {
-      add(output.emailAddress, output.audience, output.version)
-    }
-  }
-
-  // We only ever want to have the notificationEmail as a fallback if
-  // there's nowhere else to send the submission.
-  if (targets.size === 0) {
-    add(
-      notificationEmail,
-      model.def.output?.audience ?? defaultOutput.audience,
-      model.def.output?.version ?? defaultOutput.version
-    )
-  }
-
-  return [...targets.values()]
 }
 
 /**
@@ -345,36 +279,4 @@ function collectReferences(
   }
 
   return references
-}
-
-/**
- * Whether an output should receive this submission.
- *
- * An output with no condition is unconditional. An output whose condition
- * cannot be resolved is treated as not qualifying: the gate the author put on
- * that address cannot be shown to have passed, and sending anyway would leak
- * the submission to a recipient who was meant to be filtered out. The
- * definition validates output condition references, so this should not happen
- * and is logged as an error.
- */
-function outputQualifies(
-  model: FormModel,
-  output: Output,
-  evaluationState: FormState
-) {
-  if (!output.condition) {
-    return true
-  }
-
-  const condition = model.conditions[output.condition]
-
-  if (!condition) {
-    logger.error(
-      `Form "${model.name}" has an output conditioned on "${output.condition}", which is not a condition in the definition. The output has been excluded from this submission.`
-    )
-
-    return false
-  }
-
-  return condition.fn(evaluationState)
 }

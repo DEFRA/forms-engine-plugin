@@ -7,8 +7,6 @@ import {
   formAdapterSubmissionMessagePayloadSchema
 } from '~/src/server/plugins/engine/types/schema.js'
 import {
-  type FormAdapterNotificationTarget,
-  type FormAdapterNotificationTargetType,
   type FormAdapterSubmissionMessageData,
   type FormAdapterSubmissionMessageMeta,
   type FormAdapterSubmissionMessagePayload,
@@ -256,9 +254,9 @@ describe('Schema validation', () => {
     })
   })
 
-  describe('notificationTargets', () => {
-    const baseMeta: FormAdapterSubmissionMessageMeta = {
-      schemaVersion: FormAdapterSubmissionSchemaVersion.V2,
+  describe('conditionEvaluations', () => {
+    const meta: FormAdapterSubmissionMessageMeta = {
+      schemaVersion: FormAdapterSubmissionSchemaVersion.V1,
       timestamp: new Date('2025-08-22T18:15:10.785Z'),
       referenceNumber: '576-225-943',
       formName: 'Order a pizza',
@@ -269,165 +267,73 @@ describe('Schema validation', () => {
       notificationEmail: 'info@example.com'
     }
 
-    const v1Meta = {
-      ...baseMeta,
-      schemaVersion: FormAdapterSubmissionSchemaVersion.V1
-    }
-
     const result = {
       files: { main: '3d289230-83a3-4852-a68a-cb3569e9b0fe', repeaters: {} }
     }
 
-    const target: FormAdapterNotificationTarget = {
-      emailAddress: 'info@example.com',
-      audience: 'human',
-      version: '2'
+    const evaluation = {
+      conditionId: 'd15aff7a-6224-40a2-8e5f-51a5af2f7910',
+      outcome: 'true',
+      references: [
+        {
+          componentId: '87b987e8-bcf9-4ff9-92af-57c34c45995a',
+          componentName: 'userName',
+          answered: true
+        }
+      ]
     }
 
-    const payloadV2 = (
-      notificationTargets: FormAdapterNotificationTarget[]
-    ) => ({ meta: baseMeta, data: validData, result, notificationTargets })
-
-    it('accepts a V2 payload carrying targets', () => {
-      const { error } = formAdapterSubmissionMessagePayloadSchema.validate(
-        payloadV2([target])
-      )
-      expect(error).toBeUndefined()
-    })
-
-    it('accepts an empty target list - a form can resolve to no recipients', () => {
-      const { error } = formAdapterSubmissionMessagePayloadSchema.validate(
-        payloadV2([])
-      )
-      expect(error).toBeUndefined()
-    })
-
-    it('rejects a V2 payload with no targets property at all', () => {
+    it('accepts a payload carrying condition evaluations', () => {
       const { error } = formAdapterSubmissionMessagePayloadSchema.validate({
-        meta: baseMeta,
-        data: validData,
-        result
-      })
-      expect(error).toBeDefined()
-      expect(error?.message).toContain('"notificationTargets" is required')
-    })
-
-    it('rejects targets on a V1 payload, so an old message cannot carry them', () => {
-      const { error } = formAdapterSubmissionMessagePayloadSchema.validate({
-        meta: v1Meta,
+        meta,
         data: validData,
         result,
-        notificationTargets: [target]
+        conditionEvaluations: [evaluation]
       })
-      expect(error).toBeDefined()
-      expect(error?.message).toContain('"notificationTargets" is not allowed')
+      expect(error).toBeUndefined()
     })
 
-    it('accepts a V1 payload without targets, keeping in-flight messages valid', () => {
+    it('accepts an empty list - a V1-engine form has nothing to report', () => {
       const { error } = formAdapterSubmissionMessagePayloadSchema.validate({
-        meta: v1Meta,
+        meta,
+        data: validData,
+        result,
+        conditionEvaluations: []
+      })
+      expect(error).toBeUndefined()
+    })
+
+    it('accepts a payload without them, keeping older messages valid', () => {
+      const { error } = formAdapterSubmissionMessagePayloadSchema.validate({
+        meta,
         data: validData,
         result
       })
       expect(error).toBeUndefined()
     })
 
-    it('accepts adapter progress state on a target', () => {
-      const { error } = formAdapterSubmissionMessagePayloadSchema.validate(
-        payloadV2([
-          { ...target, type: 'confirmation', sent: true, sendAttempts: 3 }
-        ])
-      )
-      expect(error).toBeUndefined()
-    })
-
-    it('preserves progress state under stripUnknown', () => {
-      // forms-notify-listener validates with stripUnknown. If the schema did
-      // not know about `sent`, it would be silently dropped on redelivery and
-      // every requeue would resend to addresses that had already succeeded.
+    it('preserves the evaluations under stripUnknown', () => {
+      // forms-notify-listener and forms-submission-api both validate with
+      // stripUnknown. If the schema did not know about the evaluations they
+      // would be silently dropped, and the listener would fall back to
+      // resolving recipients from the live definition.
       const { value } = formAdapterSubmissionMessagePayloadSchema.validate(
-        payloadV2([{ ...target, sent: true, sendAttempts: 2 }]),
+        { meta, data: validData, result, conditionEvaluations: [evaluation] },
         { stripUnknown: true }
       )
       const validated = value as FormAdapterSubmissionMessagePayload
 
-      expect(validated.notificationTargets?.[0]).toEqual({
-        ...target,
-        sent: true,
-        sendAttempts: 2
-      })
+      expect(validated.conditionEvaluations).toEqual([evaluation])
     })
 
-    it('rejects an unknown target type', () => {
-      const { error } = formAdapterSubmissionMessagePayloadSchema.validate(
-        payloadV2([
-          { ...target, type: 'nonsense' as FormAdapterNotificationTargetType }
-        ])
-      )
+    it('rejects a malformed evaluation', () => {
+      const { error } = formAdapterSubmissionMessagePayloadSchema.validate({
+        meta,
+        data: validData,
+        result,
+        conditionEvaluations: [{ conditionId: 'abc' }]
+      })
       expect(error).toBeDefined()
-    })
-
-    it('rejects a target with no email address', () => {
-      const { error } = formAdapterSubmissionMessagePayloadSchema.validate(
-        payloadV2([
-          { audience: 'human', version: '2' } as FormAdapterNotificationTarget
-        ])
-      )
-      expect(error).toBeDefined()
-    })
-
-    it('rejects a negative send attempt count', () => {
-      const { error } = formAdapterSubmissionMessagePayloadSchema.validate(
-        payloadV2([{ ...target, sendAttempts: -1 }])
-      )
-      expect(error).toBeDefined()
-    })
-
-    describe('conditionEvaluations', () => {
-      const evaluation = {
-        conditionId: 'd15aff7a-6224-40a2-8e5f-51a5af2f7910',
-        outcome: 'true',
-        references: [
-          {
-            componentId: '87b987e8-bcf9-4ff9-92af-57c34c45995a',
-            componentName: 'userName',
-            answered: true
-          }
-        ]
-      }
-
-      it('accepts a V2 payload carrying condition evaluations', () => {
-        const { error } = formAdapterSubmissionMessagePayloadSchema.validate({
-          ...payloadV2([target]),
-          conditionEvaluations: [evaluation]
-        })
-        expect(error).toBeUndefined()
-      })
-
-      it('accepts a V2 payload without them - a V1-engine form has none', () => {
-        const { error } = formAdapterSubmissionMessagePayloadSchema.validate(
-          payloadV2([target])
-        )
-        expect(error).toBeUndefined()
-      })
-
-      it('rejects them on a V1 payload, so an old message cannot carry them', () => {
-        const { error } = formAdapterSubmissionMessagePayloadSchema.validate({
-          meta: v1Meta,
-          data: validData,
-          result,
-          conditionEvaluations: [evaluation]
-        })
-        expect(error).toBeDefined()
-      })
-
-      it('rejects a malformed evaluation', () => {
-        const { error } = formAdapterSubmissionMessagePayloadSchema.validate({
-          ...payloadV2([target]),
-          conditionEvaluations: [{ conditionId: 'abc' }]
-        })
-        expect(error).toBeDefined()
-      })
     })
   })
 })

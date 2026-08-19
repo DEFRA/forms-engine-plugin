@@ -7,7 +7,6 @@ import {
   type Page,
   type PaymentFieldComponent,
   type SubmitConditionEvaluation,
-  type SubmitNotificationTarget,
   type UkAddressFieldComponent
 } from '@defra/forms-model'
 import {
@@ -605,76 +604,20 @@ export interface FormAdapterSubmissionMessageData {
   payment?: FormAdapterPayment
 }
 
-/**
- * What an adapter notification target is for.
- *
- * `submission` targets are the addresses managing the form - the form's
- * notification email and its outputs. `confirmation` is the receipt sent to
- * the person who submitted the form, which is a different email entirely.
- *
- * The engine only ever emits `submission` targets: the confirmation address is
- * not known at the point the message is formatted, and is attached downstream
- * by the publishing application. Adapters that send the confirmation email add
- * their own target so they can track it alongside the rest.
- */
-export type FormAdapterNotificationTargetType = 'submission' | 'confirmation'
-
-/**
- * An address this submission should be sent to, with the delivery progress an
- * adapter has made against it.
- *
- * Extends the model's `SubmitNotificationTarget` - the immutable record of
- * where the submission was destined, as stored against the submission - with
- * the mutable state an adapter needs to retry individual addresses without
- * resending to the ones that already succeeded.
- *
- * The progress properties are absent on a first delivery, and are only written
- * by an adapter republishing a partially-sent message.
- */
-export interface FormAdapterNotificationTarget extends SubmitNotificationTarget {
-  /**
-   * What this target is for. Absent means `submission` - the engine emits no
-   * type, so a message that has never been through an adapter has none.
-   */
-  type?: FormAdapterNotificationTargetType
-
-  /**
-   * Whether this address has already been sent to successfully. A target
-   * marked `true` must not be sent to again.
-   */
-  sent?: boolean
-
-  /**
-   * How many delivery attempts have been made against this address, across
-   * every time the message has been processed.
-   */
-  sendAttempts?: number
-}
-
 export interface FormAdapterSubmissionMessagePayload {
   meta: FormAdapterSubmissionMessageMeta
   data: FormAdapterSubmissionMessageData
   result: FormAdapterSubmissionMessageResult
 
   /**
-   * Where this submission should be sent, resolved at the point of submission
-   * with any output conditions already evaluated.
-   *
-   * Required from {@link FormAdapterSubmissionSchemaVersion.V2}. Absent on V1
-   * messages, which consumers must still handle by resolving the recipients
-   * from the form definition themselves.
-   */
-  notificationTargets?: FormAdapterNotificationTarget[]
-
-  /**
    * The outcome of every condition in the form definition, evaluated against
    * the final answers at the point of submission.
    *
-   * Carried on the message so it is stored against the submission record - an
-   * audit of why the submission went where it did.
-   *
-   * From {@link FormAdapterSubmissionSchemaVersion.V2}, and only for V2-engine
-   * forms - V1 conditions have no stable ids to report against.
+   * Always emitted, empty when there is nothing to report - a V1-engine form
+   * has no stable condition ids to record against. Optional only for
+   * backwards compatibility: a message published before this existed carries
+   * no evaluations at all, and consumers fall back to resolving the recipients
+   * from the form definition themselves.
    */
   conditionEvaluations?: SubmitConditionEvaluation[]
 }

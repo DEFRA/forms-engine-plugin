@@ -15,13 +15,16 @@ import {
 import { format } from '~/src/server/plugins/engine/outputFormatters/adapter/v1.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { FormAdapterSubmissionSchemaVersion } from '~/src/server/plugins/engine/types/index.js'
+import { formAdapterSubmissionMessagePayloadSchema } from '~/src/server/plugins/engine/types/schema.js'
 import {
   FileStatus,
   UploadStatus,
   type FileState,
-  type FormAdapterSubmissionMessagePayload
+  type FormAdapterSubmissionMessagePayload,
+  type FormContext
 } from '~/src/server/plugins/engine/types.js'
 import { FormStatus } from '~/src/server/routes/types.js'
+import joinedConditionsDefinition from '~/test/form/definitions/joined-conditions-simple-v2.js'
 import definition from '~/test/form/definitions/repeat-mixed.js'
 
 const submitResponse = {
@@ -869,5 +872,90 @@ describe('Adapter v1 formatter', () => {
 
       expect(parsedBody.meta.versionMetadata).toBeUndefined()
     })
+  })
+})
+
+describe('conditionEvaluations', () => {
+  const formStatus = {
+    isPreview: false,
+    state: FormStatus.Live
+  }
+
+  const formMetadata = {
+    id: '68a8b0449ab460290c28940a',
+    slug: 'order-a-pizza',
+    notificationEmail: 'submissions@example.com'
+  } as FormMetadata
+
+  const v2Model = new FormModel(joinedConditionsDefinition, {
+    basePath: 'test'
+  })
+
+  // The formatter only reads the reference number, translator and evaluation
+  // state from the context, so the full page-walk state is not needed here
+  const v2Context = {
+    referenceNumber: 'foobar',
+    evaluationState: { userName: 'Bob', isOverEighteen: true }
+  } as unknown as FormContext
+
+  const formatV2Definition = () =>
+    JSON.parse(
+      format(
+        v2Context,
+        items,
+        v2Model,
+        submitResponse,
+        formStatus,
+        formMetadata
+      )
+    ) as FormAdapterSubmissionMessagePayload
+
+  const formatV1Definition = () =>
+    JSON.parse(
+      format(
+        context,
+        items,
+        model,
+        submitResponse as SubmitResponsePayload,
+        formStatus,
+        formMetadata
+      )
+    ) as FormAdapterSubmissionMessagePayload
+
+  it('should record the outcome of every condition for a V2 definition', () => {
+    const { conditionEvaluations } = formatV2Definition()
+
+    expect(conditionEvaluations).toHaveLength(3)
+    expect(conditionEvaluations?.[0]).toMatchObject({
+      conditionId: 'd15aff7a-6224-40a2-8e5f-51a5af2f7910',
+      outcome: 'true',
+      references: [
+        {
+          componentId: '87b987e8-bcf9-4ff9-92af-57c34c45995a',
+          componentName: 'userName',
+          answered: true
+        }
+      ]
+    })
+  })
+
+  it('should be empty, not absent, for a V1 definition', () => {
+    // forms-notify-listener treats an absent property as "this message
+    // predates conditional emails" and resolves the recipients itself, so
+    // every message published from here has to carry the property
+    expect(formatV1Definition().conditionEvaluations).toEqual([])
+  })
+
+  it('should produce a payload the schema accepts', () => {
+    // The runner publishes with allowUnknown: false and throws on failure, so
+    // a formatter and schema that disagree would fail every submission
+    for (const payload of [formatV1Definition(), formatV2Definition()]) {
+      const { error } = formAdapterSubmissionMessagePayloadSchema.validate(
+        payload,
+        { abortEarly: false, allowUnknown: false }
+      )
+
+      expect(error).toBeUndefined()
+    }
   })
 })

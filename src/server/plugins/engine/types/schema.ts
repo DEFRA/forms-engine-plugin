@@ -1,7 +1,6 @@
 import {
   FormStatus,
   formSubmitConditionEvaluationSchema,
-  formSubmitNotificationTargetSchema,
   formVersionMetadataSchema,
   idSchema,
   notificationEmailAddressSchema,
@@ -12,7 +11,6 @@ import Joi from 'joi'
 
 import { FormAdapterSubmissionSchemaVersion } from '~/src/server/plugins/engine/types/enums.js'
 import {
-  type FormAdapterNotificationTarget,
   type FormAdapterSubmissionMessageData,
   type FormAdapterSubmissionMessageMeta,
   type FormAdapterSubmissionMessagePayload,
@@ -83,46 +81,19 @@ export const formAdapterSubmissionMessageResultSchema =
       .required()
   })
 
-export const formAdapterNotificationTargetSchema: Joi.ObjectSchema<FormAdapterNotificationTarget> =
-  formSubmitNotificationTargetSchema.append<FormAdapterNotificationTarget>({
-    type: Joi.string()
-      .valid('submission', 'confirmation')
-      .optional()
-      .description('What this target is for. Absent means "submission"'),
-    sent: Joi.boolean()
-      .optional()
-      .description('Whether this address has already been sent to'),
-    sendAttempts: Joi.number()
-      .integer()
-      .min(0)
-      .optional()
-      .description('Delivery attempts made against this address so far')
-  })
-
 export const formAdapterSubmissionMessagePayloadSchema =
   Joi.object<FormAdapterSubmissionMessagePayload>().keys({
     meta: formAdapterSubmissionMessageMetaSchema.required(),
     data: formAdapterSubmissionMessageDataSchema.required(),
     result: formAdapterSubmissionMessageResultSchema.required(),
-    notificationTargets: Joi.array()
-      .items(formAdapterNotificationTargetSchema)
-      .when(Joi.ref('meta.schemaVersion'), {
-        is: FormAdapterSubmissionSchemaVersion.V2,
-        then: Joi.required(),
-        otherwise: Joi.forbidden()
-      })
-      .description(
-        'Addresses to send this submission to, with output conditions already evaluated'
-      ),
+    // Optional so that messages published before this existed - which may
+    // still be in flight or sitting on a dead-letter queue - continue to
+    // validate. Consumers treat its absence as "resolve the recipients from
+    // the form definition yourself"
+    // This should be required at a later point in time.
     conditionEvaluations: Joi.array()
       .items(formSubmitConditionEvaluationSchema)
-      .when(Joi.ref('meta.schemaVersion'), {
-        is: FormAdapterSubmissionSchemaVersion.V2,
-        // Optional even on V2 - only V2 *engine* forms have stable condition
-        // ids to report against, and a V2 message can carry a V1-engine form
-        then: Joi.optional(),
-        otherwise: Joi.forbidden()
-      })
+      .optional()
       .description(
         'Outcome of every condition in the form definition, evaluated against the final answers at submission'
       )
