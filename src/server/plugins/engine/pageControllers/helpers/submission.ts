@@ -194,13 +194,7 @@ export function buildConditionEvaluations(
 
       const { outcome } = condition.evaluate(evaluationState)
 
-      const references = collectReferences(
-        model,
-        conditionDef,
-        evaluationState,
-        new Map(),
-        new Set()
-      )
+      const references = collectReferences(model, conditionDef, evaluationState)
 
       return {
         conditionId: conditionDef.id,
@@ -237,7 +231,7 @@ function isConditionDataV2(
 }
 
 /**
- * Collects every component a condition depends on, following nested condition
+ * Recursive function that collects every component a condition depends on, following nested condition
  * references. Results are keyed by component id so a component referenced more
  * than once is reported once.
  */
@@ -245,8 +239,11 @@ function collectReferences(
   model: FormModel,
   conditionDef: ConditionWrapperV2,
   evaluationState: FormState,
-  references: Map<string, SubmitConditionReference>,
-  visited: Set<string>
+  references: Map<string, SubmitConditionReference> = new Map<
+    string,
+    SubmitConditionReference
+  >(),
+  visited: Set<string> = new Set<string>()
 ) {
   if (visited.has(conditionDef.id)) {
     return references
