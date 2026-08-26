@@ -1,3 +1,5 @@
+import { promisify } from 'util'
+
 import {
   type Lifecycle,
   type Plugin,
@@ -8,6 +10,7 @@ import {
 
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { validatePluginOptions } from '~/src/server/plugins/engine/options.js'
+import { generateUniqueReference } from '~/src/server/plugins/engine/referenceNumbers.js'
 import { getRoutes as getFileUploadStatusRoutes } from '~/src/server/plugins/engine/routes/file-upload.js'
 import { makeLoadFormPreHandler } from '~/src/server/plugins/engine/routes/index.js'
 import { getRoutes as getPaymentRoutes } from '~/src/server/plugins/engine/routes/payment.js'
@@ -37,6 +40,7 @@ export const plugin = {
       cache,
       saveAndExit,
       getLanguage,
+      generateReferenceNumber,
       nunjucks: nunjucksOptions,
       viewContext,
       preparePageEventRequestOptions,
@@ -80,6 +84,10 @@ export const plugin = {
     server.expose('cacheService', cacheService)
     server.expose('saveAndExit', saveAndExit)
     server.expose('getLanguage', getLanguage)
+    server.expose(
+      'generateReferenceNumber',
+      generateReferenceNumber ?? promisify(generateUniqueReference)
+    )
     server.expose('baseUrl', baseUrl)
     server.expose('services', services)
 
