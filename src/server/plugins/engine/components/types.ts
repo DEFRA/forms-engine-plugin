@@ -60,6 +60,11 @@ export interface ListItem {
   selected?: boolean
   label?: ListItemLabel
   condition?: string
+  divider?: string
+  behaviour?: string
+  conditional?: {
+    html: string
+  }
 }
 
 export interface DateInputItem {

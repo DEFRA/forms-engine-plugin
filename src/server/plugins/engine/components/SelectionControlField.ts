@@ -1,3 +1,5 @@
+import { ComponentType } from '@defra/forms-model'
+
 import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
 import {
   type ListItem,
@@ -34,6 +36,35 @@ export class SelectionControlField extends ListFormComponent {
 
       return itemModel
     })
+
+    // PoC to force checkboxes/radios to include the 'none' option with conditional reveal
+    // For testing out JS vs non-JS behaviour
+    if (
+      this.def.type === ComponentType.CheckboxesField ||
+      this.def.type === ComponentType.RadiosField
+    ) {
+      items.push(
+        {
+          divider: 'or'
+        },
+        {
+          value: 'none',
+          text: 'No, I will not be travelling to any of these countries',
+          behaviour: 'exclusive',
+          conditional: {
+            // Add state and error content
+            html: `<div class="govuk-form-group">
+                    <h1 class="govuk-label-wrapper">
+                      <label class="govuk-label govuk-label--s" for="event-name">
+                        Please specify
+                      </label>
+                    </h1>
+                    <input class="govuk-input" id="event-name" name="eventName" type="text">
+                  </div>`
+          }
+        }
+      )
+    }
 
     return {
       ...viewModel,
