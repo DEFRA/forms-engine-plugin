@@ -1,5 +1,3 @@
-import { promisify } from 'util'
-
 import {
   type Lifecycle,
   type Plugin,
@@ -86,7 +84,7 @@ export const plugin = {
     server.expose('getLanguage', getLanguage)
     server.expose(
       'generateReferenceNumber',
-      generateReferenceNumber ?? promisify(generateUniqueReference)
+      generateReferenceNumber ?? generateUniqueReference
     )
     server.expose('baseUrl', baseUrl)
     server.expose('services', services)
