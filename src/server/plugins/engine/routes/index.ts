@@ -29,6 +29,7 @@ import {
   checkSaveAndExitRepeater,
   copyNotYetValidatedState
 } from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
+import { DEFAULT_REFERENCE_NUMBER } from '~/src/server/plugins/engine/referenceNumbers.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import {
   type AnyFormRequest,
@@ -54,7 +55,7 @@ export async function redirectOrMakeHandler(
     context: FormContext
   ) => ResponseObject | Promise<ResponseObject>
 ) {
-  const { app, params } = request
+  const { app, params, query } = request
   const { model } = app
 
   if (!model) {
@@ -74,8 +75,12 @@ export async function redirectOrMakeHandler(
       )
     }
 
+    const isForce = 'force' in query
     const { generateReferenceNumber } = getPluginOptions(request.server)
-    const referenceNumber = await generateReferenceNumber(prefix)
+    const referenceNumber = isForce
+      ? DEFAULT_REFERENCE_NUMBER
+      : await generateReferenceNumber(prefix)
+
     state = await page.mergeState(request, state, {
       $$__referenceNumber: referenceNumber
     })
