@@ -6,6 +6,7 @@ import {
   type List,
   type Page,
   type PaymentFieldComponent,
+  type SubmitConditionEvaluation,
   type UkAddressFieldComponent
 } from '@defra/forms-model'
 import {
@@ -529,7 +530,7 @@ export interface PluginOptions {
 }
 
 export interface FormAdapterSubmissionMessageMeta {
-  schemaVersion: FormAdapterSubmissionSchemaVersion
+  schemaVersion: (typeof FormAdapterSubmissionSchemaVersion)[keyof typeof FormAdapterSubmissionSchemaVersion]
   timestamp: Date
   referenceNumber: string
   formName: string
@@ -607,6 +608,18 @@ export interface FormAdapterSubmissionMessagePayload {
   meta: FormAdapterSubmissionMessageMeta
   data: FormAdapterSubmissionMessageData
   result: FormAdapterSubmissionMessageResult
+
+  /**
+   * The outcome of every condition in the form definition, evaluated against
+   * the final answers at the point of submission.
+   *
+   * Always emitted, empty when there is nothing to report - a V1-engine form
+   * has no stable condition ids to record against. Optional only for
+   * backwards compatibility: a message published before this existed carries
+   * no evaluations at all, and consumers fall back to resolving the recipients
+   * from the form definition themselves.
+   */
+  conditionEvaluations?: SubmitConditionEvaluation[]
 }
 
 export interface FormAdapterSubmissionMessage extends FormAdapterSubmissionMessagePayload {

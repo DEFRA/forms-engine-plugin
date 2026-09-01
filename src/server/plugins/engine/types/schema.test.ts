@@ -253,4 +253,87 @@ describe('Schema validation', () => {
       expect(error?.message).toContain('must be a number')
     })
   })
+
+  describe('conditionEvaluations', () => {
+    const meta: FormAdapterSubmissionMessageMeta = {
+      schemaVersion: FormAdapterSubmissionSchemaVersion.V1,
+      timestamp: new Date('2025-08-22T18:15:10.785Z'),
+      referenceNumber: '576-225-943',
+      formName: 'Order a pizza',
+      formId: '68a8b0449ab460290c28940a',
+      formSlug: 'order-a-pizza',
+      status: FormStatus.Live,
+      isPreview: false,
+      notificationEmail: 'info@example.com'
+    }
+
+    const result = {
+      files: { main: '3d289230-83a3-4852-a68a-cb3569e9b0fe', repeaters: {} }
+    }
+
+    const evaluation = {
+      conditionId: 'd15aff7a-6224-40a2-8e5f-51a5af2f7910',
+      outcome: 'true',
+      references: [
+        {
+          componentId: '87b987e8-bcf9-4ff9-92af-57c34c45995a',
+          componentName: 'userName',
+          answered: true
+        }
+      ]
+    }
+
+    it('accepts a payload carrying condition evaluations', () => {
+      const { error } = formAdapterSubmissionMessagePayloadSchema.validate({
+        meta,
+        data: validData,
+        result,
+        conditionEvaluations: [evaluation]
+      })
+      expect(error).toBeUndefined()
+    })
+
+    it('accepts an empty list - a V1-engine form has nothing to report', () => {
+      const { error } = formAdapterSubmissionMessagePayloadSchema.validate({
+        meta,
+        data: validData,
+        result,
+        conditionEvaluations: []
+      })
+      expect(error).toBeUndefined()
+    })
+
+    it('accepts a payload without them, keeping older messages valid', () => {
+      const { error } = formAdapterSubmissionMessagePayloadSchema.validate({
+        meta,
+        data: validData,
+        result
+      })
+      expect(error).toBeUndefined()
+    })
+
+    it('preserves the evaluations under stripUnknown', () => {
+      // forms-notify-listener and forms-submission-api both validate with
+      // stripUnknown. If the schema did not know about the evaluations they
+      // would be silently dropped, and the listener would fall back to
+      // resolving recipients from the live definition.
+      const { value } = formAdapterSubmissionMessagePayloadSchema.validate(
+        { meta, data: validData, result, conditionEvaluations: [evaluation] },
+        { stripUnknown: true }
+      )
+      const validated = value as FormAdapterSubmissionMessagePayload
+
+      expect(validated.conditionEvaluations).toEqual([evaluation])
+    })
+
+    it('rejects a malformed evaluation', () => {
+      const { error } = formAdapterSubmissionMessagePayloadSchema.validate({
+        meta,
+        data: validData,
+        result,
+        conditionEvaluations: [{ conditionId: 'abc' }]
+      })
+      expect(error).toBeDefined()
+    })
+  })
 })

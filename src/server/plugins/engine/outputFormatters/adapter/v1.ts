@@ -1,4 +1,5 @@
 import {
+  Engine,
   type FormMetadata,
   type SubmitResponsePayload
 } from '@defra/forms-model'
@@ -11,6 +12,7 @@ import {
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type DetailItem } from '~/src/server/plugins/engine/models/types.js'
 import { categoriseData } from '~/src/server/plugins/engine/outputFormatters/machine/v2.js'
+import { buildConditionEvaluations } from '~/src/server/plugins/engine/pageControllers/helpers/submission.js'
 import { FormAdapterSubmissionSchemaVersion } from '~/src/server/plugins/engine/types/enums.js'
 import {
   type FormAdapterSubmissionMessageData,
@@ -73,7 +75,19 @@ export function format(
   const payload: FormAdapterSubmissionMessagePayload = {
     meta,
     data,
-    result
+    result,
+
+    // Recorded here because only the engine holds the walked evaluation state
+    // the conditions were judged against; forms-notify-listener receives the
+    // flat submitted answers and resolves the outputs that qualify from these
+    // outcomes alone. Condition ids are only stable in V2, so a V1 definition
+    // has nothing to report - the property is still emitted, because its
+    // absence is what marks a message as predating this and sends the listener
+    // down its legacy path.
+    conditionEvaluations:
+      model.engine === Engine.V2
+        ? buildConditionEvaluations(model, context)
+        : []
   }
 
   return JSON.stringify(payload)

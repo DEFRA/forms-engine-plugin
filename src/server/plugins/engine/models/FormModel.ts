@@ -1,5 +1,6 @@
 import {
   ComponentType,
+  ConditionEvaluationOutcome,
   ConditionsModel,
   ControllerPath,
   ControllerType,
@@ -8,6 +9,7 @@ import {
   formDefinitionSchema,
   formDefinitionV2Schema,
   generateConditionAlias,
+  getErrorMessage,
   hasComponents,
   hasComponentsEvenIfNoNext,
   hasRepeater,
@@ -54,7 +56,10 @@ import { extractBaseTranslations } from '~/src/server/plugins/engine/i18n/extrac
 import { createFormI18nInstance } from '~/src/server/plugins/engine/i18n/index.js'
 import { getAvailableLanguages } from '~/src/server/plugins/engine/i18n/languages.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
-import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
+import {
+  type ConditionEvaluation,
+  type ExecutableCondition
+} from '~/src/server/plugins/engine/models/types.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
   createPage,
@@ -304,21 +309,35 @@ export class FormModel {
       throw new ConditionBuildError(displayName, { cause })
     }
 
-    const fn = (evaluationState: FormState) => {
+    const evaluate = (evaluationState: FormState): ConditionEvaluation => {
       const ctx = this.toConditionContext(evaluationState, this.conditions)
+
       try {
-        return expr.evaluate(ctx) as boolean
-      } catch {
-        return false
+        return {
+          outcome: (expr.evaluate(ctx) as boolean)
+            ? ConditionEvaluationOutcome.True
+            : ConditionEvaluationOutcome.False
+        }
+      } catch (err) {
+        return {
+          outcome: ConditionEvaluationOutcome.Error,
+          error: getErrorMessage(err)
+        }
       }
     }
+
+    // A failed evaluation continues to route as `false`. `evaluate` exists so
+    // that the two can be told apart when recording outcomes for submission.
+    const fn = (evaluationState: FormState) =>
+      evaluate(evaluationState).outcome === ConditionEvaluationOutcome.True
 
     return {
       name,
       displayName,
       value,
       expr,
-      fn
+      fn,
+      evaluate
     }
   }
 
