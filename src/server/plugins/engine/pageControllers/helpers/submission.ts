@@ -212,7 +212,7 @@ export function buildConditionEvaluations(
  * absent.
  * @see {@link FormModel.initialiseContext}
  */
-function isAnswered(value: FormStateValue | undefined) {
+export function isAnswered(value: FormStateValue | undefined) {
   if (value === undefined || value === null) {
     return false
   }

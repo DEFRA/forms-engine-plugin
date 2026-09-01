@@ -10,7 +10,8 @@ import {
   buildConditionEvaluations,
   buildMainRecords,
   buildPaymentRecords,
-  buildRepeaterRecords
+  buildRepeaterRecords,
+  isAnswered
 } from '~/src/server/plugins/engine/pageControllers/helpers/submission.js'
 import {
   type FormContext,
@@ -500,6 +501,23 @@ describe('buildConditionEvaluations', () => {
   const build = (evaluationState: FormState) =>
     buildConditionEvaluations(model, { evaluationState } as FormContext)
 
+  it('should ignore condition if condition not found', () => {
+    const badModel = new FormModel(joinedConditionsDefinition, {
+      basePath: '/'
+    })
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+    delete badModel.conditions[isBobConditionId]
+    const badBuild = (evaluationState: FormState) =>
+      buildConditionEvaluations(badModel, { evaluationState } as FormContext)
+
+    const evaluations = badBuild({ userName: null, isOverEighteen: null })
+
+    expect(evaluations.map((evaluation) => evaluation.conditionId)).toEqual([
+      isOverEighteenConditionId,
+      joinedConditionId
+    ])
+  })
+
   it('should record every condition in the definition', () => {
     const evaluations = build({ userName: null, isOverEighteen: null })
 
@@ -629,5 +647,10 @@ describe('buildConditionEvaluations', () => {
     expect(
       buildConditionEvaluations(v1Model, { evaluationState: {} } as FormContext)
     ).toEqual([])
+  })
+
+  it('isAnswered handle arrays', () => {
+    expect(isAnswered([])).toBe(false)
+    expect(isAnswered(['abc'])).toBe(true)
   })
 })
