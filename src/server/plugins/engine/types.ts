@@ -530,7 +530,7 @@ export interface PluginOptions {
 }
 
 export interface FormAdapterSubmissionMessageMeta {
-  schemaVersion: FormAdapterSubmissionSchemaVersion
+  schemaVersion: (typeof FormAdapterSubmissionSchemaVersion)[keyof typeof FormAdapterSubmissionSchemaVersion]
   timestamp: Date
   referenceNumber: string
   formName: string

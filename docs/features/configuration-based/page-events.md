@@ -58,7 +58,7 @@ The payload takes the following shape:
 ```jsonc
 {
   "meta": {
-    "schemaVersion": "2",
+    "schemaVersion": 1,
     "timestamp": "2025-03-25T10:00:00Z",
     "definition": {
       // This object would be a full copy of the form definition at the time of submission. It is excluded for brevity.

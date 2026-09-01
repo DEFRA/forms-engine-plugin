@@ -20,11 +20,7 @@ import {
 export const formAdapterSubmissionMessageMetaSchema =
   Joi.object<FormAdapterSubmissionMessageMeta>().keys({
     schemaVersion: Joi.number()
-      .valid(
-        ...Object.values(FormAdapterSubmissionSchemaVersion).filter(
-          (version) => typeof version === 'number'
-        )
-      )
+      .valid(...Object.values(FormAdapterSubmissionSchemaVersion))
       .required(),
     timestamp: Joi.date().required(),
     referenceNumber: Joi.string().required(),
