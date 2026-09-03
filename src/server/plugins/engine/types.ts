@@ -484,6 +484,10 @@ export type SaveAndExitHandler = (
 
 export type GetLanguageHandler = (query?: RequestQuery, yar?: Yar) => string
 
+export type GenerateReferenceNumberHandler = (
+  prefix?: string
+) => Promise<string>
+
 export interface ExternalArgs {
   component: ComponentDef
   controller: QuestionPageController
@@ -524,6 +528,7 @@ export interface PluginOptions {
   preparePageEventRequestOptions?: PreparePageEventRequestOptions
   onRequest?: OnRequestCallback
   getLanguage?: GetLanguageHandler
+  generateReferenceNumber?: GenerateReferenceNumberHandler
   baseUrl: string // base URL of the application, protocol and hostname e.g. "https://myapp.com"
   ordnanceSurveyApiKey?: string
   ordnanceSurveyApiSecret?: string

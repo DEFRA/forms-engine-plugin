@@ -72,7 +72,8 @@ describe('Postcode lookup form pages', () => {
         getFlash: jest.fn().mockReturnValue(undefined),
         setFlash: jest.fn()
       },
-      saveAndExit: undefined
+      saveAndExit: undefined,
+      generateReferenceNumber: jest.fn().mockReturnValue('XXX-XXX-XXX')
     })
   })
 

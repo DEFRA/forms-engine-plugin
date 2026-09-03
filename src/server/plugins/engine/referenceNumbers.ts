@@ -6,6 +6,8 @@ import {
   englishRecommendedTransformers
 } from 'obscenity'
 
+export const DEFAULT_REFERENCE_NUMBER = 'XXX-XXX-XXX'
+
 /**
  * To prevent confusion to users reading the reference number, ambiguous letters and numbers are removed.
  * @param strCodes - array of binary input values
