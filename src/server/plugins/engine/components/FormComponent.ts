@@ -37,6 +37,13 @@ export class FormComponent extends ComponentBase {
   isFormComponent = true
   isAppendageStateSingleObject = false
 
+  /**
+   * A composite field normally holds its whole answer in its child fields. Set
+   * this when the field also holds a value of its own under its own name, so
+   * that key is kept in the page schemas alongside its children.
+   */
+  hasOwnStateKey = false
+
   constructor(
     def: FormComponentsDef,
     props: ConstructorParameters<typeof ComponentBase>[1]
@@ -115,6 +122,16 @@ export class FormComponent extends ComponentBase {
     return {
       [name]: this.getFormValue(payload[name]) ?? null
     }
+  }
+
+  /**
+   * The fields that get their own row on the check answers page and their own
+   * record in the submission. Composite fields whose children are answered
+   * separately can return more than one, and can leave out children that were
+   * not answered.
+   */
+  getSummaryFields(_state: FormSubmissionState): FormComponent[] {
+    return [this]
   }
 
   getErrors(

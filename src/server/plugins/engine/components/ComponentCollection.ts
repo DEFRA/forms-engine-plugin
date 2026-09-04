@@ -84,13 +84,18 @@ export class ComponentCollection {
     for (const field of fields) {
       const { collection, name } = field
 
-      formSchema = collection
-        ? formSchema.concat(collection.formSchema)
-        : formSchema.keys({ [name]: field.formSchema })
+      if (collection) {
+        formSchema = formSchema.concat(collection.formSchema)
+        stateSchema = stateSchema.concat(collection.stateSchema)
+      }
 
-      stateSchema = collection
-        ? stateSchema.concat(collection.stateSchema)
-        : stateSchema.keys({ [name]: field.stateSchema })
+      // A composite field normally holds its whole answer in its child fields.
+      // Checkboxes with an additional question also hold a value of their own,
+      // so their key is added alongside their children.
+      if (!collection || field.hasOwnStateKey) {
+        formSchema = formSchema.keys({ [name]: field.formSchema })
+        stateSchema = stateSchema.keys({ [name]: field.stateSchema })
+      }
     }
 
     if (schema?.peers) {
@@ -248,7 +253,7 @@ export class ComponentCollection {
 
         // Update error with child label
         if (child && (!error.local.label || error.local.label === 'value')) {
-          error.local.label = child.title
+          error.local.label = getErrorLabel(child)
         }
 
         // Fix error summary links for missing fields
@@ -301,8 +306,17 @@ export class ComponentCollection {
           const messagesOverride =
             field.getValidationMessagesOverride(translator)
           for (const subField of field.collection.fields) {
-            const translatedSubLabel = t(subField.title) || subField.label
-            let patchedSchema = subField.formSchema.label(translatedSubLabel)
+            const translatedSubLabel =
+              t(getErrorLabel(subField)) || subField.label
+
+            // Take the schema already held by the collection rather than the
+            // sub-field's own. A parent may have wrapped the key (checkboxes
+            // wrap their additional question in a `when`), and overwriting it
+            // here would throw that wrapping away.
+            const subFieldSchema =
+              extractKeySchema(schema, subField.name) ?? subField.formSchema
+
+            let patchedSchema = subFieldSchema.label(translatedSubLabel)
             const subFieldMessages = messagesOverride
               ? messagesOverride[subField.name]
               : undefined
@@ -311,7 +325,9 @@ export class ComponentCollection {
             }
             labelOverrides[subField.name] = patchedSchema
           }
-        } else {
+        }
+
+        if (!field.collection || field.hasOwnStateKey) {
           const fieldDef = field.def
           const translatedLabel = getTranslatedLabel(fieldDef, translator)
           const messagesOverride =
@@ -390,4 +406,33 @@ export function isErrorContext(
   value?: unknown
 ): value is ErrorReportCollection['local'] {
   return isFormState(value) && typeof value.label === 'string'
+}
+
+/**
+ * The label to use when naming a field in an error message. `errorDescription`
+ * exists for exactly this purpose, so it wins over the visible title; anything
+ * without one keeps the title it always used.
+ */
+function getErrorLabel(field: Field) {
+  const { def } = field
+
+  if ('errorDescription' in def && def.errorDescription) {
+    return def.errorDescription
+  }
+
+  return field.title
+}
+
+/**
+ * The schema an object holds for one key, or undefined when it holds none.
+ */
+function extractKeySchema(
+  schema: joi.ObjectSchema<FormPayload>,
+  key: string
+): joi.Schema | undefined {
+  try {
+    return schema.extract(key)
+  } catch {
+    return undefined
+  }
 }

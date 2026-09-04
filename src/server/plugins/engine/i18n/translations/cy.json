@@ -16,6 +16,7 @@
     "numberMax": "Rhaid i {{#label}} fod yn {{#limit}} neu is",
     "maxWords": "Rhaid i {{#label}} fod yn {{#limit}} o eiriau neu lai",
     "unicode": "Mae {{#label}} yn cynnwys nodau annilys, er enghraifft, dashes hirion",
+    "arrayExclusive": "Dewiswch {{lowerFirst(#label)}}, neu dewiswch \u2018[[exclusive]]\u2019, ond nid y ddau",
     "arrayMin_zero": "Dewiswch o leiaf 1 opsiwn o'r rhestr",
     "arrayMin_one": "Dewiswch o leiaf {{#limit}} opsiwn o'r rhestr",
     "arrayMin_two": "Dewiswch o leiaf ddau opsiwn o'r rhestr",

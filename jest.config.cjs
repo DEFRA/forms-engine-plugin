@@ -1,4 +1,22 @@
+const { lstatSync } = require('fs')
+const path = require('path')
+
 const { CI } = process.env
+
+/**
+ * Whether `@defra/forms-model` is `npm link`ed to a local checkout rather than
+ * installed from the registry.
+ * @returns {boolean}
+ */
+function isModelLinked() {
+  try {
+    return lstatSync(
+      path.join(__dirname, 'node_modules/@defra/forms-model')
+    ).isSymbolicLink()
+  } catch {
+    return false
+  }
+}
 
 /**
  * Jest config
@@ -58,6 +76,19 @@ module.exports = {
     ].join('|')}/)`
   ],
   moduleNameMapper: {
+    // `joi` is a peer dependency of `@defra/forms-model`, so the consumer is
+    // meant to supply it. When that package is `npm link`ed to a local
+    // checkout, its realpath resolves `joi` to the linked repo's own copy
+    // instead, leaving two physical copies in one Jest registry. Joi keys
+    // schemas off a global `Symbol.for()` (so those still interoperate) but
+    // keys templates off a plain `Symbol()`, so a template built by one copy
+    // is unrecognised by the other and gets recompiled without its custom
+    // functions.
+    //
+    // Only applied while linked: this maps on the specifier rather than the
+    // importer, so it would otherwise also pull nested copies (`hapi-pulse`
+    // pins `joi@~17.9.2`) onto the root version.
+    ...(isModelLinked() ? { '^joi$': '<rootDir>/node_modules/joi' } : {}),
     '^@defra/interactive-map$':
       '<rootDir>/test/__mocks__/@defra/interactive-map.js',
     '^@defra/interactive-map/plugins/datasets/adapters/(.*)$':

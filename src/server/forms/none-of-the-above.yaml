@@ -1,0 +1,87 @@
+---
+name: None of the above
+engine: V2
+schema: 2
+startPage: '/summary'
+pages:
+  - title: Exclusive option first, with a follow-up question
+    path: '/how-you-heard'
+    components:
+      - type: CheckboxesField
+        title: How did you hear about this service?
+        name: howYouHeard
+        shortDescription: How you heard about us
+        hint: Select all that apply
+        options:
+          required: true
+        schema: {}
+        list: 9a1b2c3d-4e5f-4a6b-8c7d-0e1f2a3b4c5d
+        id: 3f2b1a0c-9d8e-4f7a-b6c5-d4e3f2a1b0c9
+    next: []
+    id: 1c2d3e4f-5a6b-4c7d-8e9f-0a1b2c3d4e5f
+  - title: Exclusive option last, with no follow-up question
+    path: '/which-permits'
+    components:
+      - type: CheckboxesField
+        title: Which permits do you already hold?
+        name: permitsHeld
+        shortDescription: Permits you hold
+        hint: Select all that apply
+        options:
+          required: true
+        schema: {}
+        list: 8b7a6c5d-4e3f-4a2b-9c8d-7e6f5a4b3c2d
+        id: 4e5f6a7b-8c9d-4e0f-a1b2-c3d4e5f6a7b8
+    next: []
+    id: 2d3e4f5a-6b7c-4d8e-9f0a-1b2c3d4e5f6a
+  - id: 5f6a7b8c-9d0e-4f1a-b2c3-d4e5f6a7b8c9
+    title: ''
+    path: '/summary'
+    controller: SummaryPageController
+conditions: []
+sections: []
+lists:
+  - id: 9a1b2c3d-4e5f-4a6b-8c7d-0e1f2a3b4c5d
+    name: howYouHeardOptions
+    title: How you heard about us
+    type: string
+    items:
+      - id: 0e1f2a3b-4c5d-4e6f-8a7b-9c0d1e2f3a4b
+        text: None of the above
+        value: none
+        extensions:
+          - type: exclusive
+          - type: additional-question
+            id: 1f2a3b4c-5d6e-4f7a-8b9c-0d1e2f3a4b5c
+            name: source
+            title: How did you hear about it?
+            hint: For example, a colleague or a newsletter
+            options:
+              required: true
+            schema:
+              max: 200
+      - id: 2a3b4c5d-6e7f-4a8b-9c0d-1e2f3a4b5c6d
+        text: Search engine
+        value: search-engine
+      - id: 3b4c5d6e-7f8a-4b9c-8d0e-2f3a4b5c6d7e
+        text: Social media
+        value: social-media
+      - id: 4c5d6e7f-8a9b-4c0d-9e1f-3a4b5c6d7e8f
+        text: Word of mouth
+        value: word-of-mouth
+  - id: 8b7a6c5d-4e3f-4a2b-9c8d-7e6f5a4b3c2d
+    name: permitsHeldOptions
+    title: Permits you hold
+    type: string
+    items:
+      - id: 5d6e7f8a-9b0c-4d1e-8f2a-4b5c6d7e8f9a
+        text: Waste carrier registration
+        value: waste-carrier
+      - id: 6e7f8a9b-0c1d-4e2f-9a3b-5c6d7e8f9a0b
+        text: Water abstraction licence
+        value: water-abstraction
+      - id: 7f8a9b0c-1d2e-4f3a-8b4c-6d7e8f9a0b1c
+        text: I do not hold any permits
+        value: none
+        extensions:
+          - type: exclusive

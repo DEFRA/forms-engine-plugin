@@ -1,5 +1,30 @@
 {% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
 
 {% macro CheckboxesField(component) %}
-  {{ govukCheckboxes(component.model) }}
+  {% set model = component.model %}
+
+  {% if model.additionalQuestion %}
+    {#
+      The exclusive option reveals a short answer question. The checkboxes macro
+      takes it as pre-rendered HTML on the item, so render it up front and
+      rebuild the item list with it attached.
+    #}
+    {% set additionalQuestionHtml %}
+      {{ govukInput(model.additionalQuestion.model) }}
+    {% endset %}
+
+    {% set items = [] %}
+    {% for item in model.items %}
+      {% if item.hasAdditionalQuestion %}
+        {% set _ = items.push(item | merge({ conditional: { html: additionalQuestionHtml } })) %}
+      {% else %}
+        {% set _ = items.push(item) %}
+      {% endif %}
+    {% endfor %}
+
+    {{ govukCheckboxes(model | merge({ items: items })) }}
+  {% else %}
+    {{ govukCheckboxes(model) }}
+  {% endif %}
 {% endmacro %}

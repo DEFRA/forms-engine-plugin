@@ -176,9 +176,22 @@ export class SummaryViewModel {
             if (field instanceof PaymentField) {
               continue
             }
-            items.push(
-              ItemField(page, state, field, { path, errors }, translator)
-            )
+
+            // Most fields are a single row. A composite field whose children
+            // are answered separately can add a row per answered child.
+            for (const summaryField of field.getSummaryFields(
+              state
+            ) as Field[]) {
+              items.push(
+                ItemField(
+                  page,
+                  state,
+                  summaryField,
+                  { path, errors },
+                  translator
+                )
+              )
+            }
           }
         }
       })

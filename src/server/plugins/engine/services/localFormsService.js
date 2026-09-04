@@ -72,5 +72,12 @@ export const formsService = async () => {
     slug: 'payment-v2-test'
   })
 
+  await loader.addForm('src/server/forms/none-of-the-above.yaml', {
+    ...metadata,
+    id: 'd4e5f6a7-b8c9-0123-def0-123456789012',
+    title: 'None of the above',
+    slug: 'none-of-the-above'
+  })
+
   return loader.toFormsService()
 }

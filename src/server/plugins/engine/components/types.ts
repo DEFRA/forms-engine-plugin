@@ -1,4 +1,8 @@
-import { type ComponentType, type Item } from '@defra/forms-model'
+import {
+  type ComponentType,
+  type Extension,
+  type Item
+} from '@defra/forms-model'
 
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import {
@@ -60,6 +64,30 @@ export interface ListItem {
   selected?: boolean
   label?: ListItemLabel
   condition?: string
+
+  /**
+   * Optional behaviours attached to the item in the form definition. Carried
+   * through from the list so components can read them, and removed before the
+   * item reaches a GOV.UK macro.
+   */
+  extensions?: Extension[]
+
+  /**
+   * GOV.UK Frontend checkbox behaviour. 'exclusive' unticks every other option
+   * when this one is ticked.
+   */
+  behaviour?: string
+
+  /**
+   * Set on the exclusive item when it reveals an additional question, so the
+   * template knows which item to attach the revealed markup to.
+   */
+  hasAdditionalQuestion?: boolean
+
+  /**
+   * Renders as an "or" separator rather than a checkbox
+   */
+  divider?: string
 }
 
 export interface DateInputItem {
