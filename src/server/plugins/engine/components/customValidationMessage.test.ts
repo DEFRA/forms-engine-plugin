@@ -1,43 +1,28 @@
 import {
   ComponentType,
-  type AutocompleteFieldComponent,
-  type CheckboxesFieldComponent,
-  type DatePartsFieldComponent,
-  type DeclarationFieldComponent,
   type EastingNorthingFieldComponent,
   type EmailAddressFieldComponent,
-  type FileUploadFieldComponent,
-  type GeospatialFieldComponent,
-  type HiddenFieldComponent,
   type LatLongFieldComponent,
   type MonthYearFieldComponent,
   type MultilineTextFieldComponent,
   type NationalGridFieldNumberFieldComponent,
   type NumberFieldComponent,
   type OsGridRefFieldComponent,
-  type PaymentFieldComponent,
-  type RadiosFieldComponent,
-  type SelectFieldComponent,
   type TelephoneNumberFieldComponent,
   type TextFieldComponent,
-  type UkAddressFieldComponent,
   type YesNoFieldComponent
 } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import {
-  type FormPayload,
-  type FormValue
-} from '~/src/server/plugins/engine/types.js'
-import { listString } from '~/test/fixtures/list.js'
+import { type FormPayload } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData } from '~/test/helpers/component-helpers.js'
 
 /**
- * Composite fields (DatePartsField, UkAddressField, ...) use flat payload
- * keys, e.g. `myComponent__day`. They do not nest an object under
- * `myComponent`. Each component's own test file uses the same format.
+ * Composite fields (EastingNorthingField, ...) use flat payload keys, e.g.
+ * `myComponent__easting`. They do not nest an object under `myComponent`.
+ * Each component's own test file uses the same format.
  */
 function getCompositeFormData(fields: Record<string, string>): FormPayload {
   const data: FormPayload = {}
@@ -51,27 +36,33 @@ function getCompositeFormData(fields: Record<string, string>): FormPayload {
 
 /**
  * Each component has its own test file for schema, state and view model
- * checks. This file has one job: check `options.customValidationMessage(s)`
- * for every component type, in two ways:
+ * checks. This file has one job: check the singular `options.customValidationMessage`
+ * string (it applies to every key in a component's schema) for every
+ * component type, in two ways:
  * - `validate(input)` - a plain unit test, no translator.
  * - `validate(input, translator)` - matches a real request. `FormModel.ts`
  *   always passes a translator when it validates form input.
  *
- * The lists below record which components use the option. They come from
- * reading each component's source code, not from guessing.
+ * Support for the plural `options.customValidationMessages` map is not the
+ * same as support for this singular option, so that option has its own test
+ * file: customValidationMessages.test.ts.
  *
- * Some components also support a singular `customValidationMessage` string,
- * which applies to every key in the component's schema. Where a component
- * supports it, its own nested 'singular customValidationMessage' block
- * covers it too.
+ * The lists below record which components declare and read this option.
+ * They come from reading each component's source code and its
+ * `@defra/forms-model` type, not from guessing. Only 11 of the 28
+ * ComponentType values declare customValidationMessage on their options
+ * type at all - the other 17 cannot express it, so TypeScript itself proves
+ * the option does not apply to them. No runtime test is needed for those;
+ * they are listed below only so the coverage guard test accounts for every
+ * ComponentType.
  *
- * Fixed regression: NumberField, OsGridRefField, NationalGridFieldNumberField
- * and AutocompleteField worked in v4.23.0 (the last v4 release, which had no
+ * Fixed regression: NumberField, OsGridRefField and NationalGridFieldNumberField
+ * worked in v4.23.0 (the last v4 release, which had no
  * `getValidationMessagesOverride()` and no translator argument on
  * `validate()`). In v5, `getValidationMessagesOverride()` always replaced the
  * author's message with a translated default at request time, breaking the
  * option. `withCustomValidationOverrides()` (components/helpers/index.ts) now
- * keeps the author's message for any key they set.
+ * builds the override from the author's message when one is set.
  *
  * Not a regression: YesNoField never supported the option in v4.23.0.
  */
@@ -79,10 +70,10 @@ function getCompositeFormData(fields: Record<string, string>): FormPayload {
 const CUSTOM = 'This is a custom validation message'
 
 /**
- * Component types that read options.customValidationMessage(s) and use it
- * in their Joi schema. Tested below under 'Supported'.
+ * Component types that declare customValidationMessage on their options
+ * type and read it. Tested below under 'Supported'.
  */
-const SUPPORTED_COMPONENT_TYPES = [
+const SUPPORTS_SINGULAR_MESSAGE = [
   ComponentType.TextField,
   ComponentType.EmailAddressField,
   ComponentType.MultilineTextField,
@@ -90,36 +81,37 @@ const SUPPORTED_COMPONENT_TYPES = [
   ComponentType.NumberField,
   ComponentType.OsGridRefField,
   ComponentType.NationalGridFieldNumberField,
-  ComponentType.YesNoField,
-  ComponentType.RadiosField,
-  ComponentType.SelectField,
-  ComponentType.AutocompleteField
+  ComponentType.YesNoField
 ]
 
 /**
- * Component types that never read options.customValidationMessage(s).
- * CheckboxesField reads it but then throws away that schema. Tested below
- * under 'Not supported'.
+ * Component types that declare customValidationMessage on their options
+ * type but never read it. Tested below under 'Not supported'.
  */
 const NOT_SUPPORTED_COMPONENT_TYPES = [
-  ComponentType.CheckboxesField,
-  ComponentType.DatePartsField,
-  ComponentType.MonthYearField,
   ComponentType.EastingNorthingField,
   ComponentType.LatLongField,
+  ComponentType.MonthYearField
+]
+
+/**
+ * Component types with no customValidationMessage field on their options
+ * type. TypeScript itself proves the option cannot be set, so there is
+ * nothing to test at runtime. Listed here only so the coverage guard test
+ * below accounts for every ComponentType.
+ */
+const NO_SINGULAR_MESSAGE_OPTION = [
+  ComponentType.CheckboxesField,
+  ComponentType.DatePartsField,
   ComponentType.UkAddressField,
   ComponentType.FileUploadField,
   ComponentType.DeclarationField,
   ComponentType.HiddenField,
   ComponentType.GeospatialField,
-  ComponentType.PaymentField
-]
-
-/**
- * Content-only component types. They have no user input and no validation,
- * so options.customValidationMessage(s) does not apply to them.
- */
-const CONTENT_ONLY_COMPONENT_TYPES = [
+  ComponentType.PaymentField,
+  ComponentType.RadiosField,
+  ComponentType.SelectField,
+  ComponentType.AutocompleteField,
   ComponentType.Details,
   ComponentType.Html,
   ComponentType.Markdown,
@@ -128,13 +120,13 @@ const CONTENT_ONLY_COMPONENT_TYPES = [
   ComponentType.NotificationBanner
 ]
 
-describe('Component-level validation message override', () => {
+describe('Component-level validation message override (customValidationMessage)', () => {
   // Fails when a new ComponentType is not in one of the three lists above.
   it('accounts for every ComponentType', () => {
     const accountedFor = [
-      ...SUPPORTED_COMPONENT_TYPES,
+      ...SUPPORTS_SINGULAR_MESSAGE,
       ...NOT_SUPPORTED_COMPONENT_TYPES,
-      ...CONTENT_ONLY_COMPONENT_TYPES
+      ...NO_SINGULAR_MESSAGE_OPTION
     ]
 
     expect(new Set(accountedFor).size).toBe(accountedFor.length)
@@ -157,7 +149,7 @@ describe('Component-level validation message override', () => {
         title: 'Example text field',
         name: 'myComponent',
         type: ComponentType.TextField,
-        options: { customValidationMessages: { 'any.required': CUSTOM } },
+        options: { customValidationMessage: CUSTOM },
         schema: {}
       } satisfies TextFieldComponent
 
@@ -178,31 +170,6 @@ describe('Component-level validation message override', () => {
           expect.objectContaining({ text: CUSTOM })
         ])
       })
-
-      describe('singular customValidationMessage', () => {
-        const singularDef = {
-          ...def,
-          options: { customValidationMessage: CUSTOM }
-        } satisfies TextFieldComponent
-
-        it('honours the override', () => {
-          const collection = new ComponentCollection([singularDef], { model })
-          const result = collection.validate(getFormData())
-
-          expect(result.errors).toEqual([
-            expect.objectContaining({ text: CUSTOM })
-          ])
-        })
-
-        it('honours the override at request time (with a translator)', () => {
-          const collection = new ComponentCollection([singularDef], { model })
-          const result = collection.validate(getFormData(), translator)
-
-          expect(result.errors).toEqual([
-            expect.objectContaining({ text: CUSTOM })
-          ])
-        })
-      })
     })
 
     describe('EmailAddressField', () => {
@@ -210,7 +177,7 @@ describe('Component-level validation message override', () => {
         title: 'Example email address field',
         name: 'myComponent',
         type: ComponentType.EmailAddressField,
-        options: { customValidationMessages: { 'any.required': CUSTOM } }
+        options: { customValidationMessage: CUSTOM }
       } satisfies EmailAddressFieldComponent
 
       it('honours the override', () => {
@@ -230,31 +197,6 @@ describe('Component-level validation message override', () => {
           expect.objectContaining({ text: CUSTOM })
         ])
       })
-
-      describe('singular customValidationMessage', () => {
-        const singularDef = {
-          ...def,
-          options: { customValidationMessage: CUSTOM }
-        } satisfies EmailAddressFieldComponent
-
-        it('honours the override', () => {
-          const collection = new ComponentCollection([singularDef], { model })
-          const result = collection.validate(getFormData())
-
-          expect(result.errors).toEqual([
-            expect.objectContaining({ text: CUSTOM })
-          ])
-        })
-
-        it('honours the override at request time (with a translator)', () => {
-          const collection = new ComponentCollection([singularDef], { model })
-          const result = collection.validate(getFormData(), translator)
-
-          expect(result.errors).toEqual([
-            expect.objectContaining({ text: CUSTOM })
-          ])
-        })
-      })
     })
 
     describe('MultilineTextField', () => {
@@ -262,7 +204,7 @@ describe('Component-level validation message override', () => {
         title: 'Example multiline text field',
         name: 'myComponent',
         type: ComponentType.MultilineTextField,
-        options: { customValidationMessages: { 'any.required': CUSTOM } },
+        options: { customValidationMessage: CUSTOM },
         schema: {}
       } satisfies MultilineTextFieldComponent
 
@@ -283,31 +225,6 @@ describe('Component-level validation message override', () => {
           expect.objectContaining({ text: CUSTOM })
         ])
       })
-
-      describe('singular customValidationMessage', () => {
-        const singularDef = {
-          ...def,
-          options: { customValidationMessage: CUSTOM }
-        } satisfies MultilineTextFieldComponent
-
-        it('honours the override', () => {
-          const collection = new ComponentCollection([singularDef], { model })
-          const result = collection.validate(getFormData())
-
-          expect(result.errors).toEqual([
-            expect.objectContaining({ text: CUSTOM })
-          ])
-        })
-
-        it('honours the override at request time (with a translator)', () => {
-          const collection = new ComponentCollection([singularDef], { model })
-          const result = collection.validate(getFormData(), translator)
-
-          expect(result.errors).toEqual([
-            expect.objectContaining({ text: CUSTOM })
-          ])
-        })
-      })
     })
 
     describe('TelephoneNumberField', () => {
@@ -315,7 +232,7 @@ describe('Component-level validation message override', () => {
         title: 'Example telephone number field',
         name: 'myComponent',
         type: ComponentType.TelephoneNumberField,
-        options: { customValidationMessages: { 'any.required': CUSTOM } }
+        options: { customValidationMessage: CUSTOM }
       } satisfies TelephoneNumberFieldComponent
 
       it('honours the override', () => {
@@ -335,31 +252,6 @@ describe('Component-level validation message override', () => {
           expect.objectContaining({ text: CUSTOM })
         ])
       })
-
-      describe('singular customValidationMessage', () => {
-        const singularDef = {
-          ...def,
-          options: { customValidationMessage: CUSTOM }
-        } satisfies TelephoneNumberFieldComponent
-
-        it('honours the override', () => {
-          const collection = new ComponentCollection([singularDef], { model })
-          const result = collection.validate(getFormData())
-
-          expect(result.errors).toEqual([
-            expect.objectContaining({ text: CUSTOM })
-          ])
-        })
-
-        it('honours the override at request time (with a translator)', () => {
-          const collection = new ComponentCollection([singularDef], { model })
-          const result = collection.validate(getFormData(), translator)
-
-          expect(result.errors).toEqual([
-            expect.objectContaining({ text: CUSTOM })
-          ])
-        })
-      })
     })
 
     describe('NumberField', () => {
@@ -367,7 +259,7 @@ describe('Component-level validation message override', () => {
         title: 'Example number field',
         name: 'myComponent',
         type: ComponentType.NumberField,
-        options: { customValidationMessages: { 'any.required': CUSTOM } },
+        options: { customValidationMessage: CUSTOM },
         schema: {}
       } satisfies NumberFieldComponent
 
@@ -388,31 +280,6 @@ describe('Component-level validation message override', () => {
           expect.objectContaining({ text: CUSTOM })
         ])
       })
-
-      describe('singular customValidationMessage', () => {
-        const singularDef = {
-          ...def,
-          options: { customValidationMessage: CUSTOM }
-        } satisfies NumberFieldComponent
-
-        it('honours the override', () => {
-          const collection = new ComponentCollection([singularDef], { model })
-          const result = collection.validate(getFormData())
-
-          expect(result.errors).toEqual([
-            expect.objectContaining({ text: CUSTOM })
-          ])
-        })
-
-        it('honours the override at request time (with a translator)', () => {
-          const collection = new ComponentCollection([singularDef], { model })
-          const result = collection.validate(getFormData(), translator)
-
-          expect(result.errors).toEqual([
-            expect.objectContaining({ text: CUSTOM })
-          ])
-        })
-      })
     })
 
     describe('OsGridRefField', () => {
@@ -420,7 +287,7 @@ describe('Component-level validation message override', () => {
         title: 'Example OS grid reference',
         name: 'myComponent',
         type: ComponentType.OsGridRefField,
-        options: { customValidationMessages: { 'any.required': CUSTOM } }
+        options: { customValidationMessage: CUSTOM }
       } satisfies OsGridRefFieldComponent
 
       it('honours the override', () => {
@@ -440,31 +307,6 @@ describe('Component-level validation message override', () => {
           expect.objectContaining({ text: CUSTOM })
         ])
       })
-
-      describe('singular customValidationMessage', () => {
-        const singularDef = {
-          ...def,
-          options: { customValidationMessage: CUSTOM }
-        } satisfies OsGridRefFieldComponent
-
-        it('honours the override', () => {
-          const collection = new ComponentCollection([singularDef], { model })
-          const result = collection.validate(getFormData())
-
-          expect(result.errors).toEqual([
-            expect.objectContaining({ text: CUSTOM })
-          ])
-        })
-
-        it('honours the override at request time (with a translator)', () => {
-          const collection = new ComponentCollection([singularDef], { model })
-          const result = collection.validate(getFormData(), translator)
-
-          expect(result.errors).toEqual([
-            expect.objectContaining({ text: CUSTOM })
-          ])
-        })
-      })
     })
 
     describe('NationalGridFieldNumberField', () => {
@@ -472,7 +314,7 @@ describe('Component-level validation message override', () => {
         title: 'Example national grid field number',
         name: 'myComponent',
         type: ComponentType.NationalGridFieldNumberField,
-        options: { customValidationMessages: { 'any.required': CUSTOM } }
+        options: { customValidationMessage: CUSTOM }
       } satisfies NationalGridFieldNumberFieldComponent
 
       it('honours the override', () => {
@@ -492,31 +334,6 @@ describe('Component-level validation message override', () => {
           expect.objectContaining({ text: CUSTOM })
         ])
       })
-
-      describe('singular customValidationMessage', () => {
-        const singularDef = {
-          ...def,
-          options: { customValidationMessage: CUSTOM }
-        } satisfies NationalGridFieldNumberFieldComponent
-
-        it('honours the override', () => {
-          const collection = new ComponentCollection([singularDef], { model })
-          const result = collection.validate(getFormData())
-
-          expect(result.errors).toEqual([
-            expect.objectContaining({ text: CUSTOM })
-          ])
-        })
-
-        it('honours the override at request time (with a translator)', () => {
-          const collection = new ComponentCollection([singularDef], { model })
-          const result = collection.validate(getFormData(), translator)
-
-          expect(result.errors).toEqual([
-            expect.objectContaining({ text: CUSTOM })
-          ])
-        })
-      })
     })
 
     describe('YesNoField', () => {
@@ -524,7 +341,7 @@ describe('Component-level validation message override', () => {
         title: 'Example yes/no field',
         name: 'myComponent',
         type: ComponentType.YesNoField,
-        options: { customValidationMessages: { 'any.required': CUSTOM } }
+        options: { customValidationMessage: CUSTOM }
       } satisfies YesNoFieldComponent
 
       it('honours the override', () => {
@@ -544,236 +361,15 @@ describe('Component-level validation message override', () => {
           expect.objectContaining({ text: CUSTOM })
         ])
       })
-
-      describe('singular customValidationMessage', () => {
-        const singularDef = {
-          ...def,
-          options: { customValidationMessage: CUSTOM }
-        } satisfies YesNoFieldComponent
-
-        it('honours the override', () => {
-          const collection = new ComponentCollection([singularDef], { model })
-          const result = collection.validate(getFormData())
-
-          expect(result.errors).toEqual([
-            expect.objectContaining({ text: CUSTOM })
-          ])
-        })
-
-        it('honours the override at request time (with a translator)', () => {
-          const collection = new ComponentCollection([singularDef], { model })
-          const result = collection.validate(getFormData(), translator)
-
-          expect(result.errors).toEqual([
-            expect.objectContaining({ text: CUSTOM })
-          ])
-        })
-      })
-    })
-
-    describe('RadiosField', () => {
-      const def = {
-        title: 'Example radios field',
-        name: 'myComponent',
-        type: ComponentType.RadiosField,
-        list: 'listString',
-        options: { customValidationMessages: { 'any.required': CUSTOM } }
-      } satisfies RadiosFieldComponent
-
-      function buildModel() {
-        const updated = structuredClone(definition)
-        updated.lists = [listString]
-        return new FormModel(updated, { basePath: 'test' })
-      }
-
-      it('honours the override', () => {
-        const collection = new ComponentCollection([def], {
-          model: buildModel()
-        })
-        const result = collection.validate(getFormData())
-
-        expect(result.errors).toEqual([
-          expect.objectContaining({ text: CUSTOM })
-        ])
-      })
-
-      it('honours the override at request time (with a translator)', () => {
-        const listModel = buildModel()
-        const collection = new ComponentCollection([def], { model: listModel })
-        const result = collection.validate(
-          getFormData(),
-          listModel.createTranslator()
-        )
-
-        expect(result.errors).toEqual([
-          expect.objectContaining({ text: CUSTOM })
-        ])
-      })
-    })
-
-    describe('SelectField', () => {
-      const def = {
-        title: 'Example select field',
-        name: 'myComponent',
-        type: ComponentType.SelectField,
-        list: 'listString',
-        options: { customValidationMessages: { 'any.required': CUSTOM } }
-      } satisfies SelectFieldComponent
-
-      function buildModel() {
-        const updated = structuredClone(definition)
-        updated.lists = [listString]
-        return new FormModel(updated, { basePath: 'test' })
-      }
-
-      it('honours the override', () => {
-        const collection = new ComponentCollection([def], {
-          model: buildModel()
-        })
-        const result = collection.validate(getFormData())
-
-        expect(result.errors).toEqual([
-          expect.objectContaining({ text: CUSTOM })
-        ])
-      })
-
-      it('honours the override at request time (with a translator)', () => {
-        const listModel = buildModel()
-        const collection = new ComponentCollection([def], { model: listModel })
-        const result = collection.validate(
-          getFormData(),
-          listModel.createTranslator()
-        )
-
-        expect(result.errors).toEqual([
-          expect.objectContaining({ text: CUSTOM })
-        ])
-      })
-    })
-
-    describe('AutocompleteField', () => {
-      const def = {
-        title: 'Example autocomplete field',
-        name: 'myComponent',
-        type: ComponentType.AutocompleteField,
-        list: 'listString',
-        options: { customValidationMessages: { 'any.required': CUSTOM } }
-      } satisfies AutocompleteFieldComponent
-
-      function buildModel() {
-        const updated = structuredClone(definition)
-        updated.lists = [listString]
-        return new FormModel(updated, { basePath: 'test' })
-      }
-
-      it('honours the override', () => {
-        const collection = new ComponentCollection([def], {
-          model: buildModel()
-        })
-        const result = collection.validate(getFormData())
-
-        expect(result.errors).toEqual([
-          expect.objectContaining({ text: CUSTOM })
-        ])
-      })
-
-      it('honours the override at request time (with a translator)', () => {
-        const listModel = buildModel()
-        const collection = new ComponentCollection([def], { model: listModel })
-        const result = collection.validate(
-          getFormData(),
-          listModel.createTranslator()
-        )
-
-        expect(result.errors).toEqual([
-          expect.objectContaining({ text: CUSTOM })
-        ])
-      })
     })
   })
 
   /**
-   * These components ignore options.customValidationMessage(s). Setting the
-   * option has no effect, so the same input must give the same errors with
-   * and without it.
+   * These components declare customValidationMessage on their options type
+   * but ignore it. Setting the option has no effect, so the same input must
+   * give the same errors with and without it.
    */
   describe('Not supported', () => {
-    it('CheckboxesField', () => {
-      const updated = structuredClone(definition)
-      updated.lists = [listString]
-      const listModel = new FormModel(updated, { basePath: 'test' })
-
-      const base = {
-        title: 'Example checkboxes field',
-        name: 'myComponent',
-        type: ComponentType.CheckboxesField,
-        list: 'listString',
-        options: {}
-      } satisfies CheckboxesFieldComponent
-
-      const withOverride = {
-        ...base,
-        options: { customValidationMessages: { 'any.required': CUSTOM } }
-      } satisfies CheckboxesFieldComponent
-
-      const baseline = new ComponentCollection([base], {
-        model: listModel
-      }).validate(getFormData())
-      const overridden = new ComponentCollection([withOverride], {
-        model: listModel
-      }).validate(getFormData())
-
-      expect(overridden.errors).toEqual(baseline.errors)
-    })
-
-    it('DatePartsField', () => {
-      const base = {
-        title: 'Example date parts field',
-        name: 'myComponent',
-        type: ComponentType.DatePartsField,
-        options: {}
-      } satisfies DatePartsFieldComponent
-
-      const withOverride = {
-        ...base,
-        options: { customValidationMessages: { 'any.required': CUSTOM } }
-      } satisfies DatePartsFieldComponent
-
-      const input = getCompositeFormData({ day: '', month: '', year: '' })
-      const baseline = new ComponentCollection([base], { model }).validate(
-        input
-      )
-      const overridden = new ComponentCollection([withOverride], {
-        model
-      }).validate(input)
-
-      expect(overridden.errors).toEqual(baseline.errors)
-    })
-
-    it('MonthYearField', () => {
-      const base = {
-        title: 'Example month/year field',
-        name: 'myComponent',
-        type: ComponentType.MonthYearField,
-        options: {}
-      } satisfies MonthYearFieldComponent
-
-      const withOverride = {
-        ...base,
-        options: { customValidationMessages: { 'any.required': CUSTOM } }
-      } satisfies MonthYearFieldComponent
-
-      const input = getCompositeFormData({ month: '', year: '' })
-      const baseline = new ComponentCollection([base], { model }).validate(
-        input
-      )
-      const overridden = new ComponentCollection([withOverride], {
-        model
-      }).validate(input)
-
-      expect(overridden.errors).toEqual(baseline.errors)
-    })
-
     it('EastingNorthingField', () => {
       const base = {
         title: 'Example easting northing',
@@ -785,7 +381,7 @@ describe('Component-level validation message override', () => {
 
       const withOverride = {
         ...base,
-        options: { customValidationMessages: { 'any.required': CUSTOM } }
+        options: { customValidationMessage: CUSTOM }
       } satisfies EastingNorthingFieldComponent
 
       const input = getCompositeFormData({ easting: '', northing: '' })
@@ -810,7 +406,7 @@ describe('Component-level validation message override', () => {
 
       const withOverride = {
         ...base,
-        options: { customValidationMessages: { 'any.required': CUSTOM } }
+        options: { customValidationMessage: CUSTOM }
       } satisfies LatLongFieldComponent
 
       const input = getCompositeFormData({ latitude: '', longitude: '' })
@@ -824,164 +420,20 @@ describe('Component-level validation message override', () => {
       expect(overridden.errors).toEqual(baseline.errors)
     })
 
-    it('UkAddressField', () => {
+    it('MonthYearField', () => {
       const base = {
-        title: 'Example UK address',
+        title: 'Example month/year field',
         name: 'myComponent',
-        type: ComponentType.UkAddressField,
+        type: ComponentType.MonthYearField,
         options: {}
-      } satisfies UkAddressFieldComponent
+      } satisfies MonthYearFieldComponent
 
       const withOverride = {
         ...base,
-        options: { customValidationMessages: { 'any.required': CUSTOM } }
-      } satisfies UkAddressFieldComponent
+        options: { customValidationMessage: CUSTOM }
+      } satisfies MonthYearFieldComponent
 
-      const input = getCompositeFormData({
-        addressLine1: '',
-        addressLine2: '',
-        town: '',
-        county: '',
-        postcode: '',
-        uprn: ''
-      })
-      const baseline = new ComponentCollection([base], { model }).validate(
-        input
-      )
-      const overridden = new ComponentCollection([withOverride], {
-        model
-      }).validate(input)
-
-      expect(overridden.errors).toEqual(baseline.errors)
-    })
-
-    it('FileUploadField', () => {
-      const base = {
-        title: 'Example file upload field',
-        name: 'myComponent',
-        type: ComponentType.FileUploadField,
-        options: {},
-        schema: {}
-      } satisfies FileUploadFieldComponent
-
-      const withOverride = {
-        ...base,
-        options: { customValidationMessages: { 'any.required': CUSTOM } }
-      } satisfies FileUploadFieldComponent
-
-      const input = getFormData()
-      const baseline = new ComponentCollection([base], { model }).validate(
-        input
-      )
-      const overridden = new ComponentCollection([withOverride], {
-        model
-      }).validate(input)
-
-      expect(overridden.errors).toEqual(baseline.errors)
-    })
-
-    it('DeclarationField', () => {
-      const base = {
-        title: 'Example declaration field',
-        name: 'myComponent',
-        content: 'Lorem ipsum dolar sit amet',
-        type: ComponentType.DeclarationField,
-        options: {}
-      } satisfies DeclarationFieldComponent
-
-      const withOverride = {
-        ...base,
-        options: { customValidationMessages: { 'any.required': CUSTOM } }
-      } satisfies DeclarationFieldComponent
-
-      const input = getFormData(['unchecked'])
-      const baseline = new ComponentCollection([base], { model }).validate(
-        input
-      )
-      const overridden = new ComponentCollection([withOverride], {
-        model
-      }).validate(input)
-
-      expect(overridden.errors).toEqual(baseline.errors)
-    })
-
-    it('HiddenField', () => {
-      const base = {
-        title: 'Example hidden field',
-        name: 'myComponent',
-        type: ComponentType.HiddenField,
-        options: {}
-      } satisfies HiddenFieldComponent
-
-      const withOverride = {
-        ...base,
-        options: { customValidationMessages: { 'any.required': CUSTOM } }
-      } satisfies HiddenFieldComponent
-
-      const input = getFormData()
-      const baseline = new ComponentCollection([base], { model }).validate(
-        input
-      )
-      const overridden = new ComponentCollection([withOverride], {
-        model
-      }).validate(input)
-
-      expect(overridden.errors).toEqual(baseline.errors)
-    })
-
-    it('GeospatialField', () => {
-      const base = {
-        title: 'Example geospatial field',
-        name: 'myComponent',
-        type: ComponentType.GeospatialField,
-        options: { required: true }
-      } satisfies GeospatialFieldComponent
-
-      const withOverride = {
-        ...base,
-        options: {
-          required: true,
-          customValidationMessages: { 'any.required': CUSTOM }
-        }
-      } satisfies GeospatialFieldComponent
-
-      const input = getFormData('')
-      const baseline = new ComponentCollection([base], { model }).validate(
-        input
-      )
-      const overridden = new ComponentCollection([withOverride], {
-        model
-      }).validate(input)
-
-      expect(overridden.errors).toEqual(baseline.errors)
-    })
-
-    it('PaymentField', () => {
-      const base = {
-        title: 'Example payment field',
-        name: 'myComponent',
-        type: ComponentType.PaymentField,
-        options: { amount: 100, description: 'Test payment description' }
-      } satisfies PaymentFieldComponent
-
-      const withOverride = {
-        ...base,
-        options: {
-          ...base.options,
-          customValidationMessages: { 'any.required': CUSTOM }
-        }
-      } satisfies PaymentFieldComponent
-
-      const payment = {
-        paymentId: '',
-        reference: '',
-        amount: 0,
-        description: '',
-        uuid: '',
-        formId: '',
-        isLivePayment: false
-      }
-      const input = getFormData(payment as unknown as FormValue)
+      const input = getCompositeFormData({ month: '', year: '' })
       const baseline = new ComponentCollection([base], { model }).validate(
         input
       )
