@@ -135,12 +135,6 @@ export class NumberField extends FormComponent {
 
   getValidationMessagesOverride(translator: Translator) {
     const { customValidationMessage, customValidationMessages } = this.options
-
-    // A single custom message already covers every key in the schema.
-    if (customValidationMessage) {
-      return null
-    }
-
     const { t } = translator
     const defaults = {
       'any.required': buildValidationMessages(t).objectRequired,
@@ -151,12 +145,13 @@ export class NumberField extends FormComponent {
       'number.max': buildValidationMessages(t).numberMax
     }
 
-    return {
-      [this.name]: withCustomValidationOverrides(
-        defaults,
-        customValidationMessages
-      )
-    }
+    const messages = withCustomValidationOverrides(
+      defaults,
+      customValidationMessage,
+      customValidationMessages
+    )
+
+    return messages && { [this.name]: messages }
   }
 
   /**

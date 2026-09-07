@@ -145,12 +145,6 @@ export abstract class LocationFieldBase extends FormComponent {
 
   getValidationMessagesOverride(translator: Translator) {
     const { customValidationMessage, customValidationMessages } = this.options
-
-    // A single custom message already covers every key in the schema.
-    if (customValidationMessage) {
-      return null
-    }
-
     const { t } = translator
     const config = this.getValidationConfig(translator)
     const defaults = {
@@ -161,12 +155,13 @@ export abstract class LocationFieldBase extends FormComponent {
       'string.pattern.base': config.patternErrorMessage
     }
 
-    return {
-      [this.name]: withCustomValidationOverrides(
-        defaults,
-        customValidationMessages
-      )
-    }
+    const messages = withCustomValidationOverrides(
+      defaults,
+      customValidationMessage,
+      customValidationMessages
+    )
+
+    return messages && { [this.name]: messages }
   }
 
   getAllPossibleErrors(): ErrorMessageTemplateList {

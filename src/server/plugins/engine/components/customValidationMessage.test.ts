@@ -60,19 +60,20 @@ function getCompositeFormData(fields: Record<string, string>): FormPayload {
  * The lists below record which components use the option. They come from
  * reading each component's source code, not from guessing.
  *
- * 7 tests fail on `main` right now. This is expected. On NumberField,
- * OsGridRefField, NationalGridFieldNumberField, AutocompleteField and
- * YesNoField, `getValidationMessagesOverride()` always replaces the message
- * with a translated default. It ignores the custom message. This method only
- * runs when `validate()` gets a translator, so the bug shows only in the
- * "with a translator" tests.
+ * Some components also support a singular `customValidationMessage` string,
+ * which applies to every key in the component's schema. Where a component
+ * supports it, its own nested 'singular customValidationMessage' block
+ * covers it too.
  *
- * v4.23.0 (the last v4 release) had no `getValidationMessagesOverride()` and
- * no translator argument on `validate()`. So:
- * - NumberField, OsGridRefField, NationalGridFieldNumberField and
- *   AutocompleteField worked in v4. This is a regression.
- * - YesNoField never supported the option in v4. It is not a regression.
- * These tests stay red until the code is fixed.
+ * Fixed regression: NumberField, OsGridRefField, NationalGridFieldNumberField
+ * and AutocompleteField worked in v4.23.0 (the last v4 release, which had no
+ * `getValidationMessagesOverride()` and no translator argument on
+ * `validate()`). In v5, `getValidationMessagesOverride()` always replaced the
+ * author's message with a translated default at request time, breaking the
+ * option. `withCustomValidationOverrides()` (components/helpers/index.ts) now
+ * keeps the author's message for any key they set.
+ *
+ * Not a regression: YesNoField never supported the option in v4.23.0.
  */
 
 const CUSTOM = 'This is a custom validation message'
@@ -177,6 +178,31 @@ describe('Component-level validation message override', () => {
           expect.objectContaining({ text: CUSTOM })
         ])
       })
+
+      describe('singular customValidationMessage', () => {
+        const singularDef = {
+          ...def,
+          options: { customValidationMessage: CUSTOM }
+        } satisfies TextFieldComponent
+
+        it('honours the override', () => {
+          const collection = new ComponentCollection([singularDef], { model })
+          const result = collection.validate(getFormData())
+
+          expect(result.errors).toEqual([
+            expect.objectContaining({ text: CUSTOM })
+          ])
+        })
+
+        it('honours the override at request time (with a translator)', () => {
+          const collection = new ComponentCollection([singularDef], { model })
+          const result = collection.validate(getFormData(), translator)
+
+          expect(result.errors).toEqual([
+            expect.objectContaining({ text: CUSTOM })
+          ])
+        })
+      })
     })
 
     describe('EmailAddressField', () => {
@@ -203,6 +229,31 @@ describe('Component-level validation message override', () => {
         expect(result.errors).toEqual([
           expect.objectContaining({ text: CUSTOM })
         ])
+      })
+
+      describe('singular customValidationMessage', () => {
+        const singularDef = {
+          ...def,
+          options: { customValidationMessage: CUSTOM }
+        } satisfies EmailAddressFieldComponent
+
+        it('honours the override', () => {
+          const collection = new ComponentCollection([singularDef], { model })
+          const result = collection.validate(getFormData())
+
+          expect(result.errors).toEqual([
+            expect.objectContaining({ text: CUSTOM })
+          ])
+        })
+
+        it('honours the override at request time (with a translator)', () => {
+          const collection = new ComponentCollection([singularDef], { model })
+          const result = collection.validate(getFormData(), translator)
+
+          expect(result.errors).toEqual([
+            expect.objectContaining({ text: CUSTOM })
+          ])
+        })
       })
     })
 
@@ -232,6 +283,31 @@ describe('Component-level validation message override', () => {
           expect.objectContaining({ text: CUSTOM })
         ])
       })
+
+      describe('singular customValidationMessage', () => {
+        const singularDef = {
+          ...def,
+          options: { customValidationMessage: CUSTOM }
+        } satisfies MultilineTextFieldComponent
+
+        it('honours the override', () => {
+          const collection = new ComponentCollection([singularDef], { model })
+          const result = collection.validate(getFormData())
+
+          expect(result.errors).toEqual([
+            expect.objectContaining({ text: CUSTOM })
+          ])
+        })
+
+        it('honours the override at request time (with a translator)', () => {
+          const collection = new ComponentCollection([singularDef], { model })
+          const result = collection.validate(getFormData(), translator)
+
+          expect(result.errors).toEqual([
+            expect.objectContaining({ text: CUSTOM })
+          ])
+        })
+      })
     })
 
     describe('TelephoneNumberField', () => {
@@ -259,6 +335,31 @@ describe('Component-level validation message override', () => {
           expect.objectContaining({ text: CUSTOM })
         ])
       })
+
+      describe('singular customValidationMessage', () => {
+        const singularDef = {
+          ...def,
+          options: { customValidationMessage: CUSTOM }
+        } satisfies TelephoneNumberFieldComponent
+
+        it('honours the override', () => {
+          const collection = new ComponentCollection([singularDef], { model })
+          const result = collection.validate(getFormData())
+
+          expect(result.errors).toEqual([
+            expect.objectContaining({ text: CUSTOM })
+          ])
+        })
+
+        it('honours the override at request time (with a translator)', () => {
+          const collection = new ComponentCollection([singularDef], { model })
+          const result = collection.validate(getFormData(), translator)
+
+          expect(result.errors).toEqual([
+            expect.objectContaining({ text: CUSTOM })
+          ])
+        })
+      })
     })
 
     describe('NumberField', () => {
@@ -279,9 +380,6 @@ describe('Component-level validation message override', () => {
         ])
       })
 
-      // Regression. This worked in v4.23.0.
-      // NumberField.getValidationMessagesOverride() always replaces
-      // 'any.required' with a translated default message.
       it('honours the override at request time (with a translator)', () => {
         const collection = new ComponentCollection([def], { model })
         const result = collection.validate(getFormData(), translator)
@@ -306,9 +404,6 @@ describe('Component-level validation message override', () => {
           ])
         })
 
-        // Regression. This worked in v4.23.0 too. The single message
-        // applies to several Joi keys, and getValidationMessagesOverride()
-        // replaces all of them at request time.
         it('honours the override at request time (with a translator)', () => {
           const collection = new ComponentCollection([singularDef], { model })
           const result = collection.validate(getFormData(), translator)
@@ -337,9 +432,6 @@ describe('Component-level validation message override', () => {
         ])
       })
 
-      // Regression. This worked in v4.23.0.
-      // LocationFieldBase#getValidationMessagesOverride() always replaces
-      // 'any.required' with a translated default message.
       it('honours the override at request time (with a translator)', () => {
         const collection = new ComponentCollection([def], { model })
         const result = collection.validate(getFormData(), translator)
@@ -364,9 +456,6 @@ describe('Component-level validation message override', () => {
           ])
         })
 
-        // Regression. This worked in v4.23.0 too. The single message
-        // applies to several Joi keys, and getValidationMessagesOverride()
-        // replaces all of them at request time.
         it('honours the override at request time (with a translator)', () => {
           const collection = new ComponentCollection([singularDef], { model })
           const result = collection.validate(getFormData(), translator)
@@ -395,8 +484,6 @@ describe('Component-level validation message override', () => {
         ])
       })
 
-      // Regression, same as OsGridRefField above. Both extend
-      // LocationFieldBase.
       it('honours the override at request time (with a translator)', () => {
         const collection = new ComponentCollection([def], { model })
         const result = collection.validate(getFormData(), translator)
@@ -404,6 +491,31 @@ describe('Component-level validation message override', () => {
         expect(result.errors).toEqual([
           expect.objectContaining({ text: CUSTOM })
         ])
+      })
+
+      describe('singular customValidationMessage', () => {
+        const singularDef = {
+          ...def,
+          options: { customValidationMessage: CUSTOM }
+        } satisfies NationalGridFieldNumberFieldComponent
+
+        it('honours the override', () => {
+          const collection = new ComponentCollection([singularDef], { model })
+          const result = collection.validate(getFormData())
+
+          expect(result.errors).toEqual([
+            expect.objectContaining({ text: CUSTOM })
+          ])
+        })
+
+        it('honours the override at request time (with a translator)', () => {
+          const collection = new ComponentCollection([singularDef], { model })
+          const result = collection.validate(getFormData(), translator)
+
+          expect(result.errors).toEqual([
+            expect.objectContaining({ text: CUSTOM })
+          ])
+        })
       })
     })
 
@@ -424,10 +536,6 @@ describe('Component-level validation message override', () => {
         ])
       })
 
-      // Not a regression. YesNoField did not support this option in v4.23.0.
-      // getValidationMessagesOverride() always replaces 'any.required' with
-      // the default "select yes or no" message, so the option has never
-      // worked at request time.
       it('honours the override at request time (with a translator)', () => {
         const collection = new ComponentCollection([def], { model })
         const result = collection.validate(getFormData(), translator)
@@ -435,6 +543,31 @@ describe('Component-level validation message override', () => {
         expect(result.errors).toEqual([
           expect.objectContaining({ text: CUSTOM })
         ])
+      })
+
+      describe('singular customValidationMessage', () => {
+        const singularDef = {
+          ...def,
+          options: { customValidationMessage: CUSTOM }
+        } satisfies YesNoFieldComponent
+
+        it('honours the override', () => {
+          const collection = new ComponentCollection([singularDef], { model })
+          const result = collection.validate(getFormData())
+
+          expect(result.errors).toEqual([
+            expect.objectContaining({ text: CUSTOM })
+          ])
+        })
+
+        it('honours the override at request time (with a translator)', () => {
+          const collection = new ComponentCollection([singularDef], { model })
+          const result = collection.validate(getFormData(), translator)
+
+          expect(result.errors).toEqual([
+            expect.objectContaining({ text: CUSTOM })
+          ])
+        })
       })
     })
 
@@ -544,9 +677,6 @@ describe('Component-level validation message override', () => {
         ])
       })
 
-      // Regression. This worked in v4.23.0.
-      // AutocompleteField.getValidationMessagesOverride() always replaces
-      // 'any.required' and 'any.only' with a translated default message.
       it('honours the override at request time (with a translator)', () => {
         const listModel = buildModel()
         const collection = new ComponentCollection([def], { model: listModel })

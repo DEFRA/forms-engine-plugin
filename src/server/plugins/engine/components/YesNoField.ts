@@ -66,23 +66,18 @@ export class YesNoField extends SelectionControlField {
 
   getValidationMessagesOverride(translator: Translator) {
     const { customValidationMessage, customValidationMessages } = this.options
-
-    // A single custom message already covers the only key in the schema.
-    if (customValidationMessage) {
-      return null
-    }
-
     const { selectYesNoRequired } = buildValidationMessages(translator.t)
     const defaults = {
       'any.required': selectYesNoRequired
     }
 
-    return {
-      [this.name]: withCustomValidationOverrides(
-        defaults,
-        customValidationMessages
-      )
-    }
+    const messages = withCustomValidationOverrides(
+      defaults,
+      customValidationMessage,
+      customValidationMessages
+    )
+
+    return messages && { [this.name]: messages }
   }
 
   /**

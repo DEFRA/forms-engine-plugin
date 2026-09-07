@@ -57,11 +57,12 @@ export class AutocompleteField extends SelectField {
       'any.only': buildValidationMessages(t).objectRequired
     }
 
-    return {
-      [this.name]: withCustomValidationOverrides(
-        defaults,
-        customValidationMessages
-      )
-    }
+    const messages = withCustomValidationOverrides(
+      defaults,
+      undefined,
+      customValidationMessages
+    )
+
+    return messages && { [this.name]: messages }
   }
 }
