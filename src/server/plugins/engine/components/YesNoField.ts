@@ -71,13 +71,13 @@ export class YesNoField extends SelectionControlField {
       'any.required': selectYesNoRequired
     }
 
-    const messages = withCustomValidationOverrides(
-      defaults,
-      customValidationMessage,
-      customValidationMessages
-    )
-
-    return messages && { [this.name]: messages }
+    return {
+      [this.name]: withCustomValidationOverrides(
+        defaults,
+        customValidationMessage,
+        customValidationMessages
+      )
+    }
   }
 
   /**

@@ -155,13 +155,13 @@ export abstract class LocationFieldBase extends FormComponent {
       'string.pattern.base': config.patternErrorMessage
     }
 
-    const messages = withCustomValidationOverrides(
-      defaults,
-      customValidationMessage,
-      customValidationMessages
-    )
-
-    return messages && { [this.name]: messages }
+    return {
+      [this.name]: withCustomValidationOverrides(
+        defaults,
+        customValidationMessage,
+        customValidationMessages
+      )
+    }
   }
 
   getAllPossibleErrors(): ErrorMessageTemplateList {

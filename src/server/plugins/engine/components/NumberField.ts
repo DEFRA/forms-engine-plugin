@@ -145,13 +145,13 @@ export class NumberField extends FormComponent {
       'number.max': buildValidationMessages(t).numberMax
     }
 
-    const messages = withCustomValidationOverrides(
-      defaults,
-      customValidationMessage,
-      customValidationMessages
-    )
-
-    return messages && { [this.name]: messages }
+    return {
+      [this.name]: withCustomValidationOverrides(
+        defaults,
+        customValidationMessage,
+        customValidationMessages
+      )
+    }
   }
 
   /**

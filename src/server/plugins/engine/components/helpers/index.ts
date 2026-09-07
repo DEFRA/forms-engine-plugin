@@ -83,18 +83,21 @@ type TranslatedValidationMessages = Record<string, string | JoiExpression>
 /**
  * Keep the form author's custom validation message for any key they set,
  * so translated defaults only fill in the keys the author left blank.
- * A single customValidationMessage already covers every key, so it skips
- * the translated defaults entirely (return null).
+ * A single customValidationMessage covers every key in the schema.
  */
 export function withCustomValidationOverrides(
   defaults: TranslatedValidationMessages,
   customValidationMessage?: string,
   customValidationMessages?: LanguageMessages
-): LanguageMessages | null {
+): LanguageMessages {
+  // If component has a global override for all messages, set that as the value for all scenarios
   if (customValidationMessage) {
-    return null
+    return Object.fromEntries(
+      Object.keys(defaults).map((key) => [key, customValidationMessage])
+    ) as LanguageMessages
   }
 
+  // When populating the defaults, don't override anything the user has explicitly configured
   return Object.fromEntries(
     Object.entries(defaults).filter(
       ([key]) => !(key in (customValidationMessages ?? {}))
