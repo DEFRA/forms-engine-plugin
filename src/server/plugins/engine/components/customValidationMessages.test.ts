@@ -26,28 +26,13 @@ import {
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import {
-  type FormPayload,
-  type FormValue
-} from '~/src/server/plugins/engine/types.js'
+import { type FormValue } from '~/src/server/plugins/engine/types.js'
 import { listString } from '~/test/fixtures/list.js'
 import definition from '~/test/form/definitions/blank.js'
-import { getFormData } from '~/test/helpers/component-helpers.js'
-
-/**
- * Composite fields (DatePartsField, UkAddressField, ...) use flat payload
- * keys, e.g. `myComponent__day`. They do not nest an object under
- * `myComponent`. Each component's own test file uses the same format.
- */
-function getCompositeFormData(fields: Record<string, string>): FormPayload {
-  const data: FormPayload = {}
-
-  for (const [key, value] of Object.entries(fields)) {
-    data[`myComponent__${key}`] = value
-  }
-
-  return data
-}
+import {
+  getCompositeFormData,
+  getFormData
+} from '~/test/helpers/component-helpers.js'
 
 /**
  * Each component has its own test file for schema, state and view model
