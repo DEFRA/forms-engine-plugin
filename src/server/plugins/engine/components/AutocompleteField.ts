@@ -50,12 +50,20 @@ export class AutocompleteField extends SelectField {
   }
 
   getValidationMessagesOverride(translator: Translator) {
+    const { customValidationMessages } = this.options
     const { t } = translator
-    return {
-      [this.name]: {
-        'any.required': buildValidationMessages(t).objectRequired,
-        'any.only': buildValidationMessages(t).objectRequired
-      } as LanguageMessages
+    const defaults = {
+      'any.required': buildValidationMessages(t).objectRequired,
+      'any.only': buildValidationMessages(t).objectRequired
     }
+
+    // Keep the author's message for any key they set.
+    const messages = Object.fromEntries(
+      Object.entries(defaults).filter(
+        ([key]) => !(key in (customValidationMessages ?? {}))
+      )
+    ) as LanguageMessages
+
+    return { [this.name]: messages }
   }
 }

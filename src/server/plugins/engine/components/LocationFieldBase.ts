@@ -141,17 +141,31 @@ export abstract class LocationFieldBase extends FormComponent {
   }
 
   getValidationMessagesOverride(translator: Translator) {
+    const { customValidationMessage, customValidationMessages } = this.options
+
+    // A single custom message already covers every key in the schema.
+    if (customValidationMessage) {
+      return null
+    }
+
     const { t } = translator
     const config = this.getValidationConfig(translator)
-    return {
-      [this.name]: {
-        'any.required':
-          config.requiredMessage ?? buildValidationMessages(t).objectRequired,
-        'string.empty':
-          config.requiredMessage ?? buildValidationMessages(t).objectRequired,
-        'string.pattern.base': config.patternErrorMessage
-      } as LanguageMessages
+    const defaults = {
+      'any.required':
+        config.requiredMessage ?? buildValidationMessages(t).objectRequired,
+      'string.empty':
+        config.requiredMessage ?? buildValidationMessages(t).objectRequired,
+      'string.pattern.base': config.patternErrorMessage
     }
+
+    // Keep the author's message for any key they set.
+    const messages = Object.fromEntries(
+      Object.entries(defaults).filter(
+        ([key]) => !(key in (customValidationMessages ?? {}))
+      )
+    ) as LanguageMessages
+
+    return { [this.name]: messages }
   }
 
   getAllPossibleErrors(): ErrorMessageTemplateList {
