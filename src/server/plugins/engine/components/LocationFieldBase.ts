@@ -9,7 +9,10 @@ import {
   FormComponent,
   isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers/index.js'
+import {
+  addClassOptionIfNone,
+  withCustomValidationOverrides
+} from '~/src/server/plugins/engine/components/helpers/index.js'
 import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { buildValidationMessages } from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
@@ -158,14 +161,12 @@ export abstract class LocationFieldBase extends FormComponent {
       'string.pattern.base': config.patternErrorMessage
     }
 
-    // Keep the author's message for any key they set.
-    const messages = Object.fromEntries(
-      Object.entries(defaults).filter(
-        ([key]) => !(key in (customValidationMessages ?? {}))
+    return {
+      [this.name]: withCustomValidationOverrides(
+        defaults,
+        customValidationMessages
       )
-    ) as LanguageMessages
-
-    return { [this.name]: messages }
+    }
   }
 
   getAllPossibleErrors(): ErrorMessageTemplateList {

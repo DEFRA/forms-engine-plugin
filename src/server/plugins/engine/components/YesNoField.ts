@@ -4,10 +4,12 @@ import {
   yesNoListName,
   type YesNoFieldComponent
 } from '@defra/forms-model'
-import { type LanguageMessages } from 'joi'
 
 import { SelectionControlField } from '~/src/server/plugins/engine/components/SelectionControlField.js'
-import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers/index.js'
+import {
+  addClassOptionIfNone,
+  withCustomValidationOverrides
+} from '~/src/server/plugins/engine/components/helpers/index.js'
 import { buildValidationMessages } from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
@@ -75,14 +77,12 @@ export class YesNoField extends SelectionControlField {
       'any.required': selectYesNoRequired
     }
 
-    // Keep the author's message for any key they set.
-    const messages: LanguageMessages = Object.fromEntries(
-      Object.entries(defaults).filter(
-        ([key]) => !(key in (customValidationMessages ?? {}))
+    return {
+      [this.name]: withCustomValidationOverrides(
+        defaults,
+        customValidationMessages
       )
-    )
-
-    return { [this.name]: messages }
+    }
   }
 
   /**
