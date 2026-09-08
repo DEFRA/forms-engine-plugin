@@ -37,6 +37,7 @@ export type Field = InstanceType<
   | typeof Components.UkAddressField
   | typeof Components.FileUploadField
   | typeof Components.HiddenField
+  | typeof Components.TrackingField
   | typeof Components.PaymentField
   | typeof Components.GeospatialField
 >
@@ -199,6 +200,10 @@ export function createComponent(
 
     case ComponentType.HiddenField:
       component = new Components.HiddenField(def, options)
+      break
+
+    case ComponentType.TrackingField:
+      component = new Components.TrackingField(def, options)
       break
 
     case ComponentType.PaymentField:

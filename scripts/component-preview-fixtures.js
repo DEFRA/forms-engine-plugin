@@ -349,6 +349,17 @@ export const fixtures = {
     model: null,
     payload: {}
   },
+  [ComponentType.TrackingField]: {
+    jsLevel: 3,
+    def: {
+      type: ComponentType.TrackingField,
+      name: 'tracking',
+      title: 'Tracking field',
+      options: {}
+    },
+    model: null,
+    payload: {}
+  },
   [ComponentType.LatLongField]: {
     jsLevel: 2,
     jsNotice:

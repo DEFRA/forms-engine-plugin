@@ -30,5 +30,6 @@ export { OsGridRefField } from '~/src/server/plugins/engine/components/OsGridRef
 export { NationalGridFieldNumberField } from '~/src/server/plugins/engine/components/NationalGridFieldNumberField.js'
 export { LatLongField } from '~/src/server/plugins/engine/components/LatLongField.js'
 export { HiddenField } from '~/src/server/plugins/engine/components/HiddenField.js'
+export { TrackingField } from '~/src/server/plugins/engine/components/TrackingField.js'
 export { PaymentField } from '~/src/server/plugins/engine/components/PaymentField.js'
 export { GeospatialField } from '~/src/server/plugins/engine/components/GeospatialField.js'

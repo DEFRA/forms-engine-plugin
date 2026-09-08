@@ -7,6 +7,14 @@
       "title": "All Components",
       "components": [
         {
+          "type": "TrackingField",
+          "name": "trackingField",
+          "title": "Tracking field",
+          "hint": "Help text",
+          "options": {},
+          "schema": {}
+        },
+        {
           "type": "TextField",
           "name": "textField",
           "title": "Text field",

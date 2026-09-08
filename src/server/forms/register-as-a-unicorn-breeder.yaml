@@ -5,6 +5,10 @@ pages:
   - path: '/whats-your-name'
     title: What's your name?
     components:
+      - type: TrackingField
+        name: hasSeenNamePage
+        title: Tracks if the user has seen the name page
+        options: {}
       - type: TextField
         name: textField
         title: Name

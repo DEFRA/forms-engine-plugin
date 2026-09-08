@@ -16,6 +16,7 @@
     "FileUploadField": "File manager component that displays uploaded files from session state.",
     "DeclarationField": "A checkbox the user must tick to confirm a declaration before proceeding.",
     "HiddenField": "A non-visible field that stores a fixed value in form state without user input.",
+    "TrackingField": "A field that can track the user's progress through the form.",
     "PaymentField": "Redirects the user to GOV.UK Pay to collect a payment before proceeding.",
     "Html": "Display static HTML content on a page without collecting user input.",
     "Markdown": "Display content authored in Markdown, rendered to HTML at runtime.",
@@ -98,6 +99,9 @@
     ],
     "HiddenField": [
       "Hidden fields can be pre-populated from query string parameters — see [Pre-populating state](../code-based/pre-populate-state.md) for details."
+    ],
+    "TrackingField": [
+      "Tracking fields can track the user's progress through the form. They are hidden fields that are set to `true` when the user reaches a certain point in the form."
     ],
     "EastingNorthingField": [
       "This component renders an inline Ordnance Survey map that lets users click a location to auto-populate the coordinate inputs. The map requires the `ordnanceSurveyApiKey` and `ordnanceSurveyApiSecret` [plugin options](../../plugin-options.md#geospatial-map) to be set — without them the component falls back to plain text inputs."

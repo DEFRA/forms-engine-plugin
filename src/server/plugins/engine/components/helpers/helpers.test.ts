@@ -13,6 +13,7 @@ import {
   lowerFirstExpressionOptions,
   lowerFirstPreserveProperNouns
 } from '~/src/server/plugins/engine/components/helpers/index.js'
+import { TrackingField } from '~/src/server/plugins/engine/components/index.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import definition from '~/test/form/definitions/basic.js'
 
@@ -116,6 +117,22 @@ describe('helpers tests', () => {
     expect(component).toBeInstanceOf(HiddenField)
     expect(component.name).toBe('hiddenField')
     expect(component.title).toBe('Hidden field')
+  })
+
+  test('should create TrackingField component', () => {
+    const component = createComponent(
+      {
+        type: ComponentType.TrackingField,
+        name: 'trackingField',
+        title: 'Tracking field',
+        options: {}
+      },
+      { model: formModel }
+    )
+
+    expect(component).toBeInstanceOf(TrackingField)
+    expect(component.name).toBe('trackingField')
+    expect(component.title).toBe('Tracking field')
   })
 })
 
