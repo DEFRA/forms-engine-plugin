@@ -8,7 +8,7 @@ It is designed to be embedded in the frontend of a digital service and provide a
 
 - [@defra/forms-engine-plugin](#defraforms-engine-plugin)
   - [Table of Contents](#table-of-contents)
-  - [Demo of DXT](#demo-of-dxt)
+  - [Demo of the plugin](#demo-of-the-plugin)
   - [Installation](#installation)
   - [Documentation](#documentation)
   - [Contributing](#contributing)
@@ -19,7 +19,7 @@ It is designed to be embedded in the frontend of a digital service and provide a
     - [Workflow Triggers](#workflow-triggers)
     - [Safety and Consistency](#safety-and-consistency)
 
-## Demo of DXT
+## Demo of the plugin
 
 If you are within the Defra network, [see a live demo](https://forms-engine-plugin-example-ui.dev.cdp-int.defra.cloud/example-form).
 
@@ -27,13 +27,13 @@ If you aren't within the Defra network, [see our example UI and run it locally](
 
 ## Installation
 
-[See our getting started developer guide](./docs/GETTING_STARTED.md).
+[See our getting started developer guide](./docs/getting-started.md).
 
 ## Documentation
 
-DXT has a mix of configuration-driven and code-based features that developers can utilise.
+The plugin has a mix of configuration-driven and code-based features that developers can utilise.
 
-[See our documentation folder](./docs/INDEX.md) to learn more about the features of DXT.
+[See our documentation folder](./docs/index.md) to learn more about the features of the plugin.
 
 ## Contributing
 
