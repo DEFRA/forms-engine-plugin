@@ -199,6 +199,19 @@ function postRoute(options) {
 }
 
 /**
+ * Validate a payload against a schema. Joi types the value as `any` when
+ * validation fails, so it is typed here as the partially converted payload.
+ * @template TSchema
+ * @param {ObjectSchema<TSchema>} schema
+ * @param {unknown} payload
+ * @param {ValidationOptions} [options]
+ * @returns {{ value: TSchema, error: undefined } | { value: TSchema | undefined, error: ValidationError }}
+ */
+function validatePayload(schema, payload, options) {
+  return schema.validate(payload, options)
+}
+
+/**
  * Post handler for the details step
  * @param {PostcodeLookupPostRequest} request
  * @param {ResponseToolkit<PostcodeLookupPostRequestRefs>} h
@@ -214,9 +227,10 @@ async function detailsPostHandler(request, h, options) {
   )
   const language = translator.language
 
-  const { value: details, error } = createDetailsPayloadSchema(
-    language
-  ).validate(request.payload)
+  const { value: details, error } = validatePayload(
+    createDetailsPayloadSchema(language),
+    request.payload
+  )
 
   let model
 
@@ -252,7 +266,8 @@ async function selectPostHandler(request, h, options) {
     request.query.language
   )
   const language = translator.language
-  const { value: select, error } = createSelectPayloadSchema(language).validate(
+  const { value: select, error } = validatePayload(
+    createSelectPayloadSchema(language),
     request.payload
   )
 
@@ -295,11 +310,10 @@ async function manualPostHandler(request, h) {
   )
   const language = translator.language
 
-  const { value: manual, error } = createManualPayloadSchema(language).validate(
+  const { value: manual, error } = validatePayload(
+    createManualPayloadSchema(language),
     request.payload,
-    {
-      abortEarly: false
-    }
+    { abortEarly: false }
   )
 
   if (error) {
@@ -317,6 +331,7 @@ async function manualPostHandler(request, h) {
 
 /**
  * @import { ResponseToolkit, ServerRoute } from '@hapi/hapi'
+ * @import { ObjectSchema, ValidationError, ValidationOptions } from 'joi'
  * @import { FormMetadata } from '@defra/forms-model'
  * @import { PostcodeLookupManualPayload, Address, PostcodeLookupGetRequestRefs, PostcodeLookupPostRequestRefs, PostcodeLookupRequest, PostcodeLookupPostRequest, PostcodeLookupConfiguration, PostcodeLookupDispatchData, PostcodeLookupSessionData } from '~/src/server/plugins/postcode-lookup/types.js'
  * @import { FormRequestPayload, FormResponseToolkit } from '~/src/server/routes/types.js'

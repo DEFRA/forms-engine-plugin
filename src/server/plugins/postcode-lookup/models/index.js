@@ -298,6 +298,19 @@ export const stepSchema = Joi.string()
   .valid(...Object.keys(steps))
   .required()
 
+/**
+ * Joi object schema factories typed with their payload, as JavaScript files
+ * cannot pass type arguments to `Joi.object<T>()`
+ */
+/** @type {() => ObjectSchema<PostcodeLookupDetailsPayload>} */
+const detailsObjectSchema = Joi.object.bind(Joi)
+
+/** @type {() => ObjectSchema<PostcodeLookupSelectPayload>} */
+const selectObjectSchema = Joi.object.bind(Joi)
+
+/** @type {() => ObjectSchema<PostcodeLookupManualPayload>} */
+const manualObjectSchema = Joi.object.bind(Joi)
+
 const sharedPayloadSchemaKeys = {
   crumb: crumbSchema,
   step: stepSchema
@@ -309,7 +322,7 @@ const sharedPayloadSchemaKeys = {
  * @returns {ObjectSchema<PostcodeLookupDetailsPayload>}
  */
 export function createDetailsPayloadSchema(language = 'en-GB') {
-  return Joi.object()
+  return detailsObjectSchema()
     .keys({
       ...sharedPayloadSchemaKeys,
       [postcodeQueryFieldName]: Joi.string()
@@ -338,7 +351,7 @@ export function createDetailsPayloadSchema(language = 'en-GB') {
  * @returns {ObjectSchema<PostcodeLookupSelectPayload>}
  */
 export function createSelectPayloadSchema(language = 'en-GB') {
-  return Joi.object()
+  return selectObjectSchema()
     .keys({
       ...sharedPayloadSchemaKeys,
       [uprnFieldName]: Joi.string()
@@ -356,7 +369,7 @@ export function createSelectPayloadSchema(language = 'en-GB') {
  * @returns {ObjectSchema<PostcodeLookupManualPayload>}
  */
 export function createManualPayloadSchema(language = 'en-GB') {
-  return Joi.object()
+  return manualObjectSchema()
     .keys({
       ...sharedPayloadSchemaKeys,
       [line1FieldName]: Joi.string()

@@ -949,6 +949,90 @@ describe('DatePartsField', () => {
     })
   })
 
+  describe('Validation with translator', () => {
+    describe.each([
+      {
+        description: 'error description',
+        def: {
+          title: 'Example date parts field',
+          shortDescription: 'Example date parts',
+          errorDescription: 'Example date error',
+          name: 'myComponent',
+          type: ComponentType.DatePartsField,
+          options: {}
+        } satisfies DatePartsFieldComponent,
+        expectedLabel: 'Example date error'
+      },
+      {
+        description: 'short description',
+        def: {
+          title: 'Example date parts field',
+          shortDescription: 'Example date parts',
+          name: 'myComponent',
+          type: ComponentType.DatePartsField,
+          options: {}
+        } satisfies DatePartsFieldComponent,
+        expectedLabel: 'Example date parts'
+      },
+      {
+        description: 'title',
+        def: {
+          title: 'Example date parts field',
+          name: 'myComponent',
+          type: ComponentType.DatePartsField,
+          options: {}
+        } satisfies DatePartsFieldComponent,
+        expectedLabel: 'Example date parts field'
+      }
+    ])('Error label uses $description', ({ def, expectedLabel }) => {
+      let collection: ComponentCollection
+
+      beforeEach(() => {
+        collection = new ComponentCollection([def], { model })
+      })
+
+      it('uses the label for missing date parts', () => {
+        const result = collection.validate(
+          getFormData({
+            day: '',
+            month: '',
+            year: ''
+          }),
+          translator
+        )
+
+        expect(result.errors).toEqual([
+          expect.objectContaining({
+            text: `${expectedLabel} must include a day`
+          }),
+          expect.objectContaining({
+            text: `${expectedLabel} must include a month`
+          }),
+          expect.objectContaining({
+            text: `${expectedLabel} must include a year`
+          })
+        ])
+      })
+
+      it('uses the label for an invalid date', () => {
+        const result = collection.validate(
+          getFormData({
+            day: '32',
+            month: '1',
+            year: '2024'
+          }),
+          translator
+        )
+
+        expect(result.errors).toEqual([
+          expect.objectContaining({
+            text: `${expectedLabel} must be a real date`
+          })
+        ])
+      })
+    })
+  })
+
   describe('sub-field title key constants', () => {
     let dateParts: DatePartsField
 
