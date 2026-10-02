@@ -9,7 +9,10 @@ import {
 } from '@defra/forms-model'
 
 import { todayAsDateOnly } from '~/src/server/plugins/engine/date-helper.js'
-import { SchemaValidationError } from '~/src/server/plugins/engine/errors.js'
+import {
+  PageRouteCycleError,
+  SchemaValidationError
+} from '~/src/server/plugins/engine/errors.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { type FormContextRequest } from '~/src/server/plugins/engine/types.js'
@@ -432,6 +435,125 @@ describe('FormModel', () => {
         gXsqLq: true,
         QwcNsc: 'vegan',
         zeQDES: ['peppers', 'cheese', 'ham']
+      })
+    })
+
+    describe('page walk', () => {
+      const [namePage, agePage, , summaryPage] =
+        joinedConditionsDefinition.pages
+
+      const extraPage: PageQuestion = {
+        title: 'More details',
+        path: '/more-details',
+        components: [
+          {
+            type: ComponentType.TextField,
+            title: 'More details',
+            name: 'moreDetails',
+            id: '6f1d9a52-8a3c-4c63-9f8b-1f1f6f0d7a11',
+            options: { required: false },
+            schema: {}
+          }
+        ],
+        id: '0b9b7f0e-51d2-4d0c-a6e4-0a3c3c1c7d21',
+        next: []
+      }
+
+      function getContextFor(definition: FormDefinition, path: string) {
+        formDefinitionV2Schema.validate = jest
+          .fn()
+          .mockReturnValue({ value: definition })
+
+        const formModel = new FormModel(definition, { basePath: 'test' })
+        const pageUrl = new URL(`http://example.com/test/${path}`)
+
+        const request: FormContextRequest = buildFormContextRequest({
+          method: 'get',
+          query: {},
+          path: pageUrl.pathname,
+          params: { path, slug: 'test' },
+          url: pageUrl,
+          app: { model: formModel }
+        })
+
+        return formModel.getFormContext(request, {
+          $$__referenceNumber: 'foobar'
+        })
+      }
+
+      it('ends after the last page when a page has the root path and the requested page is off the route', () => {
+        const definition: FormDefinition = {
+          ...joinedConditionsDefinition,
+          pages: [namePage, agePage, { ...extraPage, path: '/' }, summaryPage]
+        }
+
+        // The age page has a condition that is false for an empty state
+        const context = getContextFor(definition, 'age')
+
+        expect(context.relevantPages.map(({ path }) => path)).toEqual([
+          '/name',
+          '/',
+          '/summary',
+          '/status'
+        ])
+      })
+
+      it('throws when a page path resolves to a page earlier in the route', () => {
+        const definition: FormDefinition = {
+          ...joinedConditionsDefinition,
+          pages: [
+            namePage,
+            agePage,
+            { ...extraPage, path: '/name/' },
+            summaryPage
+          ]
+        }
+
+        expect(() => getContextFor(definition, 'summary')).toThrow(
+          new PageRouteCycleError('/name')
+        )
+      })
+
+      it('throws when the next links of a V1 form make a cycle', () => {
+        const textField = (name: string) => ({
+          type: ComponentType.TextField as const,
+          name,
+          title: name,
+          options: {},
+          schema: {}
+        })
+
+        const definition: FormDefinition = {
+          name: 'Next link cycle',
+          startPage: '/first',
+          pages: [
+            {
+              title: 'First',
+              path: '/first',
+              components: [textField('first')],
+              next: [{ path: '/second' }]
+            },
+            {
+              title: 'Second',
+              path: '/second',
+              components: [textField('second')],
+              next: [{ path: '/first' }]
+            },
+            {
+              title: 'Third',
+              path: '/third',
+              components: [textField('third')],
+              next: []
+            }
+          ],
+          conditions: [],
+          lists: [],
+          sections: []
+        }
+
+        expect(() => getContextFor(definition, 'third')).toThrow(
+          new PageRouteCycleError('/first')
+        )
       })
     })
   })

@@ -61,6 +61,21 @@ export class UnknownComponentTypeError extends InvalidFormDefinitionError {
 }
 
 /**
+ * Thrown when the route through the pages returns to a page it has already
+ * visited (e.g. two page paths that differ only by a trailing slash, or V1
+ * `next` links that point back to an earlier page).
+ */
+export class PageRouteCycleError extends InvalidFormDefinitionError {
+  public readonly path: string
+
+  constructor(path: string) {
+    super(`The route through the form returns to page '${path}'`)
+    this.name = 'PageRouteCycleError'
+    this.path = path
+  }
+}
+
+/**
  * Thrown when a form definition fails Joi schema validation. The raw
  * ValidationError is preserved as `cause` so consumers can reach the
  * per-field details; the message carries Joi's own summary so log lines

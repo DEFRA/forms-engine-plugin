@@ -259,6 +259,12 @@ export function getPage(
 }
 
 export function findPage(model: FormModel | undefined, path?: string) {
+  // A missing path finds no page rather than the page at '/', so that a
+  // route with no next path ends
+  if (path === undefined) {
+    return undefined
+  }
+
   const findPath = `/${normalisePath(path)}`
   return model?.pages.find(({ path }) => path === findPath)
 }

@@ -43,6 +43,7 @@ import {
 import { todayAsDateOnly } from '~/src/server/plugins/engine/date-helper.js'
 import {
   ConditionBuildError,
+  PageRouteCycleError,
   SchemaValidationError
 } from '~/src/server/plugins/engine/errors.js'
 import {
@@ -428,8 +429,17 @@ export class FormModel {
 
     this.initialiseContext(context)
 
+    const visitedPages = new Set<PageControllerClass>()
+
     // Walk form pages from start
     while (nextPage) {
+      // A route that returns to a visited page has no end
+      if (visitedPages.has(nextPage)) {
+        throw new PageRouteCycleError(nextPage.path)
+      }
+
+      visitedPages.add(nextPage)
+
       // Add page to context
       context.relevantPages.push(nextPage)
 
