@@ -615,8 +615,8 @@ describe('FormModel', () => {
       [`${name}__northing`]: site.northing
     })
 
-    function validate(state: FormSubmissionState) {
-      const model = new FormModel(definition, { basePath: 'test' })
+    function validate(state: FormSubmissionState, form = definition) {
+      const model = new FormModel(form, { basePath: 'test' })
       const pages = model.pages.filter(({ path }) => path !== '/status')
 
       return model
@@ -636,6 +636,22 @@ describe('FormModel', () => {
         'siteTwo__northing',
         'third'
       ])
+    })
+
+    it('keeps the page order for a form with more pages than one batch', () => {
+      // Component names can only have letters
+      const names = Array.from(
+        { length: 70 },
+        (_, index) =>
+          `page${'abcdefghij'.charAt(index / 7)}${'abcdefg'.charAt(index % 7)}`
+      )
+
+      const { error } = validate(
+        {},
+        { ...definition, startPage: `/${names[0]}`, pages: names.map(textPage) }
+      )
+
+      expect(error?.details.map(({ path }) => path.join('.'))).toEqual(names)
     })
 
     it('accepts a complete and valid state', () => {

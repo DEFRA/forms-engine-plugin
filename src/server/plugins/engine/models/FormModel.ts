@@ -30,7 +30,8 @@ import {
 import { add, format } from 'date-fns'
 import { Parser, type Value } from 'expr-eval-fork'
 import { type i18n } from 'i18next'
-import joi from 'joi'
+import joi, { type ObjectSchema } from 'joi'
+import chunk from 'lodash/chunk.js'
 
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { EN_GB } from '~/src/server/constants.js'
@@ -78,6 +79,18 @@ import {
 import { FormAction } from '~/src/server/routes/types.js'
 import { merge } from '~/src/server/services/cacheService.js'
 import { type Services } from '~/src/server/types.js'
+
+/**
+ * Joi copies both schemas on each concat. A small batch keeps each copy
+ * small, so that the build time stays low for forms with many pages.
+ */
+const PAGES_PER_BATCH = 32
+
+function joinSchemas(schemas: ObjectSchema<FormSubmissionState>[]) {
+  const emptySchema = joi.object<FormSubmissionState>().required()
+
+  return schemas.reduce((joined, schema) => joined.concat(schema), emptySchema)
+}
 
 export class FormModel {
   /** The runtime engine that should be used */
@@ -266,26 +279,12 @@ export class FormModel {
    * for pages which are no longer accessible due to an answer that has been changed
    */
   makeFilteredSchema(relevantPages: PageControllerClass[]) {
-    // Build the entire model schema
-    // from the individual pages/sections
-    let schemas = relevantPages.map((page) => page.collection.stateSchema)
+    const pageSchemas = relevantPages.map((page) => page.collection.stateSchema)
 
-    // Each concat copies both of its schemas, so they are joined in pairs
-    // rather than one by one, to keep each copy small
-    while (schemas.length > 1) {
-      const pairs: typeof schemas = []
+    const batchesOfPageSchemas = chunk(pageSchemas, PAGES_PER_BATCH)
+    const schemaForEachBatch = batchesOfPageSchemas.map(joinSchemas)
 
-      for (let i = 0; i < schemas.length; i += 2) {
-        const left = schemas[i]
-        pairs.push(i + 1 < schemas.length ? left.concat(schemas[i + 1]) : left)
-      }
-
-      schemas = pairs
-    }
-
-    const schema = joi.object<FormSubmissionState>().required()
-
-    return schemas.length ? schema.concat(schemas[0]) : schema
+    return joinSchemas(schemaForEachBatch)
   }
 
   /**
