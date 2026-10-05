@@ -1,7 +1,7 @@
 import { type AutocompleteFieldComponent } from '@defra/forms-model'
-import { type LanguageMessages } from 'joi'
 
 import { SelectField } from '~/src/server/plugins/engine/components/SelectField.js'
+import { withCustomValidationOverrides } from '~/src/server/plugins/engine/components/helpers/index.js'
 import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { buildValidationMessages } from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
@@ -50,12 +50,19 @@ export class AutocompleteField extends SelectField {
   }
 
   getValidationMessagesOverride(translator: Translator) {
+    const { customValidationMessages } = this.options
     const { t } = translator
+    const defaults = {
+      'any.required': buildValidationMessages(t).objectRequired,
+      'any.only': buildValidationMessages(t).objectRequired
+    }
+
     return {
-      [this.name]: {
-        'any.required': buildValidationMessages(t).objectRequired,
-        'any.only': buildValidationMessages(t).objectRequired
-      } as LanguageMessages
+      [this.name]: withCustomValidationOverrides(
+        defaults,
+        undefined,
+        customValidationMessages
+      )
     }
   }
 }
