@@ -30,7 +30,8 @@ import {
 import { add, format } from 'date-fns'
 import { Parser, type Value } from 'expr-eval-fork'
 import { type i18n } from 'i18next'
-import joi from 'joi'
+import joi, { type ObjectSchema } from 'joi'
+import chunk from 'lodash/chunk.js'
 
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { EN_GB } from '~/src/server/constants.js'
@@ -43,6 +44,7 @@ import {
 import { todayAsDateOnly } from '~/src/server/plugins/engine/date-helper.js'
 import {
   ConditionBuildError,
+  PageRouteCycleError,
   SchemaValidationError
 } from '~/src/server/plugins/engine/errors.js'
 import {
@@ -77,6 +79,18 @@ import {
 import { FormAction } from '~/src/server/routes/types.js'
 import { merge } from '~/src/server/services/cacheService.js'
 import { type Services } from '~/src/server/types.js'
+
+/**
+ * Joi copies both schemas on each concat. A small batch keeps each copy
+ * small, so that the build time stays low for forms with many pages.
+ */
+const PAGES_PER_BATCH = 32
+
+function joinSchemas(schemas: ObjectSchema<FormSubmissionState>[]) {
+  const emptySchema = joi.object<FormSubmissionState>().required()
+
+  return schemas.reduce((joined, schema) => joined.concat(schema), emptySchema)
+}
 
 export class FormModel {
   /** The runtime engine that should be used */
@@ -265,15 +279,12 @@ export class FormModel {
    * for pages which are no longer accessible due to an answer that has been changed
    */
   makeFilteredSchema(relevantPages: PageControllerClass[]) {
-    // Build the entire model schema
-    // from the individual pages/sections
-    let schema = joi.object<FormSubmissionState>().required()
+    const pageSchemas = relevantPages.map((page) => page.collection.stateSchema)
 
-    relevantPages.forEach((page) => {
-      schema = schema.concat(page.collection.stateSchema)
-    })
+    const batchesOfPageSchemas = chunk(pageSchemas, PAGES_PER_BATCH)
+    const schemaForEachBatch = batchesOfPageSchemas.map(joinSchemas)
 
-    return schema
+    return joinSchemas(schemaForEachBatch)
   }
 
   /**
@@ -428,8 +439,17 @@ export class FormModel {
 
     this.initialiseContext(context)
 
+    const visitedPages = new Set<PageControllerClass>()
+
     // Walk form pages from start
     while (nextPage) {
+      // A route that returns to a visited page has no end
+      if (visitedPages.has(nextPage)) {
+        throw new PageRouteCycleError(nextPage.path)
+      }
+
+      visitedPages.add(nextPage)
+
       // Add page to context
       context.relevantPages.push(nextPage)
 
