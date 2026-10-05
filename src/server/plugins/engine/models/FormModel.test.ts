@@ -15,7 +15,10 @@ import {
 } from '~/src/server/plugins/engine/errors.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
-import { type FormContextRequest } from '~/src/server/plugins/engine/types.js'
+import {
+  type FormContextRequest,
+  type FormSubmissionState
+} from '~/src/server/plugins/engine/types.js'
 import { FormAction } from '~/src/server/routes/types.js'
 import { V2 as definitionV2 } from '~/test/form/definitions/conditions-basic.js'
 import definition from '~/test/form/definitions/conditions-escaping.js'
@@ -555,6 +558,111 @@ describe('FormModel', () => {
           new PageRouteCycleError('/first')
         )
       })
+    })
+  })
+
+  describe('makeFilteredSchema', () => {
+    const textPage = (name: string) => ({
+      title: name,
+      path: `/${name}`,
+      components: [
+        {
+          type: ComponentType.TextField as const,
+          name,
+          title: name,
+          options: {},
+          schema: {}
+        }
+      ],
+      next: []
+    })
+
+    const sitePage = (name: string) => ({
+      title: name,
+      path: `/${name}`,
+      components: [
+        {
+          type: ComponentType.EastingNorthingField as const,
+          name,
+          title: name,
+          options: { countries: ['wales' as const] },
+          schema: {}
+        }
+      ],
+      next: []
+    })
+
+    const definition: FormDefinition = {
+      name: 'Schema of many pages',
+      startPage: '/first',
+      pages: [
+        textPage('first'),
+        sitePage('siteOne'),
+        textPage('second'),
+        sitePage('siteTwo'),
+        textPage('third')
+      ],
+      conditions: [],
+      lists: [],
+      sections: []
+    }
+
+    const inWales = { easting: 326781, northing: 269766 }
+    const outsideWales = { easting: 332218, northing: 283862 }
+
+    const siteState = (name: string, site: typeof inWales) => ({
+      [`${name}__easting`]: site.easting,
+      [`${name}__northing`]: site.northing
+    })
+
+    function validate(state: FormSubmissionState) {
+      const model = new FormModel(definition, { basePath: 'test' })
+      const pages = model.pages.filter(({ path }) => path !== '/status')
+
+      return model
+        .makeFilteredSchema(pages)
+        .validate(state, { abortEarly: false })
+    }
+
+    it('reports the missing answers of all pages in page order', () => {
+      const { error } = validate({})
+
+      expect(error?.details.map(({ path }) => path.join('.'))).toEqual([
+        'first',
+        'siteOne__easting',
+        'siteOne__northing',
+        'second',
+        'siteTwo__easting',
+        'siteTwo__northing',
+        'third'
+      ])
+    })
+
+    it('accepts a complete and valid state', () => {
+      const { error } = validate({
+        first: 'a',
+        ...siteState('siteOne', inWales),
+        second: 'b',
+        ...siteState('siteTwo', inWales),
+        third: 'c'
+      })
+
+      expect(error).toBeUndefined()
+    })
+
+    it('keeps the country rule of each easting and northing field', () => {
+      const { error } = validate({
+        first: 'a',
+        ...siteState('siteOne', outsideWales),
+        second: 'b',
+        ...siteState('siteTwo', outsideWales),
+        third: 'c'
+      })
+
+      expect(error?.details.map(({ message }) => message)).toEqual([
+        expect.stringContaining('"siteOne" failed custom validation'),
+        expect.stringContaining('"siteTwo" failed custom validation')
+      ])
     })
   })
 

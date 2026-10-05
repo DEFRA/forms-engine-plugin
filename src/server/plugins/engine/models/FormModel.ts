@@ -268,13 +268,24 @@ export class FormModel {
   makeFilteredSchema(relevantPages: PageControllerClass[]) {
     // Build the entire model schema
     // from the individual pages/sections
-    let schema = joi.object<FormSubmissionState>().required()
+    let schemas = relevantPages.map((page) => page.collection.stateSchema)
 
-    relevantPages.forEach((page) => {
-      schema = schema.concat(page.collection.stateSchema)
-    })
+    // Each concat copies both of its schemas, so they are joined in pairs
+    // rather than one by one, to keep each copy small
+    while (schemas.length > 1) {
+      const pairs: typeof schemas = []
 
-    return schema
+      for (let i = 0; i < schemas.length; i += 2) {
+        const left = schemas[i]
+        pairs.push(i + 1 < schemas.length ? left.concat(schemas[i + 1]) : left)
+      }
+
+      schemas = pairs
+    }
+
+    const schema = joi.object<FormSubmissionState>().required()
+
+    return schemas.length ? schema.concat(schemas[0]) : schema
   }
 
   /**
