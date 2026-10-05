@@ -5,7 +5,6 @@ import {
 import Bourne from '@hapi/bourne'
 import { booleanWithin } from '@turf/boolean-within'
 import { point } from '@turf/helpers'
-// @ts-expect-error - no types
 import OsGridRef from 'geodesy/osgridref.js'
 import JoiBase, { type CustomValidator } from 'joi'
 

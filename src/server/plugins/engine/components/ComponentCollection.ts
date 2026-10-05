@@ -259,10 +259,7 @@ export class ComponentCollection {
 
         // Update error with parent title
         if (translator && parent) {
-          error.local.title ??= translator.tComponent(
-            parent as ComponentDef,
-            'title'
-          )
+          error.local.title ??= getTranslatedLabel(parent.def, translator)
         } else {
           error.local.title ??= parent?.label
         }

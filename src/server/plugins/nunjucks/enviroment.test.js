@@ -3,14 +3,19 @@ import { environment } from '~/src/server/plugins/nunjucks/environment.js'
 
 describe('Nunjucks environment', () => {
   describe('t global function', () => {
+    /** @type {typeof tGlobal} */
+    let t
+
+    beforeEach(() => {
+      t = environment.getGlobal('t')
+    })
+
     it('has t as a global function', () => {
-      const globals = /** @type {any} */ (environment).globals
-      expect(typeof globals.t).toBe('function')
+      expect(typeof t).toBe('function')
     })
 
     it('t global returns the English string for a known key', () => {
-      const globals = /** @type {any} */ (environment).globals
-      expect(globals.t('errors.title')).toBe('There is a problem')
+      expect(t('errors.title')).toBe('There is a problem')
     })
   })
 
@@ -213,6 +218,10 @@ describe('Nunjucks environment', () => {
     })
   })
 })
+
+/**
+ * @import { tGlobal } from '~/src/server/plugins/nunjucks/environment.js'
+ */
 
 /*
  * @import { ComponentViewModel } from '~/src/server/plugins/engine/components/types.js'

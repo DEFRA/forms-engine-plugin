@@ -11,7 +11,6 @@ import createSearchPlugin from '@defra/interactive-map/plugins/search'
 // @ts-expect-error - no types
 import maplibreProvider from '@defra/interactive-map/providers/maplibre'
 import { centroid } from '@turf/centroid'
-// @ts-expect-error - no types
 import OsGridRef, { LatLon } from 'geodesy/osgridref.js'
 
 import { processGeospatial } from '~/src/client/javascripts/geospatial-map.js'
