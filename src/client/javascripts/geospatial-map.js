@@ -490,7 +490,7 @@ function prepareGeometry(feature) {
  * @param {GeoJSON} geojson
  * @returns {FeaturesManager}
  */
-function getFeaturesManager(geojson) {
+export function getFeaturesManager(geojson) {
   /**
    * Get a feature from the geojson by id
    * @type {GetFeatures}
