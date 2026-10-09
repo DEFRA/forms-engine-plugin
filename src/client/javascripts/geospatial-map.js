@@ -528,9 +528,9 @@ export function getFeaturesManager(geojson) {
 
     // Ensure the feature exists in the geojson
     if (feature) {
+      feature.geometry = geometry
       feature.properties.coordinateGridReference = getCoordinateGridRef(feature)
       feature.properties.centroidGridReference = getCentroidGridRef(feature)
-      feature.geometry = geometry
       prepareGeometry(feature)
     }
 
