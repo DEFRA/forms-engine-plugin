@@ -1127,16 +1127,18 @@ describe('Maps Client JS', () => {
             type: 'Polygon',
             coordinates: [
               [
-                [0, 0],
-                [1, 1],
-                [2, 2]
+                [-0.1406682, 51.5021389],
+                [-0.1395772, 51.5002887],
+                [-0.1293066, 51.5013894],
+                [-0.1305105, 51.5060496],
+                [-0.1406682, 51.5021389]
               ]
             ]
           },
           properties: {
             description: "St James' Park",
-            coordinateGridReference: 'TQ 29200 79762',
-            centroidGridReference: 'TQ 29560 79824'
+            coordinateGridReference: 'TQ 29150 79772',
+            centroidGridReference: 'TQ 29541 79818'
           }
         }
 
@@ -1247,14 +1249,14 @@ describe('Maps Client JS', () => {
 
         // Manually invoke interactMarkerChange callback with a new point
         const updatedPointArgs = {
-          coords: [0, 0]
+          coords: [-1.3260764, 53.2366094]
         }
 
         interactMarkerChange(updatedPointArgs)
 
         expect(mockAddMarker).toHaveBeenLastCalledWith(
           '6d67810c-7228-4f71-b6ec-0d16b132fcd7',
-          [0, 0]
+          [-1.3260764, 53.2366094]
         )
 
         expect(geospatialInput.value).toBe(
@@ -1262,9 +1264,14 @@ describe('Maps Client JS', () => {
             [
               {
                 ...features[0],
+                properties: {
+                  ...features[0].properties,
+                  coordinateGridReference: 'SK 45077 71275',
+                  centroidGridReference: 'SK 45077 71275'
+                },
                 geometry: {
                   ...features[0].geometry,
-                  coordinates: [0, 0]
+                  coordinates: [-1.3260764, 53.2366094]
                 }
               },
               ...features.splice(1)

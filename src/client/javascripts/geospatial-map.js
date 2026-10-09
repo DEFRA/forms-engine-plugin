@@ -490,7 +490,7 @@ function prepareGeometry(feature) {
  * @param {GeoJSON} geojson
  * @returns {FeaturesManager}
  */
-function getFeaturesManager(geojson) {
+export function getFeaturesManager(geojson) {
   /**
    * Get a feature from the geojson by id
    * @type {GetFeatures}
@@ -528,9 +528,9 @@ function getFeaturesManager(geojson) {
 
     // Ensure the feature exists in the geojson
     if (feature) {
+      feature.geometry = geometry
       feature.properties.coordinateGridReference = getCoordinateGridRef(feature)
       feature.properties.centroidGridReference = getCentroidGridRef(feature)
-      feature.geometry = geometry
       prepareGeometry(feature)
     }
 
