@@ -1,5 +1,5 @@
 <!--
-  Thank you for contributing to DXT! Please follow the instructions in the comment tags.
+  Thank you for contributing to the Forms Engine Plugin! Please follow the instructions in the comment tags.
   Unless you have been instructed, do not delete any text in this template.
 -->
 
