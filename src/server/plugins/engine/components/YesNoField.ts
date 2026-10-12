@@ -6,7 +6,10 @@ import {
 } from '@defra/forms-model'
 
 import { SelectionControlField } from '~/src/server/plugins/engine/components/SelectionControlField.js'
-import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers/index.js'
+import {
+  addClassOptionIfNone,
+  withCustomValidationOverrides
+} from '~/src/server/plugins/engine/components/helpers/index.js'
 import { buildValidationMessages } from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
@@ -62,11 +65,18 @@ export class YesNoField extends SelectionControlField {
   }
 
   getValidationMessagesOverride(translator: Translator) {
+    const { customValidationMessage, customValidationMessages } = this.options
     const { selectYesNoRequired } = buildValidationMessages(translator.t)
+    const defaults = {
+      'any.required': selectYesNoRequired
+    }
+
     return {
-      [this.name]: {
-        'any.required': selectYesNoRequired
-      }
+      [this.name]: withCustomValidationOverrides(
+        defaults,
+        customValidationMessage,
+        customValidationMessages
+      )
     }
   }
 
