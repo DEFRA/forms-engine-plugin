@@ -128,7 +128,7 @@ Here is an example of a Liquid template that renders a page title, displays a li
 
 When using these kind of multi-line HTML snippets, you would benefit from our [YAML-based form definitions](../code-based/form-definition-formats) that provide a better developer experience compared to JSON files.
 
-If you choose to stick with JSON form definitions, the above template should be minified and inserted into the content field in the form definition example. E.g. quotes should be either replaced with `'` or escaped `\"`. Your IDE should do this automatically when pasting the into a JSON string, or a tool like https://www.freeformatter.com/json-escape.html can do it manually.
+If you choose to stick with JSON form definitions, the above template should be minified and inserted into the content field in the form definition example. E.g. quotes should be either replaced with `'` or escaped `\"`. Your IDE should do this automatically when pasting it into a JSON string, or you can use [JSON Escape](https://jsonviewertool.com/json-escape) manually. The tool returns escaped content without surrounding quotes.
 
 Full example of the minified and escaped component, which can be appended to [the first example's JSON snippet](#substituting-a-page-title).
 
