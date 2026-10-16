@@ -16,7 +16,8 @@ import {
   type FeatureProperties,
   type Geometry
 } from '~/src/server/plugins/engine/types.js'
-import { countries } from '~/src/server/plugins/map/routes/index.js'
+import { countriesValidate } from '~/src/server/plugins/map/routes/index.js'
+import { CountryMap } from '~/src/server/plugins/map/types.js'
 
 const Joi = JoiBase.extend({
   type: 'array',
@@ -157,8 +158,8 @@ export function getGeospatialSchema(
   }
 
   const validateCountryBounds: CustomValidator = (value, helpers) => {
-    const countryFeature = countries.features.find(
-      (feature) => feature.id === country
+    const countryFeature = countriesValidate.features.find(
+      (feature) => feature.id === CountryMap[country]
     )
 
     if (!countryFeature) {
@@ -191,8 +192,8 @@ export function getEastingNorthingCountryValidator(
   country: GeospatialFieldOptionsCountry
 ) {
   const validateCountryBounds: CustomValidator = (value, helpers) => {
-    const countryFeature = countries.features.find(
-      (feature) => feature.id === country
+    const countryFeature = countriesValidate.features.find(
+      (feature) => feature.id === CountryMap[country]
     )
 
     if (!countryFeature) {

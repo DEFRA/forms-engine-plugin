@@ -21,11 +21,18 @@
  * @property {string} query - name query
  */
 
+export const CountryMap = {
+  england: 1,
+  'northern-ireland': 3,
+  scotland: 2,
+  wales: 4
+}
+
 /**
  * Geospatial countries query params
  * @typedef {object} GeospatialCountriesQuery
- * @property {string} omit - the country to omit
- * @property {string} only - the country to include
+ * @property {keyof typeof CountryMap} [omit] - the country to omit
+ * @property {keyof typeof CountryMap} [only] - the country to include
  */
 
 /**
