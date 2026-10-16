@@ -89,10 +89,10 @@ export class ComponentBase {
 }
 
 export type ComponentSchema =
-  | ArraySchema<string>
-  | ArraySchema<number>
-  | ArraySchema<boolean>
-  | ArraySchema<object>
+  | ArraySchema<string[]>
+  | ArraySchema<number[]>
+  | ArraySchema<boolean[]>
+  | ArraySchema<object[]>
   | BooleanSchema<string>
   | BooleanSchema
   | DateSchema

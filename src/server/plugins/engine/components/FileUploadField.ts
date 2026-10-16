@@ -111,8 +111,8 @@ export const formItemSchema = itemSchema.append({
 export class FileUploadField extends FormComponent {
   declare options: FileUploadFieldComponent['options']
   declare schema: FileUploadFieldComponent['schema']
-  declare formSchema: ArraySchema<FileState>
-  declare stateSchema: ArraySchema<FileState>
+  declare formSchema: ArraySchema<FileState[]>
+  declare stateSchema: ArraySchema<FileState[]>
   declare limits: { min?: number; max?: number; length?: number }
 
   constructor(
