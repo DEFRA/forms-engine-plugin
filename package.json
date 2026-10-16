@@ -92,7 +92,7 @@
   },
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
-    "@defra/forms-model": "^3.0.708",
+    "@defra/forms-model": "^4.0.0",
     "@defra/hapi-tracing": "^1.29.0",
     "@defra/interactive-map": "0.0.33-alpha",
     "@elastic/ecs-pino-format": "^1.5.0",
@@ -134,7 +134,7 @@
     "humanize-duration": "^3.33.1",
     "i18next": "^26.0.5",
     "ioredis": "^5.8.2",
-    "joi": "^17.13.3",
+    "joi": "^18.2.9",
     "liquidjs": "^10.24.0",
     "lodash": "^4.17.21",
     "lru-cache": "^11.5.1",
