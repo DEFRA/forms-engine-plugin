@@ -7,18 +7,36 @@ import Joi from 'joi'
 
 import { getAccessToken } from '~/src/server/plugins/map/routes/get-os-token.js'
 import { find } from '~/src/server/plugins/map/service.js'
+import { CountryMap } from '~/src/server/plugins/map/types.js'
 import {
   get,
   request as httpRequest
 } from '~/src/server/services/httpService.js'
 
-const filePath = resolve(import.meta.dirname, './vts/countries.geojson')
+const countriesDisplayFilePath = resolve(
+  import.meta.dirname,
+  './vts/countries.geojson'
+)
+const countriesValidateFilePath = resolve(
+  import.meta.dirname,
+  './vts/countries-5dp.geojson'
+)
 
 /**
  * @type {FeatureCollection}
  */
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-export const countries = JSON.parse(fs.readFileSync(filePath, 'utf8'))
+export const countries = JSON.parse(
+  fs.readFileSync(countriesDisplayFilePath, 'utf8')
+)
+
+/**
+ * @type {FeatureCollection}
+ */
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+export const countriesValidate = JSON.parse(
+  fs.readFileSync(countriesValidateFilePath, 'utf8')
+)
 
 export const countrySchema = Joi.string().valid(
   ...Object.values(GeospatialFieldOptionsCountryEnum)
@@ -188,14 +206,18 @@ function getGeospatialCountries() {
       if (omit) {
         return {
           ...countries,
-          features: countries.features.filter((feature) => feature.id !== omit)
+          features: countries.features.filter(
+            (feature) => feature.id !== CountryMap[omit]
+          )
         }
       }
 
       if (only) {
         return {
           ...countries,
-          features: countries.features.filter((feature) => feature.id === only)
+          features: countries.features.filter(
+            (feature) => feature.id === CountryMap[only]
+          )
         }
       }
 
