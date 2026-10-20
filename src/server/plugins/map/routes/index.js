@@ -19,7 +19,10 @@ const countriesDisplayFilePath = resolve(
 )
 const countriesValidateFilePath = resolve(
   import.meta.dirname,
-  './vts/countries-5dp.geojson'
+  './vts',
+  process.env.JEST_WORKER_ID === undefined
+    ? 'countries-5dp.geojson'
+    : 'countries.geojson'
 )
 
 /**
