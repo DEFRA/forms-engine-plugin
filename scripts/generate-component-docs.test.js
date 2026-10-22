@@ -454,6 +454,40 @@ describe('Component Documentation Generator', () => {
     })
   })
 
+  describe('generateComponentMd with customValidationMessage support', () => {
+    const interfaceData = {
+      options: [
+        { name: 'customValidationMessage', type: 'string', optional: true },
+        { name: 'customValidationMessages', type: 'object', optional: true }
+      ],
+      schema: [],
+      props: []
+    }
+
+    it('leaves the customValidationMessage row plain for a component that honours it', () => {
+      const result = generateComponentMd('TextField', interfaceData, 1)
+      expect(result).toContain('| `customValidationMessage` | `string` | No |')
+      expect(result).not.toContain('has no effect')
+    })
+
+    it('appends a no-effect caveat to customValidationMessage for a component that declares but ignores it', () => {
+      const result = generateComponentMd('LatLongField', interfaceData, 1)
+      expect(result).toMatch(
+        /\| `customValidationMessage` \|.*has no effect\. \|/
+      )
+    })
+
+    it('keeps the customValidationMessages row for a component that honours it', () => {
+      const result = generateComponentMd('TextField', interfaceData, 1)
+      expect(result).toContain('`customValidationMessages`')
+    })
+
+    it('omits the customValidationMessages row for a component that declares but ignores it', () => {
+      const result = generateComponentMd('CheckboxesField', interfaceData, 1)
+      expect(result).not.toContain('customValidationMessages')
+    })
+  })
+
   describe('buildJsNotice', () => {
     it('Level 1: renders a GOV.UK notification banner with banner structure', () => {
       const result = buildJsNotice(1, 'Notice text.')

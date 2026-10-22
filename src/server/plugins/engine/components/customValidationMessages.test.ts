@@ -25,6 +25,11 @@ import {
 } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import {
+  IGNORES_PLURAL_MESSAGES,
+  NO_PLURAL_MESSAGES_OPTION,
+  SUPPORTS_PLURAL_MESSAGES
+} from '~/src/server/plugins/engine/components/customValidationMessageSupport.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type FormValue } from '~/src/server/plugins/engine/types.js'
 import { listString } from '~/test/fixtures/list.js'
@@ -42,8 +47,9 @@ import {
  * - `validate(input, translator)` - matches a real request. `FormModel.ts`
  *   always passes a translator when it validates form input.
  *
- * The lists below record which components use the option. They come from
- * reading each component's source code, not from guessing.
+ * Which components use the option is recorded in
+ * customValidationMessageSupport.js, shared with the doc generator so the
+ * published Options tables stay in step with this test.
  *
  * Some of these components also support a singular `customValidationMessage`
  * string. Support for the two options is not identical, so the singular
@@ -62,63 +68,13 @@ import {
 
 const CUSTOM = 'This is a custom validation message'
 
-/**
- * Component types that read options.customValidationMessages and use it
- * in their Joi schema. Tested below under 'Supported'.
- */
-const SUPPORTED_COMPONENT_TYPES = [
-  ComponentType.TextField,
-  ComponentType.EmailAddressField,
-  ComponentType.MultilineTextField,
-  ComponentType.TelephoneNumberField,
-  ComponentType.NumberField,
-  ComponentType.OsGridRefField,
-  ComponentType.NationalGridFieldNumberField,
-  ComponentType.YesNoField,
-  ComponentType.RadiosField,
-  ComponentType.SelectField,
-  ComponentType.AutocompleteField
-]
-
-/**
- * Component types that never read options.customValidationMessages.
- * CheckboxesField reads it but then throws away that schema. Tested below
- * under 'Not supported'.
- */
-const NOT_SUPPORTED_COMPONENT_TYPES = [
-  ComponentType.CheckboxesField,
-  ComponentType.DatePartsField,
-  ComponentType.MonthYearField,
-  ComponentType.EastingNorthingField,
-  ComponentType.LatLongField,
-  ComponentType.UkAddressField,
-  ComponentType.FileUploadField,
-  ComponentType.DeclarationField,
-  ComponentType.HiddenField,
-  ComponentType.GeospatialField,
-  ComponentType.PaymentField
-]
-
-/**
- * Content-only component types. They have no user input and no validation,
- * so options.customValidationMessages does not apply to them.
- */
-const CONTENT_ONLY_COMPONENT_TYPES = [
-  ComponentType.Details,
-  ComponentType.Html,
-  ComponentType.Markdown,
-  ComponentType.InsetText,
-  ComponentType.List,
-  ComponentType.NotificationBanner
-]
-
 describe('Component-level validation message override (customValidationMessages)', () => {
   // Fails when a new ComponentType is not in one of the three lists above.
   it('accounts for every ComponentType', () => {
     const accountedFor = [
-      ...SUPPORTED_COMPONENT_TYPES,
-      ...NOT_SUPPORTED_COMPONENT_TYPES,
-      ...CONTENT_ONLY_COMPONENT_TYPES
+      ...SUPPORTS_PLURAL_MESSAGES,
+      ...IGNORES_PLURAL_MESSAGES,
+      ...NO_PLURAL_MESSAGES_OPTION
     ]
 
     expect(new Set(accountedFor).size).toBe(accountedFor.length)

@@ -10,6 +10,11 @@ import { writePreviewPartial } from './generate-component-previews.js'
 import { writePagePreviewPartial } from './generate-page-previews.js'
 import { pageFixtures } from './page-preview-fixtures.js'
 
+import {
+  IGNORES_PLURAL_MESSAGES,
+  IGNORES_SINGULAR_MESSAGE
+} from '~/src/server/plugins/engine/components/customValidationMessageSupport.js'
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const formsModelTypesDir = path.resolve(
@@ -92,6 +97,14 @@ export function toLabel(name) {
 }
 
 const UNIVERSAL = new Set(['type', 'name', 'title', 'id', 'options', 'schema'])
+
+/** @type {Set<string>} */
+const IGNORES_SINGULAR_MESSAGE_SET = new Set(IGNORES_SINGULAR_MESSAGE)
+/** @type {Set<string>} */
+const IGNORES_PLURAL_MESSAGES_SET = new Set(IGNORES_PLURAL_MESSAGES)
+
+const SINGULAR_MESSAGE_NO_EFFECT_NOTE =
+  'Declared on this component but not applied — setting it has no effect.'
 
 /**
  * Type strings from `.d.ts` files are verbose and use internal model names
@@ -796,12 +809,30 @@ export function generateComponentMd(
     lines.push(``)
   }
 
-  if (options.length > 0) {
+  // customValidationMessages is declared on the shared FormFieldBase options
+  // type, so components that never read it still inherit the property.
+  // Omitting the row here keeps the table limited to options this component
+  // actually honours.
+  const visibleOptions = options.filter(
+    (prop) =>
+      prop.name !== 'customValidationMessages' ||
+      !IGNORES_PLURAL_MESSAGES_SET.has(componentName)
+  )
+
+  if (visibleOptions.length > 0) {
     lines.push(`## Options`, ``)
     lines.push(`| Property | Type | Required | Description |`)
     lines.push(`|----------|------|----------|-------------|`)
-    for (const prop of options) {
-      const desc = metadata.properties[prop.name] ?? ''
+    for (const prop of visibleOptions) {
+      let desc = metadata.properties[prop.name] ?? ''
+      if (
+        prop.name === 'customValidationMessage' &&
+        IGNORES_SINGULAR_MESSAGE_SET.has(componentName)
+      ) {
+        desc = desc
+          ? `${desc} ${SINGULAR_MESSAGE_NO_EFFECT_NOTE}`
+          : SINGULAR_MESSAGE_NO_EFFECT_NOTE
+      }
       lines.push(
         `| \`${prop.name}\` | \`${prop.type.replace(/\|/g, '\\|')}\` | ${prop.optional ? 'No' : 'Yes'} | ${desc} |`
       )

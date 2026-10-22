@@ -14,6 +14,11 @@ import {
 } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import {
+  IGNORES_SINGULAR_MESSAGE,
+  NO_SINGULAR_MESSAGE_OPTION,
+  SUPPORTS_SINGULAR_MESSAGE
+} from '~/src/server/plugins/engine/components/customValidationMessageSupport.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import definition from '~/test/form/definitions/blank.js'
 import {
@@ -34,9 +39,9 @@ import {
  * same as support for this singular option, so that option has its own test
  * file: customValidationMessages.test.ts.
  *
- * The lists below record which components declare and read this option.
- * They come from reading each component's source code and its
- * `@defra/forms-model` type, not from guessing. Only 11 of the 28
+ * Which components declare and read this option is recorded in
+ * customValidationMessageSupport.js, shared with the doc generator so the
+ * published Options tables stay in step with this test. Only 11 of the 28
  * ComponentType values declare customValidationMessage on their options
  * type at all - the other 17 cannot express it, so TypeScript itself proves
  * the option does not apply to them. No runtime test is needed for those;
@@ -56,63 +61,12 @@ import {
 
 const CUSTOM = 'This is a custom validation message'
 
-/**
- * Component types that declare customValidationMessage on their options
- * type and read it. Tested below under 'Supported'.
- */
-const SUPPORTS_SINGULAR_MESSAGE = [
-  ComponentType.TextField,
-  ComponentType.EmailAddressField,
-  ComponentType.MultilineTextField,
-  ComponentType.TelephoneNumberField,
-  ComponentType.NumberField,
-  ComponentType.OsGridRefField,
-  ComponentType.NationalGridFieldNumberField,
-  ComponentType.YesNoField
-]
-
-/**
- * Component types that declare customValidationMessage on their options
- * type but never read it. Tested below under 'Not supported'.
- */
-const NOT_SUPPORTED_COMPONENT_TYPES = [
-  ComponentType.EastingNorthingField,
-  ComponentType.LatLongField,
-  ComponentType.MonthYearField
-]
-
-/**
- * Component types with no customValidationMessage field on their options
- * type. TypeScript itself proves the option cannot be set, so there is
- * nothing to test at runtime. Listed here only so the coverage guard test
- * below accounts for every ComponentType.
- */
-const NO_SINGULAR_MESSAGE_OPTION = [
-  ComponentType.CheckboxesField,
-  ComponentType.DatePartsField,
-  ComponentType.UkAddressField,
-  ComponentType.FileUploadField,
-  ComponentType.DeclarationField,
-  ComponentType.HiddenField,
-  ComponentType.GeospatialField,
-  ComponentType.PaymentField,
-  ComponentType.RadiosField,
-  ComponentType.SelectField,
-  ComponentType.AutocompleteField,
-  ComponentType.Details,
-  ComponentType.Html,
-  ComponentType.Markdown,
-  ComponentType.InsetText,
-  ComponentType.List,
-  ComponentType.NotificationBanner
-]
-
 describe('Component-level validation message override (customValidationMessage)', () => {
   // Fails when a new ComponentType is not in one of the three lists above.
   it('accounts for every ComponentType', () => {
     const accountedFor = [
       ...SUPPORTS_SINGULAR_MESSAGE,
-      ...NOT_SUPPORTED_COMPONENT_TYPES,
+      ...IGNORES_SINGULAR_MESSAGE,
       ...NO_SINGULAR_MESSAGE_OPTION
     ]
 
