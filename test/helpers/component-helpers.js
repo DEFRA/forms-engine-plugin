@@ -23,6 +23,25 @@ export function getFormState(value, name = 'myComponent') {
 }
 
 /**
+ * Get form data for a composite field (DatePartsField, UkAddressField, ...).
+ * Composite fields use flat payload keys, e.g. `myComponent__day`, rather
+ * than a nested object under `myComponent`.
+ * @param {Record<string, string>} fields
+ * @param {string} [name]
+ * @returns {FormPayload}
+ */
+export function getCompositeFormData(fields, name = 'myComponent') {
+  /** @type {FormPayload} */
+  const data = {}
+
+  for (const [key, value] of Object.entries(fields)) {
+    data[`${name}__${key}`] = value
+  }
+
+  return data
+}
+
+/**
  * Render Nunjucks macro into DOM
  * @param {Parameters<typeof render.macro>} args
  */

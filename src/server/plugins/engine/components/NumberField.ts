@@ -1,14 +1,11 @@
 import { type NumberFieldComponent } from '@defra/forms-model'
-import joi, {
-  type CustomValidator,
-  type LanguageMessages,
-  type NumberSchema
-} from 'joi'
+import joi, { type CustomValidator, type NumberSchema } from 'joi'
 
 import {
   FormComponent,
   isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { withCustomValidationOverrides } from '~/src/server/plugins/engine/components/helpers/index.js'
 import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { buildValidationMessages } from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
@@ -137,16 +134,23 @@ export class NumberField extends FormComponent {
   }
 
   getValidationMessagesOverride(translator: Translator) {
+    const { customValidationMessage, customValidationMessages } = this.options
     const { t } = translator
+    const defaults = {
+      'any.required': buildValidationMessages(t).objectRequired,
+      'number.base': buildValidationMessages(t).objectMissing,
+      'number.precision': buildValidationMessages(t).numberPrecision,
+      'number.integer': buildValidationMessages(t).numberInteger,
+      'number.min': buildValidationMessages(t).numberMin,
+      'number.max': buildValidationMessages(t).numberMax
+    }
+
     return {
-      [this.name]: {
-        'any.required': buildValidationMessages(t).objectRequired,
-        'number.base': buildValidationMessages(t).objectMissing,
-        'number.precision': buildValidationMessages(t).numberPrecision,
-        'number.integer': buildValidationMessages(t).numberInteger,
-        'number.min': buildValidationMessages(t).numberMin,
-        'number.max': buildValidationMessages(t).numberMax
-      } as LanguageMessages
+      [this.name]: withCustomValidationOverrides(
+        defaults,
+        customValidationMessage,
+        customValidationMessages
+      )
     }
   }
 
