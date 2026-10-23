@@ -172,8 +172,8 @@ describe('TelephoneNumberField', () => {
         const state1 = getFormState('+447900000000')
         const state2 = getFormState(null)
 
-        const answer1 = getAnswer(field, state1, translator)
-        const answer2 = getAnswer(field, state2, translator)
+        const answer1 = getAnswer(field, state1, undefined, translator)
+        const answer2 = getAnswer(field, state2, undefined, translator)
 
         expect(answer1).toBe('+447900000000')
         expect(answer2).toBe('')
@@ -226,11 +226,12 @@ describe('TelephoneNumberField', () => {
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = field.getViewModel({
-          payload: getFormData('Telephone number field'),
-          errors: undefined,
-          translator: stubTranslator
-        })
+        const viewModel = field.getViewModel(
+          getFormData('Telephone number field'),
+          undefined,
+          {},
+          stubTranslator
+        )
 
         expect(viewModel).toEqual(
           expect.objectContaining({

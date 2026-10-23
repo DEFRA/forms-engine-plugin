@@ -4,19 +4,28 @@ import { EN_GB } from '~/src/server/constants.js'
 import { LocationFieldBase } from '~/src/server/plugins/engine/components/LocationFieldBase.js'
 import { getMapLayers } from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
 import { createLowerFirstExpression } from '~/src/server/plugins/engine/components/helpers/index.js'
-import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { t } from '~/src/server/plugins/engine/i18n/index.js'
 import { type Translator } from '~/src/server/plugins/engine/types/index.js'
-import { type ErrorMessageTemplateList } from '~/src/server/plugins/engine/types.js'
+import {
+  type ErrorMessageTemplateList,
+  type FormPayload,
+  type FormSubmissionError
+} from '~/src/server/plugins/engine/types.js'
+import { type FormQuery } from '~/src/server/routes/types.js'
 
 export class OsGridRefField extends LocationFieldBase {
   declare options: OsGridRefFieldComponent['options']
 
-  getViewModel(context: RenderContext) {
-    const viewModel = super.getViewModel(context)
+  getViewModel(
+    payload: FormPayload,
+    errors?: FormSubmissionError[],
+    query: FormQuery = {},
+    translator: Translator = this.model.createTranslator()
+  ) {
+    const viewModel = super.getViewModel(payload, errors, query, translator)
 
     Object.assign(viewModel, {
-      lang: context.translator.language,
+      lang: translator.language,
       mapLayers: getMapLayers(this)
     })
 

@@ -27,11 +27,12 @@ export function renderComponent(fixture) {
     /** @type {unknown} */ (fixture.model)
   )
   const component = createComponent(fixture.def, { model })
-  const viewModel = component.getViewModel({
-    payload: fixture.payload,
-    errors: [],
-    translator: stubTranslator
-  })
+  const viewModel = component.getViewModel(
+    fixture.payload,
+    [],
+    {},
+    stubTranslator
+  )
 
   // Apply large label/legend sizing to match how QuestionPageController styles
   // a single-component page. isPageHeading is intentionally omitted — setting it

@@ -263,8 +263,8 @@ describe('MonthYearField', () => {
         const state1 = getFormState(date)
         const state2 = getFormState({})
 
-        const answer1 = getAnswer(field, state1, translator)
-        const answer2 = getAnswer(field, state2, translator)
+        const answer1 = getAnswer(field, state1, undefined, translator)
+        const answer2 = getAnswer(field, state2, undefined, translator)
 
         expect(answer1).toBe('December 2024')
         expect(answer2).toBe('')
@@ -338,11 +338,12 @@ describe('MonthYearField', () => {
 
       it('sets Nunjucks component defaults', () => {
         const payload = getFormData(date)
-        const viewModel = field.getViewModel({
+        const viewModel = field.getViewModel(
           payload,
-          errors: undefined,
-          translator: stubTranslator
-        })
+          undefined,
+          {},
+          stubTranslator
+        )
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -377,11 +378,12 @@ describe('MonthYearField', () => {
           year: 'YYYY'
         })
 
-        const viewModel = field.getViewModel({
+        const viewModel = field.getViewModel(
           payload,
-          errors: undefined,
-          translator: stubTranslator
-        })
+          undefined,
+          {},
+          stubTranslator
+        )
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -400,11 +402,12 @@ describe('MonthYearField', () => {
 
       it('sets Nunjucks component fieldset', () => {
         const payload = getFormData(date)
-        const viewModel = field.getViewModel({
+        const viewModel = field.getViewModel(
           payload,
-          errors: undefined,
-          translator: stubTranslator
-        })
+          undefined,
+          {},
+          stubTranslator
+        )
 
         expect(viewModel.fieldset).toEqual({
           legend: {

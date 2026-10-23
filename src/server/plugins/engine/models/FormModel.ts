@@ -698,7 +698,7 @@ function validateFormState(
 
   // Add relevant state errors
   if (error) {
-    const errorsState = error.details.map((item) => getError(EN_GB, item))
+    const errorsState = error.details.map((item) => getError(item, EN_GB))
     return { ...context, errors: errors.concat(errorsState) }
   }
 

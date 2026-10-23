@@ -159,8 +159,8 @@ describe('MultilineTextField', () => {
         const state1 = getFormState('Textarea')
         const state2 = getFormState(null)
 
-        const answer1 = getAnswer(field, state1, translator)
-        const answer2 = getAnswer(field, state2, translator)
+        const answer1 = getAnswer(field, state1, undefined, translator)
+        const answer2 = getAnswer(field, state2, undefined, translator)
 
         expect(answer1).toBe('Textarea')
         expect(answer2).toBe('')
@@ -170,8 +170,8 @@ describe('MultilineTextField', () => {
         const state1 = getFormState('Line 1\r\nLine 2\r\nLine 3')
         const state2 = getFormState('Line 1\r\n\r\nLine 2\r\n\r\n\r\nLine 3')
 
-        const answer1 = getAnswer(field, state1, translator)
-        const answer2 = getAnswer(field, state2, translator)
+        const answer1 = getAnswer(field, state1, undefined, translator)
+        const answer2 = getAnswer(field, state2, undefined, translator)
 
         expect(answer1).toBe('Line 1<br>Line 2<br>Line 3<br>')
         expect(answer2).toBe('Line 1<br>Line 2<br>Line 3<br>')
@@ -224,11 +224,12 @@ describe('MultilineTextField', () => {
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = field.getViewModel({
-          payload: getFormData('Textarea'),
-          errors: undefined,
-          translator: stubTranslator
-        })
+        const viewModel = field.getViewModel(
+          getFormData('Textarea'),
+          undefined,
+          {},
+          stubTranslator
+        )
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -251,23 +252,26 @@ describe('MultilineTextField', () => {
           { model }
         )
 
-        const viewModel = field.getViewModel({
-          payload: getFormData('Textarea'),
-          errors: undefined,
-          translator: stubTranslator
-        })
+        const viewModel = field.getViewModel(
+          getFormData('Textarea'),
+          undefined,
+          {},
+          stubTranslator
+        )
 
-        const viewModel1 = componentCustom1.getViewModel({
-          payload: getFormData('Textarea custom #1'),
-          errors: undefined,
-          translator: stubTranslator
-        })
+        const viewModel1 = componentCustom1.getViewModel(
+          getFormData('Textarea custom #1'),
+          undefined,
+          {},
+          stubTranslator
+        )
 
-        const viewModel2 = componentCustom2.getViewModel({
-          payload: getFormData('Textarea custom #2'),
-          errors: undefined,
-          translator: stubTranslator
-        })
+        const viewModel2 = componentCustom2.getViewModel(
+          getFormData('Textarea custom #2'),
+          undefined,
+          {},
+          stubTranslator
+        )
 
         expect(viewModel).toEqual(
           expect.objectContaining({ isCharacterOrWordCount: false })

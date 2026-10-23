@@ -16,8 +16,7 @@ import {
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
 import {
   type DateInputItem,
-  type DatePartsState,
-  type RenderContext
+  type DatePartsState
 } from '~/src/server/plugins/engine/components/types.js'
 import { parseStrictDate } from '~/src/server/plugins/engine/date-helper.js'
 import { buildValidationMessages } from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
@@ -28,9 +27,11 @@ import {
   type FormPayload,
   type FormState,
   type FormStateValue,
+  type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import { formatDateForLanguage } from '~/src/server/plugins/payment/helper.js'
+import { type FormQuery } from '~/src/server/routes/types.js'
 
 export class DatePartsField extends FormComponent {
   declare options: DatePartsFieldComponent['options']
@@ -116,7 +117,7 @@ export class DatePartsField extends FormComponent {
 
   getDisplayStringFromFormValue(
     formValue: DatePartsState | undefined,
-    translator: Translator
+    translator: Translator = this.model.createTranslator()
   ) {
     if (!formValue) {
       return ''
@@ -131,7 +132,7 @@ export class DatePartsField extends FormComponent {
 
   getDisplayStringFromState(
     state: FormSubmissionState,
-    translator: Translator
+    translator: Translator = this.model.createTranslator()
   ) {
     const value = this.getFormValueFromState(state)
 
@@ -180,11 +181,15 @@ export class DatePartsField extends FormComponent {
     }
   }
 
-  getViewModel(context: RenderContext) {
-    const { errors } = context
+  getViewModel(
+    payload: FormPayload,
+    errors?: FormSubmissionError[],
+    query: FormQuery = {},
+    translator: Translator = this.model.createTranslator()
+  ) {
     const { collection, name } = this
 
-    const viewModel = super.getViewModel(context)
+    const viewModel = super.getViewModel(payload, errors, query, translator)
     let { fieldset, label } = viewModel
 
     // Check for component errors only
@@ -192,7 +197,7 @@ export class DatePartsField extends FormComponent {
 
     // Use the component collection to generate the subitems
     const items: DateInputItem[] = collection
-      .getViewModel(context)
+      .getViewModel(payload, errors, query, translator)
       .map(({ model }) => {
         let { label, type, value, classes, errorMessage } = model
 

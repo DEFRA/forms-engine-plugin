@@ -231,8 +231,8 @@ describe('EastingNorthingField', () => {
         })
         const state2 = getFormState({})
 
-        const answer1 = getAnswer(field, state1, translator)
-        const answer2 = getAnswer(field, state2, translator)
+        const answer1 = getAnswer(field, state1, undefined, translator)
+        const answer2 = getAnswer(field, state2, undefined, translator)
 
         expect(answer1).toBe('Easting: 12345<br>Northing: 1234567<br>')
         expect(answer2).toBe('')
@@ -315,11 +315,12 @@ describe('EastingNorthingField', () => {
           easting: 12345,
           northing: 1234567
         })
-        const viewModel = field.getViewModel({
+        const viewModel = field.getViewModel(
           payload,
-          errors: undefined,
-          translator: stubTranslator
-        })
+          undefined,
+          {},
+          stubTranslator
+        )
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -362,14 +363,15 @@ describe('EastingNorthingField', () => {
           { model }
         )
 
-        const viewModel = componentWithInstruction.getViewModel({
-          payload: getFormData({
+        const viewModel = componentWithInstruction.getViewModel(
+          getFormData({
             easting: 12345,
             northing: 1234567
           }),
-          errors: undefined,
-          translator: stubTranslator
-        })
+          undefined,
+          {},
+          stubTranslator
+        )
 
         const instructionText =
           'instructionText' in viewModel ? viewModel.instructionText : undefined
@@ -392,11 +394,12 @@ describe('EastingNorthingField', () => {
           }
         ]
 
-        const viewModel = field.getViewModel({
+        const viewModel = field.getViewModel(
           payload,
           errors,
-          translator: stubTranslator
-        })
+          {},
+          stubTranslator
+        )
 
         // Check that error is passed to the viewModel
         expect(viewModel.errors).toEqual(errors)
@@ -433,7 +436,7 @@ describe('EastingNorthingField', () => {
           }
         ]
 
-        const viewErrors = field.getViewErrors(translator, errors)
+        const viewErrors = field.getViewErrors(errors, translator)
 
         // Should return all errors, not just the first one
         expect(viewErrors).toHaveLength(2)
@@ -899,8 +902,8 @@ describe('EastingNorthingField', () => {
       ) as EastingNorthingField
 
       const viewErrors = eastingNorthingField.getViewErrors(
-        mockTranslator,
-        result.errors
+        result.errors,
+        mockTranslator
       )
 
       expect(mockT).toHaveBeenCalledWith(

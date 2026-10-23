@@ -25,10 +25,8 @@ export function answer(name) {
   return getAnswer(
     field,
     context.relevantState,
-    translator ?? field.model.createTranslator(),
-    {
-      format: 'summary'
-    }
+    { format: 'summary' },
+    translator ?? field.model.createTranslator()
   )
 }
 

@@ -12,18 +12,19 @@ import {
   determineLimits,
   getGeospatialSchema
 } from '~/src/server/plugins/engine/components/helpers/geospatial.js'
-import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
+  type FormPayload,
   type FormState,
   type FormStateValue,
   type FormSubmissionError,
   type FormSubmissionState,
   type GeospatialState
 } from '~/src/server/plugins/engine/types.js'
+import { type FormQuery } from '~/src/server/routes/types.js'
 
 export class GeospatialField extends FormComponent {
   declare options: GeospatialFieldComponent['options']
@@ -70,7 +71,7 @@ export class GeospatialField extends FormComponent {
 
   getDisplayStringFromFormValue(
     features: GeospatialState | undefined,
-    translator: Translator
+    translator: Translator = this.model.createTranslator()
   ): string {
     if (!features?.length) {
       return ''
@@ -83,7 +84,7 @@ export class GeospatialField extends FormComponent {
 
   getDisplayStringFromState(
     state: FormSubmissionState,
-    translator: Translator
+    translator: Translator = this.model.createTranslator()
   ) {
     const features = this.getFormValueFromState(state)
 
@@ -102,8 +103,13 @@ export class GeospatialField extends FormComponent {
     return this.getContextValueFromFormValue(features)
   }
 
-  getViewModel(context: RenderContext) {
-    const viewModel = super.getViewModel(context)
+  getViewModel(
+    payload: FormPayload,
+    errors?: FormSubmissionError[],
+    query: FormQuery = {},
+    translator: Translator = this.model.createTranslator()
+  ) {
+    const viewModel = super.getViewModel(payload, errors, query, translator)
     const value =
       typeof viewModel.value === 'string'
         ? viewModel.value
@@ -111,7 +117,7 @@ export class GeospatialField extends FormComponent {
 
     return {
       ...viewModel,
-      lang: context.translator.language,
+      lang: translator.language,
       country: this.options.countries?.at(0),
       geometryTypes: this.options.geometryTypes,
       mapLayers: getMapLayers(this),
@@ -120,10 +126,10 @@ export class GeospatialField extends FormComponent {
   }
 
   getErrors(
-    translator: Translator,
-    errors?: FormSubmissionError[]
+    errors?: FormSubmissionError[],
+    translator: Translator = this.model.createTranslator()
   ): FormSubmissionError[] | undefined {
-    const fieldErrors = super.getErrors(translator, errors)
+    const fieldErrors = super.getErrors(errors, translator)
 
     fieldErrors?.forEach((err) => {
       if (err.name === 'description') {
@@ -148,10 +154,10 @@ export class GeospatialField extends FormComponent {
   }
 
   getViewErrors(
-    translator: Translator,
-    errors?: FormSubmissionError[]
+    errors?: FormSubmissionError[],
+    translator: Translator = this.model.createTranslator()
   ): FormSubmissionError[] | undefined {
-    return this.getErrors(translator, errors)
+    return this.getErrors(errors, translator)
   }
 
   isValue(value?: FormStateValue | FormState): value is GeospatialState {

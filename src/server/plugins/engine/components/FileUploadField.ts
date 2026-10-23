@@ -10,7 +10,6 @@ import {
   FormComponent,
   isUploadState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { InvalidComponentStateError } from '~/src/server/plugins/engine/pageControllers/errors.js'
@@ -23,8 +22,10 @@ import {
   type FileUpload,
   type FileUploadMetadata,
   type FormContext,
+  type FormPayload,
   type FormState,
   type FormStateValue,
+  type FormSubmissionError,
   type FormSubmissionState,
   type SummaryList,
   type SummaryListAction,
@@ -34,7 +35,10 @@ import {
   type UploadStatusResponse
 } from '~/src/server/plugins/engine/types.js'
 import { render } from '~/src/server/plugins/nunjucks/index.js'
-import { type FormRequestPayload } from '~/src/server/routes/types.js'
+import {
+  type FormQuery,
+  type FormRequestPayload
+} from '~/src/server/routes/types.js'
 import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 export const uploadIdSchema = joi.string().uuid().required()
@@ -180,7 +184,7 @@ export class FileUploadField extends FormComponent {
 
   getDisplayStringFromFormValue(
     files: FileState[] | undefined,
-    translator: Translator
+    translator: Translator = this.model.createTranslator()
   ): string {
     if (!files?.length) {
       return ''
@@ -193,7 +197,7 @@ export class FileUploadField extends FormComponent {
 
   getDisplayStringFromState(
     state: FormSubmissionState,
-    translator: Translator
+    translator: Translator = this.model.createTranslator()
   ) {
     const files = this.getFormValueFromState(state)
 
@@ -211,12 +215,17 @@ export class FileUploadField extends FormComponent {
     return this.getContextValueFromFormValue(files)
   }
 
-  getViewModel(context: RenderContext) {
-    const { errors, isForceAccess = false } = context
-    const { t } = context.translator
+  getViewModel(
+    payload: FormPayload,
+    errors?: FormSubmissionError[],
+    query: FormQuery = {},
+    translator: Translator = this.model.createTranslator()
+  ) {
+    const isForceAccess = 'force' in query
+    const { t } = translator
     const { options, page, schema } = this
 
-    const viewModel = super.getViewModel(context)
+    const viewModel = super.getViewModel(payload, errors, query, translator)
     const { attributes, id, value } = viewModel
 
     const files = this.getFormValue(value) ?? []

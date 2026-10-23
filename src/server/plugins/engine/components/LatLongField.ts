@@ -16,10 +16,7 @@ import {
   createLowerFirstExpression,
   getTranslatedLabel
 } from '~/src/server/plugins/engine/components/helpers/index.js'
-import {
-  type LatLongState,
-  type RenderContext
-} from '~/src/server/plugins/engine/components/types.js'
+import { type LatLongState } from '~/src/server/plugins/engine/components/types.js'
 import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
@@ -31,6 +28,7 @@ import {
   type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
+import { type FormQuery } from '~/src/server/routes/types.js'
 
 // Precision constants
 // UK latitude/longitude requires high precision for accurate location (within ~11mm)
@@ -120,7 +118,7 @@ export class LatLongField extends FormComponent {
 
   getDisplayStringFromFormValue(
     value: LatLongState | undefined,
-    translator: Translator
+    translator: Translator = this.model.createTranslator()
   ): string {
     if (!value) {
       return ''
@@ -134,7 +132,7 @@ export class LatLongField extends FormComponent {
 
   getDisplayStringFromState(
     state: FormSubmissionState,
-    translator: Translator
+    translator: Translator = this.model.createTranslator()
   ) {
     const value = this.getFormValueFromState(state)
 
@@ -155,16 +153,26 @@ export class LatLongField extends FormComponent {
     return this.getContextValueFromFormValue(value)
   }
 
-  getViewModel(context: RenderContext) {
-    const viewModel = super.getViewModel(context)
-    return getLocationFieldViewModel(this, viewModel, context)
+  getViewModel(
+    payload: FormPayload,
+    errors?: FormSubmissionError[],
+    query: FormQuery = {},
+    translator: Translator = this.model.createTranslator()
+  ) {
+    const viewModel = super.getViewModel(payload, errors, query, translator)
+    return getLocationFieldViewModel(this, viewModel, {
+      payload,
+      errors,
+      query,
+      translator
+    })
   }
 
   getViewErrors(
-    translator: Translator,
-    errors?: FormSubmissionError[]
+    errors?: FormSubmissionError[],
+    translator: Translator = this.model.createTranslator()
   ): FormSubmissionError[] | undefined {
-    const allErrors = this.getErrors(translator, errors)
+    const allErrors = this.getErrors(errors, translator)
     return deduplicateErrorsByHref(allErrors)
   }
 

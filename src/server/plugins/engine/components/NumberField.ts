@@ -6,16 +6,18 @@ import {
   isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { withCustomValidationOverrides } from '~/src/server/plugins/engine/components/helpers/index.js'
-import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { buildValidationMessages } from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import { type Translator } from '~/src/server/plugins/engine/types/index.js'
 import {
   type ErrorMessageTemplateList,
+  type FormPayload,
   type FormState,
   type FormStateValue,
+  type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
+import { type FormQuery } from '~/src/server/routes/types.js'
 
 export class NumberField extends FormComponent {
   declare options: NumberFieldComponent['options']
@@ -90,10 +92,15 @@ export class NumberField extends FormComponent {
     return this.isValue(value) ? value : undefined
   }
 
-  getViewModel(context: RenderContext) {
+  getViewModel(
+    payload: FormPayload,
+    errors?: FormSubmissionError[],
+    query: FormQuery = {},
+    translator: Translator = this.model.createTranslator()
+  ) {
     const { options, schema } = this
 
-    const viewModel = super.getViewModel(context)
+    const viewModel = super.getViewModel(payload, errors, query, translator)
     let { attributes, prefix, suffix, value } = viewModel
 
     if (typeof schema.precision === 'undefined' || schema.precision <= 0) {

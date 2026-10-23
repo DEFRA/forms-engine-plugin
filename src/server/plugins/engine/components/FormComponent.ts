@@ -6,7 +6,6 @@ import {
 import { type LanguageMessages } from 'joi'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
-import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import {
   type FormContext,
@@ -27,6 +26,7 @@ import {
   type RepeatListState,
   type UploadState
 } from '~/src/server/plugins/engine/types.js'
+import { type FormQuery } from '~/src/server/routes/types.js'
 
 export class FormComponent extends ComponentBase {
   type: FormComponentsDef['type']
@@ -118,8 +118,8 @@ export class FormComponent extends ComponentBase {
   }
 
   getErrors(
-    _translator: Translator,
-    errors?: FormSubmissionError[]
+    errors?: FormSubmissionError[],
+    _translator?: Translator
   ): FormSubmissionError[] | undefined {
     const { name } = this
 
@@ -139,17 +139,17 @@ export class FormComponent extends ComponentBase {
   }
 
   getFirstError(
-    translator: Translator,
-    errors?: FormSubmissionError[]
+    errors?: FormSubmissionError[],
+    translator?: Translator
   ): FormSubmissionError | undefined {
-    return this.getErrors(translator, errors)?.[0]
+    return this.getErrors(errors, translator)?.[0]
   }
 
   getViewErrors(
-    translator: Translator,
-    errors?: FormSubmissionError[]
+    errors?: FormSubmissionError[],
+    translator?: Translator
   ): FormSubmissionError[] | undefined {
-    const firstError = this.getFirstError(translator, errors)
+    const firstError = this.getFirstError(errors, translator)
     return firstError && [firstError]
   }
 
@@ -167,12 +167,12 @@ export class FormComponent extends ComponentBase {
     return null
   }
 
-  getViewModel({
-    payload,
-    errors,
-    translator,
-    isForceAccess: _isForceAccess = false
-  }: RenderContext) {
+  getViewModel(
+    payload: FormPayload,
+    errors?: FormSubmissionError[],
+    _query: FormQuery = {},
+    translator: Translator = this.model.createTranslator()
+  ) {
     const { hint, name, options = {}, title, viewModel } = this
 
     const { t, tComponent } = translator
@@ -192,8 +192,8 @@ export class FormComponent extends ComponentBase {
     }
 
     // Filter component errors only
-    const componentErrors = this.getErrors(translator, errors)
-    const componentError = this.getFirstError(translator, componentErrors)
+    const componentErrors = this.getErrors(errors, translator)
+    const componentError = this.getFirstError(componentErrors, translator)
 
     if (componentErrors) {
       viewModel.errors = componentErrors
@@ -218,7 +218,7 @@ export class FormComponent extends ComponentBase {
 
   getDisplayStringFromFormValue(
     value: FormValue | FormPayload,
-    _translator: Translator
+    _translator?: Translator
   ): string {
     // Map selected values to text
     // eslint-disable-next-line @typescript-eslint/no-base-to-string
@@ -227,7 +227,7 @@ export class FormComponent extends ComponentBase {
 
   getDisplayStringFromState(
     state: FormSubmissionState,
-    translator: Translator
+    translator?: Translator
   ): string {
     const value = this.getFormValueFromState(state)
     return this.getDisplayStringFromFormValue(value, translator)

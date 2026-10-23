@@ -13,7 +13,6 @@ import {
   isFormState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
-import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { getCachedPluginTranslator } from '~/src/server/plugins/engine/i18n/form.js'
 import { getAvailableLanguages } from '~/src/server/plugins/engine/i18n/languages.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
@@ -31,6 +30,7 @@ import {
   type PostcodeLookupExternalArgs
 } from '~/src/server/plugins/engine/types.js'
 import { dispatch } from '~/src/server/plugins/postcode-lookup/routes/index.js'
+import { type FormQuery } from '~/src/server/routes/types.js'
 import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 export class UkAddressField extends FormComponent {
@@ -153,14 +153,14 @@ export class UkAddressField extends FormComponent {
 
   getDisplayStringFromFormValue(
     value: UkAddressState | undefined,
-    _translator: Translator
+    _translator?: Translator
   ): string {
     return this.getContextValueFromFormValue(value)?.join(', ') ?? ''
   }
 
   getDisplayStringFromState(
     state: FormSubmissionState,
-    translator: Translator
+    translator: Translator = this.model.createTranslator()
   ) {
     const value = this.getFormValueFromState(state)
 
@@ -171,12 +171,12 @@ export class UkAddressField extends FormComponent {
    * Returns one error per child field
    */
   getViewErrors(
-    translator: Translator,
-    errors?: FormSubmissionError[]
+    errors?: FormSubmissionError[],
+    translator: Translator = this.model.createTranslator()
   ): FormSubmissionError[] | undefined {
     const { t } = translator
 
-    const uniqueErrors = this.getErrors(translator, errors)?.filter(
+    const uniqueErrors = this.getErrors(errors, translator)?.filter(
       (error, index, self) =>
         index === self.findIndex((err) => err.name === error.name)
     )
@@ -201,11 +201,15 @@ export class UkAddressField extends FormComponent {
     return uniqueErrors
   }
 
-  getViewModel(context: RenderContext) {
-    const { payload, translator } = context
+  getViewModel(
+    payload: FormPayload,
+    errors?: FormSubmissionError[],
+    query: FormQuery = {},
+    translator: Translator = this.model.createTranslator()
+  ) {
     const { collection, name, options } = this
 
-    const viewModel = super.getViewModel(context)
+    const viewModel = super.getViewModel(payload, errors, query, translator)
     let { fieldset, hint, label } = viewModel
 
     fieldset ??= {
@@ -229,7 +233,12 @@ export class UkAddressField extends FormComponent {
       }
     }
 
-    const components = collection.getViewModel(context)
+    const components = collection.getViewModel(
+      payload,
+      errors,
+      query,
+      translator
+    )
 
     // Hide UPRN
     const uprn = components.at(0)

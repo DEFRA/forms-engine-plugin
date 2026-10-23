@@ -16,10 +16,7 @@ import {
   type Guidance
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { getTranslatedLabel } from '~/src/server/plugins/engine/components/helpers/index.js'
-import {
-  type ComponentViewModel,
-  type RenderContext
-} from '~/src/server/plugins/engine/components/types.js'
+import { type ComponentViewModel } from '~/src/server/plugins/engine/components/types.js'
 import { getErrors } from '~/src/server/plugins/engine/helpers.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
@@ -35,10 +32,12 @@ import {
   type FormSubmissionState,
   type FormValidationResult
 } from '~/src/server/plugins/engine/types.js'
+import { type FormQuery } from '~/src/server/routes/types.js'
 
 export class ComponentCollection {
   page?: PageControllerClass
   parent?: Component
+  model: FormModel
 
   components: Component[]
   fields: Field[]
@@ -105,6 +104,7 @@ export class ComponentCollection {
 
     this.page = props.page
     this.parent = props.parent
+    this.model = props.model
 
     this.components = components
     this.fields = fields
@@ -179,11 +179,11 @@ export class ComponentCollection {
    * Get all errors for all fields in this collection
    */
   getErrors(
-    translator: Translator,
-    errors?: FormSubmissionError[]
+    errors?: FormSubmissionError[],
+    translator?: Translator
   ): FormSubmissionError[] | undefined {
     return this.getFieldErrors(
-      (field) => field.getErrors(translator, errors),
+      (field) => field.getErrors(errors, translator),
       errors
     )
   }
@@ -194,22 +194,27 @@ export class ComponentCollection {
    * Composite fields like UKAddress can choose to return more than one error.
    */
   getViewErrors(
-    translator: Translator,
-    errors?: FormSubmissionError[]
+    errors?: FormSubmissionError[],
+    translator?: Translator
   ): FormSubmissionError[] | undefined {
     return this.getFieldErrors(
-      (field) => field.getViewErrors(translator, errors),
+      (field) => field.getViewErrors(errors, translator),
       errors
     )
   }
 
-  getViewModel(context: RenderContext) {
+  getViewModel(
+    payload: FormPayload,
+    errors?: FormSubmissionError[],
+    query: FormQuery = {},
+    translator: Translator = this.model.createTranslator()
+  ) {
     const { components } = this
 
     const result: ComponentViewModel[] = components.map((component) => {
       const { isFormComponent, type } = component
 
-      const model = component.getViewModel(context)
+      const model = component.getViewModel(payload, errors, query, translator)
 
       return { type, isFormComponent, model }
     })
@@ -345,7 +350,7 @@ export class ComponentCollection {
     return {
       value: (result.value ?? {}) as typeof value,
       errors:
-        this.page?.getErrors(details, language) ?? getErrors(language, details)
+        this.page?.getErrors(details, language) ?? getErrors(details, language)
     }
   }
 

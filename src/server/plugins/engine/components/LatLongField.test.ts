@@ -219,8 +219,8 @@ describe('LatLongField', () => {
         })
         const state2 = getFormState({})
 
-        const answer1 = getAnswer(field, state1, translator)
-        const answer2 = getAnswer(field, state2, translator)
+        const answer1 = getAnswer(field, state1, undefined, translator)
+        const answer2 = getAnswer(field, state2, undefined, translator)
 
         expect(answer1).toBe('Latitude: 51.51945<br>Longitude: -0.127758<br>')
         expect(answer2).toBe('')
@@ -303,11 +303,12 @@ describe('LatLongField', () => {
           latitude: 51.51945,
           longitude: -0.127758
         })
-        const viewModel = field.getViewModel({
+        const viewModel = field.getViewModel(
           payload,
-          errors: undefined,
-          translator: stubTranslator
-        })
+          undefined,
+          {},
+          stubTranslator
+        )
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -350,14 +351,15 @@ describe('LatLongField', () => {
           { model }
         )
 
-        const viewModel = componentWithInstruction.getViewModel({
-          payload: getFormData({
+        const viewModel = componentWithInstruction.getViewModel(
+          getFormData({
             latitude: 51.51945,
             longitude: -0.127758
           }),
-          errors: undefined,
-          translator: stubTranslator
-        })
+          undefined,
+          {},
+          stubTranslator
+        )
 
         const instructionText =
           'instructionText' in viewModel ? viewModel.instructionText : undefined
@@ -380,11 +382,12 @@ describe('LatLongField', () => {
           }
         ]
 
-        const viewModel = field.getViewModel({
+        const viewModel = field.getViewModel(
           payload,
           errors,
-          translator: stubTranslator
-        })
+          {},
+          stubTranslator
+        )
 
         // Check that error is passed to the viewModel
         expect(viewModel.errors).toEqual(errors)
@@ -421,7 +424,7 @@ describe('LatLongField', () => {
           }
         ]
 
-        const viewErrors = field.getViewErrors(translator, errors)
+        const viewErrors = field.getViewErrors(errors, translator)
 
         expect(viewErrors).toHaveLength(2)
         expect(viewErrors).toEqual([

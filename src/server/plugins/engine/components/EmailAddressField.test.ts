@@ -159,8 +159,8 @@ describe('EmailAddressField', () => {
         const state1 = getFormState('defra.helpline@defra.gov.uk')
         const state2 = getFormState(null)
 
-        const answer1 = getAnswer(field, state1, translator)
-        const answer2 = getAnswer(field, state2, translator)
+        const answer1 = getAnswer(field, state1, undefined, translator)
+        const answer2 = getAnswer(field, state2, undefined, translator)
 
         expect(answer1).toBe('defra.helpline@defra.gov.uk')
         expect(answer2).toBe('')
@@ -213,11 +213,12 @@ describe('EmailAddressField', () => {
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = field.getViewModel({
-          payload: getFormData('defra.helpline@defra.gov.uk'),
-          errors: undefined,
-          translator: stubTranslator
-        })
+        const viewModel = field.getViewModel(
+          getFormData('defra.helpline@defra.gov.uk'),
+          undefined,
+          {},
+          stubTranslator
+        )
 
         expect(viewModel).toEqual(
           expect.objectContaining({

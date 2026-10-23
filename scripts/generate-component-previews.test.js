@@ -164,11 +164,7 @@ describe('renderComponent', () => {
       ...fixtures.TextField,
       model: mockModel
     })
-    expect(mockGetViewModel).toHaveBeenCalledWith({
-      payload: {},
-      errors: [],
-      translator: stubTranslator
-    })
+    expect(mockGetViewModel).toHaveBeenCalledWith({}, [], {}, stubTranslator)
   })
 
   it('passes viewModel wrapped as { type, model } to renderString', () => {

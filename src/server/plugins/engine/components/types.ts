@@ -7,12 +7,13 @@ import {
   type FormValue,
   type SummaryList
 } from '~/src/server/plugins/engine/types.js'
+import { type FormQuery } from '~/src/server/routes/types.js'
 
 export interface RenderContext {
   payload: FormPayload
   errors: FormSubmissionError[] | undefined
+  query: FormQuery
   translator: Translator
-  isForceAccess?: boolean
 }
 
 export type ComponentText = {

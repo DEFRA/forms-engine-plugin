@@ -20,10 +20,7 @@ import {
   createLowerFirstExpression,
   getTranslatedLabel
 } from '~/src/server/plugins/engine/components/helpers/index.js'
-import {
-  type EastingNorthingState,
-  type RenderContext
-} from '~/src/server/plugins/engine/components/types.js'
+import { type EastingNorthingState } from '~/src/server/plugins/engine/components/types.js'
 import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
@@ -35,6 +32,7 @@ import {
   type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
+import { type FormQuery } from '~/src/server/routes/types.js'
 
 // British National Grid coordinate limits
 const DEFAULT_EASTING_MIN = 0
@@ -136,7 +134,7 @@ export class EastingNorthingField extends FormComponent {
 
   getDisplayStringFromFormValue(
     value: EastingNorthingState | undefined,
-    translator: Translator
+    translator: Translator = this.model.createTranslator()
   ): string {
     if (!value) {
       return ''
@@ -149,7 +147,7 @@ export class EastingNorthingField extends FormComponent {
 
   getDisplayStringFromState(
     state: FormSubmissionState,
-    translator: Translator
+    translator: Translator = this.model.createTranslator()
   ) {
     const value = this.getFormValueFromState(state)
 
@@ -172,16 +170,26 @@ export class EastingNorthingField extends FormComponent {
     return this.getContextValueFromFormValue(value)
   }
 
-  getViewModel(context: RenderContext) {
-    const viewModel = super.getViewModel(context)
-    return getLocationFieldViewModel(this, viewModel, context)
+  getViewModel(
+    payload: FormPayload,
+    errors?: FormSubmissionError[],
+    query: FormQuery = {},
+    translator: Translator = this.model.createTranslator()
+  ) {
+    const viewModel = super.getViewModel(payload, errors, query, translator)
+    return getLocationFieldViewModel(this, viewModel, {
+      payload,
+      errors,
+      query,
+      translator
+    })
   }
 
   getErrors(
-    translator: Translator,
-    errors?: FormSubmissionError[]
+    errors?: FormSubmissionError[],
+    translator: Translator = this.model.createTranslator()
   ): FormSubmissionError[] | undefined {
-    const fieldErrors = super.getErrors(translator, errors)
+    const fieldErrors = super.getErrors(errors, translator)
 
     fieldErrors?.forEach((err) => {
       if (err.context?.country) {
@@ -196,10 +204,10 @@ export class EastingNorthingField extends FormComponent {
   }
 
   getViewErrors(
-    translator: Translator,
-    errors?: FormSubmissionError[]
+    errors?: FormSubmissionError[],
+    translator: Translator = this.model.createTranslator()
   ): FormSubmissionError[] | undefined {
-    const allErrors = this.getErrors(translator, errors)
+    const allErrors = this.getErrors(errors, translator)
     return deduplicateErrorsByHref(allErrors)
   }
 

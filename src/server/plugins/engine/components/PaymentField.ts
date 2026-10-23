@@ -11,7 +11,6 @@ import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { COMPONENT_STATE_ERROR } from '~/src/server/constants.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
-import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import {
   createError,
   getPluginOptions
@@ -30,8 +29,10 @@ import {
 } from '~/src/server/plugins/engine/types/index.js'
 import {
   type ErrorMessageTemplateList,
+  type FormPayload,
   type FormState,
   type FormStateValue,
+  type FormSubmissionError,
   type FormSubmissionState,
   type PaymentExternalArgs
 } from '~/src/server/plugins/engine/types.js'
@@ -39,6 +40,7 @@ import {
   createPaymentService,
   formatCurrency
 } from '~/src/server/plugins/payment/helper.js'
+import { type FormQuery } from '~/src/server/routes/types.js'
 import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 export class PaymentField extends FormComponent {
@@ -99,7 +101,7 @@ export class PaymentField extends FormComponent {
 
   getDisplayStringFromState(
     state: FormSubmissionState,
-    _translator: Translator
+    _translator?: Translator
   ): string {
     const value = this.getPaymentStateFromState(state)
 
@@ -110,10 +112,13 @@ export class PaymentField extends FormComponent {
     return `${formatCurrency(value.amount)} - ${value.description}`
   }
 
-  getViewModel(context: RenderContext) {
-    const { payload } = context
-    const viewModel = super.getViewModel(context)
-    const { translator } = context
+  getViewModel(
+    payload: FormPayload,
+    errors?: FormSubmissionError[],
+    query: FormQuery = {},
+    translator: Translator = this.model.createTranslator()
+  ) {
+    const viewModel = super.getViewModel(payload, errors, query, translator)
     const { tComponent } = translator
 
     // Payload is pre-populated from state if a payment has already been made

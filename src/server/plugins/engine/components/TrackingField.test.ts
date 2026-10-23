@@ -129,8 +129,8 @@ describe('TrackingField', () => {
         const state1 = getFormState(true)
         const state2 = getFormState(null)
 
-        const answer1 = getAnswer(field, state1, translator)
-        const answer2 = getAnswer(field, state2, translator)
+        const answer1 = getAnswer(field, state1, undefined, translator)
+        const answer2 = getAnswer(field, state2, undefined, translator)
 
         expect(answer1).toBe('true')
         expect(answer2).toBe('')
@@ -183,11 +183,12 @@ describe('TrackingField', () => {
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = field.getViewModel({
-          payload: getFormData(true),
-          errors: undefined,
-          translator: stubTranslator
-        })
+        const viewModel = field.getViewModel(
+          getFormData(true),
+          undefined,
+          {},
+          stubTranslator
+        )
 
         expect(viewModel).toEqual(
           expect.objectContaining({

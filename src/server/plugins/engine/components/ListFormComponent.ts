@@ -13,16 +13,16 @@ import joi, {
 } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
-import {
-  type ListItem,
-  type RenderContext
-} from '~/src/server/plugins/engine/components/types.js'
+import { type ListItem } from '~/src/server/plugins/engine/components/types.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
+  type FormPayload,
+  type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
+import { type FormQuery } from '~/src/server/routes/types.js'
 
 export class ListFormComponent extends FormComponent {
   declare options: Extract<
@@ -103,7 +103,7 @@ export class ListFormComponent extends FormComponent {
 
   getDisplayStringFromFormValue(
     value: string | number | boolean | Item['value'][] | undefined,
-    translator: Translator
+    translator: Translator = this.model.createTranslator()
   ): string {
     const { items } = this
 
@@ -117,7 +117,7 @@ export class ListFormComponent extends FormComponent {
 
   getDisplayStringFromState(
     state: FormSubmissionState,
-    translator: Translator
+    translator: Translator = this.model.createTranslator()
   ) {
     // Allow for array values via subclass
     const value = this.getFormValueFromState(state)
@@ -125,16 +125,21 @@ export class ListFormComponent extends FormComponent {
     return this.getDisplayStringFromFormValue(value, translator)
   }
 
-  getViewModel(context: RenderContext) {
+  getViewModel(
+    payload: FormPayload,
+    errors?: FormSubmissionError[],
+    query: FormQuery = {},
+    translator: Translator = this.model.createTranslator()
+  ) {
     const { items: listItems } = this
 
-    const viewModel = super.getViewModel(context)
+    const viewModel = super.getViewModel(payload, errors, query, translator)
     const { value } = viewModel
 
     // Support multiple values for checkboxes
     const values = this.isValue(value) ? [value].flat() : []
 
-    const { tListItem } = context.translator
+    const { tListItem } = translator
 
     const items = listItems.map((item) => {
       const selected = values.includes(item.value)

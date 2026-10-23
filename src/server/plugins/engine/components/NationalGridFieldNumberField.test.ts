@@ -155,8 +155,8 @@ describe('NationalGridFieldNumberField', () => {
         const state1 = getFormState('NG12345678')
         const state2 = getFormState(null)
 
-        const answer1 = getAnswer(field, state1, translator)
-        const answer2 = getAnswer(field, state2, translator)
+        const answer1 = getAnswer(field, state1, undefined, translator)
+        const answer2 = getAnswer(field, state2, undefined, translator)
 
         expect(answer1).toBe('NG12345678')
         expect(answer2).toBe('')
@@ -209,11 +209,12 @@ describe('NationalGridFieldNumberField', () => {
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = field.getViewModel({
-          payload: getFormData('NG12345678'),
-          errors: undefined,
-          translator: stubTranslator
-        })
+        const viewModel = field.getViewModel(
+          getFormData('NG12345678'),
+          undefined,
+          {},
+          stubTranslator
+        )
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -234,11 +235,12 @@ describe('NationalGridFieldNumberField', () => {
           { model }
         )
 
-        const viewModel = componentWithInstruction.getViewModel({
-          payload: getFormData('NG12345678'),
-          errors: undefined,
-          translator: stubTranslator
-        })
+        const viewModel = componentWithInstruction.getViewModel(
+          getFormData('NG12345678'),
+          undefined,
+          {},
+          stubTranslator
+        )
 
         const instructionText =
           'instructionText' in viewModel ? viewModel.instructionText : undefined

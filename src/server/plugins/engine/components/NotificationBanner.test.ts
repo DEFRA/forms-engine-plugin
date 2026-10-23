@@ -27,11 +27,12 @@ describe('NotificationBanner', () => {
     } satisfies NotificationBannerComponent
 
     const collection = new ComponentCollection([def], { model })
-    const viewModel = collection.guidance[0].getViewModel({
-      payload: {},
-      errors: undefined,
-      translator: stubTranslator
-    })
+    const viewModel = collection.guidance[0].getViewModel(
+      {},
+      undefined,
+      {},
+      stubTranslator
+    )
 
     expect(viewModel).toEqual(
       expect.objectContaining({
@@ -54,11 +55,12 @@ describe('NotificationBanner', () => {
     } satisfies NotificationBannerComponent
 
     const collection = new ComponentCollection([def], { model })
-    const viewModel = collection.guidance[0].getViewModel({
-      payload: {},
-      errors: undefined,
-      translator: stubTranslator
-    })
+    const viewModel = collection.guidance[0].getViewModel(
+      {},
+      undefined,
+      {},
+      stubTranslator
+    )
 
     expect(viewModel).toEqual(
       expect.objectContaining({
@@ -79,11 +81,12 @@ describe('NotificationBanner', () => {
     } satisfies NotificationBannerComponent
 
     const collection = new ComponentCollection([def], { model })
-    const viewModel = collection.guidance[0].getViewModel({
-      payload: {},
-      errors: undefined,
-      translator: stubTranslator
-    })
+    const viewModel = collection.guidance[0].getViewModel(
+      {},
+      undefined,
+      {},
+      stubTranslator
+    )
 
     expect(viewModel).toEqual(
       expect.objectContaining({

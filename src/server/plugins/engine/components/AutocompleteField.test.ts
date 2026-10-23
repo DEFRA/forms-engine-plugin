@@ -211,8 +211,8 @@ describe.each([
         const state1 = getFormState(item.value)
         const state2 = getFormState(null)
 
-        const answer1 = getAnswer(field, state1, translator)
-        const answer2 = getAnswer(field, state2, translator)
+        const answer1 = getAnswer(field, state1, undefined, translator)
+        const answer2 = getAnswer(field, state2, undefined, translator)
 
         expect(answer1).toBe(item.text)
         expect(answer2).toBe('')
@@ -270,11 +270,12 @@ describe.each([
       it('sets Nunjucks component defaults', () => {
         const item = options.examples[0]
 
-        const viewModel = field.getViewModel({
-          payload: getFormData(item.value),
-          errors: undefined,
-          translator: stubTranslator
-        })
+        const viewModel = field.getViewModel(
+          getFormData(item.value),
+          undefined,
+          {},
+          stubTranslator
+        )
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -289,11 +290,12 @@ describe.each([
       it.each([...options.examples])(
         'sets Nunjucks component autocomplete suggestions',
         (item) => {
-          const viewModel = field.getViewModel({
-            payload: getFormData(item.value),
-            errors: undefined,
-            translator: stubTranslator
-          })
+          const viewModel = field.getViewModel(
+            getFormData(item.value),
+            undefined,
+            {},
+            stubTranslator
+          )
 
           expect(viewModel.items?.[0]).toMatchObject({
             value: '' // First item is always empty

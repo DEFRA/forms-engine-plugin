@@ -15,7 +15,6 @@ import {
   FormComponent,
   isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { buildValidationMessages } from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
@@ -24,9 +23,11 @@ import {
   type FormPayload,
   type FormState,
   type FormStateValue,
+  type FormSubmissionError,
   type FormSubmissionState,
   type FormValue
 } from '~/src/server/plugins/engine/types.js'
+import { type FormQuery } from '~/src/server/routes/types.js'
 
 export class DeclarationField extends FormComponent {
   declare options: DeclarationFieldComponent['options']
@@ -129,7 +130,7 @@ export class DeclarationField extends FormComponent {
 
   getDisplayStringFromFormValue(
     value: FormValue | FormPayload,
-    translator: Translator
+    translator: Translator = this.model.createTranslator()
   ): string {
     const { t } = translator
     return value === 'true'
@@ -138,9 +139,13 @@ export class DeclarationField extends FormComponent {
       : t('components.declarationField.notProvided')
   }
 
-  getViewModel(context: RenderContext) {
-    const { payload } = context
-    const { t, tComponent } = context.translator
+  getViewModel(
+    payload: FormPayload,
+    errors?: FormSubmissionError[],
+    query: FormQuery = {},
+    translator: Translator = this.model.createTranslator()
+  ) {
+    const { t, tComponent } = translator
 
     const {
       hint,
@@ -150,7 +155,7 @@ export class DeclarationField extends FormComponent {
     } = this
     const content = tComponent(this.def, 'content')
 
-    const viewModel = super.getViewModel(context)
+    const viewModel = super.getViewModel(payload, errors, query, translator)
     let { fieldset, label } = viewModel
 
     fieldset ??= {

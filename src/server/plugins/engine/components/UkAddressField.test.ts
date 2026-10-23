@@ -355,8 +355,8 @@ describe('UkAddressField', () => {
         const state1 = getFormState(address)
         const state2 = getFormState({})
 
-        const answer1 = getAnswer(field, state1, translator)
-        const answer2 = getAnswer(field, state2, translator)
+        const answer1 = getAnswer(field, state1, undefined, translator)
+        const answer2 = getAnswer(field, state2, undefined, translator)
 
         expect(answer1).toBe(
           'Richard Fairclough House<br>Knutsford Road<br>Warrington<br>Cheshire<br>WA4 1HT<br>'
@@ -428,11 +428,12 @@ describe('UkAddressField', () => {
 
       it('sets Nunjucks component defaults', () => {
         const payload = getFormData(address)
-        const viewModel = field.getViewModel({
+        const viewModel = field.getViewModel(
           payload,
-          errors: undefined,
-          translator: stubTranslator
-        })
+          undefined,
+          {},
+          stubTranslator
+        )
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -493,11 +494,12 @@ describe('UkAddressField', () => {
 
       it('sets Nunjucks component fieldset', () => {
         const payload = getFormData(address)
-        const viewModel = field.getViewModel({
+        const viewModel = field.getViewModel(
           payload,
-          errors: undefined,
-          translator: stubTranslator
-        })
+          undefined,
+          {},
+          stubTranslator
+        )
 
         expect(viewModel.fieldset).toEqual({
           legend: {
@@ -797,7 +799,7 @@ describe('UkAddressField', () => {
           const result = collection.validate(input)
           expect(result).toEqual(output)
 
-          const errors = collection.getErrors(translator, result.errors)
+          const errors = collection.getErrors(result.errors, translator)
           expect(errors).toEqual(output.errors)
         }
       )

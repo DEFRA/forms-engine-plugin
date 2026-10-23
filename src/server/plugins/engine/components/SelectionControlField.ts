@@ -1,19 +1,27 @@
 import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
-import {
-  type ListItem,
-  type RenderContext
-} from '~/src/server/plugins/engine/components/types.js'
+import { type ListItem } from '~/src/server/plugins/engine/components/types.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
-import { type ErrorMessageTemplateList } from '~/src/server/plugins/engine/types.js'
+import {
+  type ErrorMessageTemplateList,
+  type FormPayload,
+  type FormSubmissionError
+} from '~/src/server/plugins/engine/types.js'
+import { type FormQuery } from '~/src/server/routes/types.js'
 
 /**
  * "Selection controls" are checkboxes and radios (and switches), as per Material UI nomenclature.
  */
 export class SelectionControlField extends ListFormComponent {
-  getViewModel(context: RenderContext) {
+  getViewModel(
+    payload: FormPayload,
+    errors?: FormSubmissionError[],
+    query: FormQuery = {},
+    translator: Translator = this.model.createTranslator()
+  ) {
     const { options } = this
 
-    const viewModel = super.getViewModel(context)
+    const viewModel = super.getViewModel(payload, errors, query, translator)
     let { fieldset, items, label } = viewModel
 
     fieldset ??= {

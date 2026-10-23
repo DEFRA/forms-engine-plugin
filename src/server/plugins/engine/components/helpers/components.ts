@@ -228,17 +228,17 @@ export function createComponent(
 export function getAnswer(
   field: Field,
   state: FormState,
-  translator: Translator,
   options: {
     format:
       | 'data' // Submission data
       | 'email' // GOV.UK Notify emails
       | 'summary' // Check answers summary
-  } = { format: 'summary' }
+  } = { format: 'summary' },
+  translator: Translator = field.model.createTranslator()
 ) {
   // Use escaped display text for GOV.UK Notify emails
   if (options.format === 'email') {
-    return getAnswerMarkdown(field, state, translator, { format: 'email' })
+    return getAnswerMarkdown(field, state, { format: 'email' }, translator)
   }
 
   // Use context value for submission data
@@ -257,7 +257,7 @@ export function getAnswer(
   ) {
     return markdown
       .parse(
-        getAnswerMarkdown(field, state, translator, { format: 'summary' }),
+        getAnswerMarkdown(field, state, { format: 'summary' }, translator),
         { async: false }
       )
       .trim()
@@ -273,12 +273,12 @@ export function getAnswer(
 export function getAnswerMarkdown(
   field: Field,
   state: FormState,
-  translator: Translator,
   options: {
     format:
       | 'email' // GOV.UK Notify emails
       | 'summary' // Check answers summary
-  } = { format: 'summary' }
+  } = { format: 'summary' },
+  translator: Translator = field.model.createTranslator()
 ) {
   const answer = field.getDisplayStringFromState(state, translator)
 

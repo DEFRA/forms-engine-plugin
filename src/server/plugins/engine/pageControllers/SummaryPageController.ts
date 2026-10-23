@@ -91,12 +91,13 @@ export class SummaryPageController extends QuestionPageController {
   getSummaryViewModel(
     request: FormContextRequest,
     context: FormContext,
-    translator: Translator
+    translator: Translator = context.translator ?? this.model.createTranslator()
   ): SummaryViewModel {
     const { t } = translator
 
     const viewModel = new SummaryViewModel(request, this, context, translator)
 
+    const { query } = request
     const { payload, errors, state } = context
 
     const paymentField = this.findPaymentField()
@@ -130,11 +131,12 @@ export class SummaryPageController extends QuestionPageController {
       }
     }
 
-    const components = this.collection.getViewModel({
+    const components = this.collection.getViewModel(
       payload,
       errors,
+      query,
       translator
-    })
+    )
 
     viewModel.backLink = this.getBackLink(request, context, t)
     viewModel.feedbackLink = this.feedbackLink
@@ -447,7 +449,7 @@ export async function submitForm(
   summaryViewModel: SummaryViewModel,
   model: FormModel,
   emailAddress: string,
-  translator: Translator
+  translator: Translator = context.translator ?? model.createTranslator()
 ) {
   await finaliseComponents(request, formMetadata, context, model)
 
@@ -461,8 +463,8 @@ export async function submitForm(
   const items = getFormSubmissionData(
     summaryViewModel.context,
     summaryViewModel.details,
-    translator,
-    model
+    model,
+    translator
   )
 
   try {
@@ -576,8 +578,8 @@ function submitData(
 export function getFormSubmissionData(
   context: FormContext,
   details: Detail[],
-  translator: Translator,
-  model: FormModel
+  model: FormModel,
+  translator: Translator = context.translator ?? model.createTranslator()
 ) {
   const items = context.relevantPages
     .map(({ href }) =>

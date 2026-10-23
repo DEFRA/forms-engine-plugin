@@ -2,10 +2,14 @@ import { type AutocompleteFieldComponent } from '@defra/forms-model'
 
 import { SelectField } from '~/src/server/plugins/engine/components/SelectField.js'
 import { withCustomValidationOverrides } from '~/src/server/plugins/engine/components/helpers/index.js'
-import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { buildValidationMessages } from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import { type Translator } from '~/src/server/plugins/engine/types/index.js'
+import {
+  type FormPayload,
+  type FormSubmissionError
+} from '~/src/server/plugins/engine/types.js'
+import { type FormQuery } from '~/src/server/routes/types.js'
 
 export class AutocompleteField extends SelectField {
   declare options: AutocompleteFieldComponent['options']
@@ -34,8 +38,13 @@ export class AutocompleteField extends SelectField {
     this.formSchema = formSchema
   }
 
-  getViewModel(context: RenderContext) {
-    const viewModel = super.getViewModel(context)
+  getViewModel(
+    payload: FormPayload,
+    errors?: FormSubmissionError[],
+    query: FormQuery = {},
+    translator: Translator = this.model.createTranslator()
+  ) {
+    const viewModel = super.getViewModel(payload, errors, query, translator)
     let { formGroup } = viewModel
 
     formGroup ??= {}

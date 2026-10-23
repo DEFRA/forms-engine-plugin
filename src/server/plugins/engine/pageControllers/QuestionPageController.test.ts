@@ -206,6 +206,15 @@ describe('QuestionPageController', () => {
       )
     })
 
+    it('builds the view model in English without a translator', () => {
+      const viewModel = controller1.getViewModel(
+        requestPage1,
+        model.getFormContext(requestPage1, { $$__referenceNumber: 'foobar' })
+      )
+
+      expect(viewModel).toHaveProperty('pageTitle', 'Previous marriages')
+    })
+
     it('hides the page title for single form component pages', () => {
       // Page 1 hides page title (single component)
       expect(viewModel1).toHaveProperty('showTitle', false)
