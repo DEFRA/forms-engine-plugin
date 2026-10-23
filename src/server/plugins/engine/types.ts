@@ -203,8 +203,8 @@ export interface FormContext {
   pageMap: Map<string, PageControllerClass>
   componentMap: Map<string, Component>
   referenceNumber: string
-  languages: { name: string; code: string }[]
-  translator: Translator | undefined
+  languages?: { name: string; code: string }[]
+  translator?: Translator
 }
 
 export type FormContextRequest = (

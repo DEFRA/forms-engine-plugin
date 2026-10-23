@@ -30,6 +30,7 @@ import definitionConditionsBasic, {
 } from '~/test/form/definitions/conditions-basic.js'
 import definitionConditionsComplex from '~/test/form/definitions/conditions-complex.js'
 import definitionConditionsDates from '~/test/form/definitions/conditions-dates.js'
+import definitionFieldsRequiredTranslated from '~/test/form/definitions/fields-required-translated.js'
 import definitionPaymentV2Conditional from '~/test/form/definitions/payment-v2-conditional.js'
 
 const translator = new FormModel(definitionConditionsBasic, {
@@ -213,6 +214,37 @@ describe('QuestionPageController', () => {
       )
 
       expect(viewModel).toHaveProperty('pageTitle', 'Previous marriages')
+    })
+
+    it('passes the request query to the components', () => {
+      const request = buildFormRequest({
+        method: 'get',
+        url: page1Url,
+        path: page1Url.pathname,
+        params: {
+          path: 'first-page',
+          slug: 'test'
+        },
+        query: { force: '' },
+        app: { model }
+      } as FormRequest)
+
+      const getComponentViewModel = jest.spyOn(
+        controller1.collection,
+        'getViewModel'
+      )
+
+      controller1.getViewModel(
+        request,
+        model.getFormContext(request, { $$__referenceNumber: 'foobar' })
+      )
+
+      expect(getComponentViewModel).toHaveBeenCalledWith(
+        expect.anything(),
+        undefined,
+        { force: '' },
+        expect.anything()
+      )
     })
 
     it('hides the page title for single form component pages', () => {
@@ -2063,5 +2095,45 @@ describe('QuestionPageController translator support', () => {
         expect(viewModel).toHaveProperty('showSubmitButton', true)
       })
     })
+  })
+})
+
+describe('QuestionPageController with Welsh translations', () => {
+  it('builds the view model in the language of the form context', () => {
+    const model = new FormModel(definitionFieldsRequiredTranslated, {
+      basePath: 'test'
+    })
+
+    const controller = new QuestionPageController(
+      model,
+      definitionFieldsRequiredTranslated.pages[0] as PageQuestion
+    )
+
+    const url = new URL('http://example.com/test/components')
+    const request = buildFormRequest({
+      method: 'get',
+      url,
+      path: url.pathname,
+      params: {
+        path: 'components',
+        slug: 'test'
+      },
+      query: {},
+      app: { model }
+    } as FormRequest)
+
+    const context = model.getFormContext(
+      request,
+      { $$__referenceNumber: 'foobar' },
+      undefined,
+      model.createTranslator('cy')
+    )
+
+    const viewModel = controller.getViewModel(request, context)
+
+    expect(viewModel).toHaveProperty(
+      'pageTitle',
+      'Welsh fields required translated'
+    )
   })
 })
