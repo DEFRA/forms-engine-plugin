@@ -67,6 +67,7 @@ export type {
   ListItem,
   ListItemLabel,
   MonthYearState,
+  RenderContext,
   ViewModel
 } from '~/src/server/plugins/engine/components/types.js'
 
