@@ -122,10 +122,15 @@ export function getCentroidGridRef(feature) {
   }
 }
 
-/** @type {InteractiveMapInitConfig} */
-export const defaultConfig = {
-  zoom: '6',
-  center: [DEFAULT_LONG, DEFAULT_LAT]
+/**
+ * Get the default config for a map
+ * @returns {InteractiveMapInitConfig}
+ */
+export const getDefaultConfig = () => {
+  return {
+    zoom: '6',
+    center: [DEFAULT_LONG, DEFAULT_LAT]
+  }
 }
 
 export const EVENTS = {
@@ -166,6 +171,7 @@ export function initMaps(config = {}) {
   const {
     assetPath = '/assets',
     apiPath = '/form/api',
+    workerPath = '/assets/interactive-map/maplibre-gl-worker.mjs',
     data = defaultData
   } = config
   const locations = document.querySelectorAll('.app-location-field')
@@ -197,11 +203,15 @@ export function initMaps(config = {}) {
   }
 
   locations.forEach((location, index) => {
-    processLocation({ assetPath, apiPath, data }, location, index)
+    processLocation({ assetPath, apiPath, workerPath, data }, location, index)
   })
 
   geospatials.forEach((geospatial, index) => {
-    processGeospatial({ assetPath, apiPath, data }, geospatial, index)
+    processGeospatial(
+      { assetPath, apiPath, workerPath, data },
+      geospatial,
+      index
+    )
   })
 }
 
@@ -258,7 +268,7 @@ export function makeTileRequestTransformer(apiPath) {
  * @param {MapsEnvironmentConfig} mapsConfig - the map environment params
  */
 export function createMap(mapId, initConfig, mapsConfig) {
-  const { assetPath, apiPath, data = defaultData } = mapsConfig
+  const { assetPath, apiPath, workerPath, data = defaultData } = mapsConfig
   const logoAltText = 'Ordnance survey logo'
   const interactPlugin = createInteractPlugin({
     markerColor: { outdoor: '#ff0000', dark: '#00ff00' },
@@ -270,7 +280,7 @@ export function createMap(mapId, initConfig, mapsConfig) {
   const map = new InteractiveMap(mapId, {
     enableFullscreen: true,
     autoColorScheme: false,
-    mapProvider: maplibreProvider(),
+    mapProvider: maplibreProvider({ workerUrl: workerPath }),
     behaviour: 'inline',
     minZoom: 6,
     maxZoom: 18,
@@ -448,6 +458,7 @@ export function getMapCountryLayers(apiPath, country) {
  * @typedef {object} MapsEnvironmentConfig
  * @property {string} assetPath - the root asset path
  * @property {string} apiPath - the root API path
+ * @property {string} workerPath - the maplibre worker path
  * @property {TileData} data - the tile data config
  */
 
