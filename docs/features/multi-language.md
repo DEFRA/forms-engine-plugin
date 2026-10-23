@@ -120,7 +120,25 @@ The keys are in the plugin's translation files: `src/server/plugins/engine/i18n/
 
 On routes that your application owns, outside the plugin's pages, the global `t` always returns English.
 
-In custom components and page controllers, use the translator that the plugin passes to you. See [Custom components](./code-based/components) and [Custom page controllers](./code-based/page-controllers).
+## Translate text in custom components and page controllers
+
+Custom components and page controllers need a translator only when your service offers Welsh. Without one, component methods use English, and page controller methods use the language of the current request.
+
+The plugin passes the translator as the last argument of each method that builds text, for example `getViewModel(payload, errors, query, translator)` on a component. If your override calls `super`, pass the translator through, so that the page stays in the user's language:
+
+```ts
+getViewModel(
+  payload: FormPayload,
+  errors?: FormSubmissionError[],
+  query: FormQuery = {},
+  translator?: Translator
+) {
+  const viewModel = super.getViewModel(payload, errors, query, translator)
+  return { ...viewModel, classes: 'app-farm-reference' }
+}
+```
+
+In a page controller, `this.getTranslator(request)` returns the translator for the current request. Use `tComponent(this.def, 'title')`, `tListItem(item, 'text')` and the other helpers to show form content in the user's language. `translator.t` resolves only the plugin's own keys. See [Custom components](./code-based/components) and [Custom page controllers](./code-based/page-controllers).
 
 ## Submissions
 

@@ -2,7 +2,7 @@
 
 This guide lists the changes you must make to move an application from `@defra/forms-engine-plugin` v4 to v5. For new capabilities in v5, such as [multi-language support](./features/multi-language), see [Features](./features).
 
-v5 renders all plugin text through a per-request translator, so that each page can be shown in the user's language. Most of the breaking changes follow from that: methods that build text now take a `Translator`. If your application only registers the plugin and supplies form definitions, only the Node.js and npm change applies to you.
+If your application only registers the plugin and supplies form definitions and metadata, only the Node.js and npm change applies to you. Custom components and page controllers written for v4 work in v5 without change. To show them in Welsh, see [Multi-language support](./features/multi-language#translate-text-in-custom-components-and-page-controllers).
 
 ## Breaking changes
 
@@ -10,12 +10,10 @@ v5 renders all plugin text through a per-request translator, so that each page c
 | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
 | [Node.js `^24.19.0` and npm `^11.17.0 \|\| >=12.0.2`](#nodejs-and-npm)                               | All applications                                                          |
 | [Joi 18 schemas](#joi-18-schemas)                                                                    | Applications that build Joi schemas that the plugin combines with its own |
-| [Component methods take a `Translator`](#custom-components)                                          | Custom components, and code that calls component methods                  |
-| [Page controller methods take a `Translator`](#custom-page-controllers)                              | Custom page controllers                                                   |
 | [`SchemaValidationError` for invalid definitions](#invalid-form-definition-errors)                   | Code that catches errors when it builds a `FormModel`                     |
 | [`FormAdapterSubmissionSchemaVersion` is a constant object](#submission-schema-version)              | TypeScript code that uses it as a type                                    |
 | [Yes/No list text and the confirmation title are translation keys](#text-stored-as-translation-keys) | Code or templates that read this text from the model                      |
-| [Changed engine internals](#engine-internals)                                                        | Code that imports from `@defra/forms-engine-plugin/engine/*`, and tests   |
+| [Removed engine internals](#engine-internals)                                                        | Code that imports from `@defra/forms-engine-plugin/engine/*`              |
 
 ## Node.js and npm
 
@@ -30,89 +28,6 @@ npm install joi@^18 @defra/forms-model@^4
 ```
 
 In TypeScript, Joi 18 types array schemas by the array type, for example `ArraySchema<string[]>` where Joi 17 used `ArraySchema<string>`. Update any annotations in your code that use these types.
-
-## Custom components
-
-Methods on `FormComponent` and `ComponentCollection` that produce text now take a `Translator`, which is required:
-
-| v4                                                         | v5                                                                  | What to change      |
-| ---------------------------------------------------------- | ------------------------------------------------------------------- | ------------------- |
-| `getViewModel(payload, errors)`                            | `getViewModel({ payload, errors, translator, isForceAccess })`      | Overrides and calls |
-| `getErrors(errors)`                                        | `getErrors(translator, errors)`                                     | Overrides and calls |
-| `getFirstError(errors)`                                    | `getFirstError(translator, errors)`                                 | Overrides and calls |
-| `getViewErrors(errors)`                                    | `getViewErrors(translator, errors)`                                 | Overrides and calls |
-| `getDisplayStringFromState(state)`                         | `getDisplayStringFromState(state, translator)`                      | Calls               |
-| `getDisplayStringFromFormValue(value)`                     | `getDisplayStringFromFormValue(value, translator)`                  | Calls               |
-| `ComponentCollection.getViewModel(payload, errors, query)` | `ComponentCollection.getViewModel({ payload, errors, translator })` | Calls               |
-
-The `translator` comes first in `getErrors`, `getFirstError` and `getViewErrors`, so an override with the v4 parameters receives the translator in place of the errors. `getDisplayStringFromState` and `getDisplayStringFromFormValue` add the translator at the end, so an override that does not use it keeps working, but each call must pass it.
-
-`getViewModel` takes a single `RenderContext` object, exported from `@defra/forms-engine-plugin/engine/components/types.js`.
-
-Before:
-
-```ts
-getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
-  const viewModel = super.getViewModel(payload, errors)
-  return { ...viewModel, label: { text: this.title } }
-}
-```
-
-After:
-
-```ts
-getViewModel(context: RenderContext) {
-  const viewModel = super.getViewModel(context)
-  const { tComponent } = context.translator
-  return {
-    ...viewModel,
-    label: { text: tComponent(this.def, 'title') || this.title }
-  }
-}
-```
-
-Use the translator's helpers to resolve form content in the user's language: `tComponent(this.def, 'title')`, `tListItem(item, 'text')` and so on. Each component now holds its definition in `this.def` for this purpose. `translator.t` resolves only the plugin's own keys, such as `common.optional`.
-
-## Custom page controllers
-
-Page controllers get the translator for the current request from `this.getTranslator(request)`. These methods now require it:
-
-| v4                                      | v5                                                  |
-| --------------------------------------- | --------------------------------------------------- |
-| `getViewModel(request, context)`        | `getViewModel(request, context, translator)`        |
-| `getSummaryViewModel(request, context)` | `getSummaryViewModel(request, context, translator)` |
-| `getBackLink(request, context)`         | `getBackLink(request, context, translator.t)`       |
-| `this.collection.getViewErrors(errors)` | `this.collection.getViewErrors(translator, errors)` |
-
-Before:
-
-```ts
-makeGetRouteHandler() {
-  return async (request, context, h) => {
-    const viewModel = this.getViewModel(request, context)
-    viewModel.errors = this.collection.getViewErrors(viewModel.errors)
-    return h.view(this.viewName, viewModel)
-  }
-}
-```
-
-After:
-
-```ts
-makeGetRouteHandler() {
-  return async (request, context, h) => {
-    const translator = this.getTranslator(request)
-    const viewModel = this.getViewModel(request, context, translator)
-    viewModel.errors = this.collection.getViewErrors(
-      translator,
-      viewModel.errors
-    )
-    return h.view(this.viewName, viewModel)
-  }
-}
-```
-
-`translator.t` resolves only the plugin's own keys. If your controller adds its own text to the view model, translate it with your application's own translations and `translator.language`, so that it follows the user's language.
 
 ## Invalid form definition errors
 
@@ -176,10 +91,7 @@ If your code or templates read these values from `model.lists` or `model.pages`,
 
 ## Engine internals
 
-These changes affect code that imports from `@defra/forms-engine-plugin/engine/*` or builds plugin objects by hand, for example in tests:
+These changes affect code that imports from `@defra/forms-engine-plugin/engine/*`:
 
-- `getAnswer(field, state, options)` is `getAnswer(field, state, translator, options)`. The translator is required.
-- `getError(detail)` and `getErrors(details)` in `engine/helpers.js` take the language first: `getError(language, detail)` and `getErrors(language, details)`. Pass `undefined` for English.
-- `FormContext` has two more required properties: `languages` (an array, empty for English only forms) and `translator` (a `Translator` or `undefined`).
 - `setPageTitles` is removed from `engine/helpers.js`. The plugin leaves the definition unchanged and gives a page with no title the title of its first question when it renders the page. Code that read `page.title` from `model.def` after the model was built gets the value from the definition, which can be empty.
 - `engine/components/constants.js` is removed. Use `translator.t('common.optional')` in place of `optionalText`. `optionalText` was `' (optional)'` with a leading space, and the translation is `'(optional)'` with no space.
