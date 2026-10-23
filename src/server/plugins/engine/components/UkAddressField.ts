@@ -13,6 +13,7 @@ import {
   isFormState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
+import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { getCachedPluginTranslator } from '~/src/server/plugins/engine/i18n/form.js'
 import { getAvailableLanguages } from '~/src/server/plugins/engine/i18n/languages.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
@@ -30,7 +31,6 @@ import {
   type PostcodeLookupExternalArgs
 } from '~/src/server/plugins/engine/types.js'
 import { dispatch } from '~/src/server/plugins/postcode-lookup/routes/index.js'
-import { type FormQuery } from '~/src/server/routes/types.js'
 import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 export class UkAddressField extends FormComponent {
@@ -201,15 +201,12 @@ export class UkAddressField extends FormComponent {
     return uniqueErrors
   }
 
-  getViewModel(
-    payload: FormPayload,
-    errors?: FormSubmissionError[],
-    query: FormQuery = {},
-    translator: Translator = this.model.createTranslator()
-  ) {
+  getViewModel(context: RenderContext) {
+    const { payload, translator = this.model.createTranslator() } = context
+
     const { collection, name, options } = this
 
-    const viewModel = super.getViewModel(payload, errors, query, translator)
+    const viewModel = super.getViewModel(context)
     let { fieldset, hint, label } = viewModel
 
     fieldset ??= {
@@ -233,12 +230,7 @@ export class UkAddressField extends FormComponent {
       }
     }
 
-    const components = collection.getViewModel(
-      payload,
-      errors,
-      query,
-      translator
-    )
+    const components = collection.getViewModel(context)
 
     // Hide UPRN
     const uprn = components.at(0)

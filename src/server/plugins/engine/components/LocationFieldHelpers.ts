@@ -122,13 +122,8 @@ export function getLocationFieldViewModel(
   const { collection } = component
   const { fieldset: existingFieldset, label } = viewModel
 
-  const { payload, errors, query, translator } = context
-  const subViewModels = collection.getViewModel(
-    payload,
-    errors,
-    query,
-    translator
-  )
+  const { translator = component.model.createTranslator() } = context
+  const subViewModels = collection.getViewModel(context)
 
   const fieldErrors: string[] = []
   subViewModels.forEach(({ model }) => {
@@ -183,7 +178,7 @@ export function getLocationFieldViewModel(
       text:
         fieldErrors.length === 1
           ? fieldErrors[0]
-          : formatErrorList(fieldErrors, context.translator)
+          : formatErrorList(fieldErrors, translator)
     }
   }
 
@@ -203,11 +198,11 @@ export function getLocationFieldViewModel(
       component instanceof EastingNorthingField
         ? component.options.countries?.at(0)
         : undefined,
-    lang: context.translator.language
+    lang: translator.language
   }
 
   if (component.options.instructionText) {
-    const { t, tComponent } = context.translator
+    const { t, tComponent } = translator
 
     return {
       ...result,

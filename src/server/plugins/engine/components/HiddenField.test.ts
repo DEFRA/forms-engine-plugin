@@ -169,12 +169,10 @@ describe('HiddenField', () => {
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = field.getViewModel(
-          getFormData('Hidden field'),
-          undefined,
-          {},
-          stubTranslator
-        )
+        const viewModel = field.getViewModel({
+          payload: getFormData('Hidden field'),
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({

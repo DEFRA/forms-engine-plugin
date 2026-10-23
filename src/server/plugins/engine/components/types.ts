@@ -9,11 +9,15 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 import { type FormQuery } from '~/src/server/routes/types.js'
 
+/**
+ * The values a component renders from. The translator defaults to English,
+ * so that a form with no translations renders without one.
+ */
 export interface RenderContext {
   payload: FormPayload
-  errors: FormSubmissionError[] | undefined
-  query: FormQuery
-  translator: Translator
+  errors?: FormSubmissionError[]
+  query?: FormQuery
+  translator?: Translator
 }
 
 export type ComponentText = {

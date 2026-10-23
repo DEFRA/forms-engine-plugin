@@ -220,12 +220,10 @@ describe('YesNoField', () => {
     it('sets Nunjucks component defaults', () => {
       const item = items[0]
 
-      const viewModel = field.getViewModel(
-        getFormData(item.value),
-        undefined,
-        {},
-        stubTranslator
-      )
+      const viewModel = field.getViewModel({
+        payload: getFormData(item.value),
+        translator: stubTranslator
+      })
 
       expect(viewModel).toEqual(
         expect.objectContaining({
@@ -238,12 +236,10 @@ describe('YesNoField', () => {
     })
 
     it.each([...items])('sets Nunjucks component radio items', (item) => {
-      const viewModel = field.getViewModel(
-        getFormData(item.value),
-        undefined,
-        {},
-        stubTranslator
-      )
+      const viewModel = field.getViewModel({
+        payload: getFormData(item.value),
+        translator: stubTranslator
+      })
 
       expect(viewModel.items?.[0]).not.toMatchObject({
         value: '' // First item is never empty

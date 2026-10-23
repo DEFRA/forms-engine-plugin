@@ -183,12 +183,10 @@ describe('TrackingField', () => {
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = field.getViewModel(
-          getFormData(true),
-          undefined,
-          {},
-          stubTranslator
-        )
+        const viewModel = field.getViewModel({
+          payload: getFormData(true),
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({

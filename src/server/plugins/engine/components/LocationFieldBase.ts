@@ -13,18 +13,16 @@ import {
   addClassOptionIfNone,
   withCustomValidationOverrides
 } from '~/src/server/plugins/engine/components/helpers/index.js'
+import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { buildValidationMessages } from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import { type Translator } from '~/src/server/plugins/engine/types/index.js'
 import {
   type ErrorMessageTemplateList,
-  type FormPayload,
   type FormState,
   type FormStateValue,
-  type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
-import { type FormQuery } from '~/src/server/routes/types.js'
 
 interface LocationFieldOptions {
   instructionText?: string
@@ -126,13 +124,10 @@ export abstract class LocationFieldBase extends FormComponent {
     return LocationFieldBase.isText(value)
   }
 
-  getViewModel(
-    payload: FormPayload,
-    errors?: FormSubmissionError[],
-    query: FormQuery = {},
-    translator: Translator = this.model.createTranslator()
-  ) {
-    const viewModel = super.getViewModel(payload, errors, query, translator)
+  getViewModel(context: RenderContext) {
+    const { translator = this.model.createTranslator() } = context
+
+    const viewModel = super.getViewModel(context)
 
     Object.assign(viewModel, {
       lang: translator.language

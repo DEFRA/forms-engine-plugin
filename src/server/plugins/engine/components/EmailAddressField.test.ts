@@ -213,12 +213,10 @@ describe('EmailAddressField', () => {
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = field.getViewModel(
-          getFormData('defra.helpline@defra.gov.uk'),
-          undefined,
-          {},
-          stubTranslator
-        )
+        const viewModel = field.getViewModel({
+          payload: getFormData('defra.helpline@defra.gov.uk'),
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({

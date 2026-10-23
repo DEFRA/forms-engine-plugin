@@ -6,6 +6,7 @@ import {
 import { type LanguageMessages } from 'joi'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
+import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import {
   type FormContext,
@@ -26,7 +27,6 @@ import {
   type RepeatListState,
   type UploadState
 } from '~/src/server/plugins/engine/types.js'
-import { type FormQuery } from '~/src/server/routes/types.js'
 
 export class FormComponent extends ComponentBase {
   type: FormComponentsDef['type']
@@ -167,12 +167,13 @@ export class FormComponent extends ComponentBase {
     return null
   }
 
-  getViewModel(
-    payload: FormPayload,
-    errors?: FormSubmissionError[],
-    _query: FormQuery = {},
-    translator: Translator = this.model.createTranslator()
-  ) {
+  getViewModel(context: RenderContext) {
+    const {
+      payload,
+      errors,
+      translator = this.model.createTranslator()
+    } = context
+
     const { hint, name, options = {}, title, viewModel } = this
 
     const { t, tComponent } = translator

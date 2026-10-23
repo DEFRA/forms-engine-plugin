@@ -35,12 +35,10 @@ describe('InsetText', () => {
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = guidance.getViewModel(
-          {},
-          undefined,
-          {},
-          stubTranslator
-        )
+        const viewModel = guidance.getViewModel({
+          payload: {},
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({

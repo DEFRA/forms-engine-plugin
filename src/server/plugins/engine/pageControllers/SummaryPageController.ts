@@ -131,12 +131,12 @@ export class SummaryPageController extends QuestionPageController {
       }
     }
 
-    const components = this.collection.getViewModel(
+    const components = this.collection.getViewModel({
       payload,
       errors,
       query,
       translator
-    )
+    })
 
     viewModel.backLink = this.getBackLink(request, context, t)
     viewModel.feedbackLink = this.feedbackLink

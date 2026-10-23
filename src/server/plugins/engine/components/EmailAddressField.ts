@@ -5,14 +5,9 @@ import {
 import joi, { type CustomHelpers } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
+import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
-import {
-  type ErrorMessageTemplateList,
-  type FormPayload,
-  type FormSubmissionError
-} from '~/src/server/plugins/engine/types.js'
-import { type FormQuery } from '~/src/server/routes/types.js'
+import { type ErrorMessageTemplateList } from '~/src/server/plugins/engine/types.js'
 
 export class EmailAddressField extends FormComponent {
   declare options: EmailAddressFieldComponent['options']
@@ -57,13 +52,8 @@ export class EmailAddressField extends FormComponent {
     this.options = options
   }
 
-  getViewModel(
-    payload: FormPayload,
-    errors?: FormSubmissionError[],
-    query: FormQuery = {},
-    translator: Translator = this.model.createTranslator()
-  ) {
-    const viewModel = super.getViewModel(payload, errors, query, translator)
+  getViewModel(context: RenderContext) {
+    const viewModel = super.getViewModel(context)
     const { attributes } = viewModel
 
     attributes.autocomplete = 'email'

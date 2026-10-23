@@ -140,12 +140,12 @@ export class QuestionPageController extends PageController {
         this.section.hideTitle !== true ? tSection(this.section, 'title') : ''
     }
 
-    const components = collection.getViewModel(
+    const components = collection.getViewModel({
       payload,
       errors,
       query,
       translator
-    )
+    })
     const formComponents = components.filter(
       ({ isFormComponent }) => isFormComponent
     )

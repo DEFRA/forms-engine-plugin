@@ -214,12 +214,10 @@ describe('NumberField', () => {
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = field.getViewModel(
-          getFormData(2024),
-          undefined,
-          {},
-          stubTranslator
-        )
+        const viewModel = field.getViewModel({
+          payload: getFormData(2024),
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -237,12 +235,10 @@ describe('NumberField', () => {
           { model }
         )
 
-        const viewModel = componentCustom.getViewModel(
-          getFormData(99.99),
-          undefined,
-          {},
-          stubTranslator
-        )
+        const viewModel = componentCustom.getViewModel({
+          payload: getFormData(99.99),
+          translator: stubTranslator
+        })
 
         expect(viewModel.prefix).toEqual({ text: '£' })
         expect(viewModel.suffix).toEqual({ text: 'per item' })
@@ -254,12 +250,10 @@ describe('NumberField', () => {
           { model }
         )
 
-        const viewModel = componentCustom.getViewModel(
-          getFormData(99),
-          undefined,
-          {},
-          stubTranslator
-        )
+        const viewModel = componentCustom.getViewModel({
+          payload: getFormData(99),
+          translator: stubTranslator
+        })
 
         expect(viewModel.attributes).toHaveProperty('inputmode', 'numeric')
       })
@@ -270,12 +264,10 @@ describe('NumberField', () => {
           { model }
         )
 
-        const viewModel = componentCustom.getViewModel(
-          getFormData(99),
-          undefined,
-          {},
-          stubTranslator
-        )
+        const viewModel = componentCustom.getViewModel({
+          payload: getFormData(99),
+          translator: stubTranslator
+        })
 
         expect(viewModel.attributes).toHaveProperty('inputmode', 'numeric')
       })
@@ -286,24 +278,20 @@ describe('NumberField', () => {
           { model }
         )
 
-        const viewModel = componentCustom.getViewModel(
-          getFormData(99.99),
-          undefined,
-          {},
-          stubTranslator
-        )
+        const viewModel = componentCustom.getViewModel({
+          payload: getFormData(99.99),
+          translator: stubTranslator
+        })
 
         expect(viewModel.attributes).not.toHaveProperty('inputmode', 'numeric')
       })
     })
 
     it('sets Nunjucks component value when invalid', () => {
-      const viewModel = field.getViewModel(
-        getFormData('AA'),
-        undefined,
-        {},
-        stubTranslator
-      )
+      const viewModel = field.getViewModel({
+        payload: getFormData('AA'),
+        translator: stubTranslator
+      })
 
       expect(viewModel).toHaveProperty('value', 'AA')
     })

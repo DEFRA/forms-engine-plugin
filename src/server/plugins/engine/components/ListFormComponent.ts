@@ -13,16 +13,16 @@ import joi, {
 } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { type ListItem } from '~/src/server/plugins/engine/components/types.js'
+import {
+  type ListItem,
+  type RenderContext
+} from '~/src/server/plugins/engine/components/types.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
-  type FormPayload,
-  type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
-import { type FormQuery } from '~/src/server/routes/types.js'
 
 export class ListFormComponent extends FormComponent {
   declare options: Extract<
@@ -125,15 +125,12 @@ export class ListFormComponent extends FormComponent {
     return this.getDisplayStringFromFormValue(value, translator)
   }
 
-  getViewModel(
-    payload: FormPayload,
-    errors?: FormSubmissionError[],
-    query: FormQuery = {},
-    translator: Translator = this.model.createTranslator()
-  ) {
+  getViewModel(context: RenderContext) {
+    const { translator = this.model.createTranslator() } = context
+
     const { items: listItems } = this
 
-    const viewModel = super.getViewModel(payload, errors, query, translator)
+    const viewModel = super.getViewModel(context)
     const { value } = viewModel
 
     // Support multiple values for checkboxes

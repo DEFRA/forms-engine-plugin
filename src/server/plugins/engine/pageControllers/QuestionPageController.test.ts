@@ -240,10 +240,7 @@ describe('QuestionPageController', () => {
       )
 
       expect(getComponentViewModel).toHaveBeenCalledWith(
-        expect.anything(),
-        undefined,
-        { force: '' },
-        expect.anything()
+        expect.objectContaining({ query: { force: '' } })
       )
     })
 
