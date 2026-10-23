@@ -2,7 +2,7 @@
 
 This guide lists the changes you must make to move an application from `@defra/forms-engine-plugin` v4 to v5. For new capabilities in v5, such as [multi-language support](./features/multi-language), see [Features](./features).
 
-If your application only registers the plugin and supplies form definitions and metadata, only the Node.js and npm change applies to you. Custom components and page controllers written for v4 work in v5 without change. To show them in Welsh, see [Multi-language support](./features/multi-language#translate-text-in-custom-components-and-page-controllers).
+If your application only registers the plugin and supplies form definitions and metadata, only the Node.js and npm change applies to you. Custom page controllers written for v4 work in v5 without change. Custom components that override or call `getViewModel` need one change. To show custom code in Welsh, see [Multi-language support](./features/multi-language#translate-text-in-custom-components-and-page-controllers).
 
 ## Breaking changes
 
@@ -13,6 +13,7 @@ If your application only registers the plugin and supplies form definitions and 
 | [`SchemaValidationError` for invalid definitions](#invalid-form-definition-errors)                   | Code that catches errors when it builds a `FormModel`                     |
 | [`FormAdapterSubmissionSchemaVersion` is a constant object](#submission-schema-version)              | TypeScript code that uses it as a type                                    |
 | [Yes/No list text and the confirmation title are translation keys](#text-stored-as-translation-keys) | Code or templates that read this text from the model                      |
+| [Component `getViewModel` takes one object](#component-getviewmodel)                                 | Custom components that override or call `getViewModel`                    |
 | [Removed engine internals](#engine-internals)                                                        | Code that imports from `@defra/forms-engine-plugin/engine/*`              |
 
 ## Node.js and npm
@@ -88,6 +89,41 @@ The plugin stores some built-in text as translation keys and resolves them when 
 | Default confirmation page title "Form submitted" | `pages.confirmation.formSubmitted` |
 
 If your code or templates read these values from `model.lists` or `model.pages`, resolve them with the translator, for example `translator.tListItem(item, 'text')`.
+
+## Component getViewModel
+
+A component's `getViewModel` takes one `RenderContext` object in place of separate arguments. The object has these fields:
+
+| Field        | Type                    | Required |
+| ------------ | ----------------------- | -------- |
+| `payload`    | `FormPayload`           | Yes      |
+| `errors`     | `FormSubmissionError[]` | No       |
+| `query`      | `FormQuery`             | No       |
+| `translator` | `Translator`            | No       |
+
+When you override `getViewModel`, pass the object to `super` unchanged, so that the base class gets every field, including fields that later versions add.
+
+Before:
+
+```ts
+getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
+  const viewModel = super.getViewModel(payload, errors)
+  return { ...viewModel, classes: 'app-farm-reference' }
+}
+```
+
+After:
+
+```ts
+import { type RenderContext } from '@defra/forms-engine-plugin/types'
+
+getViewModel(context: RenderContext) {
+  const viewModel = super.getViewModel(context)
+  return { ...viewModel, classes: 'app-farm-reference' }
+}
+```
+
+Code that calls `getViewModel` on a component or a `ComponentCollection` passes an object, for example `component.getViewModel({ payload, errors })`.
 
 ## Engine internals
 

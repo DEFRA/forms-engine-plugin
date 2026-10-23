@@ -124,16 +124,11 @@ On routes that your application owns, outside the plugin's pages, the global `t`
 
 Custom components and page controllers need a translator only when your service offers Welsh. Without one, component methods use English, and page controller methods use the language of the current request.
 
-The plugin passes the translator as the last argument of each method that builds text, for example `getViewModel(payload, errors, query, translator)` on a component. If your override calls `super`, pass the translator through, so that the page stays in the user's language:
+A component's `getViewModel` gets the translator in the `translator` field of its `RenderContext`. Other methods that build text, such as `getErrors` and `getDisplayStringFromState`, take the translator as their last argument. If your override calls `super`, pass the context or the translator through, so that the page stays in the user's language:
 
 ```ts
-getViewModel(
-  payload: FormPayload,
-  errors?: FormSubmissionError[],
-  query: FormQuery = {},
-  translator?: Translator
-) {
-  const viewModel = super.getViewModel(payload, errors, query, translator)
+getViewModel(context: RenderContext) {
+  const viewModel = super.getViewModel(context)
   return { ...viewModel, classes: 'app-farm-reference' }
 }
 ```
