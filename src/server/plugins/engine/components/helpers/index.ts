@@ -21,6 +21,7 @@ export function escapeMarkdown(answer: string) {
     '(',
     ')',
     '#',
+    '>',
     '+',
     '-',
     '.',
