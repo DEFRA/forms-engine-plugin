@@ -547,6 +547,10 @@ export interface FormAdapterSubmissionMessageMeta {
   versionMetadata?: FormVersionMetadata
   language?: string
   custom?: Record<string, unknown>
+  auth?: {
+    sub: string
+    issuer: string
+  }
 }
 
 export type FormAdapterSubmissionMessageMetaSerialised = Omit<

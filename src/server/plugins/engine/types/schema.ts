@@ -38,7 +38,11 @@ export const formAdapterSubmissionMessageMetaSchema =
       .pattern(/^/, Joi.any())
       .unknown()
       .optional()
-      .description('Custom properties for the message')
+      .description('Custom properties for the message'),
+    auth: Joi.object({
+      sub: Joi.string().required(),
+      issuer: Joi.string().required()
+    }).optional()
   })
 
 export const formAdapterSubmissionMessageDataSchema =
