@@ -52,9 +52,21 @@ validate_version_bump() {
   echo "✓ Version check passed"
 }
 
+get_latest_major_version() {
+  npm view "${PACKAGE_NAME}" dist-tags.latest 2>/dev/null | cut -d. -f1
+}
+
+# Publishes a patch for an older major under a "<major>x" tag rather than
+# "latest", so that "latest" stays on the newest major.
 determine_release_tag() {
+  local new_version="${TAG_NAME#v}"
+  local major_version=$(echo "$new_version" | cut -d. -f1)
+  local latest_major_version=$(get_latest_major_version)
+
   if [[ "$IS_PRE_RELEASE" == "true" ]] || [[ "$TAG_NAME" =~ $PRE_RELEASE_PATTERN ]]; then
     echo "pre-release"
+  elif [ -n "$latest_major_version" ] && [ "$major_version" -lt "$latest_major_version" ]; then
+    echo "${major_version}x"
   else
     echo "latest"
   fi

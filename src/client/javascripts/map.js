@@ -230,7 +230,7 @@ export function makeTileRequestTransformer(apiPath) {
 
       if (resourceType !== 'Style') {
         return {
-          url: `${apiPath}/map-proxy?url=${encodeURIComponent(url)}`,
+          url: `${apiPath}/map-proxy?path=${encodeURIComponent(new URL(url).pathname)}`,
           headers: {}
         }
       }
