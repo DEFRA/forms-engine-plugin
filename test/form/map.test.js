@@ -88,6 +88,17 @@ describe('Map API routes', () => {
 
   it.each([
     ['an absolute url', 'https://example.com/maps/vector/v1/vts'],
+    [
+      'an internal CDP url',
+      'https://forms-submission-api.dev.cdp-int.defra.cloud/health'
+    ],
+    [
+      'an internal CDP url with the VTS path',
+      'https://forms-manager.dev.cdp-int.defra.cloud/maps/vector/v1/vts'
+    ],
+    ['the metadata address', 'http://169.254.169.254/maps/vector/v1/vts'],
+    ['localhost', 'http://localhost:3000/maps/vector/v1/vts'],
+    ['http', 'http://api.os.uk/maps/vector/v1/vts'],
     ['an absolute OS url', 'https://api.os.uk/maps/vector/v1/vts'],
     ['OS credentials', 'https://user@api.os.uk/maps/vector/v1/vts'],
     ['a host with no scheme', 'api.os.uk/maps/vector/v1/vts'],
@@ -106,6 +117,19 @@ describe('Map API routes', () => {
   ])('should reject a map proxy path with %s', async (_name, pathToProxy) => {
     const response = await server.inject({
       url: `${basePath}/map-proxy?path=${encodeURIComponent(pathToProxy)}`,
+      method: 'GET'
+    })
+
+    expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)
+    expect(getAccessToken).not.toHaveBeenCalled()
+    expect(request).not.toHaveBeenCalled()
+  })
+
+  it('should reject a map proxy request with a url param', async () => {
+    const urlToProxy =
+      'https://forms-submission-api.dev.cdp-int.defra.cloud/health'
+    const response = await server.inject({
+      url: `${basePath}/map-proxy?url=${encodeURIComponent(urlToProxy)}`,
       method: 'GET'
     })
 
