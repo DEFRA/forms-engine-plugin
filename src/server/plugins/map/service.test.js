@@ -8,6 +8,23 @@ jest.mock('~/src/server/services/httpService.ts')
 
 describe('Maps service', () => {
   describe('find', () => {
+    it('should encode the search term in the OS url', async () => {
+      jest.mocked(getJson).mockResolvedValueOnce({
+        res: /** @type {IncomingMessage} */ ({
+          statusCode: 200,
+          headers: {}
+        }),
+        payload: findResult,
+        error: undefined
+      })
+
+      await service.find('a&key=other#fragment', 'apikey')
+
+      expect(getJson).toHaveBeenCalledWith(
+        'https://api.os.uk/search/names/v1/find?key=apikey&query=a%26key%3Dother%23fragment&fq=local_type:postcode%20local_type:hamlet%20local_type:village%20local_type:town%20local_type:city%20local_type:other_settlement&maxresults=8'
+      )
+    })
+
     it('should return entires', async () => {
       jest.mocked(getJson).mockResolvedValueOnce({
         res: /** @type {IncomingMessage} */ ({

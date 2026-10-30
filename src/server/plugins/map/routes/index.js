@@ -45,6 +45,43 @@ export const countrySchema = Joi.string().valid(
   ...Object.values(GeospatialFieldOptionsCountryEnum)
 )
 
+const OS_API_ORIGIN = 'https://api.os.uk'
+const OS_VTS_PATH = '/maps/vector/v1/vts'
+
+const tileCoordinateSchema = Joi.number().integer().min(0).required()
+
+/**
+ * Checks if a path is the OS VTS path or a path below it
+ * @param {string} path - the path
+ */
+function isOsVtsPath(path) {
+  return path === OS_VTS_PATH || path.startsWith(`${OS_VTS_PATH}/`)
+}
+
+/**
+ * Checks a map proxy path and returns the normalised path to request from OS.
+ * Checks the raw value first, so that it always resolves against the OS origin
+ * and the bearer token only goes to OS.
+ * Checks the parsed path again, so that the check uses the path after `..`
+ * segments resolve.
+ * Allows `%20` as the only escape, because font names are the only encoded VTS
+ * path segments, so that each path OS decodes stays inside VTS.
+ * @type {CustomValidator<string, string>}
+ */
+function validateOsVtsPath(value, helpers) {
+  if (!isOsVtsPath(value)) {
+    return helpers.error('any.invalid')
+  }
+
+  const { pathname } = new URL(value, OS_API_ORIGIN)
+
+  if (!isOsVtsPath(pathname) || /%(?!20)/.test(pathname)) {
+    return helpers.error('any.invalid')
+  }
+
+  return pathname
+}
+
 /**
  * Gets the map support routes
  * @param {MapConfiguration} options - ordnance survey names api key
@@ -72,7 +109,7 @@ function mapProxyRoute(options) {
     path: '/api/map-proxy',
     handler: async (request, h) => {
       const { query } = request
-      const targetUrl = new URL(decodeURIComponent(query.url))
+      const targetUrl = new URL(query.path, OS_API_ORIGIN)
       const token = await getAccessToken(options)
 
       targetUrl.searchParams.set('srs', '3857')
@@ -97,7 +134,7 @@ function mapProxyRoute(options) {
       validate: {
         query: Joi.object()
           .keys({
-            url: Joi.string().required()
+            path: Joi.string().custom(validateOsVtsPath).required()
           })
           .optional()
       }
@@ -142,7 +179,14 @@ function tileProxyRoute(options) {
         .header('Cache-Control', 'public, max-age=86400')
     },
     options: {
-      auth: false
+      auth: false,
+      validate: {
+        params: Joi.object().keys({
+          z: tileCoordinateSchema,
+          y: tileCoordinateSchema,
+          x: tileCoordinateSchema
+        })
+      }
     }
   }
 }
@@ -243,5 +287,6 @@ function getGeospatialCountries() {
 /**
  * @import { ServerRoute } from '@hapi/hapi'
  * @import { FeatureCollection } from 'geojson'
+ * @import { CustomValidator } from 'joi'
  * @import { MapConfiguration, MapProxyGetRequestRefs, MapGeocodeGetRequestRefs, GeospatialCountriesGetRequestRefs } from '~/src/server/plugins/map/types.js'
  */

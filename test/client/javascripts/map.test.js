@@ -1586,7 +1586,7 @@ describe('Maps Client JS', () => {
       const result = transformer(url, 'Script')
 
       expect(result).toEqual({
-        url: `${apiPath}/map-proxy?url=${encodeURIComponent(url)}`,
+        url: `${apiPath}/map-proxy?path=${encodeURIComponent('/test.js')}`,
         headers: {}
       })
     })

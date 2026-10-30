@@ -12,7 +12,7 @@
 /**
  * Map proxy query params
  * @typedef {object} MapProxyQuery
- * @property {string} url - the proxied url
+ * @property {string} path - the OS API path to proxy
  */
 
 /**
