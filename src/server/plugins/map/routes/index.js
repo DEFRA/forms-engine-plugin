@@ -45,6 +45,30 @@ export const countrySchema = Joi.string().valid(
   ...Object.values(GeospatialFieldOptionsCountryEnum)
 )
 
+const OS_API_ORIGIN = 'https://api.os.uk'
+const OS_VTS_PATH = '/maps/vector/v1/vts'
+
+const tileCoordinateSchema = Joi.number().integer().min(0).required()
+
+/**
+ * Checks a map proxy path and returns the normalised path to request from OS.
+ * Sets the value as the path of a fixed OS url, so that the host is always OS
+ * and the check runs on the path after `..` segments resolve.
+ * @type {CustomValidator<string, string>}
+ */
+function validateOsVtsPath(value, helpers) {
+  const url = new URL(OS_API_ORIGIN)
+  url.pathname = value
+
+  const { pathname } = url
+
+  if (pathname !== OS_VTS_PATH && !pathname.startsWith(`${OS_VTS_PATH}/`)) {
+    return helpers.error('any.invalid')
+  }
+
+  return pathname
+}
+
 /**
  * Gets the map support routes
  * @param {MapConfiguration} options - ordnance survey names api key
@@ -72,7 +96,7 @@ function mapProxyRoute(options) {
     path: '/api/map-proxy',
     handler: async (request, h) => {
       const { query } = request
-      const targetUrl = new URL(decodeURIComponent(query.url))
+      const targetUrl = new URL(query.path, OS_API_ORIGIN)
       const token = await getAccessToken(options)
 
       targetUrl.searchParams.set('srs', '3857')
@@ -97,7 +121,7 @@ function mapProxyRoute(options) {
       validate: {
         query: Joi.object()
           .keys({
-            url: Joi.string().required()
+            path: Joi.string().custom(validateOsVtsPath).required()
           })
           .optional()
       }
@@ -142,7 +166,14 @@ function tileProxyRoute(options) {
         .header('Cache-Control', 'public, max-age=86400')
     },
     options: {
-      auth: false
+      auth: false,
+      validate: {
+        params: Joi.object().keys({
+          z: tileCoordinateSchema,
+          y: tileCoordinateSchema,
+          x: tileCoordinateSchema
+        })
+      }
     }
   }
 }
@@ -243,5 +274,6 @@ function getGeospatialCountries() {
 /**
  * @import { ServerRoute } from '@hapi/hapi'
  * @import { FeatureCollection } from 'geojson'
+ * @import { CustomValidator } from 'joi'
  * @import { MapConfiguration, MapProxyGetRequestRefs, MapGeocodeGetRequestRefs, GeospatialCountriesGetRequestRefs } from '~/src/server/plugins/map/types.js'
  */
