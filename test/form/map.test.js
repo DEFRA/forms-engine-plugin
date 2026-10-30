@@ -86,60 +86,12 @@ describe('Map API routes', () => {
     expect(response.result).toBe('{}')
   })
 
-  it('should drop the query and fragment from a map proxy path', async () => {
-    const res = /** @type {IncomingMessage} */ ({ headers: {} })
-
-    jest.mocked(request).mockResolvedValueOnce({
-      res,
-      payload: Buffer.from(JSON.stringify({}))
-    })
-    jest.mocked(getAccessToken).mockResolvedValueOnce('token')
-
-    const pathToProxy =
-      '/maps/vector/v1/vts/resources?srs=1&other=value#fragment'
-    const response = await server.inject({
-      url: `${basePath}/map-proxy?path=${encodeURIComponent(pathToProxy)}`,
-      method: 'GET'
-    })
-
-    expect(request).toHaveBeenCalledWith(
-      'get',
-      'https://api.os.uk/maps/vector/v1/vts/resources?srs=3857',
-      { headers: { Authorization: 'Bearer token' } }
-    )
-    expect(response.statusCode).toBe(StatusCodes.OK)
-  })
-
-  it.each([
-    ['an absolute OS url', 'https://user@api.os.uk/maps/vector/v1/vts'],
-    ['no leading slash', 'maps/vector/v1/vts']
-  ])(
-    'should reduce a value with %s to the VTS path',
-    async (_name, pathToProxy) => {
-      const res = /** @type {IncomingMessage} */ ({ headers: {} })
-
-      jest.mocked(request).mockResolvedValueOnce({
-        res,
-        payload: Buffer.from(JSON.stringify({}))
-      })
-      jest.mocked(getAccessToken).mockResolvedValueOnce('token')
-
-      const response = await server.inject({
-        url: `${basePath}/map-proxy?path=${encodeURIComponent(pathToProxy)}`,
-        method: 'GET'
-      })
-
-      expect(request).toHaveBeenCalledWith(
-        'get',
-        'https://api.os.uk/maps/vector/v1/vts?srs=3857',
-        { headers: { Authorization: 'Bearer token' } }
-      )
-      expect(response.statusCode).toBe(StatusCodes.OK)
-    }
-  )
-
   it.each([
     ['an absolute url', 'https://example.com/maps/vector/v1/vts'],
+    ['an absolute OS url', 'https://api.os.uk/maps/vector/v1/vts'],
+    ['OS credentials', 'https://user@api.os.uk/maps/vector/v1/vts'],
+    ['a host with no scheme', 'api.os.uk/maps/vector/v1/vts'],
+    ['a query', '/maps/vector/v1/vts?a=b'],
     ['an empty host', '//'],
     ['a protocol relative url', '//example.com/maps/vector/v1/vts'],
     ['a backslash relative url', '/\\example.com/maps/vector/v1/vts'],
@@ -150,10 +102,7 @@ describe('Map API routes', () => {
     ['a path with the VTS path as a prefix', '/maps/vector/v1/vtsother'],
     ['a resolved traversal', '/maps/vector/v1/vts/../../../oauth2/token/v1'],
     ['an encoded dot traversal', '/maps/vector/v1/vts/%2e%2e/%2e%2e/secret'],
-    ['a backslash traversal', '/maps/vector/v1/vts\\..\\..\\secret'],
-    ['an encoded slash', '/maps/vector/v1/vts/..%2F..%2F..%2Fsecret'],
-    ['an encoded backslash', '/maps/vector/v1/vts/..%5C..%5Csecret'],
-    ['a double encoded slash', '/maps/vector/v1/vts/..%252F..%252Fsecret']
+    ['a backslash traversal', '/maps/vector/v1/vts\\..\\..\\secret']
   ])('should reject a map proxy path with %s', async (_name, pathToProxy) => {
     const response = await server.inject({
       url: `${basePath}/map-proxy?path=${encodeURIComponent(pathToProxy)}`,

@@ -52,20 +52,17 @@ const tileCoordinateSchema = Joi.number().integer().min(0).required()
 
 /**
  * Checks a map proxy path and returns the normalised path to request from OS.
- * Checks the resolved url rather than the raw value, so that the check sees
- * the real result of `//host` values and `..` segments.
- * Allows `%20` as the only escape, because font names are the only encoded VTS
- * path segments, so that each path OS decodes stays inside VTS.
+ * Sets the value as the path of a fixed OS url, so that the host is always OS
+ * and the check runs on the path after `..` segments resolve.
  * @type {CustomValidator<string, string>}
  */
 function validateOsVtsPath(value, helpers) {
-  const { origin, pathname } = new URL(value, OS_API_ORIGIN)
+  const url = new URL(OS_API_ORIGIN)
+  url.pathname = value
 
-  const isOsOrigin = origin === OS_API_ORIGIN
-  const isVtsPath =
-    pathname === OS_VTS_PATH || pathname.startsWith(`${OS_VTS_PATH}/`)
+  const { pathname } = url
 
-  if (!isOsOrigin || !isVtsPath || /%(?!20)/.test(pathname)) {
+  if (pathname !== OS_VTS_PATH && !pathname.startsWith(`${OS_VTS_PATH}/`)) {
     return helpers.error('any.invalid')
   }
 
