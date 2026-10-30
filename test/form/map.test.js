@@ -111,14 +111,41 @@ describe('Map API routes', () => {
   })
 
   it.each([
+    ['an absolute OS url', 'https://user@api.os.uk/maps/vector/v1/vts'],
+    ['no leading slash', 'maps/vector/v1/vts']
+  ])(
+    'should reduce a value with %s to the VTS path',
+    async (_name, pathToProxy) => {
+      const res = /** @type {IncomingMessage} */ ({ headers: {} })
+
+      jest.mocked(request).mockResolvedValueOnce({
+        res,
+        payload: Buffer.from(JSON.stringify({}))
+      })
+      jest.mocked(getAccessToken).mockResolvedValueOnce('token')
+
+      const response = await server.inject({
+        url: `${basePath}/map-proxy?path=${encodeURIComponent(pathToProxy)}`,
+        method: 'GET'
+      })
+
+      expect(request).toHaveBeenCalledWith(
+        'get',
+        'https://api.os.uk/maps/vector/v1/vts?srs=3857',
+        { headers: { Authorization: 'Bearer token' } }
+      )
+      expect(response.statusCode).toBe(StatusCodes.OK)
+    }
+  )
+
+  it.each([
     ['an absolute url', 'https://example.com/maps/vector/v1/vts'],
-    ['an OS url', 'https://api.os.uk/maps/vector/v1/vts'],
+    ['an empty host', '//'],
     ['a protocol relative url', '//example.com/maps/vector/v1/vts'],
     ['a backslash relative url', '/\\example.com/maps/vector/v1/vts'],
     ['a username for a different host', '@example.com/maps/vector/v1/vts'],
     ['a different port', ':8443/maps/vector/v1/vts'],
     ['a different host suffix', '.example.com/maps/vector/v1/vts'],
-    ['no leading slash', 'maps/vector/v1/vts'],
     ['a different OS path', '/oauth2/token/v1'],
     ['a path with the VTS path as a prefix', '/maps/vector/v1/vtsother'],
     ['a resolved traversal', '/maps/vector/v1/vts/../../../oauth2/token/v1'],

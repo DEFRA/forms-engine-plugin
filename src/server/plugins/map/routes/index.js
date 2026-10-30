@@ -51,31 +51,21 @@ const OS_VTS_PATH = '/maps/vector/v1/vts'
 const tileCoordinateSchema = Joi.number().integer().min(0).required()
 
 /**
- * Checks if a path is the OS VTS path or a path below it
- * @param {string} path - the path
- */
-function isOsVtsPath(path) {
-  return path === OS_VTS_PATH || path.startsWith(`${OS_VTS_PATH}/`)
-}
-
-/**
  * Checks a map proxy path and returns the normalised path to request from OS.
- * Checks the raw value first, so that it always resolves against the OS origin
- * and the bearer token only goes to OS.
- * Checks the parsed path again, so that the check uses the path after `..`
- * segments resolve.
+ * Checks the resolved url rather than the raw value, so that the check sees
+ * the real result of `//host` values and `..` segments.
  * Allows `%20` as the only escape, because font names are the only encoded VTS
  * path segments, so that each path OS decodes stays inside VTS.
  * @type {CustomValidator<string, string>}
  */
 function validateOsVtsPath(value, helpers) {
-  if (!isOsVtsPath(value)) {
-    return helpers.error('any.invalid')
-  }
+  const { origin, pathname } = new URL(value, OS_API_ORIGIN)
 
-  const { pathname } = new URL(value, OS_API_ORIGIN)
+  const isOsOrigin = origin === OS_API_ORIGIN
+  const isVtsPath =
+    pathname === OS_VTS_PATH || pathname.startsWith(`${OS_VTS_PATH}/`)
 
-  if (!isOsVtsPath(pathname) || /%(?!20)/.test(pathname)) {
+  if (!isOsOrigin || !isVtsPath || /%(?!20)/.test(pathname)) {
     return helpers.error('any.invalid')
   }
 
