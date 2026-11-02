@@ -26,9 +26,11 @@
       <ul class="govuk-list govuk-list--bullet">
         <li>{{ t('pages.preview.missingNotificationEmail.emailDelivery') }}</li>
         <li>{{ t('pages.preview.missingNotificationEmail.fileUploads') }}</li>
-        <li>{{ t('pages.preview.missingNotificationEmail.payments') }}</li>
         <li>{{ t('pages.preview.missingNotificationEmail.sqsDeliveries') }}</li>
       </ul>
+      <p class="govuk-body">
+        {{ t('pages.preview.missingNotificationEmail.testPayments') }}
+      </p>
     {% endif %}
   {% else %}
     <p class="govuk-notification-banner__heading govuk-!-margin-bottom-0">

@@ -34,9 +34,10 @@ describe('Preview banner partial', () => {
         expect($component).toContainElement($paragraphs[0])
         expect($component).toHaveClass('govuk-notification-banner')
 
-        expect($paragraphs).toHaveLength(2)
+        expect($paragraphs).toHaveLength(3)
         expect($paragraphs[0]).toHaveClass('govuk-notification-banner__heading')
         expect($paragraphs[1]).toHaveClass('govuk-body')
+        expect($paragraphs[2]).toHaveClass('govuk-body')
       })
 
       it('should have accessible name', () => {
@@ -50,6 +51,21 @@ describe('Preview banner partial', () => {
 
         expect($paragraphs[1]).toHaveTextContent(
           'You can complete this form to test the user journey. The form will appear to submit successfully, but because a destination email address has not been set, the following features will not trigger:'
+        )
+
+        expect($paragraphs[2]).toHaveTextContent(
+          'Any payment question in this form will use the GOV.UK Pay test API key, so no real money will be taken.'
+        )
+      })
+
+      it('should list the features that will not trigger', () => {
+        expect($component).not.toBeNull()
+        const $items = /** @type {HTMLElement} */ ($component).querySelectorAll(
+          'li'
+        )
+
+        expect(Array.from($items, ($item) => $item.textContent.trim())).toEqual(
+          ['email delivery', 'file uploads', 'SQS deliveries']
         )
       })
     })
