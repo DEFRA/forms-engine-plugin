@@ -1,4 +1,5 @@
 import {
+  type ConditionEvaluationOutcome,
   type ConditionWrapper,
   type FormComponentsDef,
   type Section
@@ -16,9 +17,39 @@ import {
   type FormSubmissionError
 } from '~/src/server/plugins/engine/types.js'
 
+/**
+ * The result of evaluating a condition, keeping a failed evaluation distinct
+ * from one that legitimately returned `false`.
+ * @see {@link ExecutableCondition.evaluate}
+ */
+export interface ConditionEvaluation {
+  outcome: ConditionEvaluationOutcome
+  error?: string
+}
+
+/**
+ * A form condition paired with the parsed expression and callbacks needed to
+ * run it against a form submission state
+ * Created by `FormModel.makeCondition`
+ */
 export type ExecutableCondition = ConditionWrapper & {
+  /**
+   * Parsed expression for the condition's {@link ConditionWrapper.value},
+   * evaluated against a context built from the submission state
+   */
   expr: Expression
+
+  /**
+   * Evaluates the condition, used for page routing and component visibility
+   * A failed evaluation is reported as `false`
+   */
   fn: (evaluationState: FormState) => boolean
+
+  /**
+   * As `fn`, but reports whether evaluation failed rather than defaulting a
+   * failure to `false`. Used to record condition outcomes on submission.
+   */
+  evaluate: (evaluationState: FormState) => ConditionEvaluation
 }
 
 /**

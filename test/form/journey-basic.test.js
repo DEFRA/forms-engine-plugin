@@ -415,7 +415,9 @@ describe('Form journey', () => {
         ],
         repeaters: [],
         retrievalKey: 'enrique.chase@defra.gov.uk',
-        sessionId: expect.any(String)
+        sessionId: expect.any(String),
+        referenceNumber: expect.any(String),
+        language: undefined
       })
 
       expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)

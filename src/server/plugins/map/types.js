@@ -12,7 +12,7 @@
 /**
  * Map proxy query params
  * @typedef {object} MapProxyQuery
- * @property {string} url - the proxied url
+ * @property {string} path - the OS API path to proxy
  */
 
 /**
@@ -21,18 +21,18 @@
  * @property {string} query - name query
  */
 
-/**
- * Map reverse geocode query params
- * @typedef {object} MapReverseGeocodeQuery
- * @property {number} easting - the Easting point
- * @property {number} northing - the Northing point
- */
+export const CountryMap = {
+  england: 1,
+  'northern-ireland': 2,
+  scotland: 3,
+  wales: 4
+}
 
 /**
  * Geospatial countries query params
  * @typedef {object} GeospatialCountriesQuery
- * @property {string} omit - the country to omit
- * @property {string} only - the country to include
+ * @property {keyof typeof CountryMap} [omit] - the country to omit
+ * @property {keyof typeof CountryMap} [only] - the country to include
  */
 
 /**
@@ -48,12 +48,6 @@
  */
 
 /**
- * Map reverse geocode get request
- * @typedef {object} MapReverseGeocodeGetRequestRefs
- * @property {MapReverseGeocodeQuery} Query - Request query
- */
-
-/**
  * Map countries geojson get request
  * @typedef {object} GeospatialCountriesGetRequestRefs
  * @property {GeospatialCountriesQuery} Query - Request query
@@ -62,11 +56,9 @@
 /**
  * @typedef {MapProxyGetRequestRefs} MapProxyRequestRefs
  * @typedef {MapGeocodeGetRequestRefs} MapGeocodeRequestRefs
- * @typedef {MapReverseGeocodeGetRequestRefs} MapReverseGeocodeRequestRefs
  * @typedef {Request<MapGeocodeGetRequestRefs>} MapProxyGetRequest
  * @typedef {Request<MapGeocodeGetRequestRefs>} MapGeocodeGetRequest
- * @typedef {Request<MapReverseGeocodeGetRequestRefs>} MapReverseGeocodeGetRequest
- * @typedef {MapProxyGetRequest | MapGeocodeGetRequest | MapReverseGeocodeGetRequest} MapRequest
+ * @typedef {MapProxyGetRequest | MapGeocodeGetRequest } MapRequest
  */
 
 //

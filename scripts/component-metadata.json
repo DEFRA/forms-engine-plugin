@@ -16,6 +16,7 @@
     "FileUploadField": "File manager component that displays uploaded files from session state.",
     "DeclarationField": "A checkbox the user must tick to confirm a declaration before proceeding.",
     "HiddenField": "A non-visible field that stores a fixed value in form state without user input.",
+    "TrackingField": "A field that can track the user's progress through the form.",
     "PaymentField": "Redirects the user to GOV.UK Pay to collect a payment before proceeding.",
     "Html": "Display static HTML content on a page without collecting user input.",
     "Markdown": "Display content authored in Markdown, rendered to HTML at runtime.",
@@ -34,7 +35,8 @@
     "TerminalPageController": "A dead-end page that does not route the user to another page. Use this for outcomes where the journey ends without proceeding to the summary — for example, an ineligibility screen.",
     "RepeatPageController": "Allows the user to add multiple sets of answers to the same group of questions. Answers are stored as an array under the key defined by `repeat.options.name`.",
     "FileUploadPageController": "A question page that handles file upload via the CDP file upload service. Must contain a `FileUploadField` component.",
-    "SummaryPageController": "Displays a check-your-answers summary of all form responses before submission. Must use the path `/summary`."
+    "SummaryPageController": "Displays a check-your-answers summary of all form responses before submission. Must use the path `/summary`.",
+    "StatusPageController": "The confirmation page shown after a successful form submission. Renders a GOV.UK panel with the page title and, optionally, the reference number. Automatically added to every form at `/status` — only define it explicitly to customise the title."
   },
   "properties": {
     "required": "Whether the field must be filled in. Defaults to `true`.",
@@ -79,16 +81,27 @@
     "content": "HTML or Markdown content to display."
   },
   "pageLinks": {
+    "StatusPageController": [
+      "The status page is automatically injected into every form at `/status` if one is not already present in the form definition. You only need to add it explicitly to customise the title.",
+      "The submission guidance shown under \"What happens next\" comes from `formMetadata.submissionGuidance`, not the form definition itself. Set it on the metadata object returned by your `formsService`. The value is rendered as Markdown (headings level 3 and below).",
+      "Set `options.showReferenceNumber` to `true` in the form definition to display the auto-generated reference number inside the confirmation panel. See [Form definition options](../../form-definition-options.md) for details."
+    ],
     "FileUploadPageController": [
       "This controller manages the CDP file upload lifecycle: it initiates an upload session with `cdp-uploader` on each page load, sets the CDP upload URL as the form action so the browser posts files directly to CDP, polls CDP for the upload status on return, and populates session state with completed `FileState` entries. It is tightly coupled to the CDP file upload service and is the provided implementation for Defra teams. See the [File Upload guide](../code-based/file-upload.md) for setup instructions, including the required `formSubmissionService` interface."
     ]
   },
   "componentLinks": {
+    "UkAddressField": [
+      "When `usePostcodeLookup` is enabled, the component uses the Ordnance Survey API to find addresses by postcode. This requires the `ordnanceSurveyApiKey` and `ordnanceSurveyApiSecret` [plugin options](../../plugin-options.md#geospatial-map) to be set — without them the component falls back to the manual address entry form regardless of the `usePostcodeLookup` setting."
+    ],
     "FileUploadField": [
       "This component renders the list of files already in session state, allows the user to remove individual files, and enforces min/max file count constraints. On final form submission it calls `persistFiles()` to move files to permanent storage. It does not handle uploading — that is the responsibility of the page controller. See [`FileUploadPageController`](../pages/file-upload-page.md) for the provided Defra implementation."
     ],
     "HiddenField": [
       "Hidden fields can be pre-populated from query string parameters — see [Pre-populating state](../code-based/pre-populate-state.md) for details."
+    ],
+    "TrackingField": [
+      "Tracking fields can track the user's progress through the form. They are hidden fields that are set to `true` when the user reaches a certain point in the form."
     ],
     "EastingNorthingField": [
       "This component renders an inline Ordnance Survey map that lets users click a location to auto-populate the coordinate inputs. The map requires the `ordnanceSurveyApiKey` and `ordnanceSurveyApiSecret` [plugin options](../../plugin-options.md#geospatial-map) to be set — without them the component falls back to plain text inputs."
@@ -104,6 +117,18 @@
     ],
     "GeospatialField": [
       "This component renders an inline Ordnance Survey map that lets users click a location to auto-populate the coordinate inputs across multiple coordinate formats. The map requires the `ordnanceSurveyApiKey` and `ordnanceSurveyApiSecret` [plugin options](../../plugin-options.md#geospatial-map) to be set — without them the component falls back to plain text inputs."
+    ]
+  },
+  "componentSecrets": {
+    "PaymentField": [
+      {
+        "name": "payment-test-api-key",
+        "description": "GOV.UK Pay API key used when the form is in test or draft mode."
+      },
+      {
+        "name": "payment-live-api-key",
+        "description": "GOV.UK Pay API key used when the form is in live mode."
+      }
     ]
   },
   "pageProperties": {

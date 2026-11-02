@@ -1,25 +1,23 @@
 import {
-  GeospatialFieldOptionsCountryEnum,
+  type GeospatialFieldComponent,
   type GeospatialFieldOptionsCountry
 } from '@defra/forms-model'
 import Bourne from '@hapi/bourne'
 import { booleanWithin } from '@turf/boolean-within'
+import { point } from '@turf/helpers'
+import OsGridRef from 'geodesy/osgridref.js'
 import JoiBase, { type CustomValidator } from 'joi'
 
+import { type EastingNorthingField } from '~/src/server/plugins/engine/components/EastingNorthingField.js'
+import { type EastingNorthingState } from '~/src/server/plugins/engine/components/types.js'
 import {
   type Coordinates,
   type Feature,
   type FeatureProperties,
   type Geometry
 } from '~/src/server/plugins/engine/types.js'
-import { countries } from '~/src/server/plugins/map/routes/index.js'
-
-const countriesDesc: Record<GeospatialFieldOptionsCountryEnum, string> = {
-  [GeospatialFieldOptionsCountryEnum.England]: 'England',
-  [GeospatialFieldOptionsCountryEnum.NorthernIreland]: 'Northern Ireland',
-  [GeospatialFieldOptionsCountryEnum.Scotland]: 'Scotland',
-  [GeospatialFieldOptionsCountryEnum.Wales]: 'Wales'
-}
+import { countriesValidate } from '~/src/server/plugins/map/routes/index.js'
+import { CountryMap } from '~/src/server/plugins/map/types.js'
 
 const Joi = JoiBase.extend({
   type: 'array',
@@ -31,7 +29,8 @@ const Joi = JoiBase.extend({
     from: 'string',
     method(value, helpers) {
       if (typeof value === 'string') {
-        if (value.trim() === '') {
+        const trimmed = value.trim()
+        if (trimmed === '' || trimmed === '[]') {
           return {
             value: undefined
           }
@@ -96,19 +95,71 @@ const featureSchema = Joi.object<Feature>().keys({
   geometry: featureGeometrySchema
 })
 
-const geospatialSchema = Joi.array<Feature[]>()
-  .items(featureSchema)
-  .unique('id')
-  .required()
+export function determineLimits(
+  def: GeospatialFieldComponent,
+  isOptional: boolean
+) {
+  const { schema: constraints } = def
+  const limits: { min?: number; max?: number; length?: number } = {}
+  if (typeof constraints?.length === 'number') {
+    limits.length = constraints.length
+  } else {
+    if (typeof constraints?.min === 'number') {
+      limits.min = constraints.min
+    } else if (!isOptional) {
+      limits.min = 1
+    }
 
-export function getGeospatialSchema(country?: GeospatialFieldOptionsCountry) {
+    limits.max = typeof constraints?.max === 'number' ? constraints.max : 50
+  }
+  return limits
+}
+
+function applySchemaConstraints(
+  schema: JoiBase.ArraySchema<Feature[]>,
+  def: GeospatialFieldComponent
+) {
+  const { options } = def
+  const isOptional = options.required === false
+
+  const limits = determineLimits(def, isOptional)
+
+  if (limits.length !== undefined) {
+    schema = schema.length(limits.length)
+  }
+  if (limits.min !== undefined) {
+    schema = schema.min(limits.min)
+  }
+  if (limits.max !== undefined) {
+    schema = schema.max(limits.max)
+  }
+
+  if (isOptional) {
+    schema = schema.optional()
+  } else {
+    schema = schema.required()
+  }
+
+  return schema
+}
+
+export function getGeospatialSchema(
+  def: GeospatialFieldComponent
+): JoiBase.ArraySchema<Feature[]> {
+  const { options = {} } = def
+  const country: GeospatialFieldOptionsCountry | undefined =
+    options.countries?.at(0)
+
   if (!country) {
-    return geospatialSchema
+    return applySchemaConstraints(
+      Joi.array<Feature[]>().items(featureSchema).unique('id'),
+      def
+    )
   }
 
   const validateCountryBounds: CustomValidator = (value, helpers) => {
-    const countryFeature = countries.features.find(
-      (feature) => feature.id === country
+    const countryFeature = countriesValidate.features.find(
+      (feature) => feature.id === CountryMap[country]
     )
 
     if (!countryFeature) {
@@ -120,7 +171,7 @@ export function getGeospatialSchema(country?: GeospatialFieldOptionsCountry) {
 
     if (!result) {
       return helpers.error('any.custom', {
-        country: countriesDesc[country as GeospatialFieldOptionsCountryEnum]
+        country
       })
     }
 
@@ -128,12 +179,58 @@ export function getGeospatialSchema(country?: GeospatialFieldOptionsCountry) {
     return value
   }
 
-  return Joi.array<Feature[]>()
-    .items(featureSchema.custom(validateCountryBounds))
-    .unique('id')
-    .required()
+  return applySchemaConstraints(
+    Joi.array<Feature[]>()
+      .items(featureSchema.custom(validateCountryBounds))
+      .unique('id'),
+    def
+  )
 }
 
-/**
- * @import { CustomHelpers } from 'joi'
- */
+export function getEastingNorthingCountryValidator(
+  field: EastingNorthingField,
+  country: GeospatialFieldOptionsCountry
+) {
+  const validateCountryBounds: CustomValidator = (value, helpers) => {
+    const countryFeature = countriesValidate.features.find(
+      (feature) => feature.id === CountryMap[country]
+    )
+
+    if (!countryFeature) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return value
+    }
+
+    const eastingNorthing = field.getFormValueFromState(
+      value as EastingNorthingState
+    )
+
+    if (!eastingNorthing) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return value
+    }
+
+    const gridRef = new OsGridRef(
+      eastingNorthing.easting,
+      eastingNorthing.northing
+    )
+    const latLong = gridRef.toLatLon()
+    const coord = point([latLong.longitude, latLong.latitude])
+    const within = booleanWithin(coord, countryFeature)
+
+    if (!within) {
+      return helpers.error(
+        'any.custom',
+        {
+          country
+        },
+        { path: [field.name] }
+      )
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return value
+  }
+
+  return validateCountryBounds
+}

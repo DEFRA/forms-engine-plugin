@@ -1,0 +1,461 @@
+{
+  "validation": {
+    "required": "Nodwch {{lowerFirst(#label)}}",
+    "selectRequired": "Dewiswch {{lowerFirst(#label)}}",
+    "pattern": "Nodwch {{lowerFirst(#label)}} dilys",
+    "format": "Nodwch {{lowerFirst(#label)}} yn y fformat cywir",
+    "objectRequired": "Nodwch {{#label}}",
+    "objectMissing": "Rhaid i {{#title}} gynnwys {{lowerFirst(#label)}}",
+    "max": "Rhaid i {{#label}} fod yn {{#limit}} o nodau neu lai",
+    "min": "Rhaid i {{#label}} fod yn {{#limit}} o nodau neu fwy",
+    "minMax": "Rhaid i {{#label}} fod rhwng {{#min}} a {{#max}} o nodau",
+    "number": "Rhaid i {{#label}} fod yn rhif",
+    "numberPrecision": "Rhaid i {{#label}} beidio â chael mwy na {{#limit}} lle degol",
+    "numberInteger": "Rhaid i {{#label}} fod yn rhif cyfan",
+    "numberMin": "Rhaid i {{#label}} fod yn {{#limit}} neu uwch",
+    "numberMax": "Rhaid i {{#label}} fod yn {{#limit}} neu is",
+    "maxWords": "Rhaid i {{#label}} fod yn {{#limit}} o eiriau neu lai",
+    "unicode": "Mae {{#label}} yn cynnwys nodau annilys, er enghraifft, dashes hirion",
+    "arrayMin_zero": "Dewiswch o leiaf 1 opsiwn o'r rhestr",
+    "arrayMin_one": "Dewiswch o leiaf {{#limit}} opsiwn o'r rhestr",
+    "arrayMin_two": "Dewiswch o leiaf ddau opsiwn o'r rhestr",
+    "arrayMin_few": "Dewiswch o leiaf {{#limit}} opsiwn o'r rhestr",
+    "arrayMin_many": "Dewiswch o leiaf {{#limit}} opsiwn o'r rhestr",
+    "arrayMin_other": "Dewiswch o leiaf {{#limit}} opsiwn o'r rhestr",
+    "arrayMax_zero": "Dim ond {{#limit}} opsiynau y gellir eu dewis o'r rhestr",
+    "arrayMax_one": "Dim ond {{#limit}} opsiwn y gellir ei ddewis o'r rhestr",
+    "arrayMax_two": "Dim ond dwy opsiwn y gellir eu dewis o'r rhestr",
+    "arrayMax_few": "Dim ond {{#limit}} opsiwn y gellir eu dewis o'r rhestr",
+    "arrayMax_many": "Dim ond {{#limit}} opsiwn y gellir eu dewis o'r rhestr",
+    "arrayMax_other": "Dim ond {{#limit}} opsiwn y gellir eu dewis o'r rhestr",
+    "arrayLength_zero": "Dewiswch 0 opsiwn yn unig o'r rhestr",
+    "arrayLength_one": "Dewiswch un opsiwn yn unig o'r rhestr",
+    "arrayLength_two": "Dewiswch {{#limit}} opsiwn yn unig o'r rhestr",
+    "arrayLength_few": "Dewiswch {{#limit}} opsiwn yn unig o'r rhestr",
+    "arrayLength_many": "Dewiswch {{#limit}} opsiwn yn unig o'r rhestr",
+    "arrayLength_other": "Dewiswch {{#limit}} opsiwn yn unig o'r rhestr",
+
+    "featuresMin_zero": "Diffiniwch o leiaf {{#limit}} nodwedd",
+    "featuresMin_one": "Diffiniwch o leiaf un nodwedd",
+    "featuresMin_two": "Diffiniwch o leiaf {{#limit}} nodwedd",
+    "featuresMin_few": "Diffiniwch o leiaf {{#limit}} nodwedd",
+    "featuresMin_many": "Diffiniwch o leiaf {{#limit}} nodwedd",
+    "featuresMin_other": "Diffiniwch o leiaf {{#limit}} nodwedd",
+    "featuresMax_zero": "Dim ond {{#limit}} nodwedd y gellir eu diffinio",
+    "featuresMax_one": "Dim ond {{#limit}} nodwedd y gellir ei diffinio",
+    "featuresMax_two": "Dim ond {{#limit}} nodwedd y gellir eu diffinio",
+    "featuresMax_few": "Dim ond {{#limit}} nodwedd y gellir eu diffinio",
+    "featuresMax_many": "Dim ond {{#limit}} nodwedd y gellir eu diffinio",
+    "featuresMax_other": "Dim ond {{#limit}} nodwedd y gellir eu diffinio",
+    "featuresLength_zero": "Diffiniwch yn union {{#limit}} nodwedd",
+    "featuresLength_one": "Diffiniwch un nodwedd yn union",
+    "featuresLength_two": "Diffiniwch nodweddion {{#limit}} yn union",
+    "featuresLength_few": "Diffiniwch nodweddion {{#limit}} yn union",
+    "featuresLength_many": "Diffiniwch nodweddion {{#limit}} yn union",
+    "featuresLength_other": "Diffiniwch nodweddion {{#limit}} yn union",
+    "filesMin_zero": "Rhaid i chi uwchlwytho {{#limit}} ffeil neu fwy",
+    "filesMin_one": "Rhaid i chi uwchlwytho un ffeil neu fwy",
+    "filesMin_two": "Rhaid i chi uwchlwytho {{#limit}} o ffeiliau neu fwy",
+    "filesMin_few": "Rhaid i chi uwchlwytho {{#limit}} o ffeiliau neu fwy",
+    "filesMin_many": "Rhaid i chi uwchlwytho {{#limit}} o ffeiliau neu fwy",
+    "filesMin_other": "Rhaid i chi uwchlwytho {{#limit}} o ffeiliau neu fwy",
+    "filesMax_zero": "Dim ond {{#limit}} ffeil neu lai y gallwch eu huwchlwytho",
+    "filesMax_one": "Dim ond un ffeil neu lai y gallwch ei huwchlwytho",
+    "filesMax_two": "Dim ond {{#limit}} o ffeiliau neu lai y gallwch eu huwchlwytho",
+    "filesMax_few": "Dim ond {{#limit}} o ffeiliau neu lai y gallwch eu huwchlwytho",
+    "filesMax_many": "Dim ond {{#limit}} o ffeiliau neu lai y gallwch eu huwchlwytho",
+    "filesMax_other": "Dim ond {{#limit}} o ffeiliau neu lai y gallwch eu huwchlwytho",
+    "filesLength_zero": "Rhaid i chi uwchlwytho union {{#limit}} ffeil",
+    "filesLength_one": "Rhaid i chi uwchlwytho union un ffeil",
+    "filesLength_two": "Rhaid i chi uwchlwytho'n union {{#limit}} o ffeiliau",
+    "filesLength_few": "Rhaid i chi uwchlwytho'n union {{#limit}} o ffeiliau",
+    "filesLength_many": "Rhaid i chi uwchlwytho'n union {{#limit}} o ffeiliau",
+    "filesLength_other": "Rhaid i chi uwchlwytho'n union {{#limit}} o ffeiliau"
+  },
+
+  "errors": {
+    "title": "Mae problem",
+    "optionsMismatch": "Mae'r opsiynau'n wahanol oherwydd i chi newid ateb blaenorol"
+  },
+
+  "common": {
+    "optional": "(dewisol)",
+    "warningIconFallback": "Rhybudd",
+    "back": "Yn ôl",
+    "continue": "Parhau",
+    "saveAndExit": "Cadw a gadael",
+    "draft": "ddrafft",
+    "live": "fyw",
+    "or": "neu",
+    "and": "a",
+    "england": "Lloegr",
+    "wales": "Cymru",
+    "northern-ireland": "Gogledd Iwerddon",
+    "scotland": "Yr Alban",
+    "sendFeedback": "Anfon adborth"
+  },
+
+  "pages": {
+    "question": {
+      "paymentCancelledBannerTitle": "Pwysig",
+      "paymentCancelledTitle": "Mae eich taliad wedi'i ganslo",
+      "paymentCancelledBody": "Cafodd eich manylion talu eu dileu oherwydd bod y ffurflen yn anweithredol am 5 diwrnod.",
+      "paymentCancelledAction": "Ychwanegwch eich manylion talu eto.",
+      "backToAddAnother": "Ewch yn ôl i ychwanegu un arall",
+      "backToCheckAnswers": "Ewch yn ôl i wirio'ch atebion",
+      "startNow": "Dechrau nawr"
+    },
+
+    "summary": {
+      "title": "Gwiriwch eich atebion cyn anfon eich ffurflen",
+      "change": "Newid",
+      "notProvided": "Heb ei ddarparu",
+      "declaration": "Datganiad",
+      "acceptAndSubmit": "Derbyn a chyflwyno",
+      "payAndSubmit": "Talu a chyflwyno",
+      "submit": "Cyflwyno",
+      "saveAndExit": "Cadw a gadael",
+      "paymentSuccessBannerTitle": "Llwyddiant",
+      "paymentSuccessTitle": "Mae gennym eich manylion talu",
+      "paymentSuccessBody": "Mae eich taliad ar ddal. Byddwn yn codi tâl arnoch pan fyddwch yn cyflwyno'r ffurflen.",
+      "paymentDetailsTitle": "Manylion talu",
+      "paymentFor": "Taliad am",
+      "totalAmount": "Cyfanswm",
+      "reference": "Cyfeirnod",
+      "dateOfPayment": "Dyddiad talu",
+      "fileUpload_zero": "Ni uwchlwythwyd unrhyw ffeiliau",
+      "fileUpload_one": "Uwchlwythwyd [[count]] ffeil",
+      "fileUpload_two": "Uwchlwythwyd dwy feil",
+      "fileUpload_few": "Uwchlwythwyd [[count]] ffeil",
+      "fileUpload_many": "Uwchlwythwyd [[count]] o ffeiliau",
+      "fileUpload_other": "Uwchlwythwyd [[count]] ffeil",
+      "submissionFailed": "Roedd problem ac ni chyflwynwyd eich ffurflen. Ceisiwch gyflwyno'r ffurflen eto",
+      "submissionFailedContactSuffix": " neu gallwch [[contactUsLink]] a dyfynnu'ch cyfeirnod i drefnu ad-daliad",
+      "contactUsLinkText": "cysylltu â ni (yn agor mewn tab newydd)",
+      "confirmationEmail": "E-bost cadarnhad (dewisol)",
+      "confirmationEmailHint": "Rhowch eich cyfeiriad e-bost i dderbyn e-bost cadarnhau a chopi o'ch atebion"
+    },
+
+    "repeater": {
+      "removeAnswer": "Ydych chi'n siŵr eich bod am dynnu'r ateb hwn?",
+      "remove": "Tynnu",
+      "cancel": "Canslo",
+      "lastItemCannotBeRemoved": "Ni ellir tynnu eitem olaf y rhestr",
+      "itemToRemoveNotFound": "Ni chanfuwyd eitem y rhestr i'w thynnu",
+      "continue": "Parhau",
+      "addAnother": "Ychwanegu un arall",
+      "saveAndExit": "Cadw a gadael",
+      "change": "Newid",
+      "notProvided": "Heb ei ddarparu",
+      "visuallyHiddenItem": "eitem [[index]]",
+      "pageTitle_zero": "Nid ydych wedi ychwanegu unrhyw atebion",
+      "pageTitle_one": "Rydych wedi ychwanegu [[count]] ateb",
+      "pageTitle_two": "Rydych wedi ychwanegu dau ateb",
+      "pageTitle_few": "Rydych wedi ychwanegu [[count]] ateb",
+      "pageTitle_many": "Rydych wedi ychwanegu [[count]] o atebion",
+      "pageTitle_other": "Rydych wedi ychwanegu [[count]] ateb",
+      "tooMany_zero": "Ni allwch ychwanegu unrhyw atebion",
+      "tooMany_one": "Dim ond hyd at [[count]] ateb y gallwch ei ychwanegu",
+      "tooMany_two": "Dim ond hyd at ddau gateb y gallwch eu hychwanegu",
+      "tooMany_few": "Dim ond hyd at [[count]] ateb y gallwch eu hychwanegu",
+      "tooMany_many": "Dim ond hyd at [[count]] o atebion y gallwch eu hychwanegu",
+      "tooMany_other": "Dim ond hyd at [[count]] ateb y gallwch eu hychwanegu",
+      "tooFew_zero": "Rhaid i chi ychwanegu atebion",
+      "tooFew_one": "Rhaid i chi ychwanegu o leiaf [[count]] ateb",
+      "tooFew_two": "Rhaid i chi ychwanegu o leiaf ddau gateb",
+      "tooFew_few": "Rhaid i chi ychwanegu o leiaf [[count]] ateb",
+      "tooFew_many": "Rhaid i chi ychwanegu o leiaf [[count]] o atebion",
+      "tooFew_other": "Rhaid i chi ychwanegu o leiaf [[count]] ateb"
+    },
+
+    "fileUpload": {
+      "upload": "Uwchlwytho ffeil",
+      "maxFilesReached": "Rydych wedi cyrraedd nifer uchaf y ffeiliau. Tynnwch ffeil i uwchlwytho rhagor.",
+      "remove": "Tynnu",
+      "removeFileTitle": "Ydych chi'n siŵr eich bod chi eisiau dileu'r ffeil hon?",
+      "removeFileBody": "Ni allwch adfer ffeiliau a dynnwyd.",
+      "removeFileButton": "Dileu ffeil",
+      "cancel": "Canslo",
+      "FILE_VIRUS": "Mae'r ffeil a ddewiswyd yn cynnwys firws",
+      "FILE_EMPTY": "Mae'r ffeil a ddewiswyd yn wag",
+      "FILE_TOO_LARGE": "Rhaid i'r ffeil a ddewiswyd fod yn llai na [[maxFileSizeFormatted]]",
+      "FILE_INVALID_TYPE": "Rhaid i'r ffeil a ddewiswyd fod yn [[fileExtensions]]",
+      "FILE_UPLOAD_FAILED": "Ni ellid uwchlwytho'r ffeil a ddewiswyd - rhowch gynnig arall arni",
+      "FILE_ERROR_UNKNOWN": "Gwall anhysbys"
+    },
+
+    "exit": {
+      "defaultTitle": "Mae eich cynnydd wedi'i gadw",
+      "whatHappensNext": "Beth sy'n digwydd nesaf",
+      "body": "Mae cynnydd eich ffurflen wedi'i gadw. Gallwch ddychwelyd i gwblhau eich cais ar unrhyw adeg gan ddefnyddio'r ddolen a ddarperir.",
+      "returnToApplication": "Dychwelyd i'r cais"
+    },
+
+    "confirmation": {
+      "formSubmitted": "Ffurflen wedi'i chyflwyno",
+      "whatHappensNext": "Beth sy'n digwydd nesaf",
+      "referenceNumber": "Eich cyfeirnod",
+      "feedbackLink": "Beth yw eich barn am y gwasanaeth hwn? (yn cymryd 30 eiliad)"
+    },
+
+    "preview": {
+      "warnMissingNotificationEmail": {
+        "body": "Os hoffech dderbyn e-bost prawf, [[link]] yr hoffech i gyflwyniadau ffurflen fynd iddo.",
+        "linkText": "nodwch y cyfeiriad e-bost (yn agor mewn tab newydd)"
+      },
+      "bannerTitle": "Pwysig",
+      "bannerForce": "Rhagolwg o ffurflen [[previewMode]] yw hon. Peidiwch â rhoi gwybodaeth bersonol.",
+      "bannerText": "Dyma ragolwg o dudalen ffurflen [[previewMode]] rydych chi'n ei golygu.",
+      "previousPages": "Mae'n dibynnu ar atebion o dudalennau cynharach yn y ffurflen. Yn y fersiwn fyw, bydd angen i ddefnyddwyr gwblhau'r cwestiynau hynny yn gyntaf.",
+      "missingNotificationEmail": {
+        "intro": "Gallwch gwblhau'r ffurflen hon i brofi taith y defnyddiwr. Bydd y ffurflen yn ymddangos fel pe bai wedi'i chyflwyno'n llwyddiannus, ond gan nad oes cyfeiriad e-bost cyrchfan wedi'i osod, ni fydd y nodweddion canlynol yn gweithio:",
+        "emailDelivery": "anfon e-byst",
+        "fileUploads": "uwchlwytho ffeiliau",
+        "payments": "taliadau",
+        "sqsDeliveries": "anfon negeseuon SQS"
+      }
+    },
+
+    "formUnavailable": {
+      "title": "Mae'n ddrwg gennyf, nid yw'r ffurflen hon ar gael",
+      "subHeading": "Nid yw '[[formTitle]]' ar gael mwyach.",
+      "contactDetailsHeading": "Manylion cyswllt ar gyfer [[organisationName]]",
+      "telephone": "Ffôn",
+      "callCharges": "Dysgwch am gostau galwadau",
+      "email": "E-bost",
+      "onlineContactForm": "Ffurflen gyswllt ar-lein"
+    }
+  },
+
+  "postcodeLookup": {
+    "postcodeLabel": "Cod post",
+    "postcodeHint": "Er enghraifft, AA3 1AB",
+    "buildingNameLabel": "Enw neu rif yr adeilad (dewisol)",
+    "buildingNameHint": "Er enghraifft, 15 neu Bryn Melyn",
+    "selectAddress": "Dewiswch gyfeiriad",
+    "addressLine1Label": "Llinell cyfeiriad 1",
+    "addressLine2Label": "Llinell cyfeiriad 2 (dewisol)",
+    "townLabel": "Tref neu ddinas",
+    "countyLabel": "Sir (dewisol)",
+    "findAddress": "Dod o hyd i gyfeiriad",
+    "enterManually": "nodwch gyfeiriad â llaw",
+    "searchAgain": "Chwilio eto",
+    "useThisAddress": "Defnyddio'r cyfeiriad hwn",
+    "findAnAddressInstead": "dod o hyd i gyfeiriad yn lle hynny",
+    "noAddressFoundTitle": "Ni chanfuwyd cyfeiriad",
+    "noAddressFoundBody": "Ni allem ddod o hyd i gyfeiriad cyfatebol",
+    "addressFound_zero": "Ni chanfuwyd unrhyw gyfeiriadau ar gyfer",
+    "addressFound_one": "Canfuwyd [[count]] cyfeiriad ar gyfer",
+    "addressFound_two": "Canfuwyd dau gyfeiriad ar gyfer",
+    "addressFound_few": "Canfuwyd [[count]] chyfeiriad ar gyfer",
+    "addressFound_many": "Canfuwyd [[count]] o gyfeiriadau ar gyfer",
+    "addressFound_other": "Canfuwyd [[count]] cyfeiriad ar gyfer",
+    "validation": {
+      "invalidPostcode": "Nodwch god post dilys neu nodwch gyfeiriad â llaw",
+      "requiredPostcode": "Nodwch god post",
+      "selectAddress": "Dewiswch gyfeiriad",
+      "requiredAddressLine1": "Nodwch linell cyfeiriad 1",
+      "requiredTown": "Nodwch dref neu ddinas",
+      "invalidManualPostcode": "Nodwch god post dilys",
+      "requiredManualPostcode": "Nodwch god post"
+    }
+  },
+
+  "components": {
+    "dateField": {
+      "day": "Diwrnod",
+      "month": "Mis",
+      "year": "Blwyddyn",
+      "validation": {
+        "dateFormat": "Rhaid i {{#title}} fod yn ddyddiad go iawn",
+        "dateMin": "Rhaid i {{#title}} fod yr un fath â neu ar ôl {{#limit}}",
+        "dateMax": "Rhaid i {{#title}} fod yr un fath â neu cyn {{#limit}}"
+      }
+    },
+
+    "monthYearField": {
+      "month": "Mis",
+      "year": "Blwyddyn"
+    },
+
+    "addressField": {
+      "uprn": "UPRN",
+      "line1": "Llinell cyfeiriad 1",
+      "line2": "Llinell cyfeiriad 2",
+      "town": "Tref neu ddinas",
+      "county": "Sir",
+      "postcode": "Cod post",
+      "enterAddress": "Nodwch [[shortDescription]]",
+      "findAddress": "Dod o hyd i gyfeiriad",
+      "selectedAddress": "Cyfeiriad a ddewiswyd:",
+      "useDifferentAddress": "Defnyddio cyfeiriad gwahanol",
+      "enterManually": "nodwch gyfeiriad â llaw"
+    },
+
+    "latLongField": {
+      "latitude": "Lledred",
+      "longitude": "Hydred",
+      "latitudeRequired": "Nodwch ledred",
+      "longitudeRequired": "Nodwch hydred",
+      "precision": "Rhaid i {{#label}} beidio â chael mwy na 7 lle degol",
+      "notANumber": "Rhaid i {{#label}} fod yn rif dilys",
+      "latitudeBase": "Nodwch ledred dilys ar gyfer [[fieldLabel]] fel 51.519450",
+      "longitudeBase": "Nodwch hydred dilys ar gyfer [[fieldLabel]] fel -0.127758",
+      "latitudeRange": "Rhaid i ledred [[fieldLabel]] fod rhwng [[min]] a [[max]]",
+      "longitudeRange": "Rhaid i hydred [[fieldLabel]] fod rhwng [[min]] a [[max]]"
+    },
+
+    "eastingNorthingField": {
+      "easting": "Dwyreiniannau",
+      "northing": "Gogleddiannau",
+      "eastingRequired": "Nodwch ddwyreiniannau",
+      "northingRequired": "Nodwch ogleddiannau",
+      "eastingDigits": "Rhaid i {{#label}} ar gyfer [[fieldLabel]] fod rhwng 1 a 6 digid",
+      "northingDigits": "Rhaid i {{#label}} ar gyfer [[fieldLabel]] fod rhwng 1 a 7 digid",
+      "eastingRange": "Rhaid i {{#label}} ar gyfer [[fieldLabel]] fod rhwng [[min]] a [[max]]",
+      "northingRange": "Rhaid i {{#label}} ar gyfer [[fieldLabel]] fod rhwng [[min]] a [[max]]",
+      "wrongCountry": "Rhaid i leoliad fod y tu mewn i [[country]]"
+    },
+
+    "nationalGridField": {
+      "required": "Nodwch {{lowerFirst(#title)}}",
+      "pattern": "Nodwch rif maes Grid Cenedlaethol dilys ar gyfer {{lowerFirst(#title)}} fel NG 1234 5678",
+      "howToFind": "Sut i ddod o hyd i fanylion lleoliad"
+    },
+
+    "osGridRefField": {
+      "required": "Nodwch {{lowerFirst(#title)}}",
+      "pattern": "Nodwch gyfeirnod grid AO dilys ar gyfer {{lowerFirst(#title)}} fel TQ123456",
+      "howToFind": "Sut i ddod o hyd i fanylion lleoliad"
+    },
+
+    "locationFieldBase": {
+      "howToFind": "Sut i ddod o hyd i fanylion lleoliad",
+      "map": {
+        "helpPanel": {
+          "label": "Sut i ddefnyddio'r map hwn",
+          "point1": "Chwilio am sir, lle neu god post",
+          "point2": "Defnyddiwch yr eiconau + a - i chwyddo i mewn ac allan",
+          "point3": "Defnyddiwch lyfliwr neu allweddlon i ganolbwyntio'r pwynt yn y lleoliad",
+          "point4": "Cliciwch i ychwanegu'r lleoliad i'r map"
+        }
+      }
+    },
+
+    "yesNoField": {
+      "yes": "Ie",
+      "no": "Nage",
+      "validation": {
+        "selectYesNoRequired": "{{#label}} - dewiswch ie neu nage"
+      }
+    },
+
+    "declarationField": {
+      "defaultLabel": "Rwy'n deall ac yn cytuno",
+      "defaultConfirmationLabel": "Rwy'n cadarnhau fy mod yn deall ac yn derbyn y datganiad hwn",
+      "notProvided": "Heb ei ddarparu",
+      "validation": {
+        "declarationRequired": "Rhaid i chi gadarnhau eich bod yn deall ac yn cytuno â'r {{lowerFirst(#label)}} i barhau"
+      }
+    },
+
+    "geospatialField": {
+      "added_zero": "Ni ychwanegwyd unrhyw leoliadau",
+      "added_one": "Ychwanegwyd [[count]] lleoliad",
+      "added_two": "Ychwanegwyd dau leoliad",
+      "added_few": "Ychwanegwyd [[count]] lleoliad",
+      "added_many": "Ychwanegwyd [[count]] o leoliadau",
+      "added_other": "Ychwanegwyd [[count]] lleoliad",
+      "map": {
+        "helpPanel": {
+          "label": "Sut i ddefnyddio'r map hwn",
+          "ledeIntro": "Gallwch ychwanegu",
+          "ledeOutro": "i'r map.",
+          "lineText": "llinell",
+          "shapeText": "siâp",
+          "lineOrShapeText": "llinell neu siâp",
+          "typesPhrasePoint": "pwyntiau",
+          "typesPhraseLine": "lliniau",
+          "typesPhraseShape": "siâpiau",
+          "typesPhraseOr": "neu",
+          "point1": "Chwilio am sir, lle neu god post",
+          "point2": "Defnyddiwch yr eiconau + a - i chwyddo i mewn ac allan",
+          "point3": "Cliciwch ddwywaith, neu dewiswch 'Wedi gorffen', pan fyddwch wedi",
+          "point4": "Rhowch enw i'r lleoliad"
+        },
+        "typeDescriptions": {
+          "point": "Pwynt",
+          "line": "Llinell",
+          "polygon": "Siâp"
+        },
+        "buttons": {
+          "point": "Ychwanegu pwynt",
+          "line": "Ychwanegu llinell",
+          "polygon": "Ychwanegu siâp"
+        },
+        "itemLabel1": "Lleoliad",
+        "itemLabel2": "disgrifiad",
+        "itemUpdateLink": "Diweddaru",
+        "itemDeleteLink": "Dileu",
+        "itemFocusLink": "Dangos",
+        "itemVisuallyHidden": "lleoliad",
+        "details": {
+          "summary": "Cyfesurynnau",
+          "type": "Math",
+          "centroidGridReference": "Canol cyfeirnod grid",
+          "firstPointGridReference": "Cyfeirnod grid y pwynt cyntaf",
+          "detailedCoordinates": "Cyfesurynnau manwl"
+        }
+      },
+      "validation": {
+        "descriptionRequired": "Rhowch ddisgrifiad ar gyfer lleoliad [[count]]",
+        "wrongCountry": "Rhaid i leoliad [[count]] fod y tu mewn i [[country]]"
+      }
+    },
+
+    "paymentField": {
+      "detailsRequired": "Angen talu",
+      "pendingTransaction": "Mae'n bosibl y gwelwch drafodiad ar y gweill yn eich cyfrif banc ond dim ond pan fyddwch yn cyflwyno'r ffurflen y codir tâl arnoch.",
+      "addPaymentDetails": "Ychwanegu manylion talu",
+      "cannotTakePayment": "Mae problem ac ni allwn dderbyn taliad. Cysylltwch â ni (manylion yn nhroedyn y ffurflen hon) neu cadwch eich cynnydd a dychwelyd at y ffurflen yn ddiweddarach.",
+      "testApiKey": "Ychwanegwch allwedd API prawf ddilys cyn i chi allu rhagolwg y daith talu.",
+      "completePayment": "Cwblhewch y taliad i barhau",
+      "paymentExpired": "Mae awdurdodiad eich taliad wedi dod i ben. Ychwanegwch eich manylion talu eto.",
+      "submissionFailed": "Roedd problem ac ni chyflwynwyd eich ffurflen. Ceisiwch gyflwyno'r ffurflen eto.",
+      "canSubmitAfterPayment": "Gallwch gyflwyno'r ffurflen ar ôl i chi ychwanegu eich manylion talu.",
+      "preAuthorisedTitle": "Rydych eisoes wedi awdurdodi taliad ar gyfer y ffurflen hon",
+      "preAuthorisedBody": "Parhewch i gyflwyno'r ffurflen. Ni chodir tâl arnoch ddwywaith.",
+      "totalAmountLabel": "Cyfanswm:",
+      "paymentAmountMismatch": "Mae swm y taliad a rhaganrhuddhawyd rywsut yn wahanol i'r hyn a ofynnwyd amdano. Ceisiwch ychwanegu manylion talu eto."
+    },
+
+    "fileUploadField": {
+      "uploading": "Yn uwchlwytho…",
+      "uploaded": "Wedi'i uwchlwytho",
+      "uploadFailed": "Roedd problem gyda'ch ffeiliau a uwchlwythwyd. Uwchlwythwch nhw eto cyn cyflwyno'r ffurflen.",
+      "uploadedFilesHeading": "Ffeiliau a uwchlwythwyd",
+      "filesCount_zero": "Uwchlwythwyd [[count]] o ffeiliau",
+      "filesCount_one": "Uwchlwythwyd [[count]] ffeil",
+      "filesCount_two": "Uwchlwythwyd [[count]] ffeil",
+      "filesCount_few": "Uwchlwythwyd [[count]] ffeil",
+      "filesCount_many": "Uwchlwythwyd [[count]] o ffeiliau",
+      "filesCount_other": "Uwchlwythwyd [[count]] ffeil",
+      "chooseFile": "Dewiswch ffeil",
+      "dropFile": "neu ollwng ffeil",
+      "noFileChosen": "Dim ffeil wedi'i dewis"
+    },
+
+    "characterCount": {
+      "_comment": "Note the use of %{count} instead of [[count]]. This is because we are passing to the govuk template, not passing to Joi",
+      "underLimit": {
+        "one": "Mae gennych %{count} nod ar ôl",
+        "other": "Mae gennych %{count} nod ar ôl"
+      },
+      "atLimit": "Mae gennych 0 nod ar ôl",
+      "overLimit": {
+        "one": "Mae gennych %{count} nod yn ormod",
+        "other": "Mae gennych %{count} nod yn ormod"
+      }
+    }
+  }
+}

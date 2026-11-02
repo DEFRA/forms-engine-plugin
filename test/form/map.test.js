@@ -3,9 +3,8 @@ import { StatusCodes } from 'http-status-codes'
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import { getAccessToken } from '~/src/server/plugins/map/routes/get-os-token.js'
-import { find, nearest } from '~/src/server/plugins/map/service.js'
+import { find } from '~/src/server/plugins/map/service.js'
 import { result as findResult } from '~/src/server/plugins/map/test/__stubs__/find.js'
-import { result as nearestResult } from '~/src/server/plugins/map/test/__stubs__/nearest.js'
 import { get, request } from '~/src/server/services/httpService.js'
 
 const basePath = `${FORM_PREFIX}/api`
@@ -41,15 +40,15 @@ describe('Map API routes', () => {
     })
     jest.mocked(getAccessToken).mockResolvedValueOnce('token')
 
-    const urlToProxy = 'http://example.com?srs=3857'
+    const pathToProxy = '/maps/vector/v1/vts'
     const response = await server.inject({
-      url: `${basePath}/map-proxy?url=${encodeURIComponent(urlToProxy)}`,
+      url: `${basePath}/map-proxy?path=${encodeURIComponent(pathToProxy)}`,
       method: 'GET'
     })
 
     expect(request).toHaveBeenCalledWith(
       'get',
-      'http://example.com/?srs=3857',
+      'https://api.os.uk/maps/vector/v1/vts?srs=3857',
       { headers: { Authorization: 'Bearer token' } }
     )
     expect(response.statusCode).toBe(StatusCodes.OK)
@@ -70,20 +69,102 @@ describe('Map API routes', () => {
     })
     jest.mocked(getAccessToken).mockResolvedValueOnce('token')
 
-    const urlToProxy = 'http://example.com'
+    const pathToProxy =
+      '/maps/vector/v1/vts/resources/fonts/Source Sans Pro Regular/0-255.pbf'
     const response = await server.inject({
-      url: `${basePath}/map-proxy?url=${encodeURIComponent(urlToProxy)}`,
+      url: `${basePath}/map-proxy?path=${encodeURIComponent(pathToProxy)}`,
       method: 'GET'
     })
 
     expect(request).toHaveBeenCalledWith(
       'get',
-      'http://example.com/?srs=3857',
+      'https://api.os.uk/maps/vector/v1/vts/resources/fonts/Source%20Sans%20Pro%20Regular/0-255.pbf?srs=3857',
       { headers: { Authorization: 'Bearer token' } }
     )
     expect(response.statusCode).toBe(StatusCodes.OK)
     expect(response.headers['content-type']).toBe('application/octet-stream')
     expect(response.result).toBe('{}')
+  })
+
+  it.each([
+    ['an absolute url', 'https://example.com/maps/vector/v1/vts'],
+    [
+      'an internal CDP url',
+      'https://forms-submission-api.dev.cdp-int.defra.cloud/health'
+    ],
+    [
+      'an internal CDP url with the VTS path',
+      'https://forms-manager.dev.cdp-int.defra.cloud/maps/vector/v1/vts'
+    ],
+    ['the metadata address', 'http://169.254.169.254/maps/vector/v1/vts'],
+    ['localhost', 'http://localhost:3000/maps/vector/v1/vts'],
+    ['http', 'http://api.os.uk/maps/vector/v1/vts'],
+    ['an absolute OS url', 'https://api.os.uk/maps/vector/v1/vts'],
+    ['OS credentials', 'https://user@api.os.uk/maps/vector/v1/vts'],
+    ['a host with no scheme', 'api.os.uk/maps/vector/v1/vts'],
+    ['a query', '/maps/vector/v1/vts?a=b'],
+    ['an empty host', '//'],
+    ['a protocol relative url', '//example.com/maps/vector/v1/vts'],
+    ['a backslash relative url', '/\\example.com/maps/vector/v1/vts'],
+    ['a username for a different host', '@example.com/maps/vector/v1/vts'],
+    ['a different port', ':8443/maps/vector/v1/vts'],
+    ['a different host suffix', '.example.com/maps/vector/v1/vts'],
+    ['a different OS path', '/oauth2/token/v1'],
+    ['a path with the VTS path as a prefix', '/maps/vector/v1/vtsother'],
+    ['a resolved traversal', '/maps/vector/v1/vts/../../../oauth2/token/v1'],
+    ['an encoded dot traversal', '/maps/vector/v1/vts/%2e%2e/%2e%2e/secret'],
+    ['a backslash traversal', '/maps/vector/v1/vts\\..\\..\\secret']
+  ])('should reject a map proxy path with %s', async (_name, pathToProxy) => {
+    const response = await server.inject({
+      url: `${basePath}/map-proxy?path=${encodeURIComponent(pathToProxy)}`,
+      method: 'GET'
+    })
+
+    expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)
+    expect(getAccessToken).not.toHaveBeenCalled()
+    expect(request).not.toHaveBeenCalled()
+  })
+
+  it('should reject a map proxy request with a url param', async () => {
+    const urlToProxy =
+      'https://forms-submission-api.dev.cdp-int.defra.cloud/health'
+    const response = await server.inject({
+      url: `${basePath}/map-proxy?url=${encodeURIComponent(urlToProxy)}`,
+      method: 'GET'
+    })
+
+    expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)
+    expect(getAccessToken).not.toHaveBeenCalled()
+    expect(request).not.toHaveBeenCalled()
+  })
+
+  it('should reject a map proxy request with no path', async () => {
+    const response = await server.inject({
+      url: `${basePath}/map-proxy`,
+      method: 'GET'
+    })
+
+    expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)
+    expect(getAccessToken).not.toHaveBeenCalled()
+    expect(request).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    ['a traversal', '..%2F..%2F..%2F..%2Foauth2/1/1.pbf'],
+    ['a query', '1/1/1%3Fa%3Db%23.pbf'],
+    ['a fragment', '1/1/1%23.pbf'],
+    ['a decimal', '1.5/1/1.pbf'],
+    ['a negative number', '1/-1/1.pbf'],
+    ['text', 'one/1/1.pbf']
+  ])('should reject map tile coordinates with %s', async (_name, tilePath) => {
+    const response = await server.inject({
+      url: `${basePath}/tile/${tilePath}`,
+      method: 'GET'
+    })
+
+    expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)
+    expect(getAccessToken).not.toHaveBeenCalled()
+    expect(get).not.toHaveBeenCalled()
   })
 
   it('should get map tile results', async () => {
@@ -158,18 +239,6 @@ describe('Map API routes', () => {
 
     expect(response.statusCode).toBe(StatusCodes.OK)
     expect(response.result).toEqual(findResult)
-  })
-
-  it('should get reverse geocode results', async () => {
-    jest.mocked(nearest).mockResolvedValueOnce(nearestResult)
-
-    const response = await server.inject({
-      url: `${basePath}/reverse-geocode-proxy?easting=523065&northing=185795`,
-      method: 'GET'
-    })
-
-    expect(response.statusCode).toBe(StatusCodes.OK)
-    expect(response.result).toEqual(nearestResult)
   })
 
   it('should get all geojson countries boundaries', async () => {

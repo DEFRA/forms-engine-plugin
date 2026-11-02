@@ -65,8 +65,17 @@ describe('makeGetHandler', () => {
 
     const modelMock = {
       basePath: 'some-base-path',
-      def: { name: 'Hello world' }
-    } as FormModel
+      def: { name: 'Hello world' },
+      createTranslator: jest.fn().mockReturnValue({
+        t: jest.fn(),
+        tPage: jest.fn(),
+        tComponent: jest.fn(),
+        tSection: jest.fn(),
+        tListItem: jest.fn(),
+        tForm: jest.fn(),
+        language: 'en-GB'
+      })
+    } as unknown as FormModel
 
     const pageMock = createMockPageController(
       modelMock,
@@ -83,6 +92,7 @@ describe('makeGetHandler', () => {
     const contextMock = { data: {}, model: {} } as unknown as FormContext
 
     const requestMock = {
+      server: { plugins: { 'forms-engine-plugin': {} } },
       params: { path: 'some-path' },
       app: { model: modelMock }
     } as FormRequest
@@ -106,8 +116,17 @@ describe('makeGetHandler', () => {
 
     const modelMock = {
       basePath: 'some-base-path',
-      def: { name: 'Hello world' }
-    } as FormModel
+      def: { name: 'Hello world' },
+      createTranslator: jest.fn().mockReturnValue({
+        t: jest.fn(),
+        tPage: jest.fn(),
+        tComponent: jest.fn(),
+        tSection: jest.fn(),
+        tListItem: jest.fn(),
+        tForm: jest.fn(),
+        language: 'en-GB'
+      })
+    } as unknown as FormModel
 
     const pageMock = createMockPageController(
       modelMock,
@@ -126,6 +145,7 @@ describe('makeGetHandler', () => {
     const contextMock = { data: {}, model: {} } as unknown as FormContext
 
     const requestMock = {
+      server: { plugins: { 'forms-engine-plugin': {} } },
       params: { path: 'some-path' },
       app: { model: modelMock }
     } as FormRequest
@@ -147,8 +167,17 @@ describe('makeGetHandler', () => {
 
     const modelMock = {
       basePath: 'some-base-path',
-      def: { name: 'Hello world' }
-    } as FormModel
+      def: { name: 'Hello world' },
+      createTranslator: jest.fn().mockReturnValue({
+        t: jest.fn(),
+        tPage: jest.fn(),
+        tComponent: jest.fn(),
+        tSection: jest.fn(),
+        tListItem: jest.fn(),
+        tForm: jest.fn(),
+        language: 'en-GB'
+      })
+    } as unknown as FormModel
 
     const pageMock = createMockPageController(
       modelMock,
@@ -164,6 +193,7 @@ describe('makeGetHandler', () => {
     const contextMock = { data: {}, model: {} } as unknown as FormContext
 
     const requestMock = {
+      server: { plugins: { 'forms-engine-plugin': {} } },
       params: { path: 'some-path' },
       app: {}
     } as FormRequest
@@ -196,8 +226,17 @@ describe('makeGetHandler', () => {
     const onRequestCallback = jest.fn().mockResolvedValue(undefined)
     const modelMock = {
       basePath: 'some-base-path',
-      def: { name: 'Hello world' }
-    } as FormModel
+      def: { name: 'Hello world' },
+      createTranslator: jest.fn().mockReturnValue({
+        t: jest.fn(),
+        tPage: jest.fn(),
+        tComponent: jest.fn(),
+        tSection: jest.fn(),
+        tListItem: jest.fn(),
+        tForm: jest.fn(),
+        language: 'en-GB'
+      })
+    } as unknown as FormModel
 
     const pageMock = createMockPageController(
       modelMock,
@@ -213,6 +252,7 @@ describe('makeGetHandler', () => {
     const contextMock = { data: {}, model: {} } as unknown as FormContext
 
     const requestMock = {
+      server: { plugins: { 'forms-engine-plugin': {} } },
       params: { path: 'some-path' },
       app: { model: modelMock }
     } as FormRequest
@@ -262,8 +302,17 @@ describe('makePostHandler', () => {
 
     const modelMock = {
       basePath: 'some-base-path',
-      def: { name: 'Hello world' }
-    } as FormModel
+      def: { name: 'Hello world' },
+      createTranslator: jest.fn().mockReturnValue({
+        t: jest.fn(),
+        tPage: jest.fn(),
+        tComponent: jest.fn(),
+        tSection: jest.fn(),
+        tListItem: jest.fn(),
+        tForm: jest.fn(),
+        language: 'en-GB'
+      })
+    } as unknown as FormModel
 
     const pageMock = createMockPageController(
       modelMock,
@@ -280,6 +329,7 @@ describe('makePostHandler', () => {
     const contextMock = { data: {}, model: {} } as unknown as FormContext
 
     const requestMock = {
+      server: { plugins: { 'forms-engine-plugin': {} } },
       params: { path: 'some-path' },
       app: { model: modelMock },
       payload: { some: 'payload' }
@@ -301,8 +351,17 @@ describe('makePostHandler', () => {
   it('does not call the callback when the events.onSave.type is not http', async () => {
     const modelMock = {
       basePath: 'some-base-path',
-      def: { name: 'Hello world' }
-    } as FormModel
+      def: { name: 'Hello world' },
+      createTranslator: jest.fn().mockReturnValue({
+        t: jest.fn(),
+        tPage: jest.fn(),
+        tComponent: jest.fn(),
+        tSection: jest.fn(),
+        tListItem: jest.fn(),
+        tForm: jest.fn(),
+        language: 'en-GB'
+      })
+    } as unknown as FormModel
 
     const pageMock = createMockPageController(
       modelMock,
@@ -320,6 +379,7 @@ describe('makePostHandler', () => {
     const contextMock = { data: {}, model: {} } as unknown as FormContext
 
     const requestMock = {
+      server: { plugins: { 'forms-engine-plugin': {} } },
       params: { path: 'some-path' },
       app: { model: modelMock },
       payload: { some: 'payload' }
@@ -344,8 +404,17 @@ describe('makePostHandler', () => {
 
     const modelMock = {
       basePath: 'some-base-path',
-      def: { name: 'Hello world' }
-    } as FormModel
+      def: { name: 'Hello world' },
+      createTranslator: jest.fn().mockReturnValue({
+        t: jest.fn(),
+        tPage: jest.fn(),
+        tComponent: jest.fn(),
+        tSection: jest.fn(),
+        tListItem: jest.fn(),
+        tForm: jest.fn(),
+        language: 'en-GB'
+      })
+    } as unknown as FormModel
 
     const pageMock = createMockPageController(
       modelMock,
@@ -362,6 +431,7 @@ describe('makePostHandler', () => {
     const contextMock = { data: {}, model: {} } as unknown as FormContext
 
     const requestMock = {
+      server: { plugins: { 'forms-engine-plugin': {} } },
       params: { path: 'some-path' },
       app: { model: modelMock },
       payload: { some: 'payload' }
@@ -384,8 +454,17 @@ describe('makePostHandler', () => {
 
     const modelMock = {
       basePath: 'some-base-path',
-      def: { name: 'Hello world' }
-    } as FormModel
+      def: { name: 'Hello world' },
+      createTranslator: jest.fn().mockReturnValue({
+        t: jest.fn(),
+        tPage: jest.fn(),
+        tComponent: jest.fn(),
+        tSection: jest.fn(),
+        tListItem: jest.fn(),
+        tForm: jest.fn(),
+        language: 'en-GB'
+      })
+    } as unknown as FormModel
 
     const pageMock = createMockPageController(
       modelMock,
@@ -401,6 +480,7 @@ describe('makePostHandler', () => {
     const contextMock = { data: {}, model: {} } as unknown as FormContext
 
     const requestMock = {
+      server: { plugins: { 'forms-engine-plugin': {} } },
       params: { path: 'some-path' },
       app: {},
       payload: { some: 'payload' }
@@ -434,8 +514,17 @@ describe('makePostHandler', () => {
     const onRequestCallback = jest.fn().mockResolvedValue(undefined)
     const modelMock = {
       basePath: 'some-base-path',
-      def: { name: 'Hello world' }
-    } as FormModel
+      def: { name: 'Hello world' },
+      createTranslator: jest.fn().mockReturnValue({
+        t: jest.fn(),
+        tPage: jest.fn(),
+        tComponent: jest.fn(),
+        tSection: jest.fn(),
+        tListItem: jest.fn(),
+        tForm: jest.fn(),
+        language: 'en-GB'
+      })
+    } as unknown as FormModel
 
     const pageMock = createMockPageController(
       modelMock,
@@ -451,6 +540,7 @@ describe('makePostHandler', () => {
     const contextMock = { data: {}, model: {} } as unknown as FormContext
 
     const requestMock = {
+      server: { plugins: { 'forms-engine-plugin': {} } },
       params: { path: 'some-path' },
       app: { model: modelMock },
       payload: { some: 'payload' }

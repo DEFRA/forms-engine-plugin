@@ -11,6 +11,7 @@ import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type AnyFormRequest,
   type FormSubmissionError,
+  type GenerateReferenceNumberHandler,
   type PluginOptions
 } from '~/src/server/plugins/engine/types.ts'
 import { type CacheService } from '~/src/server/services/index.js'
@@ -38,8 +39,10 @@ declare module '@hapi/hapi' {
         request: AnyFormRequest | null
       ) => Record<string, unknown> | Promise<Record<string, unknown>>
       saveAndExit?: PluginOptions['saveAndExit']
+      getLanguage?: PluginOptions['getLanguage']
       baseUrl: string
       services: PluginOptions['services']
+      generateReferenceNumber: GenerateReferenceNumberHandler
     }
   }
 

@@ -10,16 +10,17 @@ import {
   EXTERNAL_STATE_APPENDAGE,
   EXTERNAL_STATE_PAYLOAD
 } from '~/src/server/constants.js'
-import { resolveFormModel } from '~/src/server/plugins/engine/beta/form-context.js'
 import {
   FormComponent,
   isFormState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { resolveFormModel } from '~/src/server/plugins/engine/form-context.js'
 import {
   checkFormStatus,
   findPage,
   getCacheService,
   getPage,
+  getPluginOptions,
   getStartPath,
   proceed
 } from '~/src/server/plugins/engine/helpers.js'
@@ -28,7 +29,7 @@ import {
   checkSaveAndExitRepeater,
   copyNotYetValidatedState
 } from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
-import { generateUniqueReference } from '~/src/server/plugins/engine/referenceNumbers.js'
+import { DEFAULT_REFERENCE_NUMBER } from '~/src/server/plugins/engine/referenceNumbers.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import {
   type AnyFormRequest,
@@ -43,6 +44,7 @@ import {
   type FormRequest,
   type FormResponseToolkit
 } from '~/src/server/routes/types.js'
+import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 export async function redirectOrMakeHandler(
   request: AnyFormRequest,
@@ -53,7 +55,7 @@ export async function redirectOrMakeHandler(
     context: FormContext
   ) => ResponseObject | Promise<ResponseObject>
 ) {
-  const { app, params } = request
+  const { app, params, query } = request
   const { model } = app
 
   if (!model) {
@@ -73,7 +75,12 @@ export async function redirectOrMakeHandler(
       )
     }
 
-    const referenceNumber = generateUniqueReference(prefix)
+    const isForce = 'force' in query
+    const { generateReferenceNumber } = getPluginOptions(request.server)
+    const referenceNumber = isForce
+      ? DEFAULT_REFERENCE_NUMBER
+      : await generateReferenceNumber(prefix)
+
     state = await page.mergeState(request, state, {
       $$__referenceNumber: referenceNumber
     })
@@ -82,7 +89,14 @@ export async function redirectOrMakeHandler(
   state = await importExternalComponentState(request, page, state)
 
   const flash = cacheService.getFlash(request)
-  const context = model.getFormContext(request, state, flash?.errors)
+  const language = resolveLanguage(request)
+  const translator = model.createTranslator(language)
+  const context = model.getFormContext(
+    request,
+    state,
+    flash?.errors,
+    translator
+  )
 
   await copyNotYetValidatedState(request, context)
 

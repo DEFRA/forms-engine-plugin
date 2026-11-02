@@ -3,6 +3,7 @@ import {
   CharacterCount,
   Checkboxes,
   ErrorSummary,
+  FileUpload,
   Header,
   NotificationBanner,
   Radios,
@@ -16,6 +17,7 @@ export function initAllGovuk() {
   createAll(Checkboxes)
   createAll(ErrorSummary)
   createAll(Header)
+  createAll(FileUpload)
   createAll(NotificationBanner)
   createAll(Radios)
   createAll(SkipLink)

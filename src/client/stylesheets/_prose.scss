@@ -54,3 +54,22 @@
     @extend %govuk-section-break--xl;
   }
 }
+
+.govuk-notification-banner__content {
+  .app-prose-scope > :last-child {
+    margin-bottom: 0;
+  }
+}
+
+// GOV.UK Frontend does not expose placeholder selectors for these — class selectors are the only option.
+.app-prose-notification-banner-scope {
+  p {
+    // stylelint-disable-next-line scss/at-extend-no-missing-placeholder
+    @extend .govuk-notification-banner__heading;
+  }
+
+  a {
+    // stylelint-disable-next-line scss/at-extend-no-missing-placeholder
+    @extend .govuk-notification-banner__link;
+  }
+}

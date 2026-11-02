@@ -8,7 +8,8 @@ import {
   checkComponentTemplates,
   checkErrorTemplates,
   evaluate,
-  govukRebrand
+  govukRebrand,
+  tGlobal
 } from '~/src/server/plugins/nunjucks/environment.js'
 import * as filters from '~/src/server/plugins/nunjucks/filters/index.js'
 
@@ -19,13 +20,22 @@ export {
   getFormContext,
   getFormModel,
   resolveFormModel
-} from '~/src/server/plugins/engine/beta/form-context.js'
+} from '~/src/server/plugins/engine/form-context.js'
+export * from '~/src/server/plugins/engine/form-availability.js'
+export { getAvailableLanguages } from '~/src/server/plugins/engine/i18n/languages.js'
+export {
+  extractMetadataBaseTranslations,
+  loadFormTranslations
+} from '~/src/server/plugins/engine/i18n/createFormTranslator.js'
+export { extractBaseTranslations } from '~/src/server/plugins/engine/i18n/extractBaseTranslations.js'
+export { applyUrlParam } from '~/src/server/plugins/nunjucks/filters/applyUrlParam.js'
 
 const globals = {
   checkComponentTemplates,
   checkErrorTemplates,
   evaluate,
-  govukRebrand
+  govukRebrand,
+  t: tGlobal
 }
 
 export const VIEW_PATH = 'src/server/plugins/engine/views'

@@ -6,6 +6,8 @@ import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFo
 import { escapeMarkdown } from '~/src/server/plugins/engine/components/helpers/index.js'
 import * as Components from '~/src/server/plugins/engine/components/index.js'
 import { markdown } from '~/src/server/plugins/engine/components/markdownParser.js'
+import { UnknownComponentTypeError } from '~/src/server/plugins/engine/errors.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type FormState } from '~/src/server/plugins/engine/types.js'
 
 // All component instances
@@ -35,6 +37,7 @@ export type Field = InstanceType<
   | typeof Components.UkAddressField
   | typeof Components.FileUploadField
   | typeof Components.HiddenField
+  | typeof Components.TrackingField
   | typeof Components.PaymentField
   | typeof Components.GeospatialField
 >
@@ -46,6 +49,7 @@ export type Guidance =
   | InstanceType<typeof Components.Markdown>
   | InstanceType<typeof Components.InsetText>
   | InstanceType<typeof Components.List>
+  | InstanceType<typeof Components.NotificationBanner>
 
 // List component instances only
 export type ListField = InstanceType<
@@ -134,6 +138,10 @@ export function createComponent(
       component = new Components.Markdown(def, options)
       break
 
+    case ComponentType.NotificationBanner:
+      component = new Components.NotificationBanner(def, options)
+      break
+
     case ComponentType.MultilineTextField:
       component = new Components.MultilineTextField(def, options)
       break
@@ -194,6 +202,10 @@ export function createComponent(
       component = new Components.HiddenField(def, options)
       break
 
+    case ComponentType.TrackingField:
+      component = new Components.TrackingField(def, options)
+      break
+
     case ComponentType.PaymentField:
       component = new Components.PaymentField(def, options)
       break
@@ -204,7 +216,7 @@ export function createComponent(
   }
 
   if (typeof component === 'undefined') {
-    throw new Error(`Component type ${def.type} does not exist`)
+    throw new UnknownComponentTypeError(def.type)
   }
 
   return component
@@ -216,6 +228,7 @@ export function createComponent(
 export function getAnswer(
   field: Field,
   state: FormState,
+  translator: Translator,
   options: {
     format:
       | 'data' // Submission data
@@ -225,7 +238,7 @@ export function getAnswer(
 ) {
   // Use escaped display text for GOV.UK Notify emails
   if (options.format === 'email') {
-    return getAnswerMarkdown(field, state, { format: 'email' })
+    return getAnswerMarkdown(field, state, translator, { format: 'email' })
   }
 
   // Use context value for submission data
@@ -243,12 +256,15 @@ export function getAnswer(
     field instanceof Components.LatLongField
   ) {
     return markdown
-      .parse(getAnswerMarkdown(field, state), { async: false })
+      .parse(
+        getAnswerMarkdown(field, state, translator, { format: 'summary' }),
+        { async: false }
+      )
       .trim()
   }
 
   // Use display text for check answers summary (single line)
-  return field.getDisplayStringFromState(state)
+  return field.getDisplayStringFromState(state, translator)
 }
 
 /**
@@ -257,13 +273,14 @@ export function getAnswer(
 export function getAnswerMarkdown(
   field: Field,
   state: FormState,
+  translator: Translator,
   options: {
     format:
       | 'email' // GOV.UK Notify emails
       | 'summary' // Check answers summary
   } = { format: 'summary' }
 ) {
-  const answer = field.getDisplayStringFromState(state)
+  const answer = field.getDisplayStringFromState(state, translator)
 
   // Use escaped display text
   let answerEscaped = `${escapeMarkdown(answer)}\n`
@@ -300,7 +317,8 @@ export function getAnswerMarkdown(
     // Append bullet points
     answerEscaped += items
       .map((item) => {
-        const label = escapeMarkdown(item.text)
+        const resolvedText = translator.tListItem(item, 'text') || item.text
+        const label = escapeMarkdown(resolvedText)
         const value = escapeMarkdown(`(${item.value})`)
 
         let line = label
@@ -335,11 +353,10 @@ export function getAnswerMarkdown(
     field instanceof Components.EastingNorthingField ||
     field instanceof Components.LatLongField
   ) {
-    const contextValue = field.getContextValueFromState(state)
-    answerEscaped = contextValue ? `${contextValue}\n` : ''
+    answerEscaped = answer ? `${answer}\n` : ''
   } else if (field instanceof Components.GeospatialField) {
     const features = field.getFormValueFromState(state)
-    const value = field.getDisplayStringFromFormValue(features)
+    const value = field.getDisplayStringFromFormValue(features, translator)
 
     answerEscaped = value ? `${value}\n` : ''
   }

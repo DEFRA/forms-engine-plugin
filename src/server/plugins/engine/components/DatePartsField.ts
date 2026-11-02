@@ -1,6 +1,11 @@
 import { ComponentType, type DatePartsFieldComponent } from '@defra/forms-model'
 import { add, format, isValid, parse, startOfToday, sub } from 'date-fns'
-import { type Context, type CustomValidator, type ObjectSchema } from 'joi'
+import {
+  type Context,
+  type CustomValidator,
+  type LanguageMessages,
+  type ObjectSchema
+} from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import {
@@ -11,19 +16,21 @@ import {
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
 import {
   type DateInputItem,
-  type DatePartsState
+  type DatePartsState,
+  type RenderContext
 } from '~/src/server/plugins/engine/components/types.js'
 import { parseStrictDate } from '~/src/server/plugins/engine/date-helper.js'
+import { buildValidationMessages } from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
   type FormPayload,
   type FormState,
   type FormStateValue,
-  type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
-import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
+import { formatDateForLanguage } from '~/src/server/plugins/payment/helper.js'
 
 export class DatePartsField extends FormComponent {
   declare options: DatePartsFieldComponent['options']
@@ -41,7 +48,7 @@ export class DatePartsField extends FormComponent {
 
     const isRequired = options.required !== false
 
-    const customValidationMessages = convertToLanguageMessages({
+    const customValidationMessages = {
       'any.required': messageTemplate.objectMissing,
       'number.base': messageTemplate.objectMissing,
       'number.precision': messageTemplate.dateFormat,
@@ -49,14 +56,14 @@ export class DatePartsField extends FormComponent {
       'number.unsafe': messageTemplate.dateFormat,
       'number.min': messageTemplate.dateFormat,
       'number.max': messageTemplate.dateFormat
-    })
+    } as LanguageMessages
 
     this.collection = new ComponentCollection(
       [
         {
           type: ComponentType.NumberField,
           name: `${name}__day`,
-          title: 'Day',
+          title: 'components.dateField.day',
           schema: { min: 1, max: 31, precision: 0 },
           options: {
             required: isRequired,
@@ -68,7 +75,7 @@ export class DatePartsField extends FormComponent {
         {
           type: ComponentType.NumberField,
           name: `${name}__month`,
-          title: 'Month',
+          title: 'components.dateField.month',
           schema: { min: 1, max: 12, precision: 0 },
           options: {
             required: isRequired,
@@ -80,7 +87,7 @@ export class DatePartsField extends FormComponent {
         {
           type: ComponentType.NumberField,
           name: `${name}__year`,
-          title: 'Year',
+          title: 'components.dateField.year',
           schema: { min: 1000, max: 3000, precision: 0 },
           options: {
             required: isRequired,
@@ -107,21 +114,28 @@ export class DatePartsField extends FormComponent {
     return this.isState(value) ? value : undefined
   }
 
-  getDisplayStringFromFormValue(formValue: DatePartsState | undefined) {
+  getDisplayStringFromFormValue(
+    formValue: DatePartsState | undefined,
+    translator: Translator
+  ) {
     if (!formValue) {
       return ''
     }
 
-    return format(
+    return formatDateForLanguage(
       `${formValue.year}-${formValue.month}-${formValue.day}`,
-      'd MMMM yyyy'
+      'd MMMM yyyy',
+      translator.language
     )
   }
 
-  getDisplayStringFromState(state: FormSubmissionState) {
+  getDisplayStringFromState(
+    state: FormSubmissionState,
+    translator: Translator
+  ) {
     const value = this.getFormValueFromState(state)
 
-    return this.getDisplayStringFromFormValue(value)
+    return this.getDisplayStringFromFormValue(value, translator)
   }
 
   getContextValueFromFormValue(value: DatePartsState | undefined) {
@@ -148,10 +162,29 @@ export class DatePartsField extends FormComponent {
     return this.getContextValueFromFormValue(value)
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
+  getValidationMessagesOverride(translator: Translator) {
+    const { t } = translator
+    const messages = {
+      'any.required': buildValidationMessages(t).objectMissing,
+      'number.base': buildValidationMessages(t).objectMissing,
+      'number.precision': buildValidationMessages(t).dateFormat,
+      'number.integer': buildValidationMessages(t).dateFormat,
+      'number.unsafe': buildValidationMessages(t).dateFormat,
+      'number.min': buildValidationMessages(t).dateFormat,
+      'number.max': buildValidationMessages(t).dateFormat
+    } as LanguageMessages
+    return {
+      [`${this.name}__day`]: messages,
+      [`${this.name}__month`]: messages,
+      [`${this.name}__year`]: messages
+    }
+  }
+
+  getViewModel(context: RenderContext) {
+    const { errors } = context
     const { collection, name } = this
 
-    const viewModel = super.getViewModel(payload, errors)
+    const viewModel = super.getViewModel(context)
     let { fieldset, label } = viewModel
 
     // Check for component errors only
@@ -159,7 +192,7 @@ export class DatePartsField extends FormComponent {
 
     // Use the component collection to generate the subitems
     const items: DateInputItem[] = collection
-      .getViewModel(payload, errors)
+      .getViewModel(context)
       .map(({ model }) => {
         let { label, type, value, classes, errorMessage } = model
 
@@ -229,7 +262,9 @@ export class DatePartsField extends FormComponent {
       ],
       advancedSettingsErrors: [
         { type: 'dateMin', template: messageTemplate.dateMin },
-        { type: 'dateMax', template: messageTemplate.dateMax }
+        { type: 'dateMax', template: messageTemplate.dateMax },
+        { type: 'dateEarliest', template: messageTemplate.dateMin },
+        { type: 'dateLatest', template: messageTemplate.dateMax }
       ]
     }
   }
@@ -281,18 +316,36 @@ export function getValidatorDate(component: DatePartsField) {
         ? sub(startOfToday(), { days: options.maxDaysInPast })
         : undefined
 
+    if (dateMin && date < dateMin) {
+      return helpers.error('date.min', { ...context, limit: dateMin })
+    }
+
     // Maximum date from today
     const dateMax =
       options.maxDaysInFuture || options.maxDaysInFuture === 0
         ? add(startOfToday(), { days: options.maxDaysInFuture })
         : undefined
 
-    if (dateMin && date < dateMin) {
-      return helpers.error('date.min', { ...context, limit: dateMin })
-    }
-
     if (dateMax && date > dateMax) {
       return helpers.error('date.max', { ...context, limit: dateMax })
+    }
+
+    // Minimum date from today
+    const earliestDate = options.earliestDate
+      ? new Date(options.earliestDate)
+      : undefined
+
+    if (earliestDate && date < earliestDate) {
+      return helpers.error('date.min', { ...context, limit: earliestDate })
+    }
+
+    // Maximum date from today
+    const latestDate = options.latestDate
+      ? new Date(options.latestDate)
+      : undefined
+
+    if (latestDate && date > latestDate) {
+      return helpers.error('date.max', { ...context, limit: latestDate })
     }
 
     return payload

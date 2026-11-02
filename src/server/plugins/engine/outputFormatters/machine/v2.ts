@@ -28,6 +28,7 @@ interface PaymentOutput {
   reference: string
   amount: number
   description: string
+  descriptionInEng?: string
   createdAt: string
 }
 
@@ -93,6 +94,7 @@ export function format(
  *        reference: 'REF-123',
  *        amount: 10.00,
  *        description: 'Application fee',
+ *        descriptionInEng: 'Applicaiton fee',
  *        createdAt: '2025-01-23T10:30:00.000Z'
  *      }
  *    }
@@ -204,6 +206,7 @@ function extractPayment(
     reference: paymentState.reference,
     amount: paymentState.amount,
     description: paymentState.description,
+    descriptionInEng: item.field.def.options.description,
     createdAt: paymentState.preAuth?.createdAt ?? ''
   }
 }

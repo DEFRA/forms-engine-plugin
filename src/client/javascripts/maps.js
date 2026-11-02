@@ -1,0 +1,5 @@
+export { initMaps } from '~/src/client/javascripts/map.js'
+export * as map from '~/src/client/javascripts/map.js'
+export * as locationMap from '~/src/client/javascripts/location-map.js'
+export * as geospatialMap from '~/src/client/javascripts/geospatial-map.js'
+export * as sssiDataset from '~/src/client/javascripts/sssi-dataset.js'

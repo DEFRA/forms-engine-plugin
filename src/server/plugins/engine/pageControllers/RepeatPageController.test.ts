@@ -1,3 +1,4 @@
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
@@ -5,6 +6,7 @@ import {
   server,
   serverWithSaveAndExit
 } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import {
   type FormContextRequest,
   type FormPageViewModel,
@@ -135,7 +137,10 @@ describe('RepeatPageController', () => {
     beforeEach(() => {
       viewModel = controller.getViewModel(
         requestPageItem,
-        model.getFormContext(requestPageItem, { $$__referenceNumber: 'foobar' })
+        model.getFormContext(requestPageItem, {
+          $$__referenceNumber: 'foobar'
+        }),
+        stubTranslator
       )
     })
 
@@ -200,7 +205,8 @@ describe('RepeatPageController', () => {
           model.getFormContext(requestPageSummary, {
             $$__referenceNumber: 'foobar'
           }),
-          list
+          list,
+          stubTranslator
         )
       })
 
@@ -274,6 +280,114 @@ describe('RepeatPageController', () => {
   describe('shouldShowSaveAndExit', () => {
     it('should return true when save and exit is enabled', () => {
       expect(controller.shouldShowSaveAndExit(serverWithSaveAndExit)).toBe(true)
+    })
+  })
+
+  describe('getViewModel with Translator', () => {
+    it('passes translator through to super.getViewModel without throwing', () => {
+      const mockT = jest.fn((key: string) => `translated:${key}`)
+      const translator: Translator = {
+        t: mockT,
+        tPage: jest.fn(() => ''),
+        tComponent: jest.fn(() => ''),
+        tSection: jest.fn(() => ''),
+        tListItem: jest.fn(() => ''),
+        tForm: jest.fn(() => ''),
+        language: 'en-GB'
+      }
+
+      const context = model.getFormContext(requestPageItem, {
+        $$__referenceNumber: 'foobar'
+      })
+
+      const viewModel = controller.getViewModel(
+        requestPageItem,
+        context,
+        translator
+      )
+
+      // RepeatPageController.getViewModel extends super — result must still have sectionTitle
+      expect(viewModel).toHaveProperty('sectionTitle')
+    })
+
+    it('uses translator.tPage for page title when translator is supplied', () => {
+      const mockT = jest.fn((key: string) => `translated:${key}`)
+      const mockTPage = jest.fn(() => 'translated-title')
+      const mockTComponent = jest.fn(() => 'translated-title2')
+      const translator: Translator = {
+        t: mockT,
+        tPage: mockTPage as Translator['tPage'],
+        tComponent: mockTComponent as Translator['tComponent'],
+        tSection: jest.fn(() => ''),
+        tListItem: jest.fn(() => ''),
+        tForm: jest.fn(() => ''),
+        language: 'en-GB'
+      }
+
+      const context = model.getFormContext(requestPageItem, {
+        $$__referenceNumber: 'foobar'
+      })
+
+      const viewModel = controller.getViewModel(
+        requestPageItem,
+        context,
+        translator
+      )
+
+      expect(mockTComponent).toHaveBeenCalled()
+      // expect(mockTPage).toHaveBeenCalled()
+      expect(viewModel).toHaveProperty('pageTitle', 'translated-title')
+    })
+  })
+
+  describe('getListSummaryViewModel with Translator', () => {
+    const list: RepeatListState = [
+      { itemId: 'abc-123', toppings: 'Ham', quantity: 2 }
+    ]
+
+    it('calls the supplied translator t for plugin strings', () => {
+      const mockT = jest.fn((key: string) => `translated:${key}`)
+      const translator: Translator = {
+        t: mockT,
+        tPage: jest.fn(() => ''),
+        tComponent: jest.fn(() => ''),
+        tSection: jest.fn(() => ''),
+        tListItem: jest.fn(() => ''),
+        tForm: jest.fn(() => ''),
+        language: 'en-GB'
+      }
+
+      const context = model.getFormContext(requestPageSummary, {
+        $$__referenceNumber: 'foobar'
+      })
+
+      const viewModel = controller.getListSummaryViewModel(
+        requestPageSummary,
+        context,
+        list,
+        translator
+      )
+
+      expect(mockT).toHaveBeenCalledWith(
+        'pages.repeater.pageTitle',
+        expect.anything()
+      )
+      expect(viewModel.pageTitle).toBe('translated:pages.repeater.pageTitle')
+    })
+
+    it('uses stubTranslator when no specific translation assertions needed', () => {
+      const context = model.getFormContext(requestPageSummary, {
+        $$__referenceNumber: 'foobar'
+      })
+
+      const viewModel = controller.getListSummaryViewModel(
+        requestPageSummary,
+        context,
+        list,
+        stubTranslator
+      )
+
+      expect(viewModel).toHaveProperty('pageTitle')
     })
   })
 })

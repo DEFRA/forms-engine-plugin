@@ -1,3 +1,4 @@
+import { EN_GB } from '~/src/server/constants.js'
 import {
   formatCurrency,
   formatPaymentDate
@@ -5,7 +6,7 @@ import {
 
 describe('formatPaymentDate', () => {
   it('should format ISO date string to en-GB format', () => {
-    const result = formatPaymentDate('2025-11-10T17:01:29.000Z')
+    const result = formatPaymentDate('2025-11-10T17:01:29.000Z', EN_GB)
     expect(result).toBe('10 November 2025 5:01pm')
   })
 })

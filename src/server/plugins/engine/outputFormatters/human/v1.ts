@@ -5,6 +5,7 @@ import {
 import { addDays, format as dateFormat } from 'date-fns'
 
 import { config } from '~/src/config/index.js'
+import { EN_GB } from '~/src/server/constants.js'
 import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { escapeMarkdown } from '~/src/server/plugins/engine/components/helpers/index.js'
 import { PaymentField } from '~/src/server/plugins/engine/components/index.js'
@@ -30,6 +31,7 @@ export function format(
   formStatus: ReturnType<typeof checkFormStatus>,
   _formMetadata?: FormMetadata
 ) {
+  const translator = model.createTranslator()
   const { files } = submitResponse.result
 
   const formName = escapeMarkdown(model.name)
@@ -72,9 +74,7 @@ export function format(
       lines.push(`[${filename}](${designerUrl}/file-download/${fileId})\n`)
     } else {
       lines.push(
-        getAnswer(item.field, item.state, {
-          format: 'email'
-        })
+        getAnswer(item.field, item.state, translator, { format: 'email' })
       )
     }
 
@@ -117,7 +117,7 @@ function appendPaymentSection(paymentItems: DetailItem[], lines: string[]) {
 
   const formattedAmount = formatCurrency(paymentState.amount)
   const dateOfPayment = paymentState.preAuth?.createdAt
-    ? formatPaymentDate(paymentState.preAuth.createdAt)
+    ? formatPaymentDate(paymentState.preAuth.createdAt, EN_GB)
     : ''
 
   lines.push(

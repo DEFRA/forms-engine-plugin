@@ -1,16 +1,50 @@
+// @ts-expect-error - no types
+import createDatasetsPlugin from '@defra/interactive-map/plugins/datasets'
+// @ts-expect-error - no types
+import createDrawPlugin from '@defra/interactive-map/plugins/draw'
 import { bbox } from '@turf/bbox'
 
 import {
+  DEFAULT_LANG,
+  ENGLISH_LANG,
+  WELSH_LANG
+} from '~/src/client/javascripts/map-constants.js'
+import {
   EVENTS,
   createMap,
-  defaultConfig,
   getCentroidGridRef,
-  getCoordinateGridRef
+  getCoordinateGridRef,
+  getDefaultConfig,
+  getMapCountryLayers,
+  getMapLayers
 } from '~/src/client/javascripts/map.js'
+import sssiDataset from '~/src/client/javascripts/sssi-dataset.js'
+import { formatDelimtedList } from '~/src/client/javascripts/utils.js'
+import cy from '~/src/server/plugins/engine/i18n/translations/cy.json' with { type: 'json' }
+import enGB from '~/src/server/plugins/engine/i18n/translations/en-GB.json' with { type: 'json' }
+
+const englishTranslations = enGB.components.geospatialField.map
+const welshTranslations = cy.components.geospatialField.map
+
+/**
+ * @type {Record<LanguageCode, GeospatialLanguageTexts>}
+ */
+export const languageTexts = {
+  [ENGLISH_LANG]: englishTranslations,
+  [WELSH_LANG]: welshTranslations
+}
+
+/**
+ * Get the map texts for the given language code
+ * @param {LanguageCode} lang - the lanugae code
+ */
+export function getTexts(lang = DEFAULT_LANG) {
+  return languageTexts[lang]
+}
 
 const helpPanelConfig = {
+  focus: false,
   showLabel: true,
-  label: 'How to use this map',
   mobile: {
     slot: 'drawer',
     open: true,
@@ -28,8 +62,83 @@ const helpPanelConfig = {
     open: true,
     dismissible: true,
     modal: false
-  },
-  html: '<p class="govuk-body-s govuk-!-margin-bottom-2">You can add points, shapes or lines to the map.</p><ul class="govuk-list govuk-list--number govuk-body-s"><li>Search for a county, place or postcode</li><li>Use the + and - icons to zoom in and out</li><li>Double‑click, or select \'Done\', when you have finished drawing a line or shape</li><li>Give the location a name</li></ul>'
+  }
+}
+
+/**
+ * @param {GeospatialPanelTexts} texts
+ * @param {boolean} allowLine
+ * @param {boolean} allowShape
+ */
+function getLineOrShapeText(texts, allowLine, allowShape) {
+  if (allowLine && allowShape) {
+    return texts.lineOrShapeText
+  }
+  if (allowLine) {
+    return texts.lineText
+  }
+  if (allowShape) {
+    return texts.shapeText
+  }
+  return ''
+}
+
+/**
+ * @param {GeospatialPanelTexts} texts
+ * @param {boolean} allowPoint
+ * @param {boolean} allowLine
+ * @param {boolean} allowShape
+ */
+function getAllowedTypesPhrase(texts, allowPoint, allowLine, allowShape) {
+  const items = []
+
+  if (allowPoint) {
+    items.push(texts.typesPhrasePoint)
+  }
+  if (allowLine) {
+    items.push(texts.typesPhraseLine)
+  }
+  if (allowShape) {
+    items.push(texts.typesPhraseShape)
+  }
+
+  return formatDelimtedList(items, ',', texts.typesPhraseOr)
+}
+
+/**
+ * Gets the type description for a given feature
+ * @param {Feature} feature - the geojson feature
+ * @param {GeometryTexts} typeDescriptions
+ */
+function getTypeDescription(feature, typeDescriptions) {
+  switch (feature.geometry.type) {
+    case 'Point':
+      return typeDescriptions.point
+    case 'LineString':
+      return typeDescriptions.line
+    case 'Polygon':
+      return typeDescriptions.polygon
+  }
+}
+
+/**
+ * @param {GeospatialPanelTexts} texts
+ * @param {boolean} allowPoint
+ * @param {boolean} allowLine
+ * @param {boolean} allowShape
+ */
+export function getHelpPanelHtml(texts, allowPoint, allowLine, allowShape) {
+  const lineOrShapeText = getLineOrShapeText(texts, allowLine, allowShape)
+  const point3 = lineOrShapeText
+    ? `<li>${texts.point3} ${lineOrShapeText}</li>`
+    : ''
+  const allowedTypesText = getAllowedTypesPhrase(
+    texts,
+    allowPoint,
+    allowLine,
+    allowShape
+  )
+  return `<p class="govuk-body-s govuk-!-margin-bottom-2">${texts.ledeIntro} ${allowedTypesText} ${texts.ledeOutro}</p><ul class="govuk-list govuk-list--number govuk-body-s"><li>${texts.point1}</li><li>${texts.point2}</li>${point3}<li>${texts.point4}</li></ul>`
 }
 
 const lineFeatureProperties = {
@@ -42,15 +151,6 @@ const polygonFeatureProperties = {
   stroke: 'rgb(0, 0, 0)',
   fill: 'rgba(255, 221, 0, 0.2)',
   strokeWidth: 2
-}
-
-/**
- * @type {Record<'Point' | 'LineString' | 'Polygon', string>}
- */
-const typeDescriptions = {
-  Point: 'Point',
-  LineString: 'Line',
-  Polygon: 'Shape'
 }
 
 const POINT_SVG =
@@ -95,9 +195,6 @@ export function getBoundingBox(geojson) {
  * @param {number} index - the 0-based index
  */
 export function processGeospatial(config, geospatial, index) {
-  // @ts-expect-error - Defra namespace currently comes from UMD support files
-  const defra = window.defra
-
   if (!(geospatial instanceof HTMLDivElement)) {
     return
   }
@@ -110,46 +207,23 @@ export function processGeospatial(config, geospatial, index) {
   const { listEl, mapId } = createContainers(geospatialInput, index)
   const geojson = getGeoJSON(geospatialInput)
   const bounds = geojson.features.length ? getBoundingBox(geojson) : undefined
-  const drawPlugin = defra.drawMLPlugin()
+  const drawPlugin = createDrawPlugin()
   const plugins = [drawPlugin]
   const country = geospatial.dataset.country
+  const mapLayers = getMapLayers(geospatial.dataset.maplayers)
+  const datasets = getMapCountryLayers(config.apiPath, country)
 
-  if (country) {
-    // Add the country bounds as a dataset plugin to show the valid area on the map
-    // and provide feedback to the user when they add features outside of the bounds.
-    const datasetsPlugin = defra.datasetsMaplibrePlugin({
-      datasets: [
-        {
-          id: 'invalid-area',
-          label: 'Invalid areas',
-          geojson: `${config.apiPath}/maps/countries.geojson?omit=${country}`,
-          showInKey: false,
-          showInMenu: false,
-          style: {
-            stroke: 'gray',
-            strokeWidth: 1,
-            fill: 'rgba(211,211,211,0.8)'
-          }
-        },
-        {
-          id: 'valid-area',
-          label: 'Valid areas',
-          geojson: `${config.apiPath}/maps/countries.geojson?only=${country}`,
-          showInKey: false,
-          showInMenu: false,
-          style: {
-            stroke: 'rgba(0,112,60,1)',
-            strokeWidth: 1
-          }
-        }
-      ]
-    })
+  if (mapLayers.includes('sssi')) {
+    datasets.push(...sssiDataset)
+  }
 
-    plugins.push(datasetsPlugin)
+  // Create a map dataset plugin if there are any present
+  if (datasets.length) {
+    plugins.push(createDatasetsPlugin({ datasets }))
   }
 
   const initConfig = {
-    ...defaultConfig,
+    ...getDefaultConfig(),
     bounds,
     plugins
   }
@@ -157,12 +231,34 @@ export function processGeospatial(config, geospatial, index) {
   const { map, interactPlugin } = createMap(mapId, initConfig, config)
   const featuresManager = getFeaturesManager(geojson)
   const activeFeatureManager = getActiveFeatureManager()
-  const uiManager = getUIManager(geojson, map, mapId, listEl, geospatialInput)
+  const geometryTypes = geospatial.dataset.geometrytypes
+  const options = {
+    geometryTypes
+  }
+  const lang = /** @type {LanguageCode} */ (
+    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+    geospatial.dataset.lang || DEFAULT_LANG
+  )
+  const uiManager = getUIManager(
+    geojson,
+    map,
+    mapId,
+    listEl,
+    geospatialInput,
+    options,
+    lang
+  )
+
+  const languageManager = {
+    lang,
+    texts: getTexts(lang)
+  }
 
   /**
    * @type {Context}
    */
   const context = {
+    languageManager,
     map,
     featuresManager,
     activeFeatureManager,
@@ -202,15 +298,17 @@ export function addFeatureToMap(feature, drawPlugin, map) {
  * @param {string} mapId - the ID of the map
  * @param {boolean} [disabled] - render the list with disabled links
  * @param {boolean} [readonly] - render the list in readonly mode
+ * @param {LanguageCode} [lang] - the language for the feature details
  */
 export function createFeaturesHTML(
   features,
   mapId,
   disabled = false,
-  readonly = false
+  readonly = false,
+  lang = DEFAULT_LANG
 ) {
   return `<dl class="govuk-summary-list">
-    ${features.map((feature, index) => createFeatureHTML(feature, index, mapId, disabled, readonly)).join('\n')}
+    ${features.map((feature, index) => createFeatureHTML(feature, index, mapId, disabled, readonly, lang)).join('\n')}
   </dl>`
 }
 
@@ -230,14 +328,17 @@ export function focusFeature(feature, mapProvider) {
  * @param {string} mapId - the ID of the map
  * @param {boolean} [disabled] - render the list with disabled links
  * @param {boolean} [readonly] - render the list item in readonly mode
+ * @param {LanguageCode} [lang] - the language for the feature details
  */
 export function createFeatureHTML(
   feature,
   index,
   mapId,
   disabled = false,
-  readonly = false
+  readonly = false,
+  lang = DEFAULT_LANG
 ) {
+  const texts = getTexts(lang)
   const flattened = feature.geometry.coordinates.flat(2)
 
   const points = []
@@ -253,28 +354,28 @@ export function createFeatureHTML(
   // Change action link
   const changeAction = () => `<li class="govuk-summary-list__actions-list-item">
   <a class="govuk-link govuk-link--no-visited-state ${disabled ? 'govuk-link--disabled' : ''}" href="#${mapId}" data-action="edit" data-id="${feature.id}"
-    data-type="${feature.geometry.type}">Update<span class="govuk-visually-hidden"> location</span></a>
+    data-type="${feature.geometry.type}">${texts.itemUpdateLink}<span class="govuk-visually-hidden"> ${texts.itemVisuallyHidden}</span></a>
 </li>`
 
   // Delete action link
   const deleteAction = () => `<li class="govuk-summary-list__actions-list-item">
   <a class="govuk-link govuk-link--no-visited-state ${disabled ? 'govuk-link--disabled' : ''}" href="#" data-action="delete" data-id="${feature.id}"
-    data-type="${feature.geometry.type}">Delete<span class="govuk-visually-hidden"> location</span></a>
+    data-type="${feature.geometry.type}">${texts.itemDeleteLink}<span class="govuk-visually-hidden"> ${texts.itemVisuallyHidden}</span></a>
 </li>`
 
   // Focus action link
   const focusAction = () => `<li class="govuk-summary-list__actions-list-item">
-  <a class="govuk-link govuk-link--no-visited-state" href="#${mapId}" data-action="focus" data-id="${feature.id}">Show<span class="govuk-visually-hidden"> location</span></a>
+  <a class="govuk-link govuk-link--no-visited-state" href="#${mapId}" data-action="focus" data-id="${feature.id}">${texts.itemFocusLink}<span class="govuk-visually-hidden"> ${texts.itemVisuallyHidden}</span></a>
 </li>`
 
   const links = readonly ? focusAction() : `${changeAction()}${deleteAction()}`
-
   const actions = `<ul class="govuk-summary-list__actions-list">${links}</ul>`
+  const typeDescription = getTypeDescription(feature, texts.typeDescriptions)
 
   return `<div class="govuk-summary-list__row govuk-summary-list__row--no-border">
   <dt class="govuk-summary-list__key">
     <div class="govuk-form-group">
-      <label class="govuk-label govuk-label--s" ${readonly ? '' : `for="description_${index}"`}>Location ${index + 1} description</label>
+      <label class="govuk-label govuk-label--s" ${readonly ? '' : `for="description_${index}"`}>${texts.itemLabel1} ${index + 1} ${texts.itemLabel2}</label>
       ${description}
     </div>
   </dt>
@@ -285,24 +386,24 @@ export function createFeatureHTML(
 <div class="govuk-summary-list__row">
   <details class="govuk-details govuk-!-margin-bottom-2">
     <summary class="govuk-details__summary">
-      <span class="govuk-details__summary-text">Coordinates</span>
+      <span class="govuk-details__summary-text">${texts.details.summary}</span>
     </summary>
     <div class="govuk-details__text">
       <dl class="govuk-summary-list">
         <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">Type</dt>
-          <dd class="govuk-summary-list__value">${typeDescriptions[feature.geometry.type]}</dd>
+          <dt class="govuk-summary-list__key">${texts.details.type}</dt>
+          <dd class="govuk-summary-list__value">${typeDescription}</dd>
         </div>
         <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">Centre grid reference</dt>
+          <dt class="govuk-summary-list__key">${texts.details.centroidGridReference}</dt>
           <dd class="govuk-summary-list__value">${feature.properties.centroidGridReference}</dd>
         </div>
         <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">First point grid reference</dt>
+          <dt class="govuk-summary-list__key">${texts.details.firstPointGridReference}</dt>
           <dd class="govuk-summary-list__value">${feature.properties.coordinateGridReference}</dd>
         </div>
         <div class="govuk-summary-list__row">
-          <dt class="govuk-summary-list__key">Detailed coordinates</dt>
+          <dt class="govuk-summary-list__key">${texts.details.detailedCoordinates}</dt>
           <dd class="govuk-summary-list__value">
             <ol class="govuk-list govuk-list--number">${coordinates}</ol>
           </dd>
@@ -389,7 +490,7 @@ function prepareGeometry(feature) {
  * @param {GeoJSON} geojson
  * @returns {FeaturesManager}
  */
-function getFeaturesManager(geojson) {
+export function getFeaturesManager(geojson) {
   /**
    * Get a feature from the geojson by id
    * @type {GetFeatures}
@@ -427,9 +528,9 @@ function getFeaturesManager(geojson) {
 
     // Ensure the feature exists in the geojson
     if (feature) {
+      feature.geometry = geometry
       feature.properties.coordinateGridReference = getCoordinateGridRef(feature)
       feature.properties.centroidGridReference = getCentroidGridRef(feature)
-      feature.geometry = geometry
       prepareGeometry(feature)
     }
 
@@ -461,11 +562,24 @@ function getFeaturesManager(geojson) {
  * @param {string} mapId - the ID of the map
  * @param {HTMLDivElement} listEl - where to render the feature list
  * @param {Function} renderValue - function that renders the features JSON into the hidden textarea
+ * @param {LanguageCode} [lang] - the language for the feature details
  * @returns {RenderList}
  */
-function getListRenderer(geojson, mapId, listEl, renderValue) {
+function getListRenderer(
+  geojson,
+  mapId,
+  listEl,
+  renderValue,
+  lang = DEFAULT_LANG
+) {
   return function renderList(disabled = false) {
-    const html = createFeaturesHTML(geojson.features, mapId, disabled)
+    const html = createFeaturesHTML(
+      geojson.features,
+      mapId,
+      disabled,
+      false,
+      lang
+    )
 
     listEl.innerHTML = html
 
@@ -492,16 +606,43 @@ function getValueRenderer(geojson, geospatialInput) {
  * @param {string} mapId - the ID of the map
  * @param {HTMLDivElement} listEl - where to render the feature list
  * @param {HTMLTextAreaElement} geospatialInput - the geospatial textarea
+ * @param { UIManagerOptions | undefined } options - extra options such as allowable geometry types
+ * @param {LanguageCode} [lang] - the language for the feature details
  */
-function getUIManager(geojson, map, mapId, listEl, geospatialInput) {
+export function getUIManager(
+  geojson,
+  map,
+  mapId,
+  listEl,
+  geospatialInput,
+  options,
+  lang = DEFAULT_LANG
+) {
+  /**
+   * Get a CSV list of geometry types the user can create
+   * @returns {string[]}
+   */
+  function getAllowableGeometryTypes() {
+    return options?.geometryTypes
+      ? options.geometryTypes.split(',')
+      : ['point', 'line', 'shape']
+  }
+
   /**
    * Toggle the hidden state of the action buttons
    * @type {ToggleActionButtons}
    */
   function toggleActionButtons(hidden) {
-    map.toggleButtonState('btnAddPoint', 'hidden', hidden)
-    map.toggleButtonState('btnAddPolygon', 'hidden', hidden)
-    map.toggleButtonState('btnAddLine', 'hidden', hidden)
+    const types = getAllowableGeometryTypes()
+    if (types.includes('point')) {
+      map.toggleButtonState('btnAddPoint', 'hidden', hidden)
+    }
+    if (types.includes('shape')) {
+      map.toggleButtonState('btnAddPolygon', 'hidden', hidden)
+    }
+    if (types.includes('line')) {
+      map.toggleButtonState('btnAddLine', 'hidden', hidden)
+    }
   }
 
   /**
@@ -520,7 +661,7 @@ function getUIManager(geojson, map, mapId, listEl, geospatialInput) {
   }
 
   const renderValue = getValueRenderer(geojson, geospatialInput)
-  const renderList = getListRenderer(geojson, mapId, listEl, renderValue)
+  const renderList = getListRenderer(geojson, mapId, listEl, renderValue, lang)
 
   /** @type {UIManager} */
   return {
@@ -528,7 +669,8 @@ function getUIManager(geojson, map, mapId, listEl, geospatialInput) {
     renderValue,
     listEl,
     toggleActionButtons,
-    focusDescriptionInput
+    focusDescriptionInput,
+    getAllowableGeometryTypes
   }
 }
 
@@ -572,7 +714,8 @@ function createContainers(geospatialInput, index) {
 function onMapReadyFactory(context) {
   const { map, activeFeatureManager, uiManager, interactPlugin, drawPlugin } =
     context
-  const { toggleActionButtons, renderList } = uiManager
+  const { toggleActionButtons, renderList, getAllowableGeometryTypes } =
+    uiManager
   const { resetActiveFeature } = activeFeatureManager
 
   /**
@@ -581,53 +724,69 @@ function onMapReadyFactory(context) {
    * @param {MapLibreMap} e.map - the map provider instance
    */
   return function onMapReady(e) {
+    const types = getAllowableGeometryTypes()
+    const allowPoint = types.includes('point')
+    const allowLine = types.includes('line')
+    const allowShape = types.includes('shape')
+    const { texts } = context.languageManager
+
     // Add info panel
-    map.addPanel('info', helpPanelConfig)
-
-    map.addButton('btnAddPoint', {
-      variant: 'tertiary',
-      label: 'Add point',
-      iconSvgContent: POINT_SVG,
-      onClick: () => {
-        resetActiveFeature()
-        toggleActionButtons(true)
-        renderList(true)
-        interactPlugin.enable()
-      },
-      mobile: { slot: 'actions' },
-      tablet: { slot: 'actions' },
-      desktop: { slot: 'actions' }
+    map.addPanel('info', {
+      ...helpPanelConfig,
+      label: texts.helpPanel.label,
+      html: getHelpPanelHtml(texts.helpPanel, allowPoint, allowLine, allowShape)
     })
 
-    map.addButton('btnAddPolygon', {
-      variant: 'tertiary',
-      label: 'Add shape',
-      iconSvgContent: POLYGON_SVG,
-      onClick: () => {
-        resetActiveFeature()
-        toggleActionButtons(true)
-        renderList(true)
-        drawPlugin.newPolygon(generateID(), polygonFeatureProperties)
-      },
-      mobile: { slot: 'actions' },
-      tablet: { slot: 'actions' },
-      desktop: { slot: 'actions' }
-    })
+    if (allowPoint) {
+      map.addButton('btnAddPoint', {
+        variant: 'tertiary',
+        label: texts.buttons.point,
+        iconSvgContent: POINT_SVG,
+        onClick: () => {
+          resetActiveFeature()
+          toggleActionButtons(true)
+          renderList(true)
+          interactPlugin.enable()
+        },
+        mobile: { slot: 'actions' },
+        tablet: { slot: 'actions' },
+        desktop: { slot: 'actions' }
+      })
+    }
 
-    map.addButton('btnAddLine', {
-      variant: 'tertiary',
-      label: 'Add line',
-      iconSvgContent: LINE_SVG,
-      onClick: () => {
-        resetActiveFeature()
-        toggleActionButtons(true)
-        renderList(true)
-        drawPlugin.newLine(generateID(), lineFeatureProperties)
-      },
-      mobile: { slot: 'actions' },
-      tablet: { slot: 'actions' },
-      desktop: { slot: 'actions' }
-    })
+    if (allowShape) {
+      map.addButton('btnAddPolygon', {
+        variant: 'tertiary',
+        label: texts.buttons.polygon,
+        iconSvgContent: POLYGON_SVG,
+        onClick: () => {
+          resetActiveFeature()
+          toggleActionButtons(true)
+          renderList(true)
+          drawPlugin.newPolygon(generateID(), polygonFeatureProperties)
+        },
+        mobile: { slot: 'actions' },
+        tablet: { slot: 'actions' },
+        desktop: { slot: 'actions' }
+      })
+    }
+
+    if (allowLine) {
+      map.addButton('btnAddLine', {
+        variant: 'tertiary',
+        label: texts.buttons.line,
+        iconSvgContent: LINE_SVG,
+        onClick: () => {
+          resetActiveFeature()
+          toggleActionButtons(true)
+          renderList(true)
+          drawPlugin.newLine(generateID(), lineFeatureProperties)
+        },
+        mobile: { slot: 'actions' },
+        tablet: { slot: 'actions' },
+        desktop: { slot: 'actions' }
+      })
+    }
 
     // Set the map provider on the context
     context.mapProvider = e.map
@@ -1039,6 +1198,7 @@ function onListElKeydownFactory() {
  * Renders the features into the list
  * @callback RenderList
  * @param {boolean} [disabled] - whether to render the list with disabled links
+ * @param {LanguageCode} [lang] - the language for the feature details
  * @returns {void}
  */
 
@@ -1053,6 +1213,12 @@ function onListElKeydownFactory() {
  * @callback ToggleActionButtons
  * @param {boolean} hidden - whether to hide the action buttons
  * @returns {void}
+ */
+
+/**
+ * Returns the list of geometry types a user can create
+ * @callback GetAllowableGeometryTypes
+ * @returns {string[]}
  */
 
 /**
@@ -1084,10 +1250,62 @@ function onListElKeydownFactory() {
  * @property {HTMLDivElement} listEl - the summary list of features
  * @property {ToggleActionButtons} toggleActionButtons - function that toggles the action buttons
  * @property {FocusDescriptionInput} focusDescriptionInput - function that sets focus to a description input element
+ * @property {GetAllowableGeometryTypes} getAllowableGeometryTypes - function that returns the array of geometry types a user can create
+ */
+
+/**
+ * @typedef {object} GeometryTexts
+ * @property {string} point - the label for a point feature in the list
+ * @property {string} line - the label for a line string feature in the list
+ * @property {string} polygon - the label for a polygon feature in the list
+ */
+
+/**
+ * @typedef {object} GeospatialPanelTexts
+ * @property {string} label - the label for the info panel
+ * @property {string} ledeIntro - the lede intro text for the info panel
+ * @property {string} ledeOutro - the lede outro text for the info panel
+ * @property {string} lineText - the label for the info panel line text
+ * @property {string} shapeText - the label for the info panel shape text
+ * @property {string} point1 - the text for bullet point 1 in the info panel
+ * @property {string} point2 - the text for bullet point 2 in the info panel
+ * @property {string} point3 - the text for bullet point 3 in the info panel
+ * @property {string} point4 - the text for bullet point 4 in the info panel
+ * @property {string} lineOrShapeText - the label for the info panel line or shape text
+ * @property {string} typesPhrasePoint - the label for the info panel types phrase point
+ * @property {string} typesPhraseLine - the label for the info panel types phrase line
+ * @property {string} typesPhraseShape - the label for the info panel types phrase shape
+ * @property {string} typesPhraseOr - the label for the info panel types phrase "or"
+ */
+
+/**
+ * @typedef {object} GeospatialLanguageTexts
+ * @property {GeometryTexts} typeDescriptions - the descriptions of the geometry types
+ * @property {GeospatialPanelTexts} helpPanel - texts for the info panel
+ * @property {GeometryTexts} buttons - the labels for the action buttons
+ * @property {string} itemLabel1 - the first part of the label for a feature in the list
+ * @property {string} itemLabel2 - the second part of the label for a feature in the list
+ * @property {string} itemUpdateLink - the label for the "update" link for a feature in the list
+ * @property {string} itemDeleteLink - the label for the "delete" link for a feature in the list
+ * @property {string} itemFocusLink - the label for the "focus" link for a feature in the list
+ * @property {string} itemVisuallyHidden - visually hidden text to add context to action links
+ * @property {object} details - labels for the details section of a feature in the list
+ * @property {string} details.summary - label for the summary of a feature in the list
+ * @property {string} details.type - label for the type of a feature in the list
+ * @property {string} details.centroidGridReference - label for the centroid grid reference of a feature in the list
+ * @property {string} details.firstPointGridReference - label for the first point grid reference of a feature in the list
+ * @property {string} details.detailedCoordinates - label for the detailed coordinates of a feature in the list
+ */
+
+/**
+ * @typedef {object} LanguageManager
+ * @property {LanguageCode} lang - the language for the interactive map
+ * @property {GeospatialLanguageTexts} texts - the descriptions of the geometry types
  */
 
 /**
  * @typedef {object} Context
+ * @property {LanguageManager} languageManager - the language manager for the interactive map
  * @property {InteractiveMap} map - the interactive map
  * @property {MapLibreMap} [mapProvider] - the interactive map provider
  * @property {FeaturesManager} featuresManager - the features manager
@@ -1098,5 +1316,6 @@ function onListElKeydownFactory() {
  */
 
 /**
- * @import { MapLibreMap } from '~/src/client/javascripts/map.js'
+ * @import { LanguageCode } from '~/src/client/javascripts/map.js'
+ * @import { MapLibreMap, UIManagerOptions } from '~/src/client/javascripts/map.js'
  */

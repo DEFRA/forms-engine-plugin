@@ -6,23 +6,68 @@ import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
 import { getAccessToken } from '~/src/server/plugins/map/routes/get-os-token.js'
-import { find, nearest } from '~/src/server/plugins/map/service.js'
+import { find } from '~/src/server/plugins/map/service.js'
+import { CountryMap } from '~/src/server/plugins/map/types.js'
 import {
   get,
   request as httpRequest
 } from '~/src/server/services/httpService.js'
 
-const filePath = resolve(import.meta.dirname, './vts/countries.geojson')
+const countriesDisplayFilePath = resolve(
+  import.meta.dirname,
+  './vts/countries.geojson'
+)
+const countriesValidateFilePath = resolve(
+  import.meta.dirname,
+  './vts',
+  process.env.JEST_WORKER_ID === undefined
+    ? 'countries-5dp.geojson'
+    : 'countries.geojson'
+)
 
 /**
  * @type {FeatureCollection}
  */
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-export const countries = JSON.parse(fs.readFileSync(filePath, 'utf8'))
+export const countries = JSON.parse(
+  fs.readFileSync(countriesDisplayFilePath, 'utf8')
+)
+
+/**
+ * @type {FeatureCollection}
+ */
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+export const countriesValidate = JSON.parse(
+  fs.readFileSync(countriesValidateFilePath, 'utf8')
+)
 
 export const countrySchema = Joi.string().valid(
   ...Object.values(GeospatialFieldOptionsCountryEnum)
 )
+
+const OS_API_ORIGIN = 'https://api.os.uk'
+const OS_VTS_PATH = '/maps/vector/v1/vts'
+
+const tileCoordinateSchema = Joi.number().integer().min(0).required()
+
+/**
+ * Checks a map proxy path and returns the normalised path to request from OS.
+ * Sets the value as the path of a fixed OS url, so that the host is always OS
+ * and the check runs on the path after `..` segments resolve.
+ * @type {CustomValidator<string, string>}
+ */
+function validateOsVtsPath(value, helpers) {
+  const url = new URL(OS_API_ORIGIN)
+  url.pathname = value
+
+  const { pathname } = url
+
+  if (pathname !== OS_VTS_PATH && !pathname.startsWith(`${OS_VTS_PATH}/`)) {
+    return helpers.error('any.invalid')
+  }
+
+  return pathname
+}
 
 /**
  * Gets the map support routes
@@ -34,7 +79,6 @@ export function getRoutes(options) {
     mapProxyRoute(options),
     tileProxyRoute(options),
     geocodeProxyRoute(options),
-    reverseGeocodeProxyRoute(options),
     getGeospatialCountries()
   ]
 }
@@ -52,7 +96,7 @@ function mapProxyRoute(options) {
     path: '/api/map-proxy',
     handler: async (request, h) => {
       const { query } = request
-      const targetUrl = new URL(decodeURIComponent(query.url))
+      const targetUrl = new URL(query.path, OS_API_ORIGIN)
       const token = await getAccessToken(options)
 
       targetUrl.searchParams.set('srs', '3857')
@@ -77,7 +121,7 @@ function mapProxyRoute(options) {
       validate: {
         query: Joi.object()
           .keys({
-            url: Joi.string().required()
+            path: Joi.string().custom(validateOsVtsPath).required()
           })
           .optional()
       }
@@ -122,7 +166,14 @@ function tileProxyRoute(options) {
         .header('Cache-Control', 'public, max-age=86400')
     },
     options: {
-      auth: false
+      auth: false,
+      validate: {
+        params: Joi.object().keys({
+          z: tileCoordinateSchema,
+          y: tileCoordinateSchema,
+          x: tileCoordinateSchema
+        })
+      }
     }
   }
 }
@@ -149,41 +200,6 @@ function geocodeProxyRoute(options) {
         query: Joi.object()
           .keys({
             query: Joi.string().required()
-          })
-          .required()
-      }
-    }
-  }
-}
-
-/**
- * Proxies ordnance survey reverse geocode requests from the front end to api.os.uk
- * Used to find name from easting and northing points.
- * N.B this endpoint is currently not used by the front end but will be soon in "maps V2"
- * @param {MapConfiguration} options - the map options
- * @returns {ServerRoute<MapReverseGeocodeGetRequestRefs>}
- */
-function reverseGeocodeProxyRoute(options) {
-  return {
-    method: 'GET',
-    path: '/api/reverse-geocode-proxy',
-    async handler(request, _h) {
-      const { query } = request
-      const data = await nearest(
-        query.easting,
-        query.northing,
-        options.ordnanceSurveyApiKey
-      )
-
-      return data
-    },
-    options: {
-      auth: false,
-      validate: {
-        query: Joi.object()
-          .keys({
-            easting: Joi.number().required(),
-            northing: Joi.number().required()
           })
           .required()
       }
@@ -224,14 +240,18 @@ function getGeospatialCountries() {
       if (omit) {
         return {
           ...countries,
-          features: countries.features.filter((feature) => feature.id !== omit)
+          features: countries.features.filter(
+            (feature) => feature.id !== CountryMap[omit]
+          )
         }
       }
 
       if (only) {
         return {
           ...countries,
-          features: countries.features.filter((feature) => feature.id === only)
+          features: countries.features.filter(
+            (feature) => feature.id === CountryMap[only]
+          )
         }
       }
 
@@ -254,5 +274,6 @@ function getGeospatialCountries() {
 /**
  * @import { ServerRoute } from '@hapi/hapi'
  * @import { FeatureCollection } from 'geojson'
- * @import { MapConfiguration, MapProxyGetRequestRefs, MapGeocodeGetRequestRefs, MapReverseGeocodeGetRequestRefs, GeospatialCountriesGetRequestRefs } from '~/src/server/plugins/map/types.js'
+ * @import { CustomValidator } from 'joi'
+ * @import { MapConfiguration, MapProxyGetRequestRefs, MapGeocodeGetRequestRefs, GeospatialCountriesGetRequestRefs } from '~/src/server/plugins/map/types.js'
  */

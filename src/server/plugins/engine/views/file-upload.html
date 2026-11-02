@@ -9,19 +9,20 @@
 
   <div class="govuk-error-summary-container"></div>
 
-  <form method="post" {%- if formAction and not context.isForceAccess %} action="{{ formAction }}" enctype="multipart/form-data" data-upload-id="{{ uploadId }}" {% if proxyUrl %}data-proxy-url="{{ proxyUrl }}"{% endif %} {%- endif %} novalidate>
+  <form method="post" {%- if formAction and not context.isForceAccess %} action="{{ formAction }}" enctype="multipart/form-data" data-upload-id="{{ uploadId }}" {% if proxyUrl %}data-proxy-url="{{ proxyUrl }}"{% endif %} {%- else %} action="#" {%- endif %} novalidate>
     {{ govukFileUpload(formComponent.model) }}
 
     {% if formAction %}
       {{ govukButton({
-        text: "Upload file",
-        classes: "govuk-button--secondary upload-file-button",
-        preventDoubleClick: true
+        text: t('pages.fileUpload.upload'),
+        classes: "govuk-button--secondary upload-file-button js-hidden",
+        preventDoubleClick: true,
+        disabled: context.isForceAccess
       }) }}
     {% else %}
       {{ govukWarningText({
-        text: "You have reached the maximum number of files. Please remove a file to upload more.",
-        iconFallbackText: "Warning"
+        text: t('pages.fileUpload.maxFilesReached'),
+        iconFallbackText: t('common.warningIconFallback')
       }) }}
     {% endif %}
   </form>

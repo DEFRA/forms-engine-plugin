@@ -588,7 +588,8 @@ describe('prepareEnvironment', () => {
     'field',
     'page',
     'merge',
-    'markdown'
+    'markdown',
+    'applyUrlParam'
   ]
 
   test('registers base filters', () => {
@@ -619,7 +620,8 @@ describe('prepareEnvironment', () => {
       'checkComponentTemplates',
       'checkErrorTemplates',
       'evaluate',
-      'govukRebrand'
+      'govukRebrand',
+      't'
     ]
 
     prepareNunjucksEnvironment(mockEnv, mockPluginOptions)

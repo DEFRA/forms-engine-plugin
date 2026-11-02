@@ -9,17 +9,20 @@ import {
   FormComponent,
   isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers/index.js'
+import {
+  addClassOptionIfNone,
+  withCustomValidationOverrides
+} from '~/src/server/plugins/engine/components/helpers/index.js'
+import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
+import { buildValidationMessages } from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
+import { type Translator } from '~/src/server/plugins/engine/types/index.js'
 import {
   type ErrorMessageTemplateList,
-  type FormPayload,
   type FormState,
   type FormStateValue,
-  type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
-import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 
 interface LocationFieldOptions {
   instructionText?: string
@@ -44,7 +47,9 @@ export abstract class LocationFieldBase extends FormComponent {
   declare stateSchema: StringSchema
   instructionText?: string
 
-  protected abstract getValidationConfig(): ValidationConfig
+  protected abstract getValidationConfig(
+    translator: Translator | undefined
+  ): ValidationConfig
   protected abstract getErrorTemplates(): {
     type: string
     template: JoiExpression
@@ -62,15 +67,14 @@ export abstract class LocationFieldBase extends FormComponent {
 
     addClassOptionIfNone(locationOptions, 'govuk-input--width-10')
 
-    const config = this.getValidationConfig()
-    const requiredMessage =
-      config.requiredMessage ?? (messageTemplate.required as string)
+    const config = this.getValidationConfig(undefined)
+    const requiredMessage = config.requiredMessage ?? messageTemplate.required
 
-    const messages = convertToLanguageMessages({
+    const messages = {
       'any.required': requiredMessage,
       'string.empty': requiredMessage,
       'string.pattern.base': config.patternErrorMessage
-    })
+    } as LanguageMessages
 
     let formSchema = joi
       .string()
@@ -120,28 +124,54 @@ export abstract class LocationFieldBase extends FormComponent {
     return LocationFieldBase.isText(value)
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
-    const viewModel = super.getViewModel(payload, errors)
+  getViewModel(context: RenderContext) {
+    const viewModel = super.getViewModel(context)
+
+    Object.assign(viewModel, {
+      lang: context.translator.language
+    })
 
     if (this.instructionText) {
+      const { tComponent } = context.translator
       return {
         ...viewModel,
-        instructionText: this.instructionText
+        instructionText:
+          tComponent(this.def, 'instructionText') || this.instructionText
       }
     }
 
     return viewModel
   }
 
+  getValidationMessagesOverride(translator: Translator) {
+    const { customValidationMessage, customValidationMessages } = this.options
+    const { t } = translator
+    const config = this.getValidationConfig(translator)
+    const defaults = {
+      'any.required':
+        config.requiredMessage ?? buildValidationMessages(t).objectRequired,
+      'string.empty':
+        config.requiredMessage ?? buildValidationMessages(t).objectRequired,
+      'string.pattern.base': config.patternErrorMessage
+    }
+
+    return {
+      [this.name]: withCustomValidationOverrides(
+        defaults,
+        customValidationMessage,
+        customValidationMessages
+      )
+    }
+  }
+
   getAllPossibleErrors(): ErrorMessageTemplateList {
-    const config = this.getValidationConfig()
+    const config = this.getValidationConfig(undefined)
 
     return {
       baseErrors: [
         {
           type: 'required',
-          template:
-            config.requiredMessage ?? (messageTemplate.required as string)
+          template: config.requiredMessage ?? messageTemplate.required
         },
         ...this.getErrorTemplates()
       ],

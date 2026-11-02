@@ -3,6 +3,7 @@ import { ComponentType, type ComponentDef } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type ValidationErrorItem, type ValidationResult } from 'joi'
 
+import { EN_GB } from '~/src/server/constants.js'
 import {
   FileUploadField,
   tempItemSchema
@@ -19,6 +20,7 @@ import {
 } from '~/src/server/plugins/engine/pageControllers/FileUploadPageController.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import { serverWithSaveAndExit } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import * as pageHelpers from '~/src/server/plugins/engine/pageControllers/helpers/index.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import * as uploadService from '~/src/server/plugins/engine/services/uploadService.js'
@@ -379,7 +381,7 @@ describe('FileUploadPageController', () => {
         ).rejects.toThrow('Unexpected empty response from initiateUpload')
       })
 
-      it('handles pending file status with custom error message', async () => {
+      it('handles pending file status with specific error message', async () => {
         const state = {
           upload: {
             [controller.path]: {
@@ -398,7 +400,8 @@ describe('FileUploadPageController', () => {
           form: {
             file: {
               fileStatus: FileStatus.pending,
-              errorMessage: 'Custom error message'
+              errorMessage: 'Virus error message',
+              errorCode: 'FILE_VIRUS'
             }
           }
         }
@@ -434,7 +437,7 @@ describe('FileUploadPageController', () => {
               path: ['fileUpload'],
               href: '#fileUpload',
               name: 'fileUpload',
-              text: 'Custom error message'
+              text: 'The selected file contains a virus'
             }
           ]
         })
@@ -682,7 +685,11 @@ describe('FileUploadPageController', () => {
             form: {
               file: {
                 fileStatus: FileStatus.rejected,
-                errorMessage: 'Test error'
+                errorMessage: 'Test error',
+                errorCode: 'FILE_INVALID_TYPE',
+                errorParams: {
+                  fileExtensions: ['XLS', 'XLSX']
+                } as Record<string, string[]>
               }
             }
           }
@@ -727,7 +734,7 @@ describe('FileUploadPageController', () => {
                 path: ['fileUpload'],
                 href: '#fileUpload',
                 name: 'fileUpload',
-                text: 'Test error'
+                text: 'The selected file must be a XLS or XLSX'
               }
             ]
           })
@@ -754,7 +761,11 @@ describe('FileUploadPageController', () => {
             form: {
               file: {
                 fileStatus: FileStatus.rejected,
-                errorMessage: 'Test error message'
+                errorMessage: 'Test error message',
+                errorCode: 'FILE_TOO_LARGE',
+                errorParams: {
+                  maxFileSizeFormatted: '10MB'
+                } as Record<string, string>
               }
             }
           }
@@ -789,7 +800,7 @@ describe('FileUploadPageController', () => {
                 path: ['fileUpload'],
                 href: '#fileUpload',
                 name: 'fileUpload',
-                text: 'Test error message'
+                text: 'The selected file must be smaller than 10MB'
               }
             ]
           })
@@ -815,11 +826,19 @@ describe('FileUploadPageController', () => {
               file: [
                 {
                   fileStatus: FileStatus.rejected,
-                  errorMessage: 'File too large'
+                  errorMessage: 'File too large',
+                  errorCode: 'FILE_TOO_LARGE',
+                  errorParams: {
+                    maxFileSizeFormatted: '10MB'
+                  } as Record<string, string>
                 },
                 {
                   fileStatus: FileStatus.rejected,
-                  errorMessage: 'Invalid file type'
+                  errorMessage: 'Invalid file type',
+                  errorCode: 'FILE_INVALID_TYPE',
+                  errorParams: {
+                    fileExtensions: ['DOC', 'DOCX']
+                  } as Record<string, string[]>
                 }
               ]
             }
@@ -860,13 +879,13 @@ describe('FileUploadPageController', () => {
                 path: ['fileUpload'],
                 href: '#fileUpload',
                 name: 'fileUpload',
-                text: 'File too large'
+                text: 'The selected file must be smaller than 10MB'
               },
               {
                 path: ['fileUpload'],
                 href: '#fileUpload',
                 name: 'fileUpload',
-                text: 'Invalid file type'
+                text: 'The selected file must be a DOC or DOCX'
               }
             ]
           })
@@ -1115,7 +1134,7 @@ describe('FileUploadPageController', () => {
           type: 'any.required'
         }
         const errors = controller.getErrors([errorDetail])
-        expect(errors).toEqual([getError(errorDetail)])
+        expect(errors).toEqual([getError(EN_GB, errorDetail)])
       })
 
       it('handles upload root errors using getError helper', () => {
@@ -1125,7 +1144,7 @@ describe('FileUploadPageController', () => {
           type: 'any.required'
         }
         const errors = controller.getErrors([errorDetail])
-        expect(errors).toEqual([getError(errorDetail)])
+        expect(errors).toEqual([getError(EN_GB, errorDetail)])
       })
     })
 
@@ -1309,7 +1328,8 @@ describe('FileUploadPageController', () => {
 
       const viewModel = controller.getViewModel(
         request as FormContextRequest,
-        context
+        context,
+        stubTranslator
       )
 
       expect(viewModel.uploadId).toBe('some-upload-id')

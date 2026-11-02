@@ -30,7 +30,7 @@ When a request is received, the engine processes it through several stages:
 4. **Pre-Controller Event Execution (onLoad)**
 
 - Before page controller execution, the engine checks for and executes any configured `onLoad` events.
-- When an `onLoad` event of type `http` is present, the engine makes an HTTP request to the configured endpoint (see `handleHttpEvent` function).
+- When an `onLoad` event of type `http` is present, the engine makes an HTTP request to the configured endpoint (see [Page events](./features/configuration-based/page-events)).
 - Event responses may update the context data before the page controller processes it.
 - onLoad events execute regardless of any conditions and are used to fetch external data needed for page rendering.
 
@@ -61,20 +61,7 @@ When a request is received, the engine processes it through several stages:
 - The application uses this for error handling: if the response is a Boom error, it logs the error details and formats a structured error response.
 - After this processing, the final response is sent to the client.
 
-## Key Components
+## See also
 
-- **Routes**: Defined in `src/server/plugins/engine/plugin.ts` and related route files
-- **Page Controllers**: Handle the business logic for each form page type
-- **Events**: Configurable hooks (`onLoad`, `onSave`) that can trigger HTTP requests or other actions
-- **Context**: Carries validated state and data throughout the request lifecycle
-- **Helpers**: Utility functions for redirecting, proceeding, and normalizing paths
-- **Validation**: Joi schemas for route parameters and dynamic payload validation
-
-## Related Documentation
-
-For more technical details, see:
-
-- Route definitions: `src/server/plugins/engine/plugin.ts`
-- Page controllers: `src/server/plugins/engine/pageControllers/`
-- Event handling: `handleHttpEvent` function in `questions.ts`
-- Context preparation: `src/server/plugins/engine/helpers.js`
+- [Page events](./features/configuration-based/page-events) — configure `onLoad` and `onSave` hooks to call external APIs at specific points in the lifecycle
+- [Custom page controllers](./features/code-based/page-controllers) — extend controller behaviour with custom GET and POST handlers

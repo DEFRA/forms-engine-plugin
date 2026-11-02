@@ -1,5 +1,16 @@
-import { centroid } from '@turf/centroid'
 // @ts-expect-error - no types
+import InteractiveMap from '@defra/interactive-map'
+// @ts-expect-error - no types
+import createInteractPlugin from '@defra/interactive-map/plugins/interact'
+// @ts-expect-error - no types
+import createMapStylesPlugin from '@defra/interactive-map/plugins/map-styles'
+// @ts-expect-error - no types
+import createScaleBarPlugin from '@defra/interactive-map/plugins/scale-bar'
+// @ts-expect-error - no types
+import createSearchPlugin from '@defra/interactive-map/plugins/search'
+// @ts-expect-error - no types
+import maplibreProvider from '@defra/interactive-map/providers/maplibre'
+import { centroid } from '@turf/centroid'
 import OsGridRef, { LatLon } from 'geodesy/osgridref.js'
 
 import { processGeospatial } from '~/src/client/javascripts/geospatial-map.js'
@@ -111,10 +122,15 @@ export function getCentroidGridRef(feature) {
   }
 }
 
-/** @type {InteractiveMapInitConfig} */
-export const defaultConfig = {
-  zoom: '6',
-  center: [DEFAULT_LONG, DEFAULT_LAT]
+/**
+ * Get the default config for a map
+ * @returns {InteractiveMapInitConfig}
+ */
+export const getDefaultConfig = () => {
+  return {
+    zoom: '6',
+    center: [DEFAULT_LONG, DEFAULT_LAT]
+  }
 }
 
 export const EVENTS = {
@@ -155,6 +171,7 @@ export function initMaps(config = {}) {
   const {
     assetPath = '/assets',
     apiPath = '/form/api',
+    workerPath = '/assets/interactive-map/maplibre-gl-worker.mjs',
     data = defaultData
   } = config
   const locations = document.querySelectorAll('.app-location-field')
@@ -186,11 +203,15 @@ export function initMaps(config = {}) {
   }
 
   locations.forEach((location, index) => {
-    processLocation({ assetPath, apiPath, data }, location, index)
+    processLocation({ assetPath, apiPath, workerPath, data }, location, index)
   })
 
   geospatials.forEach((geospatial, index) => {
-    processGeospatial({ assetPath, apiPath, data }, geospatial, index)
+    processGeospatial(
+      { assetPath, apiPath, workerPath, data },
+      geospatial,
+      index
+    )
   })
 }
 
@@ -218,7 +239,7 @@ export function makeTileRequestTransformer(apiPath) {
 
       if (resourceType !== 'Style') {
         return {
-          url: `${apiPath}/map-proxy?url=${encodeURIComponent(url)}`,
+          url: `${apiPath}/map-proxy?path=${encodeURIComponent(new URL(url).pathname)}`,
           headers: {}
         }
       }
@@ -247,26 +268,19 @@ export function makeTileRequestTransformer(apiPath) {
  * @param {MapsEnvironmentConfig} mapsConfig - the map environment params
  */
 export function createMap(mapId, initConfig, mapsConfig) {
-  const { assetPath, apiPath, data = defaultData } = mapsConfig
+  const { assetPath, apiPath, workerPath, data = defaultData } = mapsConfig
   const logoAltText = 'Ordnance survey logo'
-
-  // @ts-expect-error - Defra namespace currently comes from UMD support files
-  const defra = window.defra
-
-  const interactPlugin = defra.interactPlugin({
+  const interactPlugin = createInteractPlugin({
     markerColor: { outdoor: '#ff0000', dark: '#00ff00' },
     interactionModes: ['placeMarker'],
     multiSelect: false
   })
 
   /** @type {InteractiveMap} */
-  const map = new defra.InteractiveMap(mapId, {
+  const map = new InteractiveMap(mapId, {
     enableFullscreen: true,
     autoColorScheme: false,
-    mapProvider: defra.maplibreProvider(),
-    reverseGeocodeProvider: defra.openNamesProvider({
-      url: `${apiPath}/reverse-geocode-proxy?easting={easting}&northing={northing}`
-    }),
+    mapProvider: maplibreProvider({ workerUrl: workerPath }),
     behaviour: 'inline',
     minZoom: 6,
     maxZoom: 18,
@@ -275,7 +289,7 @@ export function createMap(mapId, initConfig, mapsConfig) {
     transformRequest: makeTileRequestTransformer(apiPath),
     ...initConfig,
     plugins: [
-      defra.mapStylesPlugin({
+      createMapStylesPlugin({
         mapStyles: [
           {
             id: 'outdoor',
@@ -319,12 +333,12 @@ export function createMap(mapId, initConfig, mapsConfig) {
         ]
       }),
       interactPlugin,
-      defra.searchPlugin({
+      createSearchPlugin({
         osNamesURL: `${apiPath}/geocode-proxy?query={query}`,
         width: '300px',
         showMarker: false
       }),
-      defra.scaleBarPlugin({
+      createScaleBarPlugin({
         units: 'metric'
       }),
       ...(initConfig.plugins ?? [])
@@ -350,6 +364,58 @@ export function centerMap(map, mapProvider, center) {
     zoom: 14,
     essential: true
   })
+}
+
+/**
+ * Parse CSV string layers
+ * @param {string | undefined} layers
+ * @returns {string[]}
+ */
+export function getMapLayers(layers) {
+  const trimmed = layers?.trim()
+  return trimmed ? trimmed.split(',') : []
+}
+
+/**
+ * Adds the country layers to a datasets array
+ * @param {string} apiPath
+ * @param {string} [country]
+ */
+export function getMapCountryLayers(apiPath, country) {
+  /** @type {any[]} */
+  const datasets = []
+
+  if (country) {
+    // Add the country bounds to the datasets array to show the valid area on the map
+    // and provide feedback to the user when they add features outside of the bounds.
+    datasets.push(
+      {
+        id: 'invalid-area',
+        label: 'Invalid areas',
+        geojson: `${apiPath}/maps/countries.geojson?omit=${country}`,
+        showInKey: false,
+        showInMenu: false,
+        style: {
+          stroke: 'gray',
+          strokeWidth: 1,
+          fill: 'rgba(211,211,211,0.8)'
+        }
+      },
+      {
+        id: 'valid-area',
+        label: 'Valid areas',
+        geojson: `${apiPath}/maps/countries.geojson?only=${country}`,
+        showInKey: false,
+        showInMenu: false,
+        style: {
+          stroke: 'rgba(0,112,60,1)',
+          strokeWidth: 1
+        }
+      }
+    )
+  }
+
+  return datasets
 }
 
 /**
@@ -392,9 +458,20 @@ export function centerMap(map, mapProvider, center) {
  * @typedef {object} MapsEnvironmentConfig
  * @property {string} assetPath - the root asset path
  * @property {string} apiPath - the root API path
+ * @property {string} workerPath - the maplibre worker path
  * @property {TileData} data - the tile data config
  */
 
 /**
+ * @typedef {object} UIManagerOptions
+ * @property {string} [geometryTypes] - the CSV list of geometry types that a user can create
+ */
+
+/**
  * @import { Feature } from '~/src/server/plugins/engine/types.js'
+ */
+
+/**
+ * Supported language codes
+ * @typedef {('en-GB'|'cy')} LanguageCode
  */

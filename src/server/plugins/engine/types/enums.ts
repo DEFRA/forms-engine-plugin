@@ -10,6 +10,7 @@ export enum FileStatus {
   pending = 'pending'
 }
 
-export enum FormAdapterSubmissionSchemaVersion {
-  V1 = 1
-}
+// Changed from an enum to enforce numeric values
+export const FormAdapterSubmissionSchemaVersion = {
+  V1: 1
+} as const satisfies Record<string, number>

@@ -3,6 +3,7 @@ import { ComponentType, type DetailsComponent } from '@defra/forms-model'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { type Guidance } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import definition from '~/test/form/definitions/basic.js'
 
 describe('Details', () => {
@@ -34,7 +35,11 @@ describe('Details', () => {
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = guidance.getViewModel()
+        const viewModel = guidance.getViewModel({
+          payload: {},
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({

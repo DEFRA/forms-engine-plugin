@@ -1,10 +1,19 @@
 import { type ComponentType, type Item } from '@defra/forms-model'
 
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import {
+  type FormPayload,
   type FormSubmissionError,
   type FormValue,
   type SummaryList
 } from '~/src/server/plugins/engine/types.js'
+
+export interface RenderContext {
+  payload: FormPayload
+  errors: FormSubmissionError[] | undefined
+  translator: Translator
+  isForceAccess?: boolean
+}
 
 export type ComponentText = {
   classes?: string
@@ -115,6 +124,7 @@ export interface ViewModel extends Record<string, unknown> {
   upload?: {
     count: number
     summaryList: SummaryList
+    uploadingLabel?: string
   }
 }
 

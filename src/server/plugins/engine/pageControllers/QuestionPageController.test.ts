@@ -1,6 +1,7 @@
 import { type PageQuestion } from '@defra/forms-model'
 
 import { getForm } from '~/src/server/plugins/engine/configureEnginePlugin.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
@@ -8,6 +9,7 @@ import {
   buildFormRequest
 } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { serverWithSaveAndExit } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import {
   FileStatus,
   UploadStatus,
@@ -29,6 +31,10 @@ import definitionConditionsBasic, {
 import definitionConditionsComplex from '~/test/form/definitions/conditions-complex.js'
 import definitionConditionsDates from '~/test/form/definitions/conditions-dates.js'
 import definitionPaymentV2Conditional from '~/test/form/definitions/payment-v2-conditional.js'
+
+const translator = new FormModel(definitionConditionsBasic, {
+  basePath: '/'
+}).createTranslator()
 
 describe('QuestionPageController', () => {
   let page1: PageQuestion
@@ -189,12 +195,14 @@ describe('QuestionPageController', () => {
     beforeEach(() => {
       viewModel1 = controller1.getViewModel(
         requestPage1,
-        model.getFormContext(requestPage1, { $$__referenceNumber: 'foobar' })
+        model.getFormContext(requestPage1, { $$__referenceNumber: 'foobar' }),
+        stubTranslator
       )
 
       viewModel2 = controller2.getViewModel(
         requestPage2,
-        model.getFormContext(requestPage2, { $$__referenceNumber: 'foobar' })
+        model.getFormContext(requestPage2, { $$__referenceNumber: 'foobar' }),
+        stubTranslator
       )
     })
 
@@ -448,7 +456,11 @@ describe('QuestionPageController', () => {
       const context = controller.model.getFormContext(request, state)
       const evaluationState = { animalType: 'Barn owl' }
 
-      const viewModel = controller.getViewModel(request, context)
+      const viewModel = controller.getViewModel(
+        request,
+        context,
+        stubTranslator
+      )
 
       const filtered = controller.filterConditionalComponents(
         viewModel,
@@ -504,7 +516,11 @@ describe('QuestionPageController', () => {
       const context = controller.model.getFormContext(request, state)
       const evaluationState = { animalType: 'Swan' }
 
-      const viewModel = controller.getViewModel(request, context)
+      const viewModel = controller.getViewModel(
+        request,
+        context,
+        stubTranslator
+      )
 
       const filtered = controller.filterConditionalComponents(
         viewModel,
@@ -1088,12 +1104,14 @@ describe('QuestionPageController V2', () => {
     beforeEach(() => {
       viewModel1 = controller1.getViewModel(
         requestPage1,
-        model.getFormContext(requestPage1, { $$__referenceNumber: 'foobar' })
+        model.getFormContext(requestPage1, { $$__referenceNumber: 'foobar' }),
+        stubTranslator
       )
 
       viewModel2 = controller2.getViewModel(
         requestPage2,
-        model.getFormContext(requestPage2, { $$__referenceNumber: 'foobar' })
+        model.getFormContext(requestPage2, { $$__referenceNumber: 'foobar' }),
+        stubTranslator
       )
     })
 
@@ -1686,222 +1704,355 @@ describe('Save and Exit functionality', () => {
   })
 })
 
-describe('QuestionPageController V2 - PaymentField (DF-832)', () => {
+describe('QuestionPageController translator support', () => {
+  let page1: PageQuestion
+  let page1Url: URL
+
   let model: FormModel
-  let choicePage: QuestionPageController
-  let paymentPage: QuestionPageController
+  let controller1: QuestionPageController
+  let requestPage1: FormRequest
 
   beforeEach(() => {
-    model = new FormModel(definitionPaymentV2Conditional, {
+    const { pages } = definitionConditionsBasic
+
+    page1 = pages[0]
+    page1Url = new URL('http://example.com/test/first-page')
+
+    model = new FormModel(definitionConditionsBasic, {
       basePath: 'test'
     })
 
-    // Page order in fixture: choice, gated, payment, summary
-    choicePage = /** @type {QuestionPageController} */ model.pages[0]
-    paymentPage = /** @type {QuestionPageController} */ model.pages[2]
+    controller1 = new QuestionPageController(model, page1)
+
+    requestPage1 = buildFormRequest({
+      method: 'get',
+      url: page1Url,
+      path: page1Url.pathname,
+      params: {
+        path: 'first-page',
+        slug: 'test'
+      },
+      query: {},
+      app: { model }
+    } as FormRequest)
   })
 
-  describe('getNextPath', () => {
-    const buildRequest = (pathname: string) => {
-      const url = new URL(`http://example.com/test${pathname}`)
-      return buildFormRequest({
+  describe('getViewModel with translator', () => {
+    it('uses mock t from translator for plugin strings', () => {
+      const mockT = jest.fn((key: string) => `translated:${key}`)
+      const translator: Translator = {
+        t: mockT,
+        tPage: jest.fn((_, prop) => `content:${prop}`),
+        tComponent: jest.fn((_, prop) => `content:${prop}`),
+        tSection: jest.fn((_, prop) => `content:${prop}`),
+        tListItem: jest.fn((_, prop) => `content:${prop}`),
+        tForm: jest.fn((prop) => `content:${prop}`),
+        language: 'en-GB'
+      }
+
+      // Use a request with returnUrl so that getBackLink calls t() for back link text
+      const requestWithReturn = buildFormRequest({
         method: 'get',
-        url,
-        path: url.pathname,
-        params: { path: pathname.replace('/', ''), slug: 'test' },
-        query: {},
+        url: page1Url,
+        path: page1Url.pathname,
+        params: {
+          path: 'first-page',
+          slug: 'test'
+        },
+        query: { returnUrl: '/test/summary' },
         app: { model }
       } as FormRequest)
-    }
 
-    it('skips payment pages in forward navigation (users reach via CYA)', () => {
-      // From the "choice" page with "yes" answered, the gated page's
-      // condition evaluates true. Payment comes after gated, but must
-      // be skipped so the walk lands on summary.
-      const request = buildRequest('/choice')
-      const context = model.getFormContext(request, {
-        $$__referenceNumber: 'foobar',
-        yesNoField: true
-      })
-
-      const next = choicePage.getNextPath(context)
-
-      expect(next).toBe('/gated')
-
-      // From the gated page the next real page would be the payment page,
-      // but forward navigation skips it and lands on summary.
-      const gatedPage = /** @type {QuestionPageController} */ model.pages[1]
-      expect(gatedPage.getNextPath(context)).toBe('/summary')
-    })
-
-    it('skips payment pages even when their condition would pass', () => {
-      // The payment page has no page-level condition, so only the
-      // isPaymentPage skip can cause it to be excluded.
-      const request = buildRequest('/choice')
-      const context = model.getFormContext(request, {
-        $$__referenceNumber: 'foobar',
-        yesNoField: false
-      })
-
-      // With "no", the gated page's condition fails so the walk from
-      // /choice should skip both /gated (condition) and /payment (payment)
-      // and land directly on the summary.
-      expect(choicePage.getNextPath(context)).toBe('/summary')
-    })
-  })
-
-  describe('getViewModel - resolved payment amount', () => {
-    const buildPaymentRequest = () => {
-      const url = new URL('http://example.com/test/payment')
-      return buildFormRequest({
-        method: 'get',
-        url,
-        path: url.pathname,
-        params: { path: 'payment', slug: 'test' },
-        query: {},
-        app: { model }
-      } as FormRequest)
-    }
-
-    it('overrides displayed amount using resolveAmount with full form state', () => {
-      // yesNoField = false selects the £99 conditional amount.
-      // The payload for the payment page on its own would not know that
-      // — the controller must reach into context.evaluationState.
-      const request = buildPaymentRequest()
-      const context = model.getFormContext(request, {
-        $$__referenceNumber: 'foobar',
-        yesNoField: false
-      })
-
-      const viewModel = paymentPage.getViewModel(request, context)
-      const paymentComp = viewModel.components.find(
-        (c) => 'amount' in c.model && 'paymentState' in c.model
-      )
-
-      expect(paymentComp).toBeDefined()
-      expect(paymentComp?.model).toHaveProperty('amount', '£99.00')
-    })
-
-    it('overrides displayed amount to £0 when zero-amount condition matches', () => {
-      // yesNoField = true selects the £0 conditional amount (first in list)
-      const request = buildPaymentRequest()
-      const context = model.getFormContext(request, {
-        $$__referenceNumber: 'foobar',
-        yesNoField: true
-      })
-
-      const viewModel = paymentPage.getViewModel(request, context)
-      const paymentComp = viewModel.components.find(
-        (c) => 'amount' in c.model && 'paymentState' in c.model
-      )
-
-      expect(paymentComp?.model).toHaveProperty('amount', '£0.00')
-    })
-
-    it('falls back to base amount when no condition matches', () => {
-      // Empty state → no conditions match → base £50
-      const request = buildPaymentRequest()
-      const context = model.getFormContext(request, {
+      const context = model.getFormContext(requestWithReturn, {
         $$__referenceNumber: 'foobar'
       })
 
-      const viewModel = paymentPage.getViewModel(request, context)
-      const paymentComp = viewModel.components.find(
-        (c) => 'amount' in c.model && 'paymentState' in c.model
+      controller1.getViewModel(requestWithReturn, context, translator)
+
+      // The translator's t should have been called for back link text
+      expect(mockT).toHaveBeenCalledWith('pages.question.backToCheckAnswers')
+    })
+
+    it('uses mock tPage from translator for page entity', () => {
+      const mockT = jest.fn((key: string) => key)
+      const mockTPage = jest.fn(
+        (_entity: unknown, prop: string) => `content:${prop}`
       )
 
-      expect(paymentComp?.model).toHaveProperty('amount', '£50.00')
-    })
+      const translator: Translator = {
+        t: mockT,
+        tPage: mockTPage as Translator['tPage'],
+        tComponent: jest.fn(() => ''),
+        tSection: jest.fn(() => ''),
+        tListItem: jest.fn(() => ''),
+        tForm: jest.fn(() => ''),
+        language: 'en-GB'
+      }
 
-    it('suppresses Save & Exit on payment pages', () => {
-      const request = buildPaymentRequest()
-      const context = model.getFormContext(request, {
-        $$__referenceNumber: 'foobar',
-        yesNoField: false
-      })
-
-      const viewModel = paymentPage.getViewModel(request, context)
-
-      expect(viewModel).toHaveProperty('allowSaveAndExit', false)
-    })
-
-    it('allows Save & Exit on non-payment pages', () => {
-      const url = new URL('http://example.com/test/choice')
-      const request = buildFormRequest({
-        method: 'get',
-        url,
-        path: url.pathname,
-        params: { path: 'choice', slug: 'test' },
-        query: {},
-        app: { model }
-      } as FormRequest)
-
-      const context = model.getFormContext(request, {
+      const context = model.getFormContext(requestPage1, {
         $$__referenceNumber: 'foobar'
       })
 
-      // The default FormModel server may not have save-and-exit plugin
-      // loaded, so we check via shouldShowSaveAndExit being the driver
-      // rather than isPaymentPage for this page.
-      jest.spyOn(choicePage, 'shouldShowSaveAndExit').mockReturnValue(true)
+      controller1.getViewModel(requestPage1, context, translator)
 
-      const viewModel = choicePage.getViewModel(request, context)
+      expect(mockTPage).toHaveBeenCalledWith(
+        expect.objectContaining({ path: page1.path }),
+        'title'
+      )
+    })
 
-      expect(viewModel).toHaveProperty('allowSaveAndExit', true)
+    it('uses translator.t for back link text when translator is supplied', () => {
+      const mockT = jest.fn().mockReturnValue('Back to check answers')
+      const mockTranslatorLocal: Translator = {
+        t: mockT,
+        tPage: stubTranslator.tPage,
+        tComponent: stubTranslator.tComponent,
+        tSection: stubTranslator.tSection,
+        tListItem: stubTranslator.tListItem,
+        tForm: stubTranslator.tForm,
+        language: 'en-GB'
+      }
+
+      // Use a request with returnUrl so that getBackLink calls translator.t for back link text
+      const requestWithReturn = buildFormRequest({
+        method: 'get',
+        url: page1Url,
+        path: page1Url.pathname,
+        params: {
+          path: 'first-page',
+          slug: 'test'
+        },
+        query: { returnUrl: '/test/summary' },
+        app: { model }
+      } as FormRequest)
+
+      const context = model.getFormContext(requestWithReturn, {
+        $$__referenceNumber: 'foobar'
+      })
+
+      controller1.getViewModel(requestWithReturn, context, mockTranslatorLocal)
+
+      expect(mockT).toHaveBeenCalledWith('pages.question.backToCheckAnswers')
     })
   })
 
-  describe('getViewModel - showSubmitButton based on paymentState', () => {
-    const buildPaymentRequest = () => {
-      const url = new URL('http://example.com/test/payment')
-      return buildFormRequest({
-        method: 'get',
-        url,
-        path: url.pathname,
-        params: { path: 'payment', slug: 'test' },
-        query: {},
-        app: { model }
-      } as FormRequest)
-    }
+  describe('QuestionPageController V2 - PaymentField (DF-832)', () => {
+    let model: FormModel
+    let choicePage: QuestionPageController
+    let paymentPage: QuestionPageController
 
-    it('shows submit button when no payment pre-auth captured yet', () => {
-      // No paymentState on form state → hasIncompletePayment is true
-      // → showSubmitButton is false.
-      const request = buildPaymentRequest()
-      const context = model.getFormContext(request, {
-        $$__referenceNumber: 'foobar',
-        yesNoField: false
+    beforeEach(() => {
+      model = new FormModel(definitionPaymentV2Conditional, {
+        basePath: 'test'
       })
 
-      const viewModel = paymentPage.getViewModel(request, context)
-
-      expect(viewModel).toHaveProperty('showSubmitButton', false)
+      // Page order in fixture: choice, gated, payment, summary
+      choicePage = /** @type {QuestionPageController} */ model.pages[0]
+      paymentPage = /** @type {QuestionPageController} */ model.pages[2]
     })
 
-    it('shows submit button when pre-auth has a captured status', () => {
-      // The PaymentField persists paymentId/amount/description at the top
-      // of its state slot, with preAuth nested under it. preAuth.status
-      // being present means pre-auth was captured → hasIncompletePayment
-      // is false → showSubmitButton is true.
-      const request = buildPaymentRequest()
-      const context = model.getFormContext(request, {
-        $$__referenceNumber: 'foobar',
-        yesNoField: false,
-        paymentField: {
-          paymentId: 'p-1',
-          amount: 99,
-          description: 'Test payment',
-          preAuth: {
-            status: 'success',
+    describe('getNextPath', () => {
+      const buildRequest = (pathname: string) => {
+        const url = new URL(`http://example.com/test${pathname}`)
+        return buildFormRequest({
+          method: 'get',
+          url,
+          path: url.pathname,
+          params: { path: pathname.replace('/', ''), slug: 'test' },
+          query: {},
+          app: { model }
+        } as FormRequest)
+      }
+
+      it('skips payment pages in forward navigation (users reach via CYA)', () => {
+        // From the "choice" page with "yes" answered, the gated page's
+        // condition evaluates true. Payment comes after gated, but must
+        // be skipped so the walk lands on summary.
+        const request = buildRequest('/choice')
+        const context = model.getFormContext(request, {
+          $$__referenceNumber: 'foobar',
+          yesNoField: true
+        })
+
+        const next = choicePage.getNextPath(context)
+
+        expect(next).toBe('/gated')
+
+        // From the gated page the next real page would be the payment page,
+        // but forward navigation skips it and lands on summary.
+        const gatedPage = /** @type {QuestionPageController} */ model.pages[1]
+        expect(gatedPage.getNextPath(context)).toBe('/summary')
+      })
+
+      it('skips payment pages even when their condition would pass', () => {
+        // The payment page has no page-level condition, so only the
+        // isPaymentPage skip can cause it to be excluded.
+        const request = buildRequest('/choice')
+        const context = model.getFormContext(request, {
+          $$__referenceNumber: 'foobar',
+          yesNoField: false
+        })
+
+        // With "no", the gated page's condition fails so the walk from
+        // /choice should skip both /gated (condition) and /payment (payment)
+        // and land directly on the summary.
+        expect(choicePage.getNextPath(context)).toBe('/summary')
+      })
+    })
+
+    describe('getViewModel - resolved payment amount', () => {
+      const buildPaymentRequest = () => {
+        const url = new URL('http://example.com/test/payment')
+        return buildFormRequest({
+          method: 'get',
+          url,
+          path: url.pathname,
+          params: { path: 'payment', slug: 'test' },
+          query: {},
+          app: { model }
+        } as FormRequest)
+      }
+
+      it('overrides displayed amount using resolveAmount with full form state', () => {
+        // yesNoField = false selects the £99 conditional amount.
+        // The payload for the payment page on its own would not know that
+        // — the controller must reach into context.evaluationState.
+        const request = buildPaymentRequest()
+        const context = model.getFormContext(request, {
+          $$__referenceNumber: 'foobar',
+          yesNoField: false
+        })
+
+        const viewModel = paymentPage.getViewModel(request, context, translator)
+        const paymentComp = viewModel.components.find(
+          (c) => 'amount' in c.model && 'paymentState' in c.model
+        )
+
+        expect(paymentComp).toBeDefined()
+        expect(paymentComp?.model).toHaveProperty('amount', '£99.00')
+      })
+
+      it('overrides displayed amount to £0 when zero-amount condition matches', () => {
+        // yesNoField = true selects the £0 conditional amount (first in list)
+        const request = buildPaymentRequest()
+        const context = model.getFormContext(request, {
+          $$__referenceNumber: 'foobar',
+          yesNoField: true
+        })
+
+        const viewModel = paymentPage.getViewModel(request, context, translator)
+        const paymentComp = viewModel.components.find(
+          (c) => 'amount' in c.model && 'paymentState' in c.model
+        )
+
+        expect(paymentComp?.model).toHaveProperty('amount', '£0.00')
+      })
+
+      it('falls back to base amount when no condition matches', () => {
+        // Empty state → no conditions match → base £50
+        const request = buildPaymentRequest()
+        const context = model.getFormContext(request, {
+          $$__referenceNumber: 'foobar'
+        })
+
+        const viewModel = paymentPage.getViewModel(request, context, translator)
+        const paymentComp = viewModel.components.find(
+          (c) => 'amount' in c.model && 'paymentState' in c.model
+        )
+
+        expect(paymentComp?.model).toHaveProperty('amount', '£50.00')
+      })
+
+      it('suppresses Save & Exit on payment pages', () => {
+        const request = buildPaymentRequest()
+        const context = model.getFormContext(request, {
+          $$__referenceNumber: 'foobar',
+          yesNoField: false
+        })
+
+        const viewModel = paymentPage.getViewModel(request, context, translator)
+
+        expect(viewModel).toHaveProperty('allowSaveAndExit', false)
+      })
+
+      it('allows Save & Exit on non-payment pages', () => {
+        const url = new URL('http://example.com/test/choice')
+        const request = buildFormRequest({
+          method: 'get',
+          url,
+          path: url.pathname,
+          params: { path: 'choice', slug: 'test' },
+          query: {},
+          app: { model }
+        } as FormRequest)
+
+        const context = model.getFormContext(request, {
+          $$__referenceNumber: 'foobar'
+        })
+
+        // The default FormModel server may not have save-and-exit plugin
+        // loaded, so we check via shouldShowSaveAndExit being the driver
+        // rather than isPaymentPage for this page.
+        jest.spyOn(choicePage, 'shouldShowSaveAndExit').mockReturnValue(true)
+
+        const viewModel = choicePage.getViewModel(request, context, translator)
+
+        expect(viewModel).toHaveProperty('allowSaveAndExit', true)
+      })
+    })
+
+    describe('getViewModel - showSubmitButton based on paymentState', () => {
+      const buildPaymentRequest = () => {
+        const url = new URL('http://example.com/test/payment')
+        return buildFormRequest({
+          method: 'get',
+          url,
+          path: url.pathname,
+          params: { path: 'payment', slug: 'test' },
+          query: {},
+          app: { model }
+        } as FormRequest)
+      }
+
+      it('shows submit button when no payment pre-auth captured yet', () => {
+        // No paymentState on form state → hasIncompletePayment is true
+        // → showSubmitButton is false.
+        const request = buildPaymentRequest()
+        const context = model.getFormContext(request, {
+          $$__referenceNumber: 'foobar',
+          yesNoField: false
+        })
+
+        const viewModel = paymentPage.getViewModel(request, context, translator)
+
+        expect(viewModel).toHaveProperty('showSubmitButton', false)
+      })
+
+      it('shows submit button when pre-auth has a captured status', () => {
+        // The PaymentField persists paymentId/amount/description at the top
+        // of its state slot, with preAuth nested under it. preAuth.status
+        // being present means pre-auth was captured → hasIncompletePayment
+        // is false → showSubmitButton is true.
+        const request = buildPaymentRequest()
+        const context = model.getFormContext(request, {
+          $$__referenceNumber: 'foobar',
+          yesNoField: false,
+          paymentField: {
             paymentId: 'p-1',
-            amount: 99
+            amount: 99,
+            description: 'Test payment',
+            preAuth: {
+              status: 'success',
+              paymentId: 'p-1',
+              amount: 99
+            }
           }
-        }
-      } as unknown as FormSubmissionState)
+        } as unknown as FormSubmissionState)
 
-      const viewModel = paymentPage.getViewModel(request, context)
+        const viewModel = paymentPage.getViewModel(request, context, translator)
 
-      expect(viewModel).toHaveProperty('showSubmitButton', true)
+        expect(viewModel).toHaveProperty('showSubmitButton', true)
+      })
     })
   })
 })

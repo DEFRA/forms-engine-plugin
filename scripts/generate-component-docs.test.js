@@ -30,6 +30,14 @@ jest.mock('./component-preview-fixtures.js', () => ({
   fixtures: {}
 }))
 
+jest.mock('./generate-page-previews.js', () => ({
+  writePagePreviewPartial: jest.fn()
+}))
+
+jest.mock('./page-preview-fixtures.js', () => ({
+  pageFixtures: {}
+}))
+
 // jest.mock factories are hoisted before variable declarations, so the
 // component-metadata.json payload must be inlined rather than referenced.
 jest.mock('fs', () => ({
@@ -39,7 +47,7 @@ jest.mock('fs', () => ({
   readdirSync: jest.fn(),
   readFileSync: jest.fn().mockImplementation((filePath) => {
     if (String(filePath ?? '').includes('component-metadata.json')) {
-      return '{"components":{"TextField":"Single-line text input."},"pages":{"PageController":"The default page type.","RepeatPageController":"Allows repeated answers."},"properties":{"rows":"Number of rows for the textarea."},"pageProperties":{"repeat.options.name":"Identifier for the repeatable section."}}'
+      return '{"components":{"TextField":"Single-line text input.","PaymentField":"Redirects the user to GOV.UK Pay."},"pages":{"PageController":"The default page type.","RepeatPageController":"Allows repeated answers.","SummaryPageController":"Summary page type."},"properties":{"rows":"Number of rows for the textarea."},"pageProperties":{"repeat.options.name":"Identifier for the repeatable section."},"componentSecrets":{"PaymentField":[{"name":"payment-test-api-key","description":"GOV.UK Pay API key for test mode."},{"name":"payment-live-api-key","description":"GOV.UK Pay API key for live mode."}]}}'
     }
     return ''
   }),
@@ -55,6 +63,7 @@ import {
   generateComponentMd,
   generateExample,
   generatePageExample,
+  generatePageMd,
   placeholderForType,
   setNestedValue,
   simplifyType,
@@ -287,6 +296,83 @@ describe('Component Documentation Generator', () => {
       expect(result.repeat.options.name).toBe('')
       expect(result.repeat).not.toHaveProperty('schema')
     })
+
+    it('injects exampleComponents into the example when provided', () => {
+      const components = [
+        {
+          type: 'FileUploadField',
+          name: 'upload',
+          title: 'Upload a document',
+          options: {},
+          schema: {}
+        }
+      ]
+      const result = generatePageExample(
+        'FileUploadPageController',
+        [],
+        '/file-upload',
+        components
+      )
+      expect(result.components).toEqual(components)
+    })
+
+    it('does not add components when exampleComponents is null', () => {
+      const result = generatePageExample(
+        'PageController',
+        [],
+        '/page-path',
+        null
+      )
+      expect(result).not.toHaveProperty('components')
+    })
+  })
+
+  describe('generatePageMd with preview', () => {
+    it('includes preview import when previewSlug is provided', () => {
+      const result = generatePageMd(
+        'PageController',
+        [],
+        '/page-path',
+        1,
+        'page-controller'
+      )
+      expect(result).toContain(
+        "import Preview from './_previews/page-controller.mdx'"
+      )
+    })
+
+    it('includes ## Preview section and <Preview /> when previewSlug is provided', () => {
+      const result = generatePageMd(
+        'PageController',
+        [],
+        '/page-path',
+        1,
+        'page-controller'
+      )
+      expect(result).toContain('## Preview')
+      expect(result).toContain('<Preview />')
+    })
+
+    it('places ## Preview before ## JSON definition', () => {
+      const result = generatePageMd(
+        'SummaryPageController',
+        [],
+        '/summary',
+        1,
+        'summary-page-controller'
+      )
+      const previewIdx = result.indexOf('## Preview')
+      const jsonIdx = result.indexOf('## JSON definition')
+      expect(previewIdx).toBeGreaterThan(-1)
+      expect(previewIdx).toBeLessThan(jsonIdx)
+    })
+
+    it('omits import, ## Preview, and <Preview /> when previewSlug is absent', () => {
+      const result = generatePageMd('PageController', [], '/page-path', 1)
+      expect(result).not.toContain('import Preview')
+      expect(result).not.toContain('## Preview')
+      expect(result).not.toContain('<Preview />')
+    })
   })
 
   describe('controllerLabel', () => {
@@ -347,6 +433,24 @@ describe('Component Documentation Generator', () => {
       const result = generateComponentMd('TextField', interfaceData, 1)
       expect(result).not.toContain('import Preview')
       expect(result).not.toContain('## Preview')
+    })
+  })
+
+  describe('generateComponentMd with componentSecrets', () => {
+    const interfaceData = { options: [], schema: [], props: [] }
+
+    it('renders a Required secrets section with blurb and table when secrets are defined', () => {
+      const result = generateComponentMd('PaymentField', interfaceData, 1)
+      expect(result).toContain('## Required secrets')
+      expect(result).toContain('`getFormSecret`')
+      expect(result).toContain('`payment-test-api-key`')
+      expect(result).toContain('`payment-live-api-key`')
+    })
+
+    it('omits Required secrets section for components with no secrets', () => {
+      const result = generateComponentMd('TextField', interfaceData, 1)
+      expect(result).not.toContain('## Required secrets')
+      expect(result).not.toContain('getFormSecret')
     })
   })
 

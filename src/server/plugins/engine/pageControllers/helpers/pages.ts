@@ -4,6 +4,7 @@ import {
   type Page
 } from '@defra/forms-model'
 
+import { UnknownPageControllerError } from '~/src/server/plugins/engine/errors.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import * as PageControllers from '~/src/server/plugins/engine/pageControllers/index.js'
 
@@ -66,7 +67,7 @@ export function createPage(model: FormModel, pageDef: Page) {
   }
 
   if (typeof controller === 'undefined') {
-    throw new Error(`Page controller ${pageDef.controller} does not exist`)
+    throw new UnknownPageControllerError(pageDef.controller)
   }
 
   return controller

@@ -1,4 +1,5 @@
 import { PaymentField } from '~/src/server/plugins/engine/components/PaymentField.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   SummaryPageController,
@@ -14,6 +15,27 @@ import {
 import { type CacheService } from '~/src/server/services/cacheService.js'
 import definition from '~/test/form/definitions/basic.js'
 import definitionPaymentV2Conditional from '~/test/form/definitions/payment-v2-conditional.js'
+
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
+
+// Note - the form must have at least one Welsh translation otherwise the translator defaults back to English
+const welshTranslator = new FormModel(
+  {
+    ...definition,
+    metadata: {
+      translations: {
+        cy: {
+          dummy: 'Some welsh'
+        }
+      }
+    }
+  },
+  {
+    basePath: '/'
+  }
+).createTranslator('cy')
 
 describe('SummaryPageController', () => {
   let model: FormModel
@@ -91,6 +113,52 @@ describe('SummaryPageController', () => {
 
   // Note: InvalidComponentStateError handling is comprehensively tested
   // in the integration test: test/form/component-state-errors.test.js
+
+  describe('per-request translator in makeGetRouteHandler', () => {
+    it('should create a per-request translator and pass t to the view', async () => {
+      const mockTranslator: Translator = {
+        t: jest.fn().mockReturnValue('translated'),
+        tPage: jest.fn().mockReturnValue('content') as Translator['tPage'],
+        tComponent: jest
+          .fn()
+          .mockReturnValue('content') as Translator['tComponent'],
+        tSection: jest
+          .fn()
+          .mockReturnValue('content') as Translator['tSection'],
+        tListItem: jest
+          .fn()
+          .mockReturnValue('content') as Translator['tListItem'],
+        tForm: jest.fn().mockReturnValue('content') as Translator['tForm'],
+        language: 'en-GB'
+      }
+
+      const createTranslatorSpy = jest
+        .spyOn(model, 'createTranslator')
+        .mockReturnValue(mockTranslator)
+
+      // Mock model.services.formsService so hasMissingNotificationEmail does not throw
+      jest
+        .spyOn(model.services.formsService, 'getFormMetadata')
+        .mockResolvedValue({ notificationEmail: 'test@test.com' } as never)
+
+      const state: FormSubmissionState = {
+        $$__referenceNumber: 'foobar',
+        licenceLength: 365,
+        fullName: 'John Smith'
+      }
+
+      const context = model.getFormContext(requestPage, state)
+
+      const getHandler = controller.makeGetRouteHandler()
+      await getHandler(requestPage, context, h)
+
+      expect(createTranslatorSpy).toHaveBeenCalledWith('en-GB')
+      expect(h.view).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ t: mockTranslator.t })
+      )
+    })
+  })
 })
 
 describe('SummaryPageController - Payment (DF-832)', () => {
@@ -357,12 +425,15 @@ describe('SummaryPageController - Payment (DF-832)', () => {
           } as FormSubmissionState)
 
       const outputSubmit = jest.fn()
+      const formSubmissionSubmit = jest.fn()
 
       model.services = {
         ...model.services,
         formSubmissionService: {
           ...model.services.formSubmissionService,
-          submit: jest.fn().mockResolvedValue({ data: { reference: 'r' } })
+          submit: formSubmissionSubmit.mockResolvedValue({
+            data: { reference: 'r' }
+          })
         },
         outputService: {
           ...model.services.outputService,
@@ -373,7 +444,7 @@ describe('SummaryPageController - Payment (DF-832)', () => {
       const request = {
         ...requestPage,
         params: { ...requestPage.params, path: 'summary' },
-        yar: { id: 'session-id' },
+        yar: { id: 'session-id', set: jest.fn(), get: jest.fn() },
         logger: { info: jest.fn(), error: jest.fn() }
       } as unknown as FormRequestPayload
 
@@ -388,7 +459,14 @@ describe('SummaryPageController - Payment (DF-832)', () => {
         contact: { online: { url: '/help' } }
       } as unknown as Parameters<typeof submitForm>[1]
 
-      return { request, context, viewModel, formMetadata, outputSubmit }
+      return {
+        request,
+        context,
+        viewModel,
+        formMetadata,
+        outputSubmit,
+        formSubmissionSubmit
+      }
     }
 
     it('re-throws as PaymentSubmissionError when outputService fails and a payment has been captured', async () => {
@@ -404,7 +482,8 @@ describe('SummaryPageController - Payment (DF-832)', () => {
           request,
           viewModel,
           model,
-          'notify@example.com'
+          'notify@example.com',
+          translator
         )
       ).rejects.toMatchObject({
         name: 'PaymentSubmissionError'
@@ -425,9 +504,92 @@ describe('SummaryPageController - Payment (DF-832)', () => {
           request,
           viewModel,
           model,
-          'notify@example.com'
+          'notify@example.com',
+          translator
         )
       ).rejects.toBe(err)
+    })
+
+    it('submits with correct payload - non-Welsh enabled', async () => {
+      const {
+        request,
+        context,
+        viewModel,
+        formMetadata,
+        formSubmissionSubmit
+      } = buildSubmitHarness({ captured: true })
+
+      await submitForm(
+        context,
+        formMetadata,
+        request,
+        viewModel,
+        model,
+        'notify@example.com',
+        translator
+      )
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      const paymentCall = formSubmissionSubmit.mock.calls[0][0]
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      const paymentItems = paymentCall.main as unknown as {
+        name: string
+        title: string
+        value: string
+      }[]
+      expect(paymentItems).toHaveLength(4)
+      expect(paymentItems[0]).toEqual({
+        name: 'paymentField_paymentDescription',
+        title: 'Payment description',
+        value: 'Test payment'
+      })
+      expect(paymentItems[1]).toEqual({
+        name: 'paymentField_paymentAmount',
+        title: 'Payment amount',
+        value: '£99.00'
+      })
+      expect(paymentItems[2]).toEqual({
+        name: 'paymentField_paymentReference',
+        title: 'Payment reference',
+        value: 'ref-1'
+      })
+      expect(paymentItems[3]).toEqual({
+        name: 'paymentField_paymentDate',
+        title: 'Payment date',
+        value: ''
+      })
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      expect(paymentCall.language).toBeUndefined()
+    })
+
+    it('submits with correct payload - Welsh selected', async () => {
+      model.def.metadata = {
+        translations: {
+          cy: {
+            'form.name': 'Some welsh'
+          }
+        }
+      }
+      const {
+        request,
+        context,
+        viewModel,
+        formMetadata,
+        formSubmissionSubmit
+      } = buildSubmitHarness({ captured: true })
+
+      await submitForm(
+        context,
+        formMetadata,
+        request,
+        viewModel,
+        model,
+        'notify@example.com',
+        welshTranslator
+      )
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      const paymentCall = formSubmissionSubmit.mock.calls[0][0]
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      expect(paymentCall.language).toBe('cy')
     })
   })
 

@@ -94,3 +94,8 @@ export type {
 
 export * from '~/src/server/plugins/engine/types/schema.js'
 export { FormAdapterSubmissionSchemaVersion } from '~/src/server/plugins/engine/types/enums.js'
+
+export type {
+  FormDefinitionTranslations,
+  Translator
+} from '~/src/server/plugins/engine/i18n/types.js'

@@ -229,18 +229,14 @@ describe('File upload POST tests', () => {
 
     expect($heading).toBeInTheDocument()
 
-    expect($errorItems[0]).toHaveTextContent(
-      'Upload your methodology statement must contain at least 2 items'
-    )
+    expect($errorItems[0]).toHaveTextContent('You must upload 2 files or more')
 
     const $input = container.getByLabelText(
       'Upload your methodology statement (optional)'
     )
 
     expect($input).toHaveAccessibleDescription(
-      expect.stringContaining(
-        'Error: Upload your methodology statement must contain at least 2 items'
-      )
+      expect.stringContaining('Error: You must upload 2 files or more')
     )
   })
 

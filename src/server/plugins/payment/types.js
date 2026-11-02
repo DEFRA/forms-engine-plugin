@@ -18,6 +18,7 @@
  * @property {string} reference - Unique reference for the payment
  * @property {string} description - Human-readable description of the payment
  * @property {string} return_url - URL to redirect the user to after payment
+ * @property {string} language - the desired language for translations
  * @property {boolean} [delayed_capture] - Whether to delay capturing the payment
  * @property {{ formId: string, slug: string }} [metadata] - Additional metadata for the payment
  * @property {string} [email] - Email to prepopulate on GOV.UK Pay (max 254 chars)

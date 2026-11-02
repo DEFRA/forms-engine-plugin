@@ -11,10 +11,12 @@ import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { COMPONENT_STATE_ERROR } from '~/src/server/constants.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
+import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import {
   createError,
   getPluginOptions
 } from '~/src/server/plugins/engine/helpers.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   PaymentErrorTypes,
@@ -28,10 +30,8 @@ import {
 } from '~/src/server/plugins/engine/types/index.js'
 import {
   type ErrorMessageTemplateList,
-  type FormPayload,
   type FormState,
   type FormStateValue,
-  type FormSubmissionError,
   type FormSubmissionState,
   type PaymentExternalArgs
 } from '~/src/server/plugins/engine/types.js'
@@ -39,11 +39,13 @@ import {
   createPaymentService,
   formatCurrency
 } from '~/src/server/plugins/payment/helper.js'
+import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 export class PaymentField extends FormComponent {
   declare options: PaymentFieldComponent['options']
   declare formSchema: ObjectSchema
   declare stateSchema: ObjectSchema
+  declare def: PaymentFieldComponent
   isAppendageStateSingleObject = true
 
   constructor(
@@ -53,6 +55,7 @@ export class PaymentField extends FormComponent {
     super(def, props)
 
     this.options = def.options
+    this.def = def
 
     const paymentStateSchema = joi
       .object({
@@ -60,6 +63,7 @@ export class PaymentField extends FormComponent {
         reference: joi.string().required(),
         amount: joi.number().required(),
         description: joi.string().required(),
+        descriptionInEng: joi.string().optional(),
         uuid: joi.string().uuid().required(),
         formId: joi.string().required(),
         isLivePayment: joi.boolean().required(),
@@ -93,7 +97,10 @@ export class PaymentField extends FormComponent {
     return this.isPaymentState(value) ? value : undefined
   }
 
-  getDisplayStringFromState(state: FormSubmissionState): string {
+  getDisplayStringFromState(
+    state: FormSubmissionState,
+    _translator: Translator
+  ): string {
     const value = this.getPaymentStateFromState(state)
 
     if (!value) {
@@ -103,8 +110,11 @@ export class PaymentField extends FormComponent {
     return `${formatCurrency(value.amount)} - ${value.description}`
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
-    const viewModel = super.getViewModel(payload, errors)
+  getViewModel(context: RenderContext) {
+    const { payload } = context
+    const viewModel = super.getViewModel(context)
+    const { translator } = context
+    const { tComponent } = translator
 
     // Payload is pre-populated from state if a payment has already been made
     const paymentState = this.isPaymentState(payload[this.name] as unknown)
@@ -119,7 +129,8 @@ export class PaymentField extends FormComponent {
     return {
       ...viewModel,
       amount: formatCurrency(amount),
-      description: this.options.description,
+      description:
+        tComponent(this.def, 'paymentDescription') || this.options.description,
       paymentState
     }
   }
@@ -229,7 +240,9 @@ export class PaymentField extends FormComponent {
   ): Promise<unknown> {
     const { options, name: componentName } = args.component
     const { model } = args.controller
-
+    const { language, t, tComponent } = model.createTranslator(
+      resolveLanguage(request)
+    )
     const state = await args.controller.getState(request)
     const { baseUrl } = getPluginOptions(request.server)
     const summaryUrl = `${baseUrl}/${model.basePath}/summary`
@@ -261,7 +274,8 @@ export class PaymentField extends FormComponent {
       return h.redirect(summaryUrl).code(StatusCodes.SEE_OTHER)
     }
 
-    const description = options.description
+    const description =
+      tComponent(args.component, 'paymentDescription') || options.description
 
     const slug = `/${model.basePath}`
 
@@ -281,14 +295,14 @@ export class PaymentField extends FormComponent {
       payCallbackUrl,
       reference,
       isLivePayment,
-      { formId, slug },
+      { formId, slug, language },
       prefilledEmail
     )
 
     if (!payment) {
       const message = isLivePayment
-        ? 'There is a problem and we cannot take a payment. Contact us (details in the footer of this form) or save your progress and return to the form later.'
-        : 'Add a valid test API key before you can preview the payment journey.'
+        ? t('components.paymentField.cannotTakePayment')
+        : t('components.paymentField.testApiKey')
       const govukError = createError(componentName, message)
       request.yar.flash(COMPONENT_STATE_ERROR, govukError, true)
       return h
@@ -302,6 +316,7 @@ export class PaymentField extends FormComponent {
       reference,
       amount: resolvedAmount,
       description,
+      descriptionInEng: options.description,
       paymentId: payment.paymentId,
       componentName,
       returnUrl: summaryUrl,
@@ -323,6 +338,9 @@ export class PaymentField extends FormComponent {
     _metadata: FormMetadata,
     context: FormContext
   ): Promise<void> {
+    const language = resolveLanguage(request)
+    const { t } = this.model.createTranslator(language)
+
     // Zero-amount bypass — no capture needed
     const resolvedAmount = PaymentField.resolveAmount(
       this.options,
@@ -338,7 +356,7 @@ export class PaymentField extends FormComponent {
     if (!paymentState) {
       throw new PaymentPreAuthError(
         this,
-        'Complete the payment to continue',
+        t('components.paymentField.completePayment'),
         true,
         PaymentErrorTypes.PaymentIncomplete
       )
@@ -367,7 +385,8 @@ export class PaymentField extends FormComponent {
     PaymentSubmissionError.checkPaymentAmount(
       status.amount,
       resolvedAmount,
-      this
+      this,
+      t
     )
 
     if (status.state.status === 'success') {
@@ -378,7 +397,7 @@ export class PaymentField extends FormComponent {
     if (status.state.status !== 'capturable') {
       throw new PaymentPreAuthError(
         this,
-        'Your payment authorisation has expired. Please add your payment details again.',
+        t('components.paymentField.paymentExpired'),
         true,
         PaymentErrorTypes.PaymentExpired
       )
@@ -386,13 +405,14 @@ export class PaymentField extends FormComponent {
 
     const captured = await paymentService.capturePayment(
       paymentId,
-      status.amount
+      status.amount,
+      isLivePayment
     )
 
     if (!captured) {
       throw new PaymentPreAuthError(
         this,
-        'There was a problem and your form was not submitted. Try submitting the form again.',
+        t('components.paymentField.submissionFailed'),
         false
       )
     }
@@ -434,6 +454,7 @@ export interface PaymentSessionData {
   reference: string
   amount: number
   description: string
+  descriptionInEng?: string
   paymentId: string
   componentName: string
   returnUrl: string

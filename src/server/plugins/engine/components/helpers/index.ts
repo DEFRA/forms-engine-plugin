@@ -1,6 +1,12 @@
 import { type ComponentDef } from '@defra/forms-model'
-import joi, { type JoiExpression, type ReferenceOptions } from 'joi'
+import joi, {
+  type JoiExpression,
+  type LanguageMessages,
+  type ReferenceOptions
+} from 'joi'
 import lowerFirst from 'lodash/lowerFirst.js'
+
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 
 /**
  * Prevent Markdown formatting
@@ -66,3 +72,60 @@ export const lowerFirstExpressionOptions = {
  */
 export const createLowerFirstExpression = (template: string): JoiExpression =>
   joi.expression(template, lowerFirstExpressionOptions) as JoiExpression
+
+/**
+ * Joi's own LanguageMessages type only allows string values, but
+ * buildValidationMessages() returns JoiExpression for templated messages,
+ * which Joi accepts at runtime. This type covers both.
+ */
+type TranslatedValidationMessages = Record<string, string | JoiExpression>
+
+/**
+ * Keep the form author's custom validation message for any key they set,
+ * so translated defaults only fill in the keys the author left blank.
+ * A single customValidationMessage covers every key in the schema.
+ */
+export function withCustomValidationOverrides(
+  defaults: TranslatedValidationMessages,
+  customValidationMessage?: string,
+  customValidationMessages?: LanguageMessages
+): LanguageMessages {
+  const messages: TranslatedValidationMessages = {}
+
+  // A global override for all messages is the value for all scenarios
+  if (customValidationMessage) {
+    for (const key of Object.keys(defaults)) {
+      messages[key] = customValidationMessage
+    }
+
+    return messages as LanguageMessages
+  }
+
+  // A default only fills a key that the user has not configured
+  const authorKeys = Object.keys(customValidationMessages ?? {})
+
+  for (const [key, message] of Object.entries(defaults)) {
+    if (!authorKeys.includes(key)) {
+      messages[key] = message
+    }
+  }
+
+  return messages as LanguageMessages
+}
+
+/**
+ * Translate a component label, in precedence order of errorDescription, then shortDesciption, then title
+ * @param {ComponentDef} component
+ * @param {Translator} translator
+ */
+export function getTranslatedLabel(
+  component: ComponentDef,
+  translator: Translator
+) {
+  const { tComponent } = translator
+  const translatedLabel =
+    tComponent(component, 'errorDescription') ||
+    tComponent(component, 'shortDescription') ||
+    tComponent(component, 'title')
+  return translatedLabel
+}

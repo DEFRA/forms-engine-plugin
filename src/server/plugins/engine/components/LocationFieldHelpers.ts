@@ -1,13 +1,17 @@
 import { type Context, type CustomValidator } from 'joi'
 
-import { type EastingNorthingField } from '~/src/server/plugins/engine/components/EastingNorthingField.js'
+import { EastingNorthingField } from '~/src/server/plugins/engine/components/EastingNorthingField.js'
 import { isFormValue } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { type GeospatialField } from '~/src/server/plugins/engine/components/GeospatialField.js'
 import { type LatLongField } from '~/src/server/plugins/engine/components/LatLongField.js'
+import { type OsGridRefField } from '~/src/server/plugins/engine/components/OsGridRefField.js'
 import {
   type DateInputItem,
   type Label,
+  type RenderContext,
   type ViewModel
 } from '~/src/server/plugins/engine/components/types.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import {
   type FormPayload,
   type FormSubmissionError,
@@ -26,25 +30,25 @@ export type LocationField =
  * - "latitude must be..." -> "latitude must be..."
  */
 function lowercaseMessageStart(message: string): string {
-  if (message.startsWith('Enter ')) {
-    return 'enter' + message.slice(5)
-  }
-
-  // Lowercase first character for any other message
+  // Lowercase first character for a message
   return message.charAt(0).toLowerCase() + message.slice(1)
 }
 
-export function joinWithAnd(items: string[]): string {
+export function joinWithAnd(items: string[], translator: Translator): string {
+  const { t } = translator
   if (items.length === 2) {
-    return `${items[0]} and ${items[1]}`
+    return `${items[0]} ${t('common.and')} ${items[1]}`
   }
 
   const leading = items.slice(0, -1).join(', ')
   const last = items[items.length - 1]
-  return `${leading} and ${last}`
+  return `${leading} ${t('common.and')} ${last}`
 }
 
-export function formatErrorList(messages: string[]): string {
+export function formatErrorList(
+  messages: string[],
+  translator: Translator
+): string {
   if (!messages.length) {
     return ''
   }
@@ -57,7 +61,7 @@ export function formatErrorList(messages: string[]): string {
     index === 0 ? msg : lowercaseMessageStart(msg)
   )
 
-  return joinWithAnd(formattedMessages)
+  return joinWithAnd(formattedMessages, translator)
 }
 
 export function mergeCssClasses(...classNames: (string | undefined)[]) {
@@ -86,6 +90,23 @@ export function deduplicateErrorsByHref(
   )
 }
 
+export function getMapLayers(
+  component:
+    | GeospatialField
+    | OsGridRefField
+    | LatLongField
+    | EastingNorthingField
+) {
+  const { mapLayers } = component.options
+  const layers = []
+
+  if (mapLayers?.sssi) {
+    layers.push('sssi')
+  }
+
+  return layers.join(',')
+}
+
 export function getLocationFieldViewModel(
   component: LocationField,
   viewModel: ViewModel & {
@@ -94,13 +115,12 @@ export function getLocationFieldViewModel(
     name: string
     value: FormValue
   },
-  payload: FormPayload,
-  errors?: FormSubmissionError[]
+  context: RenderContext
 ) {
   const { collection } = component
   const { fieldset: existingFieldset, label } = viewModel
 
-  const subViewModels = collection.getViewModel(payload, errors)
+  const subViewModels = collection.getViewModel(context)
 
   const fieldErrors: string[] = []
   subViewModels.forEach(({ model }) => {
@@ -153,7 +173,9 @@ export function getLocationFieldViewModel(
   if (hasFieldErrors) {
     viewModel.errorMessage = {
       text:
-        fieldErrors.length === 1 ? fieldErrors[0] : formatErrorList(fieldErrors)
+        fieldErrors.length === 1
+          ? fieldErrors[0]
+          : formatErrorList(fieldErrors, context.translator)
     }
   }
 
@@ -167,13 +189,25 @@ export function getLocationFieldViewModel(
   const result = {
     ...viewModel,
     fieldset,
-    items
+    items,
+    mapLayers: getMapLayers(component),
+    country:
+      component instanceof EastingNorthingField
+        ? component.options.countries?.at(0)
+        : undefined,
+    lang: context.translator.language
   }
 
   if (component.options.instructionText) {
+    const { t, tComponent } = context.translator
+
     return {
       ...result,
-      instructionText: component.options.instructionText
+      instructionSummary: t('components.locationFieldBase.howToFind'),
+      instructionText:
+        tComponent(component.def, 'instructionText') ||
+        component.options.instructionText,
+      t
     }
   }
 

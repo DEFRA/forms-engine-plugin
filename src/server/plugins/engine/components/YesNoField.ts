@@ -6,10 +6,14 @@ import {
 } from '@defra/forms-model'
 
 import { SelectionControlField } from '~/src/server/plugins/engine/components/SelectionControlField.js'
-import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers/index.js'
+import {
+  addClassOptionIfNone,
+  withCustomValidationOverrides
+} from '~/src/server/plugins/engine/components/helpers/index.js'
+import { buildValidationMessages } from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import { type ErrorMessageTemplateList } from '~/src/server/plugins/engine/types.js'
-import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 
 /**
  * @description
@@ -42,14 +46,38 @@ export class YesNoField extends SelectionControlField {
       formSchema = formSchema.optional()
     }
 
-    formSchema = formSchema.messages(
-      convertToLanguageMessages({
+    if (options.customValidationMessage) {
+      const message = options.customValidationMessage
+
+      formSchema = formSchema.messages({
+        'any.required': message
+      })
+    } else if (options.customValidationMessages) {
+      formSchema = formSchema.messages(options.customValidationMessages)
+    } else {
+      formSchema = formSchema.messages({
         'any.required': messageTemplate.selectYesNoRequired
       })
-    )
+    }
 
     this.formSchema = formSchema
     this.options = options
+  }
+
+  getValidationMessagesOverride(translator: Translator) {
+    const { customValidationMessage, customValidationMessages } = this.options
+    const { selectYesNoRequired } = buildValidationMessages(translator.t)
+    const defaults = {
+      'any.required': selectYesNoRequired
+    }
+
+    return {
+      [this.name]: withCustomValidationOverrides(
+        defaults,
+        customValidationMessage,
+        customValidationMessages
+      )
+    }
   }
 
   /**

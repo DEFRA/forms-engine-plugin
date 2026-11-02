@@ -1,5 +1,6 @@
 import { format } from 'date-fns'
 
+import { toLanguageLocale } from '~/src/server/plugins/engine/helpers.js'
 import { PaymentService } from '~/src/server/plugins/payment/service.js'
 
 export const DEFAULT_PAYMENT_HELP_URL =
@@ -28,10 +29,29 @@ export async function createPaymentService(
 /**
  * Formats a payment date for display
  * @param {string} isoString - ISO date string
+ * @param {string} language - the target language
  * @returns {string} Formatted date string (e.g., "26 January 2026 5:01pm")
  */
-export function formatPaymentDate(isoString) {
-  return format(new Date(isoString), 'd MMMM yyyy h:mmaaa')
+export function formatPaymentDate(isoString, language) {
+  return formatDateForLanguage(
+    new Date(isoString),
+    'd MMMM yyyy h:mmaaa',
+    language
+  )
+}
+
+/**
+ * Formats a date for display in a specific language.
+ * To use additional languages, the appropriate module must be imported from 'date-fns/locale'
+ * @param { Date | string } date - the date
+ * @param {string} formatMask - the format mask
+ * @param {string} language - the target language
+ * @returns {string} Formatted date string (e.g., "26 January 2026 5:01pm")
+ */
+export function formatDateForLanguage(date, formatMask, language) {
+  return format(date, formatMask, {
+    locale: toLanguageLocale(language)
+  })
 }
 
 /**

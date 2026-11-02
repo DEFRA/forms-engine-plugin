@@ -1,6 +1,7 @@
 import {
   ComponentType,
-  type FormComponentsDef,
+  FormStatus,
+  type FormMetadata,
   type UkAddressFieldComponent
 } from '@defra/forms-model'
 import { type ObjectSchema } from 'joi'
@@ -12,7 +13,10 @@ import {
   isFormState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
-import { type QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
+import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
+import { getCachedPluginTranslator } from '~/src/server/plugins/engine/i18n/form.js'
+import { getAvailableLanguages } from '~/src/server/plugins/engine/i18n/languages.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import {
   type FormRequestPayload,
   type FormResponseToolkit
@@ -27,6 +31,7 @@ import {
   type PostcodeLookupExternalArgs
 } from '~/src/server/plugins/engine/types.js'
 import { dispatch } from '~/src/server/plugins/postcode-lookup/routes/index.js'
+import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 export class UkAddressField extends FormComponent {
   declare options: UkAddressFieldComponent['options']
@@ -34,26 +39,23 @@ export class UkAddressField extends FormComponent {
   declare stateSchema: ObjectSchema<FormState>
   declare collection: ComponentCollection
 
-  shortDescription: FormComponentsDef['shortDescription']
-
   constructor(
     def: UkAddressFieldComponent,
     props: ConstructorParameters<typeof FormComponent>[1]
   ) {
     super(def, props)
 
-    const { name, options, shortDescription } = def
+    const { name, options } = def
 
     const isRequired = options.required !== false
     const hideOptional = !!options.optionalText
     const hideTitle = !!options.hideTitle
-
     this.collection = new ComponentCollection(
       [
         {
           type: ComponentType.TextField,
           name: `${name}__uprn`,
-          title: 'UPRN',
+          title: 'components.addressField.uprn',
           schema: {},
           options: {
             required: false,
@@ -63,7 +65,7 @@ export class UkAddressField extends FormComponent {
         {
           type: ComponentType.TextField,
           name: `${name}__addressLine1`,
-          title: 'Address line 1',
+          title: 'components.addressField.line1',
           schema: { max: 100 },
           options: {
             autocomplete: 'address-line1',
@@ -74,7 +76,7 @@ export class UkAddressField extends FormComponent {
         {
           type: ComponentType.TextField,
           name: `${name}__addressLine2`,
-          title: 'Address line 2',
+          title: 'components.addressField.line2',
           schema: { max: 100 },
           options: {
             autocomplete: 'address-line2',
@@ -85,7 +87,7 @@ export class UkAddressField extends FormComponent {
         {
           type: ComponentType.TextField,
           name: `${name}__town`,
-          title: 'Town or city',
+          title: 'components.addressField.town',
           schema: { max: 100 },
           options: {
             autocomplete: 'address-level2',
@@ -97,7 +99,7 @@ export class UkAddressField extends FormComponent {
         {
           type: ComponentType.TextField,
           name: `${name}__county`,
-          title: 'County',
+          title: 'components.addressField.county',
           schema: { max: 100 },
           options: {
             autocomplete: 'address-level1',
@@ -108,7 +110,7 @@ export class UkAddressField extends FormComponent {
         {
           type: ComponentType.TextField,
           name: `${name}__postcode`,
-          title: 'Postcode',
+          title: 'components.addressField.postcode',
           schema: {
             regex: '^[a-zA-Z]{1,2}\\d[a-zA-Z\\d]?\\s?\\d[a-zA-Z]{2}$'
           },
@@ -126,7 +128,6 @@ export class UkAddressField extends FormComponent {
     this.options = options
     this.formSchema = this.collection.formSchema
     this.stateSchema = this.collection.stateSchema
-    this.shortDescription = shortDescription
   }
 
   getFormValueFromState(state: FormSubmissionState) {
@@ -150,23 +151,32 @@ export class UkAddressField extends FormComponent {
     return this.getContextValueFromFormValue(value)
   }
 
-  getDisplayStringFromFormValue(value: UkAddressState | undefined): string {
+  getDisplayStringFromFormValue(
+    value: UkAddressState | undefined,
+    _translator: Translator
+  ): string {
     return this.getContextValueFromFormValue(value)?.join(', ') ?? ''
   }
 
-  getDisplayStringFromState(state: FormSubmissionState) {
+  getDisplayStringFromState(
+    state: FormSubmissionState,
+    translator: Translator
+  ) {
     const value = this.getFormValueFromState(state)
 
-    return this.getDisplayStringFromFormValue(value)
+    return this.getDisplayStringFromFormValue(value, translator)
   }
 
   /**
    * Returns one error per child field
    */
   getViewErrors(
+    translator: Translator,
     errors?: FormSubmissionError[]
   ): FormSubmissionError[] | undefined {
-    const uniqueErrors = this.getErrors(errors)?.filter(
+    const { t } = translator
+
+    const uniqueErrors = this.getErrors(translator, errors)?.filter(
       (error, index, self) =>
         index === self.findIndex((err) => err.name === error.name)
     )
@@ -174,14 +184,16 @@ export class UkAddressField extends FormComponent {
     // When using postcode lookup, the address fields are hidden
     // so we replace any individual validation messages with a single one
     if (this.shouldUsePostcodeLookup() && uniqueErrors?.length) {
-      const { name, shortDescription } = this
+      const { name, label } = this
 
       return [
         {
           name,
           path: [name],
           href: `#${name}`,
-          text: `Enter ${lowerFirst(shortDescription)}`
+          text: t('components.addressField.enterAddress', {
+            shortDescription: lowerFirst(label)
+          })
         }
       ]
     }
@@ -189,10 +201,11 @@ export class UkAddressField extends FormComponent {
     return uniqueErrors
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
+  getViewModel(context: RenderContext) {
+    const { payload, translator } = context
     const { collection, name, options } = this
 
-    const viewModel = super.getViewModel(payload, errors)
+    const viewModel = super.getViewModel(context)
     let { fieldset, hint, label } = viewModel
 
     fieldset ??= {
@@ -201,7 +214,7 @@ export class UkAddressField extends FormComponent {
 
         /**
          * For screen readers, only hide legend visually. This can be overridden
-         * by single component {@link QuestionPageController | `showTitle` handling}
+         * by single component (see QuestionPageController and showTitle handling)
          */
         classes: options.hideTitle
           ? 'govuk-visually-hidden'
@@ -216,7 +229,7 @@ export class UkAddressField extends FormComponent {
       }
     }
 
-    const components = collection.getViewModel(payload, errors)
+    const components = collection.getViewModel(context)
 
     // Hide UPRN
     const uprn = components.at(0)
@@ -231,7 +244,7 @@ export class UkAddressField extends FormComponent {
     const usePostcodeLookup = this.shouldUsePostcodeLookup()
 
     const value = usePostcodeLookup
-      ? this.getDisplayStringFromState(payload)
+      ? this.getDisplayStringFromState(payload, translator)
       : undefined
 
     return {
@@ -284,21 +297,39 @@ export class UkAddressField extends FormComponent {
     )
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
   static async dispatcher(
     request: FormRequestPayload,
     h: FormResponseToolkit,
     args: PostcodeLookupExternalArgs
   ) {
     const { controller, component } = args
+    const language = resolveLanguage(request)
+
+    const availableLanguages = getAvailableLanguages(controller.model.def)
+    const languages = availableLanguages.length
+      ? { languages: availableLanguages }
+      : {}
+
+    const translator = await getCachedPluginTranslator(
+      request,
+      { id: controller.model.formId } as unknown as FormMetadata,
+      args.isLive ? FormStatus.Live : FormStatus.Draft,
+      language
+    )
+    const { tComponent, tForm } = translator
 
     return dispatch(request, h, {
-      formName: controller.model.name,
+      formName: tForm('title'),
+      formId: controller.model.formId,
+      formStatus: args.isLive ? FormStatus.Live : FormStatus.Draft,
+      componentId: component.id ?? 'unknown',
       componentName: component.name,
-      componentHint: component.hint,
-      componentTitle: component.title || controller.title,
+      componentHint: tComponent(component, 'hint'),
+      componentTitle: tComponent(component, 'title') || controller.title,
       step: args.actionArgs.step,
-      sourceUrl: args.sourceUrl
+      sourceUrl: args.sourceUrl,
+      language,
+      ...languages
     })
   }
 }

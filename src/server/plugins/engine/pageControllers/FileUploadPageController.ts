@@ -14,6 +14,7 @@ import {
   getError,
   getExponentialBackoffDelay
 } from '~/src/server/plugins/engine/helpers.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import { getProxyUrlForLocalDevelopment } from '~/src/server/plugins/engine/pageControllers/helpers/index.js'
@@ -41,6 +42,7 @@ import {
   type FormRequestPayload,
   type FormResponseToolkit
 } from '~/src/server/routes/types.js'
+import { joinWithOr } from '~/src/server/utils/utils.js'
 
 const MAX_UPLOADS = 25
 const CDP_UPLOAD_TIMEOUT_MS = 60000 // 1 minute
@@ -187,15 +189,19 @@ export class FileUploadPageController extends QuestionPageController {
 
       const { filename } = fileToRemove.status.form.file
 
+      const translator = this.getTranslator(request)
+      const { t } = translator
+
       return h.view(this.fileDeleteViewName, {
         ...viewModel,
         context,
-        backLink: this.getBackLink(request, context),
-        pageTitle: `Are you sure you want to remove this file?`,
+        backLink: this.getBackLink(request, context, t),
+        pageTitle: t('pages.fileUpload.removeFileTitle'),
         itemTitle: filename,
-        confirmation: { text: 'You cannot recover removed files.' },
-        buttonConfirm: { text: 'Remove file' },
-        buttonCancel: { text: 'Cancel' }
+        confirmation: { text: t('pages.fileUpload.removeFileBody') },
+        buttonConfirm: { text: t('pages.fileUpload.removeFileButton') },
+        buttonCancel: { text: t('pages.fileUpload.cancel') },
+        t
       } satisfies ItemDeletePageViewModel)
     }
   }
@@ -221,7 +227,7 @@ export class FileUploadPageController extends QuestionPageController {
     }
   }
 
-  getErrors(details?: ValidationErrorItem[]) {
+  getErrors(details?: ValidationErrorItem[], language?: string) {
     const { fileUpload } = this
 
     if (details) {
@@ -234,7 +240,7 @@ export class FileUploadPageController extends QuestionPageController {
         if (!isUploadError || isUploadRootError) {
           // The error is for the root of the upload or another
           // field on the page so defer to the getError helper
-          errors.push(getError(error))
+          errors.push(getError(language, error))
         } else {
           const { context, path, type } = error
 
@@ -258,20 +264,35 @@ export class FileUploadPageController extends QuestionPageController {
 
   getViewModel(
     request: FormContextRequest,
-    context: FormContext
+    context: FormContext,
+    translator: Translator
   ): FeaturedFormPageViewModel {
     const { fileUpload } = this
     const { state } = context
+    const { t } = translator
 
     const upload = this.getUploadFromState(state)
 
-    const viewModel = super.getViewModel(request, context)
+    const viewModel = super.getViewModel(request, context, translator)
     const { components } = viewModel
 
     // Featured form component
     const [formComponent] = components.filter(
       ({ model }) => model.id === fileUpload.name
     )
+
+    formComponent.model.upload = {
+      count: formComponent.model.upload?.count ?? 0,
+      summaryList: formComponent.model.upload?.summaryList ?? { rows: [] },
+      uploadingLabel: t('components.fileUploadField.uploading')
+    }
+    formComponent.model = {
+      ...formComponent.model,
+      javascript: true,
+      chooseFilesButtonText: t('components.fileUploadField.chooseFile'),
+      dropInstructionText: t('components.fileUploadField.dropFile'),
+      noFileChosenText: t('components.fileUploadField.noFileChosen')
+    }
 
     const index = components.indexOf(formComponent)
 
@@ -286,7 +307,8 @@ export class FileUploadPageController extends QuestionPageController {
       // Split out components before/after
       componentsBefore: components.slice(0, index),
       components: components.slice(index),
-      proxyUrl
+      proxyUrl,
+      t
     }
   }
 
@@ -437,6 +459,9 @@ export class FileUploadPageController extends QuestionPageController {
 
     const allErrors: FormSubmissionError[] = []
 
+    const translator = this.getTranslator(request)
+    const { t } = translator
+
     for (const file of uploadedFiles) {
       if (file.fileStatus === FileStatus.complete) {
         const perFileState: FileState = {
@@ -451,7 +476,14 @@ export class FileUploadPageController extends QuestionPageController {
         // Collect the error for rejected/pending files.
         const { fileUpload } = this
         const name = fileUpload.name
-        const text = file.errorMessage ?? 'Unknown error'
+        const errorParams = this.expandErrorParams(
+          file.errorParams,
+          t('common.or')
+        )
+        const text = t(
+          `pages.fileUpload.${file.errorCode ?? 'FILE_ERROR_UNKNOWN'}`,
+          errorParams
+        )
         allErrors.push({ path: [name], href: `#${name}`, name, text })
       }
     }
@@ -466,6 +498,29 @@ export class FileUploadPageController extends QuestionPageController {
         upload: { [this.path]: { files, upload } }
       })
     }
+  }
+
+  /**
+   * Process the error parameters so any arrays get expanded (joined), ready to be passed into the error message
+   * @param errorParams - received from the file upload (may be a number, a string, or a string array)
+   * @param finalSeparator - 'or' in English, and 'neu' in Welsh
+   */
+  private expandErrorParams(
+    errorParams: Record<string, number | string | string[]> | undefined,
+    finalSeparator: string
+  ) {
+    if (!errorParams) {
+      return {}
+    }
+    const expanded = {} as Record<string, number | string>
+    for (const [key, value] of Object.entries(errorParams)) {
+      if (Array.isArray(value)) {
+        expanded[key] = joinWithOr(value, finalSeparator)
+      } else {
+        expanded[key] = value
+      }
+    }
+    return expanded
   }
 
   /**

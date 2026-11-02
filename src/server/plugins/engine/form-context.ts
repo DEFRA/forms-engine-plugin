@@ -14,6 +14,7 @@ import { type PageController } from '~/src/server/plugins/engine/pageControllers
 import { TerminalPageController } from '~/src/server/plugins/engine/pageControllers/index.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import {
+  type AnyFormRequest,
   type AnyRequest,
   type FormContext,
   type FormContextRequest,
@@ -22,6 +23,7 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 import { FormStatus } from '~/src/server/routes/types.js'
 import { type Services } from '~/src/server/types.js'
+import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 type JourneyState = FormStatus | 'preview'
 
@@ -37,6 +39,7 @@ export interface FormModelOptions {
 
 export interface FormContextOptions extends FormModelOptions {
   errors?: FormSubmissionError[]
+  language?: string
 }
 
 type SummaryRequest = FormContextRequest & {
@@ -54,12 +57,13 @@ export async function getFormModel(
   const formState = resolveState(state)
 
   const metadata = await formsService.getFormMetadata(slug)
-  assertFormAvailable(metadata)
 
   const definition = await formsService.getFormDefinition(
     metadata.id,
     formState
   )
+
+  assertFormAvailable(metadata, definition, formState, isPreview)
 
   if (!definition) {
     throw Boom.notFound(
@@ -121,10 +125,14 @@ export async function getFormContext(
     $$__referenceNumber: cachedState.$$__referenceNumber
   } as unknown as FormSubmissionState
 
+  const language = resolveLanguage(summaryRequest as unknown as AnyFormRequest)
+  const translator = formModel.createTranslator(language)
+
   return formModel.getFormContext(
     summaryRequest,
     formState,
-    options.errors ?? []
+    options.errors ?? [],
+    translator
   )
 }
 
@@ -138,7 +146,6 @@ export async function resolveFormModel(
   const { formsService } = services
 
   const metadata = await formsService.getFormMetadata(slug)
-  assertFormAvailable(metadata)
   const formState = resolveState(state)
   const isPreview = options.isPreview ?? isPreviewState(state, options)
   const stateMetadata = metadata[formState]
@@ -150,7 +157,6 @@ export async function resolveFormModel(
   }
 
   // The models cache is created lazily per server instance
-
   server.app.models ??= new Map<string, { model: FormModel; updatedAt: Date }>()
 
   const cache = server.app.models
@@ -196,6 +202,8 @@ export async function resolveFormModel(
     entry = { model, updatedAt: stateMetadata.updatedAt }
     cache.set(cacheKey, entry)
   }
+
+  assertFormAvailable(metadata, entry.model.def, formState, isPreview)
 
   return entry.model
 }

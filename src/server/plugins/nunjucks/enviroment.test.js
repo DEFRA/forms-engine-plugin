@@ -2,6 +2,23 @@ import * as helpers from '~/src/server/plugins/engine/helpers.js'
 import { environment } from '~/src/server/plugins/nunjucks/environment.js'
 
 describe('Nunjucks environment', () => {
+  describe('t global function', () => {
+    /** @type {typeof tGlobal} */
+    let t
+
+    beforeEach(() => {
+      t = environment.getGlobal('t')
+    })
+
+    it('has t as a global function', () => {
+      expect(typeof t).toBe('function')
+    })
+
+    it('t global returns the English string for a known key', () => {
+      expect(t('errors.title')).toBe('There is a problem')
+    })
+  })
+
   describe('checkErrorTemplates function', () => {
     /** @type {Function} */
     let checkErrorTemplates
@@ -201,6 +218,10 @@ describe('Nunjucks environment', () => {
     })
   })
 })
+
+/**
+ * @import { tGlobal } from '~/src/server/plugins/nunjucks/environment.js'
+ */
 
 /*
  * @import { ComponentViewModel } from '~/src/server/plugins/engine/components/types.js'

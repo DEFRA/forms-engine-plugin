@@ -27,4 +27,12 @@ declare module 'joi' {
   type JoiExpression = JoiExpressionReturn | string
 
   type LanguageMessagesExt = Record<string, JoiExpression>
+
+  interface PhoneNumberOptions {
+    format?: 'international' | 'uk' | undefined
+  }
+
+  interface StringSchema {
+    phoneNumber(options?: PhoneNumberOptions): this
+  }
 }

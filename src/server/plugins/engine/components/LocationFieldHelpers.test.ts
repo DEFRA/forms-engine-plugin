@@ -5,78 +5,123 @@ import { type LatLongField } from '~/src/server/plugins/engine/components/LatLon
 import {
   deduplicateErrorsByHref,
   formatErrorList,
+  getMapLayers,
   joinWithAnd,
   mergeCssClasses
 } from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
 
 describe('LocationFieldHelpers', () => {
   let model: FormModel
+  let translator: Translator
+  let welshTranslator: Translator
 
   beforeEach(() => {
     model = new FormModel(definition, {
       basePath: 'test'
     })
+    translator = model.createTranslator()
+
+    // Welsh translator will need at least one translation in the model, otherwise it defaults to English
+    const welshModel = new FormModel(
+      {
+        ...definition,
+        metadata: {
+          translations: {
+            cy: {
+              dummy: 'Some welsh'
+            }
+          }
+        }
+      },
+      {
+        basePath: 'test'
+      }
+    )
+    welshTranslator = welshModel.createTranslator('cy')
   })
 
   describe('joinWithAnd', () => {
     it('should join two items with "and"', () => {
-      expect(joinWithAnd(['item1', 'item2'])).toBe('item1 and item2')
+      expect(joinWithAnd(['item1', 'item2'], translator)).toBe(
+        'item1 and item2'
+      )
     })
 
     it('should join three items with commas and "and"', () => {
-      expect(joinWithAnd(['item1', 'item2', 'item3'])).toBe(
+      expect(joinWithAnd(['item1', 'item2', 'item3'], translator)).toBe(
         'item1, item2 and item3'
       )
     })
 
     it('should join four items with commas and "and"', () => {
-      expect(joinWithAnd(['item1', 'item2', 'item3', 'item4'])).toBe(
-        'item1, item2, item3 and item4'
-      )
+      expect(
+        joinWithAnd(['item1', 'item2', 'item3', 'item4'], translator)
+      ).toBe('item1, item2, item3 and item4')
     })
   })
 
   describe('formatErrorList', () => {
     it('should return empty string for empty array', () => {
-      expect(formatErrorList([])).toBe('')
+      expect(formatErrorList([], translator)).toBe('')
     })
 
     it('should return single message without formatting', () => {
-      expect(formatErrorList(['Error message'])).toBe('Error message')
+      expect(formatErrorList(['Error message'], translator)).toBe(
+        'Error message'
+      )
     })
 
     describe('Enter field name patterns', () => {
       it('should lowercase field names in subsequent "Enter latitude/longitude" messages', () => {
-        expect(formatErrorList(['Enter latitude', 'Enter longitude'])).toBe(
-          'Enter latitude and enter longitude'
-        )
+        expect(
+          formatErrorList(['Enter latitude', 'Enter longitude'], translator)
+        ).toBe('Enter latitude and enter longitude')
       })
 
       it('should lowercase field names in subsequent "Enter easting/northing" messages', () => {
-        expect(formatErrorList(['Enter easting', 'Enter northing'])).toBe(
-          'Enter easting and enter northing'
-        )
+        expect(
+          formatErrorList(['Enter easting', 'Enter northing'], translator)
+        ).toBe('Enter easting and enter northing')
+      })
+
+      it('should lowercase field names in subsequent "Enter latitude/longitude" messages - welsh', () => {
+        expect(
+          formatErrorList(['Nodwch ledred', 'Nodwch hydred'], welshTranslator)
+        ).toBe('Nodwch ledred a nodwch hydred')
+      })
+
+      it('should lowercase field names in subsequent "Enter easting/northing" messages - welsh', () => {
+        expect(
+          formatErrorList(
+            ['Nodwch ddwyreiniannau', 'Nodwch ogleddiannau'],
+            welshTranslator
+          )
+        ).toBe('Nodwch ddwyreiniannau a nodwch ogleddiannau')
       })
 
       it('should lowercase field names in three or more "Enter" messages', () => {
         expect(
-          formatErrorList([
-            'Enter latitude',
-            'Enter longitude',
-            'Enter easting'
-          ])
+          formatErrorList(
+            ['Enter latitude', 'Enter longitude', 'Enter easting'],
+            translator
+          )
         ).toBe('Enter latitude, enter longitude and enter easting')
       })
 
       it('should handle "Enter a valid" pattern', () => {
         expect(
-          formatErrorList([
-            'Enter a valid latitude for location like 51.519450',
-            'Enter a valid longitude for location like -0.127758'
-          ])
+          formatErrorList(
+            [
+              'Enter a valid latitude for location like 51.519450',
+              'Enter a valid longitude for location like -0.127758'
+            ],
+            translator
+          )
         ).toBe(
           'Enter a valid latitude for location like 51.519450 and enter a valid longitude for location like -0.127758'
         )
@@ -86,10 +131,13 @@ describe('LocationFieldHelpers', () => {
     describe('Field name at start patterns', () => {
       it('should lowercase first character in subsequent messages', () => {
         expect(
-          formatErrorList([
-            'Latitude for location must be between 49.85 and 60.859',
-            'Longitude for location must be between -13.687 and 1.767'
-          ])
+          formatErrorList(
+            [
+              'Latitude for location must be between 49.85 and 60.859',
+              'Longitude for location must be between -13.687 and 1.767'
+            ],
+            translator
+          )
         ).toBe(
           'Latitude for location must be between 49.85 and 60.859 and longitude for location must be between -13.687 and 1.767'
         )
@@ -97,10 +145,13 @@ describe('LocationFieldHelpers', () => {
 
       it('should handle precision error messages', () => {
         expect(
-          formatErrorList([
-            'Latitude must have no more than 7 decimal places',
-            'Longitude must have no more than 7 decimal places'
-          ])
+          formatErrorList(
+            [
+              'Latitude must have no more than 7 decimal places',
+              'Longitude must have no more than 7 decimal places'
+            ],
+            translator
+          )
         ).toBe(
           'Latitude must have no more than 7 decimal places and longitude must have no more than 7 decimal places'
         )
@@ -110,10 +161,13 @@ describe('LocationFieldHelpers', () => {
     describe('Mixed patterns', () => {
       it('should handle mixed Enter and validation error messages', () => {
         expect(
-          formatErrorList([
-            'Enter latitude',
-            'Longitude for location must be between -13.687 and 1.767'
-          ])
+          formatErrorList(
+            [
+              'Enter latitude',
+              'Longitude for location must be between -13.687 and 1.767'
+            ],
+            translator
+          )
         ).toBe(
           'Enter latitude and longitude for location must be between -13.687 and 1.767'
         )
@@ -121,11 +175,14 @@ describe('LocationFieldHelpers', () => {
 
       it('should handle three mixed messages', () => {
         expect(
-          formatErrorList([
-            'Latitude must have no more than 7 decimal places',
-            'Enter longitude',
-            'Easting for location must be between 0 and 700000'
-          ])
+          formatErrorList(
+            [
+              'Latitude must have no more than 7 decimal places',
+              'Enter longitude',
+              'Easting for location must be between 0 and 700000'
+            ],
+            translator
+          )
         ).toBe(
           'Latitude must have no more than 7 decimal places, enter longitude and easting for location must be between 0 and 700000'
         )
@@ -276,7 +333,11 @@ describe('LocationFieldHelpers', () => {
         myComponent__longitude: -0.1
       }
 
-      const viewModel = field.getViewModel(payload)
+      const viewModel = field.getViewModel({
+        payload,
+        errors: undefined,
+        translator: stubTranslator
+      })
 
       expect(viewModel.fieldset).toEqual({
         legend: {
@@ -307,7 +368,11 @@ describe('LocationFieldHelpers', () => {
         myComponent__longitude: -0.1
       }
 
-      const viewModel = field.getViewModel(payload)
+      const viewModel = field.getViewModel({
+        payload,
+        errors: undefined,
+        translator: stubTranslator
+      })
 
       const instructionText =
         'instructionText' in viewModel ? viewModel.instructionText : undefined
@@ -341,7 +406,11 @@ describe('LocationFieldHelpers', () => {
         }
       ]
 
-      const viewModel = field.getViewModel(payload, errors)
+      const viewModel = field.getViewModel({
+        payload,
+        errors,
+        translator: stubTranslator
+      })
 
       // Check that errors are passed to the viewModel
       expect(viewModel.errors).toEqual(errors)
@@ -389,7 +458,11 @@ describe('LocationFieldHelpers', () => {
         }
       ]
 
-      const viewModel = field.getViewModel(payload, errors)
+      const viewModel = field.getViewModel({
+        payload,
+        errors,
+        translator: stubTranslator
+      })
 
       // Single errors should be displayed at fieldset level
       expect(viewModel.items[0].errorMessage).toBeUndefined()
@@ -437,7 +510,11 @@ describe('LocationFieldHelpers', () => {
         }
       ]
 
-      const viewModel = field.getViewModel(payload, errors)
+      const viewModel = field.getViewModel({
+        payload,
+        errors,
+        translator: stubTranslator
+      })
 
       expect(viewModel.items[0].errorMessage).toBeUndefined()
       expect(viewModel.items[1].errorMessage).toBeUndefined()
@@ -469,7 +546,11 @@ describe('LocationFieldHelpers', () => {
       }
 
       // No errors passed in, but the subViewModels might have errors from elsewhere
-      const viewModel = field.getViewModel(payload, [])
+      const viewModel = field.getViewModel({
+        payload,
+        errors: [],
+        translator: stubTranslator
+      })
 
       // When no field errors, items should not have error messages
       expect(viewModel.items[0].errorMessage).toBeUndefined()
@@ -511,7 +592,11 @@ describe('LocationFieldHelpers', () => {
         }
       ]
 
-      const viewModel = field.getViewModel(payload, errors)
+      const viewModel = field.getViewModel({
+        payload,
+        errors,
+        translator: stubTranslator
+      })
 
       // No individual field errors
       expect(viewModel.items[0].errorMessage).toBeUndefined()
@@ -545,7 +630,11 @@ describe('LocationFieldHelpers', () => {
         myComponent__longitude: '-0.1'
       }
 
-      const viewModel = field.getViewModel(payload)
+      const viewModel = field.getViewModel({
+        payload,
+        errors: undefined,
+        translator: stubTranslator
+      })
 
       // When no errors and no additional classes, classes should not include govuk-input--error
       expect(viewModel.items[0].classes).not.toContain('govuk-input--error')
@@ -569,7 +658,11 @@ describe('LocationFieldHelpers', () => {
         myComponent__longitude: '-0.1'
       }
 
-      const viewModel = field.getViewModel(payload)
+      const viewModel = field.getViewModel({
+        payload,
+        errors: undefined,
+        translator: stubTranslator
+      })
 
       const label = viewModel.items[0].label
       expect(label).toBeDefined()
@@ -599,7 +692,11 @@ describe('LocationFieldHelpers', () => {
         myComponent__longitude: -0.1
       }
 
-      const viewModel = field.getViewModel(payload)
+      const viewModel = field.getViewModel({
+        payload,
+        errors: undefined,
+        translator: stubTranslator
+      })
 
       expect(viewModel.fieldset).toBeDefined()
     })
@@ -738,6 +835,62 @@ describe('LocationFieldHelpers', () => {
 
       expect(result.errors).toBeTruthy()
       expect(result.errors?.length).toBeGreaterThan(0)
+    })
+  })
+
+  describe('getMapLayers', () => {
+    it('should return sssi layer if the option is set', () => {
+      const def: LatLongFieldComponent = {
+        title: 'Example lat long',
+        name: 'myComponent',
+        type: ComponentType.LatLongField,
+        options: {
+          mapLayers: { sssi: true }
+        },
+        schema: {}
+      }
+
+      const collection = new ComponentCollection([def], { model })
+      const field = collection.fields[0] as LatLongField
+      const result = getMapLayers(field)
+
+      expect(result).toBe('sssi')
+    })
+
+    it('should return empty if no mapLayer options set', () => {
+      const def: LatLongFieldComponent = {
+        title: 'Example lat long',
+        name: 'myComponent',
+        type: ComponentType.LatLongField,
+        options: {
+          mapLayers: undefined
+        },
+        schema: {}
+      }
+
+      const collection = new ComponentCollection([def], { model })
+      const field = collection.fields[0] as LatLongField
+      const result = getMapLayers(field)
+
+      expect(result).toBe('')
+    })
+
+    it('should return empty if no mapLayer layers are set', () => {
+      const def: LatLongFieldComponent = {
+        title: 'Example lat long',
+        name: 'myComponent',
+        type: ComponentType.LatLongField,
+        options: {
+          mapLayers: {}
+        },
+        schema: {}
+      }
+
+      const collection = new ComponentCollection([def], { model })
+      const field = collection.fields[0] as LatLongField
+      const result = getMapLayers(field)
+
+      expect(result).toBe('')
     })
   })
 })

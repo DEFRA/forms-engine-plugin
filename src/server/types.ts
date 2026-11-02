@@ -11,6 +11,7 @@ import { type DetailItem } from '~/src/server/plugins/engine/models/types.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
   type FormContext,
+  type GetLanguageHandler,
   type OnRequestCallback,
   type PluginOptions,
   type PreparePageEventRequestOptions
@@ -59,6 +60,7 @@ export interface RouteConfig {
   cacheServiceCreator?: (server: Server) => CacheService
   ordnanceSurveyApiKey?: string
   ordnanceSurveyApiSecret?: string
+  getLanguage?: GetLanguageHandler
 }
 
 export interface OutputService {

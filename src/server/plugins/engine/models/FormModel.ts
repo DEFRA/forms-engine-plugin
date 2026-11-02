@@ -1,5 +1,6 @@
 import {
   ComponentType,
+  ConditionEvaluationOutcome,
   ConditionsModel,
   ControllerPath,
   ControllerType,
@@ -8,7 +9,9 @@ import {
   formDefinitionSchema,
   formDefinitionV2Schema,
   generateConditionAlias,
+  getErrorMessage,
   hasComponents,
+  hasComponentsEvenIfNoNext,
   hasRepeater,
   isConditionWrapperV2,
   yesNoListId,
@@ -26,9 +29,11 @@ import {
 } from '@defra/forms-model'
 import { add, format } from 'date-fns'
 import { Parser, type Value } from 'expr-eval-fork'
+import { type i18n } from 'i18next'
 import joi from 'joi'
 
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
+import { EN_GB } from '~/src/server/constants.js'
 import { type ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
 import {} from '~/src/server/plugins/engine/components/YesNoField.js'
 import {
@@ -37,12 +42,24 @@ import {
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { todayAsDateOnly } from '~/src/server/plugins/engine/date-helper.js'
 import {
+  ConditionBuildError,
+  SchemaValidationError
+} from '~/src/server/plugins/engine/errors.js'
+import {
   findPage,
   getError,
-  getPage,
-  setPageTitles
+  getPage
 } from '~/src/server/plugins/engine/helpers.js'
-import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
+import { loadFormTranslations } from '~/src/server/plugins/engine/i18n/createFormTranslator.js'
+import { createTranslator } from '~/src/server/plugins/engine/i18n/createTranslator.js'
+import { extractBaseTranslations } from '~/src/server/plugins/engine/i18n/extractBaseTranslations.js'
+import { createFormI18nInstance } from '~/src/server/plugins/engine/i18n/index.js'
+import { getAvailableLanguages } from '~/src/server/plugins/engine/i18n/languages.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
+import {
+  type ConditionEvaluation,
+  type ExecutableCondition
+} from '~/src/server/plugins/engine/models/types.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
   createPage,
@@ -80,6 +97,7 @@ export class FormModel {
   conditions: Partial<Record<string, ExecutableCondition>>
   pages: PageControllerClass[]
   services: Services
+  private readonly i18nInstance: i18n
 
   controllers?: Record<string, typeof PageController>
   pageDefMap: Map<string, Page>
@@ -117,14 +135,19 @@ export class FormModel {
     const result = schema.validate(def, { abortEarly: false })
 
     if (result.error) {
-      throw result.error
+      throw new SchemaValidationError(result.error)
     }
 
     // Make a clone of the shallow copy returned
     // by joi so as not to change the source data.
     def = structuredClone(result.value)
 
-    // Add default lists
+    const baseTranslations = extractBaseTranslations(def)
+    this.i18nInstance = createFormI18nInstance(baseTranslations)
+    loadFormTranslations(def, this.i18nInstance)
+
+    // Add default lists. Yes/No text stored as i18n key constants so they
+    // resolve to the user's language at render time via the translator.
     def.lists.push({
       id: def.schema === SchemaVersion.V1 ? yesNoListName : yesNoListId,
       name: '__yesNo',
@@ -133,19 +156,16 @@ export class FormModel {
       items: [
         {
           id: '02900d42-83d1-4c72-a719-c4e8228952fa',
-          text: 'Yes',
+          text: 'components.yesNoField.yes',
           value: true
         },
         {
           id: 'f39000eb-c51b-4019-8f82-bbda0423f04d',
-          text: 'No',
+          text: 'components.yesNoField.no',
           value: false
         }
       ]
     })
-
-    // Fix up page titles
-    setPageTitles(def)
 
     this.engine = def.engine
     this.schemaVersion = def.schema ?? SchemaVersion.V1
@@ -161,6 +181,13 @@ export class FormModel {
     this.conditions = {}
     this.services = services
     this.controllers = controllers
+
+    // Assert that there is only one payment question (if any)
+    if (this.moreThanOnePaymentQuestion()) {
+      throw new Error(
+        'Invalid form definition: Only one payment question is allowed per form'
+      )
+    }
 
     this.pageDefMap = new Map(def.pages.map((page) => [page.path, page]))
     this.listDefMap = new Map(def.lists.map((list) => [list.name, list]))
@@ -208,7 +235,7 @@ export class FormModel {
     ) {
       this.pages.push(
         createPage(this, {
-          title: 'Form submitted',
+          title: 'pages.confirmation.formSubmitted',
           path: ControllerPath.Status,
           controller: ControllerType.Status
         })
@@ -224,6 +251,16 @@ export class FormModel {
         ])
       )
     )
+  }
+
+  /** Returns a scoped translator pair for the given language. */
+  createTranslator(language = EN_GB): Translator {
+    // @ts-expect-error - dynamic language lookup
+    if (!this.def.metadata?.translations?.[language]) {
+      // If not translations defined in the FormDefinition, always default to English
+      language = EN_GB
+    }
+    return createTranslator(this.i18nInstance, language)
   }
 
   /**
@@ -267,23 +304,43 @@ export class FormModel {
     })
 
     const { name, displayName, value } = condition
-    const expr = this.toConditionExpression(value, parser)
 
-    const fn = (evaluationState: FormState) => {
+    let expr
+    try {
+      expr = this.toConditionExpression(value, parser)
+    } catch (cause) {
+      throw new ConditionBuildError(displayName, { cause })
+    }
+
+    const evaluate = (evaluationState: FormState): ConditionEvaluation => {
       const ctx = this.toConditionContext(evaluationState, this.conditions)
+
       try {
-        return expr.evaluate(ctx) as boolean
-      } catch {
-        return false
+        return {
+          outcome: (expr.evaluate(ctx) as boolean)
+            ? ConditionEvaluationOutcome.True
+            : ConditionEvaluationOutcome.False
+        }
+      } catch (err) {
+        return {
+          outcome: ConditionEvaluationOutcome.Error,
+          error: getErrorMessage(err)
+        }
       }
     }
+
+    // A failed evaluation continues to route as `false`. `evaluate` exists so
+    // that the two can be told apart when recording outcomes for submission.
+    const fn = (evaluationState: FormState) =>
+      evaluate(evaluationState).outcome === ConditionEvaluationOutcome.True
 
     return {
       name,
       displayName,
       value,
       expr,
-      fn
+      fn,
+      evaluate
     }
   }
 
@@ -332,7 +389,8 @@ export class FormModel {
   getFormContext(
     request: FormContextRequest,
     state: FormSubmissionState,
-    errors?: FormSubmissionError[]
+    errors?: FormSubmissionError[],
+    translator?: Translator
   ): FormContext {
     const { query } = request
 
@@ -361,11 +419,13 @@ export class FormModel {
       pageMap: this.pageMap,
       componentMap: this.componentMap,
       referenceNumber: getReferenceNumber(state),
-      notificationEmail: this.notificationEmail
+      notificationEmail: this.notificationEmail,
+      languages: getAvailableLanguages(this.def),
+      translator
     }
 
     // Validate current page
-    context = validateFormPayload(request, page, context)
+    context = validateFormPayload(request, page, context, translator)
 
     // Find start page
     let nextPage = findPage(this, startPath)
@@ -383,7 +443,7 @@ export class FormModel {
 
       // Stop at current page
       if (
-        this.pageStateIsInvalid(context, nextPage) ||
+        this.pageStateIsInvalid(context, nextPage, translator) ||
         nextPage.path === currentPath
       ) {
         break
@@ -444,7 +504,11 @@ export class FormModel {
     }
   }
 
-  private pageStateIsInvalid(context: FormContext, page: PageControllerClass) {
+  private pageStateIsInvalid(
+    context: FormContext,
+    page: PageControllerClass,
+    translator?: Translator
+  ) {
     // Get any list-bound fields on the page
     const listFields = page.collection.fields.filter(hasListFormField)
 
@@ -460,7 +524,7 @@ export class FormModel {
           list.items.filter((item) => item.condition).length > 0
 
         if (hasOptionalItems) {
-          return this.fieldStateIsInvalid(context, field, list)
+          return this.fieldStateIsInvalid(context, field, list, translator)
         }
       }
     }
@@ -469,7 +533,8 @@ export class FormModel {
   private fieldStateIsInvalid(
     context: FormContext,
     field: ListFormComponent,
-    list: List
+    list: List,
+    translator?: Translator
   ) {
     const { evaluationState, state } = context
 
@@ -499,8 +564,9 @@ export class FormModel {
       if (isInvalid) {
         context.errors ??= []
 
-        const text =
-          'Options are different because you changed a previous answer'
+        const text = (translator ?? this.createTranslator('en-GB')).t(
+          'errors.optionsMismatch'
+        )
 
         context.errors.push({
           text,
@@ -547,6 +613,18 @@ export class FormModel {
       .filter(isConditionWrapperV2)
       .find((condition) => condition.id === conditionId)
   }
+
+  /**
+   * Checks that only one payment field exists (if any payments fields exist)
+   */
+  moreThanOnePaymentQuestion() {
+    const numOfPaymentFields = this.def.pages
+      .flatMap((page) =>
+        hasComponentsEvenIfNoNext(page) ? page.components : []
+      )
+      .filter((comp) => comp.type === ComponentType.PaymentField).length
+    return numOfPaymentFields > 1
+  }
 }
 
 /**
@@ -555,7 +633,8 @@ export class FormModel {
 function validateFormPayload(
   request: FormContextRequest,
   page: PageControllerClass,
-  context: FormContext
+  context: FormContext,
+  translator?: Translator
 ): FormContext {
   const { collection } = page
   const { payload, state } = context
@@ -585,10 +664,10 @@ function validateFormPayload(
     }
   })
 
-  const { value, errors } = collection.validate({
-    ...payload,
-    ...update
-  })
+  const { value, errors } = collection.validate(
+    { ...payload, ...update },
+    translator
+  )
 
   // Add sanitised payload (ready to save)
   const formState = page.getStateFromValidForm(request, state, value)
@@ -623,7 +702,7 @@ function validateFormState(
 
   // Add relevant state errors
   if (error) {
-    const errorsState = error.details.map(getError)
+    const errorsState = error.details.map((item) => getError(EN_GB, item))
     return { ...context, errors: errors.concat(errorsState) }
   }
 

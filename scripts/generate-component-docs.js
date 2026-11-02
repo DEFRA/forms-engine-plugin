@@ -7,6 +7,8 @@ import ts from 'typescript'
 
 import { fixtures } from './component-preview-fixtures.js'
 import { writePreviewPartial } from './generate-component-previews.js'
+import { writePagePreviewPartial } from './generate-page-previews.js'
+import { pageFixtures } from './page-preview-fixtures.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -731,6 +733,7 @@ export function generateComponentMd(
   const { options = [], schema = [], props = [] } = interfaceData
 
   const links = metadata.componentLinks?.[componentName] ?? []
+  const secrets = metadata.componentSecrets?.[componentName] ?? []
 
   // leading '' ensures a blank line between frontmatter and the import
   // Level 1 components require client-side JavaScript to render and can't be statically previewed
@@ -787,7 +790,7 @@ export function generateComponentMd(
     for (const prop of props) {
       const desc = metadata.properties[prop.name] ?? ''
       lines.push(
-        `| \`${prop.name}\` | \`${prop.type}\` | ${prop.optional ? 'No' : 'Yes'} | ${desc} |`
+        `| \`${prop.name}\` | \`${prop.type.replace(/\|/g, '\\|')}\` | ${prop.optional ? 'No' : 'Yes'} | ${desc} |`
       )
     }
     lines.push(``)
@@ -800,7 +803,7 @@ export function generateComponentMd(
     for (const prop of options) {
       const desc = metadata.properties[prop.name] ?? ''
       lines.push(
-        `| \`${prop.name}\` | \`${prop.type}\` | ${prop.optional ? 'No' : 'Yes'} | ${desc} |`
+        `| \`${prop.name}\` | \`${prop.type.replace(/\|/g, '\\|')}\` | ${prop.optional ? 'No' : 'Yes'} | ${desc} |`
       )
     }
     lines.push(``)
@@ -812,7 +815,23 @@ export function generateComponentMd(
     lines.push(`|----------|------|-------------|`)
     for (const prop of schema) {
       const desc = metadata.properties[prop.name] ?? ''
-      lines.push(`| \`${prop.name}\` | \`${prop.type}\` | ${desc} |`)
+      lines.push(
+        `| \`${prop.name}\` | \`${prop.type.replace(/\|/g, '\\|')}\` | ${desc} |`
+      )
+    }
+    lines.push(``)
+  }
+
+  if (secrets.length > 0) {
+    lines.push(`## Required secrets`, ``)
+    lines.push(
+      `This component retrieves secrets at runtime via [\`getFormSecret\`](../code-based/custom-services.md#formsservice) on your \`formsService\`. Implement it to return the correct value from your secrets store — do not use environment variables or plugin options for per-form secrets.`,
+      ``
+    )
+    lines.push(`| Secret name | Description |`)
+    lines.push(`|---|---|`)
+    for (const secret of secrets) {
+      lines.push(`| \`${secret.name}\` | ${secret.description} |`)
     }
     lines.push(``)
   }
@@ -863,12 +882,14 @@ export function controllerSlug(controllerKey) {
  * @param {string} controllerKey
  * @param {Array<{name: string, type: string, optional: boolean}>} uniqueProps
  * @param {string} [examplePath]
+ * @param {Array<object>|null} [exampleComponents]
  * @returns {Record<string, unknown>}
  */
 export function generatePageExample(
   controllerKey,
   uniqueProps,
-  examplePath = '/page-path'
+  examplePath = '/page-path',
+  exampleComponents = null
 ) {
   const controllerValue =
     controllerKey === 'PageController' ? null : controllerKey
@@ -886,6 +907,8 @@ export function generatePageExample(
     setNestedValue(example, prop.name, placeholderForType(prop.type))
   }
 
+  if (exampleComponents) example.components = exampleComponents
+
   return example
 }
 
@@ -894,12 +917,16 @@ export function generatePageExample(
  * @param {Array<{name: string, type: string, optional: boolean}>} uniqueProps
  * @param {string} examplePath
  * @param {number} sidebarPosition
+ * @param {string|null} [previewSlug]
+ * @param {Array<object>|null} [exampleComponents]
  */
-function generatePageMd(
+export function generatePageMd(
   controllerKey,
   uniqueProps,
   examplePath,
-  sidebarPosition
+  sidebarPosition,
+  previewSlug = null,
+  exampleComponents = null
 ) {
   const description = metadata.pages[controllerKey]
   if (!description) return null
@@ -908,11 +935,16 @@ function generatePageMd(
   const isDefault = controllerKey === 'PageController'
   const links = metadata.pageLinks?.[controllerKey] ?? []
 
+  const previewImport = previewSlug
+    ? [``, `import Preview from './_previews/${previewSlug}.mdx'`]
+    : []
+
   const lines = [
     `---`,
     `sidebar_label: "${label}"`,
     `sidebar_position: ${sidebarPosition}`,
     `---`,
+    ...previewImport,
     ``,
     `# ${label}`,
     ``,
@@ -933,12 +965,21 @@ function generatePageMd(
     lines.push(`**Controller value:** \`"${controllerKey}"\``, ``)
   }
 
+  if (previewSlug) {
+    lines.push(`## Preview`, ``, `<Preview />`, ``)
+  }
+
   lines.push(
     `## JSON definition`,
     ``,
     '```json',
     JSON.stringify(
-      generatePageExample(controllerKey, uniqueProps, examplePath),
+      generatePageExample(
+        controllerKey,
+        uniqueProps,
+        examplePath,
+        exampleComponents
+      ),
       null,
       2
     ),
@@ -953,7 +994,7 @@ function generatePageMd(
     for (const prop of uniqueProps) {
       const desc = metadata.pageProperties?.[prop.name] ?? ''
       lines.push(
-        `| \`${prop.name}\` | \`${prop.type}\` | ${prop.optional ? 'No' : 'Yes'} | ${desc} |`
+        `| \`${prop.name}\` | \`${prop.type.replace(/\|/g, '\\|')}\` | ${prop.optional ? 'No' : 'Yes'} | ${desc} |`
       )
     }
     lines.push(``)
@@ -1032,9 +1073,19 @@ function generatePagesIndex() {
   for (const [key, description] of Object.entries(metadata.pages)) {
     const label = controllerLabel(key)
     const slug = controllerSlug(key)
-    lines.push(`- [**${label}**](./${slug}.md) — ${description}`)
+    lines.push(`- [**${label}**](./${slug}.mdx) — ${description}`)
   }
 
+  lines.push(``)
+  lines.push(`## Build your own page type`)
+  lines.push(``)
+  lines.push(
+    `If none of the built-in page types meet your needs, you can write a custom page controller by extending \`QuestionPageController\` (for pages with form components) or \`PageController\` (for display-only pages). Custom controllers are registered via the \`controllers\` plugin option and referenced in your form definition by name.`
+  )
+  lines.push(``)
+  lines.push(
+    `See [Custom page controllers](../code-based/page-controllers.md) for a full guide.`
+  )
   lines.push(``)
   return lines.join('\n')
 }
@@ -1092,6 +1143,8 @@ function main() {
     fs.rmSync(pagesOutputDir, { recursive: true, force: true })
   }
   fs.mkdirSync(pagesOutputDir, { recursive: true })
+  const pagePreviewsDir = path.resolve(pagesOutputDir, '_previews')
+  fs.mkdirSync(pagePreviewsDir, { recursive: true })
 
   // Parse sources
   const interfaces = parseComponentInterfaces(componentsDtsPath)
@@ -1180,13 +1233,25 @@ function main() {
     }
     const { props: uniqueProps = [], examplePath = '/page-path' } =
       pageInterfaces[key] ?? {}
-    const content = generatePageMd(key, uniqueProps, examplePath, i + 1)
+    const fixture = pageFixtures[key]
+    const sidebarPosition = i + 1
+    const content = generatePageMd(
+      key,
+      uniqueProps,
+      examplePath,
+      sidebarPosition,
+      fixture ? slug : null,
+      fixture?.exampleComponents ?? null
+    )
     if (content) {
-      fs.writeFileSync(path.join(pagesOutputDir, `${slug}.md`), content)
+      fs.writeFileSync(path.join(pagesOutputDir, `${slug}.mdx`), content)
+    }
+    if (fixture) {
+      writePagePreviewPartial(pagePreviewsDir, slug, fixture)
     }
   }
 
-  fs.writeFileSync(path.join(pagesOutputDir, 'index.md'), generatePagesIndex())
+  fs.writeFileSync(path.join(pagesOutputDir, 'index.mdx'), generatePagesIndex())
 
   console.log(
     `Generated ${componentOrder.length} component pages and ${Object.keys(metadata.pages).length} page type pages.`

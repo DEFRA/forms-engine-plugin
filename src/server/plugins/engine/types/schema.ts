@@ -1,5 +1,6 @@
 import {
   FormStatus,
+  formSubmitConditionEvaluationSchema,
   formVersionMetadataSchema,
   idSchema,
   notificationEmailAddressSchema,
@@ -18,9 +19,9 @@ import {
 
 export const formAdapterSubmissionMessageMetaSchema =
   Joi.object<FormAdapterSubmissionMessageMeta>().keys({
-    schemaVersion: Joi.string().valid(
-      ...Object.values(FormAdapterSubmissionSchemaVersion)
-    ),
+    schemaVersion: Joi.number()
+      .valid(...Object.values(FormAdapterSubmissionSchemaVersion))
+      .required(),
     timestamp: Joi.date().required(),
     referenceNumber: Joi.string().required(),
     formName: titleSchema,
@@ -32,11 +33,16 @@ export const formAdapterSubmissionMessageMetaSchema =
     isPreview: Joi.boolean().required(),
     notificationEmail: notificationEmailAddressSchema.required(),
     versionMetadata: formVersionMetadataSchema.optional(),
+    language: Joi.string().optional(),
     custom: Joi.object()
       .pattern(/^/, Joi.any())
       .unknown()
       .optional()
-      .description('Custom properties for the message')
+      .description('Custom properties for the message'),
+    auth: Joi.object({
+      sub: Joi.string().required(),
+      issuer: Joi.string().required()
+    }).optional()
   })
 
 export const formAdapterSubmissionMessageDataSchema =
@@ -49,6 +55,7 @@ export const formAdapterSubmissionMessageDataSchema =
         reference: Joi.string().required(),
         amount: Joi.number().required(),
         description: Joi.string().required(),
+        descriptionInEng: Joi.string().optional(),
         createdAt: Joi.string().required()
       })
       .optional(),
@@ -78,5 +85,16 @@ export const formAdapterSubmissionMessagePayloadSchema =
   Joi.object<FormAdapterSubmissionMessagePayload>().keys({
     meta: formAdapterSubmissionMessageMetaSchema.required(),
     data: formAdapterSubmissionMessageDataSchema.required(),
-    result: formAdapterSubmissionMessageResultSchema.required()
+    result: formAdapterSubmissionMessageResultSchema.required(),
+    // Optional so that messages published before this existed - which may
+    // still be in flight or sitting on a dead-letter queue - continue to
+    // validate. Consumers treat its absence as "resolve the recipients from
+    // the form definition yourself"
+    // This should be required at a later point in time.
+    conditionEvaluations: Joi.array()
+      .items(formSubmitConditionEvaluationSchema)
+      .optional()
+      .description(
+        'Outcome of every condition in the form definition, evaluated against the final answers at submission'
+      )
   })

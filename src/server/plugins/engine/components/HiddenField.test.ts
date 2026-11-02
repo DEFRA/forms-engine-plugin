@@ -6,8 +6,13 @@ import {
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
+
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
 
 describe('HiddenField', () => {
   let model: FormModel
@@ -110,8 +115,8 @@ describe('HiddenField', () => {
         const state1 = getFormState('Hidden field')
         const state2 = getFormState(null)
 
-        const answer1 = getAnswer(field, state1)
-        const answer2 = getAnswer(field, state2)
+        const answer1 = getAnswer(field, state1, translator)
+        const answer2 = getAnswer(field, state2, translator)
 
         expect(answer1).toBe('Hidden field')
         expect(answer2).toBe('')
@@ -164,7 +169,11 @@ describe('HiddenField', () => {
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = field.getViewModel(getFormData('Hidden field'))
+        const viewModel = field.getViewModel({
+          payload: getFormData('Hidden field'),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({

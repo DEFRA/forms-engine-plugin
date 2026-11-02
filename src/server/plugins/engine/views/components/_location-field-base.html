@@ -61,7 +61,7 @@
   {% set detailsHtml %}
     {% if component.model.instructionText %}
       {{ govukDetails({
-        summaryText: "How to find location details",
+        summaryText: component.model.instructionSummary,
         html: component.model.instructionText | markdown | safe,
         classes: "govuk-!-margin-top-3"
       }) }}
@@ -70,7 +70,11 @@
 
   {% set hasErrors = showFieldsetError and component.model.errorMessage %}
 
-  <div class="govuk-form-group app-location-field {{ "govuk-form-group--error" if hasErrors }}" data-locationtype="{{component.type | lower}}">
+  <div id="{{component.model.name}}" class="govuk-form-group app-location-field {{ "govuk-form-group--error" if hasErrors }}"
+    data-locationtype="{{component.type | lower}}"
+    data-country="{{component.model.country}}"
+    data-lang="{{component.model.lang}}"
+    data-maplayers="{{component.model.mapLayers}}">
     {{ govukFieldset({
       legend: {
         text: component.model.fieldset.legend.text,

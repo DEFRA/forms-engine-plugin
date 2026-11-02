@@ -1,10 +1,3 @@
----
-layout: default
-title: Building the package
-render_with_liquid: false
-nav_order: 5
----
-
 # Building the package
 
 1. [Overview](#overview)

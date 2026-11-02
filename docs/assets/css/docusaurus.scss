@@ -80,6 +80,39 @@
   color: #505a5f;
 }
 
+.app-page-preview__header {
+  background: #1d70b8;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 0;
+}
+
+.app-page-preview__service-name {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 16px;
+  font-family: sans-serif;
+}
+
+.app-page-preview__main {
+  padding: 20px;
+  background: #ffffff;
+}
+
+.app-page-preview__footer {
+  background: #f3f2f1;
+  border-top: 1px solid #b1b4b6;
+  padding: 10px 20px;
+  font-size: 14px;
+  color: #505a5f;
+  font-family: sans-serif;
+}
+
+.component-preview--page {
+  padding: 0;
+}
+
 @media (min-width: 48.125em) {
   .govuk-template--rebranded .app-masthead .govuk-grid-row {
     display: flex;

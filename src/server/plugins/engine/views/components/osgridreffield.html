@@ -3,14 +3,17 @@
 
 {% macro OsGridRefField(component) %}
   {% set hasErrors = component.model.errorMessage %}
-  <div class="govuk-form-group app-location-field {{ "govuk-form-group--error" if hasErrors }}" data-locationtype="{{component.type | lower}}">
+  <div class="govuk-form-group app-location-field {{ "govuk-form-group--error" if hasErrors }}"
+    data-locationtype="{{component.type | lower}}"
+    data-lang="{{component.model.lang}}"
+    data-maplayers="{{component.model.mapLayers}}">
     <div class="app-location-field-inputs">
       {{ TextField(component) }}
     </div>
 
     {% if component.model.instructionText %}
       {{ govukDetails({
-        summaryText: "How to find location details",
+        summaryText: t('components.osGridRefField.howToFind'),
         html: component.model.instructionText | markdown | safe,
         classes: "govuk-!-margin-top-3"
       }) }}

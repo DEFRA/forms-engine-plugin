@@ -3,18 +3,20 @@ import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
 import { EXTERNAL_STATE_APPENDAGE } from '~/src/server/constants.js'
+import { getCachedPluginTranslator } from '~/src/server/plugins/engine/i18n/form.js'
 import {
   JOURNEY_BASE_URL,
-  detailsPayloadSchema,
+  createDetailsPayloadSchema,
+  createManualPayloadSchema,
+  createSelectPayloadSchema,
   detailsViewModel,
-  manualPayloadSchema,
   manualViewModel,
-  selectPayloadSchema,
   selectViewModel,
   stepSchema,
   steps
 } from '~/src/server/plugins/postcode-lookup/models/index.js'
 import * as service from '~/src/server/plugins/postcode-lookup/service.js'
+import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 const viewName = 'postcode-lookup-details'
 
@@ -22,7 +24,7 @@ const viewName = 'postcode-lookup-details'
  * Get the session state associated with this journey
  * @param {PostcodeLookupRequest} request
  */
-function getSessionState(request) {
+export function getSessionState(request) {
   /**
    * @type {PostcodeLookupSessionData | null | undefined}
    */
@@ -63,6 +65,32 @@ function flashComponentState(request, componentName, address) {
 
   request.yar.flash(EXTERNAL_STATE_APPENDAGE, appendage, true)
 }
+/**
+ * Get a cached translator, or create a new one if not in the cache
+ * @param {PostcodeLookupRequest} request
+ * @param {PostcodeLookupDispatchData} initial
+ * @param { string | string[] | undefined } language
+ */
+export async function getDispatchTranslator(request, initial, language) {
+  const { formId, formStatus } = initial
+
+  // Override language if passed as a query param
+  if (language) {
+    request.yar.set('language', language)
+  }
+
+  const typedReq = /** @type {AnyFormRequest} */ (/** @type {any} */ (request))
+  const lang = resolveLanguage(typedReq)
+
+  const translator = await getCachedPluginTranslator(
+    typedReq,
+    /** @type {FormMetadata} */ ({ id: formId }),
+    formStatus,
+    lang
+  )
+
+  return translator
+}
 
 /**
  * Initialises and dispatches the request to the postcode lookup journey
@@ -101,15 +129,21 @@ function getRoute() {
   return {
     method: 'GET',
     path: JOURNEY_BASE_URL,
-    handler(request, h) {
+    async handler(request, h) {
       const { query } = request
-      const { step } = query
+      const { step, language } = query
       const session = getSessionState(request)
+
+      const translator = await getDispatchTranslator(
+        request,
+        session.initial,
+        language
+      )
 
       const model =
         step === steps.manual
-          ? manualViewModel(session)
-          : detailsViewModel(session)
+          ? manualViewModel(session, translator)
+          : detailsViewModel(session, translator)
 
       return h.view(viewName, model)
     },
@@ -117,7 +151,8 @@ function getRoute() {
       validate: {
         query: Joi.object()
           .keys({
-            step: Joi.string().allow(steps.details, steps.manual).optional()
+            step: Joi.string().allow(steps.details, steps.manual).optional(),
+            language: Joi.string().allow('en-GB', 'cy').optional()
           })
           .optional()
       }
@@ -164,6 +199,19 @@ function postRoute(options) {
 }
 
 /**
+ * Validate a payload against a schema. Joi types the value as `any` when
+ * validation fails, so it is typed here as the partially converted payload.
+ * @template TSchema
+ * @param {ObjectSchema<TSchema>} schema
+ * @param {unknown} payload
+ * @param {ValidationOptions} [options]
+ * @returns {{ value: TSchema, error: undefined } | { value: TSchema | undefined, error: ValidationError }}
+ */
+function validatePayload(schema, payload, options) {
+  return schema.validate(payload, options)
+}
+
+/**
  * Post handler for the details step
  * @param {PostcodeLookupPostRequest} request
  * @param {ResponseToolkit<PostcodeLookupPostRequestRefs>} h
@@ -172,17 +220,22 @@ function postRoute(options) {
 async function detailsPostHandler(request, h, options) {
   const session = getSessionState(request)
   const { ordnanceSurveyApiKey: apiKey } = options
+  const translator = await getDispatchTranslator(
+    request,
+    session.initial,
+    request.query.language
+  )
+  const language = translator.language
 
-  /** @type {{ value: PostcodeLookupDetailsPayload, error?: import('joi').ValidationError }} */
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const { value: details, error } = detailsPayloadSchema.validate(
+  const { value: details, error } = validatePayload(
+    createDetailsPayloadSchema(language),
     request.payload
   )
 
   let model
 
   if (error) {
-    model = detailsViewModel(session, details, error)
+    model = detailsViewModel(session, translator, details, error)
 
     return h.view(viewName, model)
   }
@@ -193,7 +246,7 @@ async function detailsPostHandler(request, h, options) {
   // Store the updated session
   request.yar.set(JOURNEY_BASE_URL, session)
 
-  model = await selectViewModel({ session, apiKey })
+  model = await selectViewModel({ session, apiKey }, translator)
 
   return h.view(viewName, model)
 }
@@ -207,13 +260,24 @@ async function detailsPostHandler(request, h, options) {
 async function selectPostHandler(request, h, options) {
   const session = getSessionState(request)
   const { ordnanceSurveyApiKey: apiKey } = options
-
-  /** @type {{ value: PostcodeLookupSelectPayload, error?: import('joi').ValidationError }} */
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const { value: select, error } = selectPayloadSchema.validate(request.payload)
+  const translator = await getDispatchTranslator(
+    request,
+    session.initial,
+    request.query.language
+  )
+  const language = translator.language
+  const { value: select, error } = validatePayload(
+    createSelectPayloadSchema(language),
+    request.payload
+  )
 
   if (error) {
-    const model = await selectViewModel({ session, apiKey }, select, error)
+    const model = await selectViewModel(
+      { session, apiKey },
+      translator,
+      select,
+      error
+    )
 
     return h.view(viewName, model)
   }
@@ -237,20 +301,23 @@ async function selectPostHandler(request, h, options) {
  * @param {PostcodeLookupPostRequest} request
  * @param {ResponseToolkit<PostcodeLookupPostRequestRefs>} h
  */
-function manualPostHandler(request, h) {
+async function manualPostHandler(request, h) {
   const session = getSessionState(request)
+  const translator = await getDispatchTranslator(
+    request,
+    session.initial,
+    request.query.language
+  )
+  const language = translator.language
 
-  /** @type {{ value: PostcodeLookupManualPayload, error?: import('joi').ValidationError }} */
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const { value: manual, error } = manualPayloadSchema.validate(
+  const { value: manual, error } = validatePayload(
+    createManualPayloadSchema(language),
     request.payload,
-    {
-      abortEarly: false
-    }
+    { abortEarly: false }
   )
 
   if (error) {
-    const model = manualViewModel(session, manual, error)
+    const model = manualViewModel(session, translator, manual, error)
 
     return h.view(viewName, model)
   }
@@ -264,7 +331,9 @@ function manualPostHandler(request, h) {
 
 /**
  * @import { ResponseToolkit, ServerRoute } from '@hapi/hapi'
- * @import { PostcodeLookupManualPayload, PostcodeLookupDetailsPayload, PostcodeLookupSelectPayload, Address, PostcodeLookupGetRequestRefs, PostcodeLookupPostRequestRefs, PostcodeLookupRequest, PostcodeLookupPostRequest, PostcodeLookupConfiguration, PostcodeLookupDispatchData, PostcodeLookupSessionData } from '~/src/server/plugins/postcode-lookup/types.js'
+ * @import { ObjectSchema, ValidationError, ValidationOptions } from 'joi'
+ * @import { FormMetadata } from '@defra/forms-model'
+ * @import { PostcodeLookupManualPayload, Address, PostcodeLookupGetRequestRefs, PostcodeLookupPostRequestRefs, PostcodeLookupRequest, PostcodeLookupPostRequest, PostcodeLookupConfiguration, PostcodeLookupDispatchData, PostcodeLookupSessionData } from '~/src/server/plugins/postcode-lookup/types.js'
  * @import { FormRequestPayload, FormResponseToolkit } from '~/src/server/routes/types.js'
- * @import { ExternalStateAppendage } from '~/src/server/plugins/engine/types.js'
+ * @import { AnyFormRequest, ExternalStateAppendage } from '~/src/server/plugins/engine/types.js'
  */

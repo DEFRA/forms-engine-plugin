@@ -1,8 +1,11 @@
 import { type CheckboxesFieldComponent, type Item } from '@defra/forms-model'
 import joi, { type ArraySchema } from 'joi'
 
+import { EN_GB } from '~/src/server/constants.js'
 import { isFormValue } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { SelectionControlField } from '~/src/server/plugins/engine/components/SelectionControlField.js'
+import { t as tPlugin } from '~/src/server/plugins/engine/i18n/index.js'
+import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
@@ -16,8 +19,9 @@ import {
 export class CheckboxesField extends SelectionControlField {
   declare options: CheckboxesFieldComponent['options']
   declare schema: CheckboxesFieldComponent['schema']
-  declare formSchema: ArraySchema<string> | ArraySchema<number>
-  declare stateSchema: ArraySchema<string> | ArraySchema<number>
+  declare formSchema: ArraySchema<string[]> | ArraySchema<number[]>
+  declare stateSchema: ArraySchema<string[]> | ArraySchema<number[]>
+  declare limits: { min?: number; max?: number; length?: number }
 
   constructor(
     def: CheckboxesFieldComponent,
@@ -29,7 +33,7 @@ export class CheckboxesField extends SelectionControlField {
     const { options, schema } = def
 
     let formSchema =
-      type === 'string' ? joi.array<string>() : joi.array<number>()
+      type === 'string' ? joi.array<string[]>() : joi.array<number[]>()
 
     const itemsSchema = joi[type]()
       .valid(...this.values)
@@ -40,11 +44,8 @@ export class CheckboxesField extends SelectionControlField {
       .single()
       .label(this.label)
       .required()
-      .messages({
-        'array.min': messageTemplate.arrayMin as string,
-        'array.max': messageTemplate.arrayMax as string,
-        'array.length': messageTemplate.arrayLength as string
-      })
+
+    const limits: { min?: number; max?: number; length?: number } = {}
 
     if (options.required === false) {
       formSchema = formSchema.optional()
@@ -52,15 +53,24 @@ export class CheckboxesField extends SelectionControlField {
 
     if (typeof schema?.length === 'number') {
       formSchema = formSchema.length(schema.length)
+      limits.length = schema.length
     } else {
       if (typeof schema?.min === 'number') {
         formSchema = formSchema.min(schema.min)
+        limits.min = schema.min
       }
 
       if (typeof schema?.max === 'number') {
         formSchema = formSchema.max(schema.max)
+        limits.max = schema.max
       }
     }
+
+    this.limits = limits
+
+    formSchema = formSchema.messages(
+      CheckboxesField.buildErrorMessages(EN_GB, limits)
+    )
 
     this.formSchema = formSchema.default([])
     this.stateSchema = formSchema.default(null).allow(null)
@@ -86,7 +96,8 @@ export class CheckboxesField extends SelectionControlField {
   }
 
   getDisplayStringFromFormValue(
-    selected: (string | number | boolean)[] | undefined
+    selected: (string | number | boolean)[] | undefined,
+    translator: Translator
   ) {
     const { items } = this
 
@@ -94,10 +105,9 @@ export class CheckboxesField extends SelectionControlField {
       return ''
     }
 
-    // Map selected values to text
     return items
       .filter((item) => selected.includes(item.value))
-      .map((item) => item.text)
+      .map((item) => translator.tListItem(item, 'text') || item.text)
       .join(', ')
   }
 
@@ -118,18 +128,25 @@ export class CheckboxesField extends SelectionControlField {
     return values ?? []
   }
 
-  getDisplayStringFromState(state: FormSubmissionState) {
-    // Selected checkbox values
+  getDisplayStringFromState(
+    state: FormSubmissionState,
+    translator: Translator
+  ) {
     const selected = this.getFormValueFromState(state) ?? []
-
-    // Map selected values to text
-    return this.getDisplayStringFromFormValue(selected)
+    return this.getDisplayStringFromFormValue(selected, translator)
   }
 
   getContextValueFromState(state: FormSubmissionState) {
     const values = this.getFormValueFromState(state)
 
     return this.getContextValueFromFormValue(values)
+  }
+
+  getValidationMessagesOverride(translator: Translator) {
+    const { language } = translator
+    return {
+      [this.name]: CheckboxesField.buildErrorMessages(language, this.limits)
+    }
   }
 
   /**
@@ -167,5 +184,22 @@ export class CheckboxesField extends SelectionControlField {
     }
 
     return value.every(isFormValue)
+  }
+
+  static buildErrorMessages(
+    language: string,
+    limits: { min?: number; max?: number; length?: number } = {}
+  ) {
+    return {
+      'array.min': tPlugin('validation.arrayMin', language, {
+        count: limits.min ?? 1
+      }),
+      'array.max': tPlugin('validation.arrayMax', language, {
+        count: limits.max ?? 1
+      }),
+      'array.length': tPlugin('validation.arrayLength', language, {
+        count: limits.length ?? 1
+      })
+    }
   }
 }

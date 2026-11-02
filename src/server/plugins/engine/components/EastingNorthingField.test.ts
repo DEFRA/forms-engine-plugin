@@ -10,8 +10,31 @@ import {
   type Field
 } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
+import { type EastingNorthingState } from '~/src/server/plugins/engine/types/index.js'
 import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
+
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
+
+// Note - the form must have at least one Welsh translation otherwise the translator defaults back to English
+const welshTranslator = new FormModel(
+  {
+    ...definition,
+    metadata: {
+      translations: {
+        cy: {
+          dummy: 'Some welsh'
+        }
+      }
+    }
+  },
+  {
+    basePath: '/'
+  }
+).createTranslator('cy')
 
 describe('EastingNorthingField', () => {
   let model: FormModel
@@ -49,14 +72,20 @@ describe('EastingNorthingField', () => {
         expect(keys).toHaveProperty(
           'myComponent__easting',
           expect.objectContaining({
-            flags: expect.objectContaining({ label: 'Easting' })
+            flags: expect.objectContaining({
+              label: 'components.eastingNorthingField.easting'
+            })
+            // Sub-field title is a key constant; resolved at request time (Task 8/9).
           })
         )
 
         expect(keys).toHaveProperty(
           'myComponent__northing',
           expect.objectContaining({
-            flags: expect.objectContaining({ label: 'Northing' })
+            flags: expect.objectContaining({
+              label: 'components.eastingNorthingField.northing'
+            })
+            // Sub-field title is a key constant; resolved at request time (Task 8/9).
           })
         )
       })
@@ -202,8 +231,8 @@ describe('EastingNorthingField', () => {
         })
         const state2 = getFormState({})
 
-        const answer1 = getAnswer(field, state1)
-        const answer2 = getAnswer(field, state2)
+        const answer1 = getAnswer(field, state1, translator)
+        const answer2 = getAnswer(field, state2, translator)
 
         expect(answer1).toBe('Easting: 12345<br>Northing: 1234567<br>')
         expect(answer2).toBe('')
@@ -256,7 +285,7 @@ describe('EastingNorthingField', () => {
         const value1 = field.getContextValueFromState(state1)
         const value2 = field.getContextValueFromState(state2)
 
-        expect(value1).toBe('Easting: 12345\nNorthing: 1234567')
+        expect(value1).toBe('12345, 1234567')
         expect(value2).toBeNull()
       })
 
@@ -286,7 +315,11 @@ describe('EastingNorthingField', () => {
           easting: 12345,
           northing: 1234567
         })
-        const viewModel = field.getViewModel(payload)
+        const viewModel = field.getViewModel({
+          payload,
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -298,13 +331,19 @@ describe('EastingNorthingField', () => {
             },
             items: [
               expect.objectContaining({
-                label: expect.objectContaining({ text: 'Easting' }),
+                label: expect.objectContaining({
+                  text: 'Easting'
+                }),
+                // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 name: 'myComponent__easting',
                 id: 'myComponent__easting',
                 value: 12345
               }),
               expect.objectContaining({
-                label: expect.objectContaining({ text: 'Northing' }),
+                label: expect.objectContaining({
+                  text: 'Northing'
+                }),
+                // Sub-field title is a key constant; resolved at request time (Task 8/9).
                 name: 'myComponent__northing',
                 id: 'myComponent__northing',
                 value: 1234567
@@ -323,12 +362,14 @@ describe('EastingNorthingField', () => {
           { model }
         )
 
-        const viewModel = componentWithInstruction.getViewModel(
-          getFormData({
+        const viewModel = componentWithInstruction.getViewModel({
+          payload: getFormData({
             easting: 12345,
             northing: 1234567
-          })
-        )
+          }),
+          errors: undefined,
+          translator: stubTranslator
+        })
 
         const instructionText =
           'instructionText' in viewModel ? viewModel.instructionText : undefined
@@ -351,7 +392,11 @@ describe('EastingNorthingField', () => {
           }
         ]
 
-        const viewModel = field.getViewModel(payload, errors)
+        const viewModel = field.getViewModel({
+          payload,
+          errors,
+          translator: stubTranslator
+        })
 
         // Check that error is passed to the viewModel
         expect(viewModel.errors).toEqual(errors)
@@ -388,7 +433,7 @@ describe('EastingNorthingField', () => {
           }
         ]
 
-        const viewErrors = field.getViewErrors(errors)
+        const viewErrors = field.getViewErrors(translator, errors)
 
         // Should return all errors, not just the first one
         expect(viewErrors).toHaveLength(2)
@@ -445,6 +490,50 @@ describe('EastingNorthingField', () => {
               ? e.template.rendered
               : e.template
           )
+        )
+      })
+    })
+
+    describe('sub-field title key constants', () => {
+      it('stores sub-field titles as i18next key constants', () => {
+        const locationField = collection.fields[0] as EastingNorthingField
+        const subFields = locationField.collection.fields
+
+        expect(subFields[0].title).toBe(
+          'components.eastingNorthingField.easting'
+        )
+        expect(subFields[1].title).toBe(
+          'components.eastingNorthingField.northing'
+        )
+      })
+    })
+
+    describe('sub-field message overrides', () => {
+      it('gets sub-field error messages translated', () => {
+        const locationField = collection.fields[0] as EastingNorthingField
+
+        const messagesEnglish1 =
+          locationField.getValidationMessagesOverride(translator)
+        expect(messagesEnglish1.myComponent__easting['any.required']).toBe(
+          'Enter easting'
+        )
+
+        const messagesWelsh1 =
+          locationField.getValidationMessagesOverride(welshTranslator)
+        expect(messagesWelsh1.myComponent__easting['any.required']).toBe(
+          'Nodwch ddwyreiniannau'
+        )
+
+        const messagesEnglish2 =
+          locationField.getValidationMessagesOverride(translator)
+        expect(messagesEnglish2.myComponent__northing['any.required']).toBe(
+          'Enter northing'
+        )
+
+        const messagesWelsh2 =
+          locationField.getValidationMessagesOverride(welshTranslator)
+        expect(messagesWelsh2.myComponent__northing['any.required']).toBe(
+          'Nodwch ogleddiannau'
         )
       })
     })
@@ -516,7 +605,8 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /Easting for .* must be between 1000 and 60000/
+                    /components\.eastingNorthingField\.easting for .* must be between 1000 and 60000/
+                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   )
                 })
               ]
@@ -535,7 +625,8 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /Easting for .* must be between 1000 and 60000/
+                    /components\.eastingNorthingField\.easting for .* must be between 1000 and 60000/
+                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   )
                 })
               ]
@@ -571,7 +662,8 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /Northing for .* must be between 1000 and 1200000/
+                    /components\.eastingNorthingField\.northing for .* must be between 1000 and 1200000/
+                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   )
                 })
               ]
@@ -590,7 +682,8 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /Northing for .* must be between 1000 and 1200000/
+                    /components\.eastingNorthingField\.northing for .* must be between 1000 and 1200000/
+                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   )
                 })
               ]
@@ -621,7 +714,8 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /Easting for .* must be between 1 and 6 digits/
+                    /components\.eastingNorthingField\.easting for .* must be between 1 and 6 digits/
+                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   )
                 })
               ]
@@ -640,7 +734,8 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /Northing for .* must be between 1 and 7 digits/
+                    /components\.eastingNorthingField\.northing for .* must be between 1 and 7 digits/
+                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   )
                 })
               ]
@@ -673,11 +768,99 @@ describe('EastingNorthingField', () => {
             }
           }
         ]
+      },
+      {
+        description: 'Country validation (invalid value)',
+        component: {
+          title: 'Example easting northing',
+          name: 'myComponent',
+          type: ComponentType.EastingNorthingField,
+          options: {
+            countries: ['wales']
+          },
+          schema: {}
+        } satisfies EastingNorthingFieldComponent,
+        assertions: [
+          {
+            input: getFormData({
+              easting: '332218',
+              northing: '283862'
+            }),
+            output: {
+              value: getFormData({
+                easting: 332218,
+                northing: 283862
+              }),
+              errors: [
+                expect.objectContaining({
+                  text: expect.stringMatching(
+                    /myComponent failed custom validation because/
+                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                  )
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Country validation (valid value)',
+        component: {
+          title: 'Example easting northing',
+          name: 'myComponent',
+          type: ComponentType.EastingNorthingField,
+          options: {
+            countries: ['wales']
+          },
+          schema: {}
+        } satisfies EastingNorthingFieldComponent,
+        assertions: [
+          {
+            input: getFormData({
+              easting: '326781',
+              northing: '269766'
+            }),
+            output: {
+              value: getFormData({
+                easting: 326781,
+                northing: 269766
+              })
+            }
+          }
+        ]
+      },
+      {
+        description: 'Country validation (invalid country)',
+        component: {
+          title: 'Example easting northing',
+          name: 'myComponent',
+          type: ComponentType.EastingNorthingField,
+          options: {
+            // @ts-expect-error -- testing invalid country value
+            countries: ['invalid']
+          },
+          schema: {}
+        } satisfies EastingNorthingFieldComponent,
+        assertions: [
+          {
+            input: getFormData({
+              easting: '326781',
+              northing: '269766'
+            }),
+            output: {
+              value: getFormData({
+                easting: 326781,
+                northing: 269766
+              })
+            }
+          }
+        ]
       }
     ])('$description', ({ component: def, assertions }) => {
       let collection: ComponentCollection
 
       beforeEach(() => {
+        // @ts-expect-error -- testing invalid country value
         collection = new ComponentCollection([def], { model })
       })
 
@@ -688,6 +871,48 @@ describe('EastingNorthingField', () => {
           expect(result).toEqual(output)
         }
       )
+    })
+
+    it('getErrors formats country boundary errors', () => {
+      const component = {
+        title: 'Example bounded EN field',
+        name: 'myComponent',
+        type: ComponentType.EastingNorthingField,
+        options: {
+          countries: ['scotland'],
+          required: true
+        }
+      } satisfies EastingNorthingFieldComponent
+
+      const collection = new ComponentCollection([component], { model })
+      const invalidSingleState: EastingNorthingState = {
+        easting: 350005,
+        northing: 315469
+      }
+
+      const mockT = jest.fn().mockReturnValue('translated country')
+      const mockTranslator = { ...stubTranslator, t: mockT }
+
+      const result = collection.validate(getFormData(invalidSingleState))
+      const eastingNorthingField = collection.components.at(
+        0
+      ) as EastingNorthingField
+
+      const viewErrors = eastingNorthingField.getViewErrors(
+        mockTranslator,
+        result.errors
+      )
+
+      expect(mockT).toHaveBeenCalledWith(
+        'components.eastingNorthingField.wrongCountry',
+        { country: 'translated country' }
+      )
+      expect(viewErrors).toEqual([
+        expect.objectContaining({
+          href: '#myComponent',
+          text: 'translated country'
+        })
+      ])
     })
   })
 })

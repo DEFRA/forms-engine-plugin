@@ -27,6 +27,7 @@ import {
 } from './generate-component-previews.js'
 
 import { createComponent } from '~/src/server/plugins/engine/components/helpers/components.ts'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import { environment } from '~/src/server/plugins/nunjucks/environment.js'
 
 describe('component-preview-fixtures', () => {
@@ -91,7 +92,7 @@ describe('component-preview-fixtures', () => {
 describe('buildPartialMdx', () => {
   it('wraps a single render in a component-preview div', () => {
     const result = buildPartialMdx([{ html: '<input class="govuk-input">' }])
-    expect(result).toContain('className="component-preview"')
+    expect(result).toContain('className="component-preview app-no-prose"')
     expect(result).toContain('dangerouslySetInnerHTML')
     expect(result).toContain('govuk-input')
   })
@@ -103,7 +104,7 @@ describe('buildPartialMdx', () => {
     ])
     expect(result).toContain('Before payment')
     expect(result).toContain('After payment')
-    const matches = result.match(/className="component-preview"/g)
+    const matches = result.match(/className="component-preview app-no-prose"/g)
     expect(matches).toHaveLength(2)
   })
 
@@ -116,10 +117,25 @@ describe('buildPartialMdx', () => {
     expect(result).toContain('\\`backtick\\`')
     expect(result).toContain('\\' + dollarBrace + 'expr}')
   })
+
+  it('uses custom wrapperClass when provided', () => {
+    const result = buildPartialMdx(
+      [{ html: '<input>' }],
+      'component-preview component-preview--page'
+    )
+    expect(result).toContain(
+      'className="component-preview component-preview--page"'
+    )
+    expect(result).not.toContain('className="component-preview"')
+  })
 })
 
 describe('renderComponent', () => {
   let mockGetViewModel
+
+  const mockModel = {
+    createTranslator: () => stubTranslator
+  }
 
   beforeEach(() => {
     mockGetViewModel = jest.fn().mockReturnValue({
@@ -134,22 +150,32 @@ describe('renderComponent', () => {
   })
 
   it('calls createComponent with def and model from fixture', () => {
-    renderComponent(fixtures.TextField)
+    renderComponent({
+      ...fixtures.TextField,
+      model: mockModel
+    })
     expect(createComponent).toHaveBeenCalledWith(fixtures.TextField.def, {
-      model: fixtures.TextField.model
+      model: mockModel
     })
   })
 
   it('calls getViewModel with payload and empty errors array', () => {
-    renderComponent(fixtures.TextField)
-    expect(mockGetViewModel).toHaveBeenCalledWith(
-      fixtures.TextField.payload,
-      []
-    )
+    renderComponent({
+      ...fixtures.TextField,
+      model: mockModel
+    })
+    expect(mockGetViewModel).toHaveBeenCalledWith({
+      payload: {},
+      errors: [],
+      translator: stubTranslator
+    })
   })
 
   it('passes viewModel wrapped as { type, model } to renderString', () => {
-    renderComponent(fixtures.TextField)
+    renderComponent({
+      ...fixtures.TextField,
+      model: mockModel
+    })
     expect(environment.renderString).toHaveBeenCalledWith(
       expect.stringContaining('componentList'),
       expect.objectContaining({
@@ -188,7 +214,7 @@ describe('writePreviewPartial', () => {
       fixtures.PaymentField
     )
     const written = writeFileSync.mock.calls[0][1]
-    const matches = written.match(/className="component-preview"/g)
+    const matches = written.match(/className="component-preview app-no-prose"/g)
     expect(matches).toHaveLength(2)
   })
 

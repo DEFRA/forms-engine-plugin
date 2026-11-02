@@ -2,21 +2,20 @@ import {
   ControllerPath,
   Engine,
   getErrorMessage,
-  hasComponents,
-  isFormType,
   type ComponentDef,
   type FormDefinition,
   type Page
 } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type ResponseToolkit, type Server } from '@hapi/hapi'
-import { format, parseISO } from 'date-fns'
+import { format, parseISO, type Locale } from 'date-fns'
+import { cy, enGB } from 'date-fns/locale'
 import { StatusCodes } from 'http-status-codes'
 import { type Schema, type ValidationErrorItem } from 'joi'
 import { Liquid } from 'liquidjs'
 
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
-import { FORM_VERSION_METADATA_KEY } from '~/src/server/constants.js'
+import { CY, EN_GB, FORM_VERSION_METADATA_KEY } from '~/src/server/constants.js'
 import {
   getAnswer,
   type Field
@@ -109,7 +108,16 @@ engine.registerFilter('answer', function (name: string) {
     return
   }
 
-  const answer = getAnswer(component as Field, globals.context.relevantState)
+  const field = component as Field
+  const { translator } = globals.context
+  const answer = getAnswer(
+    field,
+    globals.context.relevantState,
+    translator ?? field.model.createTranslator(),
+    {
+      format: 'summary'
+    }
+  )
 
   return answer
 })
@@ -295,19 +303,24 @@ export function checkEmailAddressForLiveFormSubmission(
 
 /**
  * Parses the errors from {@link Schema.validate} so they can be rendered by govuk-frontend templates
+ * @param language - the target language for translations
  * @param [details] - provided by {@link Schema.validate}
  */
 export function getErrors(
+  language: string | undefined,
   details?: ValidationErrorItem[]
 ): FormSubmissionError[] | undefined {
   if (!details?.length) {
     return
   }
 
-  return details.map(getError)
+  return details.map((detail) => getError(language, detail))
 }
 
-export function getError(detail: ValidationErrorItem): FormSubmissionError {
+export function getError(
+  language: string | undefined,
+  detail: ValidationErrorItem
+): FormSubmissionError {
   const { context, message, path } = detail
 
   const name = context?.key ?? ''
@@ -315,7 +328,10 @@ export function getError(detail: ValidationErrorItem): FormSubmissionError {
 
   const text = message.replace(
     /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/,
-    (text) => format(parseISO(text), 'd MMMM yyyy')
+    (text) =>
+      format(parseISO(text), 'd MMMM yyyy', {
+        locale: toLanguageLocale(language)
+      })
   )
 
   return {
@@ -406,17 +422,40 @@ export function getFormVersion(
     | undefined
 }
 
-export function setPageTitles(def: FormDefinition) {
-  def.pages.forEach((page) => {
-    if (!page.title) {
-      if (hasComponents(page)) {
-        // Set the page title from the first form component
-        const firstFormComponent = page.components.find((component) =>
-          isFormType(component.type)
-        )
+const payLanguageCodes = {
+  [EN_GB]: 'en',
+  [CY]: 'cy'
+} as Record<string, string>
 
-        page.title = firstFormComponent?.title ?? ''
-      }
-    }
-  })
+const languageLocales = {
+  [EN_GB]: enGB,
+  [CY]: cy
+} as Record<string, Locale>
+
+const defaultLanguageCode = 'en'
+const defaultLanguageLocale = enGB
+
+/**
+ * Converts a BCP 47 language tag to the ISO 639-1 code GOV.UK Pay accepts.
+ * Defaults to English if the language is not supported.
+ * @param { string | undefined } language - BCP 47 language code
+ * @returns {string} language code required by GOV.UK Pay
+ */
+export function toPayLanguageCode(language: string | undefined): string {
+  return payLanguageCodes[language ?? 'unknown'] ?? defaultLanguageCode
 }
+
+/**
+ * Converts a BCP 47 language tag to the date-fns Locale (for date formatting).
+ * Defaults to English if the language is not supported.
+ * @param { string | undefined } language - BCP 47 language code
+ * @returns {Locale} language locale
+ */
+export function toLanguageLocale(language: string | undefined): Locale {
+  return languageLocales[language ?? 'unknown'] ?? defaultLanguageLocale
+}
+
+/**
+ * @import { FormsService } from '~/src/server/types.js'
+ * @import { Locale } from 'date-fns/locale'
+ */

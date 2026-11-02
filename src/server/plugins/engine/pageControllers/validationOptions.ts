@@ -1,7 +1,6 @@
 // Declaration above is needed for: https://github.com/hapijs/joi/issues/3064
 
-import joi, {
-  type JoiExpression,
+import {
   type LanguageMessages,
   type LanguageMessagesExt,
   type ReferenceOptions,
@@ -9,63 +8,26 @@ import joi, {
 } from 'joi'
 
 import { lowerFirstPreserveProperNouns } from '~/src/server/plugins/engine/components/helpers/index.js'
+import {
+  buildValidationMessages,
+  type ValidationMessages
+} from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
+import { t } from '~/src/server/plugins/engine/i18n/index.js'
 
-const opts = {
+export const opts = {
   functions: {
     lowerFirst: lowerFirstPreserveProperNouns
   }
 } as ReferenceOptions
 
 /**
- * see @link https://joi.dev/api/?v=17.4.2#template-syntax for template syntax
+ * Module-level English message templates — built via the same factory used per-form.
+ * Components that have not yet been migrated to use model.validationMessages still
+ * import messageTemplate directly and get the English version.
  */
-export const messageTemplate: Record<string, JoiExpression> = {
-  declarationRequired: joi.expression(
-    'You must confirm you understand and agree with the {{lowerFirst(#label)}} to continue',
-    opts
-  ) as JoiExpression,
-  required: joi.expression(
-    'Enter {{lowerFirst(#label)}}',
-    opts
-  ) as JoiExpression,
-  selectRequired: joi.expression(
-    'Select {{lowerFirst(#label)}}',
-    opts
-  ) as JoiExpression,
-  selectYesNoRequired: '{{#label}} - select yes or no',
-  max: '{{#label}} must be {{#limit}} characters or less',
-  min: '{{#label}} must be {{#limit}} characters or more',
-  minMax: '{{#label}} must be between {{#min}} and {{#max}} characters',
-  pattern: joi.expression(
-    'Enter a valid {{lowerFirst(#label)}}',
-    opts
-  ) as JoiExpression,
-  format: joi.expression(
-    'Enter {{lowerFirst(#label)}} in the correct format',
-    opts
-  ) as JoiExpression,
-  unicode: '{{#label}} includes invalid characters, for example, long dashes',
-  number: '{{#label}} must be a number',
-  numberPrecision: '{{#label}} must have {{#limit}} or fewer decimal places',
-  numberInteger: '{{#label}} must be a whole number',
-  numberMin: '{{#label}} must be {{#limit}} or higher',
-  numberMax: '{{#label}} must be {{#limit}} or lower',
-  maxWords: '{{#label}} must be {{#limit}} words or fewer',
-
-  // Nested fields use component title
-
-  objectRequired: joi.expression('Enter {{#label}}', opts) as JoiExpression,
-  objectMissing: joi.expression(
-    '{{#title}} must include a {{lowerFirst(#label)}}',
-    opts
-  ) as JoiExpression,
-  dateFormat: '{{#title}} must be a real date',
-  dateMin: '{{#title}} must be the same as or after {{#limit}}',
-  dateMax: '{{#title}} must be the same as or before {{#limit}}',
-  arrayMin: 'Select at least {{#limit}} options from the list',
-  arrayMax: 'Only {{#limit}} can be selected from the list',
-  arrayLength: 'Select only {{#limit}} options from the list'
-}
+export const messageTemplate: ValidationMessages = buildValidationMessages(
+  (key, options) => t(key, 'en-GB', options)
+)
 
 export const messages: LanguageMessagesExt = {
   'string.base': messageTemplate.required,
@@ -96,11 +58,67 @@ export const messages: LanguageMessagesExt = {
   'date.min': messageTemplate.dateMin,
   'date.max': messageTemplate.dateMax,
 
-  'object.invalidjson': messageTemplate.format
+  'array.min': messageTemplate.arrayMin,
+  'array.max': messageTemplate.arrayMax,
+  'array.length': messageTemplate.arrayLength,
+
+  'features.min': messageTemplate.featuresMin,
+  'features.max': messageTemplate.featuresMax,
+  'features.length': messageTemplate.featuresLength,
+
+  'files.min': messageTemplate.filesMin,
+  'files.max': messageTemplate.filesMax,
+  'filees.length': messageTemplate.filesLength,
+
+  'object.invalidjson': messageTemplate.format,
+
+  'phoneNumber.invalid': messageTemplate.format
 }
 
 export const messagesPre: LanguageMessages =
   messages as unknown as LanguageMessages
+
+export function buildLanguageMessages(
+  t: (key: string, options?: Record<string, unknown>) => string
+): LanguageMessages {
+  const vm = buildValidationMessages(t)
+  return {
+    'string.base': vm.required,
+    'string.min': vm.min,
+    'string.empty': vm.required,
+    'string.max': vm.max,
+    'string.email': vm.format,
+    'string.pattern.base': vm.pattern,
+    'string.maxWords': vm.maxWords,
+    'string.unicode': vm.unicode,
+    'number.base': vm.number,
+    'number.precision': vm.numberPrecision,
+    'number.integer': vm.numberInteger,
+    'number.unsafe': vm.format,
+    'number.min': vm.numberMin,
+    'number.max': vm.numberMax,
+    'object.required': vm.objectRequired,
+    'object.and': vm.objectMissing,
+    'any.only': vm.selectRequired,
+    'any.required': vm.selectRequired,
+    'any.empty': vm.required,
+    'date.base': vm.dateFormat,
+    'date.format': vm.dateFormat,
+    'date.min': vm.dateMin,
+    'date.max': vm.dateMax,
+    'array.min': vm.arrayMin,
+    'array.max': vm.arrayMax,
+    'array.length': vm.arrayLength,
+    'features.min': vm.featuresMin,
+    'features.max': vm.featuresMax,
+    'features.length': vm.featuresLength,
+    'files.min': vm.filesMin,
+    'files.max': vm.filesMax,
+    'files.length': vm.filesLength,
+    'object.invalidjson': vm.format,
+    'phoneNumber.invalid': vm.format
+  } as unknown as LanguageMessages
+}
 
 export const validationOptions: ValidationOptions = {
   abortEarly: false,

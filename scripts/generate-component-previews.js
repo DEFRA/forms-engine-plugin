@@ -5,6 +5,7 @@ import { markdownToHtml } from '@defra/forms-model'
 
 // Static imports so Jest can mock them (dynamic computed-path imports cannot be mocked).
 import { createComponent } from '~/src/server/plugins/engine/components/helpers/components.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import { environment } from '~/src/server/plugins/nunjucks/environment.js'
 
 // Register the markdown filter that the engine plugin normally adds at server init.
@@ -26,7 +27,11 @@ export function renderComponent(fixture) {
     /** @type {unknown} */ (fixture.model)
   )
   const component = createComponent(fixture.def, { model })
-  const viewModel = component.getViewModel(fixture.payload, [])
+  const viewModel = component.getViewModel({
+    payload: fixture.payload,
+    errors: [],
+    translator: stubTranslator
+  })
 
   // Apply large label/legend sizing to match how QuestionPageController styles
   // a single-component page. isPageHeading is intentionally omitted — setting it
@@ -50,9 +55,13 @@ export function renderComponent(fixture) {
 /**
  * Build the MDX partial content from one or more rendered HTML strings.
  * @param {Array<{ label?: string, html: string }>} renders
+ * @param {string} [wrapperClass]
  * @returns {string}
  */
-export function buildPartialMdx(renders) {
+export function buildPartialMdx(
+  renders,
+  wrapperClass = 'component-preview app-no-prose'
+) {
   return renders
     .map(({ label, html }) => {
       const escaped = html.replace(/`/g, '\\`').replace(/\$\{/g, '\\${')
@@ -67,7 +76,7 @@ export function buildPartialMdx(renders) {
       const labelLine = safeLabel
         ? `<h3 className="govuk-heading-s">${safeLabel}</h3>\n`
         : ''
-      return `${labelLine}<div className="component-preview">\n  <div dangerouslySetInnerHTML={{ __html: \`${escaped}\` }} />\n</div>`
+      return `${labelLine}<div className="${wrapperClass}">\n  <div dangerouslySetInnerHTML={{ __html: \`${escaped}\` }} />\n</div>`
     })
     .join('\n\n')
 }
