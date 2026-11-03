@@ -10,8 +10,8 @@ import {
   EVENTS,
   centerMap,
   createMap,
-  defaultConfig,
   eastingNorthingToLatLong,
+  getDefaultConfig,
   getMapCountryLayers,
   getMapLayers,
   latLongToEastingNorthing,
@@ -446,7 +446,7 @@ export function processLocation(config, location, index) {
   mapContainer.setAttribute('id', mapId)
   mapContainer.setAttribute('class', 'map-container')
 
-  const initConfig = getInitMapConfig(location) ?? defaultConfig
+  const initConfig = getInitMapConfig(location) ?? getDefaultConfig()
 
   locationInputs.after(mapContainer)
 

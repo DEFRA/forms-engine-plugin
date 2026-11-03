@@ -9,7 +9,10 @@ import {
   FormComponent,
   isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers/index.js'
+import {
+  addClassOptionIfNone,
+  withCustomValidationOverrides
+} from '~/src/server/plugins/engine/components/helpers/index.js'
 import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { buildValidationMessages } from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
@@ -141,16 +144,23 @@ export abstract class LocationFieldBase extends FormComponent {
   }
 
   getValidationMessagesOverride(translator: Translator) {
+    const { customValidationMessage, customValidationMessages } = this.options
     const { t } = translator
     const config = this.getValidationConfig(translator)
+    const defaults = {
+      'any.required':
+        config.requiredMessage ?? buildValidationMessages(t).objectRequired,
+      'string.empty':
+        config.requiredMessage ?? buildValidationMessages(t).objectRequired,
+      'string.pattern.base': config.patternErrorMessage
+    }
+
     return {
-      [this.name]: {
-        'any.required':
-          config.requiredMessage ?? buildValidationMessages(t).objectRequired,
-        'string.empty':
-          config.requiredMessage ?? buildValidationMessages(t).objectRequired,
-        'string.pattern.base': config.patternErrorMessage
-      } as LanguageMessages
+      [this.name]: withCustomValidationOverrides(
+        defaults,
+        customValidationMessage,
+        customValidationMessages
+      )
     }
   }
 

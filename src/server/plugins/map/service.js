@@ -62,7 +62,7 @@ async function getData(url, endpoint) {
  */
 export async function find(query, apiKey) {
   const endpoint = 'find'
-  const url = `https://api.os.uk/search/names/v1/find?key=${apiKey}&query=${query}&fq=local_type:postcode%20local_type:hamlet%20local_type:village%20local_type:town%20local_type:city%20local_type:other_settlement&maxresults=8`
+  const url = `https://api.os.uk/search/names/v1/find?key=${apiKey}&query=${encodeURIComponent(query)}&fq=local_type:postcode%20local_type:hamlet%20local_type:village%20local_type:town%20local_type:city%20local_type:other_settlement&maxresults=8`
 
   return getData(url, endpoint)
 }

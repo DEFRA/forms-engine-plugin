@@ -31,16 +31,16 @@ export class ListFormComponent extends FormComponent {
   >['options']
 
   declare formSchema:
-    | ArraySchema<string>
-    | ArraySchema<number>
+    | ArraySchema<string[]>
+    | ArraySchema<number[]>
     | BooleanSchema<string>
     | NumberSchema<string>
     | NumberSchema
     | StringSchema
 
   declare stateSchema:
-    | ArraySchema<string>
-    | ArraySchema<number>
+    | ArraySchema<string[]>
+    | ArraySchema<number[]>
     | BooleanSchema<string>
     | NumberSchema<string>
     | NumberSchema

@@ -8,8 +8,7 @@ import {
 import joi, {
   type ArraySchema,
   type BooleanSchema,
-  type LanguageMessages,
-  type StringSchema
+  type LanguageMessages
 } from 'joi'
 
 import {
@@ -34,7 +33,7 @@ export class DeclarationField extends FormComponent {
 
   declare declarationConfirmationLabel: string | undefined
 
-  declare formSchema: ArraySchema<StringSchema[]>
+  declare formSchema: ArraySchema<string[]>
   declare stateSchema: BooleanSchema
   declare content: string
   headerStartLevel: number
@@ -63,7 +62,7 @@ export class DeclarationField extends FormComponent {
         'any.unknown': messageTemplate.declarationRequired as string,
         'array.includesRequiredUnknowns':
           messageTemplate.declarationRequired as string
-      }) as ArraySchema<StringSchema[]>
+      })
 
     this.formSchema = formSchema
     this.stateSchema = joi.boolean().cast('string').label(this.label).required()

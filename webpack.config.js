@@ -4,6 +4,7 @@ import { dirname, join } from 'node:path'
 import { CleanWebpackPlugin } from 'clean-webpack-plugin'
 import CopyPlugin from 'copy-webpack-plugin'
 import TerserPlugin from 'terser-webpack-plugin'
+import webpack from 'webpack'
 import { WebpackAssetsManifest } from 'webpack-assets-manifest'
 
 const { NODE_ENV = 'development' } = process.env
@@ -54,6 +55,8 @@ export default {
       '/assets': join(govukFrontendPath, 'dist/govuk/assets')
     }
   },
+  // maplibre-gl builds a URL from an expression when its worker is cross-origin; harmless
+  ignoreWarnings: [{ module: /maplibre-gl/, message: /Critical dependency/ }],
   module: {
     rules: [
       {
@@ -190,6 +193,9 @@ export default {
   plugins: [
     new CleanWebpackPlugin(),
     new WebpackAssetsManifest(),
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^(ol|proj4|@arcgis\/core)(\/|$)/
+    }),
     new CopyPlugin({
       patterns: [
         {

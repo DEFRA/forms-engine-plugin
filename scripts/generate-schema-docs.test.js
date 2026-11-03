@@ -266,6 +266,40 @@ describe('Schema Documentation Generator', () => {
 
       expect(result.$id).toBe('existing-id')
     })
+
+    it('removes enums that contain Joi references', () => {
+      const schema = {
+        ...mockSchema,
+        properties: {
+          outputs: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                condition: {
+                  type: 'string',
+                  enum: ['', { ref: { path: ['conditions'], in: true } }]
+                },
+                audience: {
+                  type: 'string',
+                  enum: ['human', 'machine']
+                }
+              }
+            }
+          }
+        }
+      }
+
+      const result = processSchemaContent(
+        schema,
+        'form-definition-v2-schema.json',
+        {}
+      )
+
+      const { properties } = result.properties.outputs.items
+      expect(properties.condition).not.toHaveProperty('enum')
+      expect(properties.audience.enum).toEqual(['human', 'machine'])
+    })
   })
 
   describe('readSchemaFile', () => {

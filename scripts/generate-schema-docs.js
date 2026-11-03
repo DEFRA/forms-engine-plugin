@@ -3,6 +3,8 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
+import { removeJoiReferenceEnums } from './remove-joi-reference-enums.js'
+
 export const __dirname = path.dirname(fileURLToPath(import.meta.url))
 export const schemasDir = path.resolve(
   __dirname,
@@ -139,6 +141,7 @@ export function processSchemaContent(schema, filename, schemaTitleMap) {
     schema.$id = `@defra/forms-model/schemas/${filename}`
   }
 
+  removeJoiReferenceEnums(schema)
   simplifyNestedTitles(schema)
   buildTitleMap(schema, filename.replace('.json', ''), schemaTitleMap)
   return schema

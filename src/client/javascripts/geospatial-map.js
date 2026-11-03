@@ -1,7 +1,7 @@
 // @ts-expect-error - no types
 import createDatasetsPlugin from '@defra/interactive-map/plugins/datasets'
 // @ts-expect-error - no types
-import createDrawPlugin from '@defra/interactive-map/plugins/draw-ml'
+import createDrawPlugin from '@defra/interactive-map/plugins/draw'
 import { bbox } from '@turf/bbox'
 
 import {
@@ -12,9 +12,9 @@ import {
 import {
   EVENTS,
   createMap,
-  defaultConfig,
   getCentroidGridRef,
   getCoordinateGridRef,
+  getDefaultConfig,
   getMapCountryLayers,
   getMapLayers
 } from '~/src/client/javascripts/map.js'
@@ -223,7 +223,7 @@ export function processGeospatial(config, geospatial, index) {
   }
 
   const initConfig = {
-    ...defaultConfig,
+    ...getDefaultConfig(),
     bounds,
     plugins
   }

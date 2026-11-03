@@ -405,7 +405,8 @@ export class PaymentField extends FormComponent {
 
     const captured = await paymentService.capturePayment(
       paymentId,
-      status.amount
+      status.amount,
+      isLivePayment
     )
 
     if (!captured) {

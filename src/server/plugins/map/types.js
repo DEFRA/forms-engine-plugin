@@ -12,7 +12,7 @@
 /**
  * Map proxy query params
  * @typedef {object} MapProxyQuery
- * @property {string} url - the proxied url
+ * @property {string} path - the OS API path to proxy
  */
 
 /**
@@ -23,8 +23,8 @@
 
 export const CountryMap = {
   england: 1,
-  'northern-ireland': 3,
-  scotland: 2,
+  'northern-ireland': 2,
+  scotland: 3,
   wales: 4
 }
 

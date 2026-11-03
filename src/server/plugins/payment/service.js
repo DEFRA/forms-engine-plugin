@@ -160,9 +160,10 @@ export class PaymentService {
    * Captures a payment that is in 'capturable' status
    * @param {string} paymentId
    * @param {number} amount
+   * @param {boolean} isLivePayment
    * @returns {Promise<boolean>}
    */
-  async capturePayment(paymentId, amount) {
+  async capturePayment(paymentId, amount, isLivePayment) {
     try {
       const response = await post(
         `${PAYMENT_BASE_URL}${PAYMENT_ENDPOINT}/${paymentId}/capture`,
@@ -184,7 +185,8 @@ export class PaymentService {
               action: 'capture-payment',
               outcome: 'success',
               reason: `amount=${convertPenceToPounds(amount)}`,
-              reference: paymentId
+              reference: paymentId,
+              type: isLivePayment ? 'live' : 'test'
             }
           },
           `[payment] Successfully captured payment for paymentId=${paymentId}`

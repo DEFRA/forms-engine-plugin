@@ -4,7 +4,7 @@ import InteractiveMap from '@defra/interactive-map'
 // @ts-expect-error - no types
 import createDatasetsPlugin from '@defra/interactive-map/plugins/datasets'
 // @ts-expect-error - no types
-import createDrawPlugin from '@defra/interactive-map/plugins/draw-ml'
+import createDrawPlugin from '@defra/interactive-map/plugins/draw'
 // @ts-expect-error - no types
 import createInteractPlugin from '@defra/interactive-map/plugins/interact'
 // @ts-expect-error - no types
@@ -1586,7 +1586,7 @@ describe('Maps Client JS', () => {
       const result = transformer(url, 'Script')
 
       expect(result).toEqual({
-        url: `${apiPath}/map-proxy?url=${encodeURIComponent(url)}`,
+        url: `${apiPath}/map-proxy?path=${encodeURIComponent('/test.js')}`,
         headers: {}
       })
     })

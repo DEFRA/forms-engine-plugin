@@ -19,8 +19,8 @@ import {
 export class CheckboxesField extends SelectionControlField {
   declare options: CheckboxesFieldComponent['options']
   declare schema: CheckboxesFieldComponent['schema']
-  declare formSchema: ArraySchema<string> | ArraySchema<number>
-  declare stateSchema: ArraySchema<string> | ArraySchema<number>
+  declare formSchema: ArraySchema<string[]> | ArraySchema<number[]>
+  declare stateSchema: ArraySchema<string[]> | ArraySchema<number[]>
   declare limits: { min?: number; max?: number; length?: number }
 
   constructor(
@@ -33,7 +33,7 @@ export class CheckboxesField extends SelectionControlField {
     const { options, schema } = def
 
     let formSchema =
-      type === 'string' ? joi.array<string>() : joi.array<number>()
+      type === 'string' ? joi.array<string[]>() : joi.array<number[]>()
 
     const itemsSchema = joi[type]()
       .valid(...this.values)
