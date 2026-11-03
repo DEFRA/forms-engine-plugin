@@ -4,6 +4,7 @@ import {
   type EastingNorthingFieldComponent,
   type GeospatialFieldComponent,
   type LatLongFieldComponent,
+  type MultilineTextFieldComponent,
   type NationalGridFieldNumberFieldComponent,
   type OsGridRefFieldComponent
 } from '@defra/forms-model'
@@ -18,6 +19,7 @@ import {
   EastingNorthingField,
   GeospatialField,
   LatLongField,
+  MultilineTextField,
   NationalGridFieldNumberField,
   OsGridRefField
 } from '~/src/server/plugins/engine/components/index.js'
@@ -440,5 +442,39 @@ describe('Location field formatting', () => {
       })
       expect(answer).toBe('TQ123456\n')
     })
+  })
+})
+
+describe('MultilineTextField formatting', () => {
+  let field: MultilineTextField
+
+  beforeEach(() => {
+    const model = new FormModel(definition, {
+      basePath: 'test'
+    })
+
+    const def: MultilineTextFieldComponent = {
+      type: ComponentType.MultilineTextField,
+      name: 'myComponent',
+      title: 'Your answer',
+      options: {},
+      schema: {}
+    }
+
+    field = new MultilineTextField(def, { model })
+  })
+
+  it('escapes block quote markers in the check answers summary', () => {
+    const state = { myComponent: '> first\r\n>\r\n> second' }
+
+    const answer = getAnswer(field, state, translator, { format: 'summary' })
+    expect(answer).toBe('&gt; first<br>&gt;<br>&gt; second<br>')
+  })
+
+  it('escapes block quote markers in emails', () => {
+    const state = { myComponent: '> first\r\n>\r\n> second' }
+
+    const answer = getAnswer(field, state, translator, { format: 'email' })
+    expect(answer).toBe('\\> first\n\\>\n\\> second\n')
   })
 })
