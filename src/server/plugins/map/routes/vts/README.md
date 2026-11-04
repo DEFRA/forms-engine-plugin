@@ -24,6 +24,8 @@ The source data is for the 2025 revision is 179MB so needs to be reduced to allo
 This is the full file but with coordinate precision reduced from 14 to 5 decimal places, resulting in a smaller file of 83.7MB.
 This data is then used server-side to validate points, shapes and lines that include country restrictions.
 
+The validation runs synchronously on the main thread, so `country-boundary.ts` indexes the edges of this file when a form first needs a country check, and only visits the edges near each geometry. Don't validate against this file by scanning all of its edges, for example with `booleanWithin` from `@turf/boolean-within`. A single drawn line then blocks the service for seconds to minutes, which can fail its health checks.
+
 `ogr2ogr --config OGR_GEOJSON_MAX_OBJ_SIZE 0 -f GeoJSON boundaries-bfe-5dp.geojson boundaries-bfe.geojson -lco COORDINATE_PRECISION=5`
 
 ## Client-side display on map (boundaries-bfe-5dp.geojson)

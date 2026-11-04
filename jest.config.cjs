@@ -55,7 +55,10 @@ module.exports = {
       'nanoid', // Supports ESM only
       'slug', // Supports ESM only
       '@defra/hapi-tracing', // Supports ESM only
-      'geodesy' // Supports ESM only
+      'geodesy', // Supports ESM only
+      'flatbush', // Supports ESM only
+      'flatqueue', // Supports ESM only, flatbush dependency
+      'robust-predicates' // Supports ESM only
     ].join('|')}/)`
   ],
   moduleNameMapper: {

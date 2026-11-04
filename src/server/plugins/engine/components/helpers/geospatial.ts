@@ -3,9 +3,8 @@ import {
   type GeospatialFieldOptionsCountry
 } from '@defra/forms-model'
 import Bourne from '@hapi/bourne'
-import { booleanWithin } from '@turf/boolean-within'
-import { point } from '@turf/helpers'
 import OsGridRef from 'geodesy/osgridref.js'
+import { type Geometry as GeoJsonGeometry } from 'geojson'
 import JoiBase, { type CustomValidator } from 'joi'
 
 import { type EastingNorthingField } from '~/src/server/plugins/engine/components/EastingNorthingField.js'
@@ -16,7 +15,7 @@ import {
   type FeatureProperties,
   type Geometry
 } from '~/src/server/plugins/engine/types.js'
-import { countriesValidate } from '~/src/server/plugins/map/routes/index.js'
+import { getCountryBoundary } from '~/src/server/plugins/map/country-boundary.js'
 import { CountryMap } from '~/src/server/plugins/map/types.js'
 
 const Joi = JoiBase.extend({
@@ -158,18 +157,16 @@ export function getGeospatialSchema(
   }
 
   const validateCountryBounds: CustomValidator = (value, helpers) => {
-    const countryFeature = countriesValidate.features.find(
-      (feature) => feature.id === CountryMap[country]
-    )
+    const boundary = getCountryBoundary(CountryMap[country])
 
-    if (!countryFeature) {
+    if (!boundary) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return value
     }
 
-    const result = booleanWithin(value as Geometry | Feature, countryFeature)
+    const { geometry } = value as Feature
 
-    if (!result) {
+    if (!boundary.contains(geometry as GeoJsonGeometry)) {
       return helpers.error('any.custom', {
         country
       })
@@ -192,11 +189,9 @@ export function getEastingNorthingCountryValidator(
   country: GeospatialFieldOptionsCountry
 ) {
   const validateCountryBounds: CustomValidator = (value, helpers) => {
-    const countryFeature = countriesValidate.features.find(
-      (feature) => feature.id === CountryMap[country]
-    )
+    const boundary = getCountryBoundary(CountryMap[country])
 
-    if (!countryFeature) {
+    if (!boundary) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return value
     }
@@ -215,8 +210,10 @@ export function getEastingNorthingCountryValidator(
       eastingNorthing.northing
     )
     const latLong = gridRef.toLatLon()
-    const coord = point([latLong.longitude, latLong.latitude])
-    const within = booleanWithin(coord, countryFeature)
+    const within = boundary.contains({
+      type: 'Point',
+      coordinates: [latLong.longitude, latLong.latitude]
+    })
 
     if (!within) {
       return helpers.error(

@@ -105,6 +105,35 @@ describe('Geospatial validation helpers', () => {
     expect(schema.validate(validState.slice(3)).error).toBeDefined()
   })
 
+  test('it should be invalid when a line leaves the country between its points', () => {
+    const schema = getGeospatialSchema({
+      ...geospatialComponent,
+      options: { countries: [GeospatialFieldOptionsCountryEnum.England] }
+    })
+    const [feature] = validState
+
+    /**
+     * @param {number[][]} coordinates
+     */
+    const lineFeature = (coordinates) => ({
+      ...feature,
+      geometry: { type: 'LineString', coordinates }
+    })
+
+    const insideEngland = lineFeature([
+      [-1.1, 53.9],
+      [-1, 54],
+      [-0.9, 54.05]
+    ])
+    const acrossWales = lineFeature([
+      [-2.99, 53.4],
+      [-3.48, 51.2]
+    ])
+
+    expect(schema.validate([insideEngland]).error).toBeUndefined()
+    expect(schema.validate([acrossWales]).error).toBeDefined()
+  })
+
   test('it should be valid with no country bounds', () => {
     const schema = getGeospatialSchema(geospatialComponent)
 
