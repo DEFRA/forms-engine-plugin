@@ -17,13 +17,6 @@ const countriesDisplayFilePath = resolve(
   import.meta.dirname,
   './vts/countries.geojson'
 )
-const countriesValidateFilePath = resolve(
-  import.meta.dirname,
-  './vts',
-  process.env.JEST_WORKER_ID === undefined
-    ? 'countries-5dp.geojson'
-    : 'countries.geojson'
-)
 
 /**
  * @type {FeatureCollection}
@@ -31,14 +24,6 @@ const countriesValidateFilePath = resolve(
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 export const countries = JSON.parse(
   fs.readFileSync(countriesDisplayFilePath, 'utf8')
-)
-
-/**
- * @type {FeatureCollection}
- */
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-export const countriesValidate = JSON.parse(
-  fs.readFileSync(countriesValidateFilePath, 'utf8')
 )
 
 export const countrySchema = Joi.string().valid(
