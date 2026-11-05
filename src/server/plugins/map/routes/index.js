@@ -20,9 +20,7 @@ const countriesDisplayFilePath = resolve(
 const countriesValidateFilePath = resolve(
   import.meta.dirname,
   './vts',
-  process.env.JEST_WORKER_ID === undefined
-    ? 'countries-5dp.geojson'
-    : 'countries.geojson'
+  'countries-coarse.geojson'
 )
 
 /**
@@ -47,6 +45,7 @@ export const countrySchema = Joi.string().valid(
 
 const OS_API_ORIGIN = 'https://api.os.uk'
 const OS_VTS_PATH = '/maps/vector/v1/vts'
+const DEFAULT_PROXY_TIMEOUT = 5000
 
 const tileCoordinateSchema = Joi.number().integer().min(0).required()
 
@@ -104,7 +103,8 @@ function mapProxyRoute(options) {
       const proxyResponse = await httpRequest('get', targetUrl.toString(), {
         headers: {
           Authorization: `Bearer ${token}`
-        }
+        },
+        timeout: options.proxyTimeout ?? DEFAULT_PROXY_TIMEOUT
       })
       const buffer = proxyResponse.payload
       const contentType = proxyResponse.res.headers['content-type']
@@ -152,6 +152,7 @@ function tileProxyRoute(options) {
           Authorization: `Bearer ${token}`,
           Accept: 'application/x-protobuf'
         },
+        timeout: options.proxyTimeout ?? DEFAULT_PROXY_TIMEOUT,
         json: false,
         gunzip: true
       })

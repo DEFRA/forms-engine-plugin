@@ -22,7 +22,7 @@ The source data is for the 2025 revision is 179MB so needs to be reduced to allo
 ## Server-side validation (boundaries-bfe-5dp.geojson)
 
 This is the full file but with coordinate precision reduced from 14 to 5 decimal places, resulting in a smaller file of 83.7MB.
-This data is then used server-side to validate points, shapes and lines that include country restrictions.
+This file is then used to produce the `countries-validate.geojson` file, a coarse country boundary file used server-side to validate points, shapes and lines that include country restrictions.
 
 `ogr2ogr --config OGR_GEOJSON_MAX_OBJ_SIZE 0 -f GeoJSON boundaries-bfe-5dp.geojson boundaries-bfe.geojson -lco COORDINATE_PRECISION=5`
 
