@@ -20,7 +20,7 @@ const countriesDisplayFilePath = resolve(
 const countriesValidateFilePath = resolve(
   import.meta.dirname,
   './vts',
-  'countries-coarse.geojson'
+  'countries-validate.geojson'
 )
 
 /**
