@@ -19,14 +19,13 @@ Download from: http://geoportal.statistics.gov.uk/ or https://geoportal.statisti
 
 The source data is for the 2025 revision is 179MB so needs to be reduced to allow rendering in a Web map and used for validation on the server. The downloaded file is named `boundaries-bfe.geojson`. `org2ogr` is used to produce two files:
 
-## Server-side validation (boundaries-bfe-5dp.geojson)
+## Server-side validation (countries-validate.geojson)
 
-This is the full file but with coordinate precision reduced from 14 to 5 decimal places, resulting in a smaller file of 83.7MB.
-This file is then used to produce the `countries-validate.geojson` file, a coarse country boundary file used server-side to validate points, shapes and lines that include country restrictions.
+See this [./script/README.md](README)
 
-`ogr2ogr --config OGR_GEOJSON_MAX_OBJ_SIZE 0 -f GeoJSON boundaries-bfe-5dp.geojson boundaries-bfe.geojson -lco COORDINATE_PRECISION=5`
+We use the [./script/boundary-output/country-boundaries-coarse-10km.geojson](README) file (copied to [./countries-validate.geojson](countries-validate.geojson)) to validate the user-defined features on the server.
 
-## Client-side display on map (boundaries-bfe-5dp.geojson)
+## Client-side display on map (countries.geojson)
 
 To produce a file suitable for use in the map in the browser we use `ogr2ogr`'s `simplify` option.
 
