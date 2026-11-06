@@ -783,13 +783,13 @@ describe('EastingNorthingField', () => {
         assertions: [
           {
             input: getFormData({
-              easting: '332218',
-              northing: '283862'
+              easting: '461963',
+              northing: '271134'
             }),
             output: {
               value: getFormData({
-                easting: 332218,
-                northing: 283862
+                easting: 461963,
+                northing: 271134
               }),
               errors: [
                 expect.objectContaining({
