@@ -396,7 +396,7 @@ describe('Helpers', () => {
   describe('checkEmailAddressForLiveFormSubmission', () => {
     it('should throw an error if emailAddress is undefined and isPreview is false', () => {
       expect(() =>
-        checkEmailAddressForLiveFormSubmission(undefined, false)
+        checkEmailAddressForLiveFormSubmission(undefined, false, false)
       ).toThrow(
         Boom.internal(
           'An email address is required to complete the form submission'
@@ -406,19 +406,25 @@ describe('Helpers', () => {
 
     it('should not throw an error if emailAddress is defined and isPreview is false', () => {
       expect(() =>
-        checkEmailAddressForLiveFormSubmission('test@example.com', false)
+        checkEmailAddressForLiveFormSubmission('test@example.com', false, false)
       ).not.toThrow()
     })
 
     it('should not throw an error if emailAddress is undefined and isPreview is true', () => {
       expect(() =>
-        checkEmailAddressForLiveFormSubmission(undefined, true)
+        checkEmailAddressForLiveFormSubmission(undefined, true, false)
       ).not.toThrow()
     })
 
     it('should not throw an error if emailAddress is defined and isPreview is true', () => {
       expect(() =>
-        checkEmailAddressForLiveFormSubmission('test@example.com', true)
+        checkEmailAddressForLiveFormSubmission('test@example.com', true, false)
+      ).not.toThrow()
+    })
+
+    it('should not throw when emailAddress is undefined and the form has a PaymentField', () => {
+      expect(() =>
+        checkEmailAddressForLiveFormSubmission(undefined, false, true)
       ).not.toThrow()
     })
   })

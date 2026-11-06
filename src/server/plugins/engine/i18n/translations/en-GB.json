@@ -153,7 +153,14 @@
       "bannerTitle": "Important",
       "bannerForce": "This is a preview of a [[previewMode]] form. Do not enter personal information.",
       "bannerText": "This is a preview of a [[previewMode]] form page you are editing.",
-      "previousPages": "It depends on answers from earlier pages in the form. In the live version, users will need to complete those questions first."
+      "previousPages": "It depends on answers from earlier pages in the form. In the live version, users will need to complete those questions first.",
+      "missingNotificationEmail": {
+        "intro": "You can complete this form to test the user journey. The form will appear to submit successfully, but because a destination email address has not been set, the following features will not trigger:",
+        "emailDelivery": "email delivery",
+        "fileUploads": "file uploads",
+        "sqsDeliveries": "SQS deliveries",
+        "testPayments": "Any payment question in this form will use the GOV.UK Pay test API key, so no real money will be taken."
+      }
     },
 
     "formUnavailable": {
