@@ -1,0 +1,4 @@
+shapely>=2.0
+pyproj>=3.5
+# Only required when reading the original ONS source (not needed with --source-is-base)
+ijson
