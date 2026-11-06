@@ -1,0 +1,47 @@
+name: Repeater sub pages definition
+pages:
+  - title: Repeater Page
+    path: /repeater-page
+    components:
+      - path: /toppings
+        title: Toppings
+        controller: PageController
+        components:
+          - name: toppings
+            title: Toppings
+            type: TextField
+            hint: ''
+            options: {}
+            schema: {}
+            id: c6b5cb39-1cc6-448b-ad28-bab26150116c
+        next: []
+        id: 7e8465d9-143d-45c1-8b85-fede7e41919e
+      - path: /quantity
+        title: Quantity
+        controller: PageController
+        components:
+          - name: quantity
+            title: Quantity
+            type: NumberField
+            hint: ''
+            options: {}
+            schema: {}
+            id: 23178d18-ba85-4e45-a132-42ab103fa2de
+        next: []
+        id: 07057533-8fbe-4890-aea2-b72d29140875
+    next: []
+    id: 32888028-61db-40fc-b255-80bc67829d31
+    repeat:
+      options:
+        name: fawfed
+        title: Pizza order
+      schema:
+        min: 1
+        max: 3
+    controller: RepeatPageController
+conditions: []
+sections: []
+lists: []
+schema: 2
+engine: V2
+startPage: /repeater-page
