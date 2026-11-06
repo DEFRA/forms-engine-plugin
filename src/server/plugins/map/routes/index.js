@@ -45,7 +45,7 @@ export const countrySchema = Joi.string().valid(
 
 const OS_API_ORIGIN = 'https://api.os.uk'
 const OS_VTS_PATH = '/maps/vector/v1/vts'
-const DEFAULT_PROXY_TIMEOUT = 5000
+const DEFAULT_PROXY_TIMEOUT = 10000
 
 const tileCoordinateSchema = Joi.number().integer().min(0).required()
 
@@ -104,7 +104,7 @@ function mapProxyRoute(options) {
         headers: {
           Authorization: `Bearer ${token}`
         },
-        timeout: options.proxyTimeout ?? DEFAULT_PROXY_TIMEOUT
+        timeout: DEFAULT_PROXY_TIMEOUT
       })
       const buffer = proxyResponse.payload
       const contentType = proxyResponse.res.headers['content-type']
@@ -152,7 +152,7 @@ function tileProxyRoute(options) {
           Authorization: `Bearer ${token}`,
           Accept: 'application/x-protobuf'
         },
-        timeout: options.proxyTimeout ?? DEFAULT_PROXY_TIMEOUT,
+        timeout: DEFAULT_PROXY_TIMEOUT,
         json: false,
         gunzip: true
       })

@@ -49,7 +49,10 @@ describe('Map API routes', () => {
     expect(request).toHaveBeenCalledWith(
       'get',
       'https://api.os.uk/maps/vector/v1/vts?srs=3857',
-      { headers: { Authorization: 'Bearer token' } }
+      {
+        headers: { Authorization: 'Bearer token' },
+        timeout: 10000
+      }
     )
     expect(response.statusCode).toBe(StatusCodes.OK)
     expect(response.headers['content-type']).toBe(
@@ -79,7 +82,10 @@ describe('Map API routes', () => {
     expect(request).toHaveBeenCalledWith(
       'get',
       'https://api.os.uk/maps/vector/v1/vts/resources/fonts/Source%20Sans%20Pro%20Regular/0-255.pbf?srs=3857',
-      { headers: { Authorization: 'Bearer token' } }
+      {
+        headers: { Authorization: 'Bearer token' },
+        timeout: 10000
+      }
     )
     expect(response.statusCode).toBe(StatusCodes.OK)
     expect(response.headers['content-type']).toBe('application/octet-stream')
@@ -190,6 +196,7 @@ describe('Map API routes', () => {
           Authorization: 'Bearer token',
           Accept: 'application/x-protobuf'
         },
+        timeout: 10000,
         json: false,
         gunzip: true
       }
@@ -222,6 +229,7 @@ describe('Map API routes', () => {
           Authorization: 'Bearer token',
           Accept: 'application/x-protobuf'
         },
+        timeout: 10000,
         json: false,
         gunzip: true
       }

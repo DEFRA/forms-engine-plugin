@@ -2,7 +2,6 @@
  * @typedef {{
  *   ordnanceSurveyApiKey: string
  *   ordnanceSurveyApiSecret: string
- *   proxyTimeout?: number
  * }} MapConfiguration
  */
 
