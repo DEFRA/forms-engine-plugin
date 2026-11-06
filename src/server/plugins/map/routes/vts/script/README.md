@@ -45,10 +45,8 @@ They are not claims about positional accuracy.
 ## Requirements
 
 - Python 3
-- Shapely 2.0 or later
-- pyproj 3.5 or later
-- ijson (required when reading the original large ONS GeoJSON; not
-  required when using `--source-is-base`)
+
+See also [requirements.txt](./requirements.txt)
 
 Install the dependencies:
 
@@ -201,8 +199,7 @@ Option Default Description
 
 `--source` Required Input GeoJSON file
 
-`--out-dir` `.` Directory for
-generated files
+`--out-dir` `.` Directory for generated files
 
 `--source-is-base` Off Treat the input as
 the already-built

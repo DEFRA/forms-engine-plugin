@@ -21,9 +21,9 @@ The source data is for the 2025 revision is 179MB so needs to be reduced to allo
 
 ## Server-side validation (countries-validate.geojson)
 
-See this [./script/README.md](README)
+See this [README](./script/README.md)
 
-We use the [./script/boundary-output/country-boundaries-coarse-10km.geojson](README) file (copied to [./countries-validate.geojson](countries-validate.geojson)) to validate the user-defined features on the server.
+We use the [coarse-10km](./script/boundary-output/country-boundaries-coarse-10km.geojson) file (copied to [countries-validate.geojson](./countries-validate.geojson)) to validate the user-defined features on the server.
 
 ## Client-side display on map (countries.geojson)
 
