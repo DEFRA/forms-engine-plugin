@@ -35,10 +35,11 @@ export async function getCachedPluginTranslator(
 
   const { services } = getPluginOptions(request.server)
 
-  const definition = await services?.formsService.getFormDefinition(
-    metadata.id,
-    status
-  )
+  // A plugin registered with a single `model` has no forms service, so the
+  // definition comes from that model
+  const definition = services
+    ? await services.formsService.getFormDefinition(metadata.id, status)
+    : request.server.app.model?.def
 
   if (!definition) {
     throw Boom.notFound(
