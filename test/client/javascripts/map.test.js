@@ -25,9 +25,11 @@ import {
 } from '~/src/client/javascripts/geospatial-map.js'
 import { ENGLISH_LANG } from '~/src/client/javascripts/map-constants.js'
 import {
+  defaultConfig,
   formSubmitFactory,
   getCentroidGridRef,
   getCoordinateGridRef,
+  getDefaultConfig,
   getMapLayers,
   initMaps,
   makeTileRequestTransformer
@@ -1784,6 +1786,28 @@ describe('Maps Client JS', () => {
       )
       expect(uiManager.getAllowableGeometryTypes).toBeDefined()
       expect(uiManager.getAllowableGeometryTypes()).toEqual(['point', 'line'])
+    })
+  })
+
+  describe('getDefaultConfig', () => {
+    const initialConfig = structuredClone(defaultConfig)
+
+    afterEach(() => {
+      Object.assign(defaultConfig, structuredClone(initialConfig))
+    })
+
+    test('it should start from the values in defaultConfig', () => {
+      Object.assign(defaultConfig, { center: [-1.5, 52.5], zoom: '12' })
+
+      expect(getDefaultConfig()).toEqual({ center: [-1.5, 52.5], zoom: '12' })
+    })
+
+    test('it should return a copy that leaves defaultConfig unchanged', () => {
+      const config = getDefaultConfig()
+      config.zoom = '15'
+      config.center[0] = 0
+
+      expect(defaultConfig).toEqual(initialConfig)
     })
   })
 
