@@ -8,7 +8,7 @@ import Boom from '@hapi/boom'
 export interface OfflineBoomData {
   offline: true
   metadata: FormMetadata
-  definition: FormDefinition | undefined
+  definition?: FormDefinition
 }
 
 /**
@@ -18,9 +18,9 @@ export interface OfflineBoomData {
  */
 export function assertFormAvailable(
   metadata: FormMetadata,
-  definition: FormDefinition | undefined,
   formState: FormStatus,
-  isPreview: boolean
+  isPreview: boolean,
+  definition?: FormDefinition
 ): void {
   if (
     metadata.offline === true &&

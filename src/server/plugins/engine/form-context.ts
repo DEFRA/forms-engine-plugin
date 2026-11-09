@@ -62,7 +62,7 @@ export async function getFormModel(
     formState
   )
 
-  assertFormAvailable(metadata, definition, formState, isPreview)
+  assertFormAvailable(metadata, formState, isPreview, definition)
 
   if (!definition) {
     throw Boom.notFound(
@@ -199,7 +199,7 @@ export async function resolveFormModel(
     cache.set(cacheKey, entry)
   }
 
-  assertFormAvailable(metadata, entry.model.def, formState, isPreview)
+  assertFormAvailable(metadata, formState, isPreview, entry.model.def)
 
   return entry.model
 }
