@@ -120,20 +120,21 @@ The keys are in the plugin's translation files: `src/server/plugins/engine/i18n/
 
 On routes that your application owns, outside the plugin's pages, the global `t` always returns English.
 
-## Translate text in custom components and page controllers
+## Translate text in custom page controllers
 
-Custom components and page controllers need a translator only when your service offers Welsh. Without one, component methods use English, and page controller methods use the language of the current request.
+A custom page controller needs a translator only when your service offers Welsh. Page controller methods such as `getViewModel` use the language of the current request when you do not pass a translator.
 
-A component's `getViewModel` gets the translator in the `translator` field of its `RenderContext`. Other methods that build text, such as `getErrors` and `getDisplayStringFromState`, take the translator as their last argument. If your override calls `super`, pass the context or the translator through, so that the page stays in the user's language:
+In a page controller, `this.getTranslator(request)` returns the translator for the current request. Use `tComponent(this.def, 'title')`, `tListItem(item, 'text')` and the other helpers to show form content in the user's language. `translator.t` resolves only the plugin's own keys. To build component view models in the user's language, pass the translator in the `RenderContext`:
 
 ```ts
-getViewModel(context: RenderContext) {
-  const viewModel = super.getViewModel(context)
-  return { ...viewModel, classes: 'app-farm-reference' }
-}
+const components = this.collection.getViewModel({
+  payload,
+  errors,
+  translator: this.getTranslator(request)
+})
 ```
 
-In a page controller, `this.getTranslator(request)` returns the translator for the current request. Use `tComponent(this.def, 'title')`, `tListItem(item, 'text')` and the other helpers to show form content in the user's language. `translator.t` resolves only the plugin's own keys. See [Custom components](./code-based/components) and [Custom page controllers](./code-based/page-controllers).
+See [Custom page controllers](./code-based/page-controllers).
 
 ## Submissions
 
