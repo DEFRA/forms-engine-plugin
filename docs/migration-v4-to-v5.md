@@ -141,7 +141,7 @@ type SchemaVersion =
 
 The plugin's templates call a `t` function to show text in the user's language. The plugin adds `t` to its own Nunjucks environment.
 
-- If your application renders the plugin's templates or partials in its own Nunjucks environment, add a `t` global there, or render them through the plugin.
+- If your application renders the plugin's templates or partials in its own Nunjucks environment, call `prepareNunjucksEnvironment(environment, pluginOptions)` from `@defra/forms-engine-plugin` on that environment. It adds `t` and the plugin's other globals and filters.
 - If you pass a global named `t` in the plugin's `nunjucks` options, rename it, because it replaces the plugin's `t`.
 
 ## Text in the default views

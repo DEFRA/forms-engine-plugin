@@ -124,13 +124,13 @@ On routes that your application owns, outside the plugin's pages, the global `t`
 
 A custom page controller needs a translator only when your service offers Welsh. Page controller methods such as `getViewModel` use the language of the current request when you do not pass a translator.
 
-In a page controller, `this.getTranslator(request)` returns the translator for the current request. Use `tComponent(this.def, 'title')`, `tListItem(item, 'text')` and the other helpers to show form content in the user's language. `translator.t` resolves only the plugin's own keys. To build component view models in the user's language, pass the translator in the `RenderContext`:
+In a page controller, `context.translator` is the translator for the current request. Use `tComponent(this.def, 'title')`, `tListItem(item, 'text')` and the other helpers to show form content in the user's language. `translator.t` resolves only the plugin's own keys. To build component view models in the user's language, pass the translator in the `RenderContext`:
 
 ```ts
 const components = this.collection.getViewModel({
   payload,
   errors,
-  translator: this.getTranslator(request)
+  translator: context.translator
 })
 ```
 
