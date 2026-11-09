@@ -527,14 +527,14 @@ describe('MultilineTextField formatting', () => {
   it('escapes block quote markers in the check answers summary', () => {
     const state = { myComponent: '> first\r\n>\r\n> second' }
 
-    const answer = getAnswer(field, state, translator, { format: 'summary' })
+    const answer = getAnswer(field, state, { format: 'summary' }, translator)
     expect(answer).toBe('&gt; first<br>&gt;<br>&gt; second<br>')
   })
 
   it('escapes block quote markers in emails', () => {
     const state = { myComponent: '> first\r\n>\r\n> second' }
 
-    const answer = getAnswer(field, state, translator, { format: 'email' })
+    const answer = getAnswer(field, state, { format: 'email' }, translator)
     expect(answer).toBe('\\> first\n\\>\n\\> second\n')
   })
 })
