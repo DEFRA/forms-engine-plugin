@@ -408,6 +408,19 @@ describe('Form fields (required)', () => {
         }
       })
 
+      it('should render the Yes/No options in Welsh', () => {
+        const $group = container.getByRole('group', {
+          name: 'Welsh Yes/No field'
+        })
+
+        expect(
+          within($group).getByRole('radio', { name: 'Ie' })
+        ).toBeInTheDocument()
+        expect(
+          within($group).getByRole('radio', { name: 'Nage' })
+        ).toBeInTheDocument()
+      })
+
       it('should show errors when fields empty on submit', async () => {
         const payload = {}
 

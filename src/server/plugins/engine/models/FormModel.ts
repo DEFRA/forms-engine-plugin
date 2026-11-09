@@ -144,8 +144,8 @@ export class FormModel {
     this.i18nInstance = createFormI18nInstance(baseTranslations)
     loadFormTranslations(def, this.i18nInstance)
 
-    // Add default lists. Yes/No text stored as i18n key constants so they
-    // resolve to the user's language at render time via the translator.
+    // Add default lists. The Welsh text for Yes/No is added by item id in
+    // `loadFormTranslations`, so that the definition keeps the English text.
     def.lists.push({
       id: def.schema === SchemaVersion.V1 ? yesNoListName : yesNoListId,
       name: '__yesNo',
@@ -154,12 +154,12 @@ export class FormModel {
       items: [
         {
           id: '02900d42-83d1-4c72-a719-c4e8228952fa',
-          text: 'components.yesNoField.yes',
+          text: 'Yes',
           value: true
         },
         {
           id: 'f39000eb-c51b-4019-8f82-bbda0423f04d',
-          text: 'components.yesNoField.no',
+          text: 'No',
           value: false
         }
       ]
