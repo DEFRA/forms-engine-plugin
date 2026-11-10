@@ -19,8 +19,23 @@ import {
   type FormAdapterSubmissionMessageMeta,
   type FormAdapterSubmissionMessagePayload,
   type FormAdapterSubmissionMessageResult,
-  type FormContext
+  type FormContext,
+  type RichFormValue
 } from '~/src/server/plugins/engine/types.js'
+
+/**
+ * Maps a key-value pair to a new key-value pair, converting undefined values to null
+ */
+function mapper([key, value]: [string, RichFormValue | undefined]): [
+  string,
+  RichFormValue | null
+] {
+  if (value === undefined) {
+    return [key, null]
+  }
+
+  return [key, value]
+}
 
 export function format(
   context: FormContext,
@@ -53,19 +68,19 @@ export function format(
     meta.versionMetadata = versionMetadata
   }
 
-  const main = Object.fromEntries(
-    Object.entries(v2Main).map(([key, value]) => {
-      if (value === undefined) {
-        return [key, null]
-      }
+  const main = Object.fromEntries(Object.entries(v2Main).map(mapper))
 
-      return [key, value]
-    })
+  const repeaters = Object.fromEntries(
+    Object.entries(v2Data.repeaters).map(([key, value]) => [
+      key,
+      value.map((item) => Object.fromEntries(Object.entries(item).map(mapper)))
+    ])
   )
 
   const data: FormAdapterSubmissionMessageData = {
     main,
-    ...v2Data
+    ...v2Data,
+    repeaters
   }
 
   const result: FormAdapterSubmissionMessageResult = {

@@ -750,7 +750,26 @@ describe('Adapter v1 formatter', () => {
         title: 'Example Field 3 Title',
         field: dummyField,
         value: ''
-      } as DetailItemField
+      } as DetailItemField,
+      {
+        name: 'exampleRepeat',
+        label: 'Example Repeat',
+        href: '/example-repeat',
+        title: 'Example Repeat Title',
+        value: 'Example Repeat Value',
+        subItems: [
+          [
+            {
+              name: 'exampleRepeaterField',
+              label: 'Example Repeater Field',
+              href: '/example-repeater-field',
+              title: 'Example Repeater Field Title',
+              field: dummyField,
+              value: ''
+            } as DetailItemField
+          ]
+        ]
+      } as DetailItemRepeat
     ]
 
     const body = format(
@@ -763,6 +782,9 @@ describe('Adapter v1 formatter', () => {
     )
     const parsedBody = JSON.parse(body) as FormAdapterSubmissionMessagePayload
     expect(parsedBody.data.main).toEqual({ exampleField3: null })
+    expect(parsedBody.data.repeaters).toEqual({
+      exampleRepeat: [{ exampleRepeaterField: null }]
+    })
   })
 
   describe('version metadata handling', () => {
