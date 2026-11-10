@@ -608,7 +608,7 @@ export type RichFormValue =
 
 export interface FormAdapterSubmissionMessageData {
   main: Record<string, RichFormValue | null>
-  repeaters: Record<string, Record<string, RichFormValue>[]>
+  repeaters: Record<string, Record<string, RichFormValue | null>[]>
   files: Record<string, FormAdapterFile[]>
   payment?: FormAdapterPayment
 }

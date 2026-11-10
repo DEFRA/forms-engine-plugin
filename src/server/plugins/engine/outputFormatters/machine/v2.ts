@@ -103,7 +103,7 @@ export function format(
 export function categoriseData(items: DetailItem[]) {
   const output: {
     main: Record<string, RichFormValue>
-    repeaters: Record<string, Record<string, RichFormValue>[]>
+    repeaters: Record<string, Record<string, RichFormValue | null>[]>
     files: Record<
       string,
       { fileId: string; fileName: string; userDownloadLink: string }[]
@@ -137,16 +137,16 @@ export function categoriseData(items: DetailItem[]) {
  * @returns the repeater item
  */
 function extractRepeaters(item: DetailItemRepeat) {
-  const repeaters: Record<string, RichFormValue>[] = []
+  const repeaters: Record<string, RichFormValue | null>[] = []
 
   item.subItems.forEach((inputRepeaterItem) => {
-    const outputRepeaterItem: Record<string, RichFormValue> = {}
+    const outputRepeaterItem: Record<string, RichFormValue | null> = {}
 
     inputRepeaterItem.forEach((repeaterComponent) => {
       const { field, state } = repeaterComponent
 
       outputRepeaterItem[repeaterComponent.name] =
-        field.getFormValueFromState(state)
+        field.getFormValueFromState(state) ?? null
     })
 
     repeaters.push(outputRepeaterItem)
