@@ -1,3 +1,4 @@
+import { PaymentField } from '~/src/server/plugins/engine/components/PaymentField.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
@@ -589,6 +590,116 @@ describe('SummaryPageController - Payment (DF-832)', () => {
       const paymentCall = formSubmissionSubmit.mock.calls[0][0]
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       expect(paymentCall.language).toBe('cy')
+    })
+  })
+
+  describe('handleFormSubmit - notification email gate', () => {
+    function buildHandleFormSubmitHarness({
+      notificationEmail
+    }: {
+      notificationEmail?: string
+    }) {
+      const state = {
+        $$__referenceNumber: 'ref',
+        yesNoField: false
+      } as unknown as FormSubmissionState
+
+      const cacheService = {
+        setConfirmationState: jest.fn().mockResolvedValue(undefined),
+        clearState: jest.fn().mockResolvedValue(undefined),
+        resetComponentStates: jest.fn().mockResolvedValue(undefined)
+      } as unknown as CacheService
+
+      const getFormMetadata = jest.fn().mockResolvedValue({
+        notificationEmail
+      })
+
+      model.services = {
+        ...model.services,
+        formsService: { ...model.services.formsService, getFormMetadata }
+      } as typeof model.services
+
+      const request = {
+        ...requestPage,
+        method: 'post',
+        params: { ...requestPage.params, path: 'summary' },
+        server: {
+          plugins: { 'forms-engine-plugin': { cacheService } }
+        },
+        yar: { id: 'session-id' },
+        logger: { info: jest.fn(), error: jest.fn() }
+      } as unknown as FormRequestPayload
+
+      const context = model.getFormContext(request, state)
+      jest
+        .spyOn(controller, 'proceed')
+        .mockReturnValue(
+          undefined as unknown as ReturnType<typeof controller.proceed>
+        )
+
+      return { request, context, cacheService }
+    }
+
+    it('runs PaymentField onSubmit when notificationEmail is empty', async () => {
+      const onSubmitSpy = jest
+        .spyOn(PaymentField.prototype, 'onSubmit')
+        .mockResolvedValue(undefined)
+
+      const { request, context } = buildHandleFormSubmitHarness({
+        notificationEmail: ''
+      })
+
+      await controller.handleFormSubmit(request, context, h)
+
+      expect(onSubmitSpy).toHaveBeenCalled()
+    })
+
+    it('routes through submitForm when notificationEmail is set', async () => {
+      jest
+        .spyOn(PaymentField.prototype, 'onSubmit')
+        .mockResolvedValue(undefined)
+
+      model.services = {
+        ...model.services,
+        formSubmissionService: {
+          ...model.services.formSubmissionService,
+          submit: jest.fn().mockResolvedValue({ data: { reference: 'r' } })
+        },
+        outputService: {
+          ...model.services.outputService,
+          submit: jest.fn().mockResolvedValue(undefined)
+        }
+      } as typeof model.services
+
+      const { request, context } = buildHandleFormSubmitHarness({
+        notificationEmail: 'notify@example.com'
+      })
+
+      await controller.handleFormSubmit(request, context, h)
+
+      expect(model.services.outputService.submit).toHaveBeenCalled()
+    })
+
+    it('routes errors through handleSubmissionError when finalisePaymentFields throws', async () => {
+      const err = new Error('pay boom')
+      jest.spyOn(PaymentField.prototype, 'onSubmit').mockRejectedValue(err)
+
+      const { request, context } = buildHandleFormSubmitHarness({
+        notificationEmail: ''
+      })
+
+      const handleSubmissionErrorSpy = jest
+        .spyOn(
+          controller as unknown as {
+            handleSubmissionError: (...args: unknown[]) => unknown
+          },
+          'handleSubmissionError'
+        )
+        .mockReturnValue(undefined)
+
+      await controller.handleFormSubmit(request, context, h)
+
+      expect(handleSubmissionErrorSpy).toHaveBeenCalledWith(err, request, h)
     })
   })
 })

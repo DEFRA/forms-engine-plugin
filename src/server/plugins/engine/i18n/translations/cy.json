@@ -206,7 +206,14 @@
       "bannerTitle": "Pwysig",
       "bannerForce": "Rhagolwg o ffurflen [[previewMode]] yw hon. Peidiwch â rhoi gwybodaeth bersonol.",
       "bannerText": "Dyma ragolwg o dudalen ffurflen [[previewMode]] rydych chi'n ei golygu.",
-      "previousPages": "Mae'n dibynnu ar atebion o dudalennau cynharach yn y ffurflen. Yn y fersiwn fyw, bydd angen i ddefnyddwyr gwblhau'r cwestiynau hynny yn gyntaf."
+      "previousPages": "Mae'n dibynnu ar atebion o dudalennau cynharach yn y ffurflen. Yn y fersiwn fyw, bydd angen i ddefnyddwyr gwblhau'r cwestiynau hynny yn gyntaf.",
+      "missingNotificationEmail": {
+        "intro": "Gallwch gwblhau'r ffurflen hon i brofi taith y defnyddiwr. Bydd y ffurflen yn ymddangos fel pe bai wedi'i chyflwyno'n llwyddiannus, ond gan nad oes cyfeiriad e-bost cyrchfan wedi'i osod, ni fydd y nodweddion canlynol yn gweithio:",
+        "emailDelivery": "anfon e-byst",
+        "fileUploads": "uwchlwytho ffeiliau",
+        "sqsDeliveries": "anfon negeseuon SQS",
+        "testPayments": "Bydd unrhyw gwestiwn talu yn y ffurflen hon yn defnyddio allwedd API prawf GOV.UK Pay, felly ni fydd unrhyw arian go iawn yn cael ei gymryd."
+      }
     },
 
     "formUnavailable": {
