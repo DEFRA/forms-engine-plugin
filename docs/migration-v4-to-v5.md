@@ -13,6 +13,7 @@ v5 keeps the v4 plugin options, service interfaces and page controller methods. 
 | [Client build for maps](#client-build-for-maps)                                         | Applications that bundle the plugin's client JavaScript               | Small   |
 | [Submission data for location fields](#submission-data-for-location-fields)             | Services that read easting/northing or latitude/longitude answers     | Small   |
 | [Submission message schema](#submission-message-schema)                                 | Services that validate submission messages with the plugin's schemas  | Trivial |
+| [Blank repeater answers are `null`](#blank-repeater-answers)                            | Services that read `data.repeaters` from submission messages          | Trivial |
 | [`SchemaValidationError` for invalid definitions](#invalid-form-definition-errors)      | Code that catches errors when it builds a `FormModel`                 | Trivial |
 | [`FormAdapterSubmissionSchemaVersion` is a constant object](#submission-schema-version) | TypeScript code that uses it as a type                                | Trivial |
 | [Templates use a `t` global](#templates-use-a-t-global)                                 | Applications that render plugin templates in their own Nunjucks setup | Small   |
@@ -79,6 +80,12 @@ Easting/northing and latitude/longitude answers have a new format in submission 
 | Latitude/longitude | `Latitude: 51.5\nLongitude: -0.12` | `51.5, -0.12`   |
 
 The check answers page and the email show the labels, as before. Machine v2 and adapter v1 output send objects, as before. Update services that read the v4 strings, for example a CSV import.
+
+## Blank repeater answers
+
+In submission messages, a repeater item now has a `null` value for each question that the user left blank. In v4, the item had no key for these questions. This is the same as `data.main`, which already used `null` in v4. The `FormAdapterSubmissionMessageData` type changes to `Record<string, Record<string, RichFormValue | null>[]>` for `repeaters`.
+
+Update services that check whether a key exists, for example with `'field' in item`. Check for `null` instead.
 
 ## Submission message schema
 
