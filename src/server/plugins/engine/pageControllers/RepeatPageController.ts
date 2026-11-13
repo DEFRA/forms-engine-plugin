@@ -194,6 +194,29 @@ export class RepeatPageController extends QuestionPageController {
         return super.proceed(request, h, nextPath)
       }
 
+      // Check if any items in the list are invalid and redirect to the first invalid item.
+      // This is to ensure that the user is aware of any errors in the list before proceeding to the next page.
+      // This situation can occur when reusing answers from a previous submission but the questions have changed and the answers are no longer valid.
+      // It can also happen if a repeater contains a declaration component which are explicitly excluded when copying a previous submission to a new submission, resulting in the repeater items being invalid.
+      const result = this.collection.stateSchema.validate(
+        this.getFormDataFromState(request, context.state)
+      )
+
+      if (result.error) {
+        const firstInvalidItemIndex = result.error.details[0].path[1]
+
+        if (typeof firstInvalidItemIndex === 'number') {
+          const firstInvalidItem = list[firstInvalidItemIndex]
+
+          const nextPath = redirectPath(`${path}/${firstInvalidItem.itemId}`, {
+            returnUrl: query.returnUrl,
+            force: query.force
+          })
+
+          return super.proceed(request, h, nextPath)
+        }
+      }
+
       const translator = this.getTranslator(request)
       const { t } = translator
 

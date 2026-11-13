@@ -1,7 +1,10 @@
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
-import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
+import {
+  buildFormContextRequest,
+  buildFormRequest
+} from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import {
   server,
   serverWithSaveAndExit
@@ -14,6 +17,10 @@ import {
   type RepeatListState,
   type RepeaterSummaryPageViewModel
 } from '~/src/server/plugins/engine/types.js'
+import {
+  type FormRequest,
+  type FormResponseToolkit
+} from '~/src/server/routes/types.js'
 import definition from '~/test/form/definitions/repeat.js'
 
 describe('RepeatPageController', () => {
@@ -274,6 +281,86 @@ describe('RepeatPageController', () => {
     it('includes all field errors', () => {
       const result = controller.collection.validate()
       expect(result.errors).toHaveLength(3)
+    })
+  })
+
+  describe('GET list summary route handler', () => {
+    const validList: RepeatListState = [
+      {
+        itemId: '00000000-0000-4000-8000-000000000001',
+        toppings: 'Ham',
+        quantity: 2
+      },
+      {
+        itemId: '00000000-0000-4000-8000-000000000002',
+        toppings: 'Cheese',
+        quantity: 1
+      }
+    ]
+
+    it('renders the summary when all list items are valid', () => {
+      const request = buildFormRequest(
+        requestPageSummary as unknown as FormRequest
+      )
+      const context = model.getFormContext(request, {
+        pizza: validList,
+        $$__referenceNumber: 'foobar'
+      })
+      const h = {
+        redirect: jest.fn().mockReturnValue({ code: jest.fn() }),
+        view: jest.fn(),
+        continue: Symbol('continue')
+      } as unknown as FormResponseToolkit
+
+      controller.makeGetListSummaryRouteHandler()(request, context, h)
+
+      expect(h.redirect).not.toHaveBeenCalled()
+      expect(h.view).toHaveBeenCalledWith(
+        controller.listSummaryViewName,
+        expect.objectContaining({
+          pageTitle: 'You have added 2 answers'
+        })
+      )
+    })
+
+    it('redirects to the first invalid item while preserving return query parameters', () => {
+      const invalidItemId = '00000000-0000-4000-8000-000000000002'
+      const request = buildFormRequest({
+        ...requestPageSummary,
+        query: {
+          returnUrl: '/test/summary',
+          force: 'true'
+        }
+      } as unknown as FormRequest)
+      const context = model.getFormContext(request, {
+        pizza: [
+          validList[0],
+          {
+            ...validList[1],
+            toppings: ''
+          }
+        ],
+        $$__referenceNumber: 'foobar'
+      })
+      const redirect = jest.fn()
+      const h = {
+        redirect: redirect.mockReturnValue({ code: jest.fn() }),
+        view: jest.fn(),
+        continue: Symbol('continue')
+      } as unknown as FormResponseToolkit
+
+      controller.makeGetListSummaryRouteHandler()(request, context, h)
+
+      expect(h.view).not.toHaveBeenCalled()
+      expect(redirect).toHaveBeenCalledWith(
+        expect.stringContaining(invalidItemId)
+      )
+      expect(redirect).toHaveBeenCalledWith(
+        expect.stringContaining('returnUrl=%2Ftest%2Fsummary')
+      )
+      expect(redirect).toHaveBeenCalledWith(
+        expect.stringContaining('force=true')
+      )
     })
   })
 
