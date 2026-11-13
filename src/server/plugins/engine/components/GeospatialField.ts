@@ -70,7 +70,7 @@ export class GeospatialField extends FormComponent {
 
   getDisplayStringFromFormValue(
     features: GeospatialState | undefined,
-    translator: Translator
+    translator: Translator = this.model.createTranslator()
   ): string {
     if (!features?.length) {
       return ''
@@ -83,7 +83,7 @@ export class GeospatialField extends FormComponent {
 
   getDisplayStringFromState(
     state: FormSubmissionState,
-    translator: Translator
+    translator: Translator = this.model.createTranslator()
   ) {
     const features = this.getFormValueFromState(state)
 
@@ -103,6 +103,8 @@ export class GeospatialField extends FormComponent {
   }
 
   getViewModel(context: RenderContext) {
+    const { translator = this.model.createTranslator() } = context
+
     const viewModel = super.getViewModel(context)
     const value =
       typeof viewModel.value === 'string'
@@ -111,7 +113,7 @@ export class GeospatialField extends FormComponent {
 
     return {
       ...viewModel,
-      lang: context.translator.language,
+      lang: translator.language,
       country: this.options.countries?.at(0),
       geometryTypes: this.options.geometryTypes,
       mapLayers: getMapLayers(this),
@@ -120,10 +122,10 @@ export class GeospatialField extends FormComponent {
   }
 
   getErrors(
-    translator: Translator,
-    errors?: FormSubmissionError[]
+    errors?: FormSubmissionError[],
+    translator: Translator = this.model.createTranslator()
   ): FormSubmissionError[] | undefined {
-    const fieldErrors = super.getErrors(translator, errors)
+    const fieldErrors = super.getErrors(errors, translator)
 
     fieldErrors?.forEach((err) => {
       if (err.name === 'description') {
@@ -148,10 +150,10 @@ export class GeospatialField extends FormComponent {
   }
 
   getViewErrors(
-    translator: Translator,
-    errors?: FormSubmissionError[]
+    errors?: FormSubmissionError[],
+    translator: Translator = this.model.createTranslator()
   ): FormSubmissionError[] | undefined {
-    return this.getErrors(translator, errors)
+    return this.getErrors(errors, translator)
   }
 
   isValue(value?: FormStateValue | FormState): value is GeospatialState {

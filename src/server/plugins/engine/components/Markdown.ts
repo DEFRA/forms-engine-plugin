@@ -22,9 +22,11 @@ export class Markdown extends ComponentBase {
   }
 
   getViewModel(context: RenderContext) {
+    const { translator = this.model.createTranslator() } = context
+
     const { content, viewModel } = this
 
-    const { tComponent } = context.translator
+    const { tComponent } = translator
 
     return {
       ...viewModel,

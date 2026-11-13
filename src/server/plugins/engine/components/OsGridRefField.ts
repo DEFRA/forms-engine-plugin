@@ -13,10 +13,12 @@ export class OsGridRefField extends LocationFieldBase {
   declare options: OsGridRefFieldComponent['options']
 
   getViewModel(context: RenderContext) {
+    const { translator = this.model.createTranslator() } = context
+
     const viewModel = super.getViewModel(context)
 
     Object.assign(viewModel, {
-      lang: context.translator.language,
+      lang: translator.language,
       mapLayers: getMapLayers(this)
     })
 

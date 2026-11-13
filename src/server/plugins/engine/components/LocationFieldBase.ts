@@ -125,14 +125,16 @@ export abstract class LocationFieldBase extends FormComponent {
   }
 
   getViewModel(context: RenderContext) {
+    const { translator = this.model.createTranslator() } = context
+
     const viewModel = super.getViewModel(context)
 
     Object.assign(viewModel, {
-      lang: context.translator.language
+      lang: translator.language
     })
 
     if (this.instructionText) {
-      const { tComponent } = context.translator
+      const { tComponent } = translator
       return {
         ...viewModel,
         instructionText:

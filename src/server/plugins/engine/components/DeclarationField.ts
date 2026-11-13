@@ -129,7 +129,7 @@ export class DeclarationField extends FormComponent {
 
   getDisplayStringFromFormValue(
     value: FormValue | FormPayload,
-    translator: Translator
+    translator: Translator = this.model.createTranslator()
   ): string {
     const { t } = translator
     return value === 'true'
@@ -139,8 +139,9 @@ export class DeclarationField extends FormComponent {
   }
 
   getViewModel(context: RenderContext) {
-    const { payload } = context
-    const { t, tComponent } = context.translator
+    const { payload, translator = this.model.createTranslator() } = context
+
+    const { t, tComponent } = translator
 
     const {
       hint,

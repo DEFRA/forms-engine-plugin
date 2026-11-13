@@ -116,7 +116,7 @@ export class DatePartsField extends FormComponent {
 
   getDisplayStringFromFormValue(
     formValue: DatePartsState | undefined,
-    translator: Translator
+    translator: Translator = this.model.createTranslator()
   ) {
     if (!formValue) {
       return ''
@@ -131,7 +131,7 @@ export class DatePartsField extends FormComponent {
 
   getDisplayStringFromState(
     state: FormSubmissionState,
-    translator: Translator
+    translator: Translator = this.model.createTranslator()
   ) {
     const value = this.getFormValueFromState(state)
 
@@ -182,6 +182,7 @@ export class DatePartsField extends FormComponent {
 
   getViewModel(context: RenderContext) {
     const { errors } = context
+
     const { collection, name } = this
 
     const viewModel = super.getViewModel(context)

@@ -440,6 +440,7 @@ describe('Form journey', () => {
 
       expect($heading1).toBeInTheDocument()
       expect($heading2).toBeInTheDocument()
+      expect(document.title).toMatch(/^Form submitted - /)
     })
 
     it('should redirect back to start (after submit)', async () => {

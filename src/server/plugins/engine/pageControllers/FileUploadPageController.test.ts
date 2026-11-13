@@ -1134,7 +1134,7 @@ describe('FileUploadPageController', () => {
           type: 'any.required'
         }
         const errors = controller.getErrors([errorDetail])
-        expect(errors).toEqual([getError(EN_GB, errorDetail)])
+        expect(errors).toEqual([getError(errorDetail, EN_GB)])
       })
 
       it('handles upload root errors using getError helper', () => {
@@ -1144,7 +1144,7 @@ describe('FileUploadPageController', () => {
           type: 'any.required'
         }
         const errors = controller.getErrors([errorDetail])
-        expect(errors).toEqual([getError(EN_GB, errorDetail)])
+        expect(errors).toEqual([getError(errorDetail, EN_GB)])
       })
     })
 

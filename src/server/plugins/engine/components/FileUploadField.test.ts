@@ -325,12 +325,18 @@ describe('FileUploadField', () => {
         const state1 = getFormState(validState)
         const state2 = getFormState(null)
 
-        const answer1 = getAnswer(field, state1, stubTranslator, {
-          format: 'summary'
-        })
-        const answer2 = getAnswer(field, state2, stubTranslator, {
-          format: 'summary'
-        })
+        const answer1 = getAnswer(
+          field,
+          state1,
+          { format: 'summary' },
+          stubTranslator
+        )
+        const answer2 = getAnswer(
+          field,
+          state2,
+          { format: 'summary' },
+          stubTranslator
+        )
 
         expect(answer1).toBe('Uploaded 3 files')
         expect(answer2).toBe('')
@@ -389,7 +395,6 @@ describe('FileUploadField', () => {
       it('sets Nunjucks component defaults', () => {
         const viewModel = field.getViewModel({
           payload: getFormData(validState),
-          errors: undefined,
           translator: stubTranslator
         })
 
@@ -472,9 +477,8 @@ describe('FileUploadField', () => {
       it('sets Nunjucks component defaults (preview URL direct access)', () => {
         const viewModel = field.getViewModel({
           payload: getFormData(validState),
-          errors: undefined,
-          translator: stubTranslator,
-          isForceAccess: true
+          query: { force: '' },
+          translator: stubTranslator
         })
 
         expect(viewModel).toEqual(
@@ -531,7 +535,6 @@ describe('FileUploadField', () => {
       it('sets Nunjucks component defaults with temp valid state', () => {
         const viewModel = field.getViewModel({
           payload: getFormData(validTempState),
-          errors: undefined,
           translator: stubTranslator
         })
 

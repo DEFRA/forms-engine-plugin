@@ -287,8 +287,8 @@ describe('DatePartsField', () => {
         const state1 = getFormState(date)
         const state2 = getFormState({})
 
-        const answer1 = getAnswer(field, state1, translator)
-        const answer2 = getAnswer(field, state2, translator)
+        const answer1 = getAnswer(field, state1, undefined, translator)
+        const answer2 = getAnswer(field, state2, undefined, translator)
 
         expect(answer1).toBe('31 December 2024')
         expect(answer2).toBe('')
@@ -368,7 +368,6 @@ describe('DatePartsField', () => {
         const payload = getFormData(date)
         const viewModel = field.getViewModel({
           payload,
-          errors: undefined,
           translator: stubTranslator
         })
 
@@ -416,7 +415,6 @@ describe('DatePartsField', () => {
 
         const viewModel = field.getViewModel({
           payload,
-          errors: undefined,
           translator: stubTranslator
         })
 
@@ -443,7 +441,6 @@ describe('DatePartsField', () => {
         const payload = getFormData(date)
         const viewModel = field.getViewModel({
           payload,
-          errors: undefined,
           translator: stubTranslator
         })
 

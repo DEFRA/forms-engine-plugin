@@ -372,7 +372,7 @@ export class RepeatPageController extends QuestionPageController {
   getViewModel(
     request: FormContextRequest,
     context: FormContext,
-    translator: Translator
+    translator: Translator = context.translator ?? this.model.createTranslator()
   ): FormPageViewModel {
     const { state } = context
     const { tPage } = translator
@@ -400,7 +400,7 @@ export class RepeatPageController extends QuestionPageController {
     request: FormContextRequest,
     context: FormContext,
     list: RepeatListState,
-    translator: Translator
+    translator: Translator = context.translator ?? this.model.createTranslator()
   ): RepeaterSummaryPageViewModel {
     const { collection, href, repeat } = this
     const { query } = request

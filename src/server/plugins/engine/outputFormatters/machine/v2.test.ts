@@ -290,8 +290,8 @@ describe('getPersonalisation', () => {
     const items = getFormSubmissionData(
       summaryViewModel.context,
       summaryViewModel.details,
-      translator,
-      model
+      model,
+      translator
     )
 
     const body = format(context, items, model, submitResponse, formStatus)

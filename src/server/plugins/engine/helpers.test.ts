@@ -442,7 +442,7 @@ describe('Helpers', () => {
         undefined
       )
 
-      expect(getErrors(EN_GB, details)).toEqual([
+      expect(getErrors(details, EN_GB)).toEqual([
         {
           path: ['dateField'],
           href: '#dateField',
@@ -474,7 +474,7 @@ describe('Helpers', () => {
         undefined
       )
 
-      expect(getErrors('cy', details)).toEqual([
+      expect(getErrors(details, 'cy')).toEqual([
         {
           path: ['dateField'],
           href: '#dateField',
@@ -504,7 +504,7 @@ describe('Helpers', () => {
         undefined
       )
 
-      expect(getErrors(EN_GB, details)).toEqual([
+      expect(getErrors(details, EN_GB)).toEqual([
         {
           path: ['yesNoField'],
           href: '#yesNoField',

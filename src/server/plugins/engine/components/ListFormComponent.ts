@@ -103,7 +103,7 @@ export class ListFormComponent extends FormComponent {
 
   getDisplayStringFromFormValue(
     value: string | number | boolean | Item['value'][] | undefined,
-    translator: Translator
+    translator: Translator = this.model.createTranslator()
   ): string {
     const { items } = this
 
@@ -117,7 +117,7 @@ export class ListFormComponent extends FormComponent {
 
   getDisplayStringFromState(
     state: FormSubmissionState,
-    translator: Translator
+    translator: Translator = this.model.createTranslator()
   ) {
     // Allow for array values via subclass
     const value = this.getFormValueFromState(state)
@@ -126,6 +126,8 @@ export class ListFormComponent extends FormComponent {
   }
 
   getViewModel(context: RenderContext) {
+    const { translator = this.model.createTranslator() } = context
+
     const { items: listItems } = this
 
     const viewModel = super.getViewModel(context)
@@ -134,7 +136,7 @@ export class ListFormComponent extends FormComponent {
     // Support multiple values for checkboxes
     const values = this.isValue(value) ? [value].flat() : []
 
-    const { tListItem } = context.translator
+    const { tListItem } = translator
 
     const items = listItems.map((item) => {
       const selected = values.includes(item.value)

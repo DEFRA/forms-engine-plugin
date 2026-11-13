@@ -4,7 +4,7 @@ forms-engine-plugin provides built-in components and page types you can use imme
 
 ## [Components](./features/components)
 
-A library of built-in form components — text fields, date inputs, radio buttons, file upload, payment, geospatial fields, and more. Add them to your form definition by name.
+A library of built-in form components — text fields, date inputs, radio buttons, file upload, payment, geospatial fields with an inline map, tracking fields, and more. Add them to your form definition by name.
 
 ## [Page Types](./features/pages)
 
@@ -22,6 +22,18 @@ View model properties the plugin provides to your base layout template — back 
 
 Top-level form definition fields that control global behaviour: sections, lists, reference number display, user feedback, phase banner label, and declaration text on the summary page.
 
+## [Reference numbers](./plugin-options#generatereferencenumber)
+
+Each form session gets a reference number, with an optional prefix from the form definition. Supply `generateReferenceNumber` to use reference numbers from your own service.
+
+## [Form definition errors](./definition-errors)
+
+Typed errors for invalid form definitions, so that your service can tell a problem with the form apart from a problem with the service and show it to the form author.
+
+## [Multi-language support](./features/multi-language)
+
+Show forms in English and Welsh. The plugin translates its own text, form definitions hold the translations of their content, and your layout gets the data to render a language switcher.
+
 ## Extending the plugin
 
 ### [Configuration-based Features](./features/configuration-based)
@@ -31,7 +43,3 @@ Drive advanced functionality — such as calling APIs and rendering dynamic cont
 ### [Code-based Features](./features/code-based)
 
 Implement highly tailored behaviour by writing custom TypeScript/JavaScript that integrates with forms-engine-plugin's extension points.
-
-## [Multi-language support](./multi-language.md)
-
-Multiple languages, specifically English and Welsh, can be configured.

@@ -171,8 +171,8 @@ describe('OsGridRefField', () => {
         const state1 = getFormState('TQ12345678')
         const state2 = getFormState(null)
 
-        const answer1 = getAnswer(field, state1, translator)
-        const answer2 = getAnswer(field, state2, translator)
+        const answer1 = getAnswer(field, state1, undefined, translator)
+        const answer2 = getAnswer(field, state2, undefined, translator)
 
         expect(answer1).toBe('TQ12345678')
         expect(answer2).toBe('')
@@ -227,7 +227,6 @@ describe('OsGridRefField', () => {
       it('sets Nunjucks component defaults', () => {
         const viewModel = field.getViewModel({
           payload: getFormData('TQ12345678'),
-          errors: undefined,
           translator: stubTranslator
         })
 
@@ -252,7 +251,6 @@ describe('OsGridRefField', () => {
 
         const viewModel = componentWithInstruction.getViewModel({
           payload: getFormData('TQ12345678'),
-          errors: undefined,
           translator: stubTranslator
         })
 

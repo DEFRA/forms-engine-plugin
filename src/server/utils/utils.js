@@ -40,7 +40,7 @@ export function isValidUUID(str) {
  */
 export function resolveLanguage(request) {
   const { getLanguage } = getPluginOptions(request.server)
-  return getLanguage?.(request.query, request.yar) ?? 'en-GB'
+  return getLanguage?.(request) ?? 'en-GB'
 }
 
 /**

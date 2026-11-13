@@ -122,12 +122,17 @@ function getTypeDescription(feature, typeDescriptions) {
 }
 
 /**
- * @param {GeospatialPanelTexts} texts
  * @param {boolean} allowPoint
  * @param {boolean} allowLine
  * @param {boolean} allowShape
+ * @param {GeospatialPanelTexts} [texts] - the help panel texts, English by default
  */
-export function getHelpPanelHtml(texts, allowPoint, allowLine, allowShape) {
+export function getHelpPanelHtml(
+  allowPoint,
+  allowLine,
+  allowShape,
+  texts = getTexts().helpPanel
+) {
   const lineOrShapeText = getLineOrShapeText(texts, allowLine, allowShape)
   const point3 = lineOrShapeText
     ? `<li>${texts.point3} ${lineOrShapeText}</li>`
@@ -734,7 +739,7 @@ function onMapReadyFactory(context) {
     map.addPanel('info', {
       ...helpPanelConfig,
       label: texts.helpPanel.label,
-      html: getHelpPanelHtml(texts.helpPanel, allowPoint, allowLine, allowShape)
+      html: getHelpPanelHtml(allowPoint, allowLine, allowShape, texts.helpPanel)
     })
 
     if (allowPoint) {

@@ -335,7 +335,6 @@ describe('LocationFieldHelpers', () => {
 
       const viewModel = field.getViewModel({
         payload,
-        errors: undefined,
         translator: stubTranslator
       })
 
@@ -370,7 +369,6 @@ describe('LocationFieldHelpers', () => {
 
       const viewModel = field.getViewModel({
         payload,
-        errors: undefined,
         translator: stubTranslator
       })
 
@@ -632,7 +630,6 @@ describe('LocationFieldHelpers', () => {
 
       const viewModel = field.getViewModel({
         payload,
-        errors: undefined,
         translator: stubTranslator
       })
 
@@ -660,7 +657,6 @@ describe('LocationFieldHelpers', () => {
 
       const viewModel = field.getViewModel({
         payload,
-        errors: undefined,
         translator: stubTranslator
       })
 
@@ -694,7 +690,6 @@ describe('LocationFieldHelpers', () => {
 
       const viewModel = field.getViewModel({
         payload,
-        errors: undefined,
         translator: stubTranslator
       })
 

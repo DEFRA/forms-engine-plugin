@@ -160,8 +160,8 @@ describe('NumberField', () => {
         const state1 = getFormState(2024)
         const state2 = getFormState(null)
 
-        const answer1 = getAnswer(field, state1, translator)
-        const answer2 = getAnswer(field, state2, translator)
+        const answer1 = getAnswer(field, state1, undefined, translator)
+        const answer2 = getAnswer(field, state2, undefined, translator)
 
         expect(answer1).toBe('2024')
         expect(answer2).toBe('')
@@ -216,7 +216,6 @@ describe('NumberField', () => {
       it('sets Nunjucks component defaults', () => {
         const viewModel = field.getViewModel({
           payload: getFormData(2024),
-          errors: undefined,
           translator: stubTranslator
         })
 
@@ -238,7 +237,6 @@ describe('NumberField', () => {
 
         const viewModel = componentCustom.getViewModel({
           payload: getFormData(99.99),
-          errors: undefined,
           translator: stubTranslator
         })
 
@@ -254,7 +252,6 @@ describe('NumberField', () => {
 
         const viewModel = componentCustom.getViewModel({
           payload: getFormData(99),
-          errors: undefined,
           translator: stubTranslator
         })
 
@@ -269,7 +266,6 @@ describe('NumberField', () => {
 
         const viewModel = componentCustom.getViewModel({
           payload: getFormData(99),
-          errors: undefined,
           translator: stubTranslator
         })
 
@@ -284,7 +280,6 @@ describe('NumberField', () => {
 
         const viewModel = componentCustom.getViewModel({
           payload: getFormData(99.99),
-          errors: undefined,
           translator: stubTranslator
         })
 
@@ -295,7 +290,6 @@ describe('NumberField', () => {
     it('sets Nunjucks component value when invalid', () => {
       const viewModel = field.getViewModel({
         payload: getFormData('AA'),
-        errors: undefined,
         translator: stubTranslator
       })
 

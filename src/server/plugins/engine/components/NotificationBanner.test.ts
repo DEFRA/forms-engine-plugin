@@ -29,7 +29,6 @@ describe('NotificationBanner', () => {
     const collection = new ComponentCollection([def], { model })
     const viewModel = collection.guidance[0].getViewModel({
       payload: {},
-      errors: undefined,
       translator: stubTranslator
     })
 
@@ -56,7 +55,6 @@ describe('NotificationBanner', () => {
     const collection = new ComponentCollection([def], { model })
     const viewModel = collection.guidance[0].getViewModel({
       payload: {},
-      errors: undefined,
       translator: stubTranslator
     })
 
@@ -81,7 +79,6 @@ describe('NotificationBanner', () => {
     const collection = new ComponentCollection([def], { model })
     const viewModel = collection.guidance[0].getViewModel({
       payload: {},
-      errors: undefined,
       translator: stubTranslator
     })
 

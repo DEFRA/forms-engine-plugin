@@ -99,7 +99,7 @@ export class PaymentField extends FormComponent {
 
   getDisplayStringFromState(
     state: FormSubmissionState,
-    _translator: Translator
+    _translator?: Translator
   ): string {
     const value = this.getPaymentStateFromState(state)
 
@@ -111,9 +111,9 @@ export class PaymentField extends FormComponent {
   }
 
   getViewModel(context: RenderContext) {
-    const { payload } = context
+    const { payload, translator = this.model.createTranslator() } = context
+
     const viewModel = super.getViewModel(context)
-    const { translator } = context
     const { tComponent } = translator
 
     // Payload is pre-populated from state if a payment has already been made

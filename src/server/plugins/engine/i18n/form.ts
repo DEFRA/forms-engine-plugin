@@ -4,6 +4,7 @@ import { LRUCache } from 'lru-cache'
 
 import { getPluginOptions } from '~/src/server/plugins/engine/helpers.js'
 import { createFormTranslator } from '~/src/server/plugins/engine/i18n/createFormTranslator.js'
+import { resolveFormLanguage } from '~/src/server/plugins/engine/i18n/languages.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type AnyFormRequest } from '~/src/server/plugins/engine/types.js'
 
@@ -35,10 +36,11 @@ export async function getCachedPluginTranslator(
 
   const { services } = getPluginOptions(request.server)
 
-  const definition = await services?.formsService.getFormDefinition(
-    metadata.id,
-    status
-  )
+  // A plugin registered with a single `model` has no forms service, so the
+  // definition comes from that model
+  const definition = services
+    ? await services.formsService.getFormDefinition(metadata.id, status)
+    : request.server.app.model?.def
 
   if (!definition) {
     throw Boom.notFound(
@@ -46,7 +48,11 @@ export async function getCachedPluginTranslator(
     )
   }
 
-  const translator = createFormTranslator(metadata, definition, language)
+  const translator = createFormTranslator(
+    metadata,
+    definition,
+    resolveFormLanguage(definition, language)
+  )
 
   cache.set(key, translator)
 

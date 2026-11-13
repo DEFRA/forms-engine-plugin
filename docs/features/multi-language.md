@@ -1,116 +1,145 @@
-# Multi-language (specifically English and Welsh)
+# Multi-language support
 
-The `engine-plugin` supports multi-languages (if configured).
+The plugin can show a form in English and Welsh. It translates two kinds of text:
 
-A small i18next-based translation layer is used to resolve English and Welsh text for plugin UI, form content, and per-form metadata.
+- **Plugin text**: buttons, labels, hints, error messages and other text the plugin adds to every form. The plugin includes English and Welsh translations of all of it.
+- **Form text**: the titles, hints and other content that come from your form definition. You add the Welsh translations to each form definition.
 
-Additional languages are configured by adding translations json files and adding a `translations` property under the `metadata` property of the form definition.
-You can use the Designer to edit Welsh translations for your form (to insert the necessary values in the `metadata.translations` property).
+A form shows Welsh only when its definition has Welsh translations. All other forms show English.
 
-Currently only English and Welsh are configured but other languages could be added if desired.
+## Turn on language selection
 
-## What gets translated
+Give the plugin a [`getLanguage`](../plugin-options.md#getlanguage) function. The plugin calls it on each request to get the language code, `en-GB` or `cy`.
 
-The translator has two layers of text:
+This example reads the language from a `language` query parameter, then stores it in the session so that it applies to the rest of the journey:
 
-- Plugin boilerplate strings, such as labels, error messages, and shared UI text.
-- Form-specific strings, such as page titles, component titles, section titles, list item text, and the form title/contact fields.
+```js
+await server.register({
+  plugin,
+  options: {
+    getLanguage(request) {
+      const { query, yar } = request
 
-## Base language setup
+      if ('language' in query) {
+        yar.set('language', query.language)
+      }
 
-The shared i18n instance is created in [src/server/plugins/engine/i18n/index.ts](src/server/plugins/engine/i18n/index.ts).
+      return yar.get('language') ?? 'en-GB'
+    }
+    // ... other options
+  }
+})
+```
 
-It loads two built-in resource files:
+Without `getLanguage`, every form shows English.
 
-- `en-GB.json`
-- `cy.json`
+If the function returns `cy` for a form with no Welsh translations, the plugin shows that form in English.
 
-That instance uses `en-GB` as the fallback language, so if a key is missing in Welsh, English is used instead.
+## Add Welsh translations to a form
 
-The shared `t()` helper in the same file resolves plugin keys with the requested language and namespace.
+Put the translations in `metadata.translations.cy` in the form definition. The [forms designer](https://github.com/DEFRA/forms-designer) can edit these for you.
 
-## Form-specific translators
+The plugin finds each translation by the `id` of the page, component, section or list item, so the form must use the V2 engine, where every item has an `id`:
 
-Form translators are built in [src/server/plugins/engine/i18n/createFormTranslator.ts](src/server/plugins/engine/i18n/createFormTranslator.ts).
+```yaml
+engine: V2
+metadata:
+  translations:
+    cy:
+      form:
+        title: Gwneud cais am drwydded
+      pages:
+        622a35ec-3795-418a-81f3-a45746959045:
+          title: Eich enw
+      components:
+        1fb8e182-c709-4792-8f83-e01d8b1fee1a:
+          title: Beth yw eich enw cyntaf?
+          shortDescription: Eich enw cyntaf
+      sections:
+        e3a1c6d2-52c3-4f63-9d1b-0d2b5a4c9f10:
+          title: Amdanoch chi
+      listItems:
+        aabbccdd-1122-3344-5566-778899001126:
+          text: Car
+```
 
-The flow is:
+| Group        | Properties you can translate                                                                                |
+| ------------ | ----------------------------------------------------------------------------------------------------------- |
+| `form`       | `title`                                                                                                     |
+| `pages`      | `title`, `repeatTitle`                                                                                      |
+| `components` | `title`, `hint`, `content`, `shortDescription`, `errorDescription`, `paymentDescription`, `instructionText` |
+| `sections`   | `title`                                                                                                     |
+| `listItems`  | `text`, `hint`                                                                                              |
 
-1. Extract base translations from the form definition.
-2. Create a fresh i18next instance with the shared plugin resources.
-3. Load any form translations from `definition.metadata.translations` into the `form` namespace.
-4. Add metadata values such as form title, contact details, privacy notice, and submission guidance as English `form` resources.
-5. Return a scoped translator from [src/server/plugins/engine/i18n/createTranslator.ts](src/server/plugins/engine/i18n/createTranslator.ts).
+When a property has no Welsh translation, the plugin shows the English text from the definition, so that a partly translated form still works.
 
-That scoped translator exposes:
+Translations can use the same `{{ }}` placeholders as the definition, for example `Pryd yw pen-blwydd {{ applicantFirstName }}?`.
 
-- `t(key)` for plugin text and errors
-- `tForm(prop)` for form-level fields like title
-- `tPage(page, prop)` for page title/repeat title, and guidance
-- `tComponent(component, prop)` for component title, hint, content, and related text
-- `tSection(section, prop)` for section titles
-- `tListItem(item, prop)` for list item text and hint
+## Add a language switcher to your layout
 
-## Language selection
+The language switcher is part of your base layout, so that it matches the rest of your service. On question pages the plugin gives your layout:
 
-Language is not auto-detected inside the translator itself. The caller passes the desired language code, typically `en-GB` or `cy`.
+| Property                      | Description                                                                                              |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `context.languages`           | The languages the form is available in, as `{ name, code }` objects. Empty when the form is English only |
+| `context.translator.language` | The language code of the current page                                                                    |
 
-Available languages are derived from the form definition in [src/server/plugins/engine/i18n/languages.ts](src/server/plugins/engine/i18n/languages.ts):
+Use the `applyUrlParam` filter to build a link to the same page with the `language` query parameter that your `getLanguage` function reads. In this example, `currentPath` is the request path and query string, which your [`viewContext`](../plugin-options.md#viewcontext) provides:
 
-- If the form has Welsh translations under `metadata.translations.cy`, the available languages are English and Cymraeg.
-- If it does not, the language list is empty.
+```njk
+{% if context.languages | length %}
+  <ul class="govuk-list app-language-switcher">
+    {% for lang in context.languages %}
+      <li>
+        {% if lang.code == context.translator.language %}
+          <span aria-current="true">{{ lang.name }}</span>
+        {% else %}
+          <a class="govuk-link" href="{{ currentPath | applyUrlParam('language', lang.code) }}" lang="{{ lang.code }}">{{ lang.name }}</a>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+```
 
-## Caching
+Also set `htmlLang`, which the GOV.UK Frontend page template uses for the `lang` attribute, so that screen readers use the right pronunciation:
 
-Translator instances are cached for 15 minutes in [src/server/plugins/engine/i18n/form.ts](src/server/plugins/engine/i18n/form.ts).
+```njk
+{% set htmlLang = context.translator.language if context.translator else 'en-GB' %}
+```
 
-- `getCachedPluginTranslator()` for external routes such as save-and-exit, privacy, help, and postcode lookup, which need the full form definition.
+## Translate text in your own templates
 
-The cache key includes form id, status, and language, so English and Welsh translators are cached separately.
+Page view models include a `t` function for the language of the current request. Use it in your layout and custom templates to show plugin text:
 
-## Welsh-specific behavior
+```njk
+{{ t('common.continue') }}
+```
 
-Welsh support comes from two places:
+The keys are in the plugin's translation files: `src/server/plugins/engine/i18n/translations/en-GB.json` and `cy.json`.
 
-- The shared `cy.json` plugin resource file for boilerplate text.
-- Per-form Welsh translations stored in `definition.metadata.translations.cy`.
+`t` resolves only these plugin keys. Text that your service owns, such as your header and footer, needs your own translations.
 
-There is also a small temporary workaround in [src/server/plugins/engine/i18n/createFormTranslator.ts](src/server/plugins/engine/i18n/createFormTranslator.ts) that injects Welsh yes/no list item text as `Ie` and `Nage`.
+On routes that your application owns, outside the plugin's pages, the global `t` always returns English.
 
-## Interpolation
+## Translate text in custom page controllers
 
-The i18next instances use `[[...]]` interpolation delimiters rather than the default `{{...}}` form.
+A custom page controller needs a translator only when your service offers Welsh. Page controller methods such as `getViewModel` use the language of the current request when you do not pass a translator.
 
-That means translated strings can include placeholders such as `[[name]]`, which are resolved by i18next when the translator runs.
+In a page controller, `context.translator` is the translator for the current request. Use `tComponent(this.def, 'title')`, `tListItem(item, 'text')` and the other helpers to show form content in the user's language. `translator.t` resolves only the plugin's own keys. To build component view models in the user's language, pass the translator in the `RenderContext`:
 
-## Where it is used
+```ts
+const components = this.collection.getViewModel({
+  payload,
+  errors,
+  translator: context.translator
+})
+```
 
-Common consumers include:
+See [Custom page controllers](./code-based/page-controllers).
 
-- Page controllers that render form pages
-- Component models that resolve titles, hints, and validation text
-- External route handlers such as postcode lookup and save-and-exit
+## Submissions
 
-A good example is [src/server/plugins/engine/components/UkAddressField.ts](src/server/plugins/engine/components/UkAddressField.ts), which requests an external-route translator and uses it to render localized address UI.
+The language the user saw is in the `language` field of the submission message metadata, so that your downstream services can reply in the same language.
 
-## Helper usage
-
-### `getCachedPluginTranslator`
-
-This helper is used by external routes that need the full form definition before they can translate labels and metadata correctly.
-
-Current uses:
-
-- [src/server/plugins/postcode-lookup/routes/index.js](src/server/plugins/postcode-lookup/routes/index.js) uses it to translate the postcode lookup journey.
-- [src/server/plugins/engine/components/UkAddressField.ts](src/server/plugins/engine/components/UkAddressField.ts) uses it when dispatching the external postcode lookup flow.
-
-Why it exists:
-
-- External routes do not always have a fully built form model in hand, so the helper fetches the form definition first.
-- The full definition is needed to load form namespace translations, component labels, and metadata such as the form title and contact details.
-- It uses the same 15-minute cache strategy, but keeps the async fetch isolated inside the helper.
-
-## Practical summary
-
-If a Welsh translation exists for a form field, it is loaded from the form definition and used for `cy`.
-If it does not exist, the translator falls back to the shared English text.
-If a key is missing entirely from the form namespace, the shared plugin namespace and then `en-GB` fallback keep the UI working.
+Payment descriptions are sent to GOV.UK Pay in the user's language. The submission message also includes the English description in `descriptionInEng`.

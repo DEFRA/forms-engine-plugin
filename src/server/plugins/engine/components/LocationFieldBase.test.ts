@@ -86,7 +86,6 @@ describe('LocationFieldBase', () => {
       const field = new TestLocationField(def, { model })
       const viewModel = field.getViewModel({
         payload: getFormData('TEST1234'),
-        errors: undefined,
         translator: stubTranslator
       })
 
@@ -108,7 +107,6 @@ describe('LocationFieldBase', () => {
       const field = new TestLocationField(def, { model })
       const viewModel = field.getViewModel({
         payload: getFormData('TEST1234'),
-        errors: undefined,
         translator: stubTranslator
       })
 

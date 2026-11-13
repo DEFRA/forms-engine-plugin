@@ -78,8 +78,7 @@
           {% set submitButtonText = t('pages.summary.submit') %}
           {% if paymentPending %}
             {% set submitButtonText = t('pages.summary.payAndSubmit') %}
-          {% endif %}
-          {% if isDeclaration %}
+          {% elif isDeclaration %}
             {% set submitButtonText = t('pages.summary.acceptAndSubmit') %}
           {% endif %}
 

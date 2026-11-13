@@ -211,8 +211,8 @@ describe.each([
         const state1 = getFormState(item.value)
         const state2 = getFormState(null)
 
-        const answer1 = getAnswer(field, state1, translator)
-        const answer2 = getAnswer(field, state2, translator)
+        const answer1 = getAnswer(field, state1, undefined, translator)
+        const answer2 = getAnswer(field, state2, undefined, translator)
 
         expect(answer1).toBe(item.text)
         expect(answer2).toBe('')
@@ -272,7 +272,6 @@ describe.each([
 
         const viewModel = field.getViewModel({
           payload: getFormData(item.value),
-          errors: undefined,
           translator: stubTranslator
         })
 
@@ -291,7 +290,6 @@ describe.each([
         (item) => {
           const viewModel = field.getViewModel({
             payload: getFormData(item.value),
-            errors: undefined,
             translator: stubTranslator
           })
 

@@ -148,9 +148,9 @@ describe('YesNoField', () => {
       const state2 = getFormState(false)
       const state3 = getFormState(null)
 
-      const answer1 = getAnswer(field, state1, translator)
-      const answer2 = getAnswer(field, state2, translator)
-      const answer3 = getAnswer(field, state3, translator)
+      const answer1 = getAnswer(field, state1, undefined, translator)
+      const answer2 = getAnswer(field, state2, undefined, translator)
+      const answer3 = getAnswer(field, state3, undefined, translator)
 
       expect(answer1).toBe('Yes')
       expect(answer2).toBe('No')
@@ -222,7 +222,6 @@ describe('YesNoField', () => {
 
       const viewModel = field.getViewModel({
         payload: getFormData(item.value),
-        errors: undefined,
         translator: stubTranslator
       })
 
@@ -239,7 +238,6 @@ describe('YesNoField', () => {
     it.each([...items])('sets Nunjucks component radio items', (item) => {
       const viewModel = field.getViewModel({
         payload: getFormData(item.value),
-        errors: undefined,
         translator: stubTranslator
       })
 

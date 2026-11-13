@@ -54,7 +54,10 @@ import { loadFormTranslations } from '~/src/server/plugins/engine/i18n/createFor
 import { createTranslator } from '~/src/server/plugins/engine/i18n/createTranslator.js'
 import { extractBaseTranslations } from '~/src/server/plugins/engine/i18n/extractBaseTranslations.js'
 import { createFormI18nInstance } from '~/src/server/plugins/engine/i18n/index.js'
-import { getAvailableLanguages } from '~/src/server/plugins/engine/i18n/languages.js'
+import {
+  getAvailableLanguages,
+  resolveFormLanguage
+} from '~/src/server/plugins/engine/i18n/languages.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import {
   type ConditionEvaluation,
@@ -144,8 +147,8 @@ export class FormModel {
     this.i18nInstance = createFormI18nInstance(baseTranslations)
     loadFormTranslations(def, this.i18nInstance)
 
-    // Add default lists. Yes/No text stored as i18n key constants so they
-    // resolve to the user's language at render time via the translator.
+    // Add default lists. The Welsh text for Yes/No is added by item id in
+    // `loadFormTranslations`, so that the definition keeps the English text.
     def.lists.push({
       id: def.schema === SchemaVersion.V1 ? yesNoListName : yesNoListId,
       name: '__yesNo',
@@ -154,12 +157,12 @@ export class FormModel {
       items: [
         {
           id: '02900d42-83d1-4c72-a719-c4e8228952fa',
-          text: 'components.yesNoField.yes',
+          text: 'Yes',
           value: true
         },
         {
           id: 'f39000eb-c51b-4019-8f82-bbda0423f04d',
-          text: 'components.yesNoField.no',
+          text: 'No',
           value: false
         }
       ]
@@ -252,12 +255,10 @@ export class FormModel {
 
   /** Returns a scoped translator pair for the given language. */
   createTranslator(language = EN_GB): Translator {
-    // @ts-expect-error - dynamic language lookup
-    if (!this.def.metadata?.translations?.[language]) {
-      // If not translations defined in the FormDefinition, always default to English
-      language = EN_GB
-    }
-    return createTranslator(this.i18nInstance, language)
+    return createTranslator(
+      this.i18nInstance,
+      resolveFormLanguage(this.def, language)
+    )
   }
 
   /**
@@ -698,7 +699,7 @@ function validateFormState(
 
   // Add relevant state errors
   if (error) {
-    const errorsState = error.details.map((item) => getError(EN_GB, item))
+    const errorsState = error.details.map((item) => getError(item, EN_GB))
     return { ...context, errors: errors.concat(errorsState) }
   }
 
