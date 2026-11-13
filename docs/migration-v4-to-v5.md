@@ -43,30 +43,40 @@ In TypeScript, Joi 18 types array schemas by the array type, for example `ArrayS
 
 The plugin uses `@defra/interactive-map` 0.0.56 and MapLibre 6. If your application bundles `@defra/forms-engine-plugin/shared.js` or `@defra/forms-engine-plugin/maps`, make these changes. They apply also if your forms have no map fields, because `shared.js` includes the map code.
 
-1. Tell webpack to ignore the optional OpenLayers and Esri dependencies of `@defra/interactive-map`, which the plugin does not use:
+### Ignore the optional map dependencies
 
-   ```js
-   new webpack.IgnorePlugin({
-     resourceRegExp: /^(ol|proj4|@arcgis\/core)(\/|$)/
-   })
-   ```
+Tell webpack to ignore the optional OpenLayers and Esri dependencies of `@defra/interactive-map`, which the plugin does not use:
 
-2. Serve the MapLibre worker. `initMaps` loads it from `/assets/interactive-map/maplibre-gl-worker.mjs`. Copy `maplibre-gl/dist/maplibre-gl-worker.mjs` to that path, or pass a different path as `workerPath`:
+```js
+new webpack.IgnorePlugin({
+  resourceRegExp: /^(ol|proj4|@arcgis\/core)(\/|$)/
+})
+```
 
-   ```js
-   new CopyPlugin({
-     patterns: [
-       {
-         from: require.resolve('maplibre-gl/dist/maplibre-gl-worker.mjs'),
-         to: 'interactive-map/maplibre-gl-worker.mjs'
-       }
-     ]
-   })
-   ```
+### Serve the MapLibre worker
 
-3. If your Content Security Policy sets `worker-src`, allow `'self'` as well as `blob:`.
+`initMaps` loads the worker from `/assets/interactive-map/maplibre-gl-worker.mjs`. Copy `maplibre-gl/dist/maplibre-gl-worker.mjs` to that path, or pass a different path as `workerPath`:
 
-4. If your stylesheets import the `interact` or `draw-ml` stylesheets of `@defra/interactive-map`, remove those imports. Version 0.0.56 does not have them. To get the plugin's map styles, use `@defra/forms-engine-plugin/maps` in Sass.
+```js
+new CopyPlugin({
+  patterns: [
+    {
+      from: require.resolve('maplibre-gl/dist/maplibre-gl-worker.mjs'),
+      to: 'interactive-map/maplibre-gl-worker.mjs'
+    }
+  ]
+})
+```
+
+### Allow the worker in your Content Security Policy
+
+If your Content Security Policy sets `worker-src`, allow `'self'` as well as `blob:`.
+
+### Remove the old map stylesheets
+
+If your stylesheets import the `interact` or `draw-ml` stylesheets of `@defra/interactive-map`, remove those imports. Version 0.0.56 does not have them. To get the plugin's map styles, use `@defra/forms-engine-plugin/maps` in Sass.
+
+### Install one copy of the map package
 
 If your application installs its own copy of `@defra/interactive-map`, use version `^0.0.56-alpha`, so that npm installs only one copy.
 
