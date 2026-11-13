@@ -1,6 +1,9 @@
 import { type FormDefinition } from '@defra/forms-model'
 
-import { getAvailableLanguages } from '~/src/server/plugins/engine/i18n/languages.js'
+import {
+  getAvailableLanguages,
+  resolveFormLanguage
+} from '~/src/server/plugins/engine/i18n/languages.js'
 
 describe('languages', () => {
   describe('getAvailableLanguages', () => {
@@ -23,6 +26,29 @@ describe('languages', () => {
         metadata: {}
       } as unknown as FormDefinition
       expect(getAvailableLanguages(def)).toEqual([])
+    })
+  })
+
+  describe('resolveFormLanguage', () => {
+    const welshDef = {
+      metadata: { translations: { cy: {} } }
+    } as unknown as FormDefinition
+
+    it('returns the requested language when the form has translations for it', () => {
+      expect(resolveFormLanguage(welshDef, 'cy')).toBe('cy')
+    })
+
+    it('returns English when the form has no translations for the requested language', () => {
+      const def = { metadata: {} } as unknown as FormDefinition
+      expect(resolveFormLanguage(def, 'cy')).toBe('en-GB')
+    })
+
+    it('returns English when the language is not known', () => {
+      expect(resolveFormLanguage(welshDef, 'fr')).toBe('en-GB')
+    })
+
+    it('returns English for English', () => {
+      expect(resolveFormLanguage(welshDef, 'en-GB')).toBe('en-GB')
     })
   })
 })

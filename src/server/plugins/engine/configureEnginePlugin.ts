@@ -1,15 +1,16 @@
 import { join, parse } from 'node:path'
 
 import { type FormDefinition } from '@defra/forms-model'
-import { type RequestQuery } from '@hapi/hapi'
-import { type Yar } from '@hapi/yar'
 
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { plugin } from '~/src/server/plugins/engine/plugin.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import { formsService } from '~/src/server/plugins/engine/services/localFormsService.js'
-import { type PluginOptions } from '~/src/server/plugins/engine/types.js'
+import {
+  type AnyFormRequest,
+  type PluginOptions
+} from '~/src/server/plugins/engine/types.js'
 import { findPackageRoot } from '~/src/server/plugins/engine/vision.js'
 import { devtoolContext } from '~/src/server/plugins/nunjucks/context.js'
 import { type CacheService } from '~/src/server/services/cacheService.js'
@@ -70,14 +71,12 @@ export const configureEnginePlugin = async (
       saveAndExit,
       ordnanceSurveyApiKey,
       ordnanceSurveyApiSecret,
-      getLanguage: (query: RequestQuery = {}, yar?: Yar) => {
-        const defaultLang = 'en-GB'
-
-        if (yar && 'language' in query) {
+      getLanguage: ({ query, yar }: AnyFormRequest) => {
+        if ('language' in query) {
           yar.set('language', query.language)
         }
 
-        return yar?.get('language') ?? defaultLang
+        return (yar.get('language') as string | undefined) ?? 'en-GB'
       }
     }
   }

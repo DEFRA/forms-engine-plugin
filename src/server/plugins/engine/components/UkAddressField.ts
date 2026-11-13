@@ -1,7 +1,6 @@
 import {
   ComponentType,
   FormStatus,
-  type FormMetadata,
   type UkAddressFieldComponent
 } from '@defra/forms-model'
 import { type ObjectSchema } from 'joi'
@@ -14,7 +13,6 @@ import {
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
 import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
-import { getCachedPluginTranslator } from '~/src/server/plugins/engine/i18n/form.js'
 import { getAvailableLanguages } from '~/src/server/plugins/engine/i18n/languages.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import {
@@ -298,7 +296,7 @@ export class UkAddressField extends FormComponent {
     )
   }
 
-  static async dispatcher(
+  static dispatcher(
     request: FormRequestPayload,
     h: FormResponseToolkit,
     args: PostcodeLookupExternalArgs
@@ -311,12 +309,7 @@ export class UkAddressField extends FormComponent {
       ? { languages: availableLanguages }
       : {}
 
-    const translator = await getCachedPluginTranslator(
-      request,
-      { id: controller.model.formId } as unknown as FormMetadata,
-      args.isLive ? FormStatus.Live : FormStatus.Draft,
-      language
-    )
+    const translator = controller.model.createTranslator(language)
     const { tComponent, tForm } = translator
 
     return dispatch(request, h, {
@@ -329,7 +322,7 @@ export class UkAddressField extends FormComponent {
       componentTitle: tComponent(component, 'title') || controller.title,
       step: args.actionArgs.step,
       sourceUrl: args.sourceUrl,
-      language,
+      language: translator.language,
       ...languages
     })
   }

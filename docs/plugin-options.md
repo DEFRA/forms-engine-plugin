@@ -196,10 +196,10 @@ await server.register({
 
 ### getLanguage
 
-The `getLanguage` option tells the plugin which language to show. The plugin calls it on each request with the request query and the [yar](https://github.com/hapijs/yar) session, and uses the language code it returns: `en-GB` or `cy`.
+The `getLanguage` option tells the plugin which language to show. The plugin calls it on each request with the hapi request, and uses the language code it returns: `en-GB` or `cy`. The function can read the language from any part of the request, for example the query, the [yar](https://github.com/hapijs/yar) session, a cookie or a header.
 
 ```ts
-export type GetLanguageHandler = (query?: RequestQuery, yar?: Yar) => string
+export type GetLanguageHandler = (request: AnyFormRequest) => string
 ```
 
 Without this option, every form shows English. See [Multi-language support](./features/multi-language) for an example and for how to add translations to a form.

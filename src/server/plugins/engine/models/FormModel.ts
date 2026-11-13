@@ -54,7 +54,10 @@ import { loadFormTranslations } from '~/src/server/plugins/engine/i18n/createFor
 import { createTranslator } from '~/src/server/plugins/engine/i18n/createTranslator.js'
 import { extractBaseTranslations } from '~/src/server/plugins/engine/i18n/extractBaseTranslations.js'
 import { createFormI18nInstance } from '~/src/server/plugins/engine/i18n/index.js'
-import { getAvailableLanguages } from '~/src/server/plugins/engine/i18n/languages.js'
+import {
+  getAvailableLanguages,
+  resolveFormLanguage
+} from '~/src/server/plugins/engine/i18n/languages.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import {
   type ConditionEvaluation,
@@ -252,12 +255,10 @@ export class FormModel {
 
   /** Returns a scoped translator pair for the given language. */
   createTranslator(language = EN_GB): Translator {
-    // @ts-expect-error - dynamic language lookup
-    if (!this.def.metadata?.translations?.[language]) {
-      // If not translations defined in the FormDefinition, always default to English
-      language = EN_GB
-    }
-    return createTranslator(this.i18nInstance, language)
+    return createTranslator(
+      this.i18nInstance,
+      resolveFormLanguage(this.def, language)
+    )
   }
 
   /**

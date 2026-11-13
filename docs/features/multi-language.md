@@ -17,12 +17,14 @@ This example reads the language from a `language` query parameter, then stores i
 await server.register({
   plugin,
   options: {
-    getLanguage(query = {}, yar) {
-      if (yar && 'language' in query) {
+    getLanguage(request) {
+      const { query, yar } = request
+
+      if ('language' in query) {
         yar.set('language', query.language)
       }
 
-      return yar?.get('language') ?? 'en-GB'
+      return yar.get('language') ?? 'en-GB'
     }
     // ... other options
   }

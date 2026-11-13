@@ -4,6 +4,7 @@ import { LRUCache } from 'lru-cache'
 
 import { getPluginOptions } from '~/src/server/plugins/engine/helpers.js'
 import { createFormTranslator } from '~/src/server/plugins/engine/i18n/createFormTranslator.js'
+import { resolveFormLanguage } from '~/src/server/plugins/engine/i18n/languages.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { type AnyFormRequest } from '~/src/server/plugins/engine/types.js'
 
@@ -47,7 +48,11 @@ export async function getCachedPluginTranslator(
     )
   }
 
-  const translator = createFormTranslator(metadata, definition, language)
+  const translator = createFormTranslator(
+    metadata,
+    definition,
+    resolveFormLanguage(definition, language)
+  )
 
   cache.set(key, translator)
 

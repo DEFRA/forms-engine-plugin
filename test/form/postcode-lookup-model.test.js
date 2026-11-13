@@ -77,6 +77,39 @@ describe('Postcode lookup with a single model and no services', () => {
       })
     ).toBeInTheDocument()
   })
+
+  it('shows English text when the language is Welsh and the form has no Welsh translations', async () => {
+    jest.mocked(engineHelpers.getPluginOptions).mockReturnValue({
+      ...engineHelpers.getPluginOptions(server),
+      getLanguage: jest.fn().mockReturnValue('cy')
+    })
+
+    const { response: sourceResponse } = await renderResponse(server, {
+      url: `${basePath}/address`
+    })
+
+    const response = await server.inject({
+      url: `${basePath}/address`,
+      method: 'POST',
+      headers: getCookieHeader(sourceResponse, ['session', 'crumb']),
+      payload: {
+        action: 'external-ybMHIv',
+        crumb: getCookie(sourceResponse, 'crumb')
+      }
+    })
+
+    const { container } = await renderResponse(server, {
+      url: '/postcode-lookup',
+      headers: getCookieHeader(response, ['session'])
+    })
+
+    expect(
+      container.getByRole('button', { name: 'Find address' })
+    ).toBeInTheDocument()
+    expect(
+      container.getByRole('link', { name: 'enter address manually' })
+    ).toBeInTheDocument()
+  })
 })
 
 /**
