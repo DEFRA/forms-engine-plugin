@@ -74,7 +74,7 @@ export function format(
       lines.push(`[${filename}](${designerUrl}/file-download/${fileId})\n`)
     } else {
       lines.push(
-        getAnswer(item.field, item.state, translator, { format: 'email' })
+        getAnswer(item.field, item.state, { format: 'email' }, translator)
       )
     }
 

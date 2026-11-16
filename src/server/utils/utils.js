@@ -2,6 +2,7 @@ import { getTraceId } from '@defra/hapi-tracing'
 import Joi from 'joi'
 
 import { config } from '~/src/config/index.js'
+import { EN_GB } from '~/src/server/constants.js'
 import { getPluginOptions } from '~/src/server/plugins/engine/helpers.js'
 
 /**
@@ -40,7 +41,7 @@ export function isValidUUID(str) {
  */
 export function resolveLanguage(request) {
   const { getLanguage } = getPluginOptions(request.server)
-  return getLanguage?.(request.query, request.yar) ?? 'en-GB'
+  return getLanguage?.(request) ?? EN_GB
 }
 
 /**

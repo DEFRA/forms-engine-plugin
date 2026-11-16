@@ -19,6 +19,8 @@ The forms plugin is configured with [registration options](https://hapi.dev/api/
 | `preparePageEventRequestOptions` | No       | A function invoked for HTTP-based [page events](./features/configuration-based/page-events) to customise outbound request options                                                    |
 | `saveAndExit`                    | No       | Configuration for custom session management. See [save and exit](./features/code-based/save-and-exit)                                                                                |
 | `onRequest`                      | No       | A function invoked on each request to any form route (e.g. `/{slug}/{path}`). See [onRequest](#onrequest)                                                                            |
+| `getLanguage`                    | No       | A function that returns the language code for each request. Turns on [multi-language support](./features/multi-language). See [getLanguage](#getlanguage)                            |
+| `generateReferenceNumber`        | No       | A function that returns the reference number for a new form session. See [generateReferenceNumber](#generatereferencenumber)                                                         |
 | `ordnanceSurveyApiKey`           | No       | Ordnance Survey API key. Required to enable the inline map on geospatial components. See [geospatial map](#geospatial-map)                                                           |
 | `ordnanceSurveyApiSecret`        | No       | Ordnance Survey API secret. Required alongside `ordnanceSurveyApiKey` to enable the inline map on geospatial components                                                              |
 
@@ -192,6 +194,40 @@ await server.register({
 })
 ```
 
+### getLanguage
+
+The `getLanguage` option tells the plugin which language to show. The plugin calls it on each request with the hapi request, and uses the language code it returns: `en-GB` or `cy`. The function can read the language from any part of the request, for example the query, the [yar](https://github.com/hapijs/yar) session, a cookie or a header.
+
+```ts
+export type GetLanguageHandler = (request: AnyFormRequest) => string
+```
+
+Without this option, every form shows English. See [Multi-language support](./features/multi-language) for an example and for how to add translations to a form.
+
+### generateReferenceNumber
+
+The `generateReferenceNumber` option replaces the function that makes the reference number for a new form session. The plugin calls it once per session, before the first page renders, with the `referenceNumberPrefix` from the form definition metadata.
+
+```ts
+export type GenerateReferenceNumberHandler = (prefix?: string) => Promise<string>
+```
+
+Use it when another service owns the reference numbers, so that the number the user sees is the one your service stores:
+
+```js
+await server.register({
+  plugin,
+  options: {
+    generateReferenceNumber: async (prefix) => {
+      const { reference } = await referenceService.create({ prefix })
+      return reference
+    }
+  }
+})
+```
+
+Without this option, the plugin makes a random reference in the format `XXX-XXX-XXX`, or `PREFIX-XXX-XXX` when the form has a prefix.
+
 ### saveAndExit
 
 The `saveAndExit` option adds a secondary button to question pages that lets users save their progress and return later. When clicked, the plugin calls your handler after validating the current page.
@@ -213,4 +249,14 @@ await server.register({
     // ... other options
   }
 })
+```
+
+The map code and styles are part of `@defra/forms-engine-plugin/shared.js` and the default stylesheet. They are also available on their own from the `@defra/forms-engine-plugin/maps` entry point, so that a page outside a form journey can load the map without the rest of the plugin's client code:
+
+```js
+import { initMaps } from '@defra/forms-engine-plugin/maps'
+```
+
+```scss
+@use "pkg:@defra/forms-engine-plugin/maps";
 ```

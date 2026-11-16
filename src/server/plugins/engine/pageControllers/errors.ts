@@ -66,7 +66,7 @@ export class PaymentSubmissionError extends Error {
     stateAmount: number,
     expectedAmount: number | undefined,
     component: FormComponent,
-    t: (key: string) => string
+    t: (key: string) => string = component.model.createTranslator().t
   ) {
     if (stateAmount / 100 !== expectedAmount) {
       const message = t('components.paymentField.paymentAmountMismatch')

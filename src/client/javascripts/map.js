@@ -123,13 +123,24 @@ export function getCentroidGridRef(feature) {
 }
 
 /**
- * Get the default config for a map
+ * The starting view for maps. An application can change it before it
+ * initialises its maps, so that the maps start at a different place.
+ * @type {InteractiveMapInitConfig}
+ */
+export const defaultConfig = {
+  zoom: '6',
+  center: [DEFAULT_LONG, DEFAULT_LAT]
+}
+
+/**
+ * Get the default config for a map, as a copy of {@link defaultConfig}
+ * so that each map has its own config object
  * @returns {InteractiveMapInitConfig}
  */
 export const getDefaultConfig = () => {
   return {
-    zoom: '6',
-    center: [DEFAULT_LONG, DEFAULT_LAT]
+    ...defaultConfig,
+    center: [...defaultConfig.center]
   }
 }
 

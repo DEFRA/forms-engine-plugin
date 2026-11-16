@@ -118,8 +118,8 @@ export class FormComponent extends ComponentBase {
   }
 
   getErrors(
-    _translator: Translator,
-    errors?: FormSubmissionError[]
+    errors?: FormSubmissionError[],
+    _translator?: Translator
   ): FormSubmissionError[] | undefined {
     const { name } = this
 
@@ -139,17 +139,17 @@ export class FormComponent extends ComponentBase {
   }
 
   getFirstError(
-    translator: Translator,
-    errors?: FormSubmissionError[]
+    errors?: FormSubmissionError[],
+    translator?: Translator
   ): FormSubmissionError | undefined {
-    return this.getErrors(translator, errors)?.[0]
+    return this.getErrors(errors, translator)?.[0]
   }
 
   getViewErrors(
-    translator: Translator,
-    errors?: FormSubmissionError[]
+    errors?: FormSubmissionError[],
+    translator?: Translator
   ): FormSubmissionError[] | undefined {
-    const firstError = this.getFirstError(translator, errors)
+    const firstError = this.getFirstError(errors, translator)
     return firstError && [firstError]
   }
 
@@ -167,12 +167,13 @@ export class FormComponent extends ComponentBase {
     return null
   }
 
-  getViewModel({
-    payload,
-    errors,
-    translator,
-    isForceAccess: _isForceAccess = false
-  }: RenderContext) {
+  getViewModel(context: RenderContext) {
+    const {
+      payload,
+      errors,
+      translator = this.model.createTranslator()
+    } = context
+
     const { hint, name, options = {}, title, viewModel } = this
 
     const { t, tComponent } = translator
@@ -192,8 +193,8 @@ export class FormComponent extends ComponentBase {
     }
 
     // Filter component errors only
-    const componentErrors = this.getErrors(translator, errors)
-    const componentError = this.getFirstError(translator, componentErrors)
+    const componentErrors = this.getErrors(errors, translator)
+    const componentError = this.getFirstError(componentErrors, translator)
 
     if (componentErrors) {
       viewModel.errors = componentErrors
@@ -218,7 +219,7 @@ export class FormComponent extends ComponentBase {
 
   getDisplayStringFromFormValue(
     value: FormValue | FormPayload,
-    _translator: Translator
+    _translator?: Translator
   ): string {
     // Map selected values to text
     // eslint-disable-next-line @typescript-eslint/no-base-to-string
@@ -227,7 +228,7 @@ export class FormComponent extends ComponentBase {
 
   getDisplayStringFromState(
     state: FormSubmissionState,
-    translator: Translator
+    translator?: Translator
   ): string {
     const value = this.getFormValueFromState(state)
     return this.getDisplayStringFromFormValue(value, translator)

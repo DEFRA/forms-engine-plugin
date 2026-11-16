@@ -4,7 +4,8 @@ import { config } from '~/src/config/index.js'
 import {
   applyTraceHeaders,
   isValidUUID,
-  joinWithOr
+  joinWithOr,
+  resolveLanguage
 } from '~/src/server/utils/utils.js'
 
 jest.mock('@defra/hapi-tracing')
@@ -95,4 +96,34 @@ describe('Header helper functions', () => {
       )
     })
   })
+
+  describe('resolveLanguage', () => {
+    /**
+     * @param {PluginOptions['getLanguage']} getLanguage
+     */
+    function buildRequest(getLanguage) {
+      return /** @type {AnyFormRequest} */ (
+        /** @type {unknown} */ ({
+          query: { language: 'cy' },
+          server: { plugins: { 'forms-engine-plugin': { getLanguage } } }
+        })
+      )
+    }
+
+    it('calls getLanguage with the request and returns its language', () => {
+      const getLanguage = jest.fn().mockReturnValue('cy')
+      const request = buildRequest(getLanguage)
+
+      expect(resolveLanguage(request)).toBe('cy')
+      expect(getLanguage).toHaveBeenCalledWith(request)
+    })
+
+    it('returns English when the plugin has no getLanguage option', () => {
+      expect(resolveLanguage(buildRequest(undefined))).toBe('en-GB')
+    })
+  })
 })
+
+/**
+ * @import { AnyFormRequest, PluginOptions } from '~/src/server/plugins/engine/types.js'
+ */

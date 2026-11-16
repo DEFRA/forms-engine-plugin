@@ -12,10 +12,8 @@ import {
 import {
   type PluginProperties,
   type Request,
-  type RequestQuery,
   type ResponseObject
 } from '@hapi/hapi'
-import { type Yar } from '@hapi/yar'
 import { type JoiExpression, type ValidationErrorItem } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
@@ -203,8 +201,8 @@ export interface FormContext {
   pageMap: Map<string, PageControllerClass>
   componentMap: Map<string, Component>
   referenceNumber: string
-  languages: { name: string; code: string }[]
-  translator: Translator | undefined
+  languages?: { name: string; code: string }[]
+  translator?: Translator
 }
 
 export type FormContextRequest = (
@@ -482,7 +480,7 @@ export type SaveAndExitHandler = (
   context: FormContext
 ) => ResponseObject
 
-export type GetLanguageHandler = (query?: RequestQuery, yar?: Yar) => string
+export type GetLanguageHandler = (request: AnyFormRequest) => string
 
 export type GenerateReferenceNumberHandler = (
   prefix?: string

@@ -115,8 +115,8 @@ describe('HiddenField', () => {
         const state1 = getFormState('Hidden field')
         const state2 = getFormState(null)
 
-        const answer1 = getAnswer(field, state1, translator)
-        const answer2 = getAnswer(field, state2, translator)
+        const answer1 = getAnswer(field, state1, undefined, translator)
+        const answer2 = getAnswer(field, state2, undefined, translator)
 
         expect(answer1).toBe('Hidden field')
         expect(answer2).toBe('')
@@ -171,7 +171,6 @@ describe('HiddenField', () => {
       it('sets Nunjucks component defaults', () => {
         const viewModel = field.getViewModel({
           payload: getFormData('Hidden field'),
-          errors: undefined,
           translator: stubTranslator
         })
 

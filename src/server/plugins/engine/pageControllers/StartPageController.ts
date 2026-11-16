@@ -15,7 +15,7 @@ export class StartPageController extends QuestionPageController {
   getViewModel(
     request: FormRequest,
     context: FormContext,
-    translator: Translator
+    translator: Translator = context.translator ?? this.model.createTranslator()
   ) {
     return {
       ...super.getViewModel(request, context, translator),

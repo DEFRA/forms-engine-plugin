@@ -71,7 +71,7 @@ export class SummaryViewModel {
     request: FormContextRequest,
     page: PageControllerClass,
     context: FormContext,
-    translator: Translator
+    translator: Translator = context.translator ?? page.model.createTranslator()
   ) {
     const { model } = page
     const { basePath, def, sections } = model
@@ -97,7 +97,7 @@ export class SummaryViewModel {
       .validate(this.context.relevantState, { ...opts, stripUnknown: true })
 
     // Format errors
-    this.errors = result.error?.details.map((item) => getError(EN_GB, item))
+    this.errors = result.error?.details.map((item) => getError(item, EN_GB))
     this.details = this.summaryDetails(request, sections, translator)
 
     // Format check answers
@@ -252,7 +252,7 @@ export function ItemField(
     path: string
     errors?: FormSubmissionError[]
   },
-  translator: Translator
+  translator: Translator = page.model.createTranslator()
 ): DetailItemField {
   // FormComponent doesn't expose shortDescription/title as raw def properties,
   // so build a lookup object with English values to let tComponent's GUID lookup fire.
@@ -274,8 +274,8 @@ export function ItemField(
     name: field.name,
     label: translatedTitle,
     title: `${translatedLabel}${optional}`,
-    error: field.getFirstError(translator, options.errors),
-    value: getAnswer(field, state, translator, { format: 'summary' }),
+    error: field.getFirstError(options.errors, translator),
+    value: getAnswer(field, state, { format: 'summary' }, translator),
     href: getPageHref(page, options.path, {
       returnUrl: getPageHref(page, page.getSummaryPath())
     }),

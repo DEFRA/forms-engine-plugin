@@ -184,8 +184,8 @@ describe('TextField', () => {
         const state1 = getFormState('Text field')
         const state2 = getFormState(null)
 
-        const answer1 = getAnswer(field, state1, translator)
-        const answer2 = getAnswer(field, state2, translator)
+        const answer1 = getAnswer(field, state1, undefined, translator)
+        const answer2 = getAnswer(field, state2, undefined, translator)
 
         expect(answer1).toBe('Text field')
         expect(answer2).toBe('')
@@ -240,7 +240,6 @@ describe('TextField', () => {
       it('sets Nunjucks component defaults', () => {
         const viewModel = field.getViewModel({
           payload: getFormData('Text field'),
-          errors: undefined,
           translator: stubTranslator
         })
 
@@ -255,13 +254,43 @@ describe('TextField', () => {
       })
     })
 
+    describe('Without a translator', () => {
+      it('builds the view model in English', () => {
+        def.options.required = false
+
+        const viewModel = field.getViewModel({
+          payload: getFormData('Text field')
+        })
+
+        expect(viewModel.label).toEqual({
+          text: 'Example text field (optional)'
+        })
+      })
+
+      it('returns errors and display text in English', () => {
+        const errors = [
+          {
+            path: ['myComponent'],
+            href: '#myComponent',
+            name: 'myComponent',
+            text: 'Enter example text field'
+          }
+        ]
+
+        expect(field.getViewErrors(errors)).toEqual(errors)
+        expect(
+          field.getDisplayStringFromState(getFormState('Text field'))
+        ).toBe('Text field')
+        expect(getAnswer(field, getFormState('Text field'))).toBe('Text field')
+      })
+    })
+
     describe('getViewModel with Translator', () => {
       it('calls tComponent for the field title', () => {
         const tComponent = jest.fn().mockReturnValue('Translated title')
         const t = jest.fn().mockReturnValue('(optional)')
         const viewModel = field.getViewModel({
           payload: {},
-          errors: undefined,
           translator: {
             t,
             tComponent,
@@ -284,7 +313,6 @@ describe('TextField', () => {
         const t = jest.fn().mockReturnValue('')
         const viewModel = hintField.getViewModel({
           payload: {},
-          errors: undefined,
           translator: {
             t,
             tComponent,
@@ -307,7 +335,6 @@ describe('TextField', () => {
         const t = jest.fn().mockReturnValue('(optional)')
         optField.getViewModel({
           payload: {},
-          errors: undefined,
           translator: {
             t,
             tComponent,
@@ -324,7 +351,6 @@ describe('TextField', () => {
       it('falls back to English when no translator supplied', () => {
         const viewModel = field.getViewModel({
           payload: {},
-          errors: undefined,
           translator: stubTranslator
         })
         expect(viewModel.label.text).toBe('Example text field')

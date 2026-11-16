@@ -37,7 +37,6 @@ describe('HTML', () => {
       it('sets Nunjucks component defaults', () => {
         const viewModel = guidance.getViewModel({
           payload: {},
-          errors: undefined,
           translator: stubTranslator
         })
 

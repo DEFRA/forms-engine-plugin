@@ -189,8 +189,8 @@ describe('DeclarationField', () => {
         // context - boolean
         // state - boolean
         // string - I confirm that I understand and accept this declaration
-        const answer1 = getAnswer(field, state1, translator)
-        const answer2 = getAnswer(field, state2, translator)
+        const answer1 = getAnswer(field, state1, undefined, translator)
+        const answer2 = getAnswer(field, state2, undefined, translator)
 
         expect(answer1).toBe('I understand and agree')
         expect(answer2).toBe('Not provided')
@@ -248,7 +248,6 @@ describe('DeclarationField', () => {
       it('sets Nunjucks component defaults', () => {
         const viewModel = field.getViewModel({
           payload: getFormData(undefined),
-          errors: undefined,
           translator: stubTranslator
         })
 
@@ -286,7 +285,6 @@ describe('DeclarationField', () => {
         field = collection.fields[0]
         const viewModel = field.getViewModel({
           payload: getFormData('unchecked'),
-          errors: undefined,
           translator: stubTranslator
         })
 
@@ -316,7 +314,6 @@ describe('DeclarationField', () => {
         field = collection.fields[0]
         const viewModel = field.getViewModel({
           payload: getFormData(['true', 'unchecked']),
-          errors: undefined,
           translator: stubTranslator
         })
 
@@ -346,7 +343,6 @@ describe('DeclarationField', () => {
         field = collection.fields[0]
         const viewModel = field.getViewModel({
           payload: getFormData(['unchecked']),
-          errors: undefined,
           translator: stubTranslator
         })
 
@@ -376,7 +372,6 @@ describe('DeclarationField', () => {
         field = collection.fields[0]
         const viewModel = field.getViewModel({
           payload: getFormData('true'),
-          errors: undefined,
           translator: stubTranslator
         })
 
@@ -415,7 +410,6 @@ describe('DeclarationField', () => {
 
         const viewModel = field.getViewModel({
           payload: getFormData('true'),
-          errors: undefined,
           translator: stubTranslator
         })
 
@@ -443,7 +437,6 @@ describe('DeclarationField', () => {
 
         const viewModel = field.getViewModel({
           payload: getFormData(undefined),
-          errors: undefined,
           translator: stubTranslator
         })
 
