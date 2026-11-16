@@ -694,7 +694,7 @@ function validateFormState(
   // Validate relevant state
   const { error } = page.model
     .makeFilteredSchema(previousPages)
-    .validate(relevantState, { ...opts, stripUnknown: true })
+    .validate(relevantState, { ...opts })
 
   // Add relevant state errors
   if (error) {

@@ -94,7 +94,7 @@ export class SummaryViewModel {
 
     const result = model
       .makeFilteredSchema(this.context.relevantPages)
-      .validate(this.context.relevantState, { ...opts, stripUnknown: true })
+      .validate(this.context.relevantState, { ...opts })
 
     // Format errors
     this.errors = result.error?.details.map((item) => getError(EN_GB, item))

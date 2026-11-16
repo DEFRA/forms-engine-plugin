@@ -122,6 +122,7 @@ export function buildLanguageMessages(
 
 export const validationOptions: ValidationOptions = {
   abortEarly: false,
+  stripUnknown: true,
   messages: messagesPre,
   errors: {
     wrap: {
