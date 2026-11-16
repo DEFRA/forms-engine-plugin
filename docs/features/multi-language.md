@@ -39,28 +39,24 @@ If the function returns `cy` for a form with no Welsh translations, the plugin s
 
 Put the translations in `metadata.translations.cy` in the form definition. The [forms designer](https://github.com/DEFRA/forms-designer) can edit these for you.
 
-The plugin finds each translation by the `id` of the page, component, section or list item, so the form must use the V2 engine, where every item has an `id`:
+The plugin finds each translation by the `id` of the page, component, section or list item, so the form must use the V2 engine, where every item has an `id`. Each key is `<group>.<id>.<property>`, and `form.<property>` for the form itself:
 
-```yaml
-engine: V2
-metadata:
-  translations:
-    cy:
-      form:
-        title: Gwneud cais am drwydded
-      pages:
-        622a35ec-3795-418a-81f3-a45746959045:
-          title: Eich enw
-      components:
-        1fb8e182-c709-4792-8f83-e01d8b1fee1a:
-          title: Beth yw eich enw cyntaf?
-          shortDescription: Eich enw cyntaf
-      sections:
-        e3a1c6d2-52c3-4f63-9d1b-0d2b5a4c9f10:
-          title: Amdanoch chi
-      listItems:
-        aabbccdd-1122-3344-5566-778899001126:
-          text: Car
+```json
+{
+  "engine": "V2",
+  "metadata": {
+    "translations": {
+      "cy": {
+        "form.title": "Gwneud cais am drwydded",
+        "pages.622a35ec-3795-418a-81f3-a45746959045.title": "Eich enw",
+        "components.1fb8e182-c709-4792-8f83-e01d8b1fee1a.title": "Beth yw eich enw cyntaf?",
+        "components.1fb8e182-c709-4792-8f83-e01d8b1fee1a.shortDescription": "Eich enw cyntaf",
+        "sections.e3a1c6d2-52c3-4f63-9d1b-0d2b5a4c9f10.title": "Amdanoch chi",
+        "listItems.aabbccdd-1122-3344-5566-778899001126.text": "Car"
+      }
+    }
+  }
+}
 ```
 
 | Group        | Properties you can translate                                                                                |
