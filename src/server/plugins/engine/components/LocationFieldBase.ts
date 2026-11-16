@@ -151,9 +151,9 @@ export abstract class LocationFieldBase extends FormComponent {
     const config = this.getValidationConfig(translator)
     const defaults = {
       'any.required':
-        config.requiredMessage ?? buildValidationMessages(t).objectRequired,
+        config.requiredMessage ?? buildValidationMessages(t).required,
       'string.empty':
-        config.requiredMessage ?? buildValidationMessages(t).objectRequired,
+        config.requiredMessage ?? buildValidationMessages(t).required,
       'string.pattern.base': config.patternErrorMessage
     }
 

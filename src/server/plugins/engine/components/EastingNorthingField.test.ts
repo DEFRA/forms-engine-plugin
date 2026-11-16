@@ -603,8 +603,7 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /components\.eastingNorthingField\.easting for .* must be between 1000 and 60000/
-                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                    /Easting for .* must be between 1000 and 60000/
                   )
                 })
               ]
@@ -623,8 +622,7 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /components\.eastingNorthingField\.easting for .* must be between 1000 and 60000/
-                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                    /Easting for .* must be between 1000 and 60000/
                   )
                 })
               ]
@@ -660,8 +658,7 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /components\.eastingNorthingField\.northing for .* must be between 1000 and 1200000/
-                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                    /Northing for .* must be between 1000 and 1200000/
                   )
                 })
               ]
@@ -680,8 +677,7 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /components\.eastingNorthingField\.northing for .* must be between 1000 and 1200000/
-                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                    /Northing for .* must be between 1000 and 1200000/
                   )
                 })
               ]
@@ -712,8 +708,7 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /components\.eastingNorthingField\.easting for .* must be between 1 and 6 digits/
-                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                    /Easting for .* must be between 1 and 6 digits/
                   )
                 })
               ]
@@ -732,8 +727,7 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /components\.eastingNorthingField\.northing for .* must be between 1 and 7 digits/
-                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                    /Northing for .* must be between 1 and 7 digits/
                   )
                 })
               ]
@@ -793,7 +787,6 @@ describe('EastingNorthingField', () => {
                 expect.objectContaining({
                   text: expect.stringMatching(
                     /myComponent failed custom validation because/
-                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   )
                 })
               ]

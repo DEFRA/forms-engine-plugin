@@ -159,10 +159,7 @@ describe.each(cases)(
 
     it('uses English', () => {
       const value = component.getFormValueFromState(state)
-      const { errors = [] } = collection.validate(
-        payload,
-        model.createTranslator()
-      )
+      const { errors = [] } = collection.validate(payload)
       const { fieldset, label } = field.getViewModel({
         payload: collection.getFormDataFromState(state)
       }) as {

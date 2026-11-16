@@ -175,11 +175,9 @@ describe('DatePartsField', () => {
         )
 
         expect(result1.errors).toBeUndefined()
-        // Sub-field title is a key constant; error text uses the raw key until
-        // request-time resolution is wired in (Task 8 / Task 9).
         expect(result2.errors).toEqual([
           expect.objectContaining({
-            text: 'Example date parts field must include a components.dateField.month'
+            text: 'Example date parts field must include a month'
           })
         ])
       })
@@ -224,16 +222,15 @@ describe('DatePartsField', () => {
           })
         )
 
-        // Sub-field titles are key constants; error text uses raw keys until Task 9.
         expect(result.errors).toEqual([
           expect.objectContaining({
-            text: 'Example date parts must include a components.dateField.day'
+            text: 'Example date parts must include a day'
           }),
           expect.objectContaining({
-            text: 'Example date parts must include a components.dateField.month'
+            text: 'Example date parts must include a month'
           }),
           expect.objectContaining({
-            text: 'Example date parts must include a components.dateField.year'
+            text: 'Example date parts must include a year'
           })
         ])
       })

@@ -684,8 +684,7 @@ describe('LatLongField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'components.latLongField.latitude must have no more than 7 decimal places'
-                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                  text: 'Latitude must have no more than 7 decimal places'
                 })
               ]
             }
@@ -702,8 +701,7 @@ describe('LatLongField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'components.latLongField.longitude must have no more than 7 decimal places'
-                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                  text: 'Longitude must have no more than 7 decimal places'
                 })
               ]
             }
@@ -781,8 +779,7 @@ describe('LatLongField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'components.latLongField.latitude must have no more than 7 decimal places'
-                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                  text: 'Latitude must have no more than 7 decimal places'
                 })
               ]
             }
@@ -812,8 +809,7 @@ describe('LatLongField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'components.latLongField.longitude must have no more than 7 decimal places'
-                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                  text: 'Longitude must have no more than 7 decimal places'
                 })
               ]
             }

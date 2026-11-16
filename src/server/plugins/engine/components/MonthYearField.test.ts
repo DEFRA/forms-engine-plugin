@@ -145,10 +145,9 @@ describe('MonthYearField', () => {
         )
 
         expect(result1.errors).toBeUndefined()
-        // Sub-field title is a key constant; error text uses raw key until Task 9.
         expect(result2.errors).toEqual([
           expect.objectContaining({
-            text: 'Example month/year field must include a components.monthYearField.year'
+            text: 'Example month/year field must include a year'
           })
         ])
       })
@@ -180,13 +179,12 @@ describe('MonthYearField', () => {
           })
         )
 
-        // Sub-field titles are key constants; error text uses raw keys until Task 9.
         expect(result.errors).toEqual([
           expect.objectContaining({
-            text: 'Example month/year must include a components.monthYearField.month'
+            text: 'Example month/year must include a month'
           }),
           expect.objectContaining({
-            text: 'Example month/year must include a components.monthYearField.year'
+            text: 'Example month/year must include a year'
           })
         ])
       })
@@ -207,13 +205,12 @@ describe('MonthYearField', () => {
           })
         )
 
-        // Sub-field titles are key constants; error text uses raw keys until Task 9.
         expect(result.errors).toEqual([
           expect.objectContaining({
-            text: 'Example month/year field must include a components.monthYearField.month'
+            text: 'Example month/year field must include a month'
           }),
           expect.objectContaining({
-            text: 'Example month/year field must include a components.monthYearField.year'
+            text: 'Example month/year field must include a year'
           })
         ])
       })

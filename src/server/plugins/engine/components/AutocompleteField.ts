@@ -53,8 +53,8 @@ export class AutocompleteField extends SelectField {
     const { customValidationMessages } = this.options
     const { t } = translator
     const defaults = {
-      'any.required': buildValidationMessages(t).objectRequired,
-      'any.only': buildValidationMessages(t).objectRequired
+      'any.required': buildValidationMessages(t).required,
+      'any.only': buildValidationMessages(t).required
     }
 
     return {
