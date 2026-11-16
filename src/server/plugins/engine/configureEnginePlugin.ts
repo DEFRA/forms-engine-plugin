@@ -2,7 +2,7 @@ import { join, parse } from 'node:path'
 
 import { type FormDefinition } from '@defra/forms-model'
 
-import { FORM_PREFIX } from '~/src/server/constants.js'
+import { EN_GB, FORM_PREFIX } from '~/src/server/constants.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { plugin } from '~/src/server/plugins/engine/plugin.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
@@ -76,7 +76,7 @@ export const configureEnginePlugin = async (
           yar.set('language', query.language)
         }
 
-        return (yar.get('language') as string | undefined) ?? 'en-GB'
+        return (yar.get('language') as string | undefined) ?? EN_GB
       }
     }
   }
