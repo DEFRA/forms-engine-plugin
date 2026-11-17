@@ -221,7 +221,7 @@ export class ComponentCollection {
 
   overrideParentTitle(
     formSchema: joi.ObjectSchema<FormPayload>,
-    translator: Translator | undefined
+    translator: Translator
   ) {
     // Add parent field title to collection field errors
     return formSchema.error((errors) => {
@@ -250,7 +250,7 @@ export class ComponentCollection {
 
         // Update error with child label. A composite field child has a key as
         // its title, so that the label shows in the language of the translator
-        if (child && parent?.collection && translator) {
+        if (child && parent?.collection) {
           error.local.label = translator.t(child.title)
         } else if (
           child &&
@@ -266,10 +266,8 @@ export class ComponentCollection {
         }
 
         // Update error with parent title
-        if (translator && parent) {
+        if (parent) {
           error.local.title ??= getTranslatedLabel(parent.def, translator)
-        } else {
-          error.local.title ??= parent?.label
         }
 
         return error
