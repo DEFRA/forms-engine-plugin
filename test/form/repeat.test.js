@@ -655,6 +655,57 @@ describe('Repeat POST tests', () => {
   })
 })
 
+describe('Repeat in Welsh', () => {
+  const translatedBasePath = `${FORM_PREFIX}/repeat-translated`
+
+  /** @type {Server} */
+  let server
+
+  beforeAll(async () => {
+    server = await createServer({
+      formFileName: 'repeat-translated.js',
+      formFilePath: resolve(import.meta.dirname, 'definitions'),
+      enforceCsrf: false
+    })
+
+    await server.initialize()
+  })
+
+  beforeEach(() => {
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+  })
+
+  afterAll(async () => {
+    await server.stop()
+  })
+
+  test('shows the repeater error in Welsh', async () => {
+    const response = await server.inject({
+      url: `${translatedBasePath}/people?language=cy`
+    })
+
+    const headers = getCookieHeader(response, 'session')
+
+    await server.inject({
+      url: `${translatedBasePath}/people/${crypto.randomUUID()}`,
+      method: 'POST',
+      headers,
+      payload: { person: 'Ann' }
+    })
+
+    const { container } = await renderResponse(server, {
+      url: `${translatedBasePath}/people/summary`,
+      method: 'POST',
+      headers,
+      payload: { action: FormAction.Continue }
+    })
+
+    expect(container.getByRole('alert')).toHaveTextContent(
+      'Rhaid i chi ychwanegu o leiaf ddau gateb'
+    )
+  })
+})
+
 /**
  * @import { Server } from '@hapi/hapi'
  * @import { PageRepeat } from '@defra/forms-model'

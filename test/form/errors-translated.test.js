@@ -5,7 +5,6 @@ import { within } from '@testing-library/dom'
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
-import { FormAction } from '~/src/server/routes/types.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
@@ -107,30 +106,6 @@ describe('Welsh validation errors', () => {
         name: 'Rhaid i Welsh Date fod yn ddyddiad go iawn'
       })
     ).toHaveAttribute('href', '#date__day')
-  })
-
-  it('shows the repeater error in Welsh', async () => {
-    await server.inject({
-      url: `${basePath}/details`,
-      method: 'POST',
-      headers,
-      payload: emptyDetails
-    })
-
-    await server.inject({
-      url: `${basePath}/people/${crypto.randomUUID()}`,
-      method: 'POST',
-      headers,
-      payload: { person: 'Ann' }
-    })
-
-    const $errorSummary = await getErrorSummary('/people/summary', {
-      action: FormAction.Continue
-    })
-
-    expect($errorSummary).toHaveTextContent(
-      'Rhaid i chi ychwanegu o leiaf ddau gateb'
-    )
   })
 })
 

@@ -64,27 +64,6 @@ export default /** @satisfies {FormDefinition} */ ({
           schema: { min: 2 }
         }
       ],
-      next: [{ path: '/people' }]
-    },
-    {
-      id: '2c1d7b1f-7d6e-4b9f-8a2f-1e8b2d3c4f08',
-      path: '/people',
-      title: 'People',
-      controller: ControllerType.Repeat,
-      repeat: {
-        options: { name: 'people', title: 'Person' },
-        schema: { min: 2, max: 3 }
-      },
-      components: [
-        {
-          id: '2c1d7b1f-7d6e-4b9f-8a2f-1e8b2d3c4f09',
-          name: 'person',
-          title: 'Person name',
-          type: ComponentType.TextField,
-          options: {},
-          schema: {}
-        }
-      ],
       next: [{ path: ControllerPath.Summary }]
     },
     {
