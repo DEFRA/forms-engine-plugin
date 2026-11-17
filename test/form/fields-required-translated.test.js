@@ -31,6 +31,7 @@ describe('Form fields (required)', () => {
           payload: {
             empty: { textField: '' },
             invalid: { textField: 'This text is too long for the field' },
+            invalid2: { textField: 'ab' },
             valid: { textField: 'Example text field' }
           }
         },
@@ -50,6 +51,7 @@ describe('Form fields (required)', () => {
           payload: {
             empty: { numberField: '' },
             invalid: { numberField: '123456' },
+            invalid2: { numberField: 'abc' },
             valid: { numberField: '1234' }
           }
         },
@@ -625,6 +627,12 @@ describe('Form fields (required)', () => {
 
         const $errors = $errorSummary.querySelectorAll('a')
         expect($errors).toHaveLength(24)
+        expect($errors[0].textContent).toBe(
+          'Rhaid i Welsh textfield error desc fod yn 3 o nodau neu fwy'
+        )
+        expect($errors[2].textContent).toBe(
+          'Rhaid i Welsh Number field fod yn rhif'
+        )
         expect($errors[6].textContent).toBe(
           'Mae Welsh Email address field yn cynnwys nodau annilys, er enghraifft, dashes hirion'
         )
