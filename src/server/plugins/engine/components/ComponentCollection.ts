@@ -291,8 +291,9 @@ export class ComponentCollection {
     schema = this.overrideParentTitle(schema, translator)
 
     const { t } = translator
-    const labelOverrides: Record<string, joi.Schema> = {}
 
+    // Each translated schema replaces its field in place, so that the errors
+    // keep the page order
     for (const field of this.fields) {
       if (field.collection) {
         // Composite field: translate each sub-field's label using the key constant
@@ -308,7 +309,7 @@ export class ComponentCollection {
           if (subFieldMessages) {
             patchedSchema = patchedSchema.messages(subFieldMessages)
           }
-          labelOverrides[subField.name] = patchedSchema
+          schema = schema.fork(subField.name, () => patchedSchema)
         }
       } else {
         const fieldDef = field.def
@@ -325,14 +326,9 @@ export class ComponentCollection {
           patchedSchema = patchedSchema.messages(fieldMessages)
         }
         if (patchedSchema !== field.formSchema) {
-          labelOverrides[field.name] = patchedSchema
+          schema = schema.fork(field.name, () => patchedSchema)
         }
       }
-    }
-
-    // Replace each field schema in place, so that the errors keep the page order
-    for (const [key, override] of Object.entries(labelOverrides)) {
-      schema = schema.fork(key, () => override)
     }
 
     const result = schema.validate(value, { ...opts, messages })
