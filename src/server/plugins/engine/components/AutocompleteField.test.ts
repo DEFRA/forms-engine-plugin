@@ -135,6 +135,17 @@ describe.each([
         expect(result.errors).toBeUndefined()
       })
 
+      it('adds the select error for an invalid optional value', () => {
+        const collectionOptional = new ComponentCollection(
+          [{ ...def, options: { required: false } }],
+          { model }
+        )
+
+        const result = collectionOptional.validate(getFormData('invalid'))
+
+        expect(result.errors?.[0].text).toBe(`Select ${lowerFirst(def.title)}`)
+      })
+
       it('is configured with autocomplete suggestions', () => {
         const { formSchema } = collection
         const { keys } = formSchema.describe()

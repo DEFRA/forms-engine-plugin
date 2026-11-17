@@ -68,7 +68,7 @@ export const messages: LanguageMessagesExt = {
 
   'files.min': messageTemplate.filesMin,
   'files.max': messageTemplate.filesMax,
-  'filees.length': messageTemplate.filesLength,
+  'files.length': messageTemplate.filesLength,
 
   'object.invalidjson': messageTemplate.format,
 

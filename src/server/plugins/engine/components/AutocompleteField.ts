@@ -50,7 +50,13 @@ export class AutocompleteField extends SelectField {
   }
 
   getValidationMessagesOverride(translator: Translator) {
-    const { customValidationMessages } = this.options
+    const { customValidationMessages, required } = this.options
+
+    // An optional field keeps the global messages, as the constructor does
+    if (required === false) {
+      return null
+    }
+
     const { t } = translator
     const defaults = {
       'any.required': buildValidationMessages(t).required,
