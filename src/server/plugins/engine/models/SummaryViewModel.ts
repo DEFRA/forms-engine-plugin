@@ -4,7 +4,6 @@ import {
   type Section
 } from '@defra/forms-model'
 
-import { EN_GB } from '~/src/server/constants.js'
 import { PaymentField } from '~/src/server/plugins/engine/components/PaymentField.js'
 import { type PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
 import {
@@ -97,7 +96,9 @@ export class SummaryViewModel {
       .validate(this.context.relevantState, { ...opts, stripUnknown: true })
 
     // Format errors
-    this.errors = result.error?.details.map((item) => getError(item, EN_GB))
+    this.errors = result.error?.details.map((item) =>
+      getError(item, translator.language)
+    )
     this.details = this.summaryDetails(request, sections, translator)
 
     // Format check answers
