@@ -93,9 +93,13 @@ export class RepeatPageController extends QuestionPageController {
     // Create payload with repeater item state
     const item = this.getItemFromList(list, itemId)
 
+    // A question previously stored in the item may have been removed so run through
+    // `collection.getFormDataFromState` to filter to only the current components
+    const itemPayload = item ? this.collection.getFormDataFromState(item) : {}
+
     return {
       ...params,
-      ...item
+      ...itemPayload
     }
   }
 
