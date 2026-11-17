@@ -292,8 +292,6 @@ export class ComponentCollection {
 
     const { t } = translator
 
-    // Each translated schema replaces its field in place, so that the errors
-    // keep the page order
     for (const field of this.fields) {
       if (field.collection) {
         // Composite field: translate each sub-field's label using the key constant
@@ -309,7 +307,7 @@ export class ComponentCollection {
           if (subFieldMessages) {
             patchedSchema = patchedSchema.messages(subFieldMessages)
           }
-          schema = schema.fork(subField.name, () => patchedSchema)
+          schema = this.replaceFieldSchema(schema, subField.name, patchedSchema)
         }
       } else {
         const fieldDef = field.def
@@ -326,7 +324,7 @@ export class ComponentCollection {
           patchedSchema = patchedSchema.messages(fieldMessages)
         }
         if (patchedSchema !== field.formSchema) {
-          schema = schema.fork(field.name, () => patchedSchema)
+          schema = this.replaceFieldSchema(schema, field.name, patchedSchema)
         }
       }
     }
@@ -341,6 +339,18 @@ export class ComponentCollection {
       errors:
         this.page?.getErrors(details, language) ?? getErrors(details, language)
     }
+  }
+
+  /**
+   * Replace the schema of one field in the form schema. The field keeps its
+   * position, so that the errors stay in the same order as the page
+   */
+  private replaceFieldSchema(
+    formSchema: ObjectSchema<FormPayload>,
+    name: string,
+    fieldSchema: joi.Schema
+  ) {
+    return formSchema.fork(name, () => fieldSchema)
   }
 
   /**
