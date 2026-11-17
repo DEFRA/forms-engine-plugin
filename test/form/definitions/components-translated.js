@@ -31,7 +31,7 @@ export default /** @satisfies {FormDefinition} */ ({
           title: 'Upload your plan',
           type: ComponentType.FileUploadField,
           options: {},
-          schema: { min: 2 }
+          schema: {}
         }
       ],
       next: [{ path: '/payment' }]
