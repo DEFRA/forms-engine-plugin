@@ -284,8 +284,8 @@ export class ComponentCollection {
   ): FormValidationResult<FormPayload> {
     const messages = buildLanguageMessages(translator.t)
 
-    // When translating, override Joi labels (and custom schema messages where
-    // needed) so #label/#title in message templates resolve in the correct language.
+    // Override Joi labels (and custom schema messages where needed) so that
+    // #label/#title in message templates resolve in the language of the translator
     let schema = this.formSchema
     // Add parent field title to collection field errors
     schema = this.overrideParentTitle(schema, translator)
