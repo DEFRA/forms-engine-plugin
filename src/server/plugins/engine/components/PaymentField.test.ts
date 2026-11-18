@@ -210,8 +210,8 @@ describe('PaymentField', () => {
         const state1 = getFormState(paymentForState as unknown as FormValue)
         const state2 = getFormState(null)
 
-        const answer1 = getAnswer(field, state1, translator)
-        const answer2 = getAnswer(field, state2, translator)
+        const answer1 = getAnswer(field, state1, undefined, translator)
+        const answer2 = getAnswer(field, state2, undefined, translator)
 
         expect(answer1).toBe('£150.00 - payment description')
         expect(answer2).toBe('')
@@ -222,7 +222,6 @@ describe('PaymentField', () => {
       it('sets Nunjucks component defaults', () => {
         const viewModel = field.getViewModel({
           payload: getFormData(undefined),
-          errors: undefined,
           translator: stubTranslator
         })
 
@@ -250,7 +249,6 @@ describe('PaymentField', () => {
         } as unknown as FormValue
         const viewModel = field.getViewModel({
           payload: getFormData(paymentForViewModel),
-          errors: undefined,
           translator: stubTranslator
         })
 

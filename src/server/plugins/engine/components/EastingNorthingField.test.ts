@@ -231,8 +231,8 @@ describe('EastingNorthingField', () => {
         })
         const state2 = getFormState({})
 
-        const answer1 = getAnswer(field, state1, translator)
-        const answer2 = getAnswer(field, state2, translator)
+        const answer1 = getAnswer(field, state1, undefined, translator)
+        const answer2 = getAnswer(field, state2, undefined, translator)
 
         expect(answer1).toBe('Easting: 12345<br>Northing: 1234567<br>')
         expect(answer2).toBe('')
@@ -317,7 +317,6 @@ describe('EastingNorthingField', () => {
         })
         const viewModel = field.getViewModel({
           payload,
-          errors: undefined,
           translator: stubTranslator
         })
 
@@ -367,7 +366,6 @@ describe('EastingNorthingField', () => {
             easting: 12345,
             northing: 1234567
           }),
-          errors: undefined,
           translator: stubTranslator
         })
 
@@ -433,7 +431,7 @@ describe('EastingNorthingField', () => {
           }
         ]
 
-        const viewErrors = field.getViewErrors(translator, errors)
+        const viewErrors = field.getViewErrors(errors, translator)
 
         // Should return all errors, not just the first one
         expect(viewErrors).toHaveLength(2)
@@ -899,8 +897,8 @@ describe('EastingNorthingField', () => {
       ) as EastingNorthingField
 
       const viewErrors = eastingNorthingField.getViewErrors(
-        mockTranslator,
-        result.errors
+        result.errors,
+        mockTranslator
       )
 
       expect(mockT).toHaveBeenCalledWith(

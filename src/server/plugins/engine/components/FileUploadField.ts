@@ -180,7 +180,7 @@ export class FileUploadField extends FormComponent {
 
   getDisplayStringFromFormValue(
     files: FileState[] | undefined,
-    translator: Translator
+    translator: Translator = this.model.createTranslator()
   ): string {
     if (!files?.length) {
       return ''
@@ -193,7 +193,7 @@ export class FileUploadField extends FormComponent {
 
   getDisplayStringFromState(
     state: FormSubmissionState,
-    translator: Translator
+    translator: Translator = this.model.createTranslator()
   ) {
     const files = this.getFormValueFromState(state)
 
@@ -212,8 +212,14 @@ export class FileUploadField extends FormComponent {
   }
 
   getViewModel(context: RenderContext) {
-    const { errors, isForceAccess = false } = context
-    const { t } = context.translator
+    const {
+      errors,
+      query = {},
+      translator = this.model.createTranslator()
+    } = context
+
+    const isForceAccess = 'force' in query
+    const { t } = translator
     const { options, page, schema } = this
 
     const viewModel = super.getViewModel(context)

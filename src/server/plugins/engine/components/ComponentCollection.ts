@@ -39,6 +39,7 @@ import {
 export class ComponentCollection {
   page?: PageControllerClass
   parent?: Component
+  model: FormModel
 
   components: Component[]
   fields: Field[]
@@ -105,6 +106,7 @@ export class ComponentCollection {
 
     this.page = props.page
     this.parent = props.parent
+    this.model = props.model
 
     this.components = components
     this.fields = fields
@@ -179,11 +181,11 @@ export class ComponentCollection {
    * Get all errors for all fields in this collection
    */
   getErrors(
-    translator: Translator,
-    errors?: FormSubmissionError[]
+    errors?: FormSubmissionError[],
+    translator?: Translator
   ): FormSubmissionError[] | undefined {
     return this.getFieldErrors(
-      (field) => field.getErrors(translator, errors),
+      (field) => field.getErrors(errors, translator),
       errors
     )
   }
@@ -194,11 +196,11 @@ export class ComponentCollection {
    * Composite fields like UKAddress can choose to return more than one error.
    */
   getViewErrors(
-    translator: Translator,
-    errors?: FormSubmissionError[]
+    errors?: FormSubmissionError[],
+    translator?: Translator
   ): FormSubmissionError[] | undefined {
     return this.getFieldErrors(
-      (field) => field.getViewErrors(translator, errors),
+      (field) => field.getViewErrors(errors, translator),
       errors
     )
   }
@@ -345,7 +347,7 @@ export class ComponentCollection {
     return {
       value: (result.value ?? {}) as typeof value,
       errors:
-        this.page?.getErrors(details, language) ?? getErrors(language, details)
+        this.page?.getErrors(details, language) ?? getErrors(details, language)
     }
   }
 

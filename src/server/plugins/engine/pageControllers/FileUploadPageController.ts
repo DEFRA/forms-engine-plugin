@@ -240,7 +240,7 @@ export class FileUploadPageController extends QuestionPageController {
         if (!isUploadError || isUploadRootError) {
           // The error is for the root of the upload or another
           // field on the page so defer to the getError helper
-          errors.push(getError(language, error))
+          errors.push(getError(error, language))
         } else {
           const { context, path, type } = error
 
@@ -265,7 +265,7 @@ export class FileUploadPageController extends QuestionPageController {
   getViewModel(
     request: FormContextRequest,
     context: FormContext,
-    translator: Translator
+    translator: Translator = context.translator ?? this.model.createTranslator()
   ): FeaturedFormPageViewModel {
     const { fileUpload } = this
     const { state } = context

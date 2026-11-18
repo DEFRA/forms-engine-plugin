@@ -8,6 +8,7 @@ import {
   type SubmitPayload
 } from '@defra/forms-model'
 
+import { EN_GB } from '~/src/server/constants.js'
 import { GeospatialField } from '~/src/server/plugins/engine/components/GeospatialField.js'
 import { PaymentField } from '~/src/server/plugins/engine/components/PaymentField.js'
 import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
@@ -40,7 +41,7 @@ export interface SubmitRecord {
  */
 export function buildMainRecords(
   items: DetailItem[],
-  translator: Translator
+  translator?: Translator
 ): SubmitRecord[] {
   const fieldItems = items.filter(
     (item): item is DetailItemField => 'field' in item
@@ -64,7 +65,7 @@ export function buildMainRecords(
       records.push({
         name: item.name,
         title: item.label,
-        value: getAnswer(item.field, item.state, translator, { format: 'data' })
+        value: getAnswer(item.field, item.state, { format: 'data' }, translator)
       })
     }
   }
@@ -83,7 +84,7 @@ export function buildMainRecords(
  */
 export function buildPaymentRecords(
   item: DetailItemField,
-  translator: Translator
+  translator?: Translator
 ): SubmitRecord[] {
   const paymentState = (item.field as PaymentField).getPaymentStateFromState(
     item.state
@@ -113,7 +114,10 @@ export function buildPaymentRecords(
       name: `${item.name}_paymentDate`,
       title: 'Payment date',
       value: paymentState.preAuth?.createdAt
-        ? formatPaymentDate(paymentState.preAuth.createdAt, translator.language)
+        ? formatPaymentDate(
+            paymentState.preAuth.createdAt,
+            translator?.language ?? EN_GB
+          )
         : ''
     }
   ]
@@ -124,7 +128,7 @@ export function buildPaymentRecords(
  */
 export function buildRepeaterRecords(
   items: DetailItem[],
-  translator: Translator
+  translator?: Translator
 ): SubmitPayload['repeaters'] {
   return items
     .filter((item) => 'subItems' in item)
@@ -141,9 +145,12 @@ export function buildRepeaterRecords(
             const formValue = subItem.field.getFormValueFromState(subItem.state)
             value = formValue === undefined ? '' : JSON.stringify(formValue)
           } else {
-            value = getAnswer(subItem.field, subItem.state, translator, {
-              format: 'data'
-            })
+            value = getAnswer(
+              subItem.field,
+              subItem.state,
+              { format: 'data' },
+              translator
+            )
           }
 
           return {

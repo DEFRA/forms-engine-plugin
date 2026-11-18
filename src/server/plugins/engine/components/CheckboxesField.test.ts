@@ -309,8 +309,8 @@ describe.each([
           const state1 = getFormState([item.value])
           const state2 = getFormState(null)
 
-          const answer1 = getAnswer(field, state1, translator)
-          const answer2 = getAnswer(field, state2, translator)
+          const answer1 = getAnswer(field, state1, undefined, translator)
+          const answer2 = getAnswer(field, state2, undefined, translator)
 
           expect(answer1).toBe(outdent`
             <ul>
@@ -327,7 +327,7 @@ describe.each([
         const item2 = options.examples[2]
 
         const state = getFormState([item1.value, item2.value])
-        const answer = getAnswer(field, state, translator)
+        const answer = getAnswer(field, state, undefined, translator)
 
         expect(answer).toBe(outdent`
           <ul>
@@ -391,7 +391,6 @@ describe.each([
 
         const viewModel = field.getViewModel({
           payload: getFormData([item.value]),
-          errors: undefined,
           translator: stubTranslator
         })
 
@@ -410,7 +409,6 @@ describe.each([
         (item) => {
           const viewModel = field.getViewModel({
             payload: getFormData([item.value]),
-            errors: undefined,
             translator: stubTranslator
           })
 

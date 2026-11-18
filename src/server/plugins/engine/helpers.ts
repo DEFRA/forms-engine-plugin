@@ -113,10 +113,8 @@ engine.registerFilter('answer', function (name: string) {
   const answer = getAnswer(
     field,
     globals.context.relevantState,
-    translator ?? field.model.createTranslator(),
-    {
-      format: 'summary'
-    }
+    { format: 'summary' },
+    translator ?? field.model.createTranslator()
   )
 
   return answer
@@ -301,23 +299,23 @@ export function checkEmailAddressForLiveFormSubmission(
 
 /**
  * Parses the errors from {@link Schema.validate} so they can be rendered by govuk-frontend templates
- * @param language - the target language for translations
  * @param [details] - provided by {@link Schema.validate}
+ * @param [language] - the target language for translations, English by default
  */
 export function getErrors(
-  language: string | undefined,
-  details?: ValidationErrorItem[]
+  details?: ValidationErrorItem[],
+  language?: string
 ): FormSubmissionError[] | undefined {
   if (!details?.length) {
     return
   }
 
-  return details.map((detail) => getError(language, detail))
+  return details.map((detail) => getError(detail, language))
 }
 
 export function getError(
-  language: string | undefined,
-  detail: ValidationErrorItem
+  detail: ValidationErrorItem,
+  language?: string
 ): FormSubmissionError {
   const { context, message, path } = detail
 

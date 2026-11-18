@@ -1,5 +1,6 @@
 import { type Context, type CustomValidator } from 'joi'
 
+import { EN_GB } from '~/src/server/constants.js'
 import { EastingNorthingField } from '~/src/server/plugins/engine/components/EastingNorthingField.js'
 import { isFormValue } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type GeospatialField } from '~/src/server/plugins/engine/components/GeospatialField.js'
@@ -11,6 +12,7 @@ import {
   type RenderContext,
   type ViewModel
 } from '~/src/server/plugins/engine/components/types.js'
+import { t } from '~/src/server/plugins/engine/i18n/index.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import {
   type FormPayload,
@@ -34,20 +36,20 @@ function lowercaseMessageStart(message: string): string {
   return message.charAt(0).toLowerCase() + message.slice(1)
 }
 
-export function joinWithAnd(items: string[], translator: Translator): string {
-  const { t } = translator
+export function joinWithAnd(items: string[], translator?: Translator): string {
+  const and = translator?.t('common.and') ?? t('common.and', EN_GB)
   if (items.length === 2) {
-    return `${items[0]} ${t('common.and')} ${items[1]}`
+    return `${items[0]} ${and} ${items[1]}`
   }
 
   const leading = items.slice(0, -1).join(', ')
   const last = items[items.length - 1]
-  return `${leading} ${t('common.and')} ${last}`
+  return `${leading} ${and} ${last}`
 }
 
 export function formatErrorList(
   messages: string[],
-  translator: Translator
+  translator?: Translator
 ): string {
   if (!messages.length) {
     return ''
@@ -120,6 +122,7 @@ export function getLocationFieldViewModel(
   const { collection } = component
   const { fieldset: existingFieldset, label } = viewModel
 
+  const { translator = component.model.createTranslator() } = context
   const subViewModels = collection.getViewModel(context)
 
   const fieldErrors: string[] = []
@@ -175,7 +178,7 @@ export function getLocationFieldViewModel(
       text:
         fieldErrors.length === 1
           ? fieldErrors[0]
-          : formatErrorList(fieldErrors, context.translator)
+          : formatErrorList(fieldErrors, translator)
     }
   }
 
@@ -195,11 +198,11 @@ export function getLocationFieldViewModel(
       component instanceof EastingNorthingField
         ? component.options.countries?.at(0)
         : undefined,
-    lang: context.translator.language
+    lang: translator.language
   }
 
   if (component.options.instructionText) {
-    const { t, tComponent } = context.translator
+    const { t, tComponent } = translator
 
     return {
       ...result,

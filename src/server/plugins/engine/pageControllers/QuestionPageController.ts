@@ -123,9 +123,10 @@ export class QuestionPageController extends PageController {
   getViewModel(
     request: FormContextRequest,
     context: FormContext,
-    translator: Translator
+    translator: Translator = context.translator ?? this.model.createTranslator()
   ): FormPageViewModel {
     const { collection, viewModel } = this
+    const { query } = request
     const { payload, errors } = context
 
     const { t, tPage, tSection } = translator
@@ -139,7 +140,12 @@ export class QuestionPageController extends PageController {
         this.section.hideTitle !== true ? tSection(this.section, 'title') : ''
     }
 
-    const components = collection.getViewModel({ payload, errors, translator })
+    const components = collection.getViewModel({
+      payload,
+      errors,
+      query,
+      translator
+    })
     const formComponents = components.filter(
       ({ isFormComponent }) => isFormComponent
     )
@@ -365,7 +371,7 @@ export class QuestionPageController extends PageController {
   }
 
   getErrors(details?: ValidationErrorItem[], language?: string) {
-    return getErrors(language, details)
+    return getErrors(details, language)
   }
 
   async getState(request: AnyFormRequest) {
@@ -481,7 +487,7 @@ export class QuestionPageController extends PageController {
       }
 
       const viewModel = this.getViewModel(request, context, translator)
-      viewModel.errors = collection.getViewErrors(translator, viewModel.errors)
+      viewModel.errors = collection.getViewErrors(viewModel.errors, translator)
 
       const flashedError = request.yar.flash(COMPONENT_STATE_ERROR)
       const flashedErrors = !Array.isArray(flashedError) ? [flashedError] : []
@@ -543,7 +549,9 @@ export class QuestionPageController extends PageController {
   protected getBackLink(
     request: FormContextRequest,
     context: FormContext,
-    t: (key: string, opts?: Record<string, unknown>) => string
+    t: (key: string, opts?: Record<string, unknown>) => string = (
+      context.translator ?? this.model.createTranslator()
+    ).t
   ): BackLink | undefined {
     const { pageDef } = this
     const { path, query } = request
@@ -605,8 +613,8 @@ export class QuestionPageController extends PageController {
       if (context.errors || isForceAccess) {
         const viewModel = this.getViewModel(request, context, translator)
         viewModel.errors = collection.getViewErrors(
-          translator,
-          viewModel.errors
+          viewModel.errors,
+          translator
         )
 
         // Filter our components based on their conditions using our evaluated state

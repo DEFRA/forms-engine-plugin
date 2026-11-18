@@ -156,12 +156,18 @@ describe('GeospatialField', () => {
         const state1 = getFormState(validSingleState)
         const state2 = getFormState(null)
 
-        const answer1 = getAnswer(field, state1, stubTranslator, {
-          format: 'summary'
-        })
-        const answer2 = getAnswer(field, state2, stubTranslator, {
-          format: 'summary'
-        })
+        const answer1 = getAnswer(
+          field,
+          state1,
+          { format: 'summary' },
+          stubTranslator
+        )
+        const answer2 = getAnswer(
+          field,
+          state2,
+          { format: 'summary' },
+          stubTranslator
+        )
 
         expect(answer1).toBe('Added 1 location')
         expect(answer2).toBe('')
@@ -171,12 +177,18 @@ describe('GeospatialField', () => {
         const state1 = getFormState(validState)
         const state2 = getFormState(null)
 
-        const answer1 = getAnswer(field, state1, stubTranslator, {
-          format: 'summary'
-        })
-        const answer2 = getAnswer(field, state2, stubTranslator, {
-          format: 'summary'
-        })
+        const answer1 = getAnswer(
+          field,
+          state1,
+          { format: 'summary' },
+          stubTranslator
+        )
+        const answer2 = getAnswer(
+          field,
+          state2,
+          { format: 'summary' },
+          stubTranslator
+        )
 
         expect(answer1).toBe('Added 4 locations')
         expect(answer2).toBe('')
@@ -236,7 +248,6 @@ describe('GeospatialField', () => {
       it('sets Nunjucks component defaults', () => {
         const viewModel = field.getViewModel({
           payload: getFormData('Geospatial'),
-          errors: undefined,
           translator: stubTranslator
         })
 
@@ -684,7 +695,7 @@ describe('GeospatialField', () => {
       const result = collection.validate(getFormData(invalidSingleState))
       const geospatialField = collection.components.at(0) as GeospatialField
 
-      const errors = geospatialField.getErrors(translator, result.errors)
+      const errors = geospatialField.getErrors(result.errors, translator)
       expect(errors).toEqual([
         expect.objectContaining({
           name: 'description',
@@ -729,8 +740,8 @@ describe('GeospatialField', () => {
       const geospatialField = collection.components.at(0) as GeospatialField
 
       const viewErrors = geospatialField.getViewErrors(
-        mockTranslator,
-        result.errors
+        result.errors,
+        mockTranslator
       )
 
       expect(mockT).toHaveBeenCalledWith(
@@ -777,8 +788,8 @@ describe('GeospatialField', () => {
       const geospatialField = collection.components.at(0) as GeospatialField
 
       const viewErrors = geospatialField.getViewErrors(
-        mockTranslator,
-        result.errors
+        result.errors,
+        mockTranslator
       )
 
       expect(mockT).toHaveBeenCalledWith(

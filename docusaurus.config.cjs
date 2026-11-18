@@ -81,6 +81,10 @@ const config = {
             { text: 'Components', href: '/features/components' },
             { text: 'Page Types', href: '/features/pages' },
             { text: 'Conditions', href: '/features/conditions' },
+            {
+              text: 'Multi-language support',
+              href: '/features/multi-language'
+            },
             { text: 'Page Elements', href: '/features/page-elements' },
             {
               text: 'Form Definition Options',
@@ -107,7 +111,11 @@ const config = {
         {
           text: 'Reference',
           href: '/reference',
-          sidebar: [{ text: 'Request Lifecycle', href: '/request-lifecycle' }]
+          sidebar: [
+            { text: 'Request Lifecycle', href: '/request-lifecycle' },
+            { text: 'Form definition errors', href: '/definition-errors' },
+            { text: 'Migrating from v4 to v5', href: '/migration-v4-to-v5' }
+          ]
         }
       ],
 

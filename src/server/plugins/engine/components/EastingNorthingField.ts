@@ -136,7 +136,7 @@ export class EastingNorthingField extends FormComponent {
 
   getDisplayStringFromFormValue(
     value: EastingNorthingState | undefined,
-    translator: Translator
+    translator: Translator = this.model.createTranslator()
   ): string {
     if (!value) {
       return ''
@@ -149,7 +149,7 @@ export class EastingNorthingField extends FormComponent {
 
   getDisplayStringFromState(
     state: FormSubmissionState,
-    translator: Translator
+    translator: Translator = this.model.createTranslator()
   ) {
     const value = this.getFormValueFromState(state)
 
@@ -178,10 +178,10 @@ export class EastingNorthingField extends FormComponent {
   }
 
   getErrors(
-    translator: Translator,
-    errors?: FormSubmissionError[]
+    errors?: FormSubmissionError[],
+    translator: Translator = this.model.createTranslator()
   ): FormSubmissionError[] | undefined {
-    const fieldErrors = super.getErrors(translator, errors)
+    const fieldErrors = super.getErrors(errors, translator)
 
     fieldErrors?.forEach((err) => {
       if (err.context?.country) {
@@ -196,10 +196,10 @@ export class EastingNorthingField extends FormComponent {
   }
 
   getViewErrors(
-    translator: Translator,
-    errors?: FormSubmissionError[]
+    errors?: FormSubmissionError[],
+    translator: Translator = this.model.createTranslator()
   ): FormSubmissionError[] | undefined {
-    const allErrors = this.getErrors(translator, errors)
+    const allErrors = this.getErrors(errors, translator)
     return deduplicateErrorsByHref(allErrors)
   }
 
