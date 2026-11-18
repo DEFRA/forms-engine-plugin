@@ -22,7 +22,7 @@ This executes four steps in sequence: `build:server`, `build:client`, `build:typ
 
 ### `build:server`
 
-Compiles the server-side source code using [Babel](https://babeljs.io/). TypeScript and JavaScript files in `src/` are transpiled to JavaScript and output to `.server/`. Test files (`**/*.test.ts`) are excluded. Source maps are generated alongside each output file.
+Compiles the server-side source code using [Babel](https://babeljs.io/). TypeScript and JavaScript files in `src/` are transpiled to JavaScript and output to `.server/`. Test files (`**/*.test.ts` and `**/*.test.js`) are excluded. Source maps are generated alongside each output file.
 
 Babel is configured with `babel-plugin-module-resolver` which resolves the `~` path alias (see [Path alias resolution](#path-alias-resolution)) to relative paths in the compiled `.js` output.
 
