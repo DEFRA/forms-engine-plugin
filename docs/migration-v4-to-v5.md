@@ -104,8 +104,6 @@ The schemas for submission messages, such as `formAdapterSubmissionMessageMetaSc
 - `meta.schemaVersion` is required, and must be the number `1`. The string `'V1'` is no longer valid.
 - `meta.language`, `meta.auth`, `payment.descriptionInEng` and `conditionEvaluations` are new optional fields. The plugin always sends `meta.language` and `conditionEvaluations`. For a V1 form definition, `conditionEvaluations` is an empty array.
 
-A service that validates v5 messages with the v4 schema rejects `meta.language` and `conditionEvaluations`, unless it validates with `allowUnknown: true` or `stripUnknown: true`. Upgrade such services before you release v5. See [Deploying v5](#deploying-v5).
-
 ## Invalid form definition errors
 
 `new FormModel(...)` throws a `SchemaValidationError` when the definition fails schema validation. The original Joi `ValidationError` is on `error.cause`.
@@ -208,6 +206,6 @@ These changes affect code that imports from `@defra/forms-engine-plugin/engine/*
 
 ## Deploying v5
 
-- **Submission services first:** upgrade services that validate submission messages with the v4 schema before you release v5. See [Submission message schema](#submission-message-schema).
+- **Submission services first:** upgrade services that validate submission messages with the plugin's schemas before you release v5. The v4 schemas reject `meta.language` and `conditionEvaluations`, which v5 always sends. See [Submission message schema](#submission-message-schema).
 - **Postcode lookup in progress:** a user who is in the postcode lookup pages when v5 goes live can see an error page, and must go back to the address question to start the lookup again.
 - **Map pages open during the release:** the `id` of each feature in `/api/maps/countries.geojson` is now a number. If you upgrade from a version before v4.22.0, a browser that has the old map JavaScript also gets errors from the map proxy until the user reloads the page, because the proxy takes a `path` parameter in place of `url`.
