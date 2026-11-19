@@ -295,6 +295,25 @@ describe('DatePartsField', () => {
         expect(result4).toBeNull()
         expect(result5).toBe('2000-02-01')
       })
+
+      it.each([
+        {
+          scenario: 'a day that is not a number',
+          day: 'abc',
+          text: 'Example date parts must include a day'
+        },
+        {
+          scenario: 'a day that is too large to be a number',
+          day: '99999999999999999999',
+          text: 'Example date parts must be a real date'
+        }
+      ])('adds an error for $scenario', ({ day, text }) => {
+        const result = collection.validate(
+          getFormData({ day, month: '1', year: '2000' })
+        )
+
+        expect(result.errors).toEqual([expect.objectContaining({ text })])
+      })
     })
 
     describe('State', () => {

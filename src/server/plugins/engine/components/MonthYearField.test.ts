@@ -281,6 +281,23 @@ describe('MonthYearField', () => {
         expect(result4).toBeNull()
         expect(result5).toBe('2000-05')
       })
+
+      it.each([
+        {
+          scenario: 'a month that is not a number',
+          month: 'abc',
+          text: 'Example month/year must include a month'
+        },
+        {
+          scenario: 'a month that is too large to be a number',
+          month: '99999999999999999999',
+          text: 'Example month/year must be a real date'
+        }
+      ])('adds an error for $scenario', ({ month, text }) => {
+        const result = collection.validate(getFormData({ month, year: '2000' }))
+
+        expect(result.errors).toEqual([expect.objectContaining({ text })])
+      })
     })
 
     describe('State', () => {

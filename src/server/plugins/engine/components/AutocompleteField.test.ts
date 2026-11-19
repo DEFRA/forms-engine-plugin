@@ -215,6 +215,16 @@ describe.each([
         expect(result1.errors).toBeTruthy()
         expect(result2.errors).toBeTruthy()
       })
+
+      it('adds the required error for a value that is not in the list', () => {
+        const result = collection.validate(getFormData('5'))
+
+        expect(result.errors).toEqual([
+          expect.objectContaining({
+            text: `Enter ${lowerFirst(def.title)}`
+          })
+        ])
+      })
     })
 
     describe('State', () => {

@@ -209,6 +209,21 @@ describe('LatLongField', () => {
 
         expect(result1.errors).toBeTruthy()
       })
+
+      it('adds an error for a latitude that is too large to be a number', () => {
+        const result = collection.validate(
+          getFormData({
+            latitude: '99999999999999999999',
+            longitude: '-0.127758'
+          })
+        )
+
+        expect(result.errors).toEqual([
+          expect.objectContaining({
+            text: 'Latitude must be a valid number'
+          })
+        ])
+      })
     })
 
     describe('State', () => {

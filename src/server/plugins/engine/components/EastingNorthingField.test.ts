@@ -221,6 +221,25 @@ describe('EastingNorthingField', () => {
         expect(result1.errors).toBeTruthy()
         expect(result2.errors).toBeTruthy()
       })
+
+      it.each([
+        {
+          scenario: 'an easting that is not a number',
+          easting: 'abc',
+          text: 'Enter easting'
+        },
+        {
+          scenario: 'an easting that is too large to be a number',
+          easting: '99999999999999999999',
+          text: 'Easting for example location must be between 1 and 6 digits'
+        }
+      ])('adds an error for $scenario', ({ easting, text }) => {
+        const result = collection.validate(
+          getFormData({ easting, northing: '1234567' })
+        )
+
+        expect(result.errors).toEqual([expect.objectContaining({ text })])
+      })
     })
 
     describe('State', () => {
