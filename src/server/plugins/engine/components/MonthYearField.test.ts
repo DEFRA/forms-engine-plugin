@@ -172,6 +172,36 @@ describe('MonthYearField', () => {
         expect(result2.errors).toBeUndefined()
       })
 
+      it('applies the custom validator to state values', () => {
+        const collectionWithLimit = new ComponentCollection(
+          [
+            {
+              ...def,
+              options: {
+                ...def.options,
+                latestMonthYear: '2023-12'
+              }
+            }
+          ],
+          { model }
+        )
+        const validState = getFormState({
+          month: 12,
+          year: 2023
+        })
+        const invalidState = getFormState({
+          month: 1,
+          year: 2024
+        })
+
+        expect(
+          collectionWithLimit.stateSchema.validate(validState).error
+        ).toBeUndefined()
+        expect(
+          collectionWithLimit.stateSchema.validate(invalidState).error
+        ).toBeDefined()
+      })
+
       it('adds errors for empty value', () => {
         const result = collection.validate(
           getFormData({
