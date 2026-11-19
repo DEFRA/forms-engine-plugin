@@ -8,12 +8,12 @@ v5 keeps the v4 plugin options, service interfaces and page controller methods. 
 
 | Change                                                                                  | Applies to                                                            | Effort  |
 | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | ------- |
-| [Node.js `^24.19.0` and npm `^11.17.0 \|\| >=12.0.2`](#nodejs-and-npm)                  | All applications                                                      | Small   |
+| [Node.js `^24.19.0 \|\| ^26.0.0` and npm `^11.17.0 \|\| >=12.0.2`](#nodejs-and-npm)     | All applications                                                      | Small   |
 | [forms-model v4 and Joi 18](#forms-model-v4-and-joi-18)                                 | All applications                                                      | Small   |
 | [Client build for maps](#client-build-for-maps)                                         | Applications that bundle the plugin's client JavaScript               | Small   |
 | [Submission data for location fields](#submission-data-for-location-fields)             | Services that read easting/northing or latitude/longitude answers     | Small   |
-| [Submission message schema](#submission-message-schema)                                 | Services that validate submission messages with the plugin's schemas  | Trivial |
 | [Blank repeater answers are `null`](#blank-repeater-answers)                            | Services that read `data.repeaters` from submission messages          | Trivial |
+| [Submission message schema](#submission-message-schema)                                 | Services that validate submission messages with the plugin's schemas  | Trivial |
 | [`SchemaValidationError` for invalid definitions](#invalid-form-definition-errors)      | Code that catches errors when it builds a `FormModel`                 | Trivial |
 | [`FormAdapterSubmissionSchemaVersion` is a constant object](#submission-schema-version) | TypeScript code that uses it as a type                                | Trivial |
 | [Templates use a `t` global](#templates-use-a-t-global)                                 | Applications that render plugin templates in their own Nunjucks setup | Small   |
@@ -25,7 +25,7 @@ Read [Deploying v5](#deploying-v5) before you release.
 
 ## Node.js and npm
 
-v5 supports Node.js `^24.19.0` and npm `^11.17.0 || >=12.0.2`. npm warns about other versions, and refuses to install with `engine-strict`. Update your `.nvmrc`, `Dockerfile`, CI and `engines` field to match.
+v5 supports Node.js `^24.19.0 || ^26.0.0` and npm `^11.17.0 || >=12.0.2`. v4 supported Node.js 22, which v5 does not. npm warns about other versions, and refuses to install with `engine-strict`. Update your `.nvmrc`, `Dockerfile`, CI and `engines` field to match.
 
 ## forms-model v4 and Joi 18
 
@@ -102,9 +102,9 @@ Update services that check whether a key exists, for example with `'field' in it
 The schemas for submission messages, such as `formAdapterSubmissionMessageMetaSchema`, changed:
 
 - `meta.schemaVersion` is required, and must be the number `1`. The string `'V1'` is no longer valid.
-- `meta.language`, `meta.auth`, `payment.descriptionInEng` and `conditionEvaluations` are new optional fields. The plugin always sends `meta.language`.
+- `meta.language`, `meta.auth`, `payment.descriptionInEng` and `conditionEvaluations` are new optional fields. The plugin always sends `meta.language` and `conditionEvaluations`. For a V1 form definition, `conditionEvaluations` is an empty array.
 
-A service that validates v5 messages with the v4 schema rejects `meta.language`, unless it validates with `stripUnknown: true`. Upgrade such services before you release v5. See [Deploying v5](#deploying-v5).
+A service that validates v5 messages with the v4 schema rejects `meta.language` and `conditionEvaluations`, unless it validates with `allowUnknown: true` or `stripUnknown: true`. Upgrade such services before you release v5. See [Deploying v5](#deploying-v5).
 
 ## Invalid form definition errors
 
@@ -210,4 +210,4 @@ These changes affect code that imports from `@defra/forms-engine-plugin/engine/*
 
 - **Submission services first:** upgrade services that validate submission messages with the v4 schema before you release v5. See [Submission message schema](#submission-message-schema).
 - **Postcode lookup in progress:** a user who is in the postcode lookup pages when v5 goes live can see an error page, and must go back to the address question to start the lookup again.
-- **Map pages open during the release:** a browser that has the v4 map JavaScript gets errors from the map proxy until the user reloads the page. The proxy takes a `path` parameter in place of `url`. The `id` of each feature in `/api/maps/countries.geojson` is now a number.
+- **Map pages open during the release:** the `id` of each feature in `/api/maps/countries.geojson` is now a number. If you upgrade from a version before v4.22.0, a browser that has the old map JavaScript also gets errors from the map proxy until the user reloads the page, because the proxy takes a `path` parameter in place of `url`.
