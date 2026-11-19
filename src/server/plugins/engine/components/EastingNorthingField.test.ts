@@ -777,6 +777,39 @@ describe('EastingNorthingField', () => {
         ]
       },
       {
+        description: 'Partly filled',
+        component: {
+          title: 'Example easting northing',
+          shortDescription: 'Example location',
+          name: 'myComponent',
+          type: ComponentType.EastingNorthingField,
+          options: {},
+          schema: {}
+        } satisfies EastingNorthingFieldComponent,
+        assertions: [
+          {
+            input: getFormData({
+              easting: '12345',
+              northing: ''
+            }),
+            output: {
+              value: getFormData({
+                easting: 12345,
+                northing: ''
+              }),
+              errors: [
+                expect.objectContaining({
+                  text: 'Enter northing'
+                }),
+                expect.objectContaining({
+                  text: 'Example location must include a northing'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
         description: 'Optional field',
         component: {
           title: 'Example easting northing',
@@ -798,6 +831,23 @@ describe('EastingNorthingField', () => {
                 easting: '',
                 northing: ''
               })
+            }
+          },
+          {
+            input: getFormData({
+              easting: '12345',
+              northing: ''
+            }),
+            output: {
+              value: getFormData({
+                easting: 12345,
+                northing: ''
+              }),
+              errors: [
+                expect.objectContaining({
+                  text: 'Example easting northing must include a northing'
+                })
+              ]
             }
           }
         ]

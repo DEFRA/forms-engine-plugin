@@ -916,6 +916,39 @@ describe('LatLongField', () => {
         ]
       },
       {
+        description: 'Partly filled',
+        component: {
+          title: 'Example lat long',
+          shortDescription: 'Example location',
+          name: 'myComponent',
+          type: ComponentType.LatLongField,
+          options: {},
+          schema: {}
+        } satisfies LatLongFieldComponent,
+        assertions: [
+          {
+            input: getFormData({
+              latitude: '51.5',
+              longitude: ''
+            }),
+            output: {
+              value: getFormData({
+                latitude: 51.5,
+                longitude: ''
+              }),
+              errors: [
+                expect.objectContaining({
+                  text: 'Enter longitude'
+                }),
+                expect.objectContaining({
+                  text: 'Example location must include a longitude'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
         description: 'Optional field',
         component: {
           title: 'Example lat long',
@@ -937,6 +970,23 @@ describe('LatLongField', () => {
                 latitude: '',
                 longitude: ''
               })
+            }
+          },
+          {
+            input: getFormData({
+              latitude: '51.5',
+              longitude: ''
+            }),
+            output: {
+              value: getFormData({
+                latitude: 51.5,
+                longitude: ''
+              }),
+              errors: [
+                expect.objectContaining({
+                  text: 'Example lat long must include a longitude'
+                })
+              ]
             }
           }
         ]
