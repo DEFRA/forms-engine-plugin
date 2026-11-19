@@ -42,7 +42,7 @@
   "scripts": {
     "build": "rm -rf ./.server ./.src && npm run build:server && npm run build:client && npm run build:types && npm run build:src",
     "build:client": "NODE_ENV=${NODE_ENV:-production} webpack",
-    "build:server": "babel --delete-dir-on-start --extensions \".js\",\".ts\" --ignore \"**/*.test.ts\" --copy-files --no-copy-ignored --source-maps --out-dir ./.server ./src",
+    "build:server": "babel --delete-dir-on-start --extensions \".js\",\".ts\" --ignore \"**/*.test.ts\",\"**/*.test.js\" --copy-files --no-copy-ignored --source-maps --out-dir ./.server ./src",
     "build:src": "node scripts/resolve-tilde-imports.js",
     "build:types": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.alias.json",
     "dev": "concurrently \"npm run client:watch\" \"npm run server:watch:dev\" --kill-others --names \"client,server\" --prefix-colors \"red.dim,blue.dim\"",

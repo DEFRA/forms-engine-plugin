@@ -213,6 +213,26 @@ describe('DatePartsField', () => {
         expect(result3.errors).toBeUndefined()
       })
 
+      it('applies the custom validator to state values', () => {
+        const validState = getFormState({
+          day: 29,
+          month: 2,
+          year: 2024
+        })
+        const invalidState = getFormState({
+          day: 31,
+          month: 4,
+          year: 2024
+        })
+
+        expect(
+          collection.stateSchema.validate(validState).error
+        ).toBeUndefined()
+        expect(
+          collection.stateSchema.validate(invalidState).error
+        ).toBeDefined()
+      })
+
       it('adds errors for empty value when short description exists', () => {
         const result = collection.validate(
           getFormData({

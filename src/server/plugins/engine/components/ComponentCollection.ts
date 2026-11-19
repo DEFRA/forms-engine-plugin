@@ -102,6 +102,7 @@ export class ComponentCollection {
 
     if (schema?.custom) {
       formSchema = formSchema.custom(schema.custom)
+      stateSchema = stateSchema.custom(schema.custom)
     }
 
     this.page = props.page
