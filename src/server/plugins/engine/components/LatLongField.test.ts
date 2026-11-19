@@ -209,21 +209,6 @@ describe('LatLongField', () => {
 
         expect(result1.errors).toBeTruthy()
       })
-
-      it('adds an error for a latitude that is too large to be a number', () => {
-        const result = collection.validate(
-          getFormData({
-            latitude: '99999999999999999999',
-            longitude: '-0.127758'
-          })
-        )
-
-        expect(result.errors).toEqual([
-          expect.objectContaining({
-            text: 'Latitude must be a valid number'
-          })
-        ])
-      })
     })
 
     describe('State', () => {
@@ -894,6 +879,36 @@ describe('LatLongField', () => {
                   text: expect.stringMatching(
                     /Enter a valid longitude for .* like -0.127758/
                   )
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Values that are not numbers',
+        component: {
+          title: 'Example lat long',
+          shortDescription: 'Example location',
+          name: 'myComponent',
+          type: ComponentType.LatLongField,
+          options: {},
+          schema: {}
+        } satisfies LatLongFieldComponent,
+        assertions: [
+          {
+            input: getFormData({
+              latitude: '99999999999999999999',
+              longitude: '-0.127758'
+            }),
+            output: {
+              value: getFormData({
+                latitude: 100000000000000000000,
+                longitude: -0.127758
+              }),
+              errors: [
+                expect.objectContaining({
+                  text: 'Latitude must be a valid number'
                 })
               ]
             }

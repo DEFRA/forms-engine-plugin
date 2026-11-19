@@ -281,23 +281,6 @@ describe('MonthYearField', () => {
         expect(result4).toBeNull()
         expect(result5).toBe('2000-05')
       })
-
-      it.each([
-        {
-          scenario: 'a month that is not a number',
-          month: 'abc',
-          text: 'Example month/year must include a month'
-        },
-        {
-          scenario: 'a month that is too large to be a number',
-          month: '99999999999999999999',
-          text: 'Example month/year must be a real date'
-        }
-      ])('adds an error for $scenario', ({ month, text }) => {
-        const result = collection.validate(getFormData({ month, year: '2000' }))
-
-        expect(result.errors).toEqual([expect.objectContaining({ text })])
-      })
     })
 
     describe('State', () => {
@@ -537,6 +520,39 @@ describe('MonthYearField', () => {
                 expect.objectContaining({
                   text: 'Example month/year field must be a real date'
                 }),
+                expect.objectContaining({
+                  text: 'Example month/year field must be a real date'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Values that are not numbers',
+        component: {
+          title: 'Example month/year field',
+          name: 'myComponent',
+          type: ComponentType.MonthYearField,
+          options: {}
+        } satisfies MonthYearFieldComponent,
+        assertions: [
+          {
+            input: getFormData({ month: 'abc', year: '2000' }),
+            output: {
+              value: getFormData({ month: 'abc', year: 2000 }),
+              errors: [
+                expect.objectContaining({
+                  text: 'Example month/year field must include a month'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData({ month: '99999999999999999999', year: '2000' }),
+            output: {
+              value: getFormData({ month: 100000000000000000000, year: 2000 }),
+              errors: [
                 expect.objectContaining({
                   text: 'Example month/year field must be a real date'
                 })

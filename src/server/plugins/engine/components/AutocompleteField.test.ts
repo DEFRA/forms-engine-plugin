@@ -39,6 +39,7 @@ describe.each([
       list: listString,
       examples: listStringExamples,
       allow: ['1', '2', '3', '4'],
+      notInList: '5',
       shortDescription: 'My string list'
     }
   },
@@ -55,6 +56,7 @@ describe.each([
       list: listNumber,
       examples: listNumberExamples,
       allow: [1, 2, 3, 4],
+      notInList: 5,
       shortDescription: 'My number list'
     }
   }
@@ -215,16 +217,6 @@ describe.each([
         expect(result1.errors).toBeTruthy()
         expect(result2.errors).toBeTruthy()
       })
-
-      it('adds the required error for a value that is not in the list', () => {
-        const result = collection.validate(getFormData('5'))
-
-        expect(result.errors).toEqual([
-          expect.objectContaining({
-            text: `Enter ${lowerFirst(def.title)}`
-          })
-        ])
-      })
     })
 
     describe('State', () => {
@@ -367,12 +359,9 @@ describe.each([
         {
           description: 'Use short description if it exists',
           component: {
+            ...def,
             title: 'What is your example text?',
-            shortDescription: 'Your example text',
-            name: 'myComponent',
-            type: ComponentType.AutocompleteField,
-            list: 'ABCE',
-            options: {}
+            shortDescription: 'Your example text'
           } satisfies AutocompleteFieldComponent,
           assertions: [
             {
@@ -385,10 +374,35 @@ describe.each([
                   })
                 ]
               }
+            },
+            {
+              input: getFormData('5'),
+              output: {
+                value: getFormData(options.notInList),
+                errors: [
+                  expect.objectContaining({
+                    text: 'Enter your example text'
+                  })
+                ]
+              }
             }
           ]
         }
-      ])
+      ])('$description', ({ component, assertions }) => {
+        let collection: ComponentCollection
+
+        beforeEach(() => {
+          collection = new ComponentCollection([component], { model })
+        })
+
+        it.each([...assertions])(
+          'validates custom example',
+          ({ input, output }) => {
+            const result = collection.validate(input)
+            expect(result).toEqual(output)
+          }
+        )
+      })
     })
   })
 })

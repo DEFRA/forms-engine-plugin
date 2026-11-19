@@ -295,25 +295,6 @@ describe('DatePartsField', () => {
         expect(result4).toBeNull()
         expect(result5).toBe('2000-02-01')
       })
-
-      it.each([
-        {
-          scenario: 'a day that is not a number',
-          day: 'abc',
-          text: 'Example date parts must include a day'
-        },
-        {
-          scenario: 'a day that is too large to be a number',
-          day: '99999999999999999999',
-          text: 'Example date parts must be a real date'
-        }
-      ])('adds an error for $scenario', ({ day, text }) => {
-        const result = collection.validate(
-          getFormData({ day, month: '1', year: '2000' })
-        )
-
-        expect(result.errors).toEqual([expect.objectContaining({ text })])
-      })
     })
 
     describe('State', () => {
@@ -599,6 +580,47 @@ describe('DatePartsField', () => {
                 expect.objectContaining({
                   text: 'Example date parts field must be a real date'
                 }),
+                expect.objectContaining({
+                  text: 'Example date parts field must be a real date'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Values that are not numbers',
+        component: {
+          title: 'Example date parts field',
+          name: 'myComponent',
+          type: ComponentType.DatePartsField,
+          options: {}
+        } satisfies DatePartsFieldComponent,
+        assertions: [
+          {
+            input: getFormData({ day: 'abc', month: '1', year: '2000' }),
+            output: {
+              value: getFormData({ day: 'abc', month: 1, year: 2000 }),
+              errors: [
+                expect.objectContaining({
+                  text: 'Example date parts field must include a day'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData({
+              day: '99999999999999999999',
+              month: '1',
+              year: '2000'
+            }),
+            output: {
+              value: getFormData({
+                day: 100000000000000000000,
+                month: 1,
+                year: 2000
+              }),
+              errors: [
                 expect.objectContaining({
                   text: 'Example date parts field must be a real date'
                 })

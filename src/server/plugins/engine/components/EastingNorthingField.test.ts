@@ -221,25 +221,6 @@ describe('EastingNorthingField', () => {
         expect(result1.errors).toBeTruthy()
         expect(result2.errors).toBeTruthy()
       })
-
-      it.each([
-        {
-          scenario: 'an easting that is not a number',
-          easting: 'abc',
-          text: 'Enter easting'
-        },
-        {
-          scenario: 'an easting that is too large to be a number',
-          easting: '99999999999999999999',
-          text: 'Easting for example location must be between 1 and 6 digits'
-        }
-      ])('adds an error for $scenario', ({ easting, text }) => {
-        const result = collection.validate(
-          getFormData({ easting, northing: '1234567' })
-        )
-
-        expect(result.errors).toEqual([expect.objectContaining({ text })])
-      })
     })
 
     describe('State', () => {
@@ -748,6 +729,47 @@ describe('EastingNorthingField', () => {
                   text: expect.stringMatching(
                     /Northing for .* must be between 1 and 7 digits/
                   )
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Values that are not numbers',
+        component: {
+          title: 'Example easting northing',
+          shortDescription: 'Example location',
+          name: 'myComponent',
+          type: ComponentType.EastingNorthingField,
+          options: {},
+          schema: {}
+        } satisfies EastingNorthingFieldComponent,
+        assertions: [
+          {
+            input: getFormData({ easting: 'abc', northing: '1234567' }),
+            output: {
+              value: getFormData({ easting: 'abc', northing: 1234567 }),
+              errors: [
+                expect.objectContaining({
+                  text: 'Enter easting'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData({
+              easting: '99999999999999999999',
+              northing: '1234567'
+            }),
+            output: {
+              value: getFormData({
+                easting: 100000000000000000000,
+                northing: 1234567
+              }),
+              errors: [
+                expect.objectContaining({
+                  text: 'Easting for example location must be between 1 and 6 digits'
                 })
               ]
             }
