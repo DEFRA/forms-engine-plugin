@@ -684,8 +684,7 @@ describe('LatLongField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'components.latLongField.latitude must have no more than 7 decimal places'
-                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                  text: 'Latitude must have no more than 7 decimal places'
                 })
               ]
             }
@@ -702,8 +701,7 @@ describe('LatLongField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'components.latLongField.longitude must have no more than 7 decimal places'
-                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                  text: 'Longitude must have no more than 7 decimal places'
                 })
               ]
             }
@@ -781,8 +779,7 @@ describe('LatLongField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'components.latLongField.latitude must have no more than 7 decimal places'
-                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                  text: 'Latitude must have no more than 7 decimal places'
                 })
               ]
             }
@@ -812,8 +809,7 @@ describe('LatLongField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'components.latLongField.longitude must have no more than 7 decimal places'
-                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                  text: 'Longitude must have no more than 7 decimal places'
                 })
               ]
             }
@@ -890,6 +886,69 @@ describe('LatLongField', () => {
         ]
       },
       {
+        description: 'Values that are not numbers',
+        component: {
+          title: 'Example lat long',
+          shortDescription: 'Example location',
+          name: 'myComponent',
+          type: ComponentType.LatLongField,
+          options: {},
+          schema: {}
+        } satisfies LatLongFieldComponent,
+        assertions: [
+          {
+            input: getFormData({
+              latitude: '99999999999999999999',
+              longitude: '-0.127758'
+            }),
+            output: {
+              value: getFormData({
+                latitude: 100000000000000000000,
+                longitude: -0.127758
+              }),
+              errors: [
+                expect.objectContaining({
+                  text: 'Latitude must be a valid number'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Partly filled',
+        component: {
+          title: 'Example lat long',
+          shortDescription: 'Example location',
+          name: 'myComponent',
+          type: ComponentType.LatLongField,
+          options: {},
+          schema: {}
+        } satisfies LatLongFieldComponent,
+        assertions: [
+          {
+            input: getFormData({
+              latitude: '51.5',
+              longitude: ''
+            }),
+            output: {
+              value: getFormData({
+                latitude: 51.5,
+                longitude: ''
+              }),
+              errors: [
+                expect.objectContaining({
+                  text: 'Enter longitude'
+                }),
+                expect.objectContaining({
+                  text: 'Example location must include a longitude'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
         description: 'Optional field',
         component: {
           title: 'Example lat long',
@@ -911,6 +970,23 @@ describe('LatLongField', () => {
                 latitude: '',
                 longitude: ''
               })
+            }
+          },
+          {
+            input: getFormData({
+              latitude: '51.5',
+              longitude: ''
+            }),
+            output: {
+              value: getFormData({
+                latitude: 51.5,
+                longitude: ''
+              }),
+              errors: [
+                expect.objectContaining({
+                  text: 'Example lat long must include a longitude'
+                })
+              ]
             }
           }
         ]

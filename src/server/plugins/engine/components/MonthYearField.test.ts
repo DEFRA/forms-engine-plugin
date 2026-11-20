@@ -145,10 +145,9 @@ describe('MonthYearField', () => {
         )
 
         expect(result1.errors).toBeUndefined()
-        // Sub-field title is a key constant; error text uses raw key until Task 9.
         expect(result2.errors).toEqual([
           expect.objectContaining({
-            text: 'Example month/year field must include a components.monthYearField.year'
+            text: 'Example month/year field must include a year'
           })
         ])
       })
@@ -210,13 +209,12 @@ describe('MonthYearField', () => {
           })
         )
 
-        // Sub-field titles are key constants; error text uses raw keys until Task 9.
         expect(result.errors).toEqual([
           expect.objectContaining({
-            text: 'Example month/year must include a components.monthYearField.month'
+            text: 'Example month/year must include a month'
           }),
           expect.objectContaining({
-            text: 'Example month/year must include a components.monthYearField.year'
+            text: 'Example month/year must include a year'
           })
         ])
       })
@@ -237,13 +235,12 @@ describe('MonthYearField', () => {
           })
         )
 
-        // Sub-field titles are key constants; error text uses raw keys until Task 9.
         expect(result.errors).toEqual([
           expect.objectContaining({
-            text: 'Example month/year field must include a components.monthYearField.month'
+            text: 'Example month/year field must include a month'
           }),
           expect.objectContaining({
-            text: 'Example month/year field must include a components.monthYearField.year'
+            text: 'Example month/year field must include a year'
           })
         ])
       })
@@ -523,6 +520,39 @@ describe('MonthYearField', () => {
                 expect.objectContaining({
                   text: 'Example month/year field must be a real date'
                 }),
+                expect.objectContaining({
+                  text: 'Example month/year field must be a real date'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Values that are not numbers',
+        component: {
+          title: 'Example month/year field',
+          name: 'myComponent',
+          type: ComponentType.MonthYearField,
+          options: {}
+        } satisfies MonthYearFieldComponent,
+        assertions: [
+          {
+            input: getFormData({ month: 'abc', year: '2000' }),
+            output: {
+              value: getFormData({ month: 'abc', year: 2000 }),
+              errors: [
+                expect.objectContaining({
+                  text: 'Example month/year field must include a month'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData({ month: '99999999999999999999', year: '2000' }),
+            output: {
+              value: getFormData({ month: 100000000000000000000, year: 2000 }),
+              errors: [
                 expect.objectContaining({
                   text: 'Example month/year field must be a real date'
                 })

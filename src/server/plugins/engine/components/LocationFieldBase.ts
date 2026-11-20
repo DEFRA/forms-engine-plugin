@@ -14,8 +14,6 @@ import {
   withCustomValidationOverrides
 } from '~/src/server/plugins/engine/components/helpers/index.js'
 import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
-import { buildValidationMessages } from '~/src/server/plugins/engine/i18n/buildValidationMessages.js'
-import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import { type Translator } from '~/src/server/plugins/engine/types/index.js'
 import {
   type ErrorMessageTemplateList,
@@ -35,7 +33,7 @@ interface LocationFieldOptions {
 interface ValidationConfig {
   pattern: RegExp
   patternErrorMessage: JoiExpression
-  requiredMessage?: JoiExpression
+  requiredMessage: JoiExpression
 }
 
 /**
@@ -68,7 +66,7 @@ export abstract class LocationFieldBase extends FormComponent {
     addClassOptionIfNone(locationOptions, 'govuk-input--width-10')
 
     const config = this.getValidationConfig(undefined)
-    const requiredMessage = config.requiredMessage ?? messageTemplate.required
+    const { requiredMessage } = config
 
     const messages = {
       'any.required': requiredMessage,
@@ -147,13 +145,10 @@ export abstract class LocationFieldBase extends FormComponent {
 
   getValidationMessagesOverride(translator: Translator) {
     const { customValidationMessage, customValidationMessages } = this.options
-    const { t } = translator
     const config = this.getValidationConfig(translator)
     const defaults = {
-      'any.required':
-        config.requiredMessage ?? buildValidationMessages(t).objectRequired,
-      'string.empty':
-        config.requiredMessage ?? buildValidationMessages(t).objectRequired,
+      'any.required': config.requiredMessage,
+      'string.empty': config.requiredMessage,
       'string.pattern.base': config.patternErrorMessage
     }
 
@@ -173,7 +168,7 @@ export abstract class LocationFieldBase extends FormComponent {
       baseErrors: [
         {
           type: 'required',
-          template: config.requiredMessage ?? messageTemplate.required
+          template: config.requiredMessage
         },
         ...this.getErrorTemplates()
       ],

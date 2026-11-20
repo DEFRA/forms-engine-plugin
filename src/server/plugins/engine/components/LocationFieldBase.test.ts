@@ -14,6 +14,7 @@ class TestLocationField extends LocationFieldBase {
     return {
       pattern: /^TEST\d{4}$/i,
       patternErrorMessage: 'Enter a valid test code like TEST1234',
+      requiredMessage: 'Enter a test code',
       additionalMessages: {
         'string.custom': 'This is a custom error from additional messages'
       } as LanguageMessages,

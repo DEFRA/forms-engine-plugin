@@ -39,6 +39,7 @@ describe.each([
       list: listString,
       examples: listStringExamples,
       allow: ['1', '2', '3', '4'],
+      notInList: '5',
       shortDescription: 'My string list'
     }
   },
@@ -55,6 +56,7 @@ describe.each([
       list: listNumber,
       examples: listNumberExamples,
       allow: [1, 2, 3, 4],
+      notInList: 5,
       shortDescription: 'My number list'
     }
   }
@@ -133,6 +135,17 @@ describe.each([
 
         const result = collectionOptional.validate(getFormData(''))
         expect(result.errors).toBeUndefined()
+      })
+
+      it('adds the select error for an invalid optional value', () => {
+        const collectionOptional = new ComponentCollection(
+          [{ ...def, options: { required: false } }],
+          { model }
+        )
+
+        const result = collectionOptional.validate(getFormData('invalid'))
+
+        expect(result.errors?.[0].text).toBe(`Select ${lowerFirst(def.title)}`)
       })
 
       it('is configured with autocomplete suggestions', () => {
@@ -346,12 +359,9 @@ describe.each([
         {
           description: 'Use short description if it exists',
           component: {
+            ...def,
             title: 'What is your example text?',
-            shortDescription: 'Your example text',
-            name: 'myComponent',
-            type: ComponentType.AutocompleteField,
-            list: 'ABCE',
-            options: {}
+            shortDescription: 'Your example text'
           } satisfies AutocompleteFieldComponent,
           assertions: [
             {
@@ -364,10 +374,35 @@ describe.each([
                   })
                 ]
               }
+            },
+            {
+              input: getFormData('5'),
+              output: {
+                value: getFormData(options.notInList),
+                errors: [
+                  expect.objectContaining({
+                    text: 'Enter your example text'
+                  })
+                ]
+              }
             }
           ]
         }
-      ])
+      ])('$description', ({ component, assertions }) => {
+        let collection: ComponentCollection
+
+        beforeEach(() => {
+          collection = new ComponentCollection([component], { model })
+        })
+
+        it.each([...assertions])(
+          'validates custom example',
+          ({ input, output }) => {
+            const result = collection.validate(input)
+            expect(result).toEqual(output)
+          }
+        )
+      })
     })
   })
 })

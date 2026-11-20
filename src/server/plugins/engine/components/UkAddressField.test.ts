@@ -264,16 +264,13 @@ describe('UkAddressField', () => {
 
         expect(result.errors).toEqual([
           expect.objectContaining({
-            text: 'Enter components.addressField.line1'
-            // Sub-field title is a key constant; resolved at request time (Task 8/9).
+            text: 'Enter address line 1'
           }),
           expect.objectContaining({
-            text: 'Enter components.addressField.town'
-            // Sub-field title is a key constant; resolved at request time (Task 8/9).
+            text: 'Enter town or city'
           }),
           expect.objectContaining({
-            text: 'Enter components.addressField.postcode'
-            // Sub-field title is a key constant; resolved at request time (Task 8/9).
+            text: 'Enter postcode'
           })
         ])
       })
@@ -443,7 +440,6 @@ describe('UkAddressField', () => {
               expect.objectContaining({
                 model: getViewModel(address, 'addressLine1', {
                   label: { text: 'Address line 1' },
-                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   attributes: { autocomplete: 'address-line1' }
                 })
               }),
@@ -451,7 +447,6 @@ describe('UkAddressField', () => {
               expect.objectContaining({
                 model: getViewModel(address, 'addressLine2', {
                   label: { text: 'Address line 2 (optional)' },
-                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   attributes: { autocomplete: 'address-line2' },
                   value: address.addressLine2
                 })
@@ -460,7 +455,6 @@ describe('UkAddressField', () => {
               expect.objectContaining({
                 model: getViewModel(address, 'town', {
                   label: { text: 'Town or city' },
-                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   classes: 'govuk-!-width-two-thirds',
                   attributes: { autocomplete: 'address-level2' },
                   value: address.town
@@ -470,7 +464,6 @@ describe('UkAddressField', () => {
               expect.objectContaining({
                 model: getViewModel(address, 'county', {
                   label: { text: 'County (optional)' },
-                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   attributes: { autocomplete: 'address-level1' },
                   value: address.county
                 })
@@ -479,7 +472,6 @@ describe('UkAddressField', () => {
               expect.objectContaining({
                 model: getViewModel(address, 'postcode', {
                   label: { text: 'Postcode' },
-                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   classes: 'govuk-input--width-10',
                   attributes: { autocomplete: 'postal-code' },
                   value: address.postcode
@@ -636,8 +628,7 @@ describe('UkAddressField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'components.addressField.line1 must be 100 characters or less'
-                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                  text: 'Address line 1 must be 100 characters or less'
                 })
               ]
             }
@@ -662,8 +653,7 @@ describe('UkAddressField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'components.addressField.line2 must be 100 characters or less'
-                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                  text: 'Address line 2 must be 100 characters or less'
                 })
               ]
             }
@@ -688,8 +678,7 @@ describe('UkAddressField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'components.addressField.town must be 100 characters or less'
-                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                  text: 'Town or city must be 100 characters or less'
                 })
               ]
             }
@@ -714,8 +703,7 @@ describe('UkAddressField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'components.addressField.county must be 100 characters or less'
-                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                  text: 'County must be 100 characters or less'
                 })
               ]
             }
@@ -740,8 +728,7 @@ describe('UkAddressField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'Enter a valid components.addressField.postcode'
-                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                  text: 'Enter a valid postcode'
                 })
               ]
             }
@@ -766,16 +753,13 @@ describe('UkAddressField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'Enter components.addressField.line1'
-                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                  text: 'Enter address line 1'
                 }),
                 expect.objectContaining({
-                  text: 'Enter components.addressField.town'
-                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                  text: 'Enter town or city'
                 }),
                 expect.objectContaining({
-                  text: 'Enter a valid components.addressField.postcode'
-                  // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                  text: 'Enter a valid postcode'
                 })
               ]
             }

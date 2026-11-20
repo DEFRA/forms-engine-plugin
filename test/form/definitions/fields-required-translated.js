@@ -21,6 +21,7 @@ export default /** @satisfies {FormDefinition} */ ({
           hint: 'Help text',
           options: {},
           schema: {
+            min: 3,
             max: 30
           }
         },

@@ -137,8 +137,8 @@ export class NumberField extends FormComponent {
     const { customValidationMessage, customValidationMessages } = this.options
     const { t } = translator
     const defaults = {
-      'any.required': buildValidationMessages(t).objectRequired,
-      'number.base': buildValidationMessages(t).objectMissing,
+      'any.required': buildValidationMessages(t).required,
+      'number.base': buildValidationMessages(t).number,
       'number.precision': buildValidationMessages(t).numberPrecision,
       'number.integer': buildValidationMessages(t).numberInteger,
       'number.min': buildValidationMessages(t).numberMin,

@@ -175,11 +175,9 @@ describe('DatePartsField', () => {
         )
 
         expect(result1.errors).toBeUndefined()
-        // Sub-field title is a key constant; error text uses the raw key until
-        // request-time resolution is wired in (Task 8 / Task 9).
         expect(result2.errors).toEqual([
           expect.objectContaining({
-            text: 'Example date parts field must include a components.dateField.month'
+            text: 'Example date parts field must include a month'
           })
         ])
       })
@@ -244,16 +242,15 @@ describe('DatePartsField', () => {
           })
         )
 
-        // Sub-field titles are key constants; error text uses raw keys until Task 9.
         expect(result.errors).toEqual([
           expect.objectContaining({
-            text: 'Example date parts must include a components.dateField.day'
+            text: 'Example date parts must include a day'
           }),
           expect.objectContaining({
-            text: 'Example date parts must include a components.dateField.month'
+            text: 'Example date parts must include a month'
           }),
           expect.objectContaining({
-            text: 'Example date parts must include a components.dateField.year'
+            text: 'Example date parts must include a year'
           })
         ])
       })
@@ -583,6 +580,47 @@ describe('DatePartsField', () => {
                 expect.objectContaining({
                   text: 'Example date parts field must be a real date'
                 }),
+                expect.objectContaining({
+                  text: 'Example date parts field must be a real date'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Values that are not numbers',
+        component: {
+          title: 'Example date parts field',
+          name: 'myComponent',
+          type: ComponentType.DatePartsField,
+          options: {}
+        } satisfies DatePartsFieldComponent,
+        assertions: [
+          {
+            input: getFormData({ day: 'abc', month: '1', year: '2000' }),
+            output: {
+              value: getFormData({ day: 'abc', month: 1, year: 2000 }),
+              errors: [
+                expect.objectContaining({
+                  text: 'Example date parts field must include a day'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData({
+              day: '99999999999999999999',
+              month: '1',
+              year: '2000'
+            }),
+            output: {
+              value: getFormData({
+                day: 100000000000000000000,
+                month: 1,
+                year: 2000
+              }),
+              errors: [
                 expect.objectContaining({
                   text: 'Example date parts field must be a real date'
                 })

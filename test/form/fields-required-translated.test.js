@@ -31,6 +31,7 @@ describe('Form fields (required)', () => {
           payload: {
             empty: { textField: '' },
             invalid: { textField: 'This text is too long for the field' },
+            invalid2: { textField: 'ab' },
             valid: { textField: 'Example text field' }
           }
         },
@@ -50,6 +51,7 @@ describe('Form fields (required)', () => {
           payload: {
             empty: { numberField: '' },
             invalid: { numberField: '123456' },
+            invalid2: { numberField: 'abc' },
             valid: { numberField: '1234' }
           }
         },
@@ -452,7 +454,7 @@ describe('Form fields (required)', () => {
         expect($errors).toHaveLength(26)
         expect($errors[0].textContent).toBe('Nodwch welsh textfield error desc')
         expect($errors[1].textContent).toBe('Nodwch welsh Multiline text field')
-        expect($errors[2].textContent).toBe('Nodwch Welsh Number field')
+        expect($errors[2].textContent).toBe('Nodwch welsh Number field')
         expect($errors[3].textContent).toBe(
           'Rhaid i Welsh Date parts field gynnwys diwrnod'
         )
@@ -471,7 +473,7 @@ describe('Form fields (required)', () => {
         expect($errors[10].textContent).toBe('Nodwch cod post')
         expect($errors[11].textContent).toBe('Dewiswch welsh Radios field')
         expect($errors[12].textContent).toBe('Dewiswch welsh Select field')
-        expect($errors[13].textContent).toBe('Nodwch Welsh Autocomplete field')
+        expect($errors[13].textContent).toBe('Nodwch welsh Autocomplete field')
         expect($errors[14].textContent).toBe(
           'Dewiswch welsh Checkboxes field 1'
         )
@@ -552,7 +554,7 @@ describe('Form fields (required)', () => {
         expect($errors[8].textContent).toBe('Nodwch cod post dilys')
         expect($errors[9].textContent).toBe('Dewiswch welsh Radios field')
         expect($errors[10].textContent).toBe('Dewiswch welsh Select field')
-        expect($errors[11].textContent).toBe('Nodwch Welsh Autocomplete field')
+        expect($errors[11].textContent).toBe('Nodwch welsh Autocomplete field')
         expect($errors[12].textContent).toBe(
           'Dewiswch welsh Checkboxes field 1'
         )
@@ -625,6 +627,12 @@ describe('Form fields (required)', () => {
 
         const $errors = $errorSummary.querySelectorAll('a')
         expect($errors).toHaveLength(24)
+        expect($errors[0].textContent).toBe(
+          'Rhaid i Welsh textfield error desc fod yn 3 o nodau neu fwy'
+        )
+        expect($errors[2].textContent).toBe(
+          'Rhaid i Welsh Number field fod yn rhif'
+        )
         expect($errors[6].textContent).toBe(
           'Mae Welsh Email address field yn cynnwys nodau annilys, er enghraifft, dashes hirion'
         )

@@ -603,8 +603,7 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /components\.eastingNorthingField\.easting for .* must be between 1000 and 60000/
-                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                    /Easting for .* must be between 1000 and 60000/
                   )
                 })
               ]
@@ -623,8 +622,7 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /components\.eastingNorthingField\.easting for .* must be between 1000 and 60000/
-                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                    /Easting for .* must be between 1000 and 60000/
                   )
                 })
               ]
@@ -660,8 +658,7 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /components\.eastingNorthingField\.northing for .* must be between 1000 and 1200000/
-                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                    /Northing for .* must be between 1000 and 1200000/
                   )
                 })
               ]
@@ -680,8 +677,7 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /components\.eastingNorthingField\.northing for .* must be between 1000 and 1200000/
-                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                    /Northing for .* must be between 1000 and 1200000/
                   )
                 })
               ]
@@ -712,8 +708,7 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /components\.eastingNorthingField\.easting for .* must be between 1 and 6 digits/
-                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                    /Easting for .* must be between 1 and 6 digits/
                   )
                 })
               ]
@@ -732,9 +727,82 @@ describe('EastingNorthingField', () => {
               errors: [
                 expect.objectContaining({
                   text: expect.stringMatching(
-                    /components\.eastingNorthingField\.northing for .* must be between 1 and 7 digits/
-                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
+                    /Northing for .* must be between 1 and 7 digits/
                   )
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Values that are not numbers',
+        component: {
+          title: 'Example easting northing',
+          shortDescription: 'Example location',
+          name: 'myComponent',
+          type: ComponentType.EastingNorthingField,
+          options: {},
+          schema: {}
+        } satisfies EastingNorthingFieldComponent,
+        assertions: [
+          {
+            input: getFormData({ easting: 'abc', northing: '1234567' }),
+            output: {
+              value: getFormData({ easting: 'abc', northing: 1234567 }),
+              errors: [
+                expect.objectContaining({
+                  text: 'Enter easting'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData({
+              easting: '99999999999999999999',
+              northing: '1234567'
+            }),
+            output: {
+              value: getFormData({
+                easting: 100000000000000000000,
+                northing: 1234567
+              }),
+              errors: [
+                expect.objectContaining({
+                  text: 'Easting for example location must be between 1 and 6 digits'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Partly filled',
+        component: {
+          title: 'Example easting northing',
+          shortDescription: 'Example location',
+          name: 'myComponent',
+          type: ComponentType.EastingNorthingField,
+          options: {},
+          schema: {}
+        } satisfies EastingNorthingFieldComponent,
+        assertions: [
+          {
+            input: getFormData({
+              easting: '12345',
+              northing: ''
+            }),
+            output: {
+              value: getFormData({
+                easting: 12345,
+                northing: ''
+              }),
+              errors: [
+                expect.objectContaining({
+                  text: 'Enter northing'
+                }),
+                expect.objectContaining({
+                  text: 'Example location must include a northing'
                 })
               ]
             }
@@ -763,6 +831,23 @@ describe('EastingNorthingField', () => {
                 easting: '',
                 northing: ''
               })
+            }
+          },
+          {
+            input: getFormData({
+              easting: '12345',
+              northing: ''
+            }),
+            output: {
+              value: getFormData({
+                easting: 12345,
+                northing: ''
+              }),
+              errors: [
+                expect.objectContaining({
+                  text: 'Example easting northing must include a northing'
+                })
+              ]
             }
           }
         ]
@@ -793,7 +878,6 @@ describe('EastingNorthingField', () => {
                 expect.objectContaining({
                   text: expect.stringMatching(
                     /myComponent failed custom validation because/
-                    // Sub-field title is a key constant; resolved at request time (Task 8/9).
                   )
                 })
               ]

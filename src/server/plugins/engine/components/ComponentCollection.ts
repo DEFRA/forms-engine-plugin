@@ -222,7 +222,7 @@ export class ComponentCollection {
 
   overrideParentTitle(
     formSchema: joi.ObjectSchema<FormPayload>,
-    translator: Translator | undefined
+    translator: Translator
   ) {
     // Add parent field title to collection field errors
     return formSchema.error((errors) => {
@@ -249,8 +249,14 @@ export class ComponentCollection {
           (item) => item.name === key
         )
 
-        // Update error with child label
-        if (child && (!error.local.label || error.local.label === 'value')) {
+        // Update error with child label. A composite field child has a key as
+        // its title, so that the label shows in the language of the translator
+        if (child && parent?.collection) {
+          error.local.label = translator.t(child.title)
+        } else if (
+          child &&
+          (!error.local.label || error.local.label === 'value')
+        ) {
           error.local.label = child.title
         }
 
@@ -261,10 +267,8 @@ export class ComponentCollection {
         }
 
         // Update error with parent title
-        if (translator && parent) {
+        if (parent) {
           error.local.title ??= getTranslatedLabel(parent.def, translator)
-        } else {
-          error.local.title ??= parent?.label
         }
 
         return error
@@ -277,79 +281,77 @@ export class ComponentCollection {
    */
   validate(
     value: FormPayload = {},
-    translator?: Translator
+    translator: Translator = this.model.createTranslator()
   ): FormValidationResult<FormPayload> {
-    const messages = translator
-      ? buildLanguageMessages(translator.t)
-      : undefined
+    const messages = buildLanguageMessages(translator.t)
 
-    // When translating, override Joi labels (and custom schema messages where
-    // needed) so #label/#title in message templates resolve in the correct language.
+    // Override Joi labels (and custom schema messages where needed) so that
+    // #label/#title in message templates resolve in the language of the translator
     let schema = this.formSchema
     // Add parent field title to collection field errors
     schema = this.overrideParentTitle(schema, translator)
 
-    if (translator) {
-      const { t } = translator
-      const labelOverrides: Record<string, joi.Schema> = {}
+    const { t } = translator
 
-      for (const field of this.fields) {
-        if (field.collection) {
-          // Composite field: translate each sub-field's label using the key constant
-          // (e.g. 'components.addressField.line1' → "Llinell cyfeiriad 1") and apply
-          // any field-type-specific message overrides (e.g. objectMissing for dates).
-          const messagesOverride =
-            field.getValidationMessagesOverride(translator)
-          for (const subField of field.collection.fields) {
-            const translatedSubLabel = t(subField.title) || subField.label
-            let patchedSchema = subField.formSchema.label(translatedSubLabel)
-            const subFieldMessages = messagesOverride
-              ? messagesOverride[subField.name]
-              : undefined
-            if (subFieldMessages) {
-              patchedSchema = patchedSchema.messages(subFieldMessages)
-            }
-            labelOverrides[subField.name] = patchedSchema
-          }
-        } else {
-          const fieldDef = field.def
-          const translatedLabel = getTranslatedLabel(fieldDef, translator)
-          const messagesOverride =
-            field.getValidationMessagesOverride(translator)
-          let patchedSchema = field.formSchema
-          if (translatedLabel && translatedLabel !== field.label) {
-            patchedSchema = patchedSchema.label(translatedLabel)
-          }
-          const fieldMessages = messagesOverride
-            ? messagesOverride[field.name]
+    for (const field of this.fields) {
+      if (field.collection) {
+        // Composite field: translate each sub-field's label using the key constant
+        // (e.g. 'components.addressField.line1' → "Llinell cyfeiriad 1") and apply
+        // any field-type-specific message overrides (e.g. objectMissing for dates).
+        const messagesOverride = field.getValidationMessagesOverride(translator)
+        for (const subField of field.collection.fields) {
+          const translatedSubLabel = t(subField.title) || subField.label
+          let patchedSchema = subField.formSchema.label(translatedSubLabel)
+          const subFieldMessages = messagesOverride
+            ? messagesOverride[subField.name]
             : undefined
-          if (fieldMessages) {
-            patchedSchema = patchedSchema.messages(fieldMessages)
+          if (subFieldMessages) {
+            patchedSchema = patchedSchema.messages(subFieldMessages)
           }
-          if (patchedSchema !== field.formSchema) {
-            labelOverrides[field.name] = patchedSchema
-          }
+          schema = this.replaceFieldSchema(schema, subField.name, patchedSchema)
         }
-      }
-
-      if (Object.keys(labelOverrides).length) {
-        schema = schema.keys(labelOverrides)
+      } else {
+        const fieldDef = field.def
+        const translatedLabel = getTranslatedLabel(fieldDef, translator)
+        const messagesOverride = field.getValidationMessagesOverride(translator)
+        let patchedSchema = field.formSchema
+        if (translatedLabel && translatedLabel !== field.label) {
+          patchedSchema = patchedSchema.label(translatedLabel)
+        }
+        const fieldMessages = messagesOverride
+          ? messagesOverride[field.name]
+          : undefined
+        if (fieldMessages) {
+          patchedSchema = patchedSchema.messages(fieldMessages)
+        }
+        if (patchedSchema !== field.formSchema) {
+          schema = this.replaceFieldSchema(schema, field.name, patchedSchema)
+        }
       }
     }
 
-    const result = schema.validate(value, {
-      ...opts,
-      ...(messages && { messages })
-    })
+    const result = schema.validate(value, { ...opts, messages })
 
     const details = result.error?.details
-    const language = translator?.language
+    const { language } = translator
 
     return {
       value: (result.value ?? {}) as typeof value,
       errors:
         this.page?.getErrors(details, language) ?? getErrors(details, language)
     }
+  }
+
+  /**
+   * Replace the schema of one field in the form schema. The field keeps its
+   * position, so that the errors stay in the same order as the page
+   */
+  private replaceFieldSchema(
+    formSchema: ObjectSchema<FormPayload>,
+    name: string,
+    fieldSchema: joi.Schema
+  ) {
+    return formSchema.fork(name, () => fieldSchema)
   }
 
   /**
