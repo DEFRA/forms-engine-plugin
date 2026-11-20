@@ -9,10 +9,16 @@ import {
 } from '@defra/forms-model'
 
 import { todayAsDateOnly } from '~/src/server/plugins/engine/date-helper.js'
-import { SchemaValidationError } from '~/src/server/plugins/engine/errors.js'
+import {
+  PageRouteCycleError,
+  SchemaValidationError
+} from '~/src/server/plugins/engine/errors.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
-import { type FormContextRequest } from '~/src/server/plugins/engine/types.js'
+import {
+  type FormContextRequest,
+  type FormSubmissionState
+} from '~/src/server/plugins/engine/types.js'
 import { FormAction } from '~/src/server/routes/types.js'
 import { V2 as definitionV2 } from '~/test/form/definitions/conditions-basic.js'
 import definition from '~/test/form/definitions/conditions-escaping.js'
@@ -433,6 +439,246 @@ describe('FormModel', () => {
         QwcNsc: 'vegan',
         zeQDES: ['peppers', 'cheese', 'ham']
       })
+    })
+
+    describe('page walk', () => {
+      const [namePage, agePage, , summaryPage] =
+        joinedConditionsDefinition.pages
+
+      const extraPage: PageQuestion = {
+        title: 'More details',
+        path: '/more-details',
+        components: [
+          {
+            type: ComponentType.TextField,
+            title: 'More details',
+            name: 'moreDetails',
+            id: '6f1d9a52-8a3c-4c63-9f8b-1f1f6f0d7a11',
+            options: { required: false },
+            schema: {}
+          }
+        ],
+        id: '0b9b7f0e-51d2-4d0c-a6e4-0a3c3c1c7d21',
+        next: []
+      }
+
+      function getContextFor(definition: FormDefinition, path: string) {
+        formDefinitionV2Schema.validate = jest
+          .fn()
+          .mockReturnValue({ value: definition })
+
+        const formModel = new FormModel(definition, { basePath: 'test' })
+        const pageUrl = new URL(`http://example.com/test/${path}`)
+
+        const request: FormContextRequest = buildFormContextRequest({
+          method: 'get',
+          query: {},
+          path: pageUrl.pathname,
+          params: { path, slug: 'test' },
+          url: pageUrl,
+          app: { model: formModel }
+        })
+
+        return formModel.getFormContext(request, {
+          $$__referenceNumber: 'foobar'
+        })
+      }
+
+      it('ends after the last page when a page has the root path and the requested page is off the route', () => {
+        const definition: FormDefinition = {
+          ...joinedConditionsDefinition,
+          pages: [namePage, agePage, { ...extraPage, path: '/' }, summaryPage]
+        }
+
+        // The age page has a condition that is false for an empty state
+        const context = getContextFor(definition, 'age')
+
+        expect(context.relevantPages.map(({ path }) => path)).toEqual([
+          '/name',
+          '/',
+          '/summary',
+          '/status'
+        ])
+      })
+
+      it('throws when a page path resolves to a page earlier in the route', () => {
+        const definition: FormDefinition = {
+          ...joinedConditionsDefinition,
+          pages: [
+            namePage,
+            agePage,
+            { ...extraPage, path: '/name/' },
+            summaryPage
+          ]
+        }
+
+        expect(() => getContextFor(definition, 'summary')).toThrow(
+          new PageRouteCycleError('/name')
+        )
+      })
+
+      it('throws when the next links of a V1 form make a cycle', () => {
+        const textField = (name: string) => ({
+          type: ComponentType.TextField as const,
+          name,
+          title: name,
+          options: {},
+          schema: {}
+        })
+
+        const definition: FormDefinition = {
+          name: 'Next link cycle',
+          startPage: '/first',
+          pages: [
+            {
+              title: 'First',
+              path: '/first',
+              components: [textField('first')],
+              next: [{ path: '/second' }]
+            },
+            {
+              title: 'Second',
+              path: '/second',
+              components: [textField('second')],
+              next: [{ path: '/first' }]
+            },
+            {
+              title: 'Third',
+              path: '/third',
+              components: [textField('third')],
+              next: []
+            }
+          ],
+          conditions: [],
+          lists: [],
+          sections: []
+        }
+
+        expect(() => getContextFor(definition, 'third')).toThrow(
+          new PageRouteCycleError('/first')
+        )
+      })
+    })
+  })
+
+  describe('makeFilteredSchema', () => {
+    const textPage = (name: string) => ({
+      title: name,
+      path: `/${name}`,
+      components: [
+        {
+          type: ComponentType.TextField as const,
+          name,
+          title: name,
+          options: {},
+          schema: {}
+        }
+      ],
+      next: []
+    })
+
+    const sitePage = (name: string) => ({
+      title: name,
+      path: `/${name}`,
+      components: [
+        {
+          type: ComponentType.EastingNorthingField as const,
+          name,
+          title: name,
+          options: { countries: ['wales' as const] },
+          schema: {}
+        }
+      ],
+      next: []
+    })
+
+    const definition: FormDefinition = {
+      name: 'Schema of many pages',
+      startPage: '/first',
+      pages: [
+        textPage('first'),
+        sitePage('siteOne'),
+        textPage('second'),
+        sitePage('siteTwo'),
+        textPage('third')
+      ],
+      conditions: [],
+      lists: [],
+      sections: []
+    }
+
+    const inWales = { easting: 326781, northing: 269766 }
+    const outsideWales = { easting: 332218, northing: 283862 }
+
+    const siteState = (name: string, site: typeof inWales) => ({
+      [`${name}__easting`]: site.easting,
+      [`${name}__northing`]: site.northing
+    })
+
+    function validate(state: FormSubmissionState, form = definition) {
+      const model = new FormModel(form, { basePath: 'test' })
+      const pages = model.pages.filter(({ path }) => path !== '/status')
+
+      return model
+        .makeFilteredSchema(pages)
+        .validate(state, { abortEarly: false })
+    }
+
+    it('reports the missing answers of all pages in page order', () => {
+      const { error } = validate({})
+
+      expect(error?.details.map(({ path }) => path.join('.'))).toEqual([
+        'first',
+        'siteOne__easting',
+        'siteOne__northing',
+        'second',
+        'siteTwo__easting',
+        'siteTwo__northing',
+        'third'
+      ])
+    })
+
+    it('keeps the page order for a form with more pages than one batch', () => {
+      // Component names can only have letters
+      const names = Array.from(
+        { length: 70 },
+        (_, index) =>
+          `page${'abcdefghij'.charAt(index / 7)}${'abcdefg'.charAt(index % 7)}`
+      )
+
+      const { error } = validate(
+        {},
+        { ...definition, startPage: `/${names[0]}`, pages: names.map(textPage) }
+      )
+
+      expect(error?.details.map(({ path }) => path.join('.'))).toEqual(names)
+    })
+
+    it('accepts a complete and valid state', () => {
+      const { error } = validate({
+        first: 'a',
+        ...siteState('siteOne', inWales),
+        second: 'b',
+        ...siteState('siteTwo', inWales),
+        third: 'c'
+      })
+
+      expect(error).toBeUndefined()
+    })
+
+    it('keeps the country rule of each easting and northing field', () => {
+      const { error } = validate({
+        first: 'a',
+        ...siteState('siteOne', outsideWales),
+        second: 'b',
+        ...siteState('siteTwo', outsideWales),
+        third: 'c'
+      })
+
+      expect(error?.details.map(({ message }) => message)).toEqual([
+        expect.stringContaining('"siteOne" failed custom validation'),
+        expect.stringContaining('"siteTwo" failed custom validation')
+      ])
     })
   })
 

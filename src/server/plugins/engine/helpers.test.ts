@@ -10,6 +10,7 @@ import {
   encodeUrl,
   engine,
   evaluateTemplate,
+  findPage,
   getErrors,
   getExponentialBackoffDelay,
   getPageHref,
@@ -285,6 +286,26 @@ describe('Helpers', () => {
 
     it('should throw when invalid url is provided', () => {
       expect(() => encodeUrl('not a url')).toThrow()
+    })
+  })
+
+  describe('findPage', () => {
+    let model: FormModel
+
+    beforeEach(() => {
+      const [firstPage, ...otherPages] = definition.pages
+      model = new FormModel(
+        { ...definition, pages: [{ ...firstPage, path: '/' }, ...otherPages] },
+        { basePath: 'test' }
+      )
+    })
+
+    it('finds the page with the root path when that path is given', () => {
+      expect(findPage(model, '/')).toBe(model.pages[0])
+    })
+
+    it('finds no page when no path is given', () => {
+      expect(findPage(model, undefined)).toBeUndefined()
     })
   })
 
