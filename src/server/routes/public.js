@@ -1,7 +1,5 @@
 import { join } from 'node:path'
 
-import { type HandlerDecorations, type ServerRoute } from '@hapi/hapi'
-
 import { config } from '~/src/config/index.js'
 
 export default [
@@ -26,7 +24,7 @@ export default [
     immutable: false
   }
 ].map((options) => {
-  return {
+  return /** @satisfies {ServerRoute} */ ({
     method: 'GET',
     path: options.from,
     options: {
@@ -37,11 +35,15 @@ export default [
           ? 'public, max-age=2147483648, immutable'
           : 'public, max-age=0, must-revalidate'
       },
-      handler: {
+      handler: /** @satisfies {HandlerDecorations} */ ({
         directory: {
           path: options.to
         }
-      } satisfies HandlerDecorations
+      })
     }
-  } satisfies ServerRoute
+  })
 })
+
+/**
+ * @import { HandlerDecorations, ServerRoute } from '@hapi/hapi'
+ */

@@ -8,22 +8,30 @@ const notifyAPIKey = config.get('notifyAPIKey')
 // Extract the two uuids from the notifyApiKey
 // See https://github.com/alphagov/notifications-node-client/blob/main/client/api_client.js#L17
 // Needed until `https://github.com/alphagov/notifications-node-client/pull/200` is published
-const apiKeyId: string = notifyAPIKey.substring(
+/** @type {string} */
+const apiKeyId = notifyAPIKey.substring(
   notifyAPIKey.length - 36,
   notifyAPIKey.length
 )
-const serviceId: string = notifyAPIKey.substring(
+/** @type {string} */
+const serviceId = notifyAPIKey.substring(
   notifyAPIKey.length - 73,
   notifyAPIKey.length - 37
 )
 
-export interface SendNotificationArgs {
-  templateId: string
-  emailAddress: string
-  personalisation: { subject: string; body: string }
-}
+/**
+ * @typedef {{
+ *   templateId: string
+ *   emailAddress: string
+ *   personalisation: { subject: string; body: string }
+ * }} SendNotificationArgs
+ */
 
-function createToken(iss: string, secret: string) {
+/**
+ * @param {string} iss
+ * @param {string} secret
+ */
+function createToken(iss, secret) {
   const iat = Math.round(Date.now() / 1000)
 
   return token.generate({ iss, iat }, secret, {
@@ -31,7 +39,10 @@ function createToken(iss: string, secret: string) {
   })
 }
 
-export async function sendNotification(args: SendNotificationArgs) {
+/**
+ * @param {SendNotificationArgs} args
+ */
+export async function sendNotification(args) {
   const { templateId, emailAddress, personalisation } = args
 
   return postJson(

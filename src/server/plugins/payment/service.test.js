@@ -5,7 +5,7 @@ import { EN_GB } from '~/src/server/constants.js'
 import { PaymentService } from '~/src/server/plugins/payment/service.js'
 import { get, post, postJson } from '~/src/server/services/httpService.js'
 
-jest.mock('~/src/server/services/httpService.ts')
+jest.mock('~/src/server/services/httpService.js')
 
 describe('payment service', () => {
   const service = new PaymentService('my-api-key')

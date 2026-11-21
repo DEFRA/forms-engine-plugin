@@ -10,7 +10,7 @@ import { get, request } from '~/src/server/services/httpService.js'
 const basePath = `${FORM_PREFIX}/api`
 
 jest.mock('~/src/server/plugins/map/service.js')
-jest.mock('~/src/server/services/httpService.ts')
+jest.mock('~/src/server/services/httpService.js')
 jest.mock('src/server/plugins/map/routes/get-os-token.js')
 
 describe('Map API routes', () => {

@@ -11,7 +11,7 @@ import { getCookie, getCookieHeader } from '~/test/utils/get-cookie.js'
 
 const basePath = `${FORM_PREFIX}/basic`
 
-jest.mock('~/src/server/utils/notify.ts')
+jest.mock('~/src/server/utils/notify.js')
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
 jest.mock('~/src/server/plugins/engine/services/formSubmissionService.js')
 

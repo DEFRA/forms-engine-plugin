@@ -1,7 +1,7 @@
 import { getAccessToken } from '~/src/server/plugins/map/routes/get-os-token.js'
 import { post } from '~/src/server/services/httpService.js'
 
-jest.mock('~/src/server/services/httpService.ts')
+jest.mock('~/src/server/services/httpService.js')
 
 describe('OS OAuth token', () => {
   describe('getAccessToken', () => {

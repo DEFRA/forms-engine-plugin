@@ -1,7 +1,6 @@
 import { resolve } from 'node:path'
 
-import convict, { type SchemaObj } from 'convict'
-import { type LevelWithSilent } from 'pino'
+import convict from 'convict'
 
 import 'dotenv/config'
 
@@ -86,19 +85,19 @@ export const config = convict({
     format: String,
     default: 'Digital Express Toolkit'
   },
-  serviceVersion: {
+  serviceVersion: /** @type {SchemaObj<string>} */ ({
     doc: 'The service version, this variable is injected into your docker container in CDP environments',
     format: String,
     nullable: true,
     default: '',
     env: 'SERVICE_VERSION'
-  } as SchemaObj<string>,
-  feedbackLink: {
+  }),
+  feedbackLink: /** @type {SchemaObj<string>} */ ({
     doc: 'Used in your phase banner. Can be a URL or more commonly mailto mailto:feedback@department.gov.uk',
     format: String,
     default: '',
     env: 'FEEDBACK_LINK'
-  } as SchemaObj<string>,
+  }),
   phaseTag: {
     format: String,
     default: 'beta', // Accepts "alpha" |"beta" | ""
@@ -119,83 +118,83 @@ export const config = convict({
     default: oneMinute * 20,
     env: 'CONFIRMATION_SESSION_TIMEOUT'
   },
-  sessionCookiePassword: {
+  sessionCookiePassword: /** @type {SchemaObj<string>} */ ({
     format: String,
     default: '',
     sensitive: true,
     env: 'SESSION_COOKIE_PASSWORD'
-  } as SchemaObj<string>,
+  }),
   redis: {
-    host: {
+    host: /** @type {SchemaObj<string>} */ ({
       doc: 'Redis cache host',
       format: String,
       default: '',
       env: 'REDIS_HOST'
-    } as SchemaObj<string>,
-    username: {
+    }),
+    username: /** @type {SchemaObj<string>} */ ({
       doc: 'Redis cache username',
       format: String,
       default: '',
       env: 'REDIS_USERNAME'
-    } as SchemaObj<string>,
-    password: {
+    }),
+    password: /** @type {SchemaObj<string>} */ ({
       doc: 'Redis cache password',
       format: '*',
       default: '',
       sensitive: true,
       env: 'REDIS_PASSWORD'
-    } as SchemaObj<string>,
-    keyPrefix: {
+    }),
+    keyPrefix: /** @type {SchemaObj<string>} */ ({
       doc: 'Redis cache key prefix name used to isolate the cached results across multiple clients',
       format: String,
       default: '',
       env: 'REDIS_KEY_PREFIX'
-    } as SchemaObj<string>
+    })
   },
   tracing: {
-    header: {
+    header: /** @type {SchemaObj<string>} */ ({
       doc: 'Tracing header name',
       format: String,
       default: 'x-cdp-request-id',
       env: 'TRACING_HEADER'
-    } as SchemaObj<string>
+    })
   },
 
   /**
    * Email outputs
    * Email outputs will use notify to send an email to a single inbox.
    */
-  notifyTemplateId: {
+  notifyTemplateId: /** @type {SchemaObj<string>} */ ({
     format: String,
     default: '',
     env: 'NOTIFY_TEMPLATE_ID'
-  } as SchemaObj<string>,
-  notifyAPIKey: {
+  }),
+  notifyAPIKey: /** @type {SchemaObj<string>} */ ({
     format: String,
     default: '',
     env: 'NOTIFY_API_KEY'
-  } as SchemaObj<string>,
+  }),
 
   /**
    * API integrations
    */
-  designerUrl: {
+  designerUrl: /** @type {SchemaObj<string>} */ ({
     format: String,
     default: 'http://localhost:3000',
     env: 'DESIGNER_URL'
-  } as SchemaObj<string>,
+  }),
 
-  submissionUrl: {
+  submissionUrl: /** @type {SchemaObj<string>} */ ({
     format: String,
     default: 'http://localhost:3002',
     env: 'SUBMISSION_URL'
-  } as SchemaObj<string>,
+  }),
 
-  uploaderUrl: {
+  uploaderUrl: /** @type {SchemaObj<string>} */ ({
     format: String,
     default: 'http://localhost:7337',
     env: 'UPLOADER_URL'
-  } as SchemaObj<string>,
+  }),
 
   uploaderBucketName: {
     format: String,
@@ -213,18 +212,18 @@ export const config = convict({
       default: !isTest,
       env: 'LOG_ENABLED'
     },
-    level: {
+    level: /** @type {SchemaObj<LevelWithSilent>} */ ({
       doc: 'Logging level',
       format: ['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'],
       default: 'info',
       env: 'LOG_LEVEL'
-    } as SchemaObj<LevelWithSilent>,
-    format: {
+    }),
+    format: /** @type {SchemaObj<'ecs' | 'pino-pretty'>} */ ({
       doc: 'Format to output logs in.',
       format: ['ecs', 'pino-pretty'],
       default: isProduction ? 'ecs' : 'pino-pretty',
       env: 'LOG_FORMAT'
-    } as SchemaObj<'ecs' | 'pino-pretty'>,
+    }),
     redact: {
       doc: 'Log paths to redact',
       format: Array,
@@ -247,20 +246,25 @@ export const config = convict({
     env: 'STAGING_PREFIX'
   },
 
-  submissionEmailAddress: {
+  submissionEmailAddress: /** @type {SchemaObj<string>} */ ({
     doc: 'Email address to send the form to (local devtool only)',
     format: String,
     default: '',
     env: 'SUBMISSION_EMAIL_ADDRESS'
-  } as SchemaObj<string>,
+  }),
 
-  ordnanceSurveyApiKey: {
+  ordnanceSurveyApiKey: /** @type {SchemaObj<string | undefined>} */ ({
     doc: 'The ordnance survey api key used by the postcode lookup and maps plugin',
     format: String,
     nullable: true,
     default: undefined,
     env: 'ORDNANCE_SURVEY_API_KEY'
-  } as SchemaObj<string | undefined>
+  })
 })
 
 config.validate({ allowed: 'strict' })
+
+/**
+ * @import { SchemaObj } from 'convict'
+ * @import { LevelWithSilent } from 'pino'
+ */

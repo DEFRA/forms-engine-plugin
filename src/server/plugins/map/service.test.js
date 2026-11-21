@@ -4,7 +4,7 @@ import * as service from '~/src/server/plugins/map/service.js'
 import { result as findResult } from '~/src/server/plugins/map/test/__stubs__/find.js'
 import { getJson } from '~/src/server/services/httpService.js'
 
-jest.mock('~/src/server/services/httpService.ts')
+jest.mock('~/src/server/services/httpService.js')
 
 describe('Maps service', () => {
   describe('find', () => {

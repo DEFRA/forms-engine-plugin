@@ -1,6 +1,9 @@
-import { type Request, type ResponseToolkit } from '@hapi/hapi'
-
-function calculateAge(day: string, month: string, year: string) {
+/**
+ * @param {string} day
+ * @param {string} month
+ * @param {string} year
+ */
+function calculateAge(day, month, year) {
   const dobDate = new Date(Number(day), Number(month) - 1, Number(year))
 
   const today = new Date()
@@ -19,10 +22,11 @@ export default [
   {
     method: 'POST',
     path: '/api/example/on-load-page',
-    handler(
-      request: Request<{ Payload: { meta: { referenceNumber: string } } }>,
-      _h: ResponseToolkit
-    ) {
+    /**
+     * @param {Request<{ Payload: { meta: { referenceNumber: string } } }>} request
+     * @param {ResponseToolkit} _h
+     */
+    handler(request, _h) {
       return {
         submissionEvent: 'GET',
         submissionReferenceNumber: request.payload.meta.referenceNumber
@@ -32,21 +36,22 @@ export default [
   {
     method: 'POST',
     path: '/api/example/on-summary',
-    handler(
-      request: Request<{
-        Payload: {
-          data: {
-            main: {
-              applicantFirstName: string
-              applicantLastName: string
-              dateOfBirth: string
-            }
-          }
-          meta: { event: string; referenceNumber: string }
-        }
-      }>,
-      _h: ResponseToolkit
-    ) {
+    /**
+     * @param {Request<{
+     *   Payload: {
+     *     data: {
+     *       main: {
+     *         applicantFirstName: string
+     *         applicantLastName: string
+     *         dateOfBirth: string
+     *       }
+     *     }
+     *     meta: { event: string; referenceNumber: string }
+     *   }
+     * }>} request
+     * @param {ResponseToolkit} _h
+     */
+    handler(request, _h) {
       const [day, month, year] =
         request.payload.data.main.dateOfBirth.split('-')
 
@@ -60,3 +65,7 @@ export default [
     }
   }
 ]
+
+/**
+ * @import { Request, ResponseToolkit } from '@hapi/hapi'
+ */

@@ -1,17 +1,9 @@
-import {
-  getErrorMessage,
-  type FormMetadata,
-  type SubmitResponsePayload
-} from '@defra/forms-model'
+import { getErrorMessage } from '@defra/forms-model'
 
 import { config } from '~/src/config/index.js'
 import { escapeMarkdown } from '~/src/server/plugins/engine/components/helpers/index.js'
 import { checkFormStatus } from '~/src/server/plugins/engine/helpers.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
-import { type DetailItem } from '~/src/server/plugins/engine/models/types.js'
 import { getFormatter } from '~/src/server/plugins/engine/outputFormatters/index.js'
-import { type FormContext } from '~/src/server/plugins/engine/types.js'
-import { type FormRequestPayload } from '~/src/server/routes/types.js'
 import { sendNotification } from '~/src/server/utils/notify.js'
 
 const templateId = config.get('notifyTemplateId')
@@ -20,15 +12,22 @@ const templateId = config.get('notifyTemplateId')
  * Optional GOV.UK Notify service for consumers who want email notifications
  * Can be disabled by not providing notifyTemplateId in config
  * Can be overridden by providing a custom outputService in the services config
+ * @param {FormContext} context
+ * @param {FormRequestPayload} request
+ * @param {FormModel} model
+ * @param {string} emailAddress
+ * @param {DetailItem[]} items
+ * @param {SubmitResponsePayload} submitResponse
+ * @param {FormMetadata} [formMetadata]
  */
 export async function submit(
-  context: FormContext,
-  request: FormRequestPayload,
-  model: FormModel,
-  emailAddress: string,
-  items: DetailItem[],
-  submitResponse: SubmitResponsePayload,
-  formMetadata?: FormMetadata
+  context,
+  request,
+  model,
+  emailAddress,
+  items,
+  submitResponse,
+  formMetadata
 ) {
   if (!templateId) {
     return Promise.resolve()
@@ -87,3 +86,11 @@ export async function submit(
     throw err
   }
 }
+
+/**
+ * @import { FormMetadata, SubmitResponsePayload } from '@defra/forms-model'
+ * @import { FormModel } from '~/src/server/plugins/engine/models/index.js'
+ * @import { DetailItem } from '~/src/server/plugins/engine/models/types.js'
+ * @import { FormContext } from '~/src/server/plugins/engine/types.js'
+ * @import { FormRequestPayload } from '~/src/server/routes/types.js'
+ */

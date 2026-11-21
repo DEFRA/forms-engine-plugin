@@ -1,12 +1,11 @@
-import { type ServerRegisterPluginObject } from '@hapi/hapi'
-import yar, { type YarOptions } from '@hapi/yar'
+import yar from '@hapi/yar'
 
 import { config } from '~/src/config/index.js'
 
 /**
  * Yar is used for temporary session data but not form submissions, e.g. UI helpers, session flags.
  */
-export default {
+export default /** @satisfies {ServerRegisterPluginObject<YarOptions>} */ ({
   plugin: yar,
   options: {
     maxCookieSize: 0, // Always use server-side storage
@@ -25,4 +24,9 @@ export default {
       isSecure: config.get('isProduction')
     }
   }
-} satisfies ServerRegisterPluginObject<YarOptions>
+})
+
+/**
+ * @import { ServerRegisterPluginObject } from '@hapi/hapi'
+ * @import { YarOptions } from '@hapi/yar'
+ */
