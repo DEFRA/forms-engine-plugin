@@ -1,8 +1,5 @@
-import { type Server } from '@hapi/hapi'
-
 import { createServer } from '~/src/server/index.js'
 import { getPluginOptions } from '~/src/server/plugins/engine/helpers.js'
-import type * as engineHelpers from '~/src/server/plugins/engine/helpers.ts'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import * as fixtures from '~/test/fixtures/index.js'
@@ -10,8 +7,8 @@ import * as fixtures from '~/test/fixtures/index.js'
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
 jest.mock('~/src/server/plugins/engine/services/uploadService.js')
 jest.mock('~/src/server/plugins/engine/helpers.ts', () => {
-  const actual = jest.requireActual<typeof engineHelpers>(
-    '~/src/server/plugins/engine/helpers.ts'
+  const actual = /** @type {typeof engineHelpers} */ (
+    jest.requireActual('~/src/server/plugins/engine/helpers.ts')
   )
 
   return {
@@ -22,13 +19,18 @@ jest.mock('~/src/server/plugins/engine/helpers.ts', () => {
 })
 
 describe('Postcode lookup plugin', () => {
-  let server: Server
+  /** @type {Server} */
+  let server
 
   beforeEach(() => {
     jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
-    ;(getPluginOptions as unknown as jest.Mock).mockReturnValue({
-      getLanguage: jest.fn().mockReturnValue('en-GB')
-    })
+    jest
+      .mocked(
+        /** @type {jest.Mock} */ (/** @type {unknown} */ (getPluginOptions))
+      )
+      .mockReturnValue({
+        getLanguage: jest.fn().mockReturnValue('en-GB')
+      })
   })
 
   afterEach(async () => {
@@ -78,3 +80,8 @@ describe('Postcode lookup plugin', () => {
     })
   })
 })
+
+/**
+ * @import { Server } from '@hapi/hapi'
+ * @import * as engineHelpers from '~/src/server/plugins/engine/helpers.js'
+ */
