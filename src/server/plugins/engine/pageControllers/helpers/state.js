@@ -5,16 +5,6 @@ import {
   CURRENT_PAGE_PATH_KEY,
   STATE_NOT_YET_VALIDATED
 } from '~/src/server/plugins/engine/index.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
-import {
-  type AnyFormRequest,
-  type FormContext,
-  type FormStateValue,
-  type FormValue
-} from '~/src/server/plugins/engine/types.js'
-import { type FormQuery } from '~/src/server/routes/types.js'
-import { type Services } from '~/src/server/types.js'
 import { isValidUUID } from '~/src/server/utils/utils.js'
 
 const GUID_LENGTH = 36
@@ -22,48 +12,49 @@ const GUID_LENGTH = 36
 /**
  * A series of functions that can transform a pre-fill input parameter e.g lookup a form title based on form id
  */
-const paramLookupFunctions = {
-  formId: async (val: string, services: Services) => {
-    let formTitle
-    if (val) {
-      const meta = await services.formsService.getFormMetadataById(val)
-      formTitle = meta.title
+const paramLookupFunctions =
+  /** @type {Partial<Record<string, (val: string, services: Services) => Promise<{ key: string; value: string | undefined }>>>} */ ({
+    /**
+     * @param {string} val
+     * @param {Services} services
+     */
+    formId: async (val, services) => {
+      let formTitle
+      if (val) {
+        const meta = await services.formsService.getFormMetadataById(val)
+        formTitle = meta.title
+      }
+      return {
+        key: 'formName',
+        value: formTitle
+      }
     }
-    return {
-      key: 'formName',
-      value: formTitle
-    }
-  }
-} as Partial<
-  Record<
-    string,
-    (
-      val: string,
-      services: Services
-    ) => Promise<{ key: string; value: string | undefined }>
-  >
->
+  })
 
-export function stripParam(query: FormQuery, paramToRemove: string) {
-  const params = {} as Record<string, FormStateValue | undefined>
+/**
+ * @param {FormQuery} query
+ * @param {string} paramToRemove
+ */
+export function stripParam(query, paramToRemove) {
+  const params = /** @type {Record<string, FormStateValue | undefined>} */ ({})
   for (const [key, value = ''] of Object.entries(query)) {
     if (key !== paramToRemove) {
       params[key] = value
     }
   }
-  return Object.keys(params).length ? (params as FormQuery) : undefined
+  return Object.keys(params).length
+    ? /** @type {FormQuery} */ (params)
+    : undefined
 }
 
 /**
  * Any hidden parameters defined in the FormDefinition may be pre-filled by URL parameter values.
  * Other parameters are ignored for security reasons.
- * @param request
- * @param page
+ * @param {AnyFormRequest} request
+ * @param {PageControllerClass} page
+ * @returns {Promise<boolean>}
  */
-export async function prefillStateFromQueryParameters(
-  request: AnyFormRequest,
-  page: PageControllerClass
-): Promise<boolean> {
+export async function prefillStateFromQueryParameters(request, page) {
   const { model } = page
 
   const hiddenFieldNames = new Set(
@@ -81,7 +72,7 @@ export async function prefillStateFromQueryParameters(
     return false
   }
 
-  const params = {} as Record<string, FormStateValue | undefined>
+  const params = /** @type {Record<string, FormStateValue | undefined>} */ ({})
 
   for (const [key, value = ''] of Object.entries(query)) {
     if (hiddenFieldNames.has(key)) {
@@ -105,15 +96,14 @@ export async function prefillStateFromQueryParameters(
 
 /**
  * Checks whether the save-and-exit finished on a repeater with partial state
- * @param context - the form context
+ * @param {FormContext} context - the form context
+ * @param {FormModel} model
  */
-export function checkSaveAndExitRepeater(
-  context: FormContext,
-  model: FormModel
-) {
-  const potentiallyInvalidState = context.state[STATE_NOT_YET_VALIDATED] as
-    | Record<string, FormValue>
-    | undefined
+export function checkSaveAndExitRepeater(context, model) {
+  const potentiallyInvalidState =
+    /** @type {Record<string, FormValue> | undefined} */ (
+      context.state[STATE_NOT_YET_VALIDATED]
+    )
   if (!potentiallyInvalidState) {
     return
   }
@@ -148,16 +138,14 @@ export function checkSaveAndExitRepeater(
 /**
  * Copies any potentially invalid state into the payload, and removes those values from state
  * NOTE - this method has a side-effect on 'context.state' and 'context.payload'
- * @param request - the form request
- * @param context - the form context
+ * @param {AnyFormRequest} request - the form request
+ * @param {FormContext} context - the form context
  */
-export async function copyNotYetValidatedState(
-  request: AnyFormRequest,
-  context: FormContext
-) {
-  const potentiallyInvalidState = context.state[STATE_NOT_YET_VALIDATED] as
-    | Record<string, FormValue>
-    | undefined
+export async function copyNotYetValidatedState(request, context) {
+  const potentiallyInvalidState =
+    /** @type {Record<string, FormValue> | undefined} */ (
+      context.state[STATE_NOT_YET_VALIDATED]
+    )
   if (!potentiallyInvalidState) {
     return
   }
@@ -180,3 +168,11 @@ export async function copyNotYetValidatedState(
     await cacheService.setState(request, context.state)
   }
 }
+
+/**
+ * @import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+ * @import { PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
+ * @import { AnyFormRequest, FormContext, FormStateValue, FormValue } from '~/src/server/plugins/engine/types.js'
+ * @import { FormQuery } from '~/src/server/routes/types.js'
+ * @import { Services } from '~/src/server/types.js'
+ */

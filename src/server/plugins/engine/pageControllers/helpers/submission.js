@@ -1,53 +1,40 @@
-import {
-  isConditionWrapperV2,
-  type ConditionDataV2,
-  type ConditionRefDataV2,
-  type ConditionWrapperV2,
-  type SubmitConditionEvaluation,
-  type SubmitConditionReference,
-  type SubmitPayload
-} from '@defra/forms-model'
+import { isConditionWrapperV2 } from '@defra/forms-model'
 
 import { EN_GB } from '~/src/server/constants.js'
 import { GeospatialField } from '~/src/server/plugins/engine/components/GeospatialField.js'
 import { PaymentField } from '~/src/server/plugins/engine/components/PaymentField.js'
 import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
-import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import {
-  type DetailItem,
-  type DetailItemField
-} from '~/src/server/plugins/engine/models/types.js'
-import {
-  type FormContext,
-  type FormState,
-  type FormStateValue
-} from '~/src/server/plugins/engine/types.js'
 import {
   formatCurrency,
   formatPaymentDate
 } from '~/src/server/plugins/payment/helper.js'
 
-export interface SubmitRecord {
-  name: string
-  title: string
-  value: string
-}
+/**
+ * @typedef {{
+ *   name: string
+ *   title: string
+ *   value: string
+ * }} SubmitRecord
+ */
 
 /**
  * Builds the main submission records from field items.
  * Regular fields are converted to single records, while PaymentField
  * components are expanded into four separate records.
+ * @param {DetailItem[]} items
+ * @param {Translator} [translator]
+ * @returns {SubmitRecord[]}
  */
-export function buildMainRecords(
-  items: DetailItem[],
-  translator?: Translator
-): SubmitRecord[] {
+export function buildMainRecords(items, translator) {
   const fieldItems = items.filter(
-    (item): item is DetailItemField => 'field' in item
+    /**
+     * @returns {item is DetailItemField}
+     */
+    (item) => 'field' in item
   )
 
-  const records: SubmitRecord[] = []
+  /** @type {SubmitRecord[]} */
+  const records = []
 
   for (const item of fieldItems) {
     if (item.field instanceof PaymentField) {
@@ -81,14 +68,14 @@ export function buildMainRecords(
  * - Payment date (formatted date/time)
  *
  * Returns an empty array if no payment state exists.
+ * @param {DetailItemField} item
+ * @param {Translator} [translator]
+ * @returns {SubmitRecord[]}
  */
-export function buildPaymentRecords(
-  item: DetailItemField,
-  translator?: Translator
-): SubmitRecord[] {
-  const paymentState = (item.field as PaymentField).getPaymentStateFromState(
-    item.state
-  )
+export function buildPaymentRecords(item, translator) {
+  const paymentState = /** @type {PaymentField} */ (
+    item.field
+  ).getPaymentStateFromState(item.state)
 
   if (!paymentState) {
     return []
@@ -125,11 +112,11 @@ export function buildPaymentRecords(
 
 /**
  * Builds the repeater submission records from repeater items.
+ * @param {DetailItem[]} items
+ * @param {Translator} [translator]
+ * @returns {SubmitPayload['repeaters']}
  */
-export function buildRepeaterRecords(
-  items: DetailItem[],
-  translator?: Translator
-): SubmitPayload['repeaters'] {
+export function buildRepeaterRecords(items, translator) {
   return items
     .filter((item) => 'subItems' in item)
     .map((item) => ({
@@ -183,11 +170,11 @@ export function buildRepeaterRecords(
  * references are resolved from the component ids V2 conditions carry - V1
  * conditions reference components by name, and V1 components need not have
  * an id at all.
+ * @param {FormModel} model
+ * @param {FormContext} context
+ * @returns {SubmitConditionEvaluation[]}
  */
-export function buildConditionEvaluations(
-  model: FormModel,
-  context: FormContext
-): SubmitConditionEvaluation[] {
+export function buildConditionEvaluations(model, context) {
   const { evaluationState } = context
 
   return model.def.conditions
@@ -218,8 +205,9 @@ export function buildConditionEvaluations(
  * page walk begins, so an unanswered question is present but empty rather than
  * absent.
  * @see {@link FormModel.initialiseContext}
+ * @param {FormStateValue | undefined} value
  */
-export function isAnswered(value: FormStateValue | undefined) {
+export function isAnswered(value) {
   if (value === undefined || value === null) {
     return false
   }
@@ -231,9 +219,11 @@ export function isAnswered(value: FormStateValue | undefined) {
   return value !== ''
 }
 
-function isConditionDataV2(
-  item: ConditionDataV2 | ConditionRefDataV2
-): item is ConditionDataV2 {
+/**
+ * @param {ConditionDataV2 | ConditionRefDataV2} item
+ * @returns {item is ConditionDataV2}
+ */
+function isConditionDataV2(item) {
   return 'componentId' in item
 }
 
@@ -241,16 +231,18 @@ function isConditionDataV2(
  * Recursive function that collects every component a condition depends on, following nested condition
  * references. Results are keyed by component id so a component referenced more
  * than once is reported once.
+ * @param {FormModel} model
+ * @param {ConditionWrapperV2} conditionDef
+ * @param {FormState} evaluationState
+ * @param {Map<string, SubmitConditionReference>} [references]
+ * @param {Set<string>} [visited]
  */
 function collectReferences(
-  model: FormModel,
-  conditionDef: ConditionWrapperV2,
-  evaluationState: FormState,
-  references: Map<string, SubmitConditionReference> = new Map<
-    string,
-    SubmitConditionReference
-  >(),
-  visited: Set<string> = new Set<string>()
+  model,
+  conditionDef,
+  evaluationState,
+  references = /** @type {Map<string, SubmitConditionReference>} */ (new Map()),
+  visited = /** @type {Set<string>} */ (new Set())
 ) {
   if (visited.has(conditionDef.id)) {
     return references
@@ -284,3 +276,11 @@ function collectReferences(
 
   return references
 }
+
+/**
+ * @import { ConditionDataV2, ConditionRefDataV2, ConditionWrapperV2, SubmitConditionEvaluation, SubmitConditionReference, SubmitPayload } from '@defra/forms-model'
+ * @import { Translator } from '~/src/server/plugins/engine/i18n/types.js'
+ * @import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+ * @import { DetailItem, DetailItemField } from '~/src/server/plugins/engine/models/types.js'
+ * @import { FormContext, FormState, FormStateValue } from '~/src/server/plugins/engine/types.js'
+ */

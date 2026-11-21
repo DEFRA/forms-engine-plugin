@@ -26,7 +26,7 @@ jest.mock('~/src/server/plugins/engine/services/index.js', () => ({
   outputService: {}
 }))
 
-jest.mock('~/src/server/plugins/engine/pageControllers/index.ts', () => {
+jest.mock('~/src/server/plugins/engine/pageControllers/index.js', () => {
   class MockTerminalPageController {
     path = ''
   }
@@ -67,7 +67,7 @@ const { FormModel } = jest.requireMock(
 
 /** @type {{ TerminalPageController: new () => { path: string } }} */
 const { TerminalPageController: MockTerminalPageController } = jest.requireMock(
-  '~/src/server/plugins/engine/pageControllers/index.ts'
+  '~/src/server/plugins/engine/pageControllers/index.js'
 )
 
 describe('getFormContext helper', () => {

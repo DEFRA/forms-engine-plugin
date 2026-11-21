@@ -4,11 +4,10 @@
  * This helper function rewrites localhost URLs to use the sslip.io proxy
  * This is only used when running locally with a development proxy.
  * In non-local environments, this function returns null
- * @param uploadUrl - The original upload URL from CDP
+ * @param {string} [uploadUrl] - The original upload URL from CDP
+ * @returns {string | null}
  */
-export function getProxyUrlForLocalDevelopment(
-  uploadUrl?: string
-): string | null {
+export function getProxyUrlForLocalDevelopment(uploadUrl) {
   if (!uploadUrl?.includes('localhost:7337')) {
     return null
   }
