@@ -2,9 +2,8 @@ import { existsSync } from 'fs'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 
-import { type Server } from '@hapi/hapi'
 import vision from '@hapi/vision'
-import nunjucks, { type Environment } from 'nunjucks'
+import nunjucks from 'nunjucks'
 import resolvePkg from 'resolve'
 
 import {
@@ -12,13 +11,13 @@ import {
   context,
   prepareNunjucksEnvironment
 } from '~/src/server/plugins/engine/index.js'
-import { type PluginOptions } from '~/src/server/plugins/engine/types.js'
 import { VIEW_PATH as POSTCODE_LOOKUP_VIEW_PATH } from '~/src/server/plugins/postcode-lookup/index.js'
 
-export async function registerVision(
-  server: Server,
-  pluginOptions: PluginOptions
-) {
+/**
+ * @param {Server} server
+ * @param {PluginOptions} pluginOptions
+ */
+export async function registerVision(server, pluginOptions) {
   const packageRoot = findPackageRoot()
   const govukFrontendPath = dirname(
     resolvePkg.sync('govuk-frontend/package.json')
@@ -42,20 +41,22 @@ export async function registerVision(
     options: {
       engines: {
         html: {
-          compile: (
-            path: string,
-            compileOptions: { environment: Environment }
-          ) => {
+          /**
+           * @param {string} path
+           * @param {{ environment: Environment }} compileOptions
+           */
+          compile: (path, compileOptions) => {
             const template = nunjucks.compile(path, compileOptions.environment)
 
-            return (context: object | undefined) => {
+            return /** @param {object | undefined} context */ (context) => {
               return template.render(context)
             }
           },
-          prepare: (
-            options: EngineConfigurationObject,
-            next: (err?: Error) => void
-          ) => {
+          /**
+           * @param {EngineConfigurationObject} options
+           * @param {(err?: Error) => void} next
+           */
+          prepare: (options, next) => {
             // Nunjucks also needs an additional path configuration
             // to use the templates and macros from `govuk-frontend`
             const environment = nunjucks.configure(paths)
@@ -77,13 +78,17 @@ export async function registerVision(
   })
 }
 
-interface CompileOptions {
-  environment: Environment
-}
+/**
+ * @typedef {{
+ *   environment: Environment
+ * }} CompileOptions
+ */
 
-export interface EngineConfigurationObject {
-  compileOptions: CompileOptions
-}
+/**
+ * @typedef {{
+ *   compileOptions: CompileOptions
+ * }} EngineConfigurationObject
+ */
 
 export function findPackageRoot() {
   const currentFileName = fileURLToPath(import.meta.url)
@@ -99,3 +104,9 @@ export function findPackageRoot() {
 
   throw new Error('package.json not found in parent directories')
 }
+
+/**
+ * @import { Server } from '@hapi/hapi'
+ * @import { Environment } from 'nunjucks'
+ * @import { PluginOptions } from '~/src/server/plugins/engine/types.js'
+ */

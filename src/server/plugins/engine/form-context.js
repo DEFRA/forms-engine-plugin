@@ -1,5 +1,4 @@
 import Boom from '@hapi/boom'
-import { type Request, type Server } from '@hapi/hapi'
 import { isEqual } from 'date-fns'
 
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
@@ -9,47 +8,46 @@ import {
   getCacheService
 } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
-import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { TerminalPageController } from '~/src/server/plugins/engine/pageControllers/index.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
-import {
-  type AnyFormRequest,
-  type AnyRequest,
-  type FormContext,
-  type FormContextRequest,
-  type FormSubmissionError,
-  type FormSubmissionState
-} from '~/src/server/plugins/engine/types.js'
 import { FormStatus } from '~/src/server/routes/types.js'
-import { type Services } from '~/src/server/types.js'
 import { resolveLanguage } from '~/src/server/utils/utils.js'
 
-type JourneyState = FormStatus | 'preview'
+/**
+ * @typedef {FormStatus | 'preview'} JourneyState
+ */
 
-export interface FormModelOptions {
-  services?: Services
-  controllers?: Record<string, typeof PageController>
-  basePath?: string
-  ordnanceSurveyApiKey?: string
-  formId?: string
-  routePrefix?: string
-  isPreview?: boolean
-}
+/**
+ * @typedef {{
+ *   services?: Services
+ *   controllers?: Record<string, typeof PageController>
+ *   basePath?: string
+ *   ordnanceSurveyApiKey?: string
+ *   formId?: string
+ *   routePrefix?: string
+ *   isPreview?: boolean
+ * }} FormModelOptions
+ */
 
-export interface FormContextOptions extends FormModelOptions {
-  errors?: FormSubmissionError[]
-  language?: string
-}
+/**
+ * @typedef {FormModelOptions & {
+ *   errors?: FormSubmissionError[]
+ *   language?: string
+ * }} FormContextOptions
+ */
 
-type SummaryRequest = FormContextRequest & {
-  yar: Request['yar']
-}
+/**
+ * @typedef {FormContextRequest & {
+ *   yar: Request['yar']
+ * }} SummaryRequest
+ */
 
-export async function getFormModel(
-  slug: string,
-  state: JourneyState,
-  options: FormModelOptions = {}
-) {
+/**
+ * @param {string} slug
+ * @param {JourneyState} state
+ * @param {FormModelOptions} [options]
+ */
+export async function getFormModel(slug, state, options = {}) {
   const services = options.services ?? defaultServices
   const { formsService } = services
   const isPreview = isPreviewState(state, options)
@@ -84,17 +82,25 @@ export async function getFormModel(
   )
 }
 
+/**
+ * @param {Pick<Request, 'server' | 'yar'>} param0
+ * @param {string} slug
+ * @param {JourneyState} [state]
+ * @param {FormContextOptions} [options]
+ * @returns {Promise<FormContext>}
+ */
 export async function getFormContext(
-  { server, yar }: Pick<Request, 'server' | 'yar'>,
-  slug: string,
-  state: JourneyState = FormStatus.Live,
-  options: FormContextOptions = {}
-): Promise<FormContext> {
+  { server, yar },
+  slug,
+  state = FormStatus.Live,
+  options = {}
+) {
   const formModel = await resolveFormModel(server, slug, state, options)
 
   const cacheService = getCacheService(server)
 
-  const summaryRequest: SummaryRequest = {
+  /** @type {SummaryRequest} */
+  const summaryRequest = {
     app: {},
     method: 'get',
     params: {
@@ -115,15 +121,19 @@ export async function getFormContext(
   }
 
   const cachedState = await cacheService.getState(
-    summaryRequest as unknown as AnyRequest
+    /** @type {AnyRequest} */ (/** @type {unknown} */ (summaryRequest))
   )
 
-  const formState = {
-    ...cachedState,
-    $$__referenceNumber: cachedState.$$__referenceNumber
-  } as unknown as FormSubmissionState
+  const formState = /** @type {FormSubmissionState} */ (
+    /** @type {unknown} */ ({
+      ...cachedState,
+      $$__referenceNumber: cachedState.$$__referenceNumber
+    })
+  )
 
-  const language = resolveLanguage(summaryRequest as unknown as AnyFormRequest)
+  const language = resolveLanguage(
+    /** @type {AnyFormRequest} */ (/** @type {unknown} */ (summaryRequest))
+  )
   const translator = formModel.createTranslator(language)
 
   return formModel.getFormContext(
@@ -134,12 +144,13 @@ export async function getFormContext(
   )
 }
 
-export async function resolveFormModel(
-  server: Server,
-  slug: string,
-  state: JourneyState,
-  options: FormModelOptions = {}
-) {
+/**
+ * @param {Server} server
+ * @param {string} slug
+ * @param {JourneyState} state
+ * @param {FormModelOptions} [options]
+ */
+export async function resolveFormModel(server, slug, state, options = {}) {
   const services = options.services ?? defaultServices
   const { formsService } = services
 
@@ -155,7 +166,10 @@ export async function resolveFormModel(
   }
 
   // The models cache is created lazily per server instance
-  server.app.models ??= new Map<string, { model: FormModel; updatedAt: Date }>()
+  server.app.models ??=
+    /** @type {Map<string, { model: FormModel; updatedAt: Date }>} */ (
+      new Map()
+    )
 
   const cache = server.app.models
 
@@ -204,12 +218,13 @@ export async function resolveFormModel(
   return entry.model
 }
 
-function buildBasePath(
-  routePrefix: string,
-  slug: string,
-  state: FormStatus,
-  isPreview: boolean
-) {
+/**
+ * @param {string} routePrefix
+ * @param {string} slug
+ * @param {FormStatus} state
+ * @param {boolean} isPreview
+ */
+function buildBasePath(routePrefix, slug, state, isPreview) {
   const base = (
     isPreview
       ? `${routePrefix}${PREVIEW_PATH_PREFIX}/${state}/${slug}`
@@ -219,9 +234,10 @@ function buildBasePath(
   return base.startsWith('/') ? base.slice(1) : base
 }
 
-export function getFirstJourneyPage(
-  context?: Pick<FormContext, 'relevantPages'>
-) {
+/**
+ * @param {Pick<FormContext, 'relevantPages'>} [context]
+ */
+export function getFirstJourneyPage(context) {
   if (!context?.relevantPages) {
     return undefined
   }
@@ -239,13 +255,26 @@ export function getFirstJourneyPage(
   return lastPageReached
 }
 
-function resolveState(state: JourneyState): FormStatus {
+/**
+ * @param {JourneyState} state
+ * @returns {FormStatus}
+ */
+function resolveState(state) {
   return state === 'preview' ? FormStatus.Live : state
 }
 
-function isPreviewState(
-  state: JourneyState,
-  options: FormModelOptions = {}
-): boolean {
+/**
+ * @param {JourneyState} state
+ * @param {FormModelOptions} [options]
+ * @returns {boolean}
+ */
+function isPreviewState(state, options = {}) {
   return options.isPreview ?? state === 'preview'
 }
+
+/**
+ * @import { Request, Server } from '@hapi/hapi'
+ * @import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
+ * @import { AnyFormRequest, AnyRequest, FormContext, FormContextRequest, FormSubmissionError, FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+ * @import { Services } from '~/src/server/types.js'
+ */

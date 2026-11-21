@@ -4,9 +4,7 @@ import {
   ControllerType,
   Engine,
   OperatorName,
-  SchemaVersion,
-  type FormDefinition,
-  type PageQuestion
+  SchemaVersion
 } from '@defra/forms-model'
 
 const YES_NO_COMPONENT_ID = 'a7c0242f-2a31-45b2-8c71-ff2ac7f53288'
@@ -17,8 +15,9 @@ const EXISTING_USER_ITEM_ID = '55fe0067-d011-4d33-886c-e1aa266637c3'
  * A minimal, schema-valid V2 definition: one YesNo question page and a
  * summary page. Each call returns a fresh object, so tests can mutate their
  * copy freely without affecting each other.
+ * @returns {FormDefinition}
  */
-export function buildDefinition(): FormDefinition {
+export function buildDefinition() {
   return {
     name: 'Stub definition',
     engine: Engine.V2,
@@ -60,17 +59,21 @@ export function buildDefinition(): FormDefinition {
  * engine: a ListItemRef condition points at the YesNoField (boolean), so the
  * condition expression builder produces an unparseable expression. Distilled
  * from a real production incident.
+ * @returns {FormDefinition}
  */
-export function buildBrokenConditionDefinition(): FormDefinition {
+export function buildBrokenConditionDefinition() {
   const definition = buildDefinition()
 
   definition.name = 'Broken condition fixture'
 
-  const questionPage = definition.pages[0] as PageQuestion
+  const questionPage = /** @type {PageQuestion} */ (definition.pages[0])
   // A YesNoField cannot legitimately carry a custom list — that is the
   // corruption this fixture models — so the TS component types (rightly)
   // have no `list` property here and a cast is required.
-  ;(questionPage.components[0] as { list?: string }).list = USER_TYPE_LIST_ID
+  const component = /** @type {{ list?: string }} */ (
+    questionPage.components[0]
+  )
+  component.list = USER_TYPE_LIST_ID
   definition.lists = [
     {
       id: USER_TYPE_LIST_ID,
@@ -116,13 +119,15 @@ export function buildBrokenConditionDefinition(): FormDefinition {
 /**
  * A schema-valid definition whose first page names a controller that is
  * neither built in nor registered by the host application.
+ * @returns {FormDefinition}
  */
-export function buildUnknownControllerDefinition(): FormDefinition {
+export function buildUnknownControllerDefinition() {
   const definition = buildDefinition()
 
   definition.name = 'Unknown controller fixture'
-  definition.pages[0].controller =
-    'NoSuchPageController' as unknown as ControllerType
+  definition.pages[0].controller = /** @type {ControllerType} */ (
+    /** @type {unknown} */ ('NoSuchPageController')
+  )
 
   return definition
 }
@@ -130,13 +135,16 @@ export function buildUnknownControllerDefinition(): FormDefinition {
 /**
  * Schema-valid (component types are free strings in the schema), but the
  * question uses a type the engine has no component class for.
+ * @returns {FormDefinition}
  */
-export function buildUnknownComponentDefinition(): FormDefinition {
+export function buildUnknownComponentDefinition() {
   const definition = buildDefinition()
 
   definition.name = 'Unknown component fixture'
-  const questionPage = definition.pages[0] as PageQuestion
-  questionPage.components[0].type = 'MyUnknownField' as unknown as ComponentType
+  const questionPage = /** @type {PageQuestion} */ (definition.pages[0])
+  questionPage.components[0].type = /** @type {ComponentType} */ (
+    /** @type {unknown} */ ('MyUnknownField')
+  )
 
   return definition
 }
@@ -144,8 +152,9 @@ export function buildUnknownComponentDefinition(): FormDefinition {
 /**
  * A definition that fails schema validation: the question page appears
  * twice, violating the pages uniqueness rule.
+ * @returns {FormDefinition}
  */
-export function buildSchemaInvalidDefinition(): FormDefinition {
+export function buildSchemaInvalidDefinition() {
   const definition = buildDefinition()
 
   definition.name = 'Schema invalid fixture'
@@ -153,3 +162,7 @@ export function buildSchemaInvalidDefinition(): FormDefinition {
 
   return definition
 }
+
+/**
+ * @import { FormDefinition, PageQuestion } from '@defra/forms-model'
+ */

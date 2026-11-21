@@ -10,12 +10,12 @@ export const DEFAULT_REFERENCE_NUMBER = 'XXX-XXX-XXX'
 
 /**
  * To prevent confusion to users reading the reference number, ambiguous letters and numbers are removed.
- * @param strCodes - array of binary input values
+ * @param {number[]} strCodes - array of binary input values
  */
-export function convertToDecAlpha(strCodes: number[]) {
+export function convertToDecAlpha(strCodes) {
   const validChars = 'ABCDEFHJKLMNPRSTUVWXYZ23456789'
   const strLen = validChars.length
-  const outArray = [] as string[]
+  const outArray = /** @type {string[]} */ ([])
 
   strCodes.forEach((code) => {
     const pos = (code / 256) * strLen
@@ -30,8 +30,9 @@ export function convertToDecAlpha(strCodes: number[]) {
  * Provides no guarantee on uniqueness.
  * To prevent confusion to users reading the reference number, ambiguous letters and numbers are removed
  * (see https://gunkies.org/wiki/DEC_alphabet )
+ * @param {string} [prefix]
  */
-export function generateUniqueReference(prefix?: string) {
+export function generateUniqueReference(prefix) {
   const segmentLength = 3
   const segmentCount = prefix ? 2 : 3
   prefix = prefix ? `${prefix}-` : ''

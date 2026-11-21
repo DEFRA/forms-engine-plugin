@@ -10,7 +10,7 @@ import {
 const mockGetCacheService = jest.fn()
 const mockCacheService = { setState: jest.fn() }
 
-jest.mock('~/src/server/plugins/engine/helpers.ts', () => ({
+jest.mock('~/src/server/plugins/engine/helpers.js', () => ({
   __esModule: true,
   /**
    * @param {...unknown} args

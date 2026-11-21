@@ -1,40 +1,15 @@
-import {
-  ControllerPath,
-  Engine,
-  getErrorMessage,
-  type ComponentDef,
-  type FormDefinition,
-  type Page
-} from '@defra/forms-model'
+import { ControllerPath, Engine, getErrorMessage } from '@defra/forms-model'
 import Boom from '@hapi/boom'
-import { type ResponseToolkit, type Server } from '@hapi/hapi'
-import { format, parseISO, type Locale } from 'date-fns'
+import { format, parseISO } from 'date-fns'
 import { cy, enGB } from 'date-fns/locale'
 import { StatusCodes } from 'http-status-codes'
-import { type Schema, type ValidationErrorItem } from 'joi'
 import { Liquid } from 'liquidjs'
 
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { CY, EN_GB, FORM_VERSION_METADATA_KEY } from '~/src/server/constants.js'
-import {
-  getAnswer,
-  type Field
-} from '~/src/server/plugins/engine/components/helpers/components.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
+import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { stripParam } from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
-import {
-  type FormContext,
-  type FormContextRequest,
-  type FormSubmissionError
-} from '~/src/server/plugins/engine/types.js'
-import {
-  FormAction,
-  FormStatus,
-  type FormParams,
-  type FormQuery,
-  type FormResponseToolkit
-} from '~/src/server/routes/types.js'
+import { FormAction, FormStatus } from '~/src/server/routes/types.js'
 
 export const engine = new Liquid({
   outputEscape: 'escape',
@@ -42,73 +17,90 @@ export const engine = new Liquid({
   ownPropertyOnly: false
 })
 
-export interface GlobalScope {
-  context: FormContext
-  pages: Map<string, Page>
-  components: Map<string, ComponentDef>
-}
+/**
+ * @typedef {{
+ *   context: FormContext
+ *   pages: Map<string, Page>
+ *   components: Map<string, ComponentDef>
+ * }} GlobalScope
+ */
 
-engine.registerFilter('evaluate', function (template?: string) {
-  if (typeof template !== 'string') {
-    return template
+engine.registerFilter(
+  'evaluate',
+  /** @param {string} [template] */
+  function (template) {
+    if (typeof template !== 'string') {
+      return template
+    }
+
+    const globals = /** @type {GlobalScope} */ (this.context.globals)
+    const evaluated = evaluateTemplate(template, globals.context)
+
+    return evaluated
   }
+)
 
-  const globals = this.context.globals as GlobalScope
-  const evaluated = evaluateTemplate(template, globals.context)
+engine.registerFilter(
+  'page',
+  /** @param {string} [path] */
+  function (path) {
+    if (typeof path !== 'string') {
+      return
+    }
 
-  return evaluated
-})
+    const globals = /** @type {GlobalScope} */ (this.context.globals)
+    const pageDef = globals.pages.get(path)
 
-engine.registerFilter('page', function (path?: string) {
-  if (typeof path !== 'string') {
-    return
+    return pageDef
   }
+)
 
-  const globals = this.context.globals as GlobalScope
-  const pageDef = globals.pages.get(path)
+engine.registerFilter(
+  'href',
+  /**
+   * @param {string} path
+   * @param {FormQuery} [query]
+   */
+  function (path, query) {
+    if (typeof path !== 'string') {
+      return
+    }
 
-  return pageDef
-})
+    const globals = /** @type {GlobalScope} */ (this.context.globals)
+    const page = globals.context.pageMap.get(path)
 
-engine.registerFilter('href', function (path: string, query?: FormQuery) {
-  if (typeof path !== 'string') {
-    return
+    if (page === undefined) {
+      return
+    }
+
+    return getPageHref(page, query)
   }
+)
 
-  const globals = this.context.globals as GlobalScope
-  const page = globals.context.pageMap.get(path)
-
-  if (page === undefined) {
-    return
-  }
-
-  return getPageHref(page, query)
-})
-
-engine.registerFilter('field', function (name: string) {
+engine.registerFilter('field', function (/** @type {string} */ name) {
   if (typeof name !== 'string') {
     return
   }
 
-  const globals = this.context.globals as GlobalScope
+  const globals = /** @type {GlobalScope} */ (this.context.globals)
   const componentDef = globals.components.get(name)
 
   return componentDef
 })
 
-engine.registerFilter('answer', function (name: string) {
+engine.registerFilter('answer', function (/** @type {string} */ name) {
   if (typeof name !== 'string') {
     return
   }
 
-  const globals = this.context.globals as GlobalScope
+  const globals = /** @type {GlobalScope} */ (this.context.globals)
   const component = globals.context.componentMap.get(name)
 
   if (!component?.isFormComponent) {
     return
   }
 
-  const field = component as Field
+  const field = /** @type {Field} */ (component)
   const { translator } = globals.context
   const answer = getAnswer(
     field,
@@ -120,11 +112,12 @@ engine.registerFilter('answer', function (name: string) {
   return answer
 })
 
-export function proceed(
-  request: Pick<FormContextRequest, 'method' | 'payload' | 'query'>,
-  h: FormResponseToolkit,
-  nextUrl: string
-) {
+/**
+ * @param {Pick<FormContextRequest, 'method' | 'payload' | 'query'>} request
+ * @param {FormResponseToolkit} h
+ * @param {string} nextUrl
+ */
+export function proceed(request, h, nextUrl) {
   const { method, payload, query } = request
   const { returnUrl } = query
 
@@ -154,8 +147,9 @@ export function proceed(
 
 /**
  * Encodes a URL, returning undefined if the process fails.
+ * @param {string} [link]
  */
-export function encodeUrl(link?: string) {
+export function encodeUrl(link) {
   if (link) {
     try {
       return new URL(link).toString() // escape the search params without breaking the ? and & reserved characters in rfc2368
@@ -171,26 +165,27 @@ export function encodeUrl(link?: string) {
 
 /**
  * Get page href
+ * @overload
+ * @param {PageControllerClass} page
+ * @param {FormQuery} [query]
+ * @returns {string}
  */
-export function getPageHref(
-  page: PageControllerClass,
-  query?: FormQuery
-): string
 
 /**
  * Get page href by path
+ * @overload
+ * @param {PageControllerClass} page
+ * @param {string} path
+ * @param {FormQuery} [query]
+ * @returns {string}
  */
-export function getPageHref(
-  page: PageControllerClass,
-  path: string,
-  query?: FormQuery
-): string
 
-export function getPageHref(
-  page: PageControllerClass,
-  pathOrQuery?: string | FormQuery,
-  queryOnly: FormQuery = {}
-) {
+/**
+ * @param {PageControllerClass} page
+ * @param {string | FormQuery} [pathOrQuery]
+ * @param {FormQuery} [queryOnly]
+ */
+export function getPageHref(page, pathOrQuery, queryOnly = {}) {
   const path = typeof pathOrQuery === 'string' ? pathOrQuery : page.path
   const query = typeof pathOrQuery === 'object' ? pathOrQuery : queryOnly
 
@@ -204,13 +199,16 @@ export function getPageHref(
 
 /**
  * Get redirect path with optional query params
+ * @param {string} nextUrl
+ * @param {FormQuery} [query]
  */
-export function redirectPath(nextUrl: string, query: FormQuery = {}) {
+export function redirectPath(nextUrl, query = {}) {
   const isRelative = isPathRelative(nextUrl)
 
   // Filter string query params only
   const params = Object.entries(query).filter(
-    (query): query is [string, string] => typeof query[1] === 'string'
+    /** @returns {query is [string, string]} */
+    (query) => typeof query[1] === 'string'
   )
 
   // Build URL with relative path support
@@ -230,7 +228,10 @@ export function redirectPath(nextUrl: string, query: FormQuery = {}) {
   return url.href
 }
 
-export function isPathRelative(path?: string) {
+/**
+ * @param {string} [path]
+ */
+export function isPathRelative(path) {
   return (path ?? '').startsWith('/')
 }
 
@@ -241,10 +242,12 @@ export function normalisePath(path = '') {
     .replace(/\/$/, '') // Remove trailing slash
 }
 
-export function getPage(
-  model: FormModel | undefined,
-  request: FormContextRequest
-) {
+/**
+ * @param {FormModel | undefined} model
+ * @param {FormContextRequest} request
+ * @returns {PageControllerClass}
+ */
+export function getPage(model, request) {
   const { params } = request
 
   const page = findPage(model, `/${params.path}`)
@@ -256,12 +259,20 @@ export function getPage(
   return page
 }
 
-export function findPage(model: FormModel | undefined, path?: string) {
+/**
+ * @param {FormModel | undefined} model
+ * @param {string} [path]
+ * @returns {PageControllerClass | undefined}
+ */
+export function findPage(model, path) {
   const findPath = `/${normalisePath(path)}`
   return model?.pages.find(({ path }) => path === findPath)
 }
 
-export function getStartPath(model?: FormModel) {
+/**
+ * @param {FormModel} [model]
+ */
+export function getStartPath(model) {
   if (model?.engine === Engine.V2) {
     const startPath = normalisePath(model.def.pages.at(0)?.path)
     return startPath ? `/${startPath}` : ControllerPath.Start
@@ -271,7 +282,10 @@ export function getStartPath(model?: FormModel) {
   return startPath ? `/${startPath}` : ControllerPath.Start
 }
 
-export function checkFormStatus(params?: FormParams) {
+/**
+ * @param {FormParams} [params]
+ */
+export function checkFormStatus(params) {
   const isPreview = !!params?.state
 
   let state = FormStatus.Live
@@ -286,9 +300,13 @@ export function checkFormStatus(params?: FormParams) {
   }
 }
 
+/**
+ * @param {string | undefined} emailAddress
+ * @param {boolean} isPreview
+ */
 export function checkEmailAddressForLiveFormSubmission(
-  emailAddress: string | undefined,
-  isPreview: boolean
+  emailAddress,
+  isPreview
 ) {
   if (!emailAddress && !isPreview) {
     throw Boom.internal(
@@ -299,13 +317,11 @@ export function checkEmailAddressForLiveFormSubmission(
 
 /**
  * Parses the errors from {@link Schema.validate} so they can be rendered by govuk-frontend templates
- * @param [details] - provided by {@link Schema.validate}
- * @param [language] - the target language for translations, English by default
+ * @param {ValidationErrorItem[]} [details] - provided by {@link Schema.validate}
+ * @param {string} [language] - the target language for translations, English by default
+ * @returns {FormSubmissionError[] | undefined}
  */
-export function getErrors(
-  details?: ValidationErrorItem[],
-  language?: string
-): FormSubmissionError[] | undefined {
+export function getErrors(details, language) {
   if (!details?.length) {
     return
   }
@@ -313,10 +329,12 @@ export function getErrors(
   return details.map((detail) => getError(detail, language))
 }
 
-export function getError(
-  detail: ValidationErrorItem,
-  language?: string
-): FormSubmissionError {
+/**
+ * @param {ValidationErrorItem} detail
+ * @param {string} [language]
+ * @returns {FormSubmissionError}
+ */
+export function getError(detail, language) {
   const { context, message, path } = detail
 
   const name = context?.key ?? ''
@@ -339,7 +357,11 @@ export function getError(
   }
 }
 
-export function createError(componentName: string, message: string) {
+/**
+ * @param {string} componentName
+ * @param {string} message
+ */
+export function createError(componentName, message) {
   return {
     href: `#${componentName}`,
     name: componentName,
@@ -350,21 +372,24 @@ export function createError(componentName: string, message: string) {
 /**
  * Calculates an exponential backoff delay (in milliseconds) based on the current retry depth,
  * using a base delay of 2000ms (2 seconds) and doubling for each additional depth, while capping the delay at 25,000ms (25 seconds).
- * @param depth - The current retry depth (1, 2, 3, …)
- * @returns The calculated delay in milliseconds.
+ * @param {number} depth - The current retry depth (1, 2, 3, …)
+ * @returns {number} The calculated delay in milliseconds.
  */
-export function getExponentialBackoffDelay(depth: number): number {
+export function getExponentialBackoffDelay(depth) {
   const BASE_DELAY_MS = 2000 // 2 seconds initial delay
   const CAP_DELAY_MS = 25000 // cap each delay to 25 seconds
   const delay = BASE_DELAY_MS * 2 ** (depth - 1)
   return Math.min(delay, CAP_DELAY_MS)
 }
 
-export function evaluateTemplate(
-  template: string,
-  context: FormContext
-): string {
-  const globals: GlobalScope = {
+/**
+ * @param {string} template
+ * @param {FormContext} context
+ * @returns {string}
+ */
+export function evaluateTemplate(template, context) {
+  /** @type {GlobalScope} */
+  const globals = {
     context,
     pages: context.pageDefMap,
     components: context.componentDefMap
@@ -375,25 +400,34 @@ export function evaluateTemplate(
   })
 }
 
-export function getCacheService(server: Server) {
+/**
+ * @param {Server} server
+ */
+export function getCacheService(server) {
   return getPluginOptions(server).cacheService
 }
 
-export function getSaveAndExitHelpers(server: Server) {
+/**
+ * @param {Server} server
+ */
+export function getSaveAndExitHelpers(server) {
   return getPluginOptions(server).saveAndExit
 }
 
-export function getPluginOptions(server: Server) {
+/**
+ * @param {Server} server
+ */
+export function getPluginOptions(server) {
   return server.plugins['forms-engine-plugin']
 }
 
 /**
  * Handles logging and issuing a permanent redirect for legacy routes.
- * @param h - The Hapi response toolkit.
- * @param targetUrl - The URL to redirect to.
+ * @param {ResponseToolkit} h - The Hapi response toolkit.
+ * @param {string} targetUrl - The URL to redirect to.
  * @returns The Hapi response object configured for permanent redirect.
  */
-export function handleLegacyRedirect(h: ResponseToolkit, targetUrl: string) {
+export function handleLegacyRedirect(h, targetUrl) {
   return h.redirect(targetUrl).permanent().takeover()
 }
 
@@ -401,31 +435,33 @@ export function handleLegacyRedirect(h: ResponseToolkit, targetUrl: string) {
  * If the page doesn't have a title, set it from the title of the first form component
  * @param def - the form definition
  */
-export interface FormVersionMetadata {
-  versionNumber: number
-  createdAt: Date
-}
+/**
+ * @typedef {{
+ *   versionNumber: number
+ *   createdAt: Date
+ * }} FormVersionMetadata
+ */
 
 /**
  * Extracts form version metadata from a form definition
+ * @param {Pick<FormDefinition, 'metadata'>} definition
+ * @returns {FormVersionMetadata | undefined}
  */
-export function getFormVersion(
-  definition: Pick<FormDefinition, 'metadata'>
-): FormVersionMetadata | undefined {
-  return definition.metadata?.[FORM_VERSION_METADATA_KEY] as
-    | FormVersionMetadata
-    | undefined
+export function getFormVersion(definition) {
+  return /** @type {FormVersionMetadata | undefined} */ (
+    definition.metadata?.[FORM_VERSION_METADATA_KEY]
+  )
 }
 
-const payLanguageCodes = {
+const payLanguageCodes = /** @type {Record<string, string>} */ ({
   [EN_GB]: 'en',
   [CY]: 'cy'
-} as Record<string, string>
+})
 
-const languageLocales = {
+const languageLocales = /** @type {Record<string, Locale>} */ ({
   [EN_GB]: enGB,
   [CY]: cy
-} as Record<string, Locale>
+})
 
 const defaultLanguageCode = 'en'
 const defaultLanguageLocale = enGB
@@ -436,7 +472,7 @@ const defaultLanguageLocale = enGB
  * @param { string | undefined } language - BCP 47 language code
  * @returns {string} language code required by GOV.UK Pay
  */
-export function toPayLanguageCode(language: string | undefined): string {
+export function toPayLanguageCode(language) {
   return payLanguageCodes[language ?? 'unknown'] ?? defaultLanguageCode
 }
 
@@ -446,11 +482,19 @@ export function toPayLanguageCode(language: string | undefined): string {
  * @param { string | undefined } language - BCP 47 language code
  * @returns {Locale} language locale
  */
-export function toLanguageLocale(language: string | undefined): Locale {
+export function toLanguageLocale(language) {
   return languageLocales[language ?? 'unknown'] ?? defaultLanguageLocale
 }
 
 /**
+ * @import { ComponentDef, FormDefinition, Page } from '@defra/forms-model'
+ * @import { ResponseToolkit, Server } from '@hapi/hapi'
+ * @import { Locale } from 'date-fns'
+ * @import { Schema, ValidationErrorItem } from 'joi'
+ * @import { Field } from '~/src/server/plugins/engine/components/helpers/components.js'
+ * @import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+ * @import { PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
+ * @import { FormContext, FormContextRequest, FormSubmissionError } from '~/src/server/plugins/engine/types.js'
+ * @import { FormParams, FormQuery, FormResponseToolkit } from '~/src/server/routes/types.js'
  * @import { FormsService } from '~/src/server/types.js'
- * @import { Locale } from 'date-fns/locale'
  */
