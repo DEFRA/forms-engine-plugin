@@ -10,15 +10,11 @@ import {
 import Joi from 'joi'
 
 import { FormAdapterSubmissionSchemaVersion } from '~/src/server/plugins/engine/types/enums.js'
-import {
-  type FormAdapterSubmissionMessageData,
-  type FormAdapterSubmissionMessageMeta,
-  type FormAdapterSubmissionMessagePayload,
-  type FormAdapterSubmissionMessageResult
-} from '~/src/server/plugins/engine/types.js'
 
 export const formAdapterSubmissionMessageMetaSchema =
-  Joi.object<FormAdapterSubmissionMessageMeta>().keys({
+  /** @type {ObjectSchema<FormAdapterSubmissionMessageMeta>} */ (
+    Joi.object()
+  ).keys({
     schemaVersion: Joi.number()
       .valid(...Object.values(FormAdapterSubmissionSchemaVersion))
       .required(),
@@ -46,7 +42,9 @@ export const formAdapterSubmissionMessageMetaSchema =
   })
 
 export const formAdapterSubmissionMessageDataSchema =
-  Joi.object<FormAdapterSubmissionMessageData>().keys({
+  /** @type {ObjectSchema<FormAdapterSubmissionMessageData>} */ (
+    Joi.object()
+  ).keys({
     main: Joi.object(),
     repeaters: Joi.object(),
     payment: Joi.object()
@@ -72,7 +70,9 @@ export const formAdapterSubmissionMessageDataSchema =
   })
 
 export const formAdapterSubmissionMessageResultSchema =
-  Joi.object<FormAdapterSubmissionMessageResult>().keys({
+  /** @type {ObjectSchema<FormAdapterSubmissionMessageResult>} */ (
+    Joi.object()
+  ).keys({
     files: Joi.object()
       .keys({
         main: Joi.string().required(),
@@ -82,7 +82,9 @@ export const formAdapterSubmissionMessageResultSchema =
   })
 
 export const formAdapterSubmissionMessagePayloadSchema =
-  Joi.object<FormAdapterSubmissionMessagePayload>().keys({
+  /** @type {ObjectSchema<FormAdapterSubmissionMessagePayload>} */ (
+    Joi.object()
+  ).keys({
     meta: formAdapterSubmissionMessageMetaSchema.required(),
     data: formAdapterSubmissionMessageDataSchema.required(),
     result: formAdapterSubmissionMessageResultSchema.required(),
@@ -98,3 +100,8 @@ export const formAdapterSubmissionMessagePayloadSchema =
         'Outcome of every condition in the form definition, evaluated against the final answers at submission'
       )
   })
+
+/**
+ * @import { ObjectSchema } from 'joi'
+ * @import { FormAdapterSubmissionMessageData, FormAdapterSubmissionMessageMeta, FormAdapterSubmissionMessagePayload, FormAdapterSubmissionMessageResult } from '~/src/server/plugins/engine/types.js'
+ */
