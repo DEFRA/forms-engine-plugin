@@ -1,10 +1,5 @@
-import { hasFormComponents, slugSchema, type Event } from '@defra/forms-model'
+import { hasFormComponents, slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
-import {
-  type ResponseObject,
-  type RouteOptions,
-  type ServerRoute
-} from '@hapi/hapi'
 import Joi from 'joi'
 
 import {
@@ -12,30 +7,13 @@ import {
   proceed,
   redirectPath
 } from '~/src/server/plugins/engine/helpers.js'
-import {
-  SummaryViewModel,
-  type FormModel
-} from '~/src/server/plugins/engine/models/index.js'
+import { SummaryViewModel } from '~/src/server/plugins/engine/models/index.js'
 import { format } from '~/src/server/plugins/engine/outputFormatters/machine/v1.js'
 import { getFormSubmissionData } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
-import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import {
   dispatchHandler,
   redirectOrMakeHandler
 } from '~/src/server/plugins/engine/routes/index.js'
-import {
-  type AnyFormRequest,
-  type FormContext,
-  type OnRequestCallback,
-  type PreparePageEventRequestOptions
-} from '~/src/server/plugins/engine/types.js'
-import {
-  type FormRequest,
-  type FormRequestPayload,
-  type FormRequestPayloadRefs,
-  type FormRequestRefs,
-  type FormResponseToolkit
-} from '~/src/server/routes/types.js'
 import {
   actionSchema,
   crumbSchema,
@@ -46,13 +24,21 @@ import {
 import * as httpService from '~/src/server/services/httpService.js'
 import { resolveLanguage } from '~/src/server/utils/utils.js'
 
+/**
+ * @param {AnyFormRequest} request
+ * @param {PageControllerClass} page
+ * @param {FormContext} context
+ * @param {Event} event
+ * @param {FormModel} model
+ * @param {PreparePageEventRequestOptions} [preparePageEventRequestOptions]
+ */
 async function handleHttpEvent(
-  request: AnyFormRequest,
-  page: PageControllerClass,
-  context: FormContext,
-  event: Event,
-  model: FormModel,
-  preparePageEventRequestOptions?: PreparePageEventRequestOptions
+  request,
+  page,
+  context,
+  event,
+  model,
+  preparePageEventRequestOptions
 ) {
   const { options } = event
   const { url } = options
@@ -71,7 +57,8 @@ async function handleHttpEvent(
 
   // @ts-expect-error - function signature will be refactored in the next iteration of the formatter
   const payload = format(context, items, model, undefined, undefined)
-  const opts: httpService.RequestOptions = { payload, timeout: 5000 }
+  /** @type {httpService.RequestOptions} */
+  const opts = { payload, timeout: 5000 }
 
   if (preparePageEventRequestOptions) {
     preparePageEventRequestOptions(opts, event, page, context)
@@ -82,11 +69,16 @@ async function handleHttpEvent(
   Object.assign(context.data, response)
 }
 
-export function makeGetHandler(
-  preparePageEventRequestOptions?: PreparePageEventRequestOptions,
-  onRequest?: OnRequestCallback
-) {
-  return function getHandler(request: FormRequest, h: FormResponseToolkit) {
+/**
+ * @param {PreparePageEventRequestOptions} [preparePageEventRequestOptions]
+ * @param {OnRequestCallback} [onRequest]
+ */
+export function makeGetHandler(preparePageEventRequestOptions, onRequest) {
+  /**
+   * @param {FormRequest} request
+   * @param {FormResponseToolkit} h
+   */
+  return function getHandler(request, h) {
     const { params } = request
 
     if (normalisePath(params.path) === '') {
@@ -124,14 +116,16 @@ export function makeGetHandler(
   }
 }
 
-export function makePostHandler(
-  preparePageEventRequestOptions?: PreparePageEventRequestOptions,
-  onRequest?: OnRequestCallback
-) {
-  return function postHandler(
-    request: FormRequestPayload,
-    h: FormResponseToolkit
-  ) {
+/**
+ * @param {PreparePageEventRequestOptions} [preparePageEventRequestOptions]
+ * @param {OnRequestCallback} [onRequest]
+ */
+export function makePostHandler(preparePageEventRequestOptions, onRequest) {
+  /**
+   * @param {FormRequestPayload} request
+   * @param {FormResponseToolkit} h
+   */
+  return function postHandler(request, h) {
     const { query } = request
 
     return redirectOrMakeHandler(
@@ -172,18 +166,29 @@ export function makePostHandler(
   }
 }
 
-function isSuccessful(response: ResponseObject): boolean {
+/**
+ * @param {ResponseObject} response
+ * @returns {boolean}
+ */
+function isSuccessful(response) {
   const { statusCode } = response
 
   return !Boom.isBoom(response) && statusCode >= 200 && statusCode < 400
 }
 
+/**
+ * @param {RouteOptions<FormRequestRefs>} getRouteOptions
+ * @param {RouteOptions<FormRequestPayloadRefs>} postRouteOptions
+ * @param {PreparePageEventRequestOptions} [preparePageEventRequestOptions]
+ * @param {OnRequestCallback} [onRequest]
+ * @returns {(ServerRoute<FormRequestRefs> | ServerRoute<FormRequestPayloadRefs>)[]}
+ */
 export function getRoutes(
-  getRouteOptions: RouteOptions<FormRequestRefs>,
-  postRouteOptions: RouteOptions<FormRequestPayloadRefs>,
-  preparePageEventRequestOptions?: PreparePageEventRequestOptions,
-  onRequest?: OnRequestCallback
-): (ServerRoute<FormRequestRefs> | ServerRoute<FormRequestPayloadRefs>)[] {
+  getRouteOptions,
+  postRouteOptions,
+  preparePageEventRequestOptions,
+  onRequest
+) {
   return [
     {
       method: 'get',
@@ -290,3 +295,12 @@ export function getRoutes(
     }
   ]
 }
+
+/**
+ * @import { Event } from '@defra/forms-model'
+ * @import { ResponseObject, RouteOptions, ServerRoute } from '@hapi/hapi'
+ * @import { FormModel } from '~/src/server/plugins/engine/models/index.js'
+ * @import { PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
+ * @import { AnyFormRequest, FormContext, OnRequestCallback, PreparePageEventRequestOptions } from '~/src/server/plugins/engine/types.js'
+ * @import { FormRequest, FormRequestPayload, FormRequestPayloadRefs, FormRequestRefs, FormResponseToolkit } from '~/src/server/routes/types.js'
+ */

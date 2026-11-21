@@ -1,19 +1,10 @@
 import { slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
-import { type RouteOptions, type ServerRoute } from '@hapi/hapi'
 import Joi from 'joi'
 
 import { FileUploadPageController } from '~/src/server/plugins/engine/pageControllers/FileUploadPageController.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { redirectOrMakeHandler } from '~/src/server/plugins/engine/routes/index.js'
-import { type OnRequestCallback } from '~/src/server/plugins/engine/types.js'
-import {
-  type FormRequest,
-  type FormRequestPayload,
-  type FormRequestPayloadRefs,
-  type FormRequestRefs,
-  type FormResponseToolkit
-} from '~/src/server/routes/types.js'
 import {
   actionSchema,
   confirmSchema,
@@ -24,8 +15,15 @@ import {
 } from '~/src/server/schemas/index.js'
 
 // Item delete GET route
-function getHandler(onRequest?: OnRequestCallback) {
-  return async function (request: FormRequest, h: FormResponseToolkit) {
+/**
+ * @param {OnRequestCallback} [onRequest]
+ */
+function getHandler(onRequest) {
+  /**
+   * @param {FormRequest} request
+   * @param {FormResponseToolkit} h
+   */
+  return async function (request, h) {
     const { params } = request
 
     return redirectOrMakeHandler(request, h, onRequest, (page, context) => {
@@ -43,8 +41,15 @@ function getHandler(onRequest?: OnRequestCallback) {
   }
 }
 
-function postHandler(onRequest?: OnRequestCallback) {
-  return async function (request: FormRequestPayload, h: FormResponseToolkit) {
+/**
+ * @param {OnRequestCallback} [onRequest]
+ */
+function postHandler(onRequest) {
+  /**
+   * @param {FormRequestPayload} request
+   * @param {FormResponseToolkit} h
+   */
+  return async function (request, h) {
     const { params } = request
 
     return redirectOrMakeHandler(request, h, onRequest, (page, context) => {
@@ -65,11 +70,13 @@ function postHandler(onRequest?: OnRequestCallback) {
   }
 }
 
-export function getRoutes(
-  getRouteOptions: RouteOptions<FormRequestRefs>,
-  postRouteOptions: RouteOptions<FormRequestPayloadRefs>,
-  onRequest?: OnRequestCallback
-): (ServerRoute<FormRequestRefs> | ServerRoute<FormRequestPayloadRefs>)[] {
+/**
+ * @param {RouteOptions<FormRequestRefs>} getRouteOptions
+ * @param {RouteOptions<FormRequestPayloadRefs>} postRouteOptions
+ * @param {OnRequestCallback} [onRequest]
+ * @returns {(ServerRoute<FormRequestRefs> | ServerRoute<FormRequestPayloadRefs>)[]}
+ */
+export function getRoutes(getRouteOptions, postRouteOptions, onRequest) {
   return [
     {
       method: 'get',
@@ -152,3 +159,9 @@ export function getRoutes(
     }
   ]
 }
+
+/**
+ * @import { RouteOptions, ServerRoute } from '@hapi/hapi'
+ * @import { OnRequestCallback } from '~/src/server/plugins/engine/types.js'
+ * @import { FormRequest, FormRequestPayload, FormRequestPayloadRefs, FormRequestRefs, FormResponseToolkit } from '~/src/server/routes/types.js'
+ */

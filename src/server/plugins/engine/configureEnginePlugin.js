@@ -1,21 +1,21 @@
 import { join, parse } from 'node:path'
 
-import { type FormDefinition } from '@defra/forms-model'
-
 import { EN_GB, FORM_PREFIX } from '~/src/server/constants.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { plugin } from '~/src/server/plugins/engine/plugin.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import { formsService } from '~/src/server/plugins/engine/services/localFormsService.js'
-import {
-  type AnyFormRequest,
-  type PluginOptions
-} from '~/src/server/plugins/engine/types.js'
 import { findPackageRoot } from '~/src/server/plugins/engine/vision.js'
 import { devtoolContext } from '~/src/server/plugins/nunjucks/context.js'
-import { type CacheService } from '~/src/server/services/cacheService.js'
-import { type RouteConfig } from '~/src/server/types.js'
 
+/**
+ * @param {RouteConfig} [routeConfig]
+ * @param {CacheService} [cache]
+ * @returns {Promise<{
+ *   plugin: typeof plugin
+ *   options: PluginOptions
+ * }>}
+ */
 export const configureEnginePlugin = async (
   {
     formFileName,
@@ -27,13 +27,11 @@ export const configureEnginePlugin = async (
     saveAndExit,
     ordnanceSurveyApiKey,
     ordnanceSurveyApiSecret
-  }: RouteConfig = {},
-  cache?: CacheService
-): Promise<{
-  plugin: typeof plugin
-  options: PluginOptions
-}> => {
-  let model: FormModel | undefined
+  } = {},
+  cache
+) => {
+  /** @type {FormModel | undefined} */
+  let model
 
   if (formFileName && formFilePath) {
     const definition = await getForm(join(formFilePath, formFileName))
@@ -71,28 +69,42 @@ export const configureEnginePlugin = async (
       saveAndExit,
       ordnanceSurveyApiKey,
       ordnanceSurveyApiSecret,
-      getLanguage: ({ query, yar }: AnyFormRequest) => {
+      /**
+       * @param {AnyFormRequest} request
+       */
+      getLanguage: ({ query, yar }) => {
         if ('language' in query) {
           yar.set('language', query.language)
         }
 
-        return (yar.get('language') as string | undefined) ?? EN_GB
+        return /** @type {string | undefined} */ (yar.get('language')) ?? EN_GB
       }
     }
   }
 }
 
-export async function getForm(importPath: string) {
+/**
+ * @param {string} importPath
+ */
+export async function getForm(importPath) {
   const { ext } = parse(importPath)
 
-  const attributes: ImportAttributes = {
+  /** @type {ImportAttributes} */
+  const attributes = {
     type: ext === '.json' ? 'json' : 'module'
   }
 
-  const formImport = import(importPath, { with: attributes }) as Promise<{
-    default: FormDefinition
-  }>
+  const formImport = /** @type {Promise<{ default: FormDefinition }>} */ (
+    import(importPath, { with: attributes })
+  )
 
   const { default: definition } = await formImport
   return definition
 }
+
+/**
+ * @import { FormDefinition } from '@defra/forms-model'
+ * @import { AnyFormRequest, PluginOptions } from '~/src/server/plugins/engine/types.js'
+ * @import { CacheService } from '~/src/server/services/cacheService.js'
+ * @import { RouteConfig } from '~/src/server/types.js'
+ */

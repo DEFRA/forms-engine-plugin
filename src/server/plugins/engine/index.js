@@ -1,9 +1,7 @@
 import { markdownToHtml } from '@defra/forms-model'
-import { type Environment } from 'nunjucks'
 
 import { engine } from '~/src/server/plugins/engine/helpers.js'
 import { plugin } from '~/src/server/plugins/engine/plugin.js'
-import { type PluginOptions } from '~/src/server/plugins/engine/types.js'
 import {
   checkComponentTemplates,
   checkErrorTemplates,
@@ -45,19 +43,26 @@ export const STATE_NOT_YET_VALIDATED = '__stateNotYetValidated'
 export const CURRENT_PAGE_PATH_KEY = '__currentPagePath'
 export const MAGIC_LINK_GROUP_ID = '__magicLinkGroupId'
 
-export const prepareNunjucksEnvironment = function (
-  env: Environment,
-  pluginOptions: PluginOptions
-) {
+/**
+ * @param {Environment} env
+ * @param {PluginOptions} pluginOptions
+ */
+export const prepareNunjucksEnvironment = function (env, pluginOptions) {
   for (const [name, nunjucksFilter] of Object.entries(filters)) {
     env.addFilter(name, nunjucksFilter)
   }
 
-  env.addFilter('markdown', (text: string, startingHeaderLevel?: number) =>
-    markdownToHtml(text, {
-      baseUrl: pluginOptions.baseUrl,
-      startingHeaderLevel
-    })
+  env.addFilter(
+    'markdown',
+    /**
+     * @param {string} text
+     * @param {number} [startingHeaderLevel]
+     */
+    (text, startingHeaderLevel) =>
+      markdownToHtml(text, {
+        baseUrl: pluginOptions.baseUrl,
+        startingHeaderLevel
+      })
   )
 
   for (const [name, nunjucksGlobal] of Object.entries(globals)) {
@@ -81,3 +86,8 @@ export const prepareNunjucksEnvironment = function (
 }
 
 export default plugin
+
+/**
+ * @import { Environment } from 'nunjucks'
+ * @import { PluginOptions } from '~/src/server/plugins/engine/types.js'
+ */

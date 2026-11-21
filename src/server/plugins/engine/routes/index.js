@@ -1,10 +1,5 @@
 import { isPaymentPage } from '@defra/forms-model'
 import Boom from '@hapi/boom'
-import {
-  type ResponseObject,
-  type ResponseToolkit,
-  type Server
-} from '@hapi/hapi'
 
 import {
   EXTERNAL_STATE_APPENDAGE,
@@ -24,36 +19,28 @@ import {
   getStartPath,
   proceed
 } from '~/src/server/plugins/engine/helpers.js'
-import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import {
   checkSaveAndExitRepeater,
   copyNotYetValidatedState
 } from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
 import { DEFAULT_REFERENCE_NUMBER } from '~/src/server/plugins/engine/referenceNumbers.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
-import {
-  type AnyFormRequest,
-  type ExternalStateAppendage,
-  type FormContext,
-  type FormPayload,
-  type FormSubmissionState,
-  type OnRequestCallback,
-  type PluginOptions
-} from '~/src/server/plugins/engine/types.js'
-import {
-  type FormRequest,
-  type FormResponseToolkit
-} from '~/src/server/routes/types.js'
 import { resolveLanguage } from '~/src/server/utils/utils.js'
 
+/**
+ * @param {AnyFormRequest} request
+ * @param {FormResponseToolkit} h
+ * @param {OnRequestCallback | undefined} onRequest
+ * @param {(
+ *   page: PageControllerClass,
+ *   context: FormContext
+ * ) => ResponseObject | Promise<ResponseObject>} makeHandler
+ */
 export async function redirectOrMakeHandler(
-  request: AnyFormRequest,
-  h: FormResponseToolkit,
-  onRequest: OnRequestCallback | undefined,
-  makeHandler: (
-    page: PageControllerClass,
-    context: FormContext
-  ) => ResponseObject | Promise<ResponseObject>
+  request,
+  h,
+  onRequest,
+  makeHandler
 ) {
   const { app, params, query } = request
   const { model } = app
@@ -138,18 +125,22 @@ export async function redirectOrMakeHandler(
   return proceed(request, h, page.getHref(relevantPath))
 }
 
-async function importExternalComponentState(
-  request: AnyFormRequest,
-  page: PageControllerClass,
-  state: FormSubmissionState
-): Promise<FormSubmissionState> {
+/**
+ * @param {AnyFormRequest} request
+ * @param {PageControllerClass} page
+ * @param {FormSubmissionState} state
+ * @returns {Promise<FormSubmissionState>}
+ */
+async function importExternalComponentState(request, page, state) {
   const externalComponentData = request.yar.flash(EXTERNAL_STATE_APPENDAGE)
 
   if (Array.isArray(externalComponentData)) {
     return state
   }
 
-  const typedStateAppendage = externalComponentData as ExternalStateAppendage
+  const typedStateAppendage = /** @type {ExternalStateAppendage} */ (
+    externalComponentData
+  )
   const componentName = typedStateAppendage.component
   const stateAppendage = typedStateAppendage.data
 
@@ -190,17 +181,27 @@ async function importExternalComponentState(
 
   // Merge any stashed payload into the local state
   const payload = request.yar.flash(EXTERNAL_STATE_PAYLOAD)
-  const stashedPayload = Array.isArray(payload) ? {} : (payload as FormPayload)
+  const stashedPayload = Array.isArray(payload)
+    ? {}
+    : /** @type {FormPayload} */ (payload)
 
-  const localState = page.getStateFromValidForm(request, savedState, {
-    ...stashedPayload,
-    ...componentState
-  } as FormPayload)
+  const localState = page.getStateFromValidForm(
+    request,
+    savedState,
+    /** @type {FormPayload} */ ({
+      ...stashedPayload,
+      ...componentState
+    })
+  )
 
   return { ...savedState, ...localState }
 }
 
-export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
+/**
+ * @param {Server} server
+ * @param {PluginOptions} options
+ */
+export function makeLoadFormPreHandler(server, options) {
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- hapi types are wrong
   const prefix = server.realm.modifiers.route.prefix ?? ''
 
@@ -210,7 +211,11 @@ export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
     ordnanceSurveyApiKey
   } = options
 
-  async function handler(request: AnyFormRequest, h: ResponseToolkit) {
+  /**
+   * @param {AnyFormRequest} request
+   * @param {ResponseToolkit} h
+   */
+  async function handler(request, h) {
     if (server.app.model) {
       request.app.model = server.app.model
 
@@ -237,9 +242,20 @@ export function makeLoadFormPreHandler(server: Server, options: PluginOptions) {
   return handler
 }
 
-export function dispatchHandler(request: FormRequest, h: FormResponseToolkit) {
+/**
+ * @param {FormRequest} request
+ * @param {FormResponseToolkit} h
+ */
+export function dispatchHandler(request, h) {
   const { model } = request.app
 
   const servicePath = model ? `/${model.basePath}` : ''
   return proceed(request, h, `${servicePath}${getStartPath(model)}`)
 }
+
+/**
+ * @import { ResponseObject, ResponseToolkit, Server } from '@hapi/hapi'
+ * @import { PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
+ * @import { AnyFormRequest, ExternalStateAppendage, FormContext, FormPayload, FormSubmissionState, OnRequestCallback, PluginOptions } from '~/src/server/plugins/engine/types.js'
+ * @import { FormRequest, FormResponseToolkit } from '~/src/server/routes/types.js'
+ */

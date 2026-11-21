@@ -34,7 +34,7 @@ async function startServer() {
   server.logger.info(`Access your frontend on http://localhost:${port}`)
 }
 
-startServer().catch((error: unknown) => {
+startServer().catch((/** @type {unknown} */ error) => {
   const err = getErrorMessage(error)
   logger.info('Server failed to start :(')
   logger.error(error, `[serverStartup] Server failed to start: ${err}`)

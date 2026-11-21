@@ -1,20 +1,16 @@
 import { getErrorMessage } from '@defra/forms-model'
-import { type ResponseToolkit, type ServerRoute } from '@hapi/hapi'
 import Joi from 'joi'
 
 import { getUploadStatus } from '~/src/server/plugins/engine/services/uploadService.js'
-import {
-  type FormRequest,
-  type FormRequestRefs
-} from '~/src/server/routes/types.js'
 
-export async function getHandler(
-  request: FormRequest,
-  h: Pick<ResponseToolkit, 'response'>
-) {
-  const { uploadId } = request.params as unknown as {
-    uploadId: string
-  }
+/**
+ * @param {FormRequest} request
+ * @param {Pick<ResponseToolkit, 'response'>} h
+ */
+export async function getHandler(request, h) {
+  const { uploadId } = /** @type {{ uploadId: string }} */ (
+    /** @type {unknown} */ (request.params)
+  )
   try {
     const status = await getUploadStatus(uploadId)
 
@@ -34,7 +30,10 @@ export async function getHandler(
   }
 }
 
-export function getRoutes(): ServerRoute<FormRequestRefs>[] {
+/**
+ * @returns {ServerRoute<FormRequestRefs>[]}
+ */
+export function getRoutes() {
   return [
     {
       method: 'get',
@@ -53,3 +52,8 @@ export function getRoutes(): ServerRoute<FormRequestRefs>[] {
     }
   ]
 }
+
+/**
+ * @import { ResponseToolkit, ServerRoute } from '@hapi/hapi'
+ * @import { FormRequest, FormRequestRefs } from '~/src/server/routes/types.js'
+ */

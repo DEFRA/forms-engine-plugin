@@ -1,11 +1,6 @@
 import { Engine as CatboxMemory } from '@hapi/catbox-memory'
 import { Engine as CatboxRedis } from '@hapi/catbox-redis'
-import hapi, {
-  type Request,
-  type ResponseToolkit,
-  type ServerOptions,
-  type ServerRoute
-} from '@hapi/hapi'
+import hapi from '@hapi/hapi'
 import inert from '@hapi/inert'
 import Wreck from '@hapi/wreck'
 import blipp from 'blipp'
@@ -23,7 +18,6 @@ import pluginPulse from '~/src/server/plugins/pulse.js'
 import pluginSession from '~/src/server/plugins/session.js'
 import { dummyApiRoutes, publicRoutes } from '~/src/server/routes/index.js'
 import { prepareSecureContext } from '~/src/server/secure-context.js'
-import { type RouteConfig } from '~/src/server/types.js'
 
 const proxyAgent = new ProxyAgent()
 
@@ -33,8 +27,12 @@ Wreck.agents = {
   httpsAllowUnauthorized: proxyAgent
 }
 
-const serverOptions = (): ServerOptions => {
-  const serverOptions: ServerOptions = {
+/**
+ * @returns {ServerOptions}
+ */
+const serverOptions = () => {
+  /** @type {ServerOptions} */
+  const serverOptions = {
     debug: { request: [`${config.get('isDevelopment')}`] },
     port: config.get('port'),
     router: {
@@ -72,7 +70,10 @@ const serverOptions = (): ServerOptions => {
   return serverOptions
 }
 
-export async function createServer(routeConfig?: RouteConfig) {
+/**
+ * @param {RouteConfig} [routeConfig]
+ */
+export async function createServer(routeConfig) {
   const server = hapi.server(serverOptions())
 
   await server.register(requestLogger)
@@ -93,27 +94,30 @@ export async function createServer(routeConfig?: RouteConfig) {
   await server.register(pluginCrumb)
   await server.register(pluginEngine)
 
-  server.ext('onPreResponse', (request: Request, h: ResponseToolkit) => {
-    const { response } = request
+  server.ext(
+    'onPreResponse',
+    (/** @type {Request} */ request, /** @type {ResponseToolkit} */ h) => {
+      const { response } = request
 
-    if ('isBoom' in response) {
+      if ('isBoom' in response) {
+        return h.continue
+      }
+
+      // Prevent search engine indexing
+      response.header('x-robots-tag', 'noindex, nofollow')
+
+      // Disable cache to ensure back/foward navigation updates progress
+      if (
+        !request.path.startsWith('/javascripts/') &&
+        !request.path.startsWith('/stylesheets/') &&
+        !request.path.startsWith('/assets/')
+      ) {
+        response.header('cache-control', 'no-store')
+      }
+
       return h.continue
     }
-
-    // Prevent search engine indexing
-    response.header('x-robots-tag', 'noindex, nofollow')
-
-    // Disable cache to ensure back/foward navigation updates progress
-    if (
-      !request.path.startsWith('/javascripts/') &&
-      !request.path.startsWith('/stylesheets/') &&
-      !request.path.startsWith('/assets/')
-    ) {
-      response.header('cache-control', 'no-store')
-    }
-
-    return h.continue
-  })
+  )
 
   await server.register(pluginViews)
 
@@ -122,7 +126,7 @@ export async function createServer(routeConfig?: RouteConfig) {
       name: 'router',
       register: (server) => {
         server.route(publicRoutes)
-        server.route(dummyApiRoutes as ServerRoute[])
+        server.route(/** @type {ServerRoute[]} */ (dummyApiRoutes))
       }
     }
   })
@@ -137,3 +141,8 @@ export async function createServer(routeConfig?: RouteConfig) {
 
   return server
 }
+
+/**
+ * @import { Request, ResponseToolkit, ServerOptions, ServerRoute } from '@hapi/hapi'
+ * @import { RouteConfig } from '~/src/server/types.js'
+ */
