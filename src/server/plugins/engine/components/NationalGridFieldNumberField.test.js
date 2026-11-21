@@ -1,14 +1,8 @@
-import {
-  ComponentType,
-  type NationalGridFieldNumberFieldComponent
-} from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { NationalGridFieldNumberField } from '~/src/server/plugins/engine/components/NationalGridFieldNumberField.js'
-import {
-  getAnswer,
-  type Field
-} from '~/src/server/plugins/engine/components/helpers/components.js'
+import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import definition from '~/test/form/definitions/blank.js'
@@ -19,7 +13,8 @@ const translator = new FormModel(definition, {
 }).createTranslator()
 
 describe('NationalGridFieldNumberField', () => {
-  let model: FormModel
+  /** @type {FormModel} */
+  let model
 
   beforeEach(() => {
     model = new FormModel(definition, {
@@ -28,9 +23,12 @@ describe('NationalGridFieldNumberField', () => {
   })
 
   describe('Defaults', () => {
-    let def: NationalGridFieldNumberFieldComponent
-    let collection: ComponentCollection
-    let field: Field
+    /** @type {NationalGridFieldNumberFieldComponent} */
+    let def
+    /** @type {ComponentCollection} */
+    let collection
+    /** @type {Field} */
+    let field
 
     beforeEach(() => {
       def = {
@@ -437,11 +435,12 @@ describe('NationalGridFieldNumberField', () => {
         ]
       }
     ])('$description', ({ component: def, assertions }) => {
-      let collection: ComponentCollection
+      /** @type {ComponentCollection} */
+      let collection
 
       beforeEach(() => {
         collection = new ComponentCollection(
-          [def as NationalGridFieldNumberFieldComponent],
+          [/** @type {NationalGridFieldNumberFieldComponent} */ (def)],
           { model }
         )
       })
@@ -456,3 +455,8 @@ describe('NationalGridFieldNumberField', () => {
     })
   })
 })
+
+/**
+ * @import { NationalGridFieldNumberFieldComponent } from '@defra/forms-model'
+ * @import { Field } from '~/src/server/plugins/engine/components/helpers/components.js'
+ */

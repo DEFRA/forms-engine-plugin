@@ -1,7 +1,4 @@
-import {
-  ComponentType,
-  type NotificationBannerComponent
-} from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
@@ -9,7 +6,8 @@ import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__st
 import definition from '~/test/form/definitions/basic.js'
 
 describe('NotificationBanner', () => {
-  let model: FormModel
+  /** @type {FormModel} */
+  let model
 
   beforeEach(() => {
     model = new FormModel(definition, {
@@ -18,13 +16,13 @@ describe('NotificationBanner', () => {
   })
 
   it('sets Nunjucks component defaults', () => {
-    const def = {
+    const def = /** @satisfies {NotificationBannerComponent} */ ({
       title: 'Important',
       name: 'myComponent',
       type: ComponentType.NotificationBanner,
       content: 'You have 30 days to [appeal this decision](/appeal).',
       options: {}
-    } satisfies NotificationBannerComponent
+    })
 
     const collection = new ComponentCollection([def], { model })
     const viewModel = collection.guidance[0].getViewModel({
@@ -42,7 +40,7 @@ describe('NotificationBanner', () => {
   })
 
   it('includes heading in view model', () => {
-    const def = {
+    const def = /** @satisfies {NotificationBannerComponent} */ ({
       title: 'Important',
       name: 'myComponent',
       type: ComponentType.NotificationBanner,
@@ -50,7 +48,7 @@ describe('NotificationBanner', () => {
       options: {
         heading: 'There may be a **delay** in processing your application.'
       }
-    } satisfies NotificationBannerComponent
+    })
 
     const collection = new ComponentCollection([def], { model })
     const viewModel = collection.guidance[0].getViewModel({
@@ -68,13 +66,13 @@ describe('NotificationBanner', () => {
   })
 
   it('sets type: success for success variant', () => {
-    const def = {
+    const def = /** @satisfies {NotificationBannerComponent} */ ({
       title: 'Success',
       name: 'myComponent',
       type: ComponentType.NotificationBanner,
       content: 'Your application has been submitted.',
       options: { type: 'success' }
-    } satisfies NotificationBannerComponent
+    })
 
     const collection = new ComponentCollection([def], { model })
     const viewModel = collection.guidance[0].getViewModel({
@@ -91,3 +89,7 @@ describe('NotificationBanner', () => {
     )
   })
 })
+
+/**
+ * @import { NotificationBannerComponent } from '@defra/forms-model'
+ */

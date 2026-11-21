@@ -1,14 +1,8 @@
-import {
-  ComponentType,
-  type MultilineTextFieldComponent
-} from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { MultilineTextField } from '~/src/server/plugins/engine/components/MultilineTextField.js'
-import {
-  getAnswer,
-  type Field
-} from '~/src/server/plugins/engine/components/helpers/components.js'
+import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import definition from '~/test/form/definitions/blank.js'
@@ -19,7 +13,8 @@ const translator = new FormModel(definition, {
 }).createTranslator()
 
 describe('MultilineTextField', () => {
-  let model: FormModel
+  /** @type {FormModel} */
+  let model
 
   beforeEach(() => {
     model = new FormModel(definition, {
@@ -28,19 +23,22 @@ describe('MultilineTextField', () => {
   })
 
   describe('Defaults', () => {
-    let def: MultilineTextFieldComponent
-    let collection: ComponentCollection
-    let field: Field
+    /** @type {MultilineTextFieldComponent} */
+    let def
+    /** @type {ComponentCollection} */
+    let collection
+    /** @type {Field} */
+    let field
 
     beforeEach(() => {
-      def = {
+      def = /** @satisfies {MultilineTextFieldComponent} */ ({
         title: 'Example textarea title',
         shortDescription: 'Example textarea',
         name: 'myComponent',
         type: ComponentType.MultilineTextField,
         options: {},
         schema: {}
-      } satisfies MultilineTextFieldComponent
+      })
 
       collection = new ComponentCollection([def], { model })
       field = collection.fields[0]
@@ -124,13 +122,13 @@ describe('MultilineTextField', () => {
       })
 
       it('adds errors for empty value given no short description', () => {
-        def = {
+        def = /** @satisfies {MultilineTextFieldComponent} */ ({
           title: 'Example textarea title',
           name: 'myComponent',
           type: ComponentType.MultilineTextField,
           options: {},
           schema: {}
-        } satisfies MultilineTextFieldComponent
+        })
 
         collection = new ComponentCollection([def], { model })
         const result = collection.validate(getFormData(''))
@@ -292,13 +290,13 @@ describe('MultilineTextField', () => {
     describe.each([
       {
         description: 'Trim empty spaces',
-        component: {
+        component: /** @satisfies {MultilineTextFieldComponent} */ ({
           title: 'Example textarea',
           name: 'myComponent',
           type: ComponentType.MultilineTextField,
           options: {},
           schema: {}
-        } satisfies MultilineTextFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData('  Leading spaces'),
@@ -316,7 +314,7 @@ describe('MultilineTextField', () => {
       },
       {
         description: 'Option max words',
-        component: {
+        component: /** @satisfies {MultilineTextFieldComponent} */ ({
           title: 'Example textarea',
           name: 'myComponent',
           type: ComponentType.MultilineTextField,
@@ -324,7 +322,7 @@ describe('MultilineTextField', () => {
             maxWords: 2
           },
           schema: {}
-        } satisfies MultilineTextFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData('Textarea words'),
@@ -347,7 +345,7 @@ describe('MultilineTextField', () => {
       },
       {
         description: 'Schema min',
-        component: {
+        component: /** @satisfies {MultilineTextFieldComponent} */ ({
           title: 'Example textarea',
           name: 'myComponent',
           type: ComponentType.MultilineTextField,
@@ -355,7 +353,7 @@ describe('MultilineTextField', () => {
           schema: {
             min: 5
           }
-        } satisfies MultilineTextFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData('Text'),
@@ -372,7 +370,7 @@ describe('MultilineTextField', () => {
       },
       {
         description: 'Schema max',
-        component: {
+        component: /** @satisfies {MultilineTextFieldComponent} */ ({
           title: 'Example textarea',
           name: 'myComponent',
           type: ComponentType.MultilineTextField,
@@ -380,7 +378,7 @@ describe('MultilineTextField', () => {
           schema: {
             max: 8
           }
-        } satisfies MultilineTextFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData('Text too long'),
@@ -397,7 +395,7 @@ describe('MultilineTextField', () => {
       },
       {
         description: 'Schema min and max together',
-        component: {
+        component: /** @satisfies {MultilineTextFieldComponent} */ ({
           title: 'Example textarea',
           name: 'myComponent',
           type: ComponentType.MultilineTextField,
@@ -406,7 +404,7 @@ describe('MultilineTextField', () => {
             min: 5,
             max: 8
           }
-        } satisfies MultilineTextFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData('Text'),
@@ -434,7 +432,7 @@ describe('MultilineTextField', () => {
       },
       {
         description: 'Schema length',
-        component: {
+        component: /** @satisfies {MultilineTextFieldComponent} */ ({
           title: 'Example textarea',
           name: 'myComponent',
           type: ComponentType.MultilineTextField,
@@ -442,7 +440,7 @@ describe('MultilineTextField', () => {
           schema: {
             length: 4
           }
-        } satisfies MultilineTextFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData('Text'),
@@ -463,7 +461,7 @@ describe('MultilineTextField', () => {
       },
       {
         description: 'Schema regex',
-        component: {
+        component: /** @satisfies {MultilineTextFieldComponent} */ ({
           title: 'Example textarea',
           name: 'myComponent',
           type: ComponentType.MultilineTextField,
@@ -471,7 +469,7 @@ describe('MultilineTextField', () => {
           schema: {
             regex: '^[a-zA-Z]{1,2}\\d[a-zA-Z\\d]?\\s?\\d[a-zA-Z]{2}$'
           }
-        } satisfies MultilineTextFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData('SW1P'),
@@ -492,7 +490,7 @@ describe('MultilineTextField', () => {
       },
       {
         description: 'Custom validation message',
-        component: {
+        component: /** @satisfies {MultilineTextFieldComponent} */ ({
           title: 'Example textarea',
           name: 'myComponent',
           type: ComponentType.MultilineTextField,
@@ -509,7 +507,7 @@ describe('MultilineTextField', () => {
             min: 5,
             max: 8
           }
-        } satisfies MultilineTextFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(),
@@ -559,7 +557,7 @@ describe('MultilineTextField', () => {
       },
       {
         description: 'Custom validation messages (multiple)',
-        component: {
+        component: /** @satisfies {MultilineTextFieldComponent} */ ({
           title: 'Example textarea',
           name: 'myComponent',
           type: ComponentType.MultilineTextField,
@@ -575,7 +573,7 @@ describe('MultilineTextField', () => {
             min: 5,
             max: 8
           }
-        } satisfies MultilineTextFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(),
@@ -625,7 +623,7 @@ describe('MultilineTextField', () => {
       },
       {
         description: 'Optional field',
-        component: {
+        component: /** @satisfies {MultilineTextFieldComponent} */ ({
           title: 'Example textarea',
           name: 'myComponent',
           type: ComponentType.MultilineTextField,
@@ -633,7 +631,7 @@ describe('MultilineTextField', () => {
             required: false
           },
           schema: {}
-        } satisfies MultilineTextFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(''),
@@ -643,7 +641,7 @@ describe('MultilineTextField', () => {
       },
       {
         description: 'Schema max with whitespace replacement',
-        component: {
+        component: /** @satisfies {MultilineTextFieldComponent} */ ({
           title: 'Example textarea',
           name: 'myComponent',
           type: ComponentType.MultilineTextField,
@@ -651,7 +649,7 @@ describe('MultilineTextField', () => {
           schema: {
             max: 10
           }
-        } satisfies MultilineTextFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(`h\r\ne\r\nl\r\nl\r\no`),
@@ -663,7 +661,7 @@ describe('MultilineTextField', () => {
       },
       {
         description: 'Schema max with whitespace replacement',
-        component: {
+        component: /** @satisfies {MultilineTextFieldComponent} */ ({
           title: 'Example textarea',
           name: 'myComponent',
           type: ComponentType.MultilineTextField,
@@ -671,7 +669,7 @@ describe('MultilineTextField', () => {
           schema: {
             max: 8
           }
-        } satisfies MultilineTextFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(`h\r\ne\r\nl\r\nl\r\no`),
@@ -687,7 +685,8 @@ describe('MultilineTextField', () => {
         ]
       }
     ])('$description', ({ component: def, assertions }) => {
-      let collection: ComponentCollection
+      /** @type {ComponentCollection} */
+      let collection
 
       beforeEach(() => {
         collection = new ComponentCollection([def], { model })
@@ -703,3 +702,8 @@ describe('MultilineTextField', () => {
     })
   })
 })
+
+/**
+ * @import { MultilineTextFieldComponent } from '@defra/forms-model'
+ * @import { Field } from '~/src/server/plugins/engine/components/helpers/components.js'
+ */

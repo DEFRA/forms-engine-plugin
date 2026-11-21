@@ -1,11 +1,8 @@
-import { ComponentType, type OsGridRefFieldComponent } from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { OsGridRefField } from '~/src/server/plugins/engine/components/OsGridRefField.js'
-import {
-  getAnswer,
-  type Field
-} from '~/src/server/plugins/engine/components/helpers/components.js'
+import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import definition from '~/test/form/definitions/blank.js'
@@ -16,7 +13,8 @@ const translator = new FormModel(definition, {
 }).createTranslator()
 
 describe('OsGridRefField', () => {
-  let model: FormModel
+  /** @type {FormModel} */
+  let model
 
   beforeEach(() => {
     model = new FormModel(definition, {
@@ -25,9 +23,12 @@ describe('OsGridRefField', () => {
   })
 
   describe('Defaults', () => {
-    let def: OsGridRefFieldComponent
-    let collection: ComponentCollection
-    let field: Field
+    /** @type {OsGridRefFieldComponent} */
+    let def
+    /** @type {ComponentCollection} */
+    let collection
+    /** @type {Field} */
+    let field
 
     beforeEach(() => {
       def = {
@@ -449,12 +450,16 @@ describe('OsGridRefField', () => {
         ]
       }
     ])('$description', ({ component: def, assertions }) => {
-      let collection: ComponentCollection
+      /** @type {ComponentCollection} */
+      let collection
 
       beforeEach(() => {
-        collection = new ComponentCollection([def as OsGridRefFieldComponent], {
-          model
-        })
+        collection = new ComponentCollection(
+          [/** @type {OsGridRefFieldComponent} */ (def)],
+          {
+            model
+          }
+        )
       })
 
       it.each([...assertions])(
@@ -467,3 +472,8 @@ describe('OsGridRefField', () => {
     })
   })
 })
+
+/**
+ * @import { OsGridRefFieldComponent } from '@defra/forms-model'
+ * @import { Field } from '~/src/server/plugins/engine/components/helpers/components.js'
+ */

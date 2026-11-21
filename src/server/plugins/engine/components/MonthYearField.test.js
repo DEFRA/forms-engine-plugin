@@ -1,19 +1,10 @@
-import { ComponentType, type MonthYearFieldComponent } from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 import { addMonths, format, startOfDay, startOfMonth } from 'date-fns'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { type MonthYearField } from '~/src/server/plugins/engine/components/MonthYearField.js'
-import {
-  getAnswer,
-  type Field
-} from '~/src/server/plugins/engine/components/helpers/components.js'
-import { type DateInputItem } from '~/src/server/plugins/engine/components/types.js'
+import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
-import {
-  type FormPayload,
-  type FormState
-} from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
 
 const translator = new FormModel(definition, {
@@ -21,7 +12,8 @@ const translator = new FormModel(definition, {
 }).createTranslator()
 
 describe('MonthYearField', () => {
-  let model: FormModel
+  /** @type {FormModel} */
+  let model
 
   beforeEach(() => {
     model = new FormModel(definition, {
@@ -30,18 +22,21 @@ describe('MonthYearField', () => {
   })
 
   describe('Defaults', () => {
-    let def: MonthYearFieldComponent
-    let collection: ComponentCollection
-    let field: Field
+    /** @type {MonthYearFieldComponent} */
+    let def
+    /** @type {ComponentCollection} */
+    let collection
+    /** @type {Field} */
+    let field
 
     beforeEach(() => {
-      def = {
+      def = /** @satisfies {MonthYearFieldComponent} */ ({
         title: 'Example month/year field',
         shortDescription: 'Example month/year',
         name: 'myComponent',
         type: ComponentType.MonthYearField,
         options: {}
-      } satisfies MonthYearFieldComponent
+      })
 
       collection = new ComponentCollection([def], { model })
       field = collection.fields[0]
@@ -220,12 +215,12 @@ describe('MonthYearField', () => {
       })
 
       it('adds errors for empty value given no short desc exists', () => {
-        def = {
+        def = /** @satisfies {MonthYearFieldComponent} */ ({
           title: 'Example month/year field',
           name: 'myComponent',
           type: ComponentType.MonthYearField,
           options: {}
-        } satisfies MonthYearFieldComponent
+        })
 
         collection = new ComponentCollection([def], { model })
         const result = collection.validate(
@@ -461,12 +456,12 @@ describe('MonthYearField', () => {
     describe.each([
       {
         description: 'Trim empty spaces',
-        component: {
+        component: /** @satisfies {MonthYearFieldComponent} */ ({
           title: 'Example month/year field',
           name: 'myComponent',
           type: ComponentType.MonthYearField,
           options: {}
-        } satisfies MonthYearFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData({
@@ -499,12 +494,12 @@ describe('MonthYearField', () => {
       },
       {
         description: 'Decimals',
-        component: {
+        component: /** @satisfies {MonthYearFieldComponent} */ ({
           title: 'Example month/year field',
           name: 'myComponent',
           type: ComponentType.MonthYearField,
           options: {}
-        } satisfies MonthYearFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData({
@@ -530,12 +525,12 @@ describe('MonthYearField', () => {
       },
       {
         description: 'Values that are not numbers',
-        component: {
+        component: /** @satisfies {MonthYearFieldComponent} */ ({
           title: 'Example month/year field',
           name: 'myComponent',
           type: ComponentType.MonthYearField,
           options: {}
-        } satisfies MonthYearFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData({ month: 'abc', year: '2000' }),
@@ -563,12 +558,12 @@ describe('MonthYearField', () => {
       },
       {
         description: 'Out of range values',
-        component: {
+        component: /** @satisfies {MonthYearFieldComponent} */ ({
           title: 'Example month/year field',
           name: 'myComponent',
           type: ComponentType.MonthYearField,
           options: {}
-        } satisfies MonthYearFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData({
@@ -608,14 +603,14 @@ describe('MonthYearField', () => {
       },
       {
         description: 'Earliest month/year option',
-        component: {
+        component: /** @satisfies {MonthYearFieldComponent} */ ({
           title: 'Example month/year field',
           name: 'myComponent',
           type: ComponentType.MonthYearField,
           options: {
             earliestMonthYear: format(OneMonthInPast, 'yyyy-MM')
           }
-        } satisfies MonthYearFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(TwoMonthsInPast),
@@ -636,14 +631,14 @@ describe('MonthYearField', () => {
       },
       {
         description: 'Latest month/year option',
-        component: {
+        component: /** @satisfies {MonthYearFieldComponent} */ ({
           title: 'Example month/year field',
           name: 'myComponent',
           type: ComponentType.MonthYearField,
           options: {
             latestMonthYear: format(OneMonthInFuture, 'yyyy-MM')
           }
-        } satisfies MonthYearFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(TwoMonthsInFuture),
@@ -664,14 +659,14 @@ describe('MonthYearField', () => {
       },
       {
         description: 'Optional fields',
-        component: {
+        component: /** @satisfies {MonthYearFieldComponent} */ ({
           title: 'Example month/year field',
           name: 'myComponent',
           type: ComponentType.MonthYearField,
           options: {
             required: false
           }
-        } satisfies MonthYearFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData({
@@ -688,7 +683,8 @@ describe('MonthYearField', () => {
         ]
       }
     ])('$description', ({ component: def, assertions }) => {
-      let collection: ComponentCollection
+      /** @type {ComponentCollection} */
+      let collection
 
       beforeEach(() => {
         collection = new ComponentCollection([def], { model })
@@ -705,17 +701,19 @@ describe('MonthYearField', () => {
   })
 
   describe('sub-field title key constants', () => {
-    let monthYear: MonthYearField
+    /** @type {MonthYearField} */
+    let monthYear
 
     beforeEach(() => {
-      const def: MonthYearFieldComponent = {
+      /** @type {MonthYearFieldComponent} */
+      const def = {
         title: 'Date of issue',
         name: 'issueDate',
         type: ComponentType.MonthYearField,
         options: {}
       }
       const coll = new ComponentCollection([def], { model })
-      monthYear = coll.fields[0] as MonthYearField
+      monthYear = /** @type {MonthYearField} */ (coll.fields[0])
     })
 
     it('stores month sub-field title as i18next key constant', () => {
@@ -734,12 +732,12 @@ describe('MonthYearField', () => {
 
 /**
  * Month & year field view model
+ * @param {Date} date
+ * @param {string} name
+ * @param {Partial<DateInputItem>} [overrides]
+ * @returns {DateInputItem}
  */
-function getViewModel(
-  date: Date,
-  name: string,
-  overrides?: Partial<DateInputItem>
-): DateInputItem {
+function getViewModel(date, name, overrides) {
   const payload = getFormData(date)
 
   const fieldName = `myComponent__${name}`
@@ -754,15 +752,17 @@ function getViewModel(
     ),
     name: fieldName,
     id: fieldName,
-    value: fieldValue as DateInputItem['value'],
+    value: /** @type {DateInputItem['value']} */ (fieldValue),
     classes: fieldClasses
   }
 }
 
 /**
  * Month & year form data
+ * @param {Date | FormPayload} date
+ * @returns {FormPayload}
  */
-function getFormData(date: Date | FormPayload): FormPayload {
+function getFormData(date) {
   if (date instanceof Date) {
     date = {
       month: date.getMonth() + 1,
@@ -778,8 +778,10 @@ function getFormData(date: Date | FormPayload): FormPayload {
 
 /**
  * Month & year session state
+ * @param {Date | FormPayload} date
+ * @returns {FormState}
  */
-function getFormState(date: Date | FormPayload): FormState {
+function getFormState(date) {
   const [month, year] = Object.values(getFormData(date))
 
   return {
@@ -787,3 +789,11 @@ function getFormState(date: Date | FormPayload): FormState {
     myComponent__year: year ?? null
   }
 }
+
+/**
+ * @import { MonthYearFieldComponent } from '@defra/forms-model'
+ * @import { MonthYearField } from '~/src/server/plugins/engine/components/MonthYearField.js'
+ * @import { Field } from '~/src/server/plugins/engine/components/helpers/components.js'
+ * @import { DateInputItem } from '~/src/server/plugins/engine/components/types.js'
+ * @import { FormPayload, FormState } from '~/src/server/plugins/engine/types.js'
+ */

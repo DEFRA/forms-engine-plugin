@@ -1,31 +1,13 @@
-import {
-  ComponentType,
-  type FormMetadata,
-  type PaymentFieldComponent
-} from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 import { StatusCodes } from 'http-status-codes'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { PaymentField } from '~/src/server/plugins/engine/components/PaymentField.js'
-import {
-  getAnswer,
-  type Field
-} from '~/src/server/plugins/engine/components/helpers/components.js'
+import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import { PaymentPreAuthError } from '~/src/server/plugins/engine/pageControllers/errors.js'
-import {
-  type FormContext,
-  type FormState,
-  type FormValue,
-  type PaymentExternalArgs
-} from '~/src/server/plugins/engine/types.js'
-import {
-  type FormRequestPayload,
-  type FormResponseToolkit
-} from '~/src/server/routes/types.js'
 import { get, post, postJson } from '~/src/server/services/httpService.js'
-import { type Services } from '~/src/server/types.js'
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
@@ -35,30 +17,35 @@ const translator = new FormModel(definition, {
   basePath: '/'
 }).createTranslator()
 
-const mockRequestBase = {
-  server: {
-    plugins: {
-      // eslint-disable-next-line no-useless-computed-key
-      ['forms-engine-plugin']: {
-        baseUrl: 'base-url'
+const mockRequestBase = /** @type {FormRequestPayload} */ (
+  /** @type {unknown} */ ({
+    server: {
+      plugins: {
+        // eslint-disable-next-line no-useless-computed-key
+        ['forms-engine-plugin']: {
+          baseUrl: 'base-url'
+        }
       }
+    },
+    query: {},
+    yar: {
+      get: jest.fn(),
+      set: jest.fn()
     }
-  },
-  query: {},
-  yar: {
-    get: jest.fn(),
-    set: jest.fn()
-  }
-} as unknown as FormRequestPayload
+  })
+)
 
-const mockServices = {
-  formsService: {
-    getFormSecret: () => 'secret-value'
-  }
-} as unknown as Services
+const mockServices = /** @type {Services} */ (
+  /** @type {unknown} */ ({
+    formsService: {
+      getFormSecret: () => 'secret-value'
+    }
+  })
+)
 
 describe('PaymentField', () => {
-  let model: FormModel
+  /** @type {FormModel} */
+  let model
 
   beforeEach(() => {
     model = new FormModel(definition, {
@@ -67,12 +54,15 @@ describe('PaymentField', () => {
   })
 
   describe('Defaults', () => {
-    let def: PaymentFieldComponent
-    let collection: ComponentCollection
-    let field: Field
+    /** @type {PaymentFieldComponent} */
+    let def
+    /** @type {ComponentCollection} */
+    let collection
+    /** @type {Field} */
+    let field
 
     beforeEach(() => {
-      def = {
+      def = /** @satisfies {PaymentFieldComponent} */ ({
         title: 'Example payment field',
         name: 'myComponent',
         type: ComponentType.PaymentField,
@@ -80,7 +70,7 @@ describe('PaymentField', () => {
           amount: 100,
           description: 'Test payment description'
         }
-      } satisfies PaymentFieldComponent
+      })
 
       collection = new ComponentCollection([def], { model })
       field = collection.fields[0]
@@ -142,7 +132,9 @@ describe('PaymentField', () => {
           isLivePayment: false
         }
         const result = collection.validate(
-          getFormData(payment as unknown as FormValue)
+          getFormData(
+            /** @type {FormValue} */ (/** @type {unknown} */ (payment))
+          )
         )
 
         const errors = result.errors ?? []
@@ -207,7 +199,9 @@ describe('PaymentField', () => {
         isLivePayment: false
       }
       it('returns text from state', () => {
-        const state1 = getFormState(paymentForState as unknown as FormValue)
+        const state1 = getFormState(
+          /** @type {FormValue} */ (/** @type {unknown} */ (paymentForState))
+        )
         const state2 = getFormState(null)
 
         const answer1 = getAnswer(field, state1, undefined, translator)
@@ -238,15 +232,17 @@ describe('PaymentField', () => {
       })
 
       it('sets Nunjucks component values', () => {
-        const paymentForViewModel = {
-          paymentId: 'payment-id',
-          reference: 'payment-ref',
-          uuid: 'ee501106-4ce1-4947-91a7-7cc1a335ccd8',
-          formId: 'formid',
-          amount: 100,
-          description: 'Test payment description',
-          isLivePayment: false
-        } as unknown as FormValue
+        const paymentForViewModel = /** @type {FormValue} */ (
+          /** @type {unknown} */ ({
+            paymentId: 'payment-id',
+            reference: 'payment-ref',
+            uuid: 'ee501106-4ce1-4947-91a7-7cc1a335ccd8',
+            formId: 'formid',
+            amount: 100,
+            description: 'Test payment description',
+            isLivePayment: false
+          })
+        )
         const viewModel = field.getViewModel({
           payload: getFormData(paymentForViewModel),
           translator: stubTranslator
@@ -275,7 +271,7 @@ describe('PaymentField', () => {
   })
 
   describe('dispatcher and onSubmit', () => {
-    const def = {
+    const def = /** @satisfies {PaymentFieldComponent} */ ({
       title: 'Example payment field',
       name: 'myComponent',
       type: ComponentType.PaymentField,
@@ -283,48 +279,58 @@ describe('PaymentField', () => {
         amount: 100,
         description: 'Test payment description'
       }
-    } satisfies PaymentFieldComponent
+    })
 
     const collection = new ComponentCollection([def], { model })
-    const paymentField = collection.fields[0] as PaymentField
-    paymentField.model = {
-      services: mockServices,
-      createTranslator: (lang: string) => model.createTranslator(lang)
-    } as unknown as FormModel
+    const paymentField = /** @type {PaymentField} */ (collection.fields[0])
+    paymentField.model = /** @type {FormModel} */ (
+      /** @type {unknown} */ ({
+        services: mockServices,
+        createTranslator: (/** @type {string} */ lang) =>
+          model.createTranslator(lang)
+      })
+    )
 
     describe('dispatcher', () => {
       it('should create payment and redirect to gov pay', async () => {
         const mockYarSet = jest.fn()
-        const mockRequest = {
-          ...mockRequestBase,
-          yar: {
-            set: mockYarSet
-          }
-        } as unknown as FormRequestPayload
-        const mockH = {
-          redirect: jest
-            .fn()
-            .mockReturnValueOnce({ code: jest.fn().mockReturnValueOnce('ok') })
-        } as unknown as FormResponseToolkit
-        const args = {
-          controller: {
-            model: {
-              formId: 'formid',
-              basePath: 'base-path',
-              name: 'PaymentModel',
-              services: mockServices,
-              createTranslator: (lang: string) => model.createTranslator(lang),
-              getReference: jest.fn().mockReturnValue('pay-ref-123')
+        const mockRequest = /** @type {FormRequestPayload} */ (
+          /** @type {unknown} */ ({
+            ...mockRequestBase,
+            yar: {
+              set: mockYarSet
+            }
+          })
+        )
+        const mockH = /** @type {FormResponseToolkit} */ (
+          /** @type {unknown} */ ({
+            redirect: jest.fn().mockReturnValueOnce({
+              code: jest.fn().mockReturnValueOnce('ok')
+            })
+          })
+        )
+        const args = /** @type {PaymentExternalArgs} */ (
+          /** @type {unknown} */ ({
+            controller: {
+              model: {
+                formId: 'formid',
+                basePath: 'base-path',
+                name: 'PaymentModel',
+                services: mockServices,
+                createTranslator: (/** @type {string} */ lang) =>
+                  model.createTranslator(lang),
+                getReference: jest.fn().mockReturnValue('pay-ref-123')
+              },
+              getState: jest
+                .fn()
+                .mockResolvedValueOnce({ $$__referenceNumber: 'pay-ref-123' })
             },
-            getState: jest
-              .fn()
-              .mockResolvedValueOnce({ $$__referenceNumber: 'pay-ref-123' })
-          },
-          component: paymentField,
-          sourceUrl: 'http://localhost:3009/test-payment',
-          isLive: false,
-          isPreview: true
-        } as unknown as PaymentExternalArgs
+            component: paymentField,
+            sourceUrl: 'http://localhost:3009/test-payment',
+            isLive: false,
+            isPreview: true
+          })
+        )
         // @ts-expect-error - partial mock
         jest.mocked(postJson).mockResolvedValueOnce({
           payload: {
@@ -359,38 +365,43 @@ describe('PaymentField', () => {
 
       it('should redirect to summary if payment is already pre-authorised', async () => {
         const mockRedirectCode = jest.fn().mockReturnValueOnce('redirected')
-        const mockH = {
-          redirect: jest.fn().mockReturnValueOnce({ code: mockRedirectCode })
-        } as unknown as FormResponseToolkit
+        const mockH = /** @type {FormResponseToolkit} */ (
+          /** @type {unknown} */ ({
+            redirect: jest.fn().mockReturnValueOnce({ code: mockRedirectCode })
+          })
+        )
         const mockRequest = mockRequestBase
-        const args = {
-          controller: {
-            model: {
-              formId: 'formid',
-              basePath: 'base-path',
-              name: 'PaymentModel',
-              services: mockServices,
-              createTranslator: (lang: string) => model.createTranslator(lang),
-              getReference: jest.fn().mockReturnValue('pay-ref-123')
-            },
-            getState: jest.fn().mockResolvedValueOnce({
-              $$__referenceNumber: 'pay-ref-123',
-              myComponent: {
-                paymentId: 'existing-payment-id',
-                amount: 100,
-                description: 'Test payment',
-                preAuth: {
-                  status: 'success',
-                  createdAt: '2026-01-29T12:00:00.000Z'
+        const args = /** @type {PaymentExternalArgs} */ (
+          /** @type {unknown} */ ({
+            controller: {
+              model: {
+                formId: 'formid',
+                basePath: 'base-path',
+                name: 'PaymentModel',
+                services: mockServices,
+                createTranslator: (/** @type {string} */ lang) =>
+                  model.createTranslator(lang),
+                getReference: jest.fn().mockReturnValue('pay-ref-123')
+              },
+              getState: jest.fn().mockResolvedValueOnce({
+                $$__referenceNumber: 'pay-ref-123',
+                myComponent: {
+                  paymentId: 'existing-payment-id',
+                  amount: 100,
+                  description: 'Test payment',
+                  preAuth: {
+                    status: 'success',
+                    createdAt: '2026-01-29T12:00:00.000Z'
+                  }
                 }
-              }
-            })
-          },
-          component: paymentField,
-          sourceUrl: 'http://localhost:3009/test-payment',
-          isLive: false,
-          isPreview: true
-        } as unknown as PaymentExternalArgs
+              })
+            },
+            component: paymentField,
+            sourceUrl: 'http://localhost:3009/test-payment',
+            isLive: false,
+            isPreview: true
+          })
+        )
 
         const res = await PaymentField.dispatcher(mockRequest, mockH, args)
 
@@ -405,40 +416,47 @@ describe('PaymentField', () => {
       it('should display error if create payment fails (e.g. network or bad api key) - test payment', async () => {
         const mockYarSet = jest.fn()
         const mockYarFlash = jest.fn()
-        const mockRequest = {
-          ...mockRequestBase,
-          yar: {
-            set: mockYarSet,
-            flash: mockYarFlash
-          },
-          url: {
-            href: '/here'
-          }
-        } as unknown as FormRequestPayload
-        const mockH = {
-          redirect: jest
-            .fn()
-            .mockReturnValueOnce({ code: jest.fn().mockReturnValueOnce('ok') })
-        } as unknown as FormResponseToolkit
-        const args = {
-          controller: {
-            model: {
-              formId: 'formid',
-              basePath: 'base-path',
-              name: 'PaymentModel',
-              services: mockServices,
-              createTranslator: (lang: string) => model.createTranslator(lang),
-              getReference: jest.fn().mockReturnValue('pay-ref-123')
+        const mockRequest = /** @type {FormRequestPayload} */ (
+          /** @type {unknown} */ ({
+            ...mockRequestBase,
+            yar: {
+              set: mockYarSet,
+              flash: mockYarFlash
             },
-            getState: jest
-              .fn()
-              .mockResolvedValueOnce({ $$__referenceNumber: 'pay-ref-123' })
-          },
-          component: paymentField,
-          sourceUrl: 'http://localhost:3009/test-payment',
-          isLive: false,
-          isPreview: true
-        } as unknown as PaymentExternalArgs
+            url: {
+              href: '/here'
+            }
+          })
+        )
+        const mockH = /** @type {FormResponseToolkit} */ (
+          /** @type {unknown} */ ({
+            redirect: jest.fn().mockReturnValueOnce({
+              code: jest.fn().mockReturnValueOnce('ok')
+            })
+          })
+        )
+        const args = /** @type {PaymentExternalArgs} */ (
+          /** @type {unknown} */ ({
+            controller: {
+              model: {
+                formId: 'formid',
+                basePath: 'base-path',
+                name: 'PaymentModel',
+                services: mockServices,
+                createTranslator: (/** @type {string} */ lang) =>
+                  model.createTranslator(lang),
+                getReference: jest.fn().mockReturnValue('pay-ref-123')
+              },
+              getState: jest
+                .fn()
+                .mockResolvedValueOnce({ $$__referenceNumber: 'pay-ref-123' })
+            },
+            component: paymentField,
+            sourceUrl: 'http://localhost:3009/test-payment',
+            isLive: false,
+            isPreview: true
+          })
+        )
         jest.mocked(postJson).mockImplementationOnce(() => {
           // eslint-disable-next-line @typescript-eslint/only-throw-error
           throw { output: { statusCode: StatusCodes.UNAUTHORIZED } }
@@ -461,40 +479,47 @@ describe('PaymentField', () => {
       it('should display error if create payment fails (e.g. network or bad api key) - live payment', async () => {
         const mockYarSet = jest.fn()
         const mockYarFlash = jest.fn()
-        const mockRequest = {
-          ...mockRequestBase,
-          yar: {
-            set: mockYarSet,
-            flash: mockYarFlash
-          },
-          url: {
-            href: '/here'
-          }
-        } as unknown as FormRequestPayload
-        const mockH = {
-          redirect: jest
-            .fn()
-            .mockReturnValueOnce({ code: jest.fn().mockReturnValueOnce('ok') })
-        } as unknown as FormResponseToolkit
-        const args = {
-          controller: {
-            model: {
-              formId: 'formid',
-              basePath: 'base-path',
-              name: 'PaymentModel',
-              services: mockServices,
-              createTranslator: (lang: string) => model.createTranslator(lang),
-              getReference: jest.fn().mockReturnValue('pay-ref-123')
+        const mockRequest = /** @type {FormRequestPayload} */ (
+          /** @type {unknown} */ ({
+            ...mockRequestBase,
+            yar: {
+              set: mockYarSet,
+              flash: mockYarFlash
             },
-            getState: jest
-              .fn()
-              .mockResolvedValueOnce({ $$__referenceNumber: 'pay-ref-123' })
-          },
-          component: paymentField,
-          sourceUrl: 'http://localhost:3009/test-payment',
-          isLive: true,
-          isPreview: false
-        } as unknown as PaymentExternalArgs
+            url: {
+              href: '/here'
+            }
+          })
+        )
+        const mockH = /** @type {FormResponseToolkit} */ (
+          /** @type {unknown} */ ({
+            redirect: jest.fn().mockReturnValueOnce({
+              code: jest.fn().mockReturnValueOnce('ok')
+            })
+          })
+        )
+        const args = /** @type {PaymentExternalArgs} */ (
+          /** @type {unknown} */ ({
+            controller: {
+              model: {
+                formId: 'formid',
+                basePath: 'base-path',
+                name: 'PaymentModel',
+                services: mockServices,
+                createTranslator: (/** @type {string} */ lang) =>
+                  model.createTranslator(lang),
+                getReference: jest.fn().mockReturnValue('pay-ref-123')
+              },
+              getState: jest
+                .fn()
+                .mockResolvedValueOnce({ $$__referenceNumber: 'pay-ref-123' })
+            },
+            component: paymentField,
+            sourceUrl: 'http://localhost:3009/test-payment',
+            isLive: true,
+            isPreview: false
+          })
+        )
         jest.mocked(postJson).mockImplementationOnce(() => {
           // eslint-disable-next-line @typescript-eslint/only-throw-error
           throw { output: { statusCode: StatusCodes.UNAUTHORIZED } }
@@ -522,14 +547,16 @@ describe('PaymentField', () => {
         const error = await paymentField
           .onSubmit(
             mockRequest,
-            {} as FormMetadata,
-            { state: {} } as FormContext
+            /** @type {FormMetadata} */ ({}),
+            /** @type {FormContext} */ ({ state: {} })
           )
-          .catch((e: unknown) => e)
+          .catch((/** @type {unknown} */ e) => e)
 
         expect(error).toBeInstanceOf(PaymentPreAuthError)
-        expect((error as PaymentPreAuthError).component).toBe(paymentField)
-        expect((error as PaymentPreAuthError).userMessage).toBe(
+        expect(/** @type {PaymentPreAuthError} */ (error).component).toBe(
+          paymentField
+        )
+        expect(/** @type {PaymentPreAuthError} */ (error).userMessage).toBe(
           'Complete the payment to continue'
         )
       })
@@ -539,19 +566,21 @@ describe('PaymentField', () => {
 
         await paymentField.onSubmit(
           mockRequest,
-          {} as FormMetadata,
-          {
-            state: {
-              myComponent: {
-                capture: {
-                  status: 'success'
-                },
-                paymentId: 'payment-id',
-                amount: 123,
-                description: 'Payment desc'
+          /** @type {FormMetadata} */ ({}),
+          /** @type {FormContext} */ (
+            /** @type {unknown} */ ({
+              state: {
+                myComponent: {
+                  capture: {
+                    status: 'success'
+                  },
+                  paymentId: 'payment-id',
+                  amount: 123,
+                  description: 'Payment desc'
+                }
               }
-            }
-          } as unknown as FormContext
+            })
+          )
         )
         expect(get).not.toHaveBeenCalled()
         expect(post).not.toHaveBeenCalled()
@@ -567,18 +596,20 @@ describe('PaymentField', () => {
           })
         await paymentField.onSubmit(
           mockRequest,
-          {} as FormMetadata,
-          {
-            state: {
-              myComponent: {
-                paymentId: 'payment-id',
-                amount: 100,
-                description: 'Payment desc',
-                isLivePayment: false,
-                formId: 'formid'
+          /** @type {FormMetadata} */ ({}),
+          /** @type {FormContext} */ (
+            /** @type {unknown} */ ({
+              state: {
+                myComponent: {
+                  paymentId: 'payment-id',
+                  amount: 100,
+                  description: 'Payment desc',
+                  isLivePayment: false,
+                  formId: 'formid'
+                }
               }
-            }
-          } as unknown as FormContext
+            })
+          )
         )
         expect(get).toHaveBeenCalled()
         expect(post).not.toHaveBeenCalled()
@@ -595,24 +626,28 @@ describe('PaymentField', () => {
         const error = await paymentField
           .onSubmit(
             mockRequest,
-            {} as FormMetadata,
-            {
-              state: {
-                myComponent: {
-                  paymentId: 'payment-id',
-                  amount: 100,
-                  description: 'Payment desc',
-                  isLivePayment: false,
-                  formId: 'formid'
+            /** @type {FormMetadata} */ ({}),
+            /** @type {FormContext} */ (
+              /** @type {unknown} */ ({
+                state: {
+                  myComponent: {
+                    paymentId: 'payment-id',
+                    amount: 100,
+                    description: 'Payment desc',
+                    isLivePayment: false,
+                    formId: 'formid'
+                  }
                 }
-              }
-            } as unknown as FormContext
+              })
+            )
           )
-          .catch((e: unknown) => e)
+          .catch((/** @type {unknown} */ e) => e)
 
         expect(error).toBeInstanceOf(PaymentPreAuthError)
-        expect((error as PaymentPreAuthError).component).toBe(paymentField)
-        expect((error as PaymentPreAuthError).userMessage).toBe(
+        expect(/** @type {PaymentPreAuthError} */ (error).component).toBe(
+          paymentField
+        )
+        expect(/** @type {PaymentPreAuthError} */ (error).userMessage).toBe(
           'Your payment authorisation has expired. Please add your payment details again.'
         )
       })
@@ -630,24 +665,28 @@ describe('PaymentField', () => {
         const error = await paymentField
           .onSubmit(
             mockRequest,
-            {} as FormMetadata,
-            {
-              state: {
-                myComponent: {
-                  paymentId: 'payment-id',
-                  amount: 123,
-                  description: 'Payment desc',
-                  isLivePayment: false,
-                  formId: 'formid'
+            /** @type {FormMetadata} */ ({}),
+            /** @type {FormContext} */ (
+              /** @type {unknown} */ ({
+                state: {
+                  myComponent: {
+                    paymentId: 'payment-id',
+                    amount: 123,
+                    description: 'Payment desc',
+                    isLivePayment: false,
+                    formId: 'formid'
+                  }
                 }
-              }
-            } as unknown as FormContext
+              })
+            )
           )
-          .catch((e: unknown) => e)
+          .catch((/** @type {unknown} */ e) => e)
 
         expect(error).toBeInstanceOf(PaymentPreAuthError)
-        expect((error as PaymentPreAuthError).component).toBe(paymentField)
-        expect((error as PaymentPreAuthError).userMessage).toBe(
+        expect(/** @type {PaymentPreAuthError} */ (error).component).toBe(
+          paymentField
+        )
+        expect(/** @type {PaymentPreAuthError} */ (error).userMessage).toBe(
           'There was a problem and your form was not submitted. Try submitting the form again.'
         )
       })
@@ -665,24 +704,28 @@ describe('PaymentField', () => {
         const error = await paymentField
           .onSubmit(
             mockRequest,
-            {} as FormMetadata,
-            {
-              state: {
-                myComponent: {
-                  paymentId: 'payment-id',
-                  amount: 123,
-                  description: 'Payment desc',
-                  isLivePayment: false,
-                  formId: 'formid'
+            /** @type {FormMetadata} */ ({}),
+            /** @type {FormContext} */ (
+              /** @type {unknown} */ ({
+                state: {
+                  myComponent: {
+                    paymentId: 'payment-id',
+                    amount: 123,
+                    description: 'Payment desc',
+                    isLivePayment: false,
+                    formId: 'formid'
+                  }
                 }
-              }
-            } as unknown as FormContext
+              })
+            )
           )
-          .catch((e: unknown) => e)
+          .catch((/** @type {unknown} */ e) => e)
 
         expect(error).toBeInstanceOf(PaymentPreAuthError)
-        expect((error as PaymentPreAuthError).component).toBe(paymentField)
-        expect((error as PaymentPreAuthError).userMessage).toBe(
+        expect(/** @type {PaymentPreAuthError} */ (error).component).toBe(
+          paymentField
+        )
+        expect(/** @type {PaymentPreAuthError} */ (error).userMessage).toBe(
           'The pre-authorised payment amount is somehow different from that requested. Try adding payment details again.'
         )
       })
@@ -699,18 +742,20 @@ describe('PaymentField', () => {
         jest.mocked(post).mockResolvedValueOnce({ res: { statusCode: 200 } })
         await paymentField.onSubmit(
           mockRequest,
-          {} as FormMetadata,
-          {
-            state: {
-              myComponent: {
-                paymentId: 'payment-id',
-                amount: 123,
-                description: 'Payment desc',
-                isLivePayment: false,
-                formId: 'formid'
+          /** @type {FormMetadata} */ ({}),
+          /** @type {FormContext} */ (
+            /** @type {unknown} */ ({
+              state: {
+                myComponent: {
+                  paymentId: 'payment-id',
+                  amount: 123,
+                  description: 'Payment desc',
+                  isLivePayment: false,
+                  formId: 'formid'
+                }
               }
-            }
-          } as unknown as FormContext
+            })
+          )
         )
         expect(get).toHaveBeenCalled()
         expect(post).toHaveBeenCalled()
@@ -751,21 +796,24 @@ describe('PaymentField', () => {
   })
 
   describe('resolveAmount', () => {
-    const baseOptions = {
+    const baseOptions = /** @satisfies {PaymentFieldComponent['options']} */ ({
       amount: 50,
       description: 'Test payment'
-    } satisfies PaymentFieldComponent['options']
+    })
 
-    const mockState = {} as FormState
+    const mockState = /** @type {FormState} */ ({})
 
-    function createMockModel(
-      conditionResults: Record<string, boolean>
-    ): FormModel {
-      const conditions: Record<string, { fn: (s: FormState) => boolean }> = {}
+    /**
+     * @param {Record<string, boolean>} conditionResults
+     * @returns {FormModel}
+     */
+    function createMockModel(conditionResults) {
+      /** @type {Record<string, { fn: (s: FormState) => boolean }>} */
+      const conditions = {}
       for (const [key, value] of Object.entries(conditionResults)) {
         conditions[key] = { fn: () => value }
       }
-      return { conditions } as unknown as FormModel
+      return /** @type {FormModel} */ (/** @type {unknown} */ ({ conditions }))
     }
 
     it('should return default amount when no conditionalAmounts', () => {
@@ -846,7 +894,7 @@ describe('PaymentField', () => {
   })
 
   describe('dispatcher with conditional amounts', () => {
-    const def = {
+    const def = /** @satisfies {PaymentFieldComponent} */ ({
       title: 'Conditional payment',
       name: 'myPayment',
       type: ComponentType.PaymentField,
@@ -855,35 +903,40 @@ describe('PaymentField', () => {
         description: 'Test payment',
         conditionalAmounts: [{ condition: 'cond-zero', amount: 0 }]
       }
-    } satisfies PaymentFieldComponent
+    })
 
     it('should redirect to summary when resolved amount is 0', async () => {
       const mockRedirectCode = jest.fn().mockReturnValueOnce('redirected')
-      const mockH = {
-        redirect: jest.fn().mockReturnValueOnce({ code: mockRedirectCode })
-      } as unknown as FormResponseToolkit
+      const mockH = /** @type {FormResponseToolkit} */ (
+        /** @type {unknown} */ ({
+          redirect: jest.fn().mockReturnValueOnce({ code: mockRedirectCode })
+        })
+      )
       const mockRequest = mockRequestBase
-      const args = {
-        controller: {
-          model: {
-            formId: 'formid',
-            basePath: 'base-path',
-            services: mockServices,
-            conditions: {
-              'cond-zero': { fn: () => true }
+      const args = /** @type {PaymentExternalArgs} */ (
+        /** @type {unknown} */ ({
+          controller: {
+            model: {
+              formId: 'formid',
+              basePath: 'base-path',
+              services: mockServices,
+              conditions: {
+                'cond-zero': { fn: () => true }
+              },
+              createTranslator: (/** @type {string} */ lang) =>
+                model.createTranslator(lang),
+              getReference: jest.fn().mockReturnValue('ref-123')
             },
-            createTranslator: (lang: string) => model.createTranslator(lang),
-            getReference: jest.fn().mockReturnValue('ref-123')
+            getState: jest.fn().mockResolvedValueOnce({
+              $$__referenceNumber: 'ref-123'
+            })
           },
-          getState: jest.fn().mockResolvedValueOnce({
-            $$__referenceNumber: 'ref-123'
-          })
-        },
-        component: def,
-        sourceUrl: 'http://localhost:3009/test',
-        isLive: false,
-        isPreview: true
-      } as unknown as PaymentExternalArgs
+          component: def,
+          sourceUrl: 'http://localhost:3009/test',
+          isLive: false,
+          isPreview: true
+        })
+      )
 
       const res = await PaymentField.dispatcher(mockRequest, mockH, args)
       expect(res).toBe('redirected')
@@ -893,15 +946,19 @@ describe('PaymentField', () => {
 
     it('should use resolved amount when creating payment', async () => {
       const mockYarSet = jest.fn()
-      const mockRequest = {
-        ...mockRequestBase,
-        yar: { set: mockYarSet }
-      } as unknown as FormRequestPayload
-      const mockH = {
-        redirect: jest
-          .fn()
-          .mockReturnValueOnce({ code: jest.fn().mockReturnValueOnce('ok') })
-      } as unknown as FormResponseToolkit
+      const mockRequest = /** @type {FormRequestPayload} */ (
+        /** @type {unknown} */ ({
+          ...mockRequestBase,
+          yar: { set: mockYarSet }
+        })
+      )
+      const mockH = /** @type {FormResponseToolkit} */ (
+        /** @type {unknown} */ ({
+          redirect: jest
+            .fn()
+            .mockReturnValueOnce({ code: jest.fn().mockReturnValueOnce('ok') })
+        })
+      )
 
       const condDef = {
         ...def,
@@ -911,27 +968,30 @@ describe('PaymentField', () => {
         }
       }
 
-      const args = {
-        controller: {
-          model: {
-            formId: 'formid',
-            basePath: 'base-path',
-            services: mockServices,
-            conditions: {
-              'cond-100': { fn: () => true }
+      const args = /** @type {PaymentExternalArgs} */ (
+        /** @type {unknown} */ ({
+          controller: {
+            model: {
+              formId: 'formid',
+              basePath: 'base-path',
+              services: mockServices,
+              conditions: {
+                'cond-100': { fn: () => true }
+              },
+              createTranslator: (/** @type {string} */ lang) =>
+                model.createTranslator(lang),
+              getReference: jest.fn().mockReturnValue('ref-123')
             },
-            createTranslator: (lang: string) => model.createTranslator(lang),
-            getReference: jest.fn().mockReturnValue('ref-123')
+            getState: jest.fn().mockResolvedValueOnce({
+              $$__referenceNumber: 'ref-123'
+            })
           },
-          getState: jest.fn().mockResolvedValueOnce({
-            $$__referenceNumber: 'ref-123'
-          })
-        },
-        component: condDef,
-        sourceUrl: 'http://localhost:3009/test',
-        isLive: false,
-        isPreview: true
-      } as unknown as PaymentExternalArgs
+          component: condDef,
+          sourceUrl: 'http://localhost:3009/test',
+          isLive: false,
+          isPreview: true
+        })
+      )
 
       // @ts-expect-error - partial mock
       jest.mocked(postJson).mockResolvedValueOnce({
@@ -952,7 +1012,7 @@ describe('PaymentField', () => {
 
   describe('dispatcher with email prepopulation', () => {
     it('should pass state.userConfirmationEmailAddress to createPayment', async () => {
-      const def = {
+      const def = /** @satisfies {PaymentFieldComponent} */ ({
         title: 'Payment',
         name: 'myPayment',
         type: ComponentType.PaymentField,
@@ -960,34 +1020,39 @@ describe('PaymentField', () => {
           amount: 50,
           description: 'Test payment'
         }
-      } satisfies PaymentFieldComponent
+      })
 
       const mockRequest = mockRequestBase
-      const mockH = {
-        redirect: jest
-          .fn()
-          .mockReturnValueOnce({ code: jest.fn().mockReturnValueOnce('ok') })
-      } as unknown as FormResponseToolkit
-      const args = {
-        controller: {
-          model: {
-            formId: 'formid',
-            basePath: 'base-path',
-            services: mockServices,
-            conditions: {},
-            createTranslator: (lang: string) => model.createTranslator(lang),
-            getReference: jest.fn().mockReturnValue('ref-123')
+      const mockH = /** @type {FormResponseToolkit} */ (
+        /** @type {unknown} */ ({
+          redirect: jest
+            .fn()
+            .mockReturnValueOnce({ code: jest.fn().mockReturnValueOnce('ok') })
+        })
+      )
+      const args = /** @type {PaymentExternalArgs} */ (
+        /** @type {unknown} */ ({
+          controller: {
+            model: {
+              formId: 'formid',
+              basePath: 'base-path',
+              services: mockServices,
+              conditions: {},
+              createTranslator: (/** @type {string} */ lang) =>
+                model.createTranslator(lang),
+              getReference: jest.fn().mockReturnValue('ref-123')
+            },
+            getState: jest.fn().mockResolvedValueOnce({
+              $$__referenceNumber: 'ref-123',
+              userConfirmationEmailAddress: 'cya@example.com'
+            })
           },
-          getState: jest.fn().mockResolvedValueOnce({
-            $$__referenceNumber: 'ref-123',
-            userConfirmationEmailAddress: 'cya@example.com'
-          })
-        },
-        component: def,
-        sourceUrl: 'http://localhost:3009/test',
-        isLive: false,
-        isPreview: true
-      } as unknown as PaymentExternalArgs
+          component: def,
+          sourceUrl: 'http://localhost:3009/test',
+          isLive: false,
+          isPreview: true
+        })
+      )
 
       // @ts-expect-error - partial mock
       jest.mocked(postJson).mockResolvedValueOnce({
@@ -1011,7 +1076,7 @@ describe('PaymentField', () => {
     })
 
     it('should not pass email when state.userConfirmationEmailAddress is missing', async () => {
-      const def = {
+      const def = /** @satisfies {PaymentFieldComponent} */ ({
         title: 'Payment',
         name: 'myPayment',
         type: ComponentType.PaymentField,
@@ -1019,33 +1084,38 @@ describe('PaymentField', () => {
           amount: 50,
           description: 'Test payment'
         }
-      } satisfies PaymentFieldComponent
+      })
 
       const mockRequest = mockRequestBase
-      const mockH = {
-        redirect: jest
-          .fn()
-          .mockReturnValueOnce({ code: jest.fn().mockReturnValueOnce('ok') })
-      } as unknown as FormResponseToolkit
-      const args = {
-        controller: {
-          model: {
-            formId: 'formid',
-            basePath: 'base-path',
-            services: mockServices,
-            conditions: {},
-            createTranslator: (lang: string) => model.createTranslator(lang),
-            getReference: jest.fn().mockReturnValue('ref-123')
+      const mockH = /** @type {FormResponseToolkit} */ (
+        /** @type {unknown} */ ({
+          redirect: jest
+            .fn()
+            .mockReturnValueOnce({ code: jest.fn().mockReturnValueOnce('ok') })
+        })
+      )
+      const args = /** @type {PaymentExternalArgs} */ (
+        /** @type {unknown} */ ({
+          controller: {
+            model: {
+              formId: 'formid',
+              basePath: 'base-path',
+              services: mockServices,
+              conditions: {},
+              createTranslator: (/** @type {string} */ lang) =>
+                model.createTranslator(lang),
+              getReference: jest.fn().mockReturnValue('ref-123')
+            },
+            getState: jest.fn().mockResolvedValueOnce({
+              $$__referenceNumber: 'ref-123'
+            })
           },
-          getState: jest.fn().mockResolvedValueOnce({
-            $$__referenceNumber: 'ref-123'
-          })
-        },
-        component: def,
-        sourceUrl: 'http://localhost:3009/test',
-        isLive: false,
-        isPreview: true
-      } as unknown as PaymentExternalArgs
+          component: def,
+          sourceUrl: 'http://localhost:3009/test',
+          isLive: false,
+          isPreview: true
+        })
+      )
 
       // @ts-expect-error - partial mock
       jest.mocked(postJson).mockResolvedValueOnce({
@@ -1069,7 +1139,7 @@ describe('PaymentField', () => {
     })
 
     it('should not pass email when state.userConfirmationEmailAddress is not a string', async () => {
-      const def = {
+      const def = /** @satisfies {PaymentFieldComponent} */ ({
         title: 'Payment',
         name: 'myPayment',
         type: ComponentType.PaymentField,
@@ -1077,34 +1147,39 @@ describe('PaymentField', () => {
           amount: 50,
           description: 'Test payment'
         }
-      } satisfies PaymentFieldComponent
+      })
 
       const mockRequest = mockRequestBase
-      const mockH = {
-        redirect: jest
-          .fn()
-          .mockReturnValueOnce({ code: jest.fn().mockReturnValueOnce('ok') })
-      } as unknown as FormResponseToolkit
-      const args = {
-        controller: {
-          model: {
-            formId: 'formid',
-            basePath: 'base-path',
-            services: mockServices,
-            conditions: {},
-            createTranslator: (lang: string) => model.createTranslator(lang),
-            getReference: jest.fn().mockReturnValue('ref-123')
+      const mockH = /** @type {FormResponseToolkit} */ (
+        /** @type {unknown} */ ({
+          redirect: jest
+            .fn()
+            .mockReturnValueOnce({ code: jest.fn().mockReturnValueOnce('ok') })
+        })
+      )
+      const args = /** @type {PaymentExternalArgs} */ (
+        /** @type {unknown} */ ({
+          controller: {
+            model: {
+              formId: 'formid',
+              basePath: 'base-path',
+              services: mockServices,
+              conditions: {},
+              createTranslator: (/** @type {string} */ lang) =>
+                model.createTranslator(lang),
+              getReference: jest.fn().mockReturnValue('ref-123')
+            },
+            getState: jest.fn().mockResolvedValueOnce({
+              $$__referenceNumber: 'ref-123',
+              userConfirmationEmailAddress: { not: 'a string' }
+            })
           },
-          getState: jest.fn().mockResolvedValueOnce({
-            $$__referenceNumber: 'ref-123',
-            userConfirmationEmailAddress: { not: 'a string' }
-          })
-        },
-        component: def,
-        sourceUrl: 'http://localhost:3009/test',
-        isLive: false,
-        isPreview: true
-      } as unknown as PaymentExternalArgs
+          component: def,
+          sourceUrl: 'http://localhost:3009/test',
+          isLive: false,
+          isPreview: true
+        })
+      )
 
       // @ts-expect-error - partial mock
       jest.mocked(postJson).mockResolvedValueOnce({
@@ -1129,7 +1204,7 @@ describe('PaymentField', () => {
   })
 
   describe('onSubmit with conditional amounts', () => {
-    const def = {
+    const def = /** @satisfies {PaymentFieldComponent} */ ({
       title: 'Payment',
       name: 'myComponent',
       type: ComponentType.PaymentField,
@@ -1138,25 +1213,30 @@ describe('PaymentField', () => {
         description: 'Test payment',
         conditionalAmounts: []
       }
-    } satisfies PaymentFieldComponent
+    })
 
     const collection = new ComponentCollection([def], { model })
-    const paymentField = collection.fields[0] as PaymentField
-    paymentField.model = {
-      services: mockServices,
-      conditions: {},
-      createTranslator: (lang: string) => model.createTranslator(lang)
-    } as unknown as FormModel
+    const paymentField = /** @type {PaymentField} */ (collection.fields[0])
+    paymentField.model = /** @type {FormModel} */ (
+      /** @type {unknown} */ ({
+        services: mockServices,
+        conditions: {},
+        createTranslator: (/** @type {string} */ lang) =>
+          model.createTranslator(lang)
+      })
+    )
 
     it('should return early when resolved amount is 0', async () => {
       const mockRequest = mockRequestBase
 
       await paymentField.onSubmit(
         mockRequest,
-        {} as FormMetadata,
-        {
-          state: {}
-        } as unknown as FormContext
+        /** @type {FormMetadata} */ ({}),
+        /** @type {FormContext} */ (
+          /** @type {unknown} */ ({
+            state: {}
+          })
+        )
       )
 
       expect(get).not.toHaveBeenCalled()
@@ -1164,3 +1244,11 @@ describe('PaymentField', () => {
     })
   })
 })
+
+/**
+ * @import { FormMetadata, PaymentFieldComponent } from '@defra/forms-model'
+ * @import { Field } from '~/src/server/plugins/engine/components/helpers/components.js'
+ * @import { FormContext, FormState, FormValue, PaymentExternalArgs } from '~/src/server/plugins/engine/types.js'
+ * @import { FormRequestPayload, FormResponseToolkit } from '~/src/server/routes/types.js'
+ * @import { Services } from '~/src/server/types.js'
+ */
