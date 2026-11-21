@@ -1,14 +1,8 @@
-import {
-  ComponentType,
-  type DeclarationFieldComponent
-} from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { DeclarationField } from '~/src/server/plugins/engine/components/DeclarationField.js'
-import {
-  getAnswer,
-  type Field
-} from '~/src/server/plugins/engine/components/helpers/components.js'
+import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import definition from '~/test/form/definitions/blank.js'
@@ -21,7 +15,8 @@ const translator = new FormModel(definition, {
 }).createTranslator()
 
 describe('DeclarationField', () => {
-  let model: FormModel
+  /** @type {FormModel} */
+  let model
 
   beforeEach(() => {
     model = new FormModel(definition, {
@@ -30,19 +25,22 @@ describe('DeclarationField', () => {
   })
 
   describe('Defaults', () => {
-    let def: DeclarationFieldComponent
-    let collection: ComponentCollection
-    let field: Field
+    /** @type {DeclarationFieldComponent} */
+    let def
+    /** @type {ComponentCollection} */
+    let collection
+    /** @type {Field} */
+    let field
 
     beforeEach(() => {
-      def = {
+      def = /** @satisfies {DeclarationFieldComponent} */ ({
         title: 'Example Declaration Component',
         name: 'myComponent',
         content: 'Lorem ipsum dolar sit amet',
         shortDescription: 'Terms and conditions',
         type: ComponentType.DeclarationField,
         options: {}
-      } satisfies DeclarationFieldComponent
+      })
 
       collection = new ComponentCollection([def], { model })
       field = collection.fields[0]
@@ -276,10 +274,10 @@ describe('DeclarationField', () => {
       })
 
       it('sets Nunjucks component to false when not checked', () => {
-        def = {
+        def = /** @satisfies {DeclarationFieldComponent} */ ({
           ...def,
           hint: 'Please read and confirm the following'
-        } satisfies DeclarationFieldComponent
+        })
 
         collection = new ComponentCollection([def], { model })
         field = collection.fields[0]
@@ -305,10 +303,10 @@ describe('DeclarationField', () => {
       })
 
       it('sets Nunjucks component to true when checked from save-anbd-exit', () => {
-        def = {
+        def = /** @satisfies {DeclarationFieldComponent} */ ({
           ...def,
           hint: 'Please read and confirm the following'
-        } satisfies DeclarationFieldComponent
+        })
 
         collection = new ComponentCollection([def], { model })
         field = collection.fields[0]
@@ -334,10 +332,10 @@ describe('DeclarationField', () => {
       })
 
       it('sets Nunjucks component to false when unchecked from save-anbd-exit', () => {
-        def = {
+        def = /** @satisfies {DeclarationFieldComponent} */ ({
           ...def,
           hint: 'Please read and confirm the following'
-        } satisfies DeclarationFieldComponent
+        })
 
         collection = new ComponentCollection([def], { model })
         field = collection.fields[0]
@@ -363,10 +361,10 @@ describe('DeclarationField', () => {
       })
 
       it('sets Nunjucks component value when posted', () => {
-        def = {
+        def = /** @satisfies {DeclarationFieldComponent} */ ({
           ...def,
           hint: 'Please read and confirm the following'
-        } satisfies DeclarationFieldComponent
+        })
 
         collection = new ComponentCollection([def], { model })
         field = collection.fields[0]
@@ -392,7 +390,7 @@ describe('DeclarationField', () => {
       })
 
       it('sets custom message when in def', () => {
-        def = {
+        def = /** @satisfies {DeclarationFieldComponent} */ ({
           ...def,
           title: 'Declaration',
           content:
@@ -403,7 +401,7 @@ describe('DeclarationField', () => {
             declarationConfirmationLabel:
               'I consent to the processing of my personal data'
           }
-        } satisfies DeclarationFieldComponent
+        })
 
         collection = new ComponentCollection([def], { model })
         field = collection.fields[0]
@@ -427,10 +425,10 @@ describe('DeclarationField', () => {
       })
 
       it('sets checkbox as unchecked', () => {
-        def = {
+        def = /** @satisfies {DeclarationFieldComponent} */ ({
           ...def,
           hint: 'Please read and confirm the following'
-        } satisfies DeclarationFieldComponent
+        })
 
         collection = new ComponentCollection([def], { model })
         field = collection.fields[0]
@@ -476,14 +474,14 @@ describe('DeclarationField', () => {
     describe.each([
       {
         description: 'Default',
-        component: {
+        component: /** @satisfies {DeclarationFieldComponent} */ ({
           title: 'Terms and conditions',
           shortDescription: 'The terms and conditions',
           content: 'Lorem ipsum dolar sit amet',
           name: 'myComponent',
           type: ComponentType.DeclarationField,
           options: {}
-        } satisfies DeclarationFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(['unchecked', 'true']),
@@ -498,14 +496,14 @@ describe('DeclarationField', () => {
       },
       {
         description: 'Use short description if it exists',
-        component: {
+        component: /** @satisfies {DeclarationFieldComponent} */ ({
           title: 'Terms and conditions',
           shortDescription: 'Terms and conditions',
           content: 'Lorem ipsum dolar sit amet',
           name: 'myComponent',
           type: ComponentType.DeclarationField,
           options: {}
-        } satisfies DeclarationFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(['unchecked']),
@@ -522,7 +520,7 @@ describe('DeclarationField', () => {
       },
       {
         description: 'Optional field',
-        component: {
+        component: /** @satisfies {DeclarationFieldComponent} */ ({
           title: 'Example text field',
           name: 'myComponent',
           content: 'Lorem ipsum dolar sit amet',
@@ -530,7 +528,7 @@ describe('DeclarationField', () => {
           options: {
             required: false
           }
-        } satisfies DeclarationFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(['unchecked']),
@@ -539,7 +537,8 @@ describe('DeclarationField', () => {
         ]
       }
     ])('$description', ({ component: def, assertions }) => {
-      let collection: ComponentCollection
+      /** @type {ComponentCollection} */
+      let collection
 
       beforeEach(() => {
         collection = new ComponentCollection([def], { model })
@@ -567,9 +566,9 @@ describe('DeclarationField', () => {
       const modelDecl = new FormModel(declarationWithGuidance, {
         basePath: 'test'
       })
-      const field = modelDecl.componentMap.get(
-        'declarationField'
-      ) as DeclarationField
+      const field = /** @type {DeclarationField} */ (
+        modelDecl.componentMap.get('declarationField')
+      )
       expect(field.headerStartLevel).toBe(3)
     })
 
@@ -577,10 +576,15 @@ describe('DeclarationField', () => {
       const modelDecl = new FormModel(declarationWithoutGuidance, {
         basePath: 'test'
       })
-      const field = modelDecl.componentMap.get(
-        'declarationField'
-      ) as DeclarationField
+      const field = /** @type {DeclarationField} */ (
+        modelDecl.componentMap.get('declarationField')
+      )
       expect(field.headerStartLevel).toBe(2)
     })
   })
 })
+
+/**
+ * @import { DeclarationFieldComponent } from '@defra/forms-model'
+ * @import { Field } from '~/src/server/plugins/engine/components/helpers/components.js'
+ */

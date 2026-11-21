@@ -1,18 +1,10 @@
-import {
-  ComponentType,
-  type EastingNorthingFieldComponent
-} from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { EastingNorthingField } from '~/src/server/plugins/engine/components/EastingNorthingField.js'
-import {
-  getAnswer,
-  type Field
-} from '~/src/server/plugins/engine/components/helpers/components.js'
+import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
-import { type EastingNorthingState } from '~/src/server/plugins/engine/types/index.js'
-import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
 
 const translator = new FormModel(definition, {
@@ -37,7 +29,8 @@ const welshTranslator = new FormModel(
 ).createTranslator('cy')
 
 describe('EastingNorthingField', () => {
-  let model: FormModel
+  /** @type {FormModel} */
+  let model
 
   beforeEach(() => {
     model = new FormModel(definition, {
@@ -46,19 +39,22 @@ describe('EastingNorthingField', () => {
   })
 
   describe('Defaults', () => {
-    let def: EastingNorthingFieldComponent
-    let collection: ComponentCollection
-    let field: Field
+    /** @type {EastingNorthingFieldComponent} */
+    let def
+    /** @type {ComponentCollection} */
+    let collection
+    /** @type {Field} */
+    let field
 
     beforeEach(() => {
-      def = {
+      def = /** @satisfies {EastingNorthingFieldComponent} */ ({
         title: 'Example easting northing',
         shortDescription: 'Example location',
         name: 'myComponent',
         type: ComponentType.EastingNorthingField,
         options: {},
         schema: {}
-      } satisfies EastingNorthingFieldComponent
+      })
 
       collection = new ComponentCollection([def], { model })
       field = collection.fields[0]
@@ -416,7 +412,8 @@ describe('EastingNorthingField', () => {
       })
 
       it('getViewErrors returns all errors for error summary', () => {
-        const errors: FormSubmissionError[] = [
+        /** @type {FormSubmissionError[]} */
+        const errors = [
           {
             name: 'myComponent__easting',
             text: 'Enter easting',
@@ -494,7 +491,9 @@ describe('EastingNorthingField', () => {
 
     describe('sub-field title key constants', () => {
       it('stores sub-field titles as i18next key constants', () => {
-        const locationField = collection.fields[0] as EastingNorthingField
+        const locationField = /** @type {EastingNorthingField} */ (
+          collection.fields[0]
+        )
         const subFields = locationField.collection.fields
 
         expect(subFields[0].title).toBe(
@@ -508,7 +507,9 @@ describe('EastingNorthingField', () => {
 
     describe('sub-field message overrides', () => {
       it('gets sub-field error messages translated', () => {
-        const locationField = collection.fields[0] as EastingNorthingField
+        const locationField = /** @type {EastingNorthingField} */ (
+          collection.fields[0]
+        )
 
         const messagesEnglish1 =
           locationField.getValidationMessagesOverride(translator)
@@ -541,13 +542,13 @@ describe('EastingNorthingField', () => {
     describe.each([
       {
         description: 'Trim empty spaces',
-        component: {
+        component: /** @satisfies {EastingNorthingFieldComponent} */ ({
           title: 'Example easting northing',
           name: 'myComponent',
           type: ComponentType.EastingNorthingField,
           options: {},
           schema: {}
-        } satisfies EastingNorthingFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData({
@@ -577,7 +578,7 @@ describe('EastingNorthingField', () => {
       },
       {
         description: 'Schema min and max for easting',
-        component: {
+        component: /** @satisfies {EastingNorthingFieldComponent} */ ({
           title: 'Example easting northing',
           name: 'myComponent',
           type: ComponentType.EastingNorthingField,
@@ -588,7 +589,7 @@ describe('EastingNorthingField', () => {
               max: 60000
             }
           }
-        } satisfies EastingNorthingFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData({
@@ -632,7 +633,7 @@ describe('EastingNorthingField', () => {
       },
       {
         description: 'Schema min and max for northing',
-        component: {
+        component: /** @satisfies {EastingNorthingFieldComponent} */ ({
           title: 'Example easting northing',
           name: 'myComponent',
           type: ComponentType.EastingNorthingField,
@@ -643,7 +644,7 @@ describe('EastingNorthingField', () => {
               max: 1200000
             }
           }
-        } satisfies EastingNorthingFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData({
@@ -687,13 +688,13 @@ describe('EastingNorthingField', () => {
       },
       {
         description: 'Precision validation',
-        component: {
+        component: /** @satisfies {EastingNorthingFieldComponent} */ ({
           title: 'Example easting northing',
           name: 'myComponent',
           type: ComponentType.EastingNorthingField,
           options: {},
           schema: {}
-        } satisfies EastingNorthingFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData({
@@ -737,14 +738,14 @@ describe('EastingNorthingField', () => {
       },
       {
         description: 'Values that are not numbers',
-        component: {
+        component: /** @satisfies {EastingNorthingFieldComponent} */ ({
           title: 'Example easting northing',
           shortDescription: 'Example location',
           name: 'myComponent',
           type: ComponentType.EastingNorthingField,
           options: {},
           schema: {}
-        } satisfies EastingNorthingFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData({ easting: 'abc', northing: '1234567' }),
@@ -778,14 +779,14 @@ describe('EastingNorthingField', () => {
       },
       {
         description: 'Partly filled',
-        component: {
+        component: /** @satisfies {EastingNorthingFieldComponent} */ ({
           title: 'Example easting northing',
           shortDescription: 'Example location',
           name: 'myComponent',
           type: ComponentType.EastingNorthingField,
           options: {},
           schema: {}
-        } satisfies EastingNorthingFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData({
@@ -811,7 +812,7 @@ describe('EastingNorthingField', () => {
       },
       {
         description: 'Optional field',
-        component: {
+        component: /** @satisfies {EastingNorthingFieldComponent} */ ({
           title: 'Example easting northing',
           name: 'myComponent',
           type: ComponentType.EastingNorthingField,
@@ -819,7 +820,7 @@ describe('EastingNorthingField', () => {
             required: false
           },
           schema: {}
-        } satisfies EastingNorthingFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData({
@@ -854,7 +855,7 @@ describe('EastingNorthingField', () => {
       },
       {
         description: 'Country validation (invalid value)',
-        component: {
+        component: /** @satisfies {EastingNorthingFieldComponent} */ ({
           title: 'Example easting northing',
           name: 'myComponent',
           type: ComponentType.EastingNorthingField,
@@ -862,7 +863,7 @@ describe('EastingNorthingField', () => {
             countries: ['wales']
           },
           schema: {}
-        } satisfies EastingNorthingFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData({
@@ -887,7 +888,7 @@ describe('EastingNorthingField', () => {
       },
       {
         description: 'Country validation (valid value)',
-        component: {
+        component: /** @satisfies {EastingNorthingFieldComponent} */ ({
           title: 'Example easting northing',
           name: 'myComponent',
           type: ComponentType.EastingNorthingField,
@@ -895,7 +896,7 @@ describe('EastingNorthingField', () => {
             countries: ['wales']
           },
           schema: {}
-        } satisfies EastingNorthingFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData({
@@ -913,7 +914,7 @@ describe('EastingNorthingField', () => {
       },
       {
         description: 'Country validation (invalid country)',
-        component: {
+        component: /** @satisfies {EastingNorthingFieldComponent} */ ({
           title: 'Example easting northing',
           name: 'myComponent',
           type: ComponentType.EastingNorthingField,
@@ -922,7 +923,7 @@ describe('EastingNorthingField', () => {
             countries: ['invalid']
           },
           schema: {}
-        } satisfies EastingNorthingFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData({
@@ -939,7 +940,8 @@ describe('EastingNorthingField', () => {
         ]
       }
     ])('$description', ({ component: def, assertions }) => {
-      let collection: ComponentCollection
+      /** @type {ComponentCollection} */
+      let collection
 
       beforeEach(() => {
         // @ts-expect-error -- testing invalid country value
@@ -956,7 +958,7 @@ describe('EastingNorthingField', () => {
     })
 
     it('getErrors formats country boundary errors', () => {
-      const component = {
+      const component = /** @satisfies {EastingNorthingFieldComponent} */ ({
         title: 'Example bounded EN field',
         name: 'myComponent',
         type: ComponentType.EastingNorthingField,
@@ -964,10 +966,11 @@ describe('EastingNorthingField', () => {
           countries: ['scotland'],
           required: true
         }
-      } satisfies EastingNorthingFieldComponent
+      })
 
       const collection = new ComponentCollection([component], { model })
-      const invalidSingleState: EastingNorthingState = {
+      /** @type {EastingNorthingState} */
+      const invalidSingleState = {
         easting: 350005,
         northing: 315469
       }
@@ -976,9 +979,9 @@ describe('EastingNorthingField', () => {
       const mockTranslator = { ...stubTranslator, t: mockT }
 
       const result = collection.validate(getFormData(invalidSingleState))
-      const eastingNorthingField = collection.components.at(
-        0
-      ) as EastingNorthingField
+      const eastingNorthingField = /** @type {EastingNorthingField} */ (
+        collection.components.at(0)
+      )
 
       const viewErrors = eastingNorthingField.getViewErrors(
         result.errors,
@@ -999,11 +1002,10 @@ describe('EastingNorthingField', () => {
   })
 })
 
-function getFormData(
-  value:
-    | { easting?: string | number; northing?: string | number }
-    | Record<string, never>
-) {
+/**
+ * @param {{ easting?: string | number, northing?: string | number } | Record<string, never>} value
+ */
+function getFormData(value) {
   if ('easting' in value || 'northing' in value) {
     return {
       myComponent__easting: value.easting,
@@ -1013,14 +1015,10 @@ function getFormData(
   return {}
 }
 
-function getFormState(
-  value:
-    | {
-        easting?: number
-        northing?: number
-      }
-    | Record<string, never>
-) {
+/**
+ * @param {{ easting?: number, northing?: number } | Record<string, never>} value
+ */
+function getFormState(value) {
   if ('easting' in value || 'northing' in value) {
     return {
       myComponent__easting: value.easting ?? null,
@@ -1032,3 +1030,10 @@ function getFormState(
     myComponent__northing: null
   }
 }
+
+/**
+ * @import { EastingNorthingFieldComponent } from '@defra/forms-model'
+ * @import { Field } from '~/src/server/plugins/engine/components/helpers/components.js'
+ * @import { EastingNorthingState } from '~/src/server/plugins/engine/types/index.js'
+ * @import { FormSubmissionError } from '~/src/server/plugins/engine/types.js'
+ */

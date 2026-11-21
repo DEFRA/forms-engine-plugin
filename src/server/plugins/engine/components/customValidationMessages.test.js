@@ -1,11 +1,6 @@
-import {
-  ComponentType,
-  isFormType,
-  type FormComponentsDef
-} from '@defra/forms-model'
+import { ComponentType, isFormType } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   buildComponent,
   buildModel,
@@ -13,17 +8,18 @@ import {
 } from '~/test/helpers/validation-helpers.js'
 
 /**
- * Checks `options.customValidationMessage` for every form component type,
+ * Checks `options.customValidationMessages` for every form component type,
  * with and without a translator. A real request always passes a translator.
  */
 
 const CUSTOM = 'This is a custom validation message'
-const OVERRIDE = { customValidationMessage: CUSTOM }
+const OVERRIDE = { customValidationMessages: { 'any.required': CUSTOM } }
 
 /**
- * Component types that use options.customValidationMessage
+ * Component types that use options.customValidationMessages
  */
-const SUPPORTED_COMPONENT_TYPES: FormComponentsDef['type'][] = [
+/** @type {FormComponentsDef['type'][]} */
+const SUPPORTED_COMPONENT_TYPES = [
   ComponentType.TextField,
   ComponentType.EmailAddressField,
   ComponentType.MultilineTextField,
@@ -31,13 +27,18 @@ const SUPPORTED_COMPONENT_TYPES: FormComponentsDef['type'][] = [
   ComponentType.NumberField,
   ComponentType.OsGridRefField,
   ComponentType.NationalGridFieldNumberField,
-  ComponentType.YesNoField
+  ComponentType.YesNoField,
+  ComponentType.RadiosField,
+  ComponentType.SelectField,
+  ComponentType.AutocompleteField
 ]
 
 /**
- * Component types that ignore options.customValidationMessage
+ * Component types that ignore options.customValidationMessages.
+ * CheckboxesField reads it but then throws away that schema.
  */
-const NOT_SUPPORTED_COMPONENT_TYPES: FormComponentsDef['type'][] = [
+/** @type {FormComponentsDef['type'][]} */
+const NOT_SUPPORTED_COMPONENT_TYPES = [
   ComponentType.CheckboxesField,
   ComponentType.DatePartsField,
   ComponentType.MonthYearField,
@@ -49,15 +50,14 @@ const NOT_SUPPORTED_COMPONENT_TYPES: FormComponentsDef['type'][] = [
   ComponentType.HiddenField,
   ComponentType.GeospatialField,
   ComponentType.PaymentField,
-  ComponentType.RadiosField,
-  ComponentType.SelectField,
-  ComponentType.AutocompleteField,
   ComponentType.TrackingField
 ]
 
-describe('Component-level validation message override (customValidationMessage)', () => {
-  let model: FormModel
-  let translator: ReturnType<FormModel['createTranslator']>
+describe('Component-level validation message override (customValidationMessages)', () => {
+  /** @type {FormModel} */
+  let model
+  /** @type {ReturnType<FormModel['createTranslator']>} */
+  let translator
 
   beforeEach(() => {
     model = buildModel()
@@ -125,3 +125,8 @@ describe('Component-level validation message override (customValidationMessage)'
     })
   })
 })
+
+/**
+ * @import { FormComponentsDef } from '@defra/forms-model'
+ * @import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+ */

@@ -1,17 +1,11 @@
-import {
-  ComponentType,
-  type CheckboxesFieldComponent
-} from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 import { toLower } from 'lodash'
 import lowerFirst from 'lodash/lowerFirst.js'
 import { outdent } from 'outdent'
 
 import { CheckboxesField } from '~/src/server/plugins/engine/components/CheckboxesField.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import {
-  getAnswer,
-  type Field
-} from '~/src/server/plugins/engine/components/helpers/components.js'
+import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import {
@@ -29,14 +23,14 @@ const translator = new FormModel(definition, {
 
 describe.each([
   {
-    component: {
+    component: /** @satisfies {CheckboxesFieldComponent} */ ({
       title: 'String list title',
       shortDescription: 'String list',
       name: 'myComponent',
       type: ComponentType.CheckboxesField,
       list: 'listString',
       options: {}
-    } satisfies CheckboxesFieldComponent,
+    }),
 
     options: {
       label: 'string list',
@@ -47,14 +41,14 @@ describe.each([
     }
   },
   {
-    component: {
+    component: /** @satisfies {CheckboxesFieldComponent} */ ({
       title: 'Number list title',
       name: 'myComponent',
       shortDescription: 'Number list',
       type: ComponentType.CheckboxesField,
       list: 'listNumber',
       options: {}
-    } satisfies CheckboxesFieldComponent,
+    }),
 
     options: {
       label: 'number list',
@@ -68,9 +62,12 @@ describe.each([
   const updated = structuredClone(definition)
   updated.lists = [options.list]
 
-  let model: FormModel
-  let collection: ComponentCollection
-  let field: Field
+  /** @type {FormModel} */
+  let model
+  /** @type {ComponentCollection} */
+  let collection
+  /** @type {Field} */
+  let field
 
   beforeEach(() => {
     model = new FormModel(updated, {
@@ -458,7 +455,7 @@ describe.each([
 
     describe('getDisplayStringFromFormValue', () => {
       it('returns empty string when value is undefined', () => {
-        const checkboxField = field as CheckboxesField
+        const checkboxField = /** @type {CheckboxesField} */ (field)
         const result = checkboxField.getDisplayStringFromFormValue(
           undefined,
           translator
@@ -467,7 +464,7 @@ describe.each([
       })
 
       it('returns empty string when value is empty array', () => {
-        const checkboxField = field as CheckboxesField
+        const checkboxField = /** @type {CheckboxesField} */ (field)
         const result = checkboxField.getDisplayStringFromFormValue(
           [],
           translator
@@ -478,7 +475,7 @@ describe.each([
       it.each([...options.examples])(
         'returns text for single selected value',
         (item) => {
-          const checkboxField = field as CheckboxesField
+          const checkboxField = /** @type {CheckboxesField} */ (field)
           const result = checkboxField.getDisplayStringFromFormValue(
             [item.value],
             translator
@@ -488,7 +485,7 @@ describe.each([
       )
 
       it('returns comma-separated text for multiple selected values', () => {
-        const checkboxField = field as CheckboxesField
+        const checkboxField = /** @type {CheckboxesField} */ (field)
         const item1 = options.examples[0]
         const item2 = options.examples[2]
 
@@ -506,7 +503,7 @@ describe.each([
     describe.each([
       {
         description: 'Schema min and max',
-        component: {
+        component: /** @satisfies {CheckboxesFieldComponent} */ ({
           title: 'Example checkboxes field',
           name: 'myComponent',
           type: ComponentType.CheckboxesField,
@@ -516,7 +513,7 @@ describe.each([
             min: 1,
             max: 2
           }
-        } satisfies CheckboxesFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData([]),
@@ -544,7 +541,7 @@ describe.each([
       },
       {
         description: 'Schema length',
-        component: {
+        component: /** @satisfies {CheckboxesFieldComponent} */ ({
           title: 'Example checkboxes field',
           name: 'myComponent',
           type: ComponentType.CheckboxesField,
@@ -553,7 +550,7 @@ describe.each([
           schema: {
             length: 4
           }
-        } satisfies CheckboxesFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(['1', '2', '3', '4', '4']),
@@ -569,7 +566,8 @@ describe.each([
         ]
       }
     ])('$description', ({ component: def, assertions }) => {
-      let collection: ComponentCollection
+      /** @type {ComponentCollection} */
+      let collection
 
       beforeEach(() => {
         collection = new ComponentCollection([def], { model })
@@ -585,3 +583,8 @@ describe.each([
     })
   })
 })
+
+/**
+ * @import { CheckboxesFieldComponent } from '@defra/forms-model'
+ * @import { Field } from '~/src/server/plugins/engine/components/helpers/components.js'
+ */

@@ -1,13 +1,13 @@
-import { ComponentType, type DetailsComponent } from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { type Guidance } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import definition from '~/test/form/definitions/basic.js'
 
 describe('Details', () => {
-  let model: FormModel
+  /** @type {FormModel} */
+  let model
 
   beforeEach(() => {
     model = new FormModel(definition, {
@@ -16,18 +16,21 @@ describe('Details', () => {
   })
 
   describe('Defaults', () => {
-    let def: DetailsComponent
-    let collection: ComponentCollection
-    let guidance: Guidance
+    /** @type {DetailsComponent} */
+    let def
+    /** @type {ComponentCollection} */
+    let collection
+    /** @type {Guidance} */
+    let guidance
 
     beforeEach(() => {
-      def = {
+      def = /** @satisfies {DetailsComponent} */ ({
         title: 'Details guidance',
         name: 'myComponent',
         type: ComponentType.Details,
         content: 'Lorem ipsum dolor sit amet',
         options: {}
-      } satisfies DetailsComponent
+      })
 
       collection = new ComponentCollection([def], { model })
       guidance = collection.guidance[0]
@@ -51,3 +54,8 @@ describe('Details', () => {
     })
   })
 })
+
+/**
+ * @import { DetailsComponent } from '@defra/forms-model'
+ * @import { Guidance } from '~/src/server/plugins/engine/components/helpers/components.js'
+ */

@@ -1,20 +1,10 @@
-import { ComponentType, type DatePartsFieldComponent } from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 import { addDays, format, startOfDay } from 'date-fns'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { type DatePartsField } from '~/src/server/plugins/engine/components/DatePartsField.js'
-import {
-  getAnswer,
-  type Field
-} from '~/src/server/plugins/engine/components/helpers/components.js'
-import { type DateInputItem } from '~/src/server/plugins/engine/components/types.js'
+import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
-import {
-  type ErrorMessageTemplateList,
-  type FormPayload,
-  type FormState
-} from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
 
 const translator = new FormModel(definition, {
@@ -22,7 +12,8 @@ const translator = new FormModel(definition, {
 }).createTranslator()
 
 describe('DatePartsField', () => {
-  let model: FormModel
+  /** @type {FormModel} */
+  let model
 
   beforeEach(() => {
     model = new FormModel(definition, {
@@ -31,18 +22,21 @@ describe('DatePartsField', () => {
   })
 
   describe('Defaults', () => {
-    let def: DatePartsFieldComponent
-    let collection: ComponentCollection
-    let field: Field
+    /** @type {DatePartsFieldComponent} */
+    let def
+    /** @type {ComponentCollection} */
+    let collection
+    /** @type {Field} */
+    let field
 
     beforeEach(() => {
-      def = {
+      def = /** @satisfies {DatePartsFieldComponent} */ ({
         title: 'Example date parts field',
         shortDescription: 'Example date parts',
         name: 'myComponent',
         type: ComponentType.DatePartsField,
         options: {}
-      } satisfies DatePartsFieldComponent
+      })
 
       collection = new ComponentCollection([def], { model })
       field = collection.fields[0]
@@ -477,27 +471,27 @@ describe('DatePartsField', () => {
         expect(errors.advancedSettingsErrors).not.toBeEmpty()
       })
 
+      /* eslint-disable jsdoc/valid-types -- the JSDoc type parser rejects a method signature in a type literal; tsc reads it */
       it('should return errors from static method', () => {
-        const staticErrors = (
-          field.constructor as typeof field.constructor & {
-            getAllPossibleErrors(): ErrorMessageTemplateList
-          }
-        ).getAllPossibleErrors()
+        const staticErrors =
+          /** @type {typeof field.constructor & { getAllPossibleErrors(): ErrorMessageTemplateList }} */ (
+            field.constructor
+          ).getAllPossibleErrors()
         expect(staticErrors.baseErrors).not.toBeEmpty()
         expect(staticErrors.advancedSettingsErrors).not.toBeEmpty()
       })
 
       it('instance method should delegate to static method', () => {
-        const staticResult = (
-          field.constructor as typeof field.constructor & {
-            getAllPossibleErrors(): ErrorMessageTemplateList
-          }
-        ).getAllPossibleErrors()
+        const staticResult =
+          /** @type {typeof field.constructor & { getAllPossibleErrors(): ErrorMessageTemplateList }} */ (
+            field.constructor
+          ).getAllPossibleErrors()
 
         const instanceResult = field.getAllPossibleErrors()
 
         expect(instanceResult).toEqual(staticResult)
       })
+      /* eslint-enable jsdoc/valid-types */
     })
   })
 
@@ -513,12 +507,12 @@ describe('DatePartsField', () => {
     describe.each([
       {
         description: 'Trim empty spaces',
-        component: {
+        component: /** @satisfies {DatePartsFieldComponent} */ ({
           title: 'Example date parts field',
           name: 'myComponent',
           type: ComponentType.DatePartsField,
           options: {}
-        } satisfies DatePartsFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData({
@@ -554,12 +548,12 @@ describe('DatePartsField', () => {
       },
       {
         description: 'Decimals',
-        component: {
+        component: /** @satisfies {DatePartsFieldComponent} */ ({
           title: 'Example date parts field',
           name: 'myComponent',
           type: ComponentType.DatePartsField,
           options: {}
-        } satisfies DatePartsFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData({
@@ -590,12 +584,12 @@ describe('DatePartsField', () => {
       },
       {
         description: 'Values that are not numbers',
-        component: {
+        component: /** @satisfies {DatePartsFieldComponent} */ ({
           title: 'Example date parts field',
           name: 'myComponent',
           type: ComponentType.DatePartsField,
           options: {}
-        } satisfies DatePartsFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData({ day: 'abc', month: '1', year: '2000' }),
@@ -631,12 +625,12 @@ describe('DatePartsField', () => {
       },
       {
         description: 'Leap years',
-        component: {
+        component: /** @satisfies {DatePartsFieldComponent} */ ({
           title: 'Example date parts field',
           name: 'myComponent',
           type: ComponentType.DatePartsField,
           options: {}
-        } satisfies DatePartsFieldComponent,
+        }),
         assertions: [
           {
             // Leap year in 2024
@@ -677,12 +671,12 @@ describe('DatePartsField', () => {
       },
       {
         description: 'Out of range values',
-        component: {
+        component: /** @satisfies {DatePartsFieldComponent} */ ({
           title: 'Example date parts field',
           name: 'myComponent',
           type: ComponentType.DatePartsField,
           options: {}
-        } satisfies DatePartsFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData({
@@ -745,12 +739,12 @@ describe('DatePartsField', () => {
       },
       {
         description: 'Impossible dates',
-        component: {
+        component: /** @satisfies {DatePartsFieldComponent} */ ({
           title: 'Example date parts field',
           name: 'myComponent',
           type: ComponentType.DatePartsField,
           options: {}
-        } satisfies DatePartsFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData({
@@ -794,14 +788,14 @@ describe('DatePartsField', () => {
       },
       {
         description: 'Max days in the past option',
-        component: {
+        component: /** @satisfies {DatePartsFieldComponent} */ ({
           title: 'Example date parts field',
           name: 'myComponent',
           type: ComponentType.DatePartsField,
           options: {
             maxDaysInPast: 1
           }
-        } satisfies DatePartsFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(TwoDaysInPast),
@@ -822,14 +816,14 @@ describe('DatePartsField', () => {
       },
       {
         description: 'Max days in the future option',
-        component: {
+        component: /** @satisfies {DatePartsFieldComponent} */ ({
           title: 'Example date parts field',
           name: 'myComponent',
           type: ComponentType.DatePartsField,
           options: {
             maxDaysInFuture: 1
           }
-        } satisfies DatePartsFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(TwoDaysInFuture),
@@ -850,14 +844,14 @@ describe('DatePartsField', () => {
       },
       {
         description: 'Max days in the future of zero',
-        component: {
+        component: /** @satisfies {DatePartsFieldComponent} */ ({
           title: 'Example date parts field',
           name: 'myComponent',
           type: ComponentType.DatePartsField,
           options: {
             maxDaysInFuture: 0
           }
-        } satisfies DatePartsFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(OneDayInFuture),
@@ -878,14 +872,14 @@ describe('DatePartsField', () => {
       },
       {
         description: 'Max days in the past of zero',
-        component: {
+        component: /** @satisfies {DatePartsFieldComponent} */ ({
           title: 'Example date parts field',
           name: 'myComponent',
           type: ComponentType.DatePartsField,
           options: {
             maxDaysInPast: 0
           }
-        } satisfies DatePartsFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(OneDayInPast),
@@ -906,14 +900,14 @@ describe('DatePartsField', () => {
       },
       {
         description: 'Earliest date option',
-        component: {
+        component: /** @satisfies {DatePartsFieldComponent} */ ({
           title: 'Example date parts field',
           name: 'myComponent',
           type: ComponentType.DatePartsField,
           options: {
             earliestDate: format(OneDayInPast, 'yyyy-MM-dd')
           }
-        } satisfies DatePartsFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(TwoDaysInPast),
@@ -934,14 +928,14 @@ describe('DatePartsField', () => {
       },
       {
         description: 'Latest date option',
-        component: {
+        component: /** @satisfies {DatePartsFieldComponent} */ ({
           title: 'Example date parts field',
           name: 'myComponent',
           type: ComponentType.DatePartsField,
           options: {
             latestDate: format(OneDayInFuture, 'yyyy-MM-dd')
           }
-        } satisfies DatePartsFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(TwoDaysInFuture),
@@ -962,14 +956,14 @@ describe('DatePartsField', () => {
       },
       {
         description: 'Optional fields',
-        component: {
+        component: /** @satisfies {DatePartsFieldComponent} */ ({
           title: 'Example date parts field',
           name: 'myComponent',
           type: ComponentType.DatePartsField,
           options: {
             required: false
           }
-        } satisfies DatePartsFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData({
@@ -988,7 +982,8 @@ describe('DatePartsField', () => {
         ]
       }
     ])('$description', ({ component: def, assertions }) => {
-      let collection: ComponentCollection
+      /** @type {ComponentCollection} */
+      let collection
 
       beforeEach(() => {
         collection = new ComponentCollection([def], { model })
@@ -1008,39 +1003,40 @@ describe('DatePartsField', () => {
     describe.each([
       {
         description: 'error description',
-        def: {
+        def: /** @satisfies {DatePartsFieldComponent} */ ({
           title: 'Example date parts field',
           shortDescription: 'Example date parts',
           errorDescription: 'Example date error',
           name: 'myComponent',
           type: ComponentType.DatePartsField,
           options: {}
-        } satisfies DatePartsFieldComponent,
+        }),
         expectedLabel: 'Example date error'
       },
       {
         description: 'short description',
-        def: {
+        def: /** @satisfies {DatePartsFieldComponent} */ ({
           title: 'Example date parts field',
           shortDescription: 'Example date parts',
           name: 'myComponent',
           type: ComponentType.DatePartsField,
           options: {}
-        } satisfies DatePartsFieldComponent,
+        }),
         expectedLabel: 'Example date parts'
       },
       {
         description: 'title',
-        def: {
+        def: /** @satisfies {DatePartsFieldComponent} */ ({
           title: 'Example date parts field',
           name: 'myComponent',
           type: ComponentType.DatePartsField,
           options: {}
-        } satisfies DatePartsFieldComponent,
+        }),
         expectedLabel: 'Example date parts field'
       }
     ])('Error label uses $description', ({ def, expectedLabel }) => {
-      let collection: ComponentCollection
+      /** @type {ComponentCollection} */
+      let collection
 
       beforeEach(() => {
         collection = new ComponentCollection([def], { model })
@@ -1089,17 +1085,19 @@ describe('DatePartsField', () => {
   })
 
   describe('sub-field title key constants', () => {
-    let dateParts: DatePartsField
+    /** @type {DatePartsField} */
+    let dateParts
 
     beforeEach(() => {
-      const def: DatePartsFieldComponent = {
+      /** @type {DatePartsFieldComponent} */
+      const def = {
         title: 'Date of birth',
         name: 'dob',
         type: ComponentType.DatePartsField,
         options: {}
       }
       const coll = new ComponentCollection([def], { model })
-      dateParts = coll.fields[0] as DatePartsField
+      dateParts = /** @type {DatePartsField} */ (coll.fields[0])
     })
 
     it('stores day sub-field title as i18next key constant', () => {
@@ -1124,12 +1122,12 @@ describe('DatePartsField', () => {
 
 /**
  * Date field view model
+ * @param {Date} date
+ * @param {string} name
+ * @param {Partial<DateInputItem>} [overrides]
+ * @returns {DateInputItem}
  */
-function getViewModel(
-  date: Date,
-  name: string,
-  overrides?: Partial<DateInputItem>
-): DateInputItem {
+function getViewModel(date, name, overrides) {
   const payload = getFormData(date)
 
   const fieldName = `myComponent__${name}`
@@ -1144,15 +1142,17 @@ function getViewModel(
     ),
     name: fieldName,
     id: fieldName,
-    value: fieldValue as DateInputItem['value'],
+    value: /** @type {DateInputItem['value']} */ (fieldValue),
     classes: fieldClasses
   }
 }
 
 /**
  * Date form data
+ * @param {Date | FormPayload} date
+ * @returns {FormPayload}
  */
-function getFormData(date: Date | FormPayload): FormPayload {
+function getFormData(date) {
   if (date instanceof Date) {
     date = {
       day: date.getDate(),
@@ -1170,8 +1170,10 @@ function getFormData(date: Date | FormPayload): FormPayload {
 
 /**
  * Date session state
+ * @param {Date | FormPayload} date
+ * @returns {FormState}
  */
-function getFormState(date: Date | FormPayload): FormState {
+function getFormState(date) {
   const [day, month, year] = Object.values(getFormData(date))
 
   return {
@@ -1180,3 +1182,11 @@ function getFormState(date: Date | FormPayload): FormState {
     myComponent__year: year ?? null
   }
 }
+
+/**
+ * @import { DatePartsFieldComponent } from '@defra/forms-model'
+ * @import { DatePartsField } from '~/src/server/plugins/engine/components/DatePartsField.js'
+ * @import { Field } from '~/src/server/plugins/engine/components/helpers/components.js'
+ * @import { DateInputItem } from '~/src/server/plugins/engine/components/types.js'
+ * @import { ErrorMessageTemplateList, FormPayload, FormState } from '~/src/server/plugins/engine/types.js'
+ */

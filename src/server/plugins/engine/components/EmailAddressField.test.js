@@ -1,13 +1,7 @@
-import {
-  ComponentType,
-  type EmailAddressFieldComponent
-} from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import {
-  getAnswer,
-  type Field
-} from '~/src/server/plugins/engine/components/helpers/components.js'
+import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import definition from '~/test/form/definitions/blank.js'
@@ -18,7 +12,8 @@ const translator = new FormModel(definition, {
 }).createTranslator()
 
 describe('EmailAddressField', () => {
-  let model: FormModel
+  /** @type {FormModel} */
+  let model
 
   beforeEach(() => {
     model = new FormModel(definition, {
@@ -27,18 +22,21 @@ describe('EmailAddressField', () => {
   })
 
   describe('Defaults', () => {
-    let def: EmailAddressFieldComponent
-    let collection: ComponentCollection
-    let field: Field
+    /** @type {EmailAddressFieldComponent} */
+    let def
+    /** @type {ComponentCollection} */
+    let collection
+    /** @type {Field} */
+    let field
 
     beforeEach(() => {
-      def = {
+      def = /** @satisfies {EmailAddressFieldComponent} */ ({
         title: 'Example email address field',
         shortDescription: 'Example email address',
         name: 'myComponent',
         type: ComponentType.EmailAddressField,
         options: {}
-      } satisfies EmailAddressFieldComponent
+      })
 
       collection = new ComponentCollection([def], { model })
       field = collection.fields[0]
@@ -125,12 +123,12 @@ describe('EmailAddressField', () => {
       })
 
       it('adds errors for empty value given no shortDescription', () => {
-        def = {
+        def = /** @satisfies {EmailAddressFieldComponent} */ ({
           title: 'Example email address field',
           name: 'myComponent',
           type: ComponentType.EmailAddressField,
           options: {}
-        } satisfies EmailAddressFieldComponent
+        })
 
         collection = new ComponentCollection([def], { model })
         const result = collection.validate(getFormData(''))
@@ -244,12 +242,12 @@ describe('EmailAddressField', () => {
     describe.each([
       {
         description: 'Trim empty spaces',
-        component: {
+        component: /** @satisfies {EmailAddressFieldComponent} */ ({
           title: 'Example email address field',
           name: 'myComponent',
           type: ComponentType.EmailAddressField,
           options: {}
-        } satisfies EmailAddressFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData('  defra.helpline@defra.gov.uk'),
@@ -267,12 +265,12 @@ describe('EmailAddressField', () => {
       },
       {
         description: 'Email address validation',
-        component: {
+        component: /** @satisfies {EmailAddressFieldComponent} */ ({
           title: 'Example email address field',
           name: 'myComponent',
           type: ComponentType.EmailAddressField,
           options: {}
-        } satisfies EmailAddressFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData('defra.helpline'),
@@ -304,13 +302,13 @@ describe('EmailAddressField', () => {
       },
       {
         description: 'Email address validation',
-        component: {
+        component: /** @satisfies {EmailAddressFieldComponent} */ ({
           title: 'Example email address field',
           shortDescription: 'Example email address',
           name: 'myComponent',
           type: ComponentType.EmailAddressField,
           options: {}
-        } satisfies EmailAddressFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData('defra.helpline'),
@@ -327,7 +325,7 @@ describe('EmailAddressField', () => {
       },
       {
         description: 'Custom validation message',
-        component: {
+        component: /** @satisfies {EmailAddressFieldComponent} */ ({
           title: 'Example email address field',
           name: 'myComponent',
           type: ComponentType.EmailAddressField,
@@ -339,7 +337,7 @@ describe('EmailAddressField', () => {
               'string.email': 'This is not used'
             }
           }
-        } satisfies EmailAddressFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(''),
@@ -367,7 +365,7 @@ describe('EmailAddressField', () => {
       },
       {
         description: 'Custom validation messages (multiple)',
-        component: {
+        component: /** @satisfies {EmailAddressFieldComponent} */ ({
           title: 'Example email address field',
           name: 'myComponent',
           type: ComponentType.EmailAddressField,
@@ -378,7 +376,7 @@ describe('EmailAddressField', () => {
               'string.email': 'This is a custom invalid email error'
             }
           }
-        } satisfies EmailAddressFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(),
@@ -417,14 +415,14 @@ describe('EmailAddressField', () => {
       },
       {
         description: 'Optional field',
-        component: {
+        component: /** @satisfies {EmailAddressFieldComponent} */ ({
           title: 'Example email address field',
           name: 'myComponent',
           type: ComponentType.EmailAddressField,
           options: {
             required: false
           }
-        } satisfies EmailAddressFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(''),
@@ -433,7 +431,8 @@ describe('EmailAddressField', () => {
         ]
       }
     ])('$description', ({ component: def, assertions }) => {
-      let collection: ComponentCollection
+      /** @type {ComponentCollection} */
+      let collection
 
       beforeEach(() => {
         collection = new ComponentCollection([def], { model })
@@ -449,3 +448,8 @@ describe('EmailAddressField', () => {
     })
   })
 })
+
+/**
+ * @import { EmailAddressFieldComponent } from '@defra/forms-model'
+ * @import { Field } from '~/src/server/plugins/engine/components/helpers/components.js'
+ */

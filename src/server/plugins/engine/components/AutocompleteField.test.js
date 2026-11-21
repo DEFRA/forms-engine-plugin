@@ -1,15 +1,9 @@
-import {
-  ComponentType,
-  type AutocompleteFieldComponent
-} from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 import lowerFirst from 'lodash/lowerFirst.js'
 
 import { AutocompleteField } from '~/src/server/plugins/engine/components/AutocompleteField.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import {
-  getAnswer,
-  type Field
-} from '~/src/server/plugins/engine/components/helpers/components.js'
+import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import {
@@ -27,13 +21,13 @@ const translator = new FormModel(definition, {
 
 describe.each([
   {
-    component: {
+    component: /** @satisfies {AutocompleteFieldComponent} */ ({
       title: 'String list',
       name: 'myComponent',
       type: ComponentType.AutocompleteField,
       list: 'listString',
       options: {}
-    } satisfies AutocompleteFieldComponent,
+    }),
 
     options: {
       list: listString,
@@ -44,13 +38,13 @@ describe.each([
     }
   },
   {
-    component: {
+    component: /** @satisfies {AutocompleteFieldComponent} */ ({
       title: 'Number list',
       name: 'myComponent',
       type: ComponentType.AutocompleteField,
       list: 'listNumber',
       options: {}
-    } satisfies AutocompleteFieldComponent,
+    }),
 
     options: {
       list: listNumber,
@@ -61,9 +55,12 @@ describe.each([
     }
   }
 ])('AutocompleteField: $component.title', ({ component: def, options }) => {
-  let model: FormModel
-  let collection: ComponentCollection
-  let field: Field
+  /** @type {FormModel} */
+  let model
+  /** @type {ComponentCollection} */
+  let collection
+  /** @type {Field} */
+  let field
 
   beforeEach(() => {
     const updated = structuredClone(definition)
@@ -358,11 +355,11 @@ describe.each([
       describe.each([
         {
           description: 'Use short description if it exists',
-          component: {
+          component: /** @satisfies {AutocompleteFieldComponent} */ ({
             ...def,
             title: 'What is your example text?',
             shortDescription: 'Your example text'
-          } satisfies AutocompleteFieldComponent,
+          }),
           assertions: [
             {
               input: getFormData(''),
@@ -389,7 +386,8 @@ describe.each([
           ]
         }
       ])('$description', ({ component, assertions }) => {
-        let collection: ComponentCollection
+        /** @type {ComponentCollection} */
+        let collection
 
         beforeEach(() => {
           collection = new ComponentCollection([component], { model })
@@ -406,3 +404,8 @@ describe.each([
     })
   })
 })
+
+/**
+ * @import { AutocompleteFieldComponent } from '@defra/forms-model'
+ * @import { Field } from '~/src/server/plugins/engine/components/helpers/components.js'
+ */
