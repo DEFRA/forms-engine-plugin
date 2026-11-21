@@ -26,7 +26,6 @@ const countriesValidateFilePath = resolve(
 /**
  * @type {FeatureCollection}
  */
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 export const countries = JSON.parse(
   fs.readFileSync(countriesDisplayFilePath, 'utf8')
 )
@@ -34,7 +33,6 @@ export const countries = JSON.parse(
 /**
  * @type {FeatureCollection}
  */
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 export const countriesValidate = JSON.parse(
   fs.readFileSync(countriesValidateFilePath, 'utf8')
 )

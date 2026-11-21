@@ -21,7 +21,6 @@ function empty() {
  */
 function logErrorAndReturnEmpty(err, endpoint) {
   /** @type {{ payload?: { error?: { message?: string } } } | false} */
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const boomData = Boom.isBoom(err) && err.data
   const msg = `${getErrorMessage(err)} ${(boomData && boomData.payload?.error?.message) ?? ''}`
 

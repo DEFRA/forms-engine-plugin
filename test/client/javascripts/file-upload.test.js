@@ -117,6 +117,7 @@ describe('File Upload Client JS', () => {
   }
 
   // Reason: This will be reworked in a later PR - skip for now
+  // eslint-disable-next-line jest/no-disabled-tests -- reworked in a later PR
   test.skip('shows error when upload button is clicked without selecting a file', () => {
     const event = { preventDefault: jest.fn() }
     const { triggerClick, fileInput } = setupTestableComponent()
@@ -261,6 +262,7 @@ describe('File Upload Client JS', () => {
   })
 
   // Reason: This will be reworked in a later PR - skip for now
+  // eslint-disable-next-line jest/no-disabled-tests -- reworked in a later PR
   test.skip('renderSummary does nothing when selectedFile is null', () => {
     document.body.innerHTML = `
       <div class="govuk-error-summary-container"></div>
@@ -404,6 +406,7 @@ describe('File Upload Client JS', () => {
   })
 
   // Reason: This will be reworked in a later PR - skip for now
+  // eslint-disable-next-line jest/no-disabled-tests -- reworked in a later PR
   test.skip('prevents multiple submissions', () => {
     const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
 
@@ -758,6 +761,7 @@ describe('File Upload Client JS', () => {
   })
 
   // Reason: This will be reworked in a later PR - skip for now
+  // eslint-disable-next-line jest/no-disabled-tests -- reworked in a later PR
   test.skip('file upload handles null form gracefully when creating status announcer', () => {
     document.body.innerHTML = `
       <div class="govuk-error-summary-container"></div>
@@ -802,6 +806,7 @@ describe('File Upload Client JS', () => {
   })
 
   // Reason: This will be reworked in a later PR - skip for now
+  // eslint-disable-next-line jest/no-disabled-tests -- reworked in a later PR
   test.skip('renderSummary explicitly handles null selectedFile', () => {
     document.body.innerHTML = `
       <div class="govuk-error-summary-container"></div>

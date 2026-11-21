@@ -61,7 +61,6 @@ export class FileFormService {
     /**
      * @type {FormDefinition}
      */
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const definition = JSON.parse(await fs.readFile(filepath, 'utf8'))
 
     return definition
@@ -76,7 +75,6 @@ export class FileFormService {
     /**
      * @type {FormDefinition}
      */
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const definition = YAML.parse(await fs.readFile(filepath, 'utf8'))
 
     return definition
