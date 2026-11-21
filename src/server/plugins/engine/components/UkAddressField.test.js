@@ -1,22 +1,10 @@
-import {
-  ComponentType,
-  type TextFieldComponent,
-  type UkAddressFieldComponent
-} from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { UkAddressField } from '~/src/server/plugins/engine/components/UkAddressField.js'
-import {
-  getAnswer,
-  type Field
-} from '~/src/server/plugins/engine/components/helpers/components.js'
-import { type ViewModel } from '~/src/server/plugins/engine/components/types.js'
+import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
-import {
-  type FormPayload,
-  type FormState
-} from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
 
 const translator = new FormModel(definition, {
@@ -24,7 +12,8 @@ const translator = new FormModel(definition, {
 }).createTranslator()
 
 describe('UkAddressField', () => {
-  let model: FormModel
+  /** @type {FormModel} */
+  let model
 
   beforeEach(() => {
     model = new FormModel(definition, {
@@ -33,17 +22,20 @@ describe('UkAddressField', () => {
   })
 
   describe('Defaults', () => {
-    let def: UkAddressFieldComponent
-    let collection: ComponentCollection
-    let field: Field
+    /** @type {UkAddressFieldComponent} */
+    let def
+    /** @type {ComponentCollection} */
+    let collection
+    /** @type {Field} */
+    let field
 
     beforeEach(() => {
-      def = {
+      def = /** @satisfies {UkAddressFieldComponent} */ ({
         title: 'Example UK address',
         name: 'myComponent',
         type: ComponentType.UkAddressField,
         options: {}
-      } satisfies UkAddressFieldComponent
+      })
 
       collection = new ComponentCollection([def], { model })
       field = collection.fields[0]
@@ -329,7 +321,7 @@ describe('UkAddressField', () => {
 
         ukAddressField.collection.components.slice(1).forEach((component) => {
           const addressFieldOptions =
-            component.options as TextFieldComponent['options']
+            /** @type {TextFieldComponent['options']} */ (component.options)
 
           expect(expectedAutocompleteValues).toContain(
             addressFieldOptions.autocomplete
@@ -339,7 +331,8 @@ describe('UkAddressField', () => {
     })
 
     describe('State', () => {
-      const address: FormPayload = {
+      /** @type {FormPayload} */
+      const address = {
         addressLine1: 'Richard Fairclough House',
         addressLine2: 'Knutsford Road',
         town: 'Warrington',
@@ -415,7 +408,8 @@ describe('UkAddressField', () => {
     })
 
     describe('View model', () => {
-      const address: FormPayload = {
+      /** @type {FormPayload} */
+      const address = {
         addressLine1: 'Richard Fairclough House',
         addressLine2: 'Knutsford Road',
         town: 'Warrington',
@@ -508,7 +502,7 @@ describe('UkAddressField', () => {
 
     describe('sub-field title key constants', () => {
       it('stores sub-field titles as i18next key constants', () => {
-        const addrField = collection.fields[0] as UkAddressField
+        const addrField = /** @type {UkAddressField} */ (collection.fields[0])
         const subFields = addrField.collection.fields
 
         expect(subFields[0].title).toBe('components.addressField.uprn')
@@ -522,7 +516,8 @@ describe('UkAddressField', () => {
   })
 
   describe('Validation', () => {
-    const address: FormPayload = {
+    /** @type {FormPayload} */
+    const address = {
       addressLine1: 'Richard Fairclough House',
       addressLine2: 'Knutsford Road',
       town: 'Warrington',
@@ -548,12 +543,12 @@ describe('UkAddressField', () => {
     describe.each([
       {
         description: 'Trim empty spaces',
-        component: {
+        component: /** @satisfies {UkAddressFieldComponent} */ ({
           title: 'Example UK address',
           name: 'myComponent',
           type: ComponentType.UkAddressField,
           options: {}
-        } satisfies UkAddressFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData({
@@ -601,12 +596,12 @@ describe('UkAddressField', () => {
       },
       {
         description: 'Out of range values',
-        component: {
+        component: /** @satisfies {UkAddressFieldComponent} */ ({
           title: 'Example UK address',
           name: 'myComponent',
           type: ComponentType.UkAddressField,
           options: {}
-        } satisfies UkAddressFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData({
@@ -767,7 +762,8 @@ describe('UkAddressField', () => {
         ]
       }
     ])('$description', ({ component: def, assertions }) => {
-      let collection: ComponentCollection
+      /** @type {ComponentCollection} */
+      let collection
 
       beforeEach(() => {
         collection = new ComponentCollection([def], { model })
@@ -789,12 +785,12 @@ describe('UkAddressField', () => {
 
 /**
  * UK address field view model
+ * @param {FormPayload} address
+ * @param {string} name
+ * @param {Partial<ViewModel>} [overrides]
+ * @returns {Partial<ViewModel>}
  */
-function getViewModel(
-  address: FormPayload,
-  name: string,
-  overrides?: Partial<ViewModel>
-): Partial<ViewModel> {
+function getViewModel(address, name, overrides) {
   const payload = getFormData(address)
   const fieldName = `myComponent__${name}`
   const fieldClasses = overrides?.classes ?? undefined
@@ -816,8 +812,10 @@ function getViewModel(
 
 /**
  * UK address form data
+ * @param {FormPayload} address
+ * @returns {FormPayload}
  */
-function getFormData(address: FormPayload): FormPayload {
+function getFormData(address) {
   return {
     myComponent__addressLine1: address.addressLine1,
     myComponent__addressLine2: address.addressLine2,
@@ -830,8 +828,10 @@ function getFormData(address: FormPayload): FormPayload {
 
 /**
  * UK address session state
+ * @param {FormPayload} address
+ * @returns {FormState}
  */
-function getFormState(address: FormPayload): FormState {
+function getFormState(address) {
   const [addressLine1, addressLine2, town, county, postcode, uprn] =
     Object.values(getFormData(address))
 
@@ -844,3 +844,10 @@ function getFormState(address: FormPayload): FormState {
     myComponent__uprn: uprn ?? null
   }
 }
+
+/**
+ * @import { TextFieldComponent, UkAddressFieldComponent } from '@defra/forms-model'
+ * @import { Field } from '~/src/server/plugins/engine/components/helpers/components.js'
+ * @import { ViewModel } from '~/src/server/plugins/engine/components/types.js'
+ * @import { FormPayload, FormState } from '~/src/server/plugins/engine/types.js'
+ */

@@ -1,13 +1,4 @@
-import {
-  ComponentType,
-  type DeclarationFieldComponent,
-  type EastingNorthingFieldComponent,
-  type GeospatialFieldComponent,
-  type LatLongFieldComponent,
-  type MultilineTextFieldComponent,
-  type NationalGridFieldNumberFieldComponent,
-  type OsGridRefFieldComponent
-} from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 
 import { validState } from '~/src/server/plugins/engine/components/helpers/__stubs__/geospatial.js'
 import {
@@ -32,7 +23,8 @@ const translator = new FormModel(definition, {
 }).createTranslator()
 
 describe('Location field formatting', () => {
-  let model: FormModel
+  /** @type {FormModel} */
+  let model
 
   beforeEach(() => {
     model = new FormModel(definition, {
@@ -41,10 +33,12 @@ describe('Location field formatting', () => {
   })
 
   describe('EastingNorthingField', () => {
-    let field: EastingNorthingField
+    /** @type {EastingNorthingField} */
+    let field
 
     beforeEach(() => {
-      const def: EastingNorthingFieldComponent = {
+      /** @type {EastingNorthingFieldComponent} */
+      const def = {
         type: ComponentType.EastingNorthingField,
         name: 'locationEN',
         title: 'Location',
@@ -109,10 +103,12 @@ describe('Location field formatting', () => {
   })
 
   describe('LatLongField', () => {
-    let field: LatLongField
+    /** @type {LatLongField} */
+    let field
 
     beforeEach(() => {
-      const def: LatLongFieldComponent = {
+      /** @type {LatLongFieldComponent} */
+      const def = {
         type: ComponentType.LatLongField,
         name: 'locationLL',
         title: 'Coordinates',
@@ -177,10 +173,12 @@ describe('Location field formatting', () => {
   })
 
   describe('OsGridRefField', () => {
-    let field: OsGridRefField
+    /** @type {OsGridRefField} */
+    let field
 
     beforeEach(() => {
-      const def: OsGridRefFieldComponent = {
+      /** @type {OsGridRefFieldComponent} */
+      const def = {
         type: ComponentType.OsGridRefField,
         name: 'gridRef',
         title: 'OS Grid Reference',
@@ -228,10 +226,12 @@ describe('Location field formatting', () => {
   })
 
   describe('NationalGridFieldNumberField', () => {
-    let field: NationalGridFieldNumberField
+    /** @type {NationalGridFieldNumberField} */
+    let field
 
     beforeEach(() => {
-      const def: NationalGridFieldNumberFieldComponent = {
+      /** @type {NationalGridFieldNumberFieldComponent} */
+      const def = {
         type: ComponentType.NationalGridFieldNumberField,
         name: 'ngField',
         title: 'National Grid Field Number',
@@ -279,10 +279,12 @@ describe('Location field formatting', () => {
   })
 
   describe('GeospatialField', () => {
-    let field: GeospatialField
+    /** @type {GeospatialField} */
+    let field
 
     beforeEach(() => {
-      const def: GeospatialFieldComponent = {
+      /** @type {GeospatialFieldComponent} */
+      const def = {
         type: ComponentType.GeospatialField,
         name: 'geoField',
         title: 'Geospatial',
@@ -330,10 +332,12 @@ describe('Location field formatting', () => {
   })
 
   describe('DeclarationField', () => {
-    let field: DeclarationField
+    /** @type {DeclarationField} */
+    let field
 
     beforeEach(() => {
-      const def: DeclarationFieldComponent = {
+      /** @type {DeclarationFieldComponent} */
+      const def = {
         type: ComponentType.DeclarationField,
         name: 'declField',
         title: 'Declaration title',
@@ -439,7 +443,8 @@ describe('Location field formatting', () => {
 
   describe('getAnswerMarkdown', () => {
     it('formats EastingNorthingField correctly', () => {
-      const def: EastingNorthingFieldComponent = {
+      /** @type {EastingNorthingFieldComponent} */
+      const def = {
         type: ComponentType.EastingNorthingField,
         name: 'locationEN',
         title: 'Location',
@@ -461,7 +466,8 @@ describe('Location field formatting', () => {
     })
 
     it('formats LatLongField correctly', () => {
-      const def: LatLongFieldComponent = {
+      /** @type {LatLongFieldComponent} */
+      const def = {
         type: ComponentType.LatLongField,
         name: 'locationLL',
         title: 'Coordinates',
@@ -483,7 +489,8 @@ describe('Location field formatting', () => {
     })
 
     it('formats simple location fields correctly', () => {
-      const def: OsGridRefFieldComponent = {
+      /** @type {OsGridRefFieldComponent} */
+      const def = {
         type: ComponentType.OsGridRefField,
         name: 'gridRef',
         title: 'OS Grid Reference',
@@ -506,14 +513,16 @@ describe('Location field formatting', () => {
 })
 
 describe('MultilineTextField formatting', () => {
-  let field: MultilineTextField
+  /** @type {MultilineTextField} */
+  let field
 
   beforeEach(() => {
     const model = new FormModel(definition, {
       basePath: 'test'
     })
 
-    const def: MultilineTextFieldComponent = {
+    /** @type {MultilineTextFieldComponent} */
+    const def = {
       type: ComponentType.MultilineTextField,
       name: 'myComponent',
       title: 'Your answer',
@@ -538,3 +547,7 @@ describe('MultilineTextField formatting', () => {
     expect(answer).toBe('\\> first\n\\>\n\\> second\n')
   })
 })
+
+/**
+ * @import { DeclarationFieldComponent, EastingNorthingFieldComponent, GeospatialFieldComponent, LatLongFieldComponent, MultilineTextFieldComponent, NationalGridFieldNumberFieldComponent, OsGridRefFieldComponent } from '@defra/forms-model'
+ */

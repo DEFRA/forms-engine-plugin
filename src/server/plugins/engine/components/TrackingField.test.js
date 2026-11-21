@@ -1,10 +1,7 @@
-import { ComponentType, type TrackingFieldComponent } from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import {
-  getAnswer,
-  type Field
-} from '~/src/server/plugins/engine/components/helpers/components.js'
+import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import definition from '~/test/form/definitions/blank.js'
@@ -15,7 +12,8 @@ const translator = new FormModel(definition, {
 }).createTranslator()
 
 describe('TrackingField', () => {
-  let model: FormModel
+  /** @type {FormModel} */
+  let model
 
   beforeEach(() => {
     model = new FormModel(definition, {
@@ -24,17 +22,20 @@ describe('TrackingField', () => {
   })
 
   describe('Defaults', () => {
-    let def: TrackingFieldComponent
-    let collection: ComponentCollection
-    let field: Field
+    /** @type {TrackingFieldComponent} */
+    let def
+    /** @type {ComponentCollection} */
+    let collection
+    /** @type {Field} */
+    let field
 
     beforeEach(() => {
-      def = {
+      def = /** @satisfies {TrackingFieldComponent} */ ({
         title: 'Tracking field',
         name: 'myComponent',
         type: ComponentType.TrackingField,
         options: {}
-      } satisfies TrackingFieldComponent
+      })
 
       collection = new ComponentCollection([def], { model })
       field = collection.fields[0]
@@ -208,3 +209,8 @@ describe('TrackingField', () => {
     })
   })
 })
+
+/**
+ * @import { TrackingFieldComponent } from '@defra/forms-model'
+ * @import { Field } from '~/src/server/plugins/engine/components/helpers/components.js'
+ */

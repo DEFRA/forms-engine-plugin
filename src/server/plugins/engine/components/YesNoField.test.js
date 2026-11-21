@@ -1,10 +1,7 @@
-import { ComponentType, type YesNoFieldComponent } from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import {
-  getAnswer,
-  type Field
-} from '~/src/server/plugins/engine/components/helpers/components.js'
+import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import { listYesNoExamples } from '~/test/fixtures/list.js'
@@ -16,18 +13,22 @@ const translator = new FormModel(definition, {
 }).createTranslator()
 
 describe('YesNoField', () => {
-  let def: YesNoFieldComponent
-  let model: FormModel
-  let collection: ComponentCollection
-  let field: Field
+  /** @type {YesNoFieldComponent} */
+  let def
+  /** @type {FormModel} */
+  let model
+  /** @type {ComponentCollection} */
+  let collection
+  /** @type {Field} */
+  let field
 
   beforeEach(() => {
-    def = {
+    def = /** @satisfies {YesNoFieldComponent} */ ({
       title: 'Example yes/no',
       name: 'myComponent',
       type: ComponentType.YesNoField,
       options: {}
-    } satisfies YesNoFieldComponent
+    })
 
     model = new FormModel(definition, {
       basePath: 'test'
@@ -269,14 +270,14 @@ describe('YesNoField', () => {
     describe.each([
       {
         description: 'Use error description if it exists',
-        component: {
+        component: /** @satisfies {YesNoFieldComponent} */ ({
           title: 'Have you been a UK resident for more than 5 years?',
           errorDescription: 'UK resident',
           shortDescription: 'UK resident for more than 5 years',
           name: 'myComponent',
           type: ComponentType.YesNoField,
           options: {}
-        } satisfies YesNoFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(),
@@ -294,13 +295,13 @@ describe('YesNoField', () => {
       {
         description:
           'Use short description if it exists and error description does not',
-        component: {
+        component: /** @satisfies {YesNoFieldComponent} */ ({
           title: 'Have you been a UK resident for more than 5 years?',
           shortDescription: 'UK resident for more than 5 years',
           name: 'myComponent',
           type: ComponentType.YesNoField,
           options: {}
-        } satisfies YesNoFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(),
@@ -317,7 +318,7 @@ describe('YesNoField', () => {
       },
       {
         description: 'Custom validation message',
-        component: {
+        component: /** @satisfies {YesNoFieldComponent} */ ({
           title: 'Have you been a UK resident for more than 5 years?',
           shortDescription: 'UK resident for more than 5 years',
           name: 'myComponent',
@@ -328,7 +329,7 @@ describe('YesNoField', () => {
               'any.required': 'This is not used'
             }
           }
-        } satisfies YesNoFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(),
@@ -356,7 +357,7 @@ describe('YesNoField', () => {
       },
       {
         description: 'Custom validation messages (multiple)',
-        component: {
+        component: /** @satisfies {YesNoFieldComponent} */ ({
           title: 'Have you been a UK resident for more than 5 years?',
           shortDescription: 'UK resident for more than 5 years',
           name: 'myComponent',
@@ -366,7 +367,7 @@ describe('YesNoField', () => {
               'any.required': 'This is a custom required error'
             }
           }
-        } satisfies YesNoFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(),
@@ -383,14 +384,14 @@ describe('YesNoField', () => {
       },
       {
         description: 'Optional field',
-        component: {
+        component: /** @satisfies {YesNoFieldComponent} */ ({
           title: 'Example field',
           name: 'myComponent',
           type: ComponentType.YesNoField,
           options: {
             required: false
           }
-        } satisfies YesNoFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(),
@@ -399,7 +400,8 @@ describe('YesNoField', () => {
         ]
       }
     ])('$description', ({ component: def, assertions }) => {
-      let collection: ComponentCollection
+      /** @type {ComponentCollection} */
+      let collection
 
       beforeEach(() => {
         collection = new ComponentCollection([def], { model })
@@ -415,3 +417,8 @@ describe('YesNoField', () => {
     })
   })
 })
+
+/**
+ * @import { YesNoFieldComponent } from '@defra/forms-model'
+ * @import { Field } from '~/src/server/plugins/engine/components/helpers/components.js'
+ */

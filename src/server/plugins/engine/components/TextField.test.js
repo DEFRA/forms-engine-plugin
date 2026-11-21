@@ -1,10 +1,7 @@
-import { ComponentType, type TextFieldComponent } from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import {
-  getAnswer,
-  type Field
-} from '~/src/server/plugins/engine/components/helpers/components.js'
+import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import definition from '~/test/form/definitions/blank.js'
@@ -15,7 +12,8 @@ const translator = new FormModel(definition, {
 }).createTranslator()
 
 describe('TextField', () => {
-  let model: FormModel
+  /** @type {FormModel} */
+  let model
 
   beforeEach(() => {
     model = new FormModel(definition, {
@@ -24,18 +22,21 @@ describe('TextField', () => {
   })
 
   describe('Defaults', () => {
-    let def: TextFieldComponent
-    let collection: ComponentCollection
-    let field: Field
+    /** @type {TextFieldComponent} */
+    let def
+    /** @type {ComponentCollection} */
+    let collection
+    /** @type {Field} */
+    let field
 
     beforeEach(() => {
-      def = {
+      def = /** @satisfies {TextFieldComponent} */ ({
         title: 'Example text field',
         name: 'myComponent',
         type: ComponentType.TextField,
         options: {},
         schema: {}
-      } satisfies TextFieldComponent
+      })
 
       collection = new ComponentCollection([def], { model })
       field = collection.fields[0]
@@ -154,7 +155,8 @@ describe('TextField', () => {
           { basePath: 'test' }
         )
 
-        const cyDef: TextFieldComponent = {
+        /** @type {TextFieldComponent} */
+        const cyDef = {
           id: componentId,
           title: 'What is your last name?',
           name: 'applicantLastName',
@@ -370,7 +372,7 @@ describe('TextField', () => {
     describe.each([
       {
         description: 'Use error description if it exists',
-        component: {
+        component: /** @satisfies {TextFieldComponent} */ ({
           title: 'What is your example text?',
           errorDescription: 'Example text',
           shortDescription: 'Your example text',
@@ -378,7 +380,7 @@ describe('TextField', () => {
           type: ComponentType.TextField,
           options: {},
           schema: {}
-        } satisfies TextFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(''),
@@ -396,14 +398,14 @@ describe('TextField', () => {
       {
         description:
           'Use short description if it exists and error description does not',
-        component: {
+        component: /** @satisfies {TextFieldComponent} */ ({
           title: 'What is your example text?',
           shortDescription: 'Your example text',
           name: 'myComponent',
           type: ComponentType.TextField,
           options: {},
           schema: {}
-        } satisfies TextFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(''),
@@ -420,13 +422,13 @@ describe('TextField', () => {
       },
       {
         description: 'Trim empty spaces',
-        component: {
+        component: /** @satisfies {TextFieldComponent} */ ({
           title: 'Example text field',
           name: 'myComponent',
           type: ComponentType.TextField,
           options: {},
           schema: {}
-        } satisfies TextFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData('  Leading spaces'),
@@ -444,7 +446,7 @@ describe('TextField', () => {
       },
       {
         description: 'Schema min and max',
-        component: {
+        component: /** @satisfies {TextFieldComponent} */ ({
           title: 'Example text field',
           name: 'myComponent',
           type: ComponentType.TextField,
@@ -453,7 +455,7 @@ describe('TextField', () => {
             min: 5,
             max: 8
           }
-        } satisfies TextFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData('Text'),
@@ -481,7 +483,7 @@ describe('TextField', () => {
       },
       {
         description: 'Schema length',
-        component: {
+        component: /** @satisfies {TextFieldComponent} */ ({
           title: 'Example text field',
           name: 'myComponent',
           type: ComponentType.TextField,
@@ -489,7 +491,7 @@ describe('TextField', () => {
           schema: {
             length: 4
           }
-        } satisfies TextFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData('Text'),
@@ -510,7 +512,7 @@ describe('TextField', () => {
       },
       {
         description: 'Schema regex',
-        component: {
+        component: /** @satisfies {TextFieldComponent} */ ({
           title: 'Example text field',
           name: 'myComponent',
           type: ComponentType.TextField,
@@ -518,7 +520,7 @@ describe('TextField', () => {
           schema: {
             regex: '^[a-zA-Z]{1,2}\\d[a-zA-Z\\d]?\\s?\\d[a-zA-Z]{2}$'
           }
-        } satisfies TextFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData('SW1P'),
@@ -539,7 +541,7 @@ describe('TextField', () => {
       },
       {
         description: 'Custom validation message',
-        component: {
+        component: /** @satisfies {TextFieldComponent} */ ({
           title: 'Example text field',
           name: 'myComponent',
           type: ComponentType.TextField,
@@ -556,7 +558,7 @@ describe('TextField', () => {
             min: 5,
             max: 8
           }
-        } satisfies TextFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(),
@@ -606,7 +608,7 @@ describe('TextField', () => {
       },
       {
         description: 'Custom validation messages (multiple)',
-        component: {
+        component: /** @satisfies {TextFieldComponent} */ ({
           title: 'Example text field',
           name: 'myComponent',
           type: ComponentType.TextField,
@@ -622,7 +624,7 @@ describe('TextField', () => {
             min: 5,
             max: 8
           }
-        } satisfies TextFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(),
@@ -672,7 +674,7 @@ describe('TextField', () => {
       },
       {
         description: 'Optional field',
-        component: {
+        component: /** @satisfies {TextFieldComponent} */ ({
           title: 'Example text field',
           name: 'myComponent',
           type: ComponentType.TextField,
@@ -680,7 +682,7 @@ describe('TextField', () => {
             required: false
           },
           schema: {}
-        } satisfies TextFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(''),
@@ -689,7 +691,8 @@ describe('TextField', () => {
         ]
       }
     ])('$description', ({ component: def, assertions }) => {
-      let collection: ComponentCollection
+      /** @type {ComponentCollection} */
+      let collection
 
       beforeEach(() => {
         collection = new ComponentCollection([def], { model })
@@ -705,3 +708,8 @@ describe('TextField', () => {
     })
   })
 })
+
+/**
+ * @import { TextFieldComponent } from '@defra/forms-model'
+ * @import { Field } from '~/src/server/plugins/engine/components/helpers/components.js'
+ */

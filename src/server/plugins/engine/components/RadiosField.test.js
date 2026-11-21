@@ -1,12 +1,9 @@
-import { ComponentType, type SelectFieldComponent } from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 import lowerFirst from 'lodash/lowerFirst.js'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { SelectField } from '~/src/server/plugins/engine/components/SelectField.js'
-import {
-  getAnswer,
-  type Field
-} from '~/src/server/plugins/engine/components/helpers/components.js'
+import { RadiosField } from '~/src/server/plugins/engine/components/RadiosField.js'
+import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import {
@@ -24,13 +21,13 @@ const translator = new FormModel(definition, {
 
 describe.each([
   {
-    component: {
+    component: /** @satisfies {RadiosFieldComponent} */ ({
       title: 'String list',
       name: 'myComponent',
-      type: ComponentType.SelectField,
+      type: ComponentType.RadiosField,
       list: 'listString',
       options: {}
-    } satisfies SelectFieldComponent,
+    }),
 
     options: {
       list: listString,
@@ -39,13 +36,13 @@ describe.each([
     }
   },
   {
-    component: {
+    component: /** @satisfies {RadiosFieldComponent} */ ({
       title: 'Number list',
       name: 'myComponent',
-      type: ComponentType.SelectField,
+      type: ComponentType.RadiosField,
       list: 'listNumber',
       options: {}
-    } satisfies SelectFieldComponent,
+    }),
 
     options: {
       list: listNumber,
@@ -53,13 +50,16 @@ describe.each([
       allow: [1, 2, 3, 4]
     }
   }
-])('SelectField: $component.title', ({ component: def, options }) => {
+])('RadiosField: $component.title', ({ component: def, options }) => {
   const updated = structuredClone(definition)
   updated.lists = [options.list]
 
-  let model: FormModel
-  let collection: ComponentCollection
-  let field: Field
+  /** @type {FormModel} */
+  let model
+  /** @type {ComponentCollection} */
+  let collection
+  /** @type {Field} */
+  let field
 
   beforeEach(() => {
     model = new FormModel(updated, {
@@ -124,15 +124,17 @@ describe.each([
         expect(keys).toHaveProperty(
           'myComponent',
           expect.objectContaining({
-            allow: expect.arrayContaining([''])
+            flags: expect.objectContaining({
+              presence: 'optional'
+            })
           })
         )
 
-        const result = collectionOptional.validate(getFormData(''))
+        const result = collectionOptional.validate(getFormData())
         expect(result.errors).toBeUndefined()
       })
 
-      it('is configured with select options', () => {
+      it('is configured with radio items', () => {
         const { formSchema } = collection
         const { keys } = formSchema.describe()
 
@@ -145,13 +147,10 @@ describe.each([
         )
       })
 
-      it.each([...options.allow])(
-        'accepts valid list item (value: %s)',
-        (value) => {
-          const result = collection.validate(getFormData(value))
-          expect(result.errors).toBeUndefined()
-        }
-      )
+      it.each([...options.allow])('accepts valid radio item', (value) => {
+        const result = collection.validate(getFormData(value))
+        expect(result.errors).toBeUndefined()
+      })
 
       it('adds errors for empty value', () => {
         const result = collection.validate(getFormData())
@@ -238,6 +237,7 @@ describe.each([
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
         const item = options.examples[0]
+
         const viewModel = field.getViewModel({
           payload: getFormData(item.value),
           translator: stubTranslator
@@ -254,15 +254,15 @@ describe.each([
       })
 
       it.each([...options.examples])(
-        'sets Nunjucks component select options',
+        'sets Nunjucks component radio items',
         (item) => {
           const viewModel = field.getViewModel({
             payload: getFormData(item.value),
             translator: stubTranslator
           })
 
-          expect(viewModel.items?.[0]).toMatchObject({
-            value: '' // First item is always empty
+          expect(viewModel.items?.[0]).not.toMatchObject({
+            value: '' // First item is never empty
           })
 
           expect(viewModel.items).toEqual(
@@ -270,7 +270,7 @@ describe.each([
               expect.objectContaining({
                 text: item.text,
                 value: item.value,
-                selected: true
+                checked: true
               })
             ])
           )
@@ -278,12 +278,12 @@ describe.each([
       )
     })
 
-    describe('Select options', () => {
-      it('returns select options', () => {
+    describe('Radio items', () => {
+      it('returns radio items', () => {
         expect(field).toHaveProperty('items', options.list.items)
       })
 
-      it('returns select options matching type', () => {
+      it('returns radio items matching type', () => {
         expect(field).toHaveProperty('values', expect.arrayContaining([]))
       })
 
@@ -292,9 +292,22 @@ describe.each([
           basePath: 'test'
         })
 
-        const { items } = new SelectField(def, { model })
+        const { items } = new RadiosField(def, { model })
         expect(items).toEqual([])
+      })
+    })
+
+    describe('AllPossibleErrors', () => {
+      it('should return errors', () => {
+        const errors = field.getAllPossibleErrors()
+        expect(errors.baseErrors).not.toBeEmpty()
+        expect(errors.advancedSettingsErrors).toBeEmpty()
       })
     })
   })
 })
+
+/**
+ * @import { RadiosFieldComponent } from '@defra/forms-model'
+ * @import { Field } from '~/src/server/plugins/engine/components/helpers/components.js'
+ */

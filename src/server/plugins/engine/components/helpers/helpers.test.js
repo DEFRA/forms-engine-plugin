@@ -1,4 +1,4 @@
-import { ComponentType, type ComponentDef } from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { EastingNorthingField } from '~/src/server/plugins/engine/components/EastingNorthingField.js'
@@ -27,9 +27,11 @@ describe('helpers tests', () => {
   test('should throw if invalid type', () => {
     expect(() =>
       createComponent(
-        {
-          type: 'invalid-type'
-        } as unknown as ComponentDef,
+        /** @type {ComponentDef} */ (
+          /** @type {unknown} */ ({
+            type: 'invalid-type'
+          })
+        ),
         {
           model: formModel
         }
@@ -138,11 +140,11 @@ describe('helpers tests', () => {
 
 describe('ComponentBase tests', () => {
   test('should handle save and exit functionality', () => {
-    const mockComponentDef = {
+    const mockComponentDef = /** @type {ComponentDef} */ ({
       type: 'TextField',
       name: 'testField',
       title: 'Test Field'
-    } as ComponentDef
+    })
 
     const component = new ComponentBase(mockComponentDef, { model: formModel })
 
@@ -152,11 +154,11 @@ describe('ComponentBase tests', () => {
   })
 
   test('should handle context correctly', () => {
-    const mockComponentDef = {
+    const mockComponentDef = /** @type {ComponentDef} */ ({
       type: 'TextField',
       name: 'contextField',
       title: 'Context Field'
-    } as ComponentDef
+    })
 
     const component = new ComponentBase(mockComponentDef, { model: formModel })
 
@@ -240,26 +242,36 @@ describe('lowerFirst expression helpers', () => {
 
 describe('getTranslatedLabel', () => {
   test('returns title when no error desc or short desc', () => {
-    const component = {
-      title: 'comp title'
-    } as unknown as ComponentDef
+    const component = /** @type {ComponentDef} */ (
+      /** @type {unknown} */ ({
+        title: 'comp title'
+      })
+    )
     expect(getTranslatedLabel(component, translator)).toBe('comp title')
   })
 
   test('returns short desc when no error desc', () => {
-    const component = {
-      title: 'comp title',
-      shortDescription: 'comp short desc'
-    } as unknown as ComponentDef
+    const component = /** @type {ComponentDef} */ (
+      /** @type {unknown} */ ({
+        title: 'comp title',
+        shortDescription: 'comp short desc'
+      })
+    )
     expect(getTranslatedLabel(component, translator)).toBe('comp short desc')
   })
 
   test('returns error desc when one exists', () => {
-    const component = {
-      title: 'comp title',
-      shortDescription: 'comp short desc',
-      errorDescription: 'comp error desc'
-    } as unknown as ComponentDef
+    const component = /** @type {ComponentDef} */ (
+      /** @type {unknown} */ ({
+        title: 'comp title',
+        shortDescription: 'comp short desc',
+        errorDescription: 'comp error desc'
+      })
+    )
     expect(getTranslatedLabel(component, translator)).toBe('comp error desc')
   })
 })
+
+/**
+ * @import { ComponentDef } from '@defra/forms-model'
+ */
