@@ -1,7 +1,6 @@
-import { ComponentType, type LatLongFieldComponent } from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { type LatLongField } from '~/src/server/plugins/engine/components/LatLongField.js'
 import {
   deduplicateErrorsByHref,
   formatErrorList,
@@ -9,16 +8,17 @@ import {
   joinWithAnd,
   mergeCssClasses
 } from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
-import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
-import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
 
 describe('LocationFieldHelpers', () => {
-  let model: FormModel
-  let translator: Translator
-  let welshTranslator: Translator
+  /** @type {FormModel} */
+  let model
+  /** @type {Translator} */
+  let translator
+  /** @type {Translator} */
+  let welshTranslator
 
   beforeEach(() => {
     model = new FormModel(definition, {
@@ -200,7 +200,8 @@ describe('LocationFieldHelpers', () => {
     })
 
     it('should return single error unchanged', () => {
-      const error: FormSubmissionError = {
+      /** @type {FormSubmissionError} */
+      const error = {
         name: 'field1',
         path: ['field1'],
         href: '#field1',
@@ -210,13 +211,15 @@ describe('LocationFieldHelpers', () => {
     })
 
     it('should deduplicate errors with same href', () => {
-      const error1: FormSubmissionError = {
+      /** @type {FormSubmissionError} */
+      const error1 = {
         name: 'field1',
         path: ['field1'],
         href: '#field1',
         text: 'Error 1'
       }
-      const error2: FormSubmissionError = {
+      /** @type {FormSubmissionError} */
+      const error2 = {
         name: 'field1',
         path: ['field1'],
         href: '#field1',
@@ -228,13 +231,15 @@ describe('LocationFieldHelpers', () => {
     })
 
     it('should keep errors with different hrefs', () => {
-      const error1: FormSubmissionError = {
+      /** @type {FormSubmissionError} */
+      const error1 = {
         name: 'field1',
         path: ['field1'],
         href: '#field1',
         text: 'Error 1'
       }
-      const error2: FormSubmissionError = {
+      /** @type {FormSubmissionError} */
+      const error2 = {
         name: 'field2',
         path: ['field2'],
         href: '#field2',
@@ -246,25 +251,29 @@ describe('LocationFieldHelpers', () => {
     })
 
     it('should deduplicate multiple errors with same href', () => {
-      const error1: FormSubmissionError = {
+      /** @type {FormSubmissionError} */
+      const error1 = {
         name: 'field1',
         path: ['field1'],
         href: '#field1',
         text: 'Error 1'
       }
-      const error2: FormSubmissionError = {
+      /** @type {FormSubmissionError} */
+      const error2 = {
         name: 'field1',
         path: ['field1'],
         href: '#field1',
         text: 'Error 2'
       }
-      const error3: FormSubmissionError = {
+      /** @type {FormSubmissionError} */
+      const error3 = {
         name: 'field2',
         path: ['field2'],
         href: '#field2',
         text: 'Error 3'
       }
-      const error4: FormSubmissionError = {
+      /** @type {FormSubmissionError} */
+      const error4 = {
         name: 'field1',
         path: ['field1'],
         href: '#field1',
@@ -317,7 +326,8 @@ describe('LocationFieldHelpers', () => {
 
   describe('getLocationFieldViewModel', () => {
     it('should return view model with fieldset', () => {
-      const def: LatLongFieldComponent = {
+      /** @type {LatLongFieldComponent} */
+      const def = {
         title: 'Example lat long',
         name: 'myComponent',
         type: ComponentType.LatLongField,
@@ -326,7 +336,7 @@ describe('LocationFieldHelpers', () => {
       }
 
       const collection = new ComponentCollection([def], { model })
-      const field = collection.fields[0] as LatLongField
+      const field = /** @type {LatLongField} */ (collection.fields[0])
 
       const payload = {
         myComponent__latitude: 51.5,
@@ -349,7 +359,8 @@ describe('LocationFieldHelpers', () => {
     })
 
     it('should include instruction text in view model when provided', () => {
-      const def: LatLongFieldComponent = {
+      /** @type {LatLongFieldComponent} */
+      const def = {
         title: 'Example lat long',
         name: 'myComponent',
         type: ComponentType.LatLongField,
@@ -360,7 +371,7 @@ describe('LocationFieldHelpers', () => {
       }
 
       const collection = new ComponentCollection([def], { model })
-      const field = collection.fields[0] as LatLongField
+      const field = /** @type {LatLongField} */ (collection.fields[0])
 
       const payload = {
         myComponent__latitude: 51.5,
@@ -379,7 +390,8 @@ describe('LocationFieldHelpers', () => {
     })
 
     it('should handle component-level errors correctly', () => {
-      const def: LatLongFieldComponent = {
+      /** @type {LatLongFieldComponent} */
+      const def = {
         title: 'Example lat long',
         name: 'myComponent',
         type: ComponentType.LatLongField,
@@ -388,7 +400,7 @@ describe('LocationFieldHelpers', () => {
       }
 
       const collection = new ComponentCollection([def], { model })
-      const field = collection.fields[0] as LatLongField
+      const field = /** @type {LatLongField} */ (collection.fields[0])
 
       const payload = {
         myComponent__latitude: '',
@@ -431,7 +443,8 @@ describe('LocationFieldHelpers', () => {
     })
 
     it('should display single errors at fieldset level', () => {
-      const def: LatLongFieldComponent = {
+      /** @type {LatLongFieldComponent} */
+      const def = {
         title: 'Example lat long',
         name: 'myComponent',
         type: ComponentType.LatLongField,
@@ -440,7 +453,7 @@ describe('LocationFieldHelpers', () => {
       }
 
       const collection = new ComponentCollection([def], { model })
-      const field = collection.fields[0] as LatLongField
+      const field = /** @type {LatLongField} */ (collection.fields[0])
 
       const payload = {
         myComponent__latitude: 'invalid',
@@ -477,7 +490,8 @@ describe('LocationFieldHelpers', () => {
     })
 
     it('should display multiple errors as combined message at fieldset level', () => {
-      const def: LatLongFieldComponent = {
+      /** @type {LatLongFieldComponent} */
+      const def = {
         title: 'Example lat long',
         name: 'myComponent',
         type: ComponentType.LatLongField,
@@ -486,7 +500,7 @@ describe('LocationFieldHelpers', () => {
       }
 
       const collection = new ComponentCollection([def], { model })
-      const field = collection.fields[0] as LatLongField
+      const field = /** @type {LatLongField} */ (collection.fields[0])
 
       const payload = {
         myComponent__latitude: '',
@@ -527,7 +541,8 @@ describe('LocationFieldHelpers', () => {
     })
 
     it('should preserve individual error messages when no field errors exist', () => {
-      const def: LatLongFieldComponent = {
+      /** @type {LatLongFieldComponent} */
+      const def = {
         title: 'Example lat long',
         name: 'myComponent',
         type: ComponentType.LatLongField,
@@ -536,7 +551,7 @@ describe('LocationFieldHelpers', () => {
       }
 
       const collection = new ComponentCollection([def], { model })
-      const field = collection.fields[0] as LatLongField
+      const field = /** @type {LatLongField} */ (collection.fields[0])
 
       const payload = {
         myComponent__latitude: '',
@@ -564,7 +579,8 @@ describe('LocationFieldHelpers', () => {
     })
 
     it('should show fieldset error when viewModel has error but no field errors', () => {
-      const def: LatLongFieldComponent = {
+      /** @type {LatLongFieldComponent} */
+      const def = {
         title: 'Example lat long',
         name: 'myComponent',
         type: ComponentType.LatLongField,
@@ -573,7 +589,7 @@ describe('LocationFieldHelpers', () => {
       }
 
       const collection = new ComponentCollection([def], { model })
-      const field = collection.fields[0] as LatLongField
+      const field = /** @type {LatLongField} */ (collection.fields[0])
 
       const payload = {
         myComponent__latitude: '51.5',
@@ -612,7 +628,8 @@ describe('LocationFieldHelpers', () => {
     })
 
     it('should handle classes with undefined base classes correctly', () => {
-      const def: LatLongFieldComponent = {
+      /** @type {LatLongFieldComponent} */
+      const def = {
         title: 'Example lat long',
         name: 'myComponent',
         type: ComponentType.LatLongField,
@@ -621,7 +638,7 @@ describe('LocationFieldHelpers', () => {
       }
 
       const collection = new ComponentCollection([def], { model })
-      const field = collection.fields[0] as LatLongField
+      const field = /** @type {LatLongField} */ (collection.fields[0])
 
       const payload = {
         myComponent__latitude: '51.5',
@@ -639,7 +656,8 @@ describe('LocationFieldHelpers', () => {
     })
 
     it('should handle labels correctly in view model items', () => {
-      const def: LatLongFieldComponent = {
+      /** @type {LatLongFieldComponent} */
+      const def = {
         title: 'Example lat long',
         name: 'myComponent',
         type: ComponentType.LatLongField,
@@ -648,7 +666,7 @@ describe('LocationFieldHelpers', () => {
       }
 
       const collection = new ComponentCollection([def], { model })
-      const field = collection.fields[0] as LatLongField
+      const field = /** @type {LatLongField} */ (collection.fields[0])
 
       const payload = {
         myComponent__latitude: '51.5',
@@ -666,13 +684,15 @@ describe('LocationFieldHelpers', () => {
 
       const labelString =
         label && 'toString' in label && typeof label.toString === 'function'
-          ? (label as { toString: () => string }).toString()
+          ? // eslint-disable-next-line @typescript-eslint/no-base-to-string -- the rule reads the type of label before the JSDoc cast, and the cast gives it a toString method
+            /** @type {{ toString: () => string }} */ (label).toString()
           : ''
       expect(labelString).toBe('Latitude')
     })
 
     it('should use existing fieldset if provided', () => {
-      const def: LatLongFieldComponent = {
+      /** @type {LatLongFieldComponent} */
+      const def = {
         title: 'Example lat long',
         name: 'myComponent',
         type: ComponentType.LatLongField,
@@ -681,7 +701,7 @@ describe('LocationFieldHelpers', () => {
       }
 
       const collection = new ComponentCollection([def], { model })
-      const field = collection.fields[0] as LatLongField
+      const field = /** @type {LatLongField} */ (collection.fields[0])
 
       const payload = {
         myComponent__latitude: 51.5,
@@ -699,7 +719,8 @@ describe('LocationFieldHelpers', () => {
 
   describe('createLocationFieldValidator', () => {
     it('should return error when required field is empty', () => {
-      const def: LatLongFieldComponent = {
+      /** @type {LatLongFieldComponent} */
+      const def = {
         title: 'Example lat long',
         name: 'myComponent',
         type: ComponentType.LatLongField,
@@ -721,7 +742,8 @@ describe('LocationFieldHelpers', () => {
     })
 
     it('should return error when required field has invalid state', () => {
-      const def: LatLongFieldComponent = {
+      /** @type {LatLongFieldComponent} */
+      const def = {
         title: 'Example lat long',
         name: 'myComponent',
         type: ComponentType.LatLongField,
@@ -744,7 +766,8 @@ describe('LocationFieldHelpers', () => {
     })
 
     it('should not return error when optional field is empty', () => {
-      const def: LatLongFieldComponent = {
+      /** @type {LatLongFieldComponent} */
+      const def = {
         title: 'Example lat long',
         name: 'myComponent',
         type: ComponentType.LatLongField,
@@ -767,7 +790,8 @@ describe('LocationFieldHelpers', () => {
     })
 
     it('should return error when required field is partially filled', () => {
-      const def: LatLongFieldComponent = {
+      /** @type {LatLongFieldComponent} */
+      const def = {
         title: 'Example lat long',
         name: 'myComponent',
         type: ComponentType.LatLongField,
@@ -788,7 +812,8 @@ describe('LocationFieldHelpers', () => {
     })
 
     it('should not return error when all required fields are filled', () => {
-      const def: LatLongFieldComponent = {
+      /** @type {LatLongFieldComponent} */
+      const def = {
         title: 'Example lat long',
         name: 'myComponent',
         type: ComponentType.LatLongField,
@@ -809,7 +834,8 @@ describe('LocationFieldHelpers', () => {
     })
 
     it('should validate optional fields correctly when partially filled', () => {
-      const def: LatLongFieldComponent = {
+      /** @type {LatLongFieldComponent} */
+      const def = {
         title: 'Example lat long',
         name: 'myComponent',
         type: ComponentType.LatLongField,
@@ -835,7 +861,8 @@ describe('LocationFieldHelpers', () => {
 
   describe('getMapLayers', () => {
     it('should return sssi layer if the option is set', () => {
-      const def: LatLongFieldComponent = {
+      /** @type {LatLongFieldComponent} */
+      const def = {
         title: 'Example lat long',
         name: 'myComponent',
         type: ComponentType.LatLongField,
@@ -846,14 +873,15 @@ describe('LocationFieldHelpers', () => {
       }
 
       const collection = new ComponentCollection([def], { model })
-      const field = collection.fields[0] as LatLongField
+      const field = /** @type {LatLongField} */ (collection.fields[0])
       const result = getMapLayers(field)
 
       expect(result).toBe('sssi')
     })
 
     it('should return empty if no mapLayer options set', () => {
-      const def: LatLongFieldComponent = {
+      /** @type {LatLongFieldComponent} */
+      const def = {
         title: 'Example lat long',
         name: 'myComponent',
         type: ComponentType.LatLongField,
@@ -864,14 +892,15 @@ describe('LocationFieldHelpers', () => {
       }
 
       const collection = new ComponentCollection([def], { model })
-      const field = collection.fields[0] as LatLongField
+      const field = /** @type {LatLongField} */ (collection.fields[0])
       const result = getMapLayers(field)
 
       expect(result).toBe('')
     })
 
     it('should return empty if no mapLayer layers are set', () => {
-      const def: LatLongFieldComponent = {
+      /** @type {LatLongFieldComponent} */
+      const def = {
         title: 'Example lat long',
         name: 'myComponent',
         type: ComponentType.LatLongField,
@@ -882,10 +911,17 @@ describe('LocationFieldHelpers', () => {
       }
 
       const collection = new ComponentCollection([def], { model })
-      const field = collection.fields[0] as LatLongField
+      const field = /** @type {LatLongField} */ (collection.fields[0])
       const result = getMapLayers(field)
 
       expect(result).toBe('')
     })
   })
 })
+
+/**
+ * @import { LatLongFieldComponent } from '@defra/forms-model'
+ * @import { LatLongField } from '~/src/server/plugins/engine/components/LatLongField.js'
+ * @import { Translator } from '~/src/server/plugins/engine/i18n/types.js'
+ * @import { FormSubmissionError } from '~/src/server/plugins/engine/types.js'
+ */

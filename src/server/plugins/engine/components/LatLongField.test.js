@@ -1,14 +1,10 @@
-import { ComponentType, type LatLongFieldComponent } from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { LatLongField } from '~/src/server/plugins/engine/components/LatLongField.js'
-import {
-  getAnswer,
-  type Field
-} from '~/src/server/plugins/engine/components/helpers/components.js'
+import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
-import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
 
 const translator = new FormModel(definition, {
@@ -33,7 +29,8 @@ const welshTranslator = new FormModel(
 ).createTranslator('cy')
 
 describe('LatLongField', () => {
-  let model: FormModel
+  /** @type {FormModel} */
+  let model
 
   beforeEach(() => {
     model = new FormModel(definition, {
@@ -42,19 +39,22 @@ describe('LatLongField', () => {
   })
 
   describe('Defaults', () => {
-    let def: LatLongFieldComponent
-    let collection: ComponentCollection
-    let field: Field
+    /** @type {LatLongFieldComponent} */
+    let def
+    /** @type {ComponentCollection} */
+    let collection
+    /** @type {Field} */
+    let field
 
     beforeEach(() => {
-      def = {
+      def = /** @satisfies {LatLongFieldComponent} */ ({
         title: 'Example lat long',
         shortDescription: 'Example location',
         name: 'myComponent',
         type: ComponentType.LatLongField,
         options: {},
         schema: {}
-      } satisfies LatLongFieldComponent
+      })
 
       collection = new ComponentCollection([def], { model })
       field = collection.fields[0]
@@ -404,7 +404,8 @@ describe('LatLongField', () => {
       })
 
       it('getViewErrors returns all errors for error summary', () => {
-        const errors: FormSubmissionError[] = [
+        /** @type {FormSubmissionError[]} */
+        const errors = [
           {
             name: 'myComponent__latitude',
             text: 'Enter valid latitude',
@@ -481,7 +482,7 @@ describe('LatLongField', () => {
 
     describe('sub-field title key constants', () => {
       it('stores sub-field titles as i18next key constants', () => {
-        const locationField = collection.fields[0] as LatLongField
+        const locationField = /** @type {LatLongField} */ (collection.fields[0])
         const subFields = locationField.collection.fields
 
         expect(subFields[0].title).toBe('components.latLongField.latitude')
@@ -491,7 +492,7 @@ describe('LatLongField', () => {
 
     describe('sub-field message overrides', () => {
       it('gets sub-field error messages translated', () => {
-        const locationField = collection.fields[0] as LatLongField
+        const locationField = /** @type {LatLongField} */ (collection.fields[0])
 
         const messagesEnglish1 =
           locationField.getValidationMessagesOverride(translator)
@@ -554,7 +555,7 @@ describe('LatLongField', () => {
       },
       {
         description: 'Schema min and max for latitude',
-        component: {
+        component: /** @satisfies {LatLongFieldComponent} */ ({
           title: 'Example lat long',
           name: 'myComponent',
           type: ComponentType.LatLongField,
@@ -565,7 +566,7 @@ describe('LatLongField', () => {
               max: 55
             }
           }
-        } satisfies LatLongFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData({
@@ -609,7 +610,7 @@ describe('LatLongField', () => {
       },
       {
         description: 'Schema min and max for longitude',
-        component: {
+        component: /** @satisfies {LatLongFieldComponent} */ ({
           title: 'Example lat long',
           name: 'myComponent',
           type: ComponentType.LatLongField,
@@ -620,7 +621,7 @@ describe('LatLongField', () => {
               max: 1
             }
           }
-        } satisfies LatLongFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData({
@@ -664,13 +665,13 @@ describe('LatLongField', () => {
       },
       {
         description: 'Precision validation',
-        component: {
+        component: /** @satisfies {LatLongFieldComponent} */ ({
           title: 'Example lat long',
           name: 'myComponent',
           type: ComponentType.LatLongField,
           options: {},
           schema: {}
-        } satisfies LatLongFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData({
@@ -887,14 +888,14 @@ describe('LatLongField', () => {
       },
       {
         description: 'Values that are not numbers',
-        component: {
+        component: /** @satisfies {LatLongFieldComponent} */ ({
           title: 'Example lat long',
           shortDescription: 'Example location',
           name: 'myComponent',
           type: ComponentType.LatLongField,
           options: {},
           schema: {}
-        } satisfies LatLongFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData({
@@ -917,14 +918,14 @@ describe('LatLongField', () => {
       },
       {
         description: 'Partly filled',
-        component: {
+        component: /** @satisfies {LatLongFieldComponent} */ ({
           title: 'Example lat long',
           shortDescription: 'Example location',
           name: 'myComponent',
           type: ComponentType.LatLongField,
           options: {},
           schema: {}
-        } satisfies LatLongFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData({
@@ -950,7 +951,7 @@ describe('LatLongField', () => {
       },
       {
         description: 'Optional field',
-        component: {
+        component: /** @satisfies {LatLongFieldComponent} */ ({
           title: 'Example lat long',
           name: 'myComponent',
           type: ComponentType.LatLongField,
@@ -958,7 +959,7 @@ describe('LatLongField', () => {
             required: false
           },
           schema: {}
-        } satisfies LatLongFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData({
@@ -992,7 +993,8 @@ describe('LatLongField', () => {
         ]
       }
     ])('$description', ({ component: def, assertions }) => {
-      let collection: ComponentCollection
+      /** @type {ComponentCollection} */
+      let collection
 
       beforeEach(() => {
         collection = new ComponentCollection([def], { model })
@@ -1011,25 +1013,24 @@ describe('LatLongField', () => {
 
 /**
  * Factory function to create a default LatLongField component with optional overrides
+ * @param {Partial<LatLongFieldComponent>} [overrides]
+ * @returns {LatLongFieldComponent}
  */
-function createLatLongComponent(
-  overrides: Partial<LatLongFieldComponent> = {}
-): LatLongFieldComponent {
-  return {
+function createLatLongComponent(overrides = {}) {
+  return /** @satisfies {LatLongFieldComponent} */ ({
     title: 'Example lat long',
     name: 'myComponent',
     type: ComponentType.LatLongField,
     options: {},
     schema: {},
     ...overrides
-  } satisfies LatLongFieldComponent
+  })
 }
 
-function getFormData(
-  value:
-    | { latitude?: string | number; longitude?: string | number }
-    | Record<string, never>
-) {
+/**
+ * @param {{ latitude?: string | number, longitude?: string | number } | Record<string, never>} value
+ */
+function getFormData(value) {
   if ('latitude' in value || 'longitude' in value) {
     return {
       myComponent__latitude: value.latitude,
@@ -1039,14 +1040,10 @@ function getFormData(
   return {}
 }
 
-function getFormState(
-  value:
-    | {
-        latitude?: number
-        longitude?: number
-      }
-    | Record<string, never>
-) {
+/**
+ * @param {{ latitude?: number, longitude?: number } | Record<string, never>} value
+ */
+function getFormState(value) {
   if ('latitude' in value || 'longitude' in value) {
     return {
       myComponent__latitude: value.latitude ?? null,
@@ -1058,3 +1055,9 @@ function getFormState(
     myComponent__longitude: null
   }
 }
+
+/**
+ * @import { LatLongFieldComponent } from '@defra/forms-model'
+ * @import { Field } from '~/src/server/plugins/engine/components/helpers/components.js'
+ * @import { FormSubmissionError } from '~/src/server/plugins/engine/types.js'
+ */

@@ -1,13 +1,13 @@
-import { ComponentType, type ListComponent } from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { type Guidance } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import definition from '~/test/form/definitions/basic.js'
 
 describe('List', () => {
-  let model: FormModel
+  /** @type {FormModel} */
+  let model
 
   beforeEach(() => {
     model = new FormModel(definition, {
@@ -16,18 +16,21 @@ describe('List', () => {
   })
 
   describe('Defaults', () => {
-    let def: ListComponent
-    let collection: ComponentCollection
-    let guidance: Guidance
+    /** @type {ListComponent} */
+    let def
+    /** @type {ComponentCollection} */
+    let collection
+    /** @type {Guidance} */
+    let guidance
 
     beforeEach(() => {
-      def = {
+      def = /** @satisfies {ListComponent} */ ({
         title: 'List guidance',
         name: 'myComponent',
         type: ComponentType.List,
         list: 'licenceLengthDays',
         options: {}
-      } satisfies ListComponent
+      })
 
       collection = new ComponentCollection([def], { model })
       guidance = collection.guidance[0]
@@ -81,3 +84,8 @@ describe('List', () => {
     })
   })
 })
+
+/**
+ * @import { ListComponent } from '@defra/forms-model'
+ * @import { Guidance } from '~/src/server/plugins/engine/components/helpers/components.js'
+ */

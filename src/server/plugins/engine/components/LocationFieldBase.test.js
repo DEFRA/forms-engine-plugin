@@ -1,24 +1,28 @@
 import { ComponentType } from '@defra/forms-model'
-import type joi from 'joi'
-import { type LanguageMessages } from 'joi'
 
 import { LocationFieldBase } from '~/src/server/plugins/engine/components/LocationFieldBase.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
-import { type Translator } from '~/src/server/plugins/engine/types/index.js'
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData } from '~/test/helpers/component-helpers.js'
 
 class TestLocationField extends LocationFieldBase {
-  protected getValidationConfig(_translator: Translator) {
+  /**
+   * @protected
+   * @param {Translator} _translator
+   */
+  getValidationConfig(_translator) {
     return {
       pattern: /^TEST\d{4}$/i,
       patternErrorMessage: 'Enter a valid test code like TEST1234',
       requiredMessage: 'Enter a test code',
-      additionalMessages: {
+      additionalMessages: /** @type {LanguageMessages} */ ({
         'string.custom': 'This is a custom error from additional messages'
-      } as LanguageMessages,
-      customValidation: (value: string, helpers: joi.CustomHelpers) => {
+      }),
+      customValidation: (
+        /** @type {string} */ value,
+        /** @type {CustomHelpers} */ helpers
+      ) => {
         if (value === 'FAIL0000') {
           return helpers.error('string.custom')
         }
@@ -27,7 +31,10 @@ class TestLocationField extends LocationFieldBase {
     }
   }
 
-  protected getErrorTemplates() {
+  /**
+   * @protected
+   */
+  getErrorTemplates() {
     return [
       {
         type: 'pattern',
@@ -42,7 +49,8 @@ class TestLocationField extends LocationFieldBase {
 }
 
 describe('LocationFieldBase', () => {
-  let model: FormModel
+  /** @type {FormModel} */
+  let model
 
   beforeEach(() => {
     model = new FormModel(definition, {
@@ -52,15 +60,16 @@ describe('LocationFieldBase', () => {
 
   describe('customValidationMessage with additionalMessages', () => {
     it('should merge custom validation message with additional message keys', () => {
-      const def = {
-        title: 'Test location field',
-        name: 'myComponent',
-        type: ComponentType.TextField,
-        options: {
-          customValidationMessage: 'This is a unified custom error'
-        },
-        schema: {}
-      } as ConstructorParameters<typeof TestLocationField>[0]
+      const def =
+        /** @type {ConstructorParameters<typeof TestLocationField>[0]} */ ({
+          title: 'Test location field',
+          name: 'myComponent',
+          type: ComponentType.TextField,
+          options: {
+            customValidationMessage: 'This is a unified custom error'
+          },
+          schema: {}
+        })
 
       const field = new TestLocationField(def, { model })
 
@@ -74,15 +83,16 @@ describe('LocationFieldBase', () => {
 
   describe('getViewModel with instructionText', () => {
     it('should include parsed markdown instruction text', () => {
-      const def = {
-        title: 'Test location field',
-        name: 'myComponent',
-        type: ComponentType.TextField,
-        options: {
-          instructionText: 'This is **bold** text'
-        },
-        schema: {}
-      } as ConstructorParameters<typeof TestLocationField>[0]
+      const def =
+        /** @type {ConstructorParameters<typeof TestLocationField>[0]} */ ({
+          title: 'Test location field',
+          name: 'myComponent',
+          type: ComponentType.TextField,
+          options: {
+            instructionText: 'This is **bold** text'
+          },
+          schema: {}
+        })
 
       const field = new TestLocationField(def, { model })
       const viewModel = field.getViewModel({
@@ -97,13 +107,14 @@ describe('LocationFieldBase', () => {
     })
 
     it('should not include instructionText when not provided', () => {
-      const def = {
-        title: 'Test location field',
-        name: 'myComponent',
-        type: ComponentType.TextField,
-        options: {},
-        schema: {}
-      } as ConstructorParameters<typeof TestLocationField>[0]
+      const def =
+        /** @type {ConstructorParameters<typeof TestLocationField>[0]} */ ({
+          title: 'Test location field',
+          name: 'myComponent',
+          type: ComponentType.TextField,
+          options: {},
+          schema: {}
+        })
 
       const field = new TestLocationField(def, { model })
       const viewModel = field.getViewModel({
@@ -119,13 +130,14 @@ describe('LocationFieldBase', () => {
 
   describe('getAllPossibleErrors', () => {
     it('should return base errors with custom error templates', () => {
-      const def = {
-        title: 'Test location field',
-        name: 'myComponent',
-        type: ComponentType.TextField,
-        options: {},
-        schema: {}
-      } as ConstructorParameters<typeof TestLocationField>[0]
+      const def =
+        /** @type {ConstructorParameters<typeof TestLocationField>[0]} */ ({
+          title: 'Test location field',
+          name: 'myComponent',
+          type: ComponentType.TextField,
+          options: {},
+          schema: {}
+        })
 
       const field = new TestLocationField(def, { model })
       const errors = field.getAllPossibleErrors()
@@ -144,13 +156,14 @@ describe('LocationFieldBase', () => {
 
   describe('isValue and getFormValue', () => {
     it('should correctly identify string values', () => {
-      const def = {
-        title: 'Test location field',
-        name: 'myComponent',
-        type: ComponentType.TextField,
-        options: {},
-        schema: {}
-      } as ConstructorParameters<typeof TestLocationField>[0]
+      const def =
+        /** @type {ConstructorParameters<typeof TestLocationField>[0]} */ ({
+          title: 'Test location field',
+          name: 'myComponent',
+          type: ComponentType.TextField,
+          options: {},
+          schema: {}
+        })
 
       const field = new TestLocationField(def, { model })
 
@@ -163,13 +176,14 @@ describe('LocationFieldBase', () => {
     })
 
     it('should return value when it is a non-empty string', () => {
-      const def = {
-        title: 'Test location field',
-        name: 'myComponent',
-        type: ComponentType.TextField,
-        options: {},
-        schema: {}
-      } as ConstructorParameters<typeof TestLocationField>[0]
+      const def =
+        /** @type {ConstructorParameters<typeof TestLocationField>[0]} */ ({
+          title: 'Test location field',
+          name: 'myComponent',
+          type: ComponentType.TextField,
+          options: {},
+          schema: {}
+        })
 
       const field = new TestLocationField(def, { model })
 
@@ -180,13 +194,14 @@ describe('LocationFieldBase', () => {
     })
 
     it('should get value from state', () => {
-      const def = {
-        title: 'Test location field',
-        name: 'myComponent',
-        type: ComponentType.TextField,
-        options: {},
-        schema: {}
-      } as ConstructorParameters<typeof TestLocationField>[0]
+      const def =
+        /** @type {ConstructorParameters<typeof TestLocationField>[0]} */ ({
+          title: 'Test location field',
+          name: 'myComponent',
+          type: ComponentType.TextField,
+          options: {},
+          schema: {}
+        })
 
       const field = new TestLocationField(def, { model })
 
@@ -202,15 +217,16 @@ describe('LocationFieldBase', () => {
 
   describe('optional field validation', () => {
     it('should allow empty values when required is false', () => {
-      const def = {
-        title: 'Test location field',
-        name: 'myComponent',
-        type: ComponentType.TextField,
-        options: {
-          required: false
-        },
-        schema: {}
-      } as ConstructorParameters<typeof TestLocationField>[0]
+      const def =
+        /** @type {ConstructorParameters<typeof TestLocationField>[0]} */ ({
+          title: 'Test location field',
+          name: 'myComponent',
+          type: ComponentType.TextField,
+          options: {
+            required: false
+          },
+          schema: {}
+        })
 
       const field = new TestLocationField(def, { model })
       const result = field.formSchema.validate('')
@@ -220,15 +236,16 @@ describe('LocationFieldBase', () => {
     })
 
     it('should validate pattern even for optional fields when value is provided', () => {
-      const def = {
-        title: 'Test location field',
-        name: 'myComponent',
-        type: ComponentType.TextField,
-        options: {
-          required: false
-        },
-        schema: {}
-      } as ConstructorParameters<typeof TestLocationField>[0]
+      const def =
+        /** @type {ConstructorParameters<typeof TestLocationField>[0]} */ ({
+          title: 'Test location field',
+          name: 'myComponent',
+          type: ComponentType.TextField,
+          options: {
+            required: false
+          },
+          schema: {}
+        })
 
       const field = new TestLocationField(def, { model })
       const result = field.formSchema.validate('INVALID')
@@ -239,18 +256,19 @@ describe('LocationFieldBase', () => {
 
   describe('customValidationMessages', () => {
     it('should use custom validation messages when provided', () => {
-      const def = {
-        title: 'Test location field',
-        name: 'myComponent',
-        type: ComponentType.TextField,
-        options: {
-          customValidationMessages: {
-            'string.pattern.base': 'Custom pattern error message',
-            'string.custom': 'Custom error message'
-          }
-        },
-        schema: {}
-      } as ConstructorParameters<typeof TestLocationField>[0]
+      const def =
+        /** @type {ConstructorParameters<typeof TestLocationField>[0]} */ ({
+          title: 'Test location field',
+          name: 'myComponent',
+          type: ComponentType.TextField,
+          options: {
+            customValidationMessages: {
+              'string.pattern.base': 'Custom pattern error message',
+              'string.custom': 'Custom error message'
+            }
+          },
+          schema: {}
+        })
 
       const field = new TestLocationField(def, { model })
       const result = field.formSchema.validate('INVALID')
@@ -259,3 +277,8 @@ describe('LocationFieldBase', () => {
     })
   })
 })
+
+/**
+ * @import { CustomHelpers, LanguageMessages } from 'joi'
+ * @import { Translator } from '~/src/server/plugins/engine/types/index.js'
+ */

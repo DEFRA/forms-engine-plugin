@@ -1,13 +1,13 @@
-import { ComponentType, type InsetTextComponent } from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { type Guidance } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import definition from '~/test/form/definitions/basic.js'
 
-describe('InsetText', () => {
-  let model: FormModel
+describe('Markdown', () => {
+  /** @type {FormModel} */
+  let model
 
   beforeEach(() => {
     model = new FormModel(definition, {
@@ -16,18 +16,21 @@ describe('InsetText', () => {
   })
 
   describe('Defaults', () => {
-    let def: InsetTextComponent
-    let collection: ComponentCollection
-    let guidance: Guidance
+    /** @type {MarkdownComponent} */
+    let def
+    /** @type {ComponentCollection} */
+    let collection
+    /** @type {Guidance} */
+    let guidance
 
     beforeEach(() => {
-      def = {
-        title: 'Inset text guidance',
+      def = /** @satisfies {MarkdownComponent} */ ({
+        title: 'Markdown guidance',
         name: 'myComponent',
-        type: ComponentType.InsetText,
-        content: 'Lorem ipsum dolor sit amet',
+        type: ComponentType.Markdown,
+        content: '# Heading 1 ## Heading 2',
         options: {}
-      } satisfies InsetTextComponent
+      })
 
       collection = new ComponentCollection([def], { model })
       guidance = collection.guidance[0]
@@ -50,3 +53,8 @@ describe('InsetText', () => {
     })
   })
 })
+
+/**
+ * @import { MarkdownComponent } from '@defra/forms-model'
+ * @import { Guidance } from '~/src/server/plugins/engine/components/helpers/components.js'
+ */

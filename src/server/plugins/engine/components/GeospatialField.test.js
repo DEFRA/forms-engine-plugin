@@ -1,22 +1,13 @@
-import {
-  ComponentType,
-  type ComponentDef,
-  type GeospatialFieldComponent
-} from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { type GeospatialField } from '~/src/server/plugins/engine/components/GeospatialField.js'
 import {
   validSingleState,
   validState
 } from '~/src/server/plugins/engine/components/helpers/__stubs__/geospatial.js'
-import {
-  getAnswer,
-  type Field
-} from '~/src/server/plugins/engine/components/helpers/components.js'
+import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
-import { type GeospatialState } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
@@ -25,7 +16,8 @@ const translator = new FormModel(definition, {
 }).createTranslator()
 
 describe('GeospatialField', () => {
-  let model: FormModel
+  /** @type {FormModel} */
+  let model
 
   beforeEach(() => {
     model = new FormModel(definition, {
@@ -34,18 +26,21 @@ describe('GeospatialField', () => {
   })
 
   describe('Defaults', () => {
-    let def: GeospatialFieldComponent
-    let collection: ComponentCollection
-    let field: Field
+    /** @type {GeospatialFieldComponent} */
+    let def
+    /** @type {ComponentCollection} */
+    let collection
+    /** @type {Field} */
+    let field
 
     beforeEach(() => {
-      def = {
+      def = /** @satisfies {GeospatialFieldComponent} */ ({
         title: 'Example geospatial title',
         shortDescription: 'Example geospatial',
         name: 'myComponent',
         type: ComponentType.GeospatialField,
         options: {}
-      } satisfies GeospatialFieldComponent
+      })
 
       collection = new ComponentCollection([def], { model })
       field = collection.fields[0]
@@ -122,12 +117,12 @@ describe('GeospatialField', () => {
       })
 
       it('adds errors for empty value given no short description', () => {
-        def = {
+        def = /** @satisfies {GeospatialFieldComponent} */ ({
           title: 'Example geospatial title',
           name: 'myComponent',
           type: ComponentType.GeospatialField,
           options: {}
-        } satisfies GeospatialFieldComponent
+        })
 
         collection = new ComponentCollection([def], { model })
         const result = collection.validate(getFormData(''))
@@ -275,14 +270,14 @@ describe('GeospatialField', () => {
     describe.each([
       {
         description: 'Required',
-        component: {
+        component: /** @satisfies {GeospatialFieldComponent} */ ({
           title: 'Example geospatial field',
           name: 'myComponent',
           type: ComponentType.GeospatialField,
           options: {
             required: true
           }
-        } satisfies GeospatialFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData([]),
@@ -322,7 +317,7 @@ describe('GeospatialField', () => {
       },
       {
         description: 'Required with min constraints',
-        component: {
+        component: /** @satisfies {GeospatialFieldComponent} */ ({
           title: 'Example geospatial field',
           name: 'myComponent',
           type: ComponentType.GeospatialField,
@@ -332,7 +327,7 @@ describe('GeospatialField', () => {
           schema: {
             min: 2
           }
-        } satisfies GeospatialFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData([]),
@@ -377,7 +372,7 @@ describe('GeospatialField', () => {
       },
       {
         description: 'Required with max constraints',
-        component: {
+        component: /** @satisfies {GeospatialFieldComponent} */ ({
           title: 'Example geospatial field',
           name: 'myComponent',
           type: ComponentType.GeospatialField,
@@ -387,7 +382,7 @@ describe('GeospatialField', () => {
           schema: {
             max: 1
           }
-        } satisfies GeospatialFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData([]),
@@ -432,7 +427,7 @@ describe('GeospatialField', () => {
       },
       {
         description: 'Required with exact length constraints',
-        component: {
+        component: /** @satisfies {GeospatialFieldComponent} */ ({
           title: 'Example geospatial field',
           name: 'myComponent',
           type: ComponentType.GeospatialField,
@@ -442,7 +437,7 @@ describe('GeospatialField', () => {
           schema: {
             length: 1
           }
-        } satisfies GeospatialFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData([]),
@@ -487,14 +482,14 @@ describe('GeospatialField', () => {
       },
       {
         description: 'Optional',
-        component: {
+        component: /** @satisfies {GeospatialFieldComponent} */ ({
           title: 'Example geospatial field',
           name: 'myComponent',
           type: ComponentType.GeospatialField,
           options: {
             required: false
           }
-        } satisfies GeospatialFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData([]),
@@ -506,7 +501,7 @@ describe('GeospatialField', () => {
       },
       {
         description: 'Optional with min constraints',
-        component: {
+        component: /** @satisfies {GeospatialFieldComponent} */ ({
           title: 'Example geospatial field',
           name: 'myComponent',
           type: ComponentType.GeospatialField,
@@ -516,7 +511,7 @@ describe('GeospatialField', () => {
           schema: {
             min: 2
           }
-        } satisfies GeospatialFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData([]),
@@ -556,7 +551,7 @@ describe('GeospatialField', () => {
       },
       {
         description: 'Optional with max constraints',
-        component: {
+        component: /** @satisfies {GeospatialFieldComponent} */ ({
           title: 'Example geospatial field',
           name: 'myComponent',
           type: ComponentType.GeospatialField,
@@ -566,7 +561,7 @@ describe('GeospatialField', () => {
           schema: {
             max: 1
           }
-        } satisfies GeospatialFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData([]),
@@ -601,7 +596,7 @@ describe('GeospatialField', () => {
       },
       {
         description: 'Optional with exact length constraints',
-        component: {
+        component: /** @satisfies {GeospatialFieldComponent} */ ({
           title: 'Example geospatial field',
           name: 'myComponent',
           type: ComponentType.GeospatialField,
@@ -611,7 +606,7 @@ describe('GeospatialField', () => {
           schema: {
             length: 1
           }
-        } satisfies GeospatialFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData([]),
@@ -650,7 +645,8 @@ describe('GeospatialField', () => {
         ]
       }
     ])('$description', ({ component: def, assertions }) => {
-      let collection: ComponentCollection
+      /** @type {ComponentCollection} */
+      let collection
 
       beforeEach(() => {
         collection = new ComponentCollection([def], { model })
@@ -666,17 +662,18 @@ describe('GeospatialField', () => {
     })
 
     it('getErrors formats description errors', () => {
-      const component = {
+      const component = /** @satisfies {GeospatialFieldComponent} */ ({
         title: 'Example geospatial field',
         name: 'myComponent',
         type: ComponentType.GeospatialField,
         options: {
           required: true
         }
-      } satisfies GeospatialFieldComponent
+      })
 
       const collection = new ComponentCollection([component], { model })
-      const invalidSingleState: GeospatialState = [
+      /** @type {GeospatialState} */
+      const invalidSingleState = [
         {
           type: 'Feature',
           properties: {
@@ -693,7 +690,9 @@ describe('GeospatialField', () => {
       ]
 
       const result = collection.validate(getFormData(invalidSingleState))
-      const geospatialField = collection.components.at(0) as GeospatialField
+      const geospatialField = /** @type {GeospatialField} */ (
+        collection.components.at(0)
+      )
 
       const errors = geospatialField.getErrors(result.errors, translator)
       expect(errors).toEqual([
@@ -706,7 +705,7 @@ describe('GeospatialField', () => {
     })
 
     it('getErrors formats country boundary errors', () => {
-      const component = {
+      const component = /** @satisfies {GeospatialFieldComponent} */ ({
         title: 'Example bounded geospatial field',
         name: 'myComponent',
         type: ComponentType.GeospatialField,
@@ -714,10 +713,11 @@ describe('GeospatialField', () => {
           countries: ['scotland'],
           required: true
         }
-      } satisfies GeospatialFieldComponent
+      })
 
       const collection = new ComponentCollection([component], { model })
-      const invalidSingleState: GeospatialState = [
+      /** @type {GeospatialState} */
+      const invalidSingleState = [
         {
           type: 'Feature',
           properties: {
@@ -737,7 +737,9 @@ describe('GeospatialField', () => {
       const mockTranslator = { ...stubTranslator, t: mockT }
 
       const result = collection.validate(getFormData(invalidSingleState))
-      const geospatialField = collection.components.at(0) as GeospatialField
+      const geospatialField = /** @type {GeospatialField} */ (
+        collection.components.at(0)
+      )
 
       const viewErrors = geospatialField.getViewErrors(
         result.errors,
@@ -757,15 +759,18 @@ describe('GeospatialField', () => {
     })
 
     it('getViewErrors uses translator for description error text', () => {
-      const component = {
-        title: 'Example geospatial field',
-        name: 'myComponent',
-        type: ComponentType.GeospatialField,
-        options: { required: true }
-      } as unknown as ComponentDef
+      const component = /** @type {ComponentDef} */ (
+        /** @type {unknown} */ ({
+          title: 'Example geospatial field',
+          name: 'myComponent',
+          type: ComponentType.GeospatialField,
+          options: { required: true }
+        })
+      )
 
       const collection = new ComponentCollection([component], { model })
-      const invalidSingleState: GeospatialState = [
+      /** @type {GeospatialState} */
+      const invalidSingleState = [
         {
           type: 'Feature',
           properties: {
@@ -785,7 +790,9 @@ describe('GeospatialField', () => {
       const mockTranslator = { ...stubTranslator, t: mockT }
 
       const result = collection.validate(getFormData(invalidSingleState))
-      const geospatialField = collection.components.at(0) as GeospatialField
+      const geospatialField = /** @type {GeospatialField} */ (
+        collection.components.at(0)
+      )
 
       const viewErrors = geospatialField.getViewErrors(
         result.errors,
@@ -805,3 +812,10 @@ describe('GeospatialField', () => {
     })
   })
 })
+
+/**
+ * @import { ComponentDef, GeospatialFieldComponent } from '@defra/forms-model'
+ * @import { GeospatialField } from '~/src/server/plugins/engine/components/GeospatialField.js'
+ * @import { Field } from '~/src/server/plugins/engine/components/helpers/components.js'
+ * @import { GeospatialState } from '~/src/server/plugins/engine/types.js'
+ */

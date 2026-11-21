@@ -1,8 +1,4 @@
-import {
-  ComponentType,
-  type FileUploadFieldComponent,
-  type FormMetadata
-} from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
@@ -10,33 +6,22 @@ import {
   FileUploadField,
   tempItemSchema
 } from '~/src/server/plugins/engine/components/FileUploadField.js'
-import {
-  getAnswer,
-  type Field
-} from '~/src/server/plugins/engine/components/helpers/components.js'
+import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import { InvalidComponentStateError } from '~/src/server/plugins/engine/pageControllers/errors.js'
-import {
-  createPage,
-  type PageControllerClass
-} from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
+import { createPage } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
-import { type Services } from '~/src/server/plugins/engine/types/index.js'
-import {
-  FileStatus,
-  UploadStatus,
-  type FormContext,
-  type UploadState
-} from '~/src/server/plugins/engine/types.js'
-import { type FormRequestPayload } from '~/src/server/routes/types.js'
+import { FileStatus, UploadStatus } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/file-upload-basic.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
 describe('FileUploadField', () => {
-  let model: FormModel
+  /** @type {FormModel} */
+  let model
 
-  const validTempState: UploadState = [
+  /** @type {UploadState} */
+  const validTempState = [
     {
       uploadId: '3075efea-e5de-476f-a0bf-9ae7ef56ca69',
       status: {
@@ -95,7 +80,8 @@ describe('FileUploadField', () => {
     }
   ]
 
-  const validState: UploadState = [
+  /** @type {UploadState} */
+  const validState = [
     {
       uploadId: '3075efea-e5de-476f-a0bf-9ae7ef56ca69',
       status: {
@@ -159,20 +145,24 @@ describe('FileUploadField', () => {
   })
 
   describe('Defaults', () => {
-    let def: FileUploadFieldComponent
-    let page: PageControllerClass
-    let collection: ComponentCollection
-    let field: Field
+    /** @type {FileUploadFieldComponent} */
+    let def
+    /** @type {PageControllerClass} */
+    let page
+    /** @type {ComponentCollection} */
+    let collection
+    /** @type {Field} */
+    let field
 
     beforeEach(() => {
-      def = {
+      def = /** @satisfies {FileUploadFieldComponent} */ ({
         title: 'Example file upload field',
         shortDescription: 'Example file upload',
         name: 'myComponent',
         type: ComponentType.FileUploadField,
         options: {},
         schema: {}
-      } satisfies FileUploadFieldComponent
+      })
 
       page = createPage(model, definition.pages[0])
       collection = new ComponentCollection([def], { page, model })
@@ -195,13 +185,13 @@ describe('FileUploadField', () => {
       })
 
       it('uses component title as label', () => {
-        def = {
+        def = /** @satisfies {FileUploadFieldComponent} */ ({
           title: 'Example file upload field',
           name: 'myComponent',
           type: ComponentType.FileUploadField,
           options: {},
           schema: {}
-        } satisfies FileUploadFieldComponent
+        })
 
         page = createPage(model, definition.pages[0])
         collection = new ComponentCollection([def], { page, model })
@@ -290,13 +280,13 @@ describe('FileUploadField', () => {
       })
 
       it('adds errors for empty value with no shortDescription', () => {
-        def = {
+        def = /** @satisfies {FileUploadFieldComponent} */ ({
           title: 'Example file upload field',
           name: 'myComponent',
           type: ComponentType.FileUploadField,
           options: {},
           schema: {}
-        } satisfies FileUploadFieldComponent
+        })
 
         collection = new ComponentCollection([def], { model })
         const result = collection.validate(getFormData())
@@ -635,7 +625,7 @@ describe('FileUploadField', () => {
     describe.each([
       {
         description: 'Schema min and max',
-        component: {
+        component: /** @satisfies {FileUploadFieldComponent} */ ({
           title: 'Example file upload field',
           name: 'myComponent',
           type: ComponentType.FileUploadField,
@@ -644,7 +634,7 @@ describe('FileUploadField', () => {
             min: 1,
             max: 2
           }
-        } satisfies FileUploadFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData([]),
@@ -672,13 +662,13 @@ describe('FileUploadField', () => {
       },
       {
         description: 'Schema default min',
-        component: {
+        component: /** @satisfies {FileUploadFieldComponent} */ ({
           title: 'Example file upload field',
           name: 'myComponent',
           type: ComponentType.FileUploadField,
           options: {},
           schema: {}
-        } satisfies FileUploadFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData([]),
@@ -695,7 +685,7 @@ describe('FileUploadField', () => {
       },
       {
         description: 'Schema length',
-        component: {
+        component: /** @satisfies {FileUploadFieldComponent} */ ({
           title: 'Example file upload field',
           name: 'myComponent',
           type: ComponentType.FileUploadField,
@@ -703,7 +693,7 @@ describe('FileUploadField', () => {
           schema: {
             length: 4
           }
-        } satisfies FileUploadFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData([]),
@@ -742,7 +732,7 @@ describe('FileUploadField', () => {
       },
       {
         description: 'Optional',
-        component: {
+        component: /** @satisfies {FileUploadFieldComponent} */ ({
           title: 'Example file upload field',
           name: 'myComponent',
           type: ComponentType.FileUploadField,
@@ -750,7 +740,7 @@ describe('FileUploadField', () => {
             required: false
           },
           schema: {}
-        } satisfies FileUploadFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData([]),
@@ -768,7 +758,7 @@ describe('FileUploadField', () => {
       },
       {
         description: 'Optional schema min and max',
-        component: {
+        component: /** @satisfies {FileUploadFieldComponent} */ ({
           title: 'Example file upload field',
           name: 'myComponent',
           type: ComponentType.FileUploadField,
@@ -779,7 +769,7 @@ describe('FileUploadField', () => {
             min: 1,
             max: 2
           }
-        } satisfies FileUploadFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(),
@@ -813,7 +803,7 @@ describe('FileUploadField', () => {
       },
       {
         description: 'Optional schema length',
-        component: {
+        component: /** @satisfies {FileUploadFieldComponent} */ ({
           title: 'Example file upload field',
           name: 'myComponent',
           type: ComponentType.FileUploadField,
@@ -823,7 +813,7 @@ describe('FileUploadField', () => {
           schema: {
             length: 4
           }
-        } satisfies FileUploadFieldComponent,
+        }),
         assertions: [
           {
             input: getFormData(),
@@ -867,7 +857,8 @@ describe('FileUploadField', () => {
         ]
       }
     ])('$description', ({ component: def, assertions }) => {
-      let collection: ComponentCollection
+      /** @type {ComponentCollection} */
+      let collection
 
       beforeEach(() => {
         collection = new ComponentCollection([def], { model })
@@ -884,15 +875,21 @@ describe('FileUploadField', () => {
   })
 
   describe('onSubmit', () => {
-    let fileUploadField: FileUploadField
-    let mockRequest: FormRequestPayload
-    let mockMetadata: FormMetadata
-    let mockContext: FormContext
-    let mockPersistFiles: jest.Mock
+    /** @type {FileUploadField} */
+    let fileUploadField
+    /** @type {FormRequestPayload} */
+    let mockRequest
+    /** @type {FormMetadata} */
+    let mockMetadata
+    /** @type {FormContext} */
+    let mockContext
+    /** @type {jest.Mock} */
+    let mockPersistFiles
 
     beforeEach(() => {
       // Create a FileUploadField instance
-      const componentDef: FileUploadFieldComponent = {
+      /** @type {FileUploadFieldComponent} */
+      const componentDef = {
         name: 'fileUpload',
         title: 'Upload something',
         type: ComponentType.FileUploadField,
@@ -910,39 +907,43 @@ describe('FileUploadField', () => {
       mockPersistFiles = jest.fn().mockResolvedValue(undefined)
 
       // Mock request
-      mockRequest = {
-        server: { plugins: { 'forms-engine-plugin': {} } },
-        app: {
-          model: {
-            services: {
-              formSubmissionService: {
-                persistFiles: mockPersistFiles
-              }
-            },
-            createTranslator: () => ({
-              t: jest.fn((k: string) => k),
-              tPage: jest.fn(),
-              tComponent: jest.fn(),
-              tSection: jest.fn(),
-              tListItem: jest.fn(),
-              tForm: jest.fn(),
-              language: 'en-GB'
-            })
+      mockRequest = /** @type {FormRequestPayload} */ (
+        /** @type {unknown} */ ({
+          server: { plugins: { 'forms-engine-plugin': {} } },
+          app: {
+            model: {
+              services: {
+                formSubmissionService: {
+                  persistFiles: mockPersistFiles
+                }
+              },
+              createTranslator: () => ({
+                t: jest.fn((/** @type {string} */ k) => k),
+                tPage: jest.fn(),
+                tComponent: jest.fn(),
+                tSection: jest.fn(),
+                tListItem: jest.fn(),
+                tForm: jest.fn(),
+                language: 'en-GB'
+              })
+            }
           }
-        }
-      } as unknown as FormRequestPayload
+        })
+      )
 
       // Mock metadata
-      mockMetadata = {
+      mockMetadata = /** @type {FormMetadata} */ ({
         notificationEmail: 'test@example.com'
-      } as FormMetadata
+      })
 
       // Mock context with state
-      mockContext = {
-        state: {
-          fileUpload: validState
-        }
-      } as unknown as FormContext
+      mockContext = /** @type {FormContext} */ (
+        /** @type {unknown} */ ({
+          state: {
+            fileUpload: validState
+          }
+        })
+      )
     })
 
     afterEach(() => {
@@ -1009,7 +1010,9 @@ describe('FileUploadField', () => {
         throw new Error('Invalid test setup')
       }
 
-      mockRequest.app.model.services = {} as unknown as Services
+      mockRequest.app.model.services = /** @type {Services} */ (
+        /** @type {unknown} */ ({})
+      )
 
       await expect(
         fileUploadField.onSubmit(mockRequest, mockMetadata, mockContext)
@@ -1026,13 +1029,15 @@ describe('FileUploadField', () => {
 
       const error = await fileUploadField
         .onSubmit(mockRequest, mockMetadata, mockContext)
-        .catch((e: unknown) => e)
+        .catch((/** @type {unknown} */ e) => e)
 
       expect(error).toBeInstanceOf(InvalidComponentStateError)
-      expect((error as InvalidComponentStateError).component).toBe(
+      expect(/** @type {InvalidComponentStateError} */ (error).component).toBe(
         fileUploadField
       )
-      expect((error as InvalidComponentStateError).userMessage).toBe(
+      expect(
+        /** @type {InvalidComponentStateError} */ (error).userMessage
+      ).toBe(
         'There was a problem with your uploaded files. Re-upload them before submitting the form again.'
       )
     })
@@ -1047,13 +1052,15 @@ describe('FileUploadField', () => {
 
       const error = await fileUploadField
         .onSubmit(mockRequest, mockMetadata, mockContext)
-        .catch((e: unknown) => e)
+        .catch((/** @type {unknown} */ e) => e)
 
       expect(error).toBeInstanceOf(InvalidComponentStateError)
-      expect((error as InvalidComponentStateError).component).toBe(
+      expect(/** @type {InvalidComponentStateError} */ (error).component).toBe(
         fileUploadField
       )
-      expect((error as InvalidComponentStateError).userMessage).toBe(
+      expect(
+        /** @type {InvalidComponentStateError} */ (error).userMessage
+      ).toBe(
         'There was a problem with your uploaded files. Re-upload them before submitting the form again.'
       )
     })
@@ -1068,13 +1075,15 @@ describe('FileUploadField', () => {
 
       const error = await fileUploadField
         .onSubmit(mockRequest, mockMetadata, mockContext)
-        .catch((e: unknown) => e)
+        .catch((/** @type {unknown} */ e) => e)
 
       expect(error).toBeInstanceOf(InvalidComponentStateError)
-      expect((error as InvalidComponentStateError).component).toBe(
+      expect(/** @type {InvalidComponentStateError} */ (error).component).toBe(
         fileUploadField
       )
-      expect((error as InvalidComponentStateError).userMessage).toBe(
+      expect(
+        /** @type {InvalidComponentStateError} */ (error).userMessage
+      ).toBe(
         'There was a problem with your uploaded files. Re-upload them before submitting the form again.'
       )
     })
@@ -1106,3 +1115,12 @@ describe('FileUploadField', () => {
     })
   })
 })
+
+/**
+ * @import { FileUploadFieldComponent, FormMetadata } from '@defra/forms-model'
+ * @import { Field } from '~/src/server/plugins/engine/components/helpers/components.js'
+ * @import { PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
+ * @import { Services } from '~/src/server/plugins/engine/types/index.js'
+ * @import { FormContext, UploadState } from '~/src/server/plugins/engine/types.js'
+ * @import { FormRequestPayload } from '~/src/server/routes/types.js'
+ */
