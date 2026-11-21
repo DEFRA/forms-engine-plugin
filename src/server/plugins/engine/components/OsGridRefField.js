@@ -1,0 +1,101 @@
+import { EN_GB } from '~/src/server/constants.js'
+import { LocationFieldBase } from '~/src/server/plugins/engine/components/LocationFieldBase.js'
+import { getMapLayers } from '~/src/server/plugins/engine/components/LocationFieldHelpers.js'
+import { createLowerFirstExpression } from '~/src/server/plugins/engine/components/helpers/index.js'
+import { t } from '~/src/server/plugins/engine/i18n/index.js'
+
+export class OsGridRefField extends LocationFieldBase {
+  /** @type {OsGridRefFieldComponent['options']} */
+  // @ts-expect-error TS2729: the base constructor has already set it
+  options = this.options
+
+  /**
+   * @param {RenderContext} context
+   */
+  getViewModel(context) {
+    const { translator = this.model.createTranslator() } = context
+
+    const viewModel = super.getViewModel(context)
+
+    Object.assign(viewModel, {
+      lang: translator.language,
+      mapLayers: getMapLayers(this)
+    })
+
+    return viewModel
+  }
+
+  /**
+   * @protected
+   * @param {Translator | undefined} translator
+   */
+  getValidationConfig(translator) {
+    // Regex for OS national grid references (NGR)
+    // Validates specific valid OS grid letter combinations with:
+    // - 2 letters & 6 digits in 2 blocks of 3 e.g. ST 678 678
+    // - 2 letters & 8 digits in 2 blocks of 4 e.g. ST 6789 6789
+    // - 2 letters & 10 digits in 2 blocks of 5 e.g. SO 12345 12345
+    // Optional spaces between each block
+    const pattern =
+      /^((([sS]|[nN])[a-hA-Hj-zJ-Z])|(([tT]|[oO])[abfglmqrvwABFGLMQRVW])|([hH][l-zL-Z])|([jJ][lmqrvwLMQRVW]))\s?(([0-9]{3})\s?([0-9]{3})|([0-9]{4})\s?([0-9]{4})|([0-9]{5})\s?([0-9]{5}))$/
+
+    return {
+      pattern,
+      patternErrorMessage: createLowerFirstExpression(
+        translator
+          ? translator.t('components.osGridRefField.pattern')
+          : t('components.osGridRefField.pattern', EN_GB)
+      ),
+      requiredMessage: createLowerFirstExpression(
+        translator
+          ? translator.t('components.osGridRefField.required')
+          : t('components.osGridRefField.required', EN_GB)
+      )
+    }
+  }
+
+  /**
+   * @protected
+   */
+  getErrorTemplates() {
+    return [
+      {
+        type: 'pattern',
+        template: createLowerFirstExpression(
+          t('components.osGridRefField.pattern', 'en-GB')
+        )
+      }
+    ]
+  }
+
+  /**
+   * Static version of getAllPossibleErrors that doesn't require a component instance.
+   * @returns {ErrorMessageTemplateList}
+   */
+  static getAllPossibleErrors() {
+    return {
+      baseErrors: [
+        {
+          type: 'required',
+          template: createLowerFirstExpression(
+            t('components.osGridRefField.required', 'en-GB')
+          )
+        },
+        {
+          type: 'pattern',
+          template: createLowerFirstExpression(
+            t('components.osGridRefField.pattern', 'en-GB')
+          )
+        }
+      ],
+      advancedSettingsErrors: []
+    }
+  }
+}
+
+/**
+ * @import { OsGridRefFieldComponent } from '@defra/forms-model'
+ * @import { RenderContext } from '~/src/server/plugins/engine/components/types.js'
+ * @import { Translator } from '~/src/server/plugins/engine/types/index.js'
+ * @import { ErrorMessageTemplateList } from '~/src/server/plugins/engine/types.js'
+ */

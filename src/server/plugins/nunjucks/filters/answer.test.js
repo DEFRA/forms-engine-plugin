@@ -2,7 +2,7 @@ import { getAnswer } from '~/src/server/plugins/engine/components/helpers/compon
 import { answer } from '~/src/server/plugins/nunjucks/filters/answer.js'
 
 jest.mock(
-  '~/src/server/plugins/engine/components/helpers/components.ts',
+  '~/src/server/plugins/engine/components/helpers/components.js',
   () => ({
     getAnswer: jest.fn()
   })
