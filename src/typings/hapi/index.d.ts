@@ -13,7 +13,7 @@ import {
   type FormSubmissionError,
   type GenerateReferenceNumberHandler,
   type PluginOptions
-} from '~/src/server/plugins/engine/types.ts'
+} from '~/src/server/plugins/engine/types.js'
 import { type CacheService } from '~/src/server/services/index.js'
 
 declare module '@hapi/yar' {

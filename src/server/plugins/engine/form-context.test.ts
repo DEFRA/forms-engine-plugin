@@ -17,7 +17,7 @@ const mockGetCacheService = jest.fn()
 const mockCacheService = { getState: jest.fn() }
 const mockCheckEmailAddressForLiveFormSubmission = jest.fn()
 
-jest.mock('~/src/server/plugins/engine/models/index.ts', () => ({
+jest.mock('~/src/server/plugins/engine/models/index.js', () => ({
   __esModule: true,
   FormModel: jest.fn()
 }))
@@ -57,7 +57,7 @@ const mockServices: {
 const mockFormsService = mockServices.formsService
 
 const { FormModel }: { FormModel: jest.Mock } = jest.requireMock(
-  '~/src/server/plugins/engine/models/index.ts'
+  '~/src/server/plugins/engine/models/index.js'
 )
 
 const {

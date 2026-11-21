@@ -15,31 +15,16 @@ import {
   hasRepeater,
   isConditionWrapperV2,
   yesNoListId,
-  yesNoListName,
-  type ComponentDef,
-  type ConditionWrapper,
-  type ConditionWrapperV2,
-  type ConditionsModelData,
-  type DateUnits,
-  type Engine,
-  type FormDefinition,
-  type List,
-  type Page,
-  type Section
+  yesNoListName
 } from '@defra/forms-model'
 import { add, format } from 'date-fns'
-import { Parser, type Value } from 'expr-eval-fork'
-import { type i18n } from 'i18next'
+import { Parser } from 'expr-eval-fork'
 import joi from 'joi'
 
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { EN_GB } from '~/src/server/constants.js'
-import { type ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
 import {} from '~/src/server/plugins/engine/components/YesNoField.js'
-import {
-  hasListFormField,
-  type Component
-} from '~/src/server/plugins/engine/components/helpers/components.js'
+import { hasListFormField } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { todayAsDateOnly } from '~/src/server/plugins/engine/date-helper.js'
 import {
   ConditionBuildError,
@@ -58,76 +43,86 @@ import {
   getAvailableLanguages,
   resolveFormLanguage
 } from '~/src/server/plugins/engine/i18n/languages.js'
-import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
-import {
-  type ConditionEvaluation,
-  type ExecutableCondition
-} from '~/src/server/plugins/engine/models/types.js'
-import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
-import {
-  createPage,
-  type PageControllerClass
-} from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
+import { createPage } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import { DEFAULT_REFERENCE_NUMBER } from '~/src/server/plugins/engine/referenceNumbers.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
-import {
-  type FormContext,
-  type FormContextRequest,
-  type FormState,
-  type FormSubmissionError,
-  type FormSubmissionState
-} from '~/src/server/plugins/engine/types.js'
-import {
-  FormAction,
-  type FormRequestPayload
-} from '~/src/server/routes/types.js'
+import { FormAction } from '~/src/server/routes/types.js'
 import { merge } from '~/src/server/services/cacheService.js'
-import { type Services } from '~/src/server/types.js'
 
 export class FormModel {
-  /** The runtime engine that should be used */
-  engine?: Engine
+  /**
+   * The runtime engine that should be used
+   * @type {Engine | undefined}
+   */
+  engine
 
-  schemaVersion: SchemaVersion
+  /** @type {SchemaVersion} */
+  schemaVersion
 
-  /** the entire form JSON as an object */
-  def: FormDefinition
+  /**
+   * the entire form JSON as an object
+   * @type {FormDefinition}
+   */
+  def
 
-  lists: FormDefinition['lists']
-  sections: FormDefinition['sections'] = []
-  name: string
-  formId: string
-  values: FormDefinition
-  basePath: string
-  ordnanceSurveyApiKey?: string
-  conditions: Partial<Record<string, ExecutableCondition>>
-  pages: PageControllerClass[]
-  services: Services
-  private readonly i18nInstance: i18n
+  /** @type {FormDefinition['lists']} */
+  lists
+  /** @type {FormDefinition['sections']} */
+  sections = []
+  /** @type {string} */
+  name
+  /** @type {string} */
+  formId
+  /** @type {FormDefinition} */
+  values
+  /** @type {string} */
+  basePath
+  /** @type {string | undefined} */
+  ordnanceSurveyApiKey
+  /** @type {Partial<Record<string, ExecutableCondition>>} */
+  conditions
+  /** @type {PageControllerClass[]} */
+  pages
+  /** @type {Services} */
+  services
+  /**
+   * @private
+   * @readonly
+   * @type {i18n}
+   */
+  i18nInstance
 
-  controllers?: Record<string, typeof PageController>
-  pageDefMap: Map<string, Page>
+  /** @type {Record<string, typeof PageController> | undefined} */
+  controllers
+  /** @type {Map<string, Page>} */
+  pageDefMap
 
-  listDefMap: Map<string, List>
-  listDefIdMap: Map<string, List>
+  /** @type {Map<string, List>} */
+  listDefMap
+  /** @type {Map<string, List>} */
+  listDefIdMap
 
-  componentDefMap: Map<string, ComponentDef>
-  componentDefIdMap: Map<string, ComponentDef>
+  /** @type {Map<string, ComponentDef>} */
+  componentDefMap
+  /** @type {Map<string, ComponentDef>} */
+  componentDefIdMap
 
-  pageMap: Map<string, PageControllerClass>
-  componentMap: Map<string, Component>
+  /** @type {Map<string, PageControllerClass>} */
+  pageMap
+  /** @type {Map<string, Component>} */
+  componentMap
 
-  constructor(
-    def: typeof this.def,
-    options: {
-      basePath: string
-      ordnanceSurveyApiKey?: string
-      formId?: string
-    },
-    services: Services = defaultServices,
-    controllers?: Record<string, typeof PageController>
-  ) {
+  /**
+   * @param {FormModel['def']} def
+   * @param {object} options
+   * @param {string} options.basePath
+   * @param {string} [options.ordnanceSurveyApiKey]
+   * @param {string} [options.formId]
+   * @param {Services} [services]
+   * @param {Record<string, typeof PageController>} [controllers]
+   */
+  constructor(def, options, services = defaultServices, controllers) {
     let schema = formDefinitionV2Schema
 
     if (!def.schema || def.schema === SchemaVersion.V1) {
@@ -198,8 +193,7 @@ export class FormModel {
     this.listDefIdMap = new Map(
       def.lists
         .filter((list) => list.id) // Skip lists without an ID
-        // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
-        .map((list) => [list.id as string, list])
+        .map((list) => [/** @type {string} */ (list.id), list])
     )
     this.componentDefMap = new Map(
       def.pages
@@ -213,8 +207,7 @@ export class FormModel {
         page.components
           .filter((component) => component.id) // Skip components without an ID
           .map((component) => {
-            // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
-            return [component.id as string, component]
+            return [/** @type {string} */ (component.id), component]
           })
       )
     )
@@ -257,8 +250,12 @@ export class FormModel {
     )
   }
 
-  /** Returns a scoped translator pair for the given language. */
-  createTranslator(language = EN_GB): Translator {
+  /**
+   * Returns a scoped translator pair for the given language.
+   * @param {string} [language]
+   * @returns {Translator}
+   */
+  createTranslator(language = EN_GB) {
     return createTranslator(
       this.i18nInstance,
       resolveFormLanguage(this.def, language)
@@ -268,11 +265,14 @@ export class FormModel {
   /**
    * build the entire model schema from individual pages/sections and filter out answers
    * for pages which are no longer accessible due to an answer that has been changed
+   * @param {PageControllerClass[]} relevantPages
    */
-  makeFilteredSchema(relevantPages: PageControllerClass[]) {
+  makeFilteredSchema(relevantPages) {
     // Build the entire model schema
     // from the individual pages/sections
-    let schema = joi.object<FormSubmissionState>().required()
+    let schema = /** @type {ObjectSchema<FormSubmissionState>} */ (
+      joi.object()
+    ).required()
 
     relevantPages.forEach((page) => {
       schema = schema.concat(page.collection.stateSchema)
@@ -283,9 +283,10 @@ export class FormModel {
 
   /**
    * Instantiates a Condition based on {@link ConditionWrapper}
-   * @param condition
+   * @param {ConditionWrapper} condition
+   * @returns {ExecutableCondition}
    */
-  makeCondition(condition: ConditionWrapper): ExecutableCondition {
+  makeCondition(condition) {
     const parser = new Parser({
       operators: {
         logical: true
@@ -293,7 +294,11 @@ export class FormModel {
     })
 
     Object.assign(parser.functions, {
-      dateForComparison(timePeriod: number, timeUnit: DateUnits) {
+      /**
+       * @param {number} timePeriod
+       * @param {DateUnits} timeUnit
+       */
+      dateForComparison(timePeriod, timeUnit) {
         // The time element must be stripped (hence using startOfDay() which has no time element),
         // then formatted as YYYY-MM-DD otherwise we can hit time element and BST issues giving the
         // wrong date to compare against.
@@ -314,12 +319,16 @@ export class FormModel {
       throw new ConditionBuildError(displayName, { cause })
     }
 
-    const evaluate = (evaluationState: FormState): ConditionEvaluation => {
+    /**
+     * @param {FormState} evaluationState
+     * @returns {ConditionEvaluation}
+     */
+    const evaluate = (evaluationState) => {
       const ctx = this.toConditionContext(evaluationState, this.conditions)
 
       try {
         return {
-          outcome: (expr.evaluate(ctx) as boolean)
+          outcome: /** @type {boolean} */ (expr.evaluate(ctx))
             ? ConditionEvaluationOutcome.True
             : ConditionEvaluationOutcome.False
         }
@@ -333,7 +342,7 @@ export class FormModel {
 
     // A failed evaluation continues to route as `false`. `evaluate` exists so
     // that the two can be told apart when recording outcomes for submission.
-    const fn = (evaluationState: FormState) =>
+    const fn = (/** @type {FormState} */ evaluationState) =>
       evaluate(evaluationState).outcome === ConditionEvaluationOutcome.True
 
     return {
@@ -346,10 +355,11 @@ export class FormModel {
     }
   }
 
-  toConditionContext(
-    evaluationState: FormState,
-    conditions: Partial<Record<string, ExecutableCondition>>
-  ) {
+  /**
+   * @param {FormState} evaluationState
+   * @param {Partial<Record<string, ExecutableCondition>>} conditions
+   */
+  toConditionContext(evaluationState, conditions) {
     const context = { ...evaluationState }
 
     for (const conditionId in conditions) {
@@ -365,21 +375,33 @@ export class FormModel {
       })
     }
 
-    return context as Extract<Value, Record<string, Value>>
+    return /** @type {Extract<Value, Record<string, Value>>} */ (context)
   }
 
-  toConditionExpression(value: ConditionsModelData, parser: Parser) {
+  /**
+   * @param {ConditionsModelData} value
+   * @param {Parser} parser
+   */
+  toConditionExpression(value, parser) {
     const conditions = ConditionsModel.from(value)
     return parser.parse(conditions.toExpression())
   }
 
-  getList(nameOrId: string): List | undefined {
+  /**
+   * @param {string} nameOrId
+   * @returns {List | undefined}
+   */
+  getList(nameOrId) {
     return this.schemaVersion === SchemaVersion.V1
       ? this.lists.find((list) => list.name === nameOrId)
       : this.lists.find((list) => list.id === nameOrId)
   }
 
-  getSection(nameOrId: string): Section | undefined {
+  /**
+   * @param {string} nameOrId
+   * @returns {Section | undefined}
+   */
+  getSection(nameOrId) {
     return this.schemaVersion === SchemaVersion.V1
       ? this.sections.find((section) => section.name === nameOrId)
       : this.sections.find((section) => section.id === nameOrId)
@@ -387,13 +409,13 @@ export class FormModel {
 
   /**
    * Form context for the current page
+   * @param {FormContextRequest} request
+   * @param {FormSubmissionState} state
+   * @param {FormSubmissionError[]} [errors]
+   * @param {Translator} [translator]
+   * @returns {FormContext}
    */
-  getFormContext(
-    request: FormContextRequest,
-    state: FormSubmissionState,
-    errors?: FormSubmissionError[],
-    translator?: Translator
-  ): FormContext {
+  getFormContext(request, state, errors, translator) {
     const { query } = request
 
     const page = getPage(this, request)
@@ -405,7 +427,8 @@ export class FormModel {
     // Preview URL direct access is allowed
     const isForceAccess = 'force' in query
 
-    let context: FormContext = {
+    /** @type {FormContext} */
+    let context = {
       evaluationState: {},
       relevantState: {},
       relevantPages: [],
@@ -463,7 +486,11 @@ export class FormModel {
     return context
   }
 
-  private initialiseContext(context: FormContext) {
+  /**
+   * @private
+   * @param {FormContext} context
+   */
+  initialiseContext(context) {
     // Initialise `evaluationState` for all keys using empty state.
     // This is because the current condition evaluation library (eval-expr)
     // will throw if an expression uses a key that is undefined.
@@ -481,10 +508,12 @@ export class FormModel {
     }
   }
 
-  private assignEvaluationState(
-    context: FormContext,
-    page: PageControllerClass
-  ) {
+  /**
+   * @private
+   * @param {FormContext} context
+   * @param {PageControllerClass} page
+   */
+  assignEvaluationState(context, page) {
     const { collection, pageDef } = page
     // Skip evaluation state for repeater pages
 
@@ -496,7 +525,12 @@ export class FormModel {
     }
   }
 
-  private assignRelevantState(context: FormContext, page: PageControllerClass) {
+  /**
+   * @private
+   * @param {FormContext} context
+   * @param {PageControllerClass} page
+   */
+  assignRelevantState(context, page) {
     // Copy relevant state by expected keys
     for (const key of page.keys) {
       if (typeof context.state[key] !== 'undefined') {
@@ -505,11 +539,13 @@ export class FormModel {
     }
   }
 
-  private pageStateIsInvalid(
-    context: FormContext,
-    page: PageControllerClass,
-    translator?: Translator
-  ) {
+  /**
+   * @private
+   * @param {FormContext} context
+   * @param {PageControllerClass} page
+   * @param {Translator} [translator]
+   */
+  pageStateIsInvalid(context, page, translator) {
     // Get any list-bound fields on the page
     const listFields = page.collection.fields.filter(hasListFormField)
 
@@ -531,12 +567,14 @@ export class FormModel {
     }
   }
 
-  private fieldStateIsInvalid(
-    context: FormContext,
-    field: ListFormComponent,
-    list: List,
-    translator?: Translator
-  ) {
+  /**
+   * @private
+   * @param {FormContext} context
+   * @param {ListFormComponent} field
+   * @param {List} list
+   * @param {Translator} [translator]
+   */
+  fieldStateIsInvalid(context, field, list, translator) {
     const { evaluationState, state } = context
 
     const validValues = list.items
@@ -581,7 +619,11 @@ export class FormModel {
     }
   }
 
-  private assignPaths(context: FormContext) {
+  /**
+   * @private
+   * @param {FormContext} context
+   */
+  assignPaths(context) {
     for (const { keys, path } of context.relevantPages) {
       context.paths.push(path)
 
@@ -596,20 +638,28 @@ export class FormModel {
     }
   }
 
-  getComponentById(componentId: string): ComponentDef | undefined {
+  /**
+   * @param {string} componentId
+   * @returns {ComponentDef | undefined}
+   */
+  getComponentById(componentId) {
     return this.componentDefIdMap.get(componentId)
   }
 
-  getListById(listId: string): List | undefined {
+  /**
+   * @param {string} listId
+   * @returns {List | undefined}
+   */
+  getListById(listId) {
     return this.listDefIdMap.get(listId)
   }
 
   /**
    * Returns a condition by its ID. O(n) lookup time.
-   * @param conditionId
-   * @returns
+   * @param {string} conditionId
+   * @returns {ConditionWrapperV2 | undefined}
    */
-  getConditionById(conditionId: string): ConditionWrapperV2 | undefined {
+  getConditionById(conditionId) {
     return this.def.conditions
       .filter(isConditionWrapperV2)
       .find((condition) => condition.id === conditionId)
@@ -630,23 +680,28 @@ export class FormModel {
   /**
    * Returns the reference number from state, falling back to the default
    * reference number when previewing with `?force`
+   * @param {FormState} state
+   * @param {FormRequestPayload} request
+   * @returns {string}
    */
-  getReference(state: FormState, request: FormRequestPayload): string {
+  getReference(state, request) {
     const forceReferenceNumber =
       'force' in request.query ? DEFAULT_REFERENCE_NUMBER : undefined
-    return (state.$$__referenceNumber ?? forceReferenceNumber) as string
+    return /** @type {string} */ (
+      state.$$__referenceNumber ?? forceReferenceNumber
+    )
   }
 }
 
 /**
  * Validate current page only
+ * @param {FormContextRequest} request
+ * @param {PageControllerClass} page
+ * @param {FormContext} context
+ * @param {Translator} [translator]
+ * @returns {FormContext}
  */
-function validateFormPayload(
-  request: FormContextRequest,
-  page: PageControllerClass,
-  context: FormContext,
-  translator?: Translator
-): FormContext {
+function validateFormPayload(request, page, context, translator) {
   const { collection } = page
   const { payload, state } = context
 
@@ -693,12 +748,12 @@ function validateFormPayload(
 
 /**
  * Validate entire form state
+ * @param {FormContextRequest} request
+ * @param {PageControllerClass} page
+ * @param {FormContext} context
+ * @returns {FormContext}
  */
-function validateFormState(
-  request: FormContextRequest,
-  page: PageControllerClass,
-  context: FormContext
-): FormContext {
+function validateFormState(request, page, context) {
   const { errors = [], relevantPages, relevantState } = context
 
   // Exclude current page
@@ -720,7 +775,11 @@ function validateFormState(
   return context
 }
 
-function getReferenceNumber(state: FormSubmissionState): string {
+/**
+ * @param {FormSubmissionState} state
+ * @returns {string}
+ */
+function getReferenceNumber(state) {
   if (
     !state.$$__referenceNumber ||
     typeof state.$$__referenceNumber !== 'string'
@@ -730,3 +789,19 @@ function getReferenceNumber(state: FormSubmissionState): string {
 
   return state.$$__referenceNumber
 }
+
+/**
+ * @import { ComponentDef, ConditionWrapper, ConditionWrapperV2, ConditionsModelData, DateUnits, Engine, FormDefinition, List, Page, Section } from '@defra/forms-model'
+ * @import { Value } from 'expr-eval-fork'
+ * @import { i18n } from 'i18next'
+ * @import { ObjectSchema } from 'joi'
+ * @import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
+ * @import { Component } from '~/src/server/plugins/engine/components/helpers/components.js'
+ * @import { Translator } from '~/src/server/plugins/engine/i18n/types.js'
+ * @import { ConditionEvaluation, ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
+ * @import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
+ * @import { PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
+ * @import { FormContext, FormContextRequest, FormState, FormSubmissionError, FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+ * @import { FormRequestPayload } from '~/src/server/routes/types.js'
+ * @import { Services } from '~/src/server/types.js'
+ */
