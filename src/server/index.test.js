@@ -1,6 +1,4 @@
-import { type Server } from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
-import { type Environment } from 'nunjucks'
 
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
@@ -11,12 +9,7 @@ import {
 } from '~/src/server/plugins/engine/services/formsService.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import { getUploadStatus } from '~/src/server/plugins/engine/services/uploadService.js'
-import {
-  FileStatus,
-  UploadStatus,
-  type PluginOptions,
-  type UploadStatusResponse
-} from '~/src/server/plugins/engine/types.js'
+import { FileStatus, UploadStatus } from '~/src/server/plugins/engine/types.js'
 import { FormStatus } from '~/src/server/routes/types.js'
 import * as fixtures from '~/test/fixtures/index.js'
 
@@ -24,13 +17,14 @@ jest.mock('~/src/server/plugins/engine/services/formsService.js')
 jest.mock('~/src/server/plugins/engine/services/uploadService.js')
 
 describe('Model cache', () => {
-  let server: Server
+  /** @type {Server} */
+  let server
 
   const getCacheSize = () => {
     return server.app.models?.size ?? 0
   }
 
-  const getCacheItem = (key: string) => {
+  const getCacheItem = (/** @type {string} */ key) => {
     return server.app.models?.get(key)
   }
 
@@ -467,7 +461,8 @@ describe('Model cache', () => {
 })
 
 describe('Upload status route', () => {
-  let server: Server
+  /** @type {Server} */
+  let server
 
   beforeAll(async () => {
     server = await createServer()
@@ -483,7 +478,8 @@ describe('Upload status route', () => {
   })
 
   test('GET /upload-status/{uploadId} returns upload status with 200 when successful', async () => {
-    const mockStatus: UploadStatusResponse = {
+    /** @type {UploadStatusResponse} */
+    const mockStatus = {
       uploadStatus: UploadStatus.ready,
       metadata: {
         retrievalKey: 'some-key'
@@ -559,12 +555,15 @@ describe('Upload status route', () => {
 })
 
 describe('prepareEnvironment', () => {
-  const mockEnv = {
-    addFilter: jest.fn(),
-    addGlobal: jest.fn()
-  } as unknown as Environment
+  const mockEnv = /** @type {Environment} */ (
+    /** @type {unknown} */ ({
+      addFilter: jest.fn(),
+      addGlobal: jest.fn()
+    })
+  )
 
-  const mockPluginOptions: PluginOptions = {
+  /** @type {PluginOptions} */
+  const mockPluginOptions = {
     baseUrl: 'http://localhost',
     nunjucks: {
       baseLayoutPath: '',
@@ -644,3 +643,9 @@ describe('prepareEnvironment', () => {
     )
   })
 })
+
+/**
+ * @import { Server } from '@hapi/hapi'
+ * @import { Environment } from 'nunjucks'
+ * @import { PluginOptions, UploadStatusResponse } from '~/src/server/plugins/engine/types.js'
+ */

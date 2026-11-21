@@ -1,26 +1,26 @@
-import { ComponentType, type FormComponentsDef } from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 
-import { type PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import {
-  type FormPayload,
-  type FormValue
-} from '~/src/server/plugins/engine/types.js'
 import { listString } from '~/test/fixtures/list.js'
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData } from '~/test/helpers/component-helpers.js'
 
-type FormComponentType = FormComponentsDef['type']
+/**
+ * @typedef {FormComponentsDef['type']} FormComponentType
+ */
 
+/* eslint-disable jsdoc/valid-types -- the JSDoc type parser rejects a mapped type; tsc reads it */
 /**
  * Definition fields for each type, where they differ from the defaults in
  * `buildComponent()`
+ * @type {{
+ *   [Type in FormComponentType]?: Partial<
+ *     Extract<FormComponentsDef, { type: Type }>
+ *   >
+ * }}
  */
-const EXTRA_DEFINITION_FIELDS: {
-  [Type in FormComponentType]?: Partial<
-    Extract<FormComponentsDef, { type: Type }>
-  >
-} = {
+/* eslint-enable jsdoc/valid-types */
+const EXTRA_DEFINITION_FIELDS = {
   [ComponentType.MultilineTextField]: { schema: {} },
   [ComponentType.NumberField]: { schema: {} },
   [ComponentType.FileUploadField]: { schema: {} },
@@ -34,7 +34,7 @@ const EXTRA_DEFINITION_FIELDS: {
   }
 }
 
-const emptyPayment = {
+const emptyPayment = /** @satisfies {PaymentState} */ ({
   paymentId: '',
   reference: '',
   amount: 0,
@@ -42,16 +42,17 @@ const emptyPayment = {
   uuid: '',
   formId: '',
   isLivePayment: false
-} satisfies PaymentState
+})
 
 /**
  * Form input for each type, where it differs from `getFormData()`. Each
  * input gives a validation error.
+ * @type {Partial<Record<FormComponentType, FormPayload>>}
  */
-const INPUTS: Partial<Record<FormComponentType, FormPayload>> = {
+const INPUTS = {
   [ComponentType.DeclarationField]: getFormData(['unchecked']),
   [ComponentType.PaymentField]: getFormData(
-    emptyPayment as unknown as FormValue
+    /** @type {FormValue} */ (/** @type {unknown} */ (emptyPayment))
   )
 }
 
@@ -67,25 +68,31 @@ export function buildModel() {
 
 /**
  * Build a component definition for a type, with extra options merged in
+ * @param {FormComponentType} type
+ * @param {Partial<FormComponentsDef['options']>} [options]
  */
-export function buildComponent(
-  type: FormComponentType,
-  options: Partial<FormComponentsDef['options']> = {}
-) {
+export function buildComponent(type, options = {}) {
   const fields = EXTRA_DEFINITION_FIELDS[type]
 
-  return {
+  return /** @type {FormComponentsDef} */ ({
     title: 'Example field',
     name: 'myComponent',
     type,
     ...fields,
     options: { ...fields?.options, ...options }
-  } as FormComponentsDef
+  })
 }
 
 /**
  * Get form input for a type
+ * @param {FormComponentType} type
  */
-export function getInput(type: FormComponentType) {
+export function getInput(type) {
   return INPUTS[type] ?? getFormData()
 }
+
+/**
+ * @import { FormComponentsDef } from '@defra/forms-model'
+ * @import { PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
+ * @import { FormPayload, FormValue } from '~/src/server/plugins/engine/types.js'
+ */

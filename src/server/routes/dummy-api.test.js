@@ -1,10 +1,10 @@
-import { type Server } from '@hapi/hapi'
 import MockDate from 'mockdate'
 
 import { createServer } from '~/src/server/index.js'
 
 describe('Dummy API', () => {
-  let server: Server
+  /** @type {Server} */
+  let server
 
   const payload = {
     meta: {
@@ -95,3 +95,7 @@ describe('Dummy API', () => {
     })
   })
 })
+
+/**
+ * @import { Server } from '@hapi/hapi'
+ */

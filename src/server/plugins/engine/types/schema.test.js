@@ -6,15 +6,10 @@ import {
   formAdapterSubmissionMessageMetaSchema,
   formAdapterSubmissionMessagePayloadSchema
 } from '~/src/server/plugins/engine/types/schema.js'
-import {
-  type FormAdapterSubmissionMessageData,
-  type FormAdapterSubmissionMessageMeta,
-  type FormAdapterSubmissionMessagePayload,
-  type RichFormValue
-} from '~/src/server/plugins/engine/types.js'
 
 describe('Schema validation', () => {
-  const main: Record<string, RichFormValue> = {
+  /** @type {Record<string, RichFormValue>} */
+  const main = {
     QMwMir: 'Roman Pizza',
     duOEvZ: 'Small',
     DzEODf: ['Mozzarella'],
@@ -35,14 +30,17 @@ describe('Schema validation', () => {
     HGBWLt: ['Garlic sauce']
   }
 
-  const value1: Record<string, RichFormValue> = {
+  /** @type {Record<string, RichFormValue>} */
+  const value1 = {
     IEKzko: 'dsfsdfsdf'
   }
-  const value2: Record<string, RichFormValue> = {
+  /** @type {Record<string, RichFormValue>} */
+  const value2 = {
     IEKzko: 'dfghfgh'
   }
 
-  const validData: FormAdapterSubmissionMessageData = {
+  /** @type {FormAdapterSubmissionMessageData} */
+  const validData = {
     main,
     repeaters: {
       qLVLgb: [value1, value2]
@@ -60,7 +58,8 @@ describe('Schema validation', () => {
   }
 
   describe('formAdapterSubmissionMessageMetaSchema', () => {
-    const validMeta: FormAdapterSubmissionMessageMeta = {
+    /** @type {FormAdapterSubmissionMessageMeta} */
+    const validMeta = {
       schemaVersion: FormAdapterSubmissionSchemaVersion.V1,
       timestamp: new Date('2025-08-22T18:15:10.785Z'),
       referenceNumber: '576-225-943',
@@ -166,7 +165,8 @@ describe('Schema validation', () => {
   })
 
   describe('formAdapterSubmissionMessagePayloadSchema', () => {
-    const meta: FormAdapterSubmissionMessageMeta = {
+    /** @type {FormAdapterSubmissionMessageMeta} */
+    const meta = {
       schemaVersion: FormAdapterSubmissionSchemaVersion.V1,
       timestamp: new Date('2025-08-22T18:15:10.785Z'),
       referenceNumber: '576-225-943',
@@ -178,7 +178,8 @@ describe('Schema validation', () => {
       notificationEmail: 'info@example.com'
     }
 
-    const validPayload: FormAdapterSubmissionMessagePayload = {
+    /** @type {FormAdapterSubmissionMessagePayload} */
+    const validPayload = {
       meta,
       data: validData,
       result: {
@@ -255,7 +256,8 @@ describe('Schema validation', () => {
   })
 
   describe('conditionEvaluations', () => {
-    const meta: FormAdapterSubmissionMessageMeta = {
+    /** @type {FormAdapterSubmissionMessageMeta} */
+    const meta = {
       schemaVersion: FormAdapterSubmissionSchemaVersion.V1,
       timestamp: new Date('2025-08-22T18:15:10.785Z'),
       referenceNumber: '576-225-943',
@@ -321,7 +323,9 @@ describe('Schema validation', () => {
         { meta, data: validData, result, conditionEvaluations: [evaluation] },
         { stripUnknown: true }
       )
-      const validated = value as FormAdapterSubmissionMessagePayload
+      const validated = /** @type {FormAdapterSubmissionMessagePayload} */ (
+        value
+      )
 
       expect(validated.conditionEvaluations).toEqual([evaluation])
     })
@@ -337,3 +341,7 @@ describe('Schema validation', () => {
     })
   })
 })
+
+/**
+ * @import { FormAdapterSubmissionMessageData, FormAdapterSubmissionMessageMeta, FormAdapterSubmissionMessagePayload, RichFormValue } from '~/src/server/plugins/engine/types.js'
+ */

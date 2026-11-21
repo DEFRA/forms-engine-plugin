@@ -1,16 +1,8 @@
-import { type FormMetadata } from '@defra/forms-model'
-
 import { escapeMarkdown } from '~/src/server/plugins/engine/components/helpers/index.js'
 import { checkFormStatus } from '~/src/server/plugins/engine/helpers.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
-import { type DetailItem } from '~/src/server/plugins/engine/models/types.js'
 import { getFormatter } from '~/src/server/plugins/engine/outputFormatters/index.js'
 import { submit } from '~/src/server/plugins/engine/services/notifyService.js'
-import { type FormContext } from '~/src/server/plugins/engine/types.js'
-import {
-  FormStatus,
-  type FormRequestPayload
-} from '~/src/server/routes/types.js'
+import { FormStatus } from '~/src/server/routes/types.js'
 import { sendNotification } from '~/src/server/utils/notify.js'
 
 jest.mock('~/src/server/utils/notify')
@@ -31,18 +23,27 @@ describe('notifyService', () => {
     }
   }
 
-  const items: DetailItem[] = []
+  /** @type {DetailItem[]} */
+  const items = []
 
-  const mockRequest: FormRequestPayload = jest.mocked<FormRequestPayload>({
-    path: 'test',
-    logger: {
-      info: jest.fn(),
-      error: jest.fn()
-    }
-  } as unknown as FormRequestPayload)
-  let model: FormModel
+  /** @type {FormRequestPayload} */
+  const mockRequest = /** @type {typeof jest.mocked<FormRequestPayload>} */ (
+    jest.mocked
+  )(
+    /** @type {FormRequestPayload} */ (
+      /** @type {unknown} */ ({
+        path: 'test',
+        logger: {
+          info: jest.fn(),
+          error: jest.fn()
+        }
+      })
+    )
+  )
+  /** @type {FormModel} */
+  let model
   const sendNotificationMock = jest.mocked(sendNotification)
-  const formContext = {} as FormContext
+  const formContext = /** @type {FormContext} */ ({})
 
   beforeEach(() => {
     jest.resetAllMocks()
@@ -50,7 +51,7 @@ describe('notifyService', () => {
   })
 
   it('creates a subject line for real forms', async () => {
-    model = {
+    model = /** @type {FormModel} */ ({
       name: 'foobar',
       def: {
         output: {
@@ -58,7 +59,7 @@ describe('notifyService', () => {
           version: '1'
         }
       }
-    } as FormModel
+    })
 
     jest.mocked(checkFormStatus).mockReturnValue({
       isPreview: false,
@@ -86,7 +87,7 @@ describe('notifyService', () => {
   })
 
   it('creates a subject line for preview forms', async () => {
-    model = {
+    model = /** @type {FormModel} */ ({
       name: 'foobar',
       def: {
         output: {
@@ -94,7 +95,7 @@ describe('notifyService', () => {
           version: '1'
         }
       }
-    } as FormModel
+    })
 
     jest.mocked(checkFormStatus).mockReturnValue({
       isPreview: true,
@@ -122,7 +123,7 @@ describe('notifyService', () => {
   })
 
   it('base64 encodes form data when aimed at machines', async () => {
-    model = {
+    model = /** @type {FormModel} */ ({
       name: 'foobar',
       def: {
         output: {
@@ -130,7 +131,7 @@ describe('notifyService', () => {
           version: '1'
         }
       }
-    } as FormModel
+    })
 
     jest.mocked(checkFormStatus).mockReturnValue({
       isPreview: true,
@@ -163,11 +164,12 @@ describe('notifyService', () => {
     const mockFormatter = jest.fn().mockReturnValue('formatted-output')
     jest.mocked(getFormatter).mockReturnValue(mockFormatter)
 
-    const formMetadata: FormMetadata = {
+    /** @type {FormMetadata} */
+    const formMetadata = /** @type {FormMetadata} */ ({
       id: 'form-id',
       slug: 'form-slug',
       title: 'Form Title'
-    } as FormMetadata
+    })
 
     const formStatus = {
       isPreview: false,
@@ -176,7 +178,7 @@ describe('notifyService', () => {
 
     jest.mocked(checkFormStatus).mockReturnValue(formStatus)
 
-    model = {
+    model = /** @type {FormModel} */ ({
       name: 'foobar',
       def: {
         output: {
@@ -184,7 +186,7 @@ describe('notifyService', () => {
           version: '1'
         }
       }
-    } as FormModel
+    })
 
     await submit(
       formContext,
@@ -228,7 +230,7 @@ describe('notifyService', () => {
 
     jest.mocked(checkFormStatus).mockReturnValue(formStatus)
 
-    model = {
+    model = /** @type {FormModel} */ ({
       name: 'foobar',
       def: {
         output: {
@@ -236,7 +238,7 @@ describe('notifyService', () => {
           version: '2'
         }
       }
-    } as FormModel
+    })
 
     await submit(
       formContext,
@@ -279,7 +281,7 @@ describe('notifyService', () => {
     const testError = new Error('Notification service unavailable')
     sendNotificationMock.mockRejectedValue(testError)
 
-    model = {
+    model = /** @type {FormModel} */ ({
       name: 'foobar',
       def: {
         output: {
@@ -287,7 +289,7 @@ describe('notifyService', () => {
           version: '1'
         }
       }
-    } as FormModel
+    })
 
     await expect(
       submit(
@@ -308,3 +310,11 @@ describe('notifyService', () => {
     )
   })
 })
+
+/**
+ * @import { FormMetadata } from '@defra/forms-model'
+ * @import { FormModel } from '~/src/server/plugins/engine/models/index.js'
+ * @import { DetailItem } from '~/src/server/plugins/engine/models/types.js'
+ * @import { FormContext } from '~/src/server/plugins/engine/types.js'
+ * @import { FormRequestPayload } from '~/src/server/routes/types.js'
+ */

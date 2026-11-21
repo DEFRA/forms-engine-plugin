@@ -1,17 +1,19 @@
-import { type Request, type Server } from '@hapi/hapi'
-
 import { config } from '~/src/config/index.js'
-import { type FormRequest } from '~/src/server/routes/types.js'
 import { CacheService, merge } from '~/src/server/services/cacheService.js'
 
 describe('CacheService', () => {
-  let mockServer: Partial<Server>
-  let mockCache: {
-    get: jest.Mock
-    set: jest.Mock
-    drop: jest.Mock
-  }
-  let cacheService: CacheService
+  /** @type {Partial<Server>} */
+  let mockServer
+  /**
+   * @type {{
+   *   get: jest.Mock
+   *   set: jest.Mock
+   *   drop: jest.Mock
+   * }}
+   */
+  let mockCache
+  /** @type {CacheService} */
+  let cacheService
 
   beforeEach(() => {
     mockCache = {
@@ -22,17 +24,23 @@ describe('CacheService', () => {
 
     mockServer = {
       log: jest.fn(),
-      cache: (() => ({
-        ...mockCache,
-        provision: jest.fn()
-      })) as unknown as Server['cache'],
-      logger: {
-        info: jest.fn()
-      } as unknown as Server['logger']
+      cache: /** @type {Server['cache']} */ (
+        /** @type {unknown} */ (
+          () => ({
+            ...mockCache,
+            provision: jest.fn()
+          })
+        )
+      ),
+      logger: /** @type {Server['logger']} */ (
+        /** @type {unknown} */ ({
+          info: jest.fn()
+        })
+      )
     }
 
     cacheService = new CacheService({
-      server: mockServer as Server,
+      server: /** @type {Server} */ (mockServer),
       cacheName: 'test-cache'
     })
   })
@@ -40,10 +48,12 @@ describe('CacheService', () => {
   describe('getState', () => {
     describe('when cache exists', () => {
       it('should return cached state', async () => {
-        const mockRequest = {
-          yar: { id: 'some-session' },
-          params: { state: 'form1', slug: 'page1' }
-        } as unknown as FormRequest
+        const mockRequest = /** @type {FormRequest} */ (
+          /** @type {unknown} */ ({
+            yar: { id: 'some-session' },
+            params: { state: 'form1', slug: 'page1' }
+          })
+        )
         const mockState = { someData: 'test' }
 
         mockCache.get.mockResolvedValue(mockState)
@@ -60,10 +70,12 @@ describe('CacheService', () => {
 
     describe('when cache does not exist', () => {
       it('should return empty object', async () => {
-        const mockRequest = {
-          yar: { id: 'some-session' },
-          params: { state: 'form1', slug: 'page1' }
-        } as unknown as FormRequest
+        const mockRequest = /** @type {FormRequest} */ (
+          /** @type {unknown} */ ({
+            yar: { id: 'some-session' },
+            params: { state: 'form1', slug: 'page1' }
+          })
+        )
 
         mockCache.get.mockResolvedValue(null)
 
@@ -76,10 +88,12 @@ describe('CacheService', () => {
 
   describe('setState', () => {
     it('should set state with correct TTL and return updated state', async () => {
-      const mockRequest = {
-        yar: { id: 'some-session' },
-        params: { state: 'form1', slug: 'page1' }
-      } as unknown as FormRequest
+      const mockRequest = /** @type {FormRequest} */ (
+        /** @type {unknown} */ ({
+          yar: { id: 'some-session' },
+          params: { state: 'form1', slug: 'page1' }
+        })
+      )
       const mockState = { someData: 'test' }
       const mockTTL = 3600000
 
@@ -107,10 +121,12 @@ describe('CacheService', () => {
   describe('Key', () => {
     describe('when session ID is missing', () => {
       it('should throw error', () => {
-        const mockRequest = {
-          yar: { id: null },
-          params: {}
-        } as unknown as Request
+        const mockRequest = /** @type {Request} */ (
+          /** @type {unknown} */ ({
+            yar: { id: null },
+            params: {}
+          })
+        )
 
         expect(() => cacheService.Key(mockRequest)).toThrow(
           'No session ID found'
@@ -150,13 +166,17 @@ describe('CacheService', () => {
   describe('getFlash', () => {
     describe('when messages exist', () => {
       it('should return first message', () => {
-        const mockRequest = {
-          yar: {
-            id: 'some-session',
-            flash: jest.fn().mockReturnValue([{ errors: [{ type: 'error' }] }])
-          },
-          params: { state: 'form1', slug: 'page1' }
-        } as unknown as FormRequest
+        const mockRequest = /** @type {FormRequest} */ (
+          /** @type {unknown} */ ({
+            yar: {
+              id: 'some-session',
+              flash: jest
+                .fn()
+                .mockReturnValue([{ errors: [{ type: 'error' }] }])
+            },
+            params: { state: 'form1', slug: 'page1' }
+          })
+        )
 
         const result = cacheService.getFlash(mockRequest)
 
@@ -166,13 +186,15 @@ describe('CacheService', () => {
 
     describe('when no messages exist', () => {
       it('should return undefined', () => {
-        const mockRequest = {
-          yar: {
-            id: 'some-session',
-            flash: jest.fn().mockReturnValue([])
-          },
-          params: { state: 'form1', slug: 'page1' }
-        } as unknown as FormRequest
+        const mockRequest = /** @type {FormRequest} */ (
+          /** @type {unknown} */ ({
+            yar: {
+              id: 'some-session',
+              flash: jest.fn().mockReturnValue([])
+            },
+            params: { state: 'form1', slug: 'page1' }
+          })
+        )
 
         const result = cacheService.getFlash(mockRequest)
 
@@ -183,13 +205,15 @@ describe('CacheService', () => {
 
   describe('setFlash', () => {
     it('should set flash message', () => {
-      const mockRequest = {
-        yar: {
-          id: 'some-session',
-          flash: jest.fn()
-        },
-        params: { state: 'form1', slug: 'page1' }
-      } as unknown as FormRequest
+      const mockRequest = /** @type {FormRequest} */ (
+        /** @type {unknown} */ ({
+          yar: {
+            id: 'some-session',
+            flash: jest.fn()
+          },
+          params: { state: 'form1', slug: 'page1' }
+        })
+      )
       const message = {
         errors: [
           {
@@ -213,10 +237,12 @@ describe('CacheService', () => {
 
   describe('clearState', () => {
     it('should clear state from cache', async () => {
-      const mockRequest = {
-        yar: { id: 'some-session' },
-        params: { state: 'form1', slug: 'page1' }
-      } as unknown as FormRequest
+      const mockRequest = /** @type {FormRequest} */ (
+        /** @type {unknown} */ ({
+          yar: { id: 'some-session' },
+          params: { state: 'form1', slug: 'page1' }
+        })
+      )
 
       await cacheService.clearState(mockRequest)
 
@@ -227,10 +253,12 @@ describe('CacheService', () => {
     })
 
     it('should not clear state when session ID is undefined', async () => {
-      const mockRequest = {
-        yar: { id: undefined },
-        params: { state: 'form1', slug: 'page1' }
-      } as unknown as FormRequest
+      const mockRequest = /** @type {FormRequest} */ (
+        /** @type {unknown} */ ({
+          yar: { id: undefined },
+          params: { state: 'form1', slug: 'page1' }
+        })
+      )
 
       await cacheService.clearState(mockRequest)
 
@@ -238,10 +266,12 @@ describe('CacheService', () => {
     })
 
     it('should not clear state when session ID is null', async () => {
-      const mockRequest = {
-        yar: { id: null },
-        params: { state: 'form1', slug: 'page1' }
-      } as unknown as FormRequest
+      const mockRequest = /** @type {FormRequest} */ (
+        /** @type {unknown} */ ({
+          yar: { id: null },
+          params: { state: 'form1', slug: 'page1' }
+        })
+      )
 
       await cacheService.clearState(mockRequest)
 
@@ -251,11 +281,13 @@ describe('CacheService', () => {
 
   describe('getConfirmationState', () => {
     it('should return confirmation state from cache', async () => {
-      const mockRequest = {
-        yar: { id: 'some-session' },
-        params: { state: 'form1', slug: 'page1' }
-      } as unknown as FormRequest
-      const mockState = { confirmed: true as const }
+      const mockRequest = /** @type {FormRequest} */ (
+        /** @type {unknown} */ ({
+          yar: { id: 'some-session' },
+          params: { state: 'form1', slug: 'page1' }
+        })
+      )
+      const mockState = { confirmed: /** @type {const} */ (true) }
 
       mockCache.get.mockResolvedValue(mockState)
 
@@ -269,10 +301,12 @@ describe('CacheService', () => {
     })
 
     it('should return empty object when no confirmation state exists', async () => {
-      const mockRequest = {
-        yar: { id: 'some-session' },
-        params: { state: 'form1', slug: 'page1' }
-      } as unknown as FormRequest
+      const mockRequest = /** @type {FormRequest} */ (
+        /** @type {unknown} */ ({
+          yar: { id: 'some-session' },
+          params: { state: 'form1', slug: 'page1' }
+        })
+      )
 
       mockCache.get.mockResolvedValue(null)
 
@@ -284,11 +318,13 @@ describe('CacheService', () => {
 
   describe('setConfirmationState', () => {
     it('should set confirmation state in cache', async () => {
-      const mockRequest = {
-        yar: { id: 'some-session' },
-        params: { state: 'form1', slug: 'page1' }
-      } as unknown as FormRequest
-      const mockState = { confirmed: true as const }
+      const mockRequest = /** @type {FormRequest} */ (
+        /** @type {unknown} */ ({
+          yar: { id: 'some-session' },
+          params: { state: 'form1', slug: 'page1' }
+        })
+      )
+      const mockState = { confirmed: /** @type {const} */ (true) }
       const mockTTL = 3600000
 
       jest.spyOn(config, 'get').mockReturnValue(mockTTL)
@@ -306,3 +342,8 @@ describe('CacheService', () => {
     })
   })
 })
+
+/**
+ * @import { Request, Server } from '@hapi/hapi'
+ * @import { FormRequest } from '~/src/server/routes/types.js'
+ */

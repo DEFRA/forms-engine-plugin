@@ -1,5 +1,4 @@
 import { getRoutes } from '~/src/server/plugins/engine/routes/repeaters/summary.js'
-import { type OnRequestCallback } from '~/src/server/plugins/engine/types.js'
 
 describe('repeater summary routes', () => {
   describe('route configuration', () => {
@@ -27,9 +26,8 @@ describe('repeater summary routes', () => {
     })
 
     it('should pass onRequest callback to handlers', () => {
-      const onRequestCallback: OnRequestCallback = jest
-        .fn()
-        .mockResolvedValue(undefined)
+      /** @type {OnRequestCallback} */
+      const onRequestCallback = jest.fn().mockResolvedValue(undefined)
       const routes = getRoutes({}, {}, onRequestCallback)
 
       // Test that the handlers are created with the onRequest callback
@@ -49,9 +47,8 @@ describe('repeater summary routes', () => {
 
   describe('handler functionality', () => {
     it('should create handlers that accept onRequest callback', () => {
-      const onRequestCallback: OnRequestCallback = jest
-        .fn()
-        .mockResolvedValue(undefined)
+      /** @type {OnRequestCallback} */
+      const onRequestCallback = jest.fn().mockResolvedValue(undefined)
       const routes = getRoutes({}, {}, onRequestCallback)
 
       // Test that the handlers are created with the onRequest callback
@@ -73,3 +70,7 @@ describe('repeater summary routes', () => {
     })
   })
 })
+
+/**
+ * @import { OnRequestCallback } from '~/src/server/plugins/engine/types.js'
+ */

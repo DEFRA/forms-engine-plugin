@@ -1,5 +1,4 @@
 import { getRoutes } from '~/src/server/plugins/engine/routes/repeaters/item-delete.js'
-import { type OnRequestCallback } from '~/src/server/plugins/engine/types.js'
 
 describe('repeater item-delete routes', () => {
   beforeEach(() => {
@@ -31,9 +30,8 @@ describe('repeater item-delete routes', () => {
     })
 
     it('should pass onRequest callback to handlers', () => {
-      const onRequestCallback: OnRequestCallback = jest
-        .fn()
-        .mockResolvedValue(undefined)
+      /** @type {OnRequestCallback} */
+      const onRequestCallback = jest.fn().mockResolvedValue(undefined)
       const routes = getRoutes({}, {}, onRequestCallback)
 
       // Test that the handlers are created with the onRequest callback
@@ -55,9 +53,8 @@ describe('repeater item-delete routes', () => {
 
   describe('handler functionality', () => {
     it('should create handlers that accept onRequest callback', () => {
-      const onRequestCallback: OnRequestCallback = jest
-        .fn()
-        .mockResolvedValue(undefined)
+      /** @type {OnRequestCallback} */
+      const onRequestCallback = jest.fn().mockResolvedValue(undefined)
       const routes = getRoutes({}, {}, onRequestCallback)
 
       // Test that the handlers are created with the onRequest callback
@@ -81,3 +78,7 @@ describe('repeater item-delete routes', () => {
     })
   })
 })
+
+/**
+ * @import { OnRequestCallback } from '~/src/server/plugins/engine/types.js'
+ */
