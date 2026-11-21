@@ -4,8 +4,11 @@ import { buildValidationMessages } from '~/src/server/plugins/engine/i18n/buildV
 import { t } from '~/src/server/plugins/engine/i18n/index.js'
 
 describe('buildValidationMessages', () => {
-  const tEnGB = (key: string, options?: Record<string, unknown>) =>
-    t(key, 'en-GB', options)
+  /**
+   * @param {string} key
+   * @param {Record<string, unknown>} [options]
+   */
+  const tEnGB = (key, options) => t(key, 'en-GB', options)
   const messages = buildValidationMessages(tEnGB)
 
   it('required is a JoiExpression resolving to the correct template', () => {
@@ -13,7 +16,9 @@ describe('buildValidationMessages', () => {
       .string()
       .label('Full name')
       .messages({
-        'string.empty': messages.required as unknown as string
+        'string.empty': /** @type {string} */ (
+          /** @type {unknown} */ (messages.required)
+        )
       })
     const { error } = schema.validate('')
     expect(error?.details[0].message).toBe('Enter full name')

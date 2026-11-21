@@ -1,7 +1,6 @@
 import { format as dateFormat } from 'date-fns'
 import { outdent } from 'outdent'
 
-import { type PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { format } from '~/src/server/plugins/engine/outputFormatters/human/v1.js'
 import {
@@ -10,7 +9,6 @@ import {
 } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
-import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 import { FormStatus } from '~/src/server/routes/types.js'
 import definitionPayment from '~/test/form/definitions/payment.js'
 
@@ -40,7 +38,7 @@ describe('v1 human formatter', () => {
       $$__referenceNumber: 'foobar',
       licenceLength: 365,
       fullName: 'John Smith',
-      paymentField: {
+      paymentField: /** @type {PaymentState} */ ({
         paymentId: 'payment-id',
         reference: 'payment-ref',
         amount: 250,
@@ -52,7 +50,7 @@ describe('v1 human formatter', () => {
           status: 'success',
           createdAt: '2026-01-02T11:02:04+0000'
         }
-      } as PaymentState
+      })
     }
 
     const pageUrl = new URL('http://example.com/repeat/pizza-order/summary')
@@ -78,7 +76,7 @@ describe('v1 human formatter', () => {
 
     const contextPayment = modelPayment.getFormContext(
       requestPayment,
-      statePayment as unknown as FormSubmissionState
+      /** @type {FormSubmissionState} */ (/** @type {unknown} */ (statePayment))
     )
     const summaryViewModelPayment = controllerPayment.getSummaryViewModel(
       requestPayment,
@@ -153,3 +151,8 @@ describe('v1 human formatter', () => {
     })
   })
 })
+
+/**
+ * @import { PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
+ * @import { FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+ */

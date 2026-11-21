@@ -1,5 +1,3 @@
-import { type FormDefinition } from '@defra/forms-model'
-
 import {
   getAvailableLanguages,
   resolveFormLanguage
@@ -8,13 +6,15 @@ import {
 describe('languages', () => {
   describe('getAvailableLanguages', () => {
     it('should return list of two languages', () => {
-      const def = {
-        metadata: {
-          translations: {
-            cy: {}
+      const def = /** @type {FormDefinition} */ (
+        /** @type {unknown} */ ({
+          metadata: {
+            translations: {
+              cy: {}
+            }
           }
-        }
-      } as unknown as FormDefinition
+        })
+      )
       expect(getAvailableLanguages(def)).toEqual([
         { code: 'en-GB', name: 'English' },
         { code: 'cy', name: 'Cymraeg' }
@@ -22,24 +22,30 @@ describe('languages', () => {
     })
 
     it('should return empty list if no translations', () => {
-      const def = {
-        metadata: {}
-      } as unknown as FormDefinition
+      const def = /** @type {FormDefinition} */ (
+        /** @type {unknown} */ ({
+          metadata: {}
+        })
+      )
       expect(getAvailableLanguages(def)).toEqual([])
     })
   })
 
   describe('resolveFormLanguage', () => {
-    const welshDef = {
-      metadata: { translations: { cy: {} } }
-    } as unknown as FormDefinition
+    const welshDef = /** @type {FormDefinition} */ (
+      /** @type {unknown} */ ({
+        metadata: { translations: { cy: {} } }
+      })
+    )
 
     it('returns the requested language when the form has translations for it', () => {
       expect(resolveFormLanguage(welshDef, 'cy')).toBe('cy')
     })
 
     it('returns English when the form has no translations for the requested language', () => {
-      const def = { metadata: {} } as unknown as FormDefinition
+      const def = /** @type {FormDefinition} */ (
+        /** @type {unknown} */ ({ metadata: {} })
+      )
       expect(resolveFormLanguage(def, 'cy')).toBe('en-GB')
     })
 
@@ -52,3 +58,7 @@ describe('languages', () => {
     })
   })
 })
+
+/**
+ * @import { FormDefinition } from '@defra/forms-model'
+ */

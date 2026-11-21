@@ -1,18 +1,8 @@
 import { FileUploadField } from '~/src/server/plugins/engine/components/FileUploadField.js'
-import { type Field } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
-import {
-  type DetailItem,
-  type DetailItemField,
-  type DetailItemRepeat
-} from '~/src/server/plugins/engine/models/types.js'
 import { format } from '~/src/server/plugins/engine/outputFormatters/machine/v1.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
-import {
-  FileStatus,
-  UploadStatus,
-  type FileState
-} from '~/src/server/plugins/engine/types.js'
+import { FileStatus, UploadStatus } from '~/src/server/plugins/engine/types.js'
 import { FormStatus } from '~/src/server/routes/types.js'
 import definition from '~/test/form/definitions/repeat-mixed.js'
 
@@ -37,9 +27,10 @@ const formStatus = {
   state: FormStatus.Live
 }
 
-const dummyField: Field = {
+/** @type {Field} */
+const dummyField = /** @type {Field} */ ({
   getContextValueFromState: (_) => 'hello world'
-} as Field
+})
 
 const itemId1 = 'abc-123'
 const itemId2 = 'xyz-987'
@@ -77,25 +68,28 @@ const request = buildFormContextRequest({
 
 const context = model.getFormContext(request, state)
 
-const testDetailItemField: DetailItemField = {
+/** @type {DetailItemField} */
+const testDetailItemField = /** @type {DetailItemField} */ ({
   name: 'exampleField',
   label: 'Example Field',
   href: '/example-field',
   title: 'Example Field Title',
   field: dummyField,
   value: 'Example Value'
-} as DetailItemField
+})
 
-const testDetailItemField2: DetailItemField = {
+/** @type {DetailItemField} */
+const testDetailItemField2 = /** @type {DetailItemField} */ ({
   name: 'exampleField2',
   label: 'Example Field 2',
   href: '/example-field 2',
   title: 'Example Field 2 Title',
   field: dummyField,
   value: 'Example Value 2'
-} as DetailItemField
+})
 
-const testDetailItemRepeat: DetailItemRepeat = {
+/** @type {DetailItemRepeat} */
+const testDetailItemRepeat = /** @type {DetailItemRepeat} */ ({
   name: 'exampleRepeat',
   label: 'Example Repeat',
   href: '/example-repeat',
@@ -103,37 +97,38 @@ const testDetailItemRepeat: DetailItemRepeat = {
   value: 'Example Repeat Value',
   subItems: [
     [
-      {
+      /** @type {DetailItemField} */ ({
         name: 'subItem1_1',
         label: 'Sub Item 1 1',
         field: dummyField,
         href: '/sub-item-1-1',
         title: 'Sub Item 1 1 Title',
         value: 'Sub Item 1 1 Value'
-      } as DetailItemField,
-      {
+      }),
+      /** @type {DetailItemField} */ ({
         name: 'subItem1_2',
         label: 'Sub Item 1 2',
         field: dummyField,
         href: '/sub-item-1-2',
         title: 'Sub Item 1 2 Title',
         value: 'Sub Item 1 2 Value'
-      } as DetailItemField
+      })
     ],
     [
-      {
+      /** @type {DetailItemField} */ ({
         name: 'subItem2_1',
         label: 'Sub Item 2 1',
         field: dummyField,
         href: '/sub-item-2 1',
         title: 'Sub Item 2 1 Title',
         value: 'Sub Item 2 1 Value'
-      } as DetailItemField
+      })
     ]
   ]
-} as DetailItemRepeat
+})
 
-const testDetailItemRepeat2: DetailItemRepeat = {
+/** @type {DetailItemRepeat} */
+const testDetailItemRepeat2 = /** @type {DetailItemRepeat} */ ({
   name: 'exampleRepeat2',
   label: 'Example Repeat 2',
   href: '/example-repeat-2',
@@ -141,19 +136,20 @@ const testDetailItemRepeat2: DetailItemRepeat = {
   value: 'Example Repeat 2 Value',
   subItems: [
     [
-      {
+      /** @type {DetailItemField} */ ({
         name: 'subItem1_1',
         label: 'Sub Item 1 1',
         field: dummyField,
         href: '/sub-item-1-1',
         title: 'Sub Item 1 1 Title',
         value: 'Sub Item 1 1 Value'
-      } as DetailItemField
+      })
     ]
   ]
-} as DetailItemRepeat
+})
 
-const fileState: FileState = {
+/** @type {FileState} */
+const fileState = {
   uploadId: '123',
   status: {
     form: {
@@ -172,7 +168,8 @@ const fileState: FileState = {
   }
 }
 
-const fileState2: FileState = {
+/** @type {FileState} */
+const fileState2 = {
   uploadId: '456',
   status: {
     form: {
@@ -191,9 +188,8 @@ const fileState2: FileState = {
   }
 }
 
-const testDetailItemFile1: DetailItemField = Object.create(
-  FileUploadField.prototype
-)
+/** @type {DetailItemField} */
+const testDetailItemFile1 = Object.create(FileUploadField.prototype)
 Object.assign(testDetailItemFile1, {
   name: 'exampleFile1',
   label: 'Example Field',
@@ -206,7 +202,8 @@ Object.assign(testDetailItemFile1, {
   }
 })
 
-const items: DetailItem[] = [
+/** @type {DetailItem[]} */
+const items = [
   testDetailItemField,
   testDetailItemField2,
   testDetailItemRepeat,
@@ -264,3 +261,9 @@ describe('getPersonalisation', () => {
     expect(parsedBody.data).toEqual(expectedData)
   })
 })
+
+/**
+ * @import { Field } from '~/src/server/plugins/engine/components/helpers/components.js'
+ * @import { DetailItem, DetailItemField, DetailItemRepeat } from '~/src/server/plugins/engine/models/types.js'
+ * @import { FileState } from '~/src/server/plugins/engine/types.js'
+ */

@@ -1,28 +1,11 @@
-import {
-  type FormMetadata,
-  type SubmitResponsePayload
-} from '@defra/forms-model'
-
 import { EN_GB } from '~/src/server/constants.js'
 import { FileUploadField } from '~/src/server/plugins/engine/components/FileUploadField.js'
-import { type Field } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
-import {
-  type DetailItem,
-  type DetailItemField,
-  type DetailItemRepeat
-} from '~/src/server/plugins/engine/models/types.js'
 import { format } from '~/src/server/plugins/engine/outputFormatters/adapter/v1.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { FormAdapterSubmissionSchemaVersion } from '~/src/server/plugins/engine/types/index.js'
 import { formAdapterSubmissionMessagePayloadSchema } from '~/src/server/plugins/engine/types/schema.js'
-import {
-  FileStatus,
-  UploadStatus,
-  type FileState,
-  type FormAdapterSubmissionMessagePayload,
-  type FormContext
-} from '~/src/server/plugins/engine/types.js'
+import { FileStatus, UploadStatus } from '~/src/server/plugins/engine/types.js'
 import { FormStatus } from '~/src/server/routes/types.js'
 import joinedConditionsDefinition from '~/test/form/definitions/joined-conditions-simple-v2.js'
 import definition from '~/test/form/definitions/repeat-mixed.js'
@@ -43,9 +26,10 @@ const model = new FormModel(definition, {
   basePath: 'test'
 })
 
-const dummyField: Field = {
+/** @type {Field} */
+const dummyField = /** @type {Field} */ ({
   getFormValueFromState: (_) => 'hello world'
-} as Field
+})
 
 const itemId1 = 'abc-123'
 const itemId2 = 'xyz-987'
@@ -83,25 +67,28 @@ const request = buildFormContextRequest({
 
 const context = model.getFormContext(request, state)
 
-const testDetailItemField: DetailItemField = {
+/** @type {DetailItemField} */
+const testDetailItemField = /** @type {DetailItemField} */ ({
   name: 'exampleField',
   label: 'Example Field',
   href: '/example-field',
   title: 'Example Field Title',
   field: dummyField,
   value: 'Example Value'
-} as DetailItemField
+})
 
-const testDetailItemField2: DetailItemField = {
+/** @type {DetailItemField} */
+const testDetailItemField2 = /** @type {DetailItemField} */ ({
   name: 'exampleField2',
   label: 'Example Field 2',
   href: '/example-field-2',
   title: 'Example Field 2 Title',
   field: dummyField,
   value: 'Example Value 2'
-} as DetailItemField
+})
 
-const testDetailItemRepeat: DetailItemRepeat = {
+/** @type {DetailItemRepeat} */
+const testDetailItemRepeat = /** @type {DetailItemRepeat} */ ({
   name: 'exampleRepeat',
   label: 'Example Repeat',
   href: '/example-repeat',
@@ -109,37 +96,38 @@ const testDetailItemRepeat: DetailItemRepeat = {
   value: 'Example Repeat Value',
   subItems: [
     [
-      {
+      /** @type {DetailItemField} */ ({
         name: 'subItem1_1',
         label: 'Sub Item 1 1',
         field: dummyField,
         href: '/sub-item-1-1',
         title: 'Sub Item 1 1 Title',
         value: 'Sub Item 1 1 Value'
-      } as DetailItemField,
-      {
+      }),
+      /** @type {DetailItemField} */ ({
         name: 'subItem1_2',
         label: 'Sub Item 1 2',
         field: dummyField,
         href: '/sub-item-1-2',
         title: 'Sub Item 1 2 Title',
         value: 'Sub Item 1 2 Value'
-      } as DetailItemField
+      })
     ],
     [
-      {
+      /** @type {DetailItemField} */ ({
         name: 'subItem2_1',
         label: 'Sub Item 2 1',
         field: dummyField,
         href: '/sub-item-2-1',
         title: 'Sub Item 2 1 Title',
         value: 'Sub Item 2 1 Value'
-      } as DetailItemField
+      })
     ]
   ]
-} as DetailItemRepeat
+})
 
-const fileState: FileState = {
+/** @type {FileState} */
+const fileState = {
   uploadId: '123',
   status: {
     form: {
@@ -158,7 +146,8 @@ const fileState: FileState = {
   }
 }
 
-const fileState2: FileState = {
+/** @type {FileState} */
+const fileState2 = {
   uploadId: '456',
   status: {
     form: {
@@ -177,9 +166,8 @@ const fileState2: FileState = {
   }
 }
 
-const testDetailItemFile1: DetailItemField = Object.create(
-  FileUploadField.prototype
-)
+/** @type {DetailItemField} */
+const testDetailItemFile1 = Object.create(FileUploadField.prototype)
 Object.assign(testDetailItemFile1, {
   name: 'exampleFile1',
   label: 'Example File Field',
@@ -192,7 +180,8 @@ Object.assign(testDetailItemFile1, {
   }
 })
 
-const items: DetailItem[] = [
+/** @type {DetailItem[]} */
+const items = [
   testDetailItemField,
   testDetailItemField2,
   testDetailItemRepeat,
@@ -211,12 +200,13 @@ describe('Adapter v1 formatter', () => {
   })
 
   it('should return the adapter v1 output with complete formMetadata', () => {
-    const formMetadata: Partial<FormMetadata> = {
+    /** @type {Partial<FormMetadata>} */
+    const formMetadata = /** @type {FormMetadata} */ ({
       id: 'form-123',
       slug: 'test-form',
       title: 'Test Form',
       notificationEmail: 'test@example.com'
-    } as FormMetadata
+    })
 
     const formStatus = {
       isPreview: false,
@@ -229,9 +219,11 @@ describe('Adapter v1 formatter', () => {
       model,
       submitResponse,
       formStatus,
-      formMetadata as FormMetadata
+      /** @type {FormMetadata} */ (formMetadata)
     )
-    const parsedBody = JSON.parse(body) as FormAdapterSubmissionMessagePayload
+    const parsedBody = /** @type {FormAdapterSubmissionMessagePayload} */ (
+      JSON.parse(body)
+    )
 
     expect(parsedBody.meta).toEqual({
       schemaVersion: FormAdapterSubmissionSchemaVersion.V1,
@@ -289,12 +281,13 @@ describe('Adapter v1 formatter', () => {
   })
 
   it('should handle preview form status correctly', () => {
-    const formMetadata: Partial<FormMetadata> = {
+    /** @type {Partial<FormMetadata>} */
+    const formMetadata = /** @type {FormMetadata} */ ({
       id: 'form-123',
       slug: 'test-form',
       title: 'Test Form',
       notificationEmail: 'test@example.com'
-    } as FormMetadata
+    })
 
     const formStatus = {
       isPreview: true,
@@ -307,9 +300,11 @@ describe('Adapter v1 formatter', () => {
       model,
       submitResponse,
       formStatus,
-      formMetadata as FormMetadata
+      /** @type {FormMetadata} */ (formMetadata)
     )
-    const parsedBody = JSON.parse(body) as FormAdapterSubmissionMessagePayload
+    const parsedBody = /** @type {FormAdapterSubmissionMessagePayload} */ (
+      JSON.parse(body)
+    )
 
     expect(parsedBody.meta.status).toBe(FormStatus.Draft)
     expect(parsedBody.meta.isPreview).toBe(true)
@@ -322,7 +317,9 @@ describe('Adapter v1 formatter', () => {
     }
 
     const body = format(context, items, model, submitResponse, formStatus)
-    const parsedBody = JSON.parse(body) as FormAdapterSubmissionMessagePayload
+    const parsedBody = /** @type {FormAdapterSubmissionMessagePayload} */ (
+      JSON.parse(body)
+    )
 
     expect(parsedBody.meta.formId).toBe('')
     expect(parsedBody.meta.formSlug).toBe('')
@@ -332,11 +329,12 @@ describe('Adapter v1 formatter', () => {
   })
 
   it('should handle partial formMetadata', () => {
-    const formMetadata: Partial<FormMetadata> = {
+    /** @type {Partial<FormMetadata>} */
+    const formMetadata = /** @type {FormMetadata} */ ({
       id: 'form-456',
       slug: 'partial-form',
       title: 'Partial Form'
-    } as FormMetadata
+    })
 
     const formStatus = {
       isPreview: true,
@@ -349,9 +347,11 @@ describe('Adapter v1 formatter', () => {
       model,
       submitResponse,
       formStatus,
-      formMetadata as FormMetadata
+      /** @type {FormMetadata} */ (formMetadata)
     )
-    const parsedBody = JSON.parse(body) as FormAdapterSubmissionMessagePayload
+    const parsedBody = /** @type {FormAdapterSubmissionMessagePayload} */ (
+      JSON.parse(body)
+    )
 
     expect(parsedBody.meta.formId).toBe('form-456')
     expect(parsedBody.meta.formSlug).toBe('partial-form')
@@ -367,7 +367,9 @@ describe('Adapter v1 formatter', () => {
     }
 
     const body = format(context, items, model, submitResponse, formStatus)
-    const parsedBody = JSON.parse(body) as FormAdapterSubmissionMessagePayload
+    const parsedBody = /** @type {FormAdapterSubmissionMessagePayload} */ (
+      JSON.parse(body)
+    )
 
     expect(parsedBody.meta.schemaVersion).toBe(
       FormAdapterSubmissionSchemaVersion.V1
@@ -382,7 +384,9 @@ describe('Adapter v1 formatter', () => {
     }
 
     const body = format(context, items, model, submitResponse, formStatus)
-    const parsedBody = JSON.parse(body) as FormAdapterSubmissionMessagePayload
+    const parsedBody = /** @type {FormAdapterSubmissionMessagePayload} */ (
+      JSON.parse(body)
+    )
 
     expect(parsedBody.meta.timestamp).toBe('2024-01-15T10:30:00.000Z')
     expect(typeof parsedBody.meta.timestamp).toBe('string')
@@ -399,7 +403,9 @@ describe('Adapter v1 formatter', () => {
     }
 
     const body = format(context, [], model, submitResponse, formStatus)
-    const parsedBody = JSON.parse(body) as FormAdapterSubmissionMessagePayload
+    const parsedBody = /** @type {FormAdapterSubmissionMessagePayload} */ (
+      JSON.parse(body)
+    )
 
     expect(parsedBody.data.main).toEqual({})
     expect(parsedBody.data.repeaters).toEqual({})
@@ -436,7 +442,9 @@ describe('Adapter v1 formatter', () => {
     testCases.forEach(({ isPreview, state, expectedStatus }) => {
       const formStatus = { isPreview, state }
       const body = format(context, items, model, submitResponse, formStatus)
-      const parsedBody = JSON.parse(body) as FormAdapterSubmissionMessagePayload
+      const parsedBody = /** @type {FormAdapterSubmissionMessagePayload} */ (
+        JSON.parse(body)
+      )
 
       expect(parsedBody.meta.status).toBe(expectedStatus)
       expect(parsedBody.meta.isPreview).toBe(isPreview)
@@ -456,9 +464,10 @@ describe('Adapter v1 formatter', () => {
   })
 
   it('should handle formMetadata with only id', () => {
-    const formMetadata: Partial<FormMetadata> = {
+    /** @type {Partial<FormMetadata>} */
+    const formMetadata = /** @type {FormMetadata} */ ({
       id: 'only-id-form'
-    } as FormMetadata
+    })
 
     const formStatus = {
       isPreview: false,
@@ -471,9 +480,11 @@ describe('Adapter v1 formatter', () => {
       model,
       submitResponse,
       formStatus,
-      formMetadata as FormMetadata
+      /** @type {FormMetadata} */ (formMetadata)
     )
-    const parsedBody = JSON.parse(body) as FormAdapterSubmissionMessagePayload
+    const parsedBody = /** @type {FormAdapterSubmissionMessagePayload} */ (
+      JSON.parse(body)
+    )
 
     expect(parsedBody.meta.formId).toBe('only-id-form')
     expect(parsedBody.meta.formSlug).toBe('')
@@ -481,9 +492,10 @@ describe('Adapter v1 formatter', () => {
   })
 
   it('should handle formMetadata with only slug', () => {
-    const formMetadata: Partial<FormMetadata> = {
+    /** @type {Partial<FormMetadata>} */
+    const formMetadata = /** @type {FormMetadata} */ ({
       slug: 'only-slug-form'
-    } as FormMetadata
+    })
 
     const formStatus = {
       isPreview: false,
@@ -496,9 +508,11 @@ describe('Adapter v1 formatter', () => {
       model,
       submitResponse,
       formStatus,
-      formMetadata as FormMetadata
+      /** @type {FormMetadata} */ (formMetadata)
     )
-    const parsedBody = JSON.parse(body) as FormAdapterSubmissionMessagePayload
+    const parsedBody = /** @type {FormAdapterSubmissionMessagePayload} */ (
+      JSON.parse(body)
+    )
 
     expect(parsedBody.meta.formId).toBe('')
     expect(parsedBody.meta.formSlug).toBe('only-slug-form')
@@ -506,9 +520,10 @@ describe('Adapter v1 formatter', () => {
   })
 
   it('should handle formMetadata with only notificationEmail', () => {
-    const formMetadata: Partial<FormMetadata> = {
+    /** @type {Partial<FormMetadata>} */
+    const formMetadata = /** @type {FormMetadata} */ ({
       notificationEmail: 'only-email@example.com'
-    } as FormMetadata
+    })
 
     const formStatus = {
       isPreview: false,
@@ -521,9 +536,11 @@ describe('Adapter v1 formatter', () => {
       model,
       submitResponse,
       formStatus,
-      formMetadata as FormMetadata
+      /** @type {FormMetadata} */ (formMetadata)
     )
-    const parsedBody = JSON.parse(body) as FormAdapterSubmissionMessagePayload
+    const parsedBody = /** @type {FormAdapterSubmissionMessagePayload} */ (
+      JSON.parse(body)
+    )
 
     expect(parsedBody.meta.formId).toBe('')
     expect(parsedBody.meta.formSlug).toBe('')
@@ -537,7 +554,9 @@ describe('Adapter v1 formatter', () => {
     }
 
     const body = format(context, items, model, submitResponse, formStatus)
-    const parsedBody = JSON.parse(body) as FormAdapterSubmissionMessagePayload
+    const parsedBody = /** @type {FormAdapterSubmissionMessagePayload} */ (
+      JSON.parse(body)
+    )
 
     expect(parsedBody.data.main).toEqual({
       exampleField: 'hello world',
@@ -600,7 +619,9 @@ describe('Adapter v1 formatter', () => {
       submitResponseWithoutFiles,
       formStatus
     )
-    const parsedBody = JSON.parse(body) as FormAdapterSubmissionMessagePayload
+    const parsedBody = /** @type {FormAdapterSubmissionMessagePayload} */ (
+      JSON.parse(body)
+    )
 
     expect(parsedBody.data.main).toEqual({
       exampleField: 'hello world',
@@ -641,7 +662,9 @@ describe('Adapter v1 formatter', () => {
       submitResponseWithMainOnly,
       formStatus
     )
-    const parsedBody = JSON.parse(body) as FormAdapterSubmissionMessagePayload
+    const parsedBody = /** @type {FormAdapterSubmissionMessagePayload} */ (
+      JSON.parse(body)
+    )
 
     expect(parsedBody.data.main).toEqual({
       exampleField: 'hello world',
@@ -685,10 +708,14 @@ describe('Adapter v1 formatter', () => {
       context,
       items,
       model,
-      submitResponseWithoutRepeaters as unknown as SubmitResponsePayload,
+      /** @type {SubmitResponsePayload} */ (
+        /** @type {unknown} */ (submitResponseWithoutRepeaters)
+      ),
       formStatus
     )
-    const parsedBody = JSON.parse(body) as FormAdapterSubmissionMessagePayload
+    const parsedBody = /** @type {FormAdapterSubmissionMessagePayload} */ (
+      JSON.parse(body)
+    )
 
     expect(parsedBody.result).toEqual({
       files: {
@@ -699,12 +726,13 @@ describe('Adapter v1 formatter', () => {
   })
 
   it('should handle missing versionMetadata gracefully', () => {
-    const formMetadata: Partial<FormMetadata> = {
+    /** @type {Partial<FormMetadata>} */
+    const formMetadata = /** @type {FormMetadata} */ ({
       id: 'form-123',
       slug: 'test-form',
       title: 'Test Form',
       notificationEmail: 'test@example.com'
-    } as FormMetadata
+    })
 
     const formStatus = {
       isPreview: false,
@@ -717,40 +745,45 @@ describe('Adapter v1 formatter', () => {
       model,
       submitResponse,
       formStatus,
-      formMetadata as FormMetadata
+      /** @type {FormMetadata} */ (formMetadata)
     )
-    const parsedBody = JSON.parse(body) as FormAdapterSubmissionMessagePayload
+    const parsedBody = /** @type {FormAdapterSubmissionMessagePayload} */ (
+      JSON.parse(body)
+    )
 
     expect(parsedBody.meta.versionMetadata).toBeUndefined()
   })
 
   it('should handle optional fields that are undefined', () => {
-    const formMetadata: Partial<FormMetadata> = {
+    /** @type {Partial<FormMetadata>} */
+    const formMetadata = /** @type {FormMetadata} */ ({
       id: 'form-123',
       slug: 'test-form',
       title: 'Test Form',
       notificationEmail: 'test@example.com'
-    } as FormMetadata
+    })
 
     const formStatus = {
       isPreview: false,
       state: FormStatus.Live
     }
 
-    const dummyField: Field = {
+    /** @type {Field} */
+    const dummyField = /** @type {Field} */ ({
       getFormValueFromState: (_) => undefined
-    } as Field
+    })
 
-    const items: DetailItem[] = [
-      {
+    /** @type {DetailItem[]} */
+    const items = [
+      /** @type {DetailItemField} */ ({
         name: 'exampleField3',
         label: 'Example Field 3',
         href: '/example-field-3',
         title: 'Example Field 3 Title',
         field: dummyField,
         value: ''
-      } as DetailItemField,
-      {
+      }),
+      /** @type {DetailItemRepeat} */ ({
         name: 'exampleRepeat',
         label: 'Example Repeat',
         href: '/example-repeat',
@@ -758,17 +791,17 @@ describe('Adapter v1 formatter', () => {
         value: 'Example Repeat Value',
         subItems: [
           [
-            {
+            /** @type {DetailItemField} */ ({
               name: 'exampleRepeaterField',
               label: 'Example Repeater Field',
               href: '/example-repeater-field',
               title: 'Example Repeater Field Title',
               field: dummyField,
               value: ''
-            } as DetailItemField
+            })
           ]
         ]
-      } as DetailItemRepeat
+      })
     ]
 
     const body = format(
@@ -777,9 +810,11 @@ describe('Adapter v1 formatter', () => {
       model,
       submitResponse,
       formStatus,
-      formMetadata as FormMetadata
+      /** @type {FormMetadata} */ (formMetadata)
     )
-    const parsedBody = JSON.parse(body) as FormAdapterSubmissionMessagePayload
+    const parsedBody = /** @type {FormAdapterSubmissionMessagePayload} */ (
+      JSON.parse(body)
+    )
     expect(parsedBody.data.main).toEqual({ exampleField3: null })
     expect(parsedBody.data.repeaters).toEqual({
       exampleRepeat: [{ exampleRepeaterField: null }]
@@ -807,7 +842,8 @@ describe('Adapter v1 formatter', () => {
         state
       )
 
-      const formMetadata: Partial<FormMetadata> = {
+      /** @type {Partial<FormMetadata>} */
+      const formMetadata = {
         id: 'form-123',
         slug: 'test-form',
         title: 'Test Form',
@@ -831,9 +867,11 @@ describe('Adapter v1 formatter', () => {
         modelWithFormVersion,
         submitResponse,
         formStatus,
-        formMetadata as FormMetadata
+        /** @type {FormMetadata} */ (formMetadata)
       )
-      const parsedBody = JSON.parse(body) as FormAdapterSubmissionMessagePayload
+      const parsedBody = /** @type {FormAdapterSubmissionMessagePayload} */ (
+        JSON.parse(body)
+      )
 
       expect(parsedBody.meta.versionMetadata).toEqual({
         versionNumber: 42,
@@ -842,7 +880,8 @@ describe('Adapter v1 formatter', () => {
     })
 
     it('should not include versionMetadata when no versions exist', () => {
-      const formMetadata: Partial<FormMetadata> = {
+      /** @type {Partial<FormMetadata>} */
+      const formMetadata = {
         id: 'form-123',
         slug: 'test-form',
         title: 'Test Form',
@@ -860,15 +899,18 @@ describe('Adapter v1 formatter', () => {
         model,
         submitResponse,
         formStatus,
-        formMetadata as FormMetadata
+        /** @type {FormMetadata} */ (formMetadata)
       )
-      const parsedBody = JSON.parse(body) as FormAdapterSubmissionMessagePayload
+      const parsedBody = /** @type {FormAdapterSubmissionMessagePayload} */ (
+        JSON.parse(body)
+      )
 
       expect(parsedBody.meta.versionMetadata).toBeUndefined()
     })
 
     it('should not include versionMetadata when versions array is empty', () => {
-      const formMetadata: Partial<FormMetadata> = {
+      /** @type {Partial<FormMetadata>} */
+      const formMetadata = {
         id: 'form-123',
         slug: 'test-form',
         title: 'Test Form',
@@ -887,9 +929,11 @@ describe('Adapter v1 formatter', () => {
         model,
         submitResponse,
         formStatus,
-        formMetadata as FormMetadata
+        /** @type {FormMetadata} */ (formMetadata)
       )
-      const parsedBody = JSON.parse(body) as FormAdapterSubmissionMessagePayload
+      const parsedBody = /** @type {FormAdapterSubmissionMessagePayload} */ (
+        JSON.parse(body)
+      )
 
       expect(parsedBody.meta.versionMetadata).toBeUndefined()
     })
@@ -902,11 +946,11 @@ describe('conditionEvaluations', () => {
     state: FormStatus.Live
   }
 
-  const formMetadata = {
+  const formMetadata = /** @type {FormMetadata} */ ({
     id: '68a8b0449ab460290c28940a',
     slug: 'order-a-pizza',
     notificationEmail: 'submissions@example.com'
-  } as FormMetadata
+  })
 
   const v2Model = new FormModel(joinedConditionsDefinition, {
     basePath: 'test'
@@ -914,34 +958,40 @@ describe('conditionEvaluations', () => {
 
   // The formatter only reads the reference number, translator and evaluation
   // state from the context, so the full page-walk state is not needed here
-  const v2Context = {
-    referenceNumber: 'foobar',
-    evaluationState: { userName: 'Bob', isOverEighteen: true }
-  } as unknown as FormContext
+  const v2Context = /** @type {FormContext} */ (
+    /** @type {unknown} */ ({
+      referenceNumber: 'foobar',
+      evaluationState: { userName: 'Bob', isOverEighteen: true }
+    })
+  )
 
   const formatV2Definition = () =>
-    JSON.parse(
-      format(
-        v2Context,
-        items,
-        v2Model,
-        submitResponse,
-        formStatus,
-        formMetadata
+    /** @type {FormAdapterSubmissionMessagePayload} */ (
+      JSON.parse(
+        format(
+          v2Context,
+          items,
+          v2Model,
+          submitResponse,
+          formStatus,
+          formMetadata
+        )
       )
-    ) as FormAdapterSubmissionMessagePayload
+    )
 
   const formatV1Definition = () =>
-    JSON.parse(
-      format(
-        context,
-        items,
-        model,
-        submitResponse as SubmitResponsePayload,
-        formStatus,
-        formMetadata
+    /** @type {FormAdapterSubmissionMessagePayload} */ (
+      JSON.parse(
+        format(
+          context,
+          items,
+          model,
+          /** @type {SubmitResponsePayload} */ (submitResponse),
+          formStatus,
+          formMetadata
+        )
       )
-    ) as FormAdapterSubmissionMessagePayload
+    )
 
   it('should record the outcome of every condition for a V2 definition', () => {
     const { conditionEvaluations } = formatV2Definition()
@@ -980,3 +1030,10 @@ describe('conditionEvaluations', () => {
     }
   })
 })
+
+/**
+ * @import { FormMetadata, SubmitResponsePayload } from '@defra/forms-model'
+ * @import { Field } from '~/src/server/plugins/engine/components/helpers/components.js'
+ * @import { DetailItem, DetailItemField, DetailItemRepeat } from '~/src/server/plugins/engine/models/types.js'
+ * @import { FileState, FormAdapterSubmissionMessagePayload, FormContext } from '~/src/server/plugins/engine/types.js'
+ */

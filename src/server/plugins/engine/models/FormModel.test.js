@@ -2,10 +2,7 @@ import {
   ComponentType,
   SchemaVersion,
   formDefinitionSchema,
-  formDefinitionV2Schema,
-  type ComponentDef,
-  type FormDefinition,
-  type PageQuestion
+  formDefinitionV2Schema
 } from '@defra/forms-model'
 
 import { todayAsDateOnly } from '~/src/server/plugins/engine/date-helper.js'
@@ -13,11 +10,7 @@ import { SchemaValidationError } from '~/src/server/plugins/engine/errors.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { DEFAULT_REFERENCE_NUMBER } from '~/src/server/plugins/engine/referenceNumbers.js'
-import { type FormContextRequest } from '~/src/server/plugins/engine/types.js'
-import {
-  FormAction,
-  type FormRequestPayload
-} from '~/src/server/routes/types.js'
+import { FormAction } from '~/src/server/routes/types.js'
 import { V2 as definitionV2 } from '~/test/form/definitions/conditions-basic.js'
 import definition from '~/test/form/definitions/conditions-escaping.js'
 import conditionsListDefinition from '~/test/form/definitions/conditions-list.js'
@@ -41,7 +34,8 @@ describe('FormModel', () => {
     })
 
     it('Gets a list by ID', () => {
-      const definitionWithLists: FormDefinition = {
+      /** @type {FormDefinition} */
+      const definitionWithLists = {
         ...definitionV2,
         lists: [
           {
@@ -132,7 +126,8 @@ describe('FormModel', () => {
     })
 
     it('assigns v1 to the schema if not defined', () => {
-      const definitionWithoutSchema: FormDefinition = {
+      /** @type {FormDefinition} */
+      const definitionWithoutSchema = {
         ...definition,
         schema: undefined
       }
@@ -194,7 +189,8 @@ describe('FormModel', () => {
     ])(
       'assigns $expected to the schema when defined',
       ({ input, expected, schema }) => {
-        const definitionWithSchema: FormDefinition = {
+        /** @type {FormDefinition} */
+        const definitionWithSchema = {
           ...definition,
           schema: input
         }
@@ -233,7 +229,8 @@ describe('FormModel', () => {
         }
         const pageUrl = new URL('http://example.com/components/fields-required')
 
-        const request: FormContextRequest = buildFormContextRequest({
+        /** @type {FormContextRequest} */
+        const request = buildFormContextRequest({
           method: 'post',
           payload: {
             crumb: 'dummyCrumb',
@@ -266,7 +263,8 @@ describe('FormModel', () => {
       }
       const pageUrl = new URL('http://example.com/components/fields-required')
 
-      const request: FormContextRequest = buildFormContextRequest({
+      /** @type {FormContextRequest} */
+      const request = buildFormContextRequest({
         method: 'post',
         payload: { crumb: 'dummyCrumb', action: 'continue', textField: 'new' },
         query: {},
@@ -295,7 +293,8 @@ describe('FormModel', () => {
       }
       const pageUrl = new URL('http://example.com/components/fields-required')
 
-      const request: FormContextRequest = buildFormContextRequest({
+      /** @type {FormContextRequest} */
+      const request = buildFormContextRequest({
         method: 'post',
         payload: { crumb: 'dummyCrumb', action: 'validate' },
         query: {},
@@ -324,7 +323,8 @@ describe('FormModel', () => {
       }
       const pageUrl = new URL('http://example.com/components/fields-required')
 
-      const request: FormContextRequest = buildFormContextRequest({
+      /** @type {FormContextRequest} */
+      const request = buildFormContextRequest({
         method: 'post',
         payload: { crumb: 'dummyCrumb', action: 'validate' },
         query: {},
@@ -350,7 +350,8 @@ describe('FormModel', () => {
       }
       const pageUrl = new URL('http://example.com/components/fields-required')
 
-      const request: FormContextRequest = buildFormContextRequest({
+      /** @type {FormContextRequest} */
+      const request = buildFormContextRequest({
         method: 'post',
         payload: { crumb: 'dummyCrumb', action: 'validate' },
         query: {},
@@ -380,7 +381,8 @@ describe('FormModel', () => {
         'http://example.com/conditional-list-items/summary'
       )
 
-      const request: FormContextRequest = buildFormContextRequest({
+      /** @type {FormContextRequest} */
+      const request = buildFormContextRequest({
         method: 'get',
         query: {},
         path: pageUrl.pathname,
@@ -415,7 +417,8 @@ describe('FormModel', () => {
         'http://example.com/conditional-list-items/summary'
       )
 
-      const request: FormContextRequest = buildFormContextRequest({
+      /** @type {FormContextRequest} */
+      const request = buildFormContextRequest({
         method: 'get',
         query: {},
         path: pageUrl.pathname,
@@ -824,11 +827,11 @@ describe('FormModel - Joined Conditions', () => {
       const definition = {
         ...paymentDefinition
       }
-      const extraPaymentComponent = {
+      const extraPaymentComponent = /** @type {ComponentDef} */ ({
         type: ComponentType.PaymentField,
         name: 'paymentField'
-      } as ComponentDef
-      const page = definition.pages[0] as PageQuestion
+      })
+      const page = /** @type {PageQuestion} */ (definition.pages[0])
       page.components.push(extraPaymentComponent)
 
       expect(() => new FormModel(definition, { basePath: 'test' })).toThrow(
@@ -848,10 +851,16 @@ describe('FormModel - Joined Conditions', () => {
       'returns the expected reference for state %o and query %o',
       (state, query, expected) => {
         const model = new FormModel(definition, { basePath: 'test' })
-        const request = { query } as FormRequestPayload
+        const request = /** @type {FormRequestPayload} */ ({ query })
 
         expect(model.getReference(state, request)).toBe(expected)
       }
     )
   })
 })
+
+/**
+ * @import { ComponentDef, FormDefinition, PageQuestion } from '@defra/forms-model'
+ * @import { FormContextRequest } from '~/src/server/plugins/engine/types.js'
+ * @import { FormRequestPayload } from '~/src/server/routes/types.js'
+ */

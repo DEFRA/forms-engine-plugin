@@ -1,4 +1,3 @@
-import { type PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { format } from '~/src/server/plugins/engine/outputFormatters/machine/v2.js'
 import {
@@ -7,7 +6,6 @@ import {
 } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
-import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 import { FormStatus } from '~/src/server/routes/types.js'
 import definition from '~/test/form/definitions/payment.js'
 
@@ -36,7 +34,7 @@ const state = {
   $$__referenceNumber: 'foobar',
   licenceLength: 365,
   fullName: 'John Smith',
-  paymentField: {
+  paymentField: /** @type {PaymentState} */ ({
     paymentId: 'payment-id',
     reference: 'payment-ref',
     amount: 250,
@@ -48,7 +46,7 @@ const state = {
       status: 'success',
       createdAt: '2026-01-02T11:00:04+0000'
     }
-  } as PaymentState
+  })
 }
 
 const pageUrl = new URL('http://example.com/repeat/pizza-order/summary')
@@ -67,7 +65,7 @@ const request = buildFormContextRequest({
 
 const context = model.getFormContext(
   request,
-  state as unknown as FormSubmissionState
+  /** @type {FormSubmissionState} */ (/** @type {unknown} */ (state))
 )
 
 const pageDef = definition.pages[2]
@@ -119,3 +117,8 @@ describe('getPersonalisation', () => {
     expect(parsedBody.data).toEqual(expectedData)
   })
 })
+
+/**
+ * @import { PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
+ * @import { FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+ */

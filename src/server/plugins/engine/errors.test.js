@@ -53,17 +53,20 @@ describe('typed errors thrown from real failure sites', () => {
 
     expect(build).toThrow(ConditionBuildError)
 
-    let thrown: unknown
+    /** @type {unknown} */
+    let thrown
     try {
       build()
     } catch (err) {
       thrown = err
     }
 
-    const conditionErr = thrown as ConditionBuildError
+    const conditionErr = /** @type {ConditionBuildError} */ (thrown)
     expect(conditionErr.conditionName).toBe('Existing user')
     expect(conditionErr.cause).toBeInstanceOf(Error)
-    expect((conditionErr.cause as Error).message).toContain('parse error')
+    expect(/** @type {Error} */ (conditionErr.cause).message).toContain(
+      'parse error'
+    )
   })
 
   it('FormModel throws UnknownPageControllerError for an unregistered controller', () => {
@@ -72,16 +75,17 @@ describe('typed errors thrown from real failure sites', () => {
 
     expect(build).toThrow(UnknownPageControllerError)
 
-    let thrown: unknown
+    /** @type {unknown} */
+    let thrown
     try {
       build()
     } catch (err) {
       thrown = err
     }
 
-    expect((thrown as UnknownPageControllerError).controllerName).toBe(
-      'NoSuchPageController'
-    )
+    expect(
+      /** @type {UnknownPageControllerError} */ (thrown).controllerName
+    ).toBe('NoSuchPageController')
   })
 })
 
@@ -92,16 +96,17 @@ describe('typed errors thrown from real failure sites (components)', () => {
 
     expect(build).toThrow(UnknownComponentTypeError)
 
-    let thrown: unknown
+    /** @type {unknown} */
+    let thrown
     try {
       build()
     } catch (err) {
       thrown = err
     }
 
-    expect((thrown as UnknownComponentTypeError).componentType).toBe(
-      'MyUnknownField'
-    )
+    expect(
+      /** @type {UnknownComponentTypeError} */ (thrown).componentType
+    ).toBe('MyUnknownField')
   })
 })
 
@@ -110,7 +115,8 @@ describe('SchemaValidationError', () => {
     const build = () =>
       new FormModel(buildSchemaInvalidDefinition(), { basePath: 'test' })
 
-    let thrown: unknown
+    /** @type {unknown} */
+    let thrown
     try {
       build()
     } catch (err) {
@@ -120,7 +126,7 @@ describe('SchemaValidationError', () => {
     expect(thrown).toBeInstanceOf(SchemaValidationError)
     expect(thrown).toBeInstanceOf(InvalidFormDefinitionError)
 
-    const schemaError = thrown as SchemaValidationError
+    const schemaError = /** @type {SchemaValidationError} */ (thrown)
     expect(schemaError.name).toBe('SchemaValidationError')
     expect(schemaError.message).toContain('Invalid form definition:')
 

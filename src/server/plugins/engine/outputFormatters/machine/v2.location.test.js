@@ -1,12 +1,4 @@
-import {
-  ComponentType,
-  type EastingNorthingFieldComponent,
-  type FormDefinition,
-  type LatLongFieldComponent,
-  type NationalGridFieldNumberFieldComponent,
-  type OsGridRefFieldComponent,
-  type PageQuestion
-} from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 
 import {
   EastingNorthingField,
@@ -15,17 +7,17 @@ import {
   OsGridRefField
 } from '~/src/server/plugins/engine/components/index.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
-import { type DetailItemField } from '~/src/server/plugins/engine/models/types.js'
 import { format } from '~/src/server/plugins/engine/outputFormatters/machine/v2.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { FormStatus } from '~/src/server/routes/types.js'
 
 describe('Machine V2 formatter - Location fields', () => {
-  const definition: FormDefinition = {
+  /** @type {FormDefinition} */
+  const definition = {
     name: 'Location Test Form',
     startPage: '/location',
     pages: [
-      {
+      /** @satisfies {PageQuestion} */ ({
         path: '/location',
         title: 'Location Page',
         next: [],
@@ -55,7 +47,7 @@ describe('Machine V2 formatter - Location fields', () => {
             options: {}
           }
         ]
-      } satisfies PageQuestion
+      })
     ],
     lists: [],
     sections: [],
@@ -63,7 +55,7 @@ describe('Machine V2 formatter - Location fields', () => {
   }
 
   const model = new FormModel(definition, { basePath: 'test' })
-  const locationPage = definition.pages[0] as PageQuestion
+  const locationPage = /** @type {PageQuestion} */ (definition.pages[0])
 
   const submitResponse = {
     message: 'Submit completed',
@@ -104,26 +96,29 @@ describe('Machine V2 formatter - Location fields', () => {
     const context = model.getFormContext(request, state)
 
     const latLongField = new LatLongField(
-      locationPage.components[1] as LatLongFieldComponent,
+      /** @type {LatLongFieldComponent} */ (locationPage.components[1]),
       { model }
     )
 
-    const items: DetailItemField[] = [
-      {
-        name: 'locationLL',
-        label: 'Latitude and Longitude',
-        href: '/location',
-        title: 'Latitude and Longitude',
-        field: latLongField,
-        state,
-        value: '51.519450, -0.127758'
-      } as unknown as DetailItemField
+    /** @type {DetailItemField[]} */
+    const items = [
+      /** @type {DetailItemField} */ (
+        /** @type {unknown} */ ({
+          name: 'locationLL',
+          label: 'Latitude and Longitude',
+          href: '/location',
+          title: 'Latitude and Longitude',
+          field: latLongField,
+          state,
+          value: '51.519450, -0.127758'
+        })
+      )
     ]
 
     const result = format(context, items, model, submitResponse, formStatus)
-    const payload = JSON.parse(result) as {
-      data: { main: Record<string, unknown> }
-    }
+    const payload = /** @type {{ data: { main: Record<string, unknown> } }} */ (
+      JSON.parse(result)
+    )
 
     // Verify the payload uses full property names, not abbreviated
     expect(payload.data.main.locationLL).toEqual({
@@ -146,26 +141,29 @@ describe('Machine V2 formatter - Location fields', () => {
     const context = model.getFormContext(request, state)
 
     const eastingNorthingField = new EastingNorthingField(
-      locationPage.components[0] as EastingNorthingFieldComponent,
+      /** @type {EastingNorthingFieldComponent} */ (locationPage.components[0]),
       { model }
     )
 
-    const items: DetailItemField[] = [
-      {
-        name: 'locationEN',
-        label: 'Easting and Northing',
-        href: '/location',
-        title: 'Easting and Northing',
-        field: eastingNorthingField,
-        state,
-        value: '654321, 123456'
-      } as unknown as DetailItemField
+    /** @type {DetailItemField[]} */
+    const items = [
+      /** @type {DetailItemField} */ (
+        /** @type {unknown} */ ({
+          name: 'locationEN',
+          label: 'Easting and Northing',
+          href: '/location',
+          title: 'Easting and Northing',
+          field: eastingNorthingField,
+          state,
+          value: '654321, 123456'
+        })
+      )
     ]
 
     const result = format(context, items, model, submitResponse, formStatus)
-    const payload = JSON.parse(result) as {
-      data: { main: Record<string, unknown> }
-    }
+    const payload = /** @type {{ data: { main: Record<string, unknown> } }} */ (
+      JSON.parse(result)
+    )
 
     // Verify the payload uses full property names
     expect(payload.data.main.locationEN).toEqual({
@@ -184,40 +182,47 @@ describe('Machine V2 formatter - Location fields', () => {
     const context = model.getFormContext(request, state)
 
     const osGridRefField = new OsGridRefField(
-      locationPage.components[2] as OsGridRefFieldComponent,
+      /** @type {OsGridRefFieldComponent} */ (locationPage.components[2]),
       { model }
     )
 
     const nationalGridField = new NationalGridFieldNumberField(
-      locationPage.components[3] as NationalGridFieldNumberFieldComponent,
+      /** @type {NationalGridFieldNumberFieldComponent} */ (
+        locationPage.components[3]
+      ),
       { model }
     )
 
-    const items: DetailItemField[] = [
-      {
-        name: 'gridRef',
-        label: 'OS Grid Reference',
-        href: '/location',
-        title: 'OS Grid Reference',
-        field: osGridRefField,
-        state,
-        value: 'TQ123456'
-      } as unknown as DetailItemField,
-      {
-        name: 'ngField',
-        label: 'National Grid Field Number',
-        href: '/location',
-        title: 'National Grid Field Number',
-        field: nationalGridField,
-        state,
-        value: 'NG12345678'
-      } as unknown as DetailItemField
+    /** @type {DetailItemField[]} */
+    const items = [
+      /** @type {DetailItemField} */ (
+        /** @type {unknown} */ ({
+          name: 'gridRef',
+          label: 'OS Grid Reference',
+          href: '/location',
+          title: 'OS Grid Reference',
+          field: osGridRefField,
+          state,
+          value: 'TQ123456'
+        })
+      ),
+      /** @type {DetailItemField} */ (
+        /** @type {unknown} */ ({
+          name: 'ngField',
+          label: 'National Grid Field Number',
+          href: '/location',
+          title: 'National Grid Field Number',
+          field: nationalGridField,
+          state,
+          value: 'NG12345678'
+        })
+      )
     ]
 
     const result = format(context, items, model, submitResponse, formStatus)
-    const payload = JSON.parse(result) as {
-      data: { main: Record<string, unknown> }
-    }
+    const payload = /** @type {{ data: { main: Record<string, unknown> } }} */ (
+      JSON.parse(result)
+    )
 
     expect(payload.data.main.gridRef).toBe('TQ123456')
     expect(payload.data.main.ngField).toBe('NG12345678')
@@ -237,65 +242,76 @@ describe('Machine V2 formatter - Location fields', () => {
     const context = model.getFormContext(request, state)
 
     const eastingNorthingField = new EastingNorthingField(
-      locationPage.components[0] as EastingNorthingFieldComponent,
+      /** @type {EastingNorthingFieldComponent} */ (locationPage.components[0]),
       { model }
     )
     const latLongField = new LatLongField(
-      locationPage.components[1] as LatLongFieldComponent,
+      /** @type {LatLongFieldComponent} */ (locationPage.components[1]),
       { model }
     )
     const osGridRefField = new OsGridRefField(
-      locationPage.components[2] as OsGridRefFieldComponent,
+      /** @type {OsGridRefFieldComponent} */ (locationPage.components[2]),
       { model }
     )
     const nationalGridField = new NationalGridFieldNumberField(
-      locationPage.components[3] as NationalGridFieldNumberFieldComponent,
+      /** @type {NationalGridFieldNumberFieldComponent} */ (
+        locationPage.components[3]
+      ),
       { model }
     )
 
-    const items: DetailItemField[] = [
-      {
-        name: 'locationEN',
-        label: 'Easting and Northing',
-        href: '/location',
-        title: 'Easting and Northing',
-        field: eastingNorthingField,
-        state,
-        value: '654321, 123456'
-      } as unknown as DetailItemField,
-      {
-        name: 'locationLL',
-        label: 'Latitude and Longitude',
-        href: '/location',
-        title: 'Latitude and Longitude',
-        field: latLongField,
-        state,
-        value: '51.519450, -0.127758'
-      } as unknown as DetailItemField,
-      {
-        name: 'gridRef',
-        label: 'OS Grid Reference',
-        href: '/location',
-        title: 'OS Grid Reference',
-        field: osGridRefField,
-        state,
-        value: 'TQ123456'
-      } as unknown as DetailItemField,
-      {
-        name: 'ngField',
-        label: 'National Grid Field Number',
-        href: '/location',
-        title: 'National Grid Field Number',
-        field: nationalGridField,
-        state,
-        value: 'NG12345678'
-      } as unknown as DetailItemField
+    /** @type {DetailItemField[]} */
+    const items = [
+      /** @type {DetailItemField} */ (
+        /** @type {unknown} */ ({
+          name: 'locationEN',
+          label: 'Easting and Northing',
+          href: '/location',
+          title: 'Easting and Northing',
+          field: eastingNorthingField,
+          state,
+          value: '654321, 123456'
+        })
+      ),
+      /** @type {DetailItemField} */ (
+        /** @type {unknown} */ ({
+          name: 'locationLL',
+          label: 'Latitude and Longitude',
+          href: '/location',
+          title: 'Latitude and Longitude',
+          field: latLongField,
+          state,
+          value: '51.519450, -0.127758'
+        })
+      ),
+      /** @type {DetailItemField} */ (
+        /** @type {unknown} */ ({
+          name: 'gridRef',
+          label: 'OS Grid Reference',
+          href: '/location',
+          title: 'OS Grid Reference',
+          field: osGridRefField,
+          state,
+          value: 'TQ123456'
+        })
+      ),
+      /** @type {DetailItemField} */ (
+        /** @type {unknown} */ ({
+          name: 'ngField',
+          label: 'National Grid Field Number',
+          href: '/location',
+          title: 'National Grid Field Number',
+          field: nationalGridField,
+          state,
+          value: 'NG12345678'
+        })
+      )
     ]
 
     const result = format(context, items, model, submitResponse, formStatus)
-    const payload = JSON.parse(result) as {
-      data: { main: Record<string, unknown> }
-    }
+    const payload = /** @type {{ data: { main: Record<string, unknown> } }} */ (
+      JSON.parse(result)
+    )
 
     // Check all location fields use full property names
     expect(payload.data.main).toEqual({
@@ -324,28 +340,36 @@ describe('Machine V2 formatter - Location fields', () => {
     const context = model.getFormContext(request, state)
 
     const latLongField = new LatLongField(
-      locationPage.components[1] as LatLongFieldComponent,
+      /** @type {LatLongFieldComponent} */ (locationPage.components[1]),
       { model }
     )
 
-    const items: DetailItemField[] = [
-      {
-        name: 'locationLL',
-        label: 'Latitude and Longitude',
-        href: '/location',
-        title: 'Latitude and Longitude',
-        field: latLongField,
-        state,
-        value: ''
-      } as unknown as DetailItemField
+    /** @type {DetailItemField[]} */
+    const items = [
+      /** @type {DetailItemField} */ (
+        /** @type {unknown} */ ({
+          name: 'locationLL',
+          label: 'Latitude and Longitude',
+          href: '/location',
+          title: 'Latitude and Longitude',
+          field: latLongField,
+          state,
+          value: ''
+        })
+      )
     ]
 
     const result = format(context, items, model, submitResponse, formStatus)
-    const payload = JSON.parse(result) as {
-      data: { main: Record<string, unknown> }
-    }
+    const payload = /** @type {{ data: { main: Record<string, unknown> } }} */ (
+      JSON.parse(result)
+    )
 
     // Undefined location fields should be undefined in v2 (not null like in v1)
     expect(payload.data.main.locationLL).toBeUndefined()
   })
 })
+
+/**
+ * @import { EastingNorthingFieldComponent, FormDefinition, LatLongFieldComponent, NationalGridFieldNumberFieldComponent, OsGridRefFieldComponent, PageQuestion } from '@defra/forms-model'
+ * @import { DetailItemField } from '~/src/server/plugins/engine/models/types.js'
+ */

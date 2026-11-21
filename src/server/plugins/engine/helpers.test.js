@@ -1,5 +1,4 @@
 import Boom from '@hapi/boom'
-import { type ResponseObject, type ResponseToolkit } from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
 import { ValidationError } from 'joi'
 
@@ -13,41 +12,35 @@ import {
   getErrors,
   getExponentialBackoffDelay,
   getPageHref,
-  proceed,
-  type GlobalScope
+  handleLegacyRedirect,
+  proceed
 } from '~/src/server/plugins/engine/helpers.js'
-import { handleLegacyRedirect } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
-import {
-  createPage,
-  type PageControllerClass
-} from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
-import {
-  type FormContext,
-  type FormContextRequest
-} from '~/src/server/plugins/engine/types.js'
-import {
-  FormAction,
-  FormStatus,
-  type FormResponseToolkit
-} from '~/src/server/routes/types.js'
+import { createPage } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
+import { FormAction, FormStatus } from '~/src/server/routes/types.js'
 import definition from '~/test/form/definitions/basic.js'
 import templateDefinition from '~/test/form/definitions/templates.js'
 
-interface NunjucksContext {
-  context: {
-    globals: GlobalScope
-  }
-}
+/**
+ * @typedef {{ context: { globals: GlobalScope } }} NunjucksContext
+ */
 
-type EvaluateFilter = (this: NunjucksContext, template: unknown) => unknown
-type HrefFilter = (this: NunjucksContext, path: string) => string | undefined
+/**
+ * @typedef {(this: NunjucksContext, template: unknown) => unknown} EvaluateFilter
+ */
+
+/**
+ * @typedef {(this: NunjucksContext, path: string) => string | undefined} HrefFilter
+ */
 
 describe('Helpers', () => {
-  let page: PageControllerClass
-  let request: FormContextRequest
-  let h: FormResponseToolkit
+  /** @type {PageControllerClass} */
+  let page
+  /** @type {FormContextRequest} */
+  let request
+  /** @type {FormResponseToolkit} */
+  let h
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -86,38 +79,38 @@ describe('Helpers', () => {
       {
         href: 'https://www.gov.uk/help/privacy-notice',
 
-        request: {
+        request: /** @satisfies {Partial<FormContextRequest>} */ ({
           method: 'get'
-        } satisfies Partial<FormContextRequest>,
+        }),
 
-        redirect: {
+        redirect: /** @satisfies {Partial<ResponseObject>} */ ({
           statusCode: StatusCodes.MOVED_TEMPORARILY
-        } satisfies Partial<ResponseObject>
+        })
       },
       {
         href: '/test/full-name',
 
-        request: {
+        request: /** @satisfies {Partial<FormContextRequest>} */ ({
           method: 'get'
-        } satisfies Partial<FormContextRequest>,
+        }),
 
-        redirect: {
+        redirect: /** @satisfies {Partial<ResponseObject>} */ ({
           statusCode: StatusCodes.MOVED_TEMPORARILY
-        } satisfies Partial<ResponseObject>
+        })
       },
       {
         href: '/test/full-name',
 
-        request: {
+        request: /** @satisfies {Partial<FormContextRequest>} */ ({
           method: 'post',
           payload: {
             action: FormAction.Validate
           }
-        } satisfies Partial<FormContextRequest>,
+        }),
 
-        redirect: {
+        redirect: /** @satisfies {Partial<ResponseObject>} */ ({
           statusCode: StatusCodes.SEE_OTHER
-        } satisfies Partial<ResponseObject>
+        })
       }
     ])(
       'should redirect to the path provided',
@@ -136,7 +129,7 @@ describe('Helpers', () => {
       {
         href: '/test/full-name',
 
-        request: {
+        request: /** @satisfies {Partial<FormContextRequest>} */ ({
           method: 'post',
           payload: {
             action: FormAction.Validate
@@ -146,11 +139,11 @@ describe('Helpers', () => {
             myParam2: 'myValue2',
             returnUrl: '/test/summary'
           }
-        } satisfies Partial<FormContextRequest>,
+        }),
 
-        redirect: {
+        redirect: /** @satisfies {Partial<ResponseObject>} */ ({
           statusCode: StatusCodes.SEE_OTHER
-        } satisfies Partial<ResponseObject>
+        })
       }
     ])(
       "should redirect to the 'returnUrl' query param provided (relative paths)",
@@ -169,34 +162,34 @@ describe('Helpers', () => {
       {
         href: '/test/full-name',
 
-        request: {
+        request: /** @satisfies {Partial<FormContextRequest>} */ ({
           method: 'get',
           query: { returnUrl: 'slash-missing' }
-        } satisfies Partial<FormContextRequest>,
+        }),
 
-        redirect: {
+        redirect: /** @satisfies {Partial<ResponseObject>} */ ({
           statusCode: StatusCodes.MOVED_TEMPORARILY
-        } satisfies Partial<ResponseObject>
+        })
       },
       {
         href: '/test/full-name',
 
-        request: {
+        request: /** @satisfies {Partial<FormContextRequest>} */ ({
           method: 'post',
           payload: {
             action: FormAction.Validate
           },
           query: { returnUrl: 'https://www.gov.uk/help/privacy-notice' }
-        } satisfies Partial<FormContextRequest>,
+        }),
 
-        redirect: {
+        redirect: /** @satisfies {Partial<ResponseObject>} */ ({
           statusCode: StatusCodes.SEE_OTHER
-        } satisfies Partial<ResponseObject>
+        })
       },
       {
         href: '/test/repeater/example',
 
-        request: {
+        request: /** @satisfies {Partial<FormContextRequest>} */ ({
           method: 'post',
           query: {
             myParam1: 'myValue1',
@@ -206,11 +199,11 @@ describe('Helpers', () => {
           payload: {
             action: FormAction.AddAnother
           }
-        } satisfies Partial<FormContextRequest>,
+        }),
 
-        redirect: {
+        redirect: /** @satisfies {Partial<ResponseObject>} */ ({
           statusCode: StatusCodes.MOVED_TEMPORARILY
-        } satisfies Partial<ResponseObject>
+        })
       }
     ])(
       "should not redirect to the 'returnUrl' query param provided (other paths)",
@@ -550,8 +543,10 @@ describe('Helpers', () => {
   })
 
   describe('evaluateTemplate', () => {
-    let model: FormModel
-    let formContext: FormContext
+    /** @type {FormModel} */
+    let model
+    /** @type {FormContext} */
+    let formContext
 
     beforeEach(() => {
       model = new FormModel(templateDefinition, {
@@ -758,23 +753,24 @@ describe('Helpers', () => {
   describe('Nunjucks filters', () => {
     describe('evaluate filter', () => {
       it('returns non-string values unchanged', () => {
-        const mockContext: NunjucksContext = {
+        /** @type {NunjucksContext} */
+        const mockContext = {
           context: {
             globals: {
-              context: { pageMap: new Map() } as FormContext,
+              context: /** @type {FormContext} */ ({ pageMap: new Map() }),
               pages: new Map(),
               components: new Map()
             }
           }
         }
 
-        const numResult = (
-          engine.filters.evaluate as unknown as EvaluateFilter
+        const numResult = /** @type {EvaluateFilter} */ (
+          /** @type {unknown} */ (engine.filters.evaluate)
         ).call(mockContext, 123)
         expect(numResult).toBe(123)
 
-        const objResult = (
-          engine.filters.evaluate as unknown as EvaluateFilter
+        const objResult = /** @type {EvaluateFilter} */ (
+          /** @type {unknown} */ (engine.filters.evaluate)
         ).call(mockContext, { foo: 'bar' })
         expect(objResult).toEqual({ foo: 'bar' })
       })
@@ -782,20 +778,20 @@ describe('Helpers', () => {
 
     describe('href filter', () => {
       it('returns undefined when page is undefined', () => {
-        const mockContext: NunjucksContext = {
+        /** @type {NunjucksContext} */
+        const mockContext = {
           context: {
             globals: {
-              context: { pageMap: new Map() } as FormContext,
+              context: /** @type {FormContext} */ ({ pageMap: new Map() }),
               pages: new Map(),
               components: new Map()
             }
           }
         }
 
-        const result = (engine.filters.href as unknown as HrefFilter).call(
-          mockContext,
-          '/some-page'
-        )
+        const result = /** @type {HrefFilter} */ (
+          /** @type {unknown} */ (engine.filters.href)
+        ).call(mockContext, '/some-page')
 
         expect(result).toBeUndefined()
       })
@@ -803,16 +799,19 @@ describe('Helpers', () => {
   })
 
   describe('handleLegacyRedirect', () => {
-    let mockH: jest.Mocked<Pick<ResponseToolkit, 'redirect'>>
-    let mockRedirectResponse: jest.Mocked<
-      ReturnType<ResponseToolkit['redirect']>
-    >
+    /** @type {jest.Mocked<Pick<ResponseToolkit, 'redirect'>>} */
+    let mockH
+    /** @type {jest.Mocked< ReturnType<ResponseToolkit['redirect']> >} */
+    let mockRedirectResponse
 
     beforeEach(() => {
-      mockRedirectResponse = {
-        permanent: jest.fn().mockReturnThis(),
-        takeover: jest.fn().mockReturnThis()
-      } as unknown as jest.Mocked<ReturnType<ResponseToolkit['redirect']>>
+      mockRedirectResponse =
+        /** @type {jest.Mocked<ReturnType<ResponseToolkit['redirect']>>} */ (
+          /** @type {unknown} */ ({
+            permanent: jest.fn().mockReturnThis(),
+            takeover: jest.fn().mockReturnThis()
+          })
+        )
 
       mockH = {
         redirect: jest.fn().mockReturnValue(mockRedirectResponse)
@@ -821,7 +820,10 @@ describe('Helpers', () => {
 
     it('should call h.redirect with the target URL', () => {
       const targetUrl = '/another/target'
-      handleLegacyRedirect(mockH as unknown as ResponseToolkit, targetUrl)
+      handleLegacyRedirect(
+        /** @type {ResponseToolkit} */ (/** @type {unknown} */ (mockH)),
+        targetUrl
+      )
 
       expect(mockH.redirect).toHaveBeenCalledTimes(1)
       expect(mockH.redirect).toHaveBeenCalledWith(targetUrl)
@@ -829,7 +831,10 @@ describe('Helpers', () => {
 
     it('should call permanent() and takeover() on the redirect response', () => {
       const targetUrl = '/final/destination'
-      handleLegacyRedirect(mockH as unknown as ResponseToolkit, targetUrl)
+      handleLegacyRedirect(
+        /** @type {ResponseToolkit} */ (/** @type {unknown} */ (mockH)),
+        targetUrl
+      )
 
       expect(mockRedirectResponse.permanent).toHaveBeenCalledTimes(1)
       expect(mockRedirectResponse.takeover).toHaveBeenCalledTimes(1)
@@ -838,7 +843,7 @@ describe('Helpers', () => {
     it('should return the final response object from takeover()', () => {
       const targetUrl = '/the/end'
       const response = handleLegacyRedirect(
-        mockH as unknown as ResponseToolkit,
+        /** @type {ResponseToolkit} */ (/** @type {unknown} */ (mockH)),
         targetUrl
       )
 
@@ -846,3 +851,11 @@ describe('Helpers', () => {
     })
   })
 })
+
+/**
+ * @import { ResponseObject, ResponseToolkit } from '@hapi/hapi'
+ * @import { GlobalScope } from '~/src/server/plugins/engine/helpers.js'
+ * @import { PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
+ * @import { FormContext, FormContextRequest } from '~/src/server/plugins/engine/types.js'
+ * @import { FormResponseToolkit } from '~/src/server/routes/types.js'
+ */
