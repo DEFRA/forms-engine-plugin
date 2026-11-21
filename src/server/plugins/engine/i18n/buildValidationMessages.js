@@ -1,12 +1,12 @@
-import joi, { type JoiExpression, type ReferenceOptions } from 'joi'
+import joi from 'joi'
 
 import { lowerFirstPreserveProperNouns } from '~/src/server/plugins/engine/components/helpers/index.js'
 
-const opts = {
+const opts = /** @type {ReferenceOptions} */ ({
   functions: {
     lowerFirst: lowerFirstPreserveProperNouns
   }
-} as ReferenceOptions
+})
 
 /**
  * Builds a set of translated Joi message templates for a given language.
@@ -15,31 +15,35 @@ const opts = {
  * Strings containing {{lowerFirst(#label)}} must be wrapped in joi.expression()
  * because Joi cannot resolve custom functions from a plain string.
  * Plain strings with only built-in tokens ({{#label}}, {{#limit}}) work without wrapping.
+ * @param {(key: string, options?: Record<string, unknown>) => string} t
  */
-export function buildValidationMessages(
-  t: (key: string, options?: Record<string, unknown>) => string
-) {
+export function buildValidationMessages(t) {
   return {
     // Expressions — contain lowerFirst custom function
-    required: joi.expression(t('validation.required'), opts) as JoiExpression,
-    selectRequired: joi.expression(
-      t('validation.selectRequired'),
-      opts
-    ) as JoiExpression,
-    pattern: joi.expression(t('validation.pattern'), opts) as JoiExpression,
-    format: joi.expression(t('validation.format'), opts) as JoiExpression,
-    declarationRequired: joi.expression(
-      t('components.declarationField.validation.declarationRequired'),
-      opts
-    ) as JoiExpression,
-    objectRequired: joi.expression(
-      t('validation.objectRequired'),
-      opts
-    ) as JoiExpression,
-    objectMissing: joi.expression(
-      t('validation.objectMissing'),
-      opts
-    ) as JoiExpression,
+    required: /** @type {JoiExpression} */ (
+      joi.expression(t('validation.required'), opts)
+    ),
+    selectRequired: /** @type {JoiExpression} */ (
+      joi.expression(t('validation.selectRequired'), opts)
+    ),
+    pattern: /** @type {JoiExpression} */ (
+      joi.expression(t('validation.pattern'), opts)
+    ),
+    format: /** @type {JoiExpression} */ (
+      joi.expression(t('validation.format'), opts)
+    ),
+    declarationRequired: /** @type {JoiExpression} */ (
+      joi.expression(
+        t('components.declarationField.validation.declarationRequired'),
+        opts
+      )
+    ),
+    objectRequired: /** @type {JoiExpression} */ (
+      joi.expression(t('validation.objectRequired'), opts)
+    ),
+    objectMissing: /** @type {JoiExpression} */ (
+      joi.expression(t('validation.objectMissing'), opts)
+    ),
 
     // Plain Joi template strings — no lowerFirst
     selectYesNoRequired: t(
@@ -74,4 +78,10 @@ export function buildValidationMessages(
   }
 }
 
-export type ValidationMessages = ReturnType<typeof buildValidationMessages>
+/**
+ * @typedef {ReturnType<typeof buildValidationMessages>} ValidationMessages
+ */
+
+/**
+ * @import { JoiExpression, ReferenceOptions } from 'joi'
+ */

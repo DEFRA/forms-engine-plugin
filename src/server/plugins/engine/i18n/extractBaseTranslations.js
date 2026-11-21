@@ -1,20 +1,24 @@
-import {
-  hasComponentsEvenIfNoNext,
-  type FormDefinition
-} from '@defra/forms-model'
+import { hasComponentsEvenIfNoNext } from '@defra/forms-model'
 
-import { type FormDefinitionTranslations } from '~/src/server/plugins/engine/i18n/types.js'
+/**
+ * @typedef {FormDefinitionTranslations[string]} BaseTranslations
+ */
 
-type BaseTranslations = FormDefinitionTranslations[string]
-
-export function extractBaseTranslations(
-  def: FormDefinition | undefined
-): BaseTranslations {
-  const pages: BaseTranslations['pages'] = {}
-  const components: BaseTranslations['components'] = {}
-  const sections: BaseTranslations['sections'] = {}
-  const listItems: BaseTranslations['listItems'] = {}
-  const form: BaseTranslations['form'] = {}
+/**
+ * @param {FormDefinition | undefined} def
+ * @returns {BaseTranslations}
+ */
+export function extractBaseTranslations(def) {
+  /** @type {BaseTranslations['pages']} */
+  const pages = {}
+  /** @type {BaseTranslations['components']} */
+  const components = {}
+  /** @type {BaseTranslations['sections']} */
+  const sections = {}
+  /** @type {BaseTranslations['listItems']} */
+  const listItems = {}
+  /** @type {BaseTranslations['form']} */
+  const form = {}
 
   if (!def) {
     return { pages, components, sections, listItems, form }
@@ -29,7 +33,8 @@ export function extractBaseTranslations(
       for (const component of page.components) {
         if (!component.id) continue
 
-        const entry: BaseTranslations['components'][string] = {}
+        /** @type {BaseTranslations['components'][string]} */
+        const entry = {}
 
         if (component.title) entry.title = component.title
         if ('hint' in component && component.hint) entry.hint = component.hint
@@ -65,3 +70,8 @@ export function extractBaseTranslations(
 
   return { pages, components, sections, listItems, form }
 }
+
+/**
+ * @import { FormDefinition } from '@defra/forms-model'
+ * @import { FormDefinitionTranslations } from '~/src/server/plugins/engine/i18n/types.js'
+ */

@@ -1,12 +1,9 @@
-import { type FormMetadata, type FormStatus } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { LRUCache } from 'lru-cache'
 
 import { getPluginOptions } from '~/src/server/plugins/engine/helpers.js'
 import { createFormTranslator } from '~/src/server/plugins/engine/i18n/createFormTranslator.js'
 import { resolveFormLanguage } from '~/src/server/plugins/engine/i18n/languages.js'
-import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
-import { type AnyFormRequest } from '~/src/server/plugins/engine/types.js'
 
 const cache = new LRUCache({
   max: 100,
@@ -23,15 +20,15 @@ const cache = new LRUCache({
  * @param {string} language - the language to use for the translator
  */
 export async function getCachedPluginTranslator(
-  request: AnyFormRequest,
-  metadata: FormMetadata,
-  status: FormStatus,
-  language: string
+  request,
+  metadata,
+  status,
+  language
 ) {
   const key = `${metadata.id}-${status}-${language}-plugin-meta`
 
   if (cache.has(key)) {
-    return cache.get(key) as unknown as Translator
+    return /** @type {Translator} */ (/** @type {unknown} */ (cache.get(key)))
   }
 
   const { services } = getPluginOptions(request.server)
@@ -58,3 +55,9 @@ export async function getCachedPluginTranslator(
 
   return translator
 }
+
+/**
+ * @import { FormMetadata, FormStatus } from '@defra/forms-model'
+ * @import { Translator } from '~/src/server/plugins/engine/i18n/types.js'
+ * @import { AnyFormRequest } from '~/src/server/plugins/engine/types.js'
+ */

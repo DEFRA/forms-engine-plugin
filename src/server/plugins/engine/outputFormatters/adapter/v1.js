@@ -1,35 +1,17 @@
-import {
-  Engine,
-  type FormMetadata,
-  type SubmitResponsePayload
-} from '@defra/forms-model'
+import { Engine } from '@defra/forms-model'
 
 import { EN_GB } from '~/src/server/constants.js'
-import {
-  getFormVersion,
-  type checkFormStatus
-} from '~/src/server/plugins/engine/helpers.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import { type DetailItem } from '~/src/server/plugins/engine/models/types.js'
+import { getFormVersion } from '~/src/server/plugins/engine/helpers.js'
 import { categoriseData } from '~/src/server/plugins/engine/outputFormatters/machine/v2.js'
 import { buildConditionEvaluations } from '~/src/server/plugins/engine/pageControllers/helpers/submission.js'
 import { FormAdapterSubmissionSchemaVersion } from '~/src/server/plugins/engine/types/enums.js'
-import {
-  type FormAdapterSubmissionMessageData,
-  type FormAdapterSubmissionMessageMeta,
-  type FormAdapterSubmissionMessagePayload,
-  type FormAdapterSubmissionMessageResult,
-  type FormContext,
-  type RichFormValue
-} from '~/src/server/plugins/engine/types.js'
 
 /**
  * Maps a key-value pair to a new key-value pair, converting undefined values to null
+ * @param {[string, RichFormValue | undefined]} param0
+ * @returns {[string, RichFormValue | null]}
  */
-function mapper([key, value]: [string, RichFormValue | undefined]): [
-  string,
-  RichFormValue | null
-] {
+function mapper([key, value]) {
   if (value === undefined) {
     return [key, null]
   }
@@ -37,21 +19,31 @@ function mapper([key, value]: [string, RichFormValue | undefined]): [
   return [key, value]
 }
 
+/**
+ * @param {FormContext} context
+ * @param {DetailItem[]} items
+ * @param {FormModel} model
+ * @param {SubmitResponsePayload} submitResponse
+ * @param {ReturnType<typeof checkFormStatus>} formStatus
+ * @param {FormMetadata} [formMetadata]
+ * @returns {string}
+ */
 export function format(
-  context: FormContext,
-  items: DetailItem[],
-  model: FormModel,
-  submitResponse: SubmitResponsePayload,
-  formStatus: ReturnType<typeof checkFormStatus>,
-  formMetadata?: FormMetadata
-): string {
+  context,
+  items,
+  model,
+  submitResponse,
+  formStatus,
+  formMetadata
+) {
   const csvFiles = extractCsvFiles(submitResponse)
 
   const { main: v2Main, ...v2Data } = categoriseData(items)
 
   const versionMetadata = getFormVersion(model.def)
 
-  const meta: FormAdapterSubmissionMessageMeta = {
+  /** @type {FormAdapterSubmissionMessageMeta} */
+  const meta = {
     schemaVersion: FormAdapterSubmissionSchemaVersion.V1,
     timestamp: new Date(),
     referenceNumber: context.referenceNumber,
@@ -77,17 +69,20 @@ export function format(
     ])
   )
 
-  const data: FormAdapterSubmissionMessageData = {
+  /** @type {FormAdapterSubmissionMessageData} */
+  const data = {
     main,
     ...v2Data,
     repeaters
   }
 
-  const result: FormAdapterSubmissionMessageResult = {
+  /** @type {FormAdapterSubmissionMessageResult} */
+  const result = {
     files: csvFiles
   }
 
-  const payload: FormAdapterSubmissionMessagePayload = {
+  /** @type {FormAdapterSubmissionMessagePayload} */
+  const payload = {
     meta,
     data,
     result,
@@ -108,14 +103,25 @@ export function format(
   return JSON.stringify(payload)
 }
 
-function extractCsvFiles(
-  submitResponse: SubmitResponsePayload
-): FormAdapterSubmissionMessageResult['files'] {
-  const result =
-    submitResponse.result as Partial<FormAdapterSubmissionMessageResult>
+/**
+ * @param {SubmitResponsePayload} submitResponse
+ * @returns {FormAdapterSubmissionMessageResult['files']}
+ */
+function extractCsvFiles(submitResponse) {
+  const result = /** @type {Partial<FormAdapterSubmissionMessageResult>} */ (
+    submitResponse.result
+  )
 
   return {
     main: result.files?.main ?? '',
     repeaters: result.files?.repeaters ?? {}
   }
 }
+
+/**
+ * @import { FormMetadata, SubmitResponsePayload } from '@defra/forms-model'
+ * @import { checkFormStatus } from '~/src/server/plugins/engine/helpers.js'
+ * @import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+ * @import { DetailItem } from '~/src/server/plugins/engine/models/types.js'
+ * @import { FormAdapterSubmissionMessageData, FormAdapterSubmissionMessageMeta, FormAdapterSubmissionMessagePayload, FormAdapterSubmissionMessageResult, FormContext, RichFormValue } from '~/src/server/plugins/engine/types.js'
+ */

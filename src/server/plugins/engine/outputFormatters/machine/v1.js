@@ -1,30 +1,24 @@
-import {
-  type FormMetadata,
-  type SubmitResponsePayload
-} from '@defra/forms-model'
-
 import { config } from '~/src/config/index.js'
 import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { FileUploadField } from '~/src/server/plugins/engine/components/index.js'
-import { type checkFormStatus } from '~/src/server/plugins/engine/helpers.js'
-import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
-import {
-  type DetailItem,
-  type DetailItemField,
-  type DetailItemRepeat
-} from '~/src/server/plugins/engine/models/types.js'
-import { type FormContext } from '~/src/server/plugins/engine/types.js'
 
 const designerUrl = config.get('designerUrl')
 
+/**
+ * @param {FormContext} context
+ * @param {DetailItem[]} items
+ * @param {FormModel} model
+ * @param {SubmitResponsePayload} _submitResponse
+ * @param {ReturnType<typeof checkFormStatus>} _formStatus
+ * @param {FormMetadata} [_formMetadata]
+ */
 export function format(
-  context: FormContext,
-  items: DetailItem[],
-  model: FormModel,
-  _submitResponse: SubmitResponsePayload,
-  _formStatus: ReturnType<typeof checkFormStatus>,
-  _formMetadata?: FormMetadata
+  context,
+  items,
+  model,
+  _submitResponse,
+  _formStatus,
+  _formMetadata
 ) {
   const translator = model.createTranslator()
   const now = new Date()
@@ -69,13 +63,18 @@ export function format(
  *      ]
  *    }
  * }
+ * @param {DetailItem[]} items
+ * @param {Translator} translator
  */
-function categoriseData(items: DetailItem[], translator: Translator) {
-  const output: {
-    main: Record<string, string>
-    repeaters: Record<string, Record<string, string>[]>
-    files: Record<string, Record<string, string>[]>
-  } = { main: {}, repeaters: {}, files: {} }
+function categoriseData(items, translator) {
+  /**
+   * @type {{
+   *   main: Record<string, string>
+   *   repeaters: Record<string, Record<string, string>[]>
+   *   files: Record<string, Record<string, string>[]>
+   * }}
+   */
+  const output = { main: {}, repeaters: {}, files: {} }
 
   items.forEach((item) => {
     if ('subItems' in item) {
@@ -97,14 +96,17 @@ function categoriseData(items: DetailItem[], translator: Translator) {
 
 /**
  * Returns the "repeaters" section of the response body
- * @param item - the repeater item
+ * @param {DetailItemRepeat} item - the repeater item
+ * @param {Translator} translator
  * @returns the repeater item
  */
-function extractRepeaters(item: DetailItemRepeat, translator: Translator) {
-  const repeaters: Record<string, string>[] = []
+function extractRepeaters(item, translator) {
+  /** @type {Record<string, string>[]} */
+  const repeaters = []
 
   item.subItems.forEach((inputRepeaterItem) => {
-    const outputRepeaterItem: Record<string, string> = {}
+    /** @type {Record<string, string>} */
+    const outputRepeaterItem = {}
 
     inputRepeaterItem.forEach((repeaterComponent) => {
       outputRepeaterItem[repeaterComponent.name] = getAnswer(
@@ -123,10 +125,10 @@ function extractRepeaters(item: DetailItemRepeat, translator: Translator) {
 
 /**
  * Returns the "files" section of the response body
- * @param item - the file upload item in the form
+ * @param {FileUploadFieldDetailitem} item - the file upload item in the form
  * @returns the file upload data
  */
-function extractFileUploads(item: FileUploadFieldDetailitem) {
+function extractFileUploads(item) {
   const fileUploadState = item.field.getContextValueFromState(item.state) ?? []
 
   return fileUploadState.map((fileId) => {
@@ -137,15 +139,26 @@ function extractFileUploads(item: FileUploadFieldDetailitem) {
   })
 }
 
-function isFileUploadFieldItem(
-  item: DetailItemField
-): item is FileUploadFieldDetailitem {
+/**
+ * @param {DetailItemField} item
+ * @returns {item is FileUploadFieldDetailitem}
+ */
+function isFileUploadFieldItem(item) {
   return item.field instanceof FileUploadField
 }
 
 /**
  * A detail item specifically for files
+ * @typedef {Omit<DetailItemField, 'field'> & {
+ *   field: FileUploadField
+ * }} FileUploadFieldDetailitem
  */
-type FileUploadFieldDetailitem = Omit<DetailItemField, 'field'> & {
-  field: FileUploadField
-}
+
+/**
+ * @import { FormMetadata, SubmitResponsePayload } from '@defra/forms-model'
+ * @import { checkFormStatus } from '~/src/server/plugins/engine/helpers.js'
+ * @import { Translator } from '~/src/server/plugins/engine/i18n/types.js'
+ * @import { FormModel } from '~/src/server/plugins/engine/models/index.js'
+ * @import { DetailItem, DetailItemField, DetailItemRepeat } from '~/src/server/plugins/engine/models/types.js'
+ * @import { FormContext } from '~/src/server/plugins/engine/types.js'
+ */

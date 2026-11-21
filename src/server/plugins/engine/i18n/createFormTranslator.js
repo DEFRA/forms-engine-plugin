@@ -1,22 +1,16 @@
-import {
-  yesNoListNoItemId,
-  yesNoListYesItemId,
-  type FormDefinition,
-  type FormMetadata
-} from '@defra/forms-model'
-import { type i18n } from 'i18next'
+import { yesNoListNoItemId, yesNoListYesItemId } from '@defra/forms-model'
 
 import { CY } from '~/src/server/constants.js'
 import { createTranslator } from '~/src/server/plugins/engine/i18n/createTranslator.js'
 import { extractBaseTranslations } from '~/src/server/plugins/engine/i18n/extractBaseTranslations.js'
 import { createFormI18nInstance } from '~/src/server/plugins/engine/i18n/index.js'
-import { type FormDefinitionTranslations } from '~/src/server/plugins/engine/i18n/types.js'
 
-export function createFormTranslator(
-  metadata: FormMetadata,
-  definition: FormDefinition | undefined,
-  language: string
-) {
+/**
+ * @param {FormMetadata} metadata
+ * @param {FormDefinition | undefined} definition
+ * @param {string} language
+ */
+export function createFormTranslator(metadata, definition, language) {
   const baseTranslations = extractBaseTranslations(definition)
   const i18nInstance = createFormI18nInstance(baseTranslations)
   loadFormTranslations(definition, i18nInstance)
@@ -27,17 +21,19 @@ export function createFormTranslator(
   return translator
 }
 
-export function loadFormTranslations(
-  def: FormDefinition | undefined,
-  i18nInstance: i18n
-) {
+/**
+ * @param {FormDefinition | undefined} def
+ * @param {i18n} i18nInstance
+ */
+export function loadFormTranslations(def, i18nInstance) {
   if (!def) {
     return
   }
 
-  const formTranslations = def.metadata?.translations as
-    | FormDefinitionTranslations
-    | undefined
+  const formTranslations =
+    /** @type {FormDefinitionTranslations | undefined} */ (
+      def.metadata?.translations
+    )
 
   if (formTranslations) {
     for (const [lng, resources] of Object.entries(formTranslations)) {
@@ -62,10 +58,11 @@ export function loadFormTranslations(
   }
 }
 
-export function extractMetadataBaseTranslations(
-  metadata: FormMetadata | undefined,
-  i18nInstance: i18n
-) {
+/**
+ * @param {FormMetadata | undefined} metadata
+ * @param {i18n} i18nInstance
+ */
+export function extractMetadataBaseTranslations(metadata, i18nInstance) {
   if (metadata) {
     const translations = {
       'form.title': metadata.title,
@@ -82,3 +79,9 @@ export function extractMetadataBaseTranslations(
     i18nInstance.addResourceBundle('en-GB', 'form', translations, true, true)
   }
 }
+
+/**
+ * @import { FormDefinition, FormMetadata } from '@defra/forms-model'
+ * @import { i18n } from 'i18next'
+ * @import { FormDefinitionTranslations } from '~/src/server/plugins/engine/i18n/types.js'
+ */

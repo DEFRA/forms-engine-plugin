@@ -1,7 +1,3 @@
-import {
-  type FormMetadata,
-  type SubmitResponsePayload
-} from '@defra/forms-model'
 import { addDays, format as dateFormat } from 'date-fns'
 
 import { config } from '~/src/config/index.js'
@@ -9,13 +5,6 @@ import { EN_GB } from '~/src/server/constants.js'
 import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { escapeMarkdown } from '~/src/server/plugins/engine/components/helpers/index.js'
 import { PaymentField } from '~/src/server/plugins/engine/components/index.js'
-import { type checkFormStatus } from '~/src/server/plugins/engine/helpers.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
-import {
-  type DetailItem,
-  type DetailItemField
-} from '~/src/server/plugins/engine/models/types.js'
-import { type FormContext } from '~/src/server/plugins/engine/types.js'
 import {
   formatCurrency,
   formatPaymentDate
@@ -23,13 +12,21 @@ import {
 
 const designerUrl = config.get('designerUrl')
 
+/**
+ * @param {FormContext} _context
+ * @param {DetailItem[]} items
+ * @param {FormModel} model
+ * @param {SubmitResponsePayload} submitResponse
+ * @param {ReturnType<typeof checkFormStatus>} formStatus
+ * @param {FormMetadata} [_formMetadata]
+ */
 export function format(
-  _context: FormContext,
-  items: DetailItem[],
-  model: FormModel,
-  submitResponse: SubmitResponsePayload,
-  formStatus: ReturnType<typeof checkFormStatus>,
-  _formMetadata?: FormMetadata
+  _context,
+  items,
+  model,
+  submitResponse,
+  formStatus,
+  _formMetadata
 ) {
   const translator = model.createTranslator()
   const { files } = submitResponse.result
@@ -46,7 +43,8 @@ export function format(
   const fileExpiryDate = addDays(now, 90)
   const formattedExpiryDate = `${dateFormat(fileExpiryDate, 'h:mmaaa')} on ${dateFormat(fileExpiryDate, 'eeee d MMMM yyyy')}`
 
-  const lines: string[] = []
+  /** @type {string[]} */
+  const lines = []
 
   lines.push(
     `^ For security reasons, the links in this email expire at ${escapeMarkdown(formattedExpiryDate)}\n`
@@ -91,8 +89,10 @@ export function format(
 
 /**
  * Check if an item is a PaymentField
+ * @param {DetailItem} item
+ * @returns {boolean}
  */
-function isPaymentItem(item: DetailItem): boolean {
+function isPaymentItem(item) {
   if ('subItems' in item) {
     return false
   }
@@ -101,14 +101,16 @@ function isPaymentItem(item: DetailItem): boolean {
 
 /**
  * Appends the payment details section to the email lines if payment exists
+ * @param {DetailItem[]} paymentItems
+ * @param {string[]} lines
  */
-function appendPaymentSection(paymentItems: DetailItem[], lines: string[]) {
+function appendPaymentSection(paymentItems, lines) {
   if (paymentItems.length === 0) {
     return
   }
 
-  const paymentItem = paymentItems[0] as DetailItemField
-  const paymentField = paymentItem.field as PaymentField
+  const paymentItem = /** @type {DetailItemField} */ (paymentItems[0])
+  const paymentField = /** @type {PaymentField} */ (paymentItem.field)
   const paymentState = paymentField.getPaymentStateFromState(paymentItem.state)
 
   if (!paymentState) {
@@ -134,3 +136,11 @@ function appendPaymentSection(paymentItems: DetailItem[], lines: string[]) {
     '---\n'
   )
 }
+
+/**
+ * @import { FormMetadata, SubmitResponsePayload } from '@defra/forms-model'
+ * @import { checkFormStatus } from '~/src/server/plugins/engine/helpers.js'
+ * @import { FormModel } from '~/src/server/plugins/engine/models/index.js'
+ * @import { DetailItem, DetailItemField } from '~/src/server/plugins/engine/models/types.js'
+ * @import { FormContext } from '~/src/server/plugins/engine/types.js'
+ */

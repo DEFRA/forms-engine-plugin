@@ -51,7 +51,7 @@ Currently supported event types:
 
 ## Payload
 
-forms-engine-plugin sends a standardised payload to each API configured with page events. The latest version of our payload [can be found in our outputFormatters module by opening the latest version, e.g. `v2.ts`](https://github.com/DEFRA/forms-engine-plugin/tree/main/src/server/plugins/engine/outputFormatters/machine). Our payload contains some metadata about the payload, along with a "data" section that contains the main body of the form as a JSON object, an array of repeatable pages, and a file ID and download link for all files submitted.
+forms-engine-plugin sends a standardised payload to each API configured with page events. The latest version of our payload [can be found in our outputFormatters module by opening the latest version, e.g. `v2.js`](https://github.com/DEFRA/forms-engine-plugin/tree/main/src/server/plugins/engine/outputFormatters/machine). Our payload contains some metadata about the payload, along with a "data" section that contains the main body of the form as a JSON object, an array of repeatable pages, and a file ID and download link for all files submitted.
 
 The payload takes the following shape:
 

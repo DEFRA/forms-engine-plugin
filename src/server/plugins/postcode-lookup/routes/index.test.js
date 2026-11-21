@@ -5,7 +5,7 @@ import {
   getSessionState
 } from '~/src/server/plugins/postcode-lookup/routes/index.js'
 
-jest.mock('~/src/server/plugins/engine/i18n/form.ts')
+jest.mock('~/src/server/plugins/engine/i18n/form.js')
 
 describe('postcode-lookup routes', () => {
   describe('getSessionState', () => {

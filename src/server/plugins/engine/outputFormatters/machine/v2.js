@@ -1,51 +1,38 @@
-import { type SubmitResponsePayload } from '@defra/forms-model'
-
 import { config } from '~/src/config/index.js'
 import {
   FileUploadField,
   PaymentField
 } from '~/src/server/plugins/engine/components/index.js'
-import { type checkFormStatus } from '~/src/server/plugins/engine/helpers.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
-import {
-  type DetailItem,
-  type DetailItemField,
-  type DetailItemRepeat
-} from '~/src/server/plugins/engine/models/types.js'
-import {
-  type FileUploadFieldDetailitem,
-  type FormAdapterFile,
-  type FormContext,
-  type RichFormValue
-} from '~/src/server/plugins/engine/types.js'
 
 /**
  * Payment data for the machine output format
- * Defined locally to avoid circular dependency with types.ts
+ * Defined locally to avoid circular dependency with types.js
+ * @typedef {{
+ *   paymentId: string
+ *   reference: string
+ *   amount: number
+ *   description: string
+ *   descriptionInEng?: string
+ *   createdAt: string
+ * }} PaymentOutput
  */
-interface PaymentOutput {
-  paymentId: string
-  reference: string
-  amount: number
-  description: string
-  descriptionInEng?: string
-  createdAt: string
-}
 
 const designerUrl = config.get('designerUrl')
 
-export function format(
-  context: FormContext,
-  items: DetailItem[],
-  model: FormModel,
-  _submitResponse: SubmitResponsePayload,
-  _formStatus: ReturnType<typeof checkFormStatus>
-) {
+/**
+ * @param {FormContext} context
+ * @param {DetailItem[]} items
+ * @param {FormModel} model
+ * @param {SubmitResponsePayload} _submitResponse
+ * @param {ReturnType<typeof checkFormStatus>} _formStatus
+ */
+export function format(context, items, model, _submitResponse, _formStatus) {
   const now = new Date()
 
   const categorisedData = categoriseData(items)
 
-  const meta: Record<string, unknown> = {
+  /** @type {Record<string, unknown>} */
+  const meta = {
     schemaVersion: '2',
     timestamp: now.toISOString(),
     definition: model.def,
@@ -99,17 +86,21 @@ export function format(
  *      }
  *    }
  * }
+ * @param {DetailItem[]} items
  */
-export function categoriseData(items: DetailItem[]) {
-  const output: {
-    main: Record<string, RichFormValue>
-    repeaters: Record<string, Record<string, RichFormValue>[]>
-    files: Record<
-      string,
-      { fileId: string; fileName: string; userDownloadLink: string }[]
-    >
-    payment?: PaymentOutput
-  } = { main: {}, repeaters: {}, files: {} }
+export function categoriseData(items) {
+  /**
+   * @type {{
+   *   main: Record<string, RichFormValue>
+   *   repeaters: Record<string, Record<string, RichFormValue>[]>
+   *   files: Record<
+   *     string,
+   *     { fileId: string; fileName: string; userDownloadLink: string }[]
+   *   >
+   *   payment?: PaymentOutput
+   * }}
+   */
+  const output = { main: {}, repeaters: {}, files: {} }
 
   items.forEach((item) => {
     const { name, state } = item
@@ -133,14 +124,16 @@ export function categoriseData(items: DetailItem[]) {
 
 /**
  * Returns the "repeaters" section of the response body
- * @param item - the repeater item
+ * @param {DetailItemRepeat} item - the repeater item
  * @returns the repeater item
  */
-function extractRepeaters(item: DetailItemRepeat) {
-  const repeaters: Record<string, RichFormValue>[] = []
+function extractRepeaters(item) {
+  /** @type {Record<string, RichFormValue>[]} */
+  const repeaters = []
 
   item.subItems.forEach((inputRepeaterItem) => {
-    const outputRepeaterItem: Record<string, RichFormValue> = {}
+    /** @type {Record<string, RichFormValue>} */
+    const outputRepeaterItem = {}
 
     inputRepeaterItem.forEach((repeaterComponent) => {
       const { field, state } = repeaterComponent
@@ -157,12 +150,10 @@ function extractRepeaters(item: DetailItemRepeat) {
 
 /**
  * Returns the "files" section of the response body
- * @param item - the file upload item in the form
- * @returns the file upload data
+ * @param {FileUploadFieldDetailitem} item - the file upload item in the form
+ * @returns {FormAdapterFile[]} the file upload data
  */
-function extractFileUploads(
-  item: FileUploadFieldDetailitem
-): FormAdapterFile[] {
+function extractFileUploads(item) {
   const fileUploadState = item.field.getFormValueFromState(item.state) ?? []
 
   return fileUploadState.map((fileState) => {
@@ -175,26 +166,30 @@ function extractFileUploads(
   })
 }
 
-function isFileUploadFieldItem(
-  item: DetailItemField
-): item is FileUploadFieldDetailitem {
+/**
+ * @param {DetailItemField} item
+ * @returns {item is FileUploadFieldDetailitem}
+ */
+function isFileUploadFieldItem(item) {
   return item.field instanceof FileUploadField
 }
 
-function isPaymentFieldItem(item: DetailItemField): item is DetailItemField & {
-  field: PaymentField
-} {
+/**
+ * @param {DetailItemField} item
+ * @returns {item is DetailItemField & {
+ *   field: PaymentField
+ * }}
+ */
+function isPaymentFieldItem(item) {
   return item.field instanceof PaymentField
 }
 
 /**
  * Returns the "payments" section of the response body
- * @param item - the payment item in the form
- * @returns the payment data
+ * @param {DetailItemField & { field: PaymentField }} item - the payment item in the form
+ * @returns {PaymentOutput | undefined} the payment data
  */
-function extractPayment(
-  item: DetailItemField & { field: PaymentField }
-): PaymentOutput | undefined {
+function extractPayment(item) {
   const paymentState = item.field.getPaymentStateFromState(item.state)
 
   if (!paymentState) {
@@ -210,3 +205,11 @@ function extractPayment(
     createdAt: paymentState.preAuth?.createdAt ?? ''
   }
 }
+
+/**
+ * @import { SubmitResponsePayload } from '@defra/forms-model'
+ * @import { checkFormStatus } from '~/src/server/plugins/engine/helpers.js'
+ * @import { FormModel } from '~/src/server/plugins/engine/models/index.js'
+ * @import { DetailItem, DetailItemField, DetailItemRepeat } from '~/src/server/plugins/engine/models/types.js'
+ * @import { FileUploadFieldDetailitem, FormAdapterFile, FormContext, RichFormValue } from '~/src/server/plugins/engine/types.js'
+ */
