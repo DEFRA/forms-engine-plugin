@@ -4,8 +4,10 @@ import { serverWithSaveAndExit } from '~/src/server/plugins/engine/pageControlle
 import definition from '~/test/form/definitions/basic.js'
 
 describe('StartPageController', () => {
-  let model: FormModel
-  let controller: StartPageController
+  /** @type {FormModel} */
+  let model
+  /** @type {StartPageController} */
+  let controller
 
   beforeEach(() => {
     model = new FormModel(definition, {
@@ -18,8 +20,7 @@ describe('StartPageController', () => {
       controller: 'start'
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    controller = new StartPageController(model, mockPage as any)
+    controller = new StartPageController(model, /** @type {any} */ (mockPage))
   })
 
   describe('shouldShowSaveAndExit', () => {

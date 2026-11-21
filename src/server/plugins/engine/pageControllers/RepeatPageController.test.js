@@ -1,4 +1,3 @@
-import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import {
@@ -10,32 +9,29 @@ import {
   serverWithSaveAndExit
 } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
-import {
-  type FormContextRequest,
-  type FormPageViewModel,
-  type FormSubmissionError,
-  type RepeatListState,
-  type RepeaterSummaryPageViewModel
-} from '~/src/server/plugins/engine/types.js'
-import {
-  type FormRequest,
-  type FormResponseToolkit
-} from '~/src/server/routes/types.js'
 import definition from '~/test/form/definitions/repeat.js'
 
 describe('RepeatPageController', () => {
   const itemId1 = 'abc-123'
   const itemId2 = 'xyz-987'
 
-  let pageUrl: URL
-  let pageItemUrl: URL
-  let pageSummaryUrl: URL
+  /** @type {URL} */
+  let pageUrl
+  /** @type {URL} */
+  let pageItemUrl
+  /** @type {URL} */
+  let pageSummaryUrl
 
-  let model: FormModel
-  let controller: RepeatPageController
-  let requestPage: FormContextRequest
-  let requestPageItem: FormContextRequest
-  let requestPageSummary: FormContextRequest
+  /** @type {FormModel} */
+  let model
+  /** @type {RepeatPageController} */
+  let controller
+  /** @type {FormContextRequest} */
+  let requestPage
+  /** @type {FormContextRequest} */
+  let requestPageItem
+  /** @type {FormContextRequest} */
+  let requestPageSummary
 
   beforeEach(() => {
     const { pages } = definition
@@ -139,7 +135,8 @@ describe('RepeatPageController', () => {
   })
 
   describe('Item view model', () => {
-    let viewModel: FormPageViewModel
+    /** @type {FormPageViewModel} */
+    let viewModel
 
     beforeEach(() => {
       viewModel = controller.getViewModel(
@@ -159,7 +156,7 @@ describe('RepeatPageController', () => {
   describe.each([
     {
       description: 'No items',
-      list: [] satisfies RepeatListState,
+      list: /** @satisfies {RepeatListState} */ ([]),
       viewModel: {
         pageTitle: 'You have added 0 answers',
         showTitle: true,
@@ -168,13 +165,13 @@ describe('RepeatPageController', () => {
     },
     {
       description: '1 item',
-      list: [
+      list: /** @satisfies {RepeatListState} */ ([
         {
           itemId: itemId1,
           toppings: 'Ham',
           quantity: 2
         }
-      ] satisfies RepeatListState,
+      ]),
       viewModel: {
         pageTitle: 'You have added 1 answer',
         showTitle: true,
@@ -183,7 +180,7 @@ describe('RepeatPageController', () => {
     },
     {
       description: '2 items',
-      list: [
+      list: /** @satisfies {RepeatListState} */ ([
         {
           itemId: itemId1,
           toppings: 'Ham',
@@ -194,7 +191,7 @@ describe('RepeatPageController', () => {
           toppings: 'Cheese',
           quantity: 1
         }
-      ] satisfies RepeatListState,
+      ]),
       viewModel: {
         pageTitle: 'You have added 2 answers',
         showTitle: true,
@@ -204,7 +201,8 @@ describe('RepeatPageController', () => {
   ])(
     'List summary view model ($description)',
     ({ list, viewModel: expected }) => {
-      let viewModel: RepeaterSummaryPageViewModel
+      /** @type {RepeaterSummaryPageViewModel} */
+      let viewModel
 
       beforeEach(() => {
         viewModel = controller.getListSummaryViewModel(
@@ -242,40 +240,42 @@ describe('RepeatPageController', () => {
     it('includes title text and errors', () => {
       const result = controller.collection.validate()
 
-      expect(result.errors).toEqual<FormSubmissionError[]>([
-        {
-          path: ['toppings'],
-          href: '#toppings',
-          name: 'toppings',
-          text: 'Select toppings',
-          context: {
-            key: 'toppings',
-            label: 'Toppings',
-            title: 'Toppings'
+      expect(result.errors).toEqual(
+        /** @satisfies {FormSubmissionError[]} */ ([
+          {
+            path: ['toppings'],
+            href: '#toppings',
+            name: 'toppings',
+            text: 'Select toppings',
+            context: {
+              key: 'toppings',
+              label: 'Toppings',
+              title: 'Toppings'
+            }
+          },
+          {
+            path: ['quantity'],
+            href: '#quantity',
+            name: 'quantity',
+            text: 'Enter quantity',
+            context: {
+              key: 'quantity',
+              label: 'Quantity',
+              title: 'Quantity'
+            }
+          },
+          {
+            path: ['itemId'],
+            href: '#itemId',
+            name: 'itemId',
+            text: 'Select itemId',
+            context: {
+              key: 'itemId',
+              label: 'itemId'
+            }
           }
-        },
-        {
-          path: ['quantity'],
-          href: '#quantity',
-          name: 'quantity',
-          text: 'Enter quantity',
-          context: {
-            key: 'quantity',
-            label: 'Quantity',
-            title: 'Quantity'
-          }
-        },
-        {
-          path: ['itemId'],
-          href: '#itemId',
-          name: 'itemId',
-          text: 'Select itemId',
-          context: {
-            key: 'itemId',
-            label: 'itemId'
-          }
-        }
-      ])
+        ])
+      )
     })
 
     it('includes all field errors', () => {
@@ -285,7 +285,8 @@ describe('RepeatPageController', () => {
   })
 
   describe('GET list summary route handler', () => {
-    const validList: RepeatListState = [
+    /** @type {RepeatListState} */
+    const validList = [
       {
         itemId: '00000000-0000-4000-8000-000000000001',
         toppings: 'Ham',
@@ -300,17 +301,19 @@ describe('RepeatPageController', () => {
 
     it('renders the summary when all list items are valid', () => {
       const request = buildFormRequest(
-        requestPageSummary as unknown as FormRequest
+        /** @type {FormRequest} */ (/** @type {unknown} */ (requestPageSummary))
       )
       const context = model.getFormContext(request, {
         pizza: validList,
         $$__referenceNumber: 'foobar'
       })
-      const h = {
-        redirect: jest.fn().mockReturnValue({ code: jest.fn() }),
-        view: jest.fn(),
-        continue: Symbol('continue')
-      } as unknown as FormResponseToolkit
+      const h = /** @type {FormResponseToolkit} */ (
+        /** @type {unknown} */ ({
+          redirect: jest.fn().mockReturnValue({ code: jest.fn() }),
+          view: jest.fn(),
+          continue: Symbol('continue')
+        })
+      )
 
       controller.makeGetListSummaryRouteHandler()(request, context, h)
 
@@ -325,13 +328,17 @@ describe('RepeatPageController', () => {
 
     it('redirects to the first invalid item while preserving return query parameters', () => {
       const invalidItemId = '00000000-0000-4000-8000-000000000002'
-      const request = buildFormRequest({
-        ...requestPageSummary,
-        query: {
-          returnUrl: '/test/summary',
-          force: 'true'
-        }
-      } as unknown as FormRequest)
+      const request = buildFormRequest(
+        /** @type {FormRequest} */ (
+          /** @type {unknown} */ ({
+            ...requestPageSummary,
+            query: {
+              returnUrl: '/test/summary',
+              force: 'true'
+            }
+          })
+        )
+      )
       const context = model.getFormContext(request, {
         pizza: [
           validList[0],
@@ -343,11 +350,13 @@ describe('RepeatPageController', () => {
         $$__referenceNumber: 'foobar'
       })
       const redirect = jest.fn()
-      const h = {
-        redirect: redirect.mockReturnValue({ code: jest.fn() }),
-        view: jest.fn(),
-        continue: Symbol('continue')
-      } as unknown as FormResponseToolkit
+      const h = /** @type {FormResponseToolkit} */ (
+        /** @type {unknown} */ ({
+          redirect: redirect.mockReturnValue({ code: jest.fn() }),
+          view: jest.fn(),
+          continue: Symbol('continue')
+        })
+      )
 
       controller.makeGetListSummaryRouteHandler()(request, context, h)
 
@@ -372,8 +381,9 @@ describe('RepeatPageController', () => {
 
   describe('getViewModel with Translator', () => {
     it('passes translator through to super.getViewModel without throwing', () => {
-      const mockT = jest.fn((key: string) => `translated:${key}`)
-      const translator: Translator = {
+      const mockT = jest.fn((/** @type {string} */ key) => `translated:${key}`)
+      /** @type {Translator} */
+      const translator = {
         t: mockT,
         tPage: jest.fn(() => ''),
         tComponent: jest.fn(() => ''),
@@ -398,13 +408,14 @@ describe('RepeatPageController', () => {
     })
 
     it('uses translator.tPage for page title when translator is supplied', () => {
-      const mockT = jest.fn((key: string) => `translated:${key}`)
+      const mockT = jest.fn((/** @type {string} */ key) => `translated:${key}`)
       const mockTPage = jest.fn(() => 'translated-title')
       const mockTComponent = jest.fn(() => 'translated-title2')
-      const translator: Translator = {
+      /** @type {Translator} */
+      const translator = {
         t: mockT,
-        tPage: mockTPage as Translator['tPage'],
-        tComponent: mockTComponent as Translator['tComponent'],
+        tPage: /** @type {Translator['tPage']} */ (mockTPage),
+        tComponent: /** @type {Translator['tComponent']} */ (mockTComponent),
         tSection: jest.fn(() => ''),
         tListItem: jest.fn(() => ''),
         tForm: jest.fn(() => ''),
@@ -428,13 +439,13 @@ describe('RepeatPageController', () => {
   })
 
   describe('getListSummaryViewModel with Translator', () => {
-    const list: RepeatListState = [
-      { itemId: 'abc-123', toppings: 'Ham', quantity: 2 }
-    ]
+    /** @type {RepeatListState} */
+    const list = [{ itemId: 'abc-123', toppings: 'Ham', quantity: 2 }]
 
     it('calls the supplied translator t for plugin strings', () => {
-      const mockT = jest.fn((key: string) => `translated:${key}`)
-      const translator: Translator = {
+      const mockT = jest.fn((/** @type {string} */ key) => `translated:${key}`)
+      /** @type {Translator} */
+      const translator = {
         t: mockT,
         tPage: jest.fn(() => ''),
         tComponent: jest.fn(() => ''),
@@ -478,3 +489,9 @@ describe('RepeatPageController', () => {
     })
   })
 })
+
+/**
+ * @import { Translator } from '~/src/server/plugins/engine/i18n/types.js'
+ * @import { FormContextRequest, FormPageViewModel, FormSubmissionError, RepeatListState, RepeaterSummaryPageViewModel } from '~/src/server/plugins/engine/types.js'
+ * @import { FormRequest, FormResponseToolkit } from '~/src/server/routes/types.js'
+ */

@@ -2,17 +2,13 @@ import {
   ComponentType,
   ControllerType,
   ControllerTypes,
-  PageTypes,
-  type Page
+  PageTypes
 } from '@defra/forms-model'
 
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { getProxyUrlForLocalDevelopment } from '~/src/server/plugins/engine/pageControllers/helpers/index.js'
-import {
-  createPage,
-  type PageControllerType
-} from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
+import { createPage } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import {
   FileUploadPageController,
   QuestionPageController,
@@ -31,7 +27,8 @@ describe('Page controller helpers', () => {
   ).map((pageType) => {
     const pageDef = structuredClone(pageType)
 
-    let controller: PageControllerType | undefined
+    /** @type {PageControllerType | undefined} */
+    let controller
 
     switch (pageDef.controller) {
       case ControllerType.Start:
@@ -108,9 +105,14 @@ describe('Page controller helpers', () => {
     describe('Helper: createPage (custom controllers)', () => {
       it('uses custom controllers from model.controllers', () => {
         class CustomPageController extends PageController {
-          customProperty: string
+          /** @type {string} */
+          customProperty
 
-          constructor(model: FormModel, pageDef: Page) {
+          /**
+           * @param {FormModel} model
+           * @param {Page} pageDef
+           */
+          constructor(model, pageDef) {
             super(model, pageDef)
             this.customProperty = 'some-value'
           }
@@ -127,12 +129,15 @@ describe('Page controller helpers', () => {
           basePath: 'test'
         })
 
-        type ControllerMap = Record<string, typeof PageController>
-        testModel.controllers = {
+        /** @typedef {Record<string, typeof PageController>} ControllerMap */
+        testModel.controllers = /** @type {ControllerMap} */ ({
           CustomController: CustomPageController
-        } as ControllerMap
+        })
 
-        const controller = createPage(testModel, customPageDef as Page)
+        const controller = createPage(
+          testModel,
+          /** @type {Page} */ (customPageDef)
+        )
 
         expect(controller).toBeInstanceOf(CustomPageController)
         expect(controller).toHaveProperty('customProperty', 'some-value')
@@ -140,7 +145,8 @@ describe('Page controller helpers', () => {
     })
 
     it('throws if page controller is unknown', () => {
-      const pageDef: Page = {
+      /** @type {Page} */
+      const pageDef = {
         title: 'Unknown page',
         path: '/unknown-page',
         // @ts-expect-error - Allow invalid property for test
@@ -180,3 +186,8 @@ describe('Page controller helpers', () => {
     })
   })
 })
+
+/**
+ * @import { Page } from '@defra/forms-model'
+ * @import { PageControllerType } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
+ */

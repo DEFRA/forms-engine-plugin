@@ -10,7 +10,8 @@ import {
 import definition from '~/test/form/definitions/file-upload-basic.js'
 
 describe('InvalidComponentStateError', () => {
-  let model: FormModel
+  /** @type {FormModel} */
+  let model
 
   beforeEach(() => {
     model = new FormModel(definition, {

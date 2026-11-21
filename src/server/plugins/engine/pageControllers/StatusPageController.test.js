@@ -4,8 +4,10 @@ import { serverWithSaveAndExit } from '~/src/server/plugins/engine/pageControlle
 import definition from '~/test/form/definitions/basic.js'
 
 describe('StatusPageController', () => {
-  let model: FormModel
-  let controller: StatusPageController
+  /** @type {FormModel} */
+  let model
+  /** @type {StatusPageController} */
+  let controller
 
   beforeEach(() => {
     model = new FormModel(definition, {
@@ -18,8 +20,7 @@ describe('StatusPageController', () => {
       controller: 'status'
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    controller = new StatusPageController(model, mockPage as any)
+    controller = new StatusPageController(model, /** @type {any} */ (mockPage))
   })
 
   describe('shouldShowSaveAndExit', () => {

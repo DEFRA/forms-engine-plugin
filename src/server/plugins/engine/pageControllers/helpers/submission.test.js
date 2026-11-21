@@ -5,7 +5,6 @@ import { PaymentField } from '~/src/server/plugins/engine/components/PaymentFiel
 import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
 import { validSingleState } from '~/src/server/plugins/engine/components/helpers/__stubs__/geospatial.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
-import { type DetailItemField } from '~/src/server/plugins/engine/models/types.js'
 import {
   buildConditionEvaluations,
   buildMainRecords,
@@ -13,11 +12,6 @@ import {
   buildRepeaterRecords,
   isAnswered
 } from '~/src/server/plugins/engine/pageControllers/helpers/submission.js'
-import {
-  type FormContext,
-  type FormState,
-  type FormSubmissionState
-} from '~/src/server/plugins/engine/types.js'
 import { definition } from '~/test/fixtures/form.js'
 import joinedConditionsDefinition from '~/test/form/definitions/joined-conditions-simple-v2.js'
 
@@ -28,19 +22,21 @@ const translator = new FormModel(definition, {
 describe('Submission helpers', () => {
   describe('buildPaymentRecords', () => {
     it('should return empty array when no payment state exists', () => {
-      const mockPaymentField = Object.create(
-        PaymentField.prototype
-      ) as PaymentField
+      const mockPaymentField = /** @type {PaymentField} */ (
+        Object.create(PaymentField.prototype)
+      )
       mockPaymentField.getPaymentStateFromState = jest
         .fn()
         .mockReturnValue(undefined)
 
-      const item = {
-        name: 'payment',
-        label: 'Payment',
-        field: mockPaymentField,
-        state: {} as FormSubmissionState
-      } as unknown as DetailItemField
+      const item = /** @type {DetailItemField} */ (
+        /** @type {unknown} */ ({
+          name: 'payment',
+          label: 'Payment',
+          field: mockPaymentField,
+          state: /** @type {FormSubmissionState} */ ({})
+        })
+      )
 
       const result = buildPaymentRecords(item, translator)
 
@@ -62,19 +58,21 @@ describe('Submission helpers', () => {
         }
       }
 
-      const mockPaymentField = Object.create(
-        PaymentField.prototype
-      ) as PaymentField
+      const mockPaymentField = /** @type {PaymentField} */ (
+        Object.create(PaymentField.prototype)
+      )
       mockPaymentField.getPaymentStateFromState = jest
         .fn()
         .mockReturnValue(mockPaymentState)
 
-      const item = {
-        name: 'payment',
-        label: 'Payment',
-        field: mockPaymentField,
-        state: {} as FormSubmissionState
-      } as unknown as DetailItemField
+      const item = /** @type {DetailItemField} */ (
+        /** @type {unknown} */ ({
+          name: 'payment',
+          label: 'Payment',
+          field: mockPaymentField,
+          state: /** @type {FormSubmissionState} */ ({})
+        })
+      )
 
       const result = buildPaymentRecords(item, translator)
 
@@ -112,19 +110,21 @@ describe('Submission helpers', () => {
         }
       }
 
-      const mockPaymentField = Object.create(
-        PaymentField.prototype
-      ) as PaymentField
+      const mockPaymentField = /** @type {PaymentField} */ (
+        Object.create(PaymentField.prototype)
+      )
       mockPaymentField.getPaymentStateFromState = jest
         .fn()
         .mockReturnValue(mockPaymentState)
 
-      const item = {
-        name: 'payment',
-        label: 'Payment',
-        field: mockPaymentField,
-        state: {} as FormSubmissionState
-      } as unknown as DetailItemField
+      const item = /** @type {DetailItemField} */ (
+        /** @type {unknown} */ ({
+          name: 'payment',
+          label: 'Payment',
+          field: mockPaymentField,
+          state: /** @type {FormSubmissionState} */ ({})
+        })
+      )
 
       const result = buildPaymentRecords(item, translator)
 
@@ -143,7 +143,9 @@ describe('Submission helpers', () => {
     })
 
     it('should process regular fields correctly', () => {
-      const mockTextField = Object.create(TextField.prototype) as TextField
+      const mockTextField = /** @type {TextField} */ (
+        Object.create(TextField.prototype)
+      )
       mockTextField.getDisplayStringFromState = jest
         .fn()
         .mockReturnValue('John Doe')
@@ -151,14 +153,16 @@ describe('Submission helpers', () => {
         .fn()
         .mockReturnValue('John Doe')
 
-      const items = [
-        {
-          name: 'fullName',
-          label: 'Full name',
-          field: mockTextField,
-          state: { fullName: 'John Doe' } as FormSubmissionState
-        }
-      ] as unknown as DetailItemField[]
+      const items = /** @type {DetailItemField[]} */ (
+        /** @type {unknown} */ ([
+          {
+            name: 'fullName',
+            label: 'Full name',
+            field: mockTextField,
+            state: /** @type {FormSubmissionState} */ ({ fullName: 'John Doe' })
+          }
+        ])
+      )
 
       const result = buildMainRecords(items, translator)
 
@@ -182,21 +186,23 @@ describe('Submission helpers', () => {
         }
       }
 
-      const mockPaymentField = Object.create(
-        PaymentField.prototype
-      ) as PaymentField
+      const mockPaymentField = /** @type {PaymentField} */ (
+        Object.create(PaymentField.prototype)
+      )
       mockPaymentField.getPaymentStateFromState = jest
         .fn()
         .mockReturnValue(mockPaymentState)
 
-      const items = [
-        {
-          name: 'licencePayment',
-          label: 'Licence Payment',
-          field: mockPaymentField,
-          state: {} as FormSubmissionState
-        }
-      ] as unknown as DetailItemField[]
+      const items = /** @type {DetailItemField[]} */ (
+        /** @type {unknown} */ ([
+          {
+            name: 'licencePayment',
+            label: 'Licence Payment',
+            field: mockPaymentField,
+            state: /** @type {FormSubmissionState} */ ({})
+          }
+        ])
+      )
 
       const result = buildMainRecords(items, translator)
 
@@ -210,7 +216,9 @@ describe('Submission helpers', () => {
     })
 
     it('should handle mixed regular and payment fields', () => {
-      const mockTextField = Object.create(TextField.prototype) as TextField
+      const mockTextField = /** @type {TextField} */ (
+        Object.create(TextField.prototype)
+      )
       mockTextField.getDisplayStringFromState = jest
         .fn()
         .mockReturnValue('test@example.com')
@@ -226,27 +234,31 @@ describe('Submission helpers', () => {
         preAuth: { status: 'success', createdAt: '2026-01-26T12:00:00.000Z' }
       }
 
-      const mockPaymentField = Object.create(
-        PaymentField.prototype
-      ) as PaymentField
+      const mockPaymentField = /** @type {PaymentField} */ (
+        Object.create(PaymentField.prototype)
+      )
       mockPaymentField.getPaymentStateFromState = jest
         .fn()
         .mockReturnValue(mockPaymentState)
 
-      const items = [
-        {
-          name: 'email',
-          label: 'Email address',
-          field: mockTextField,
-          state: { email: 'test@example.com' } as FormSubmissionState
-        },
-        {
-          name: 'payment',
-          label: 'Payment',
-          field: mockPaymentField,
-          state: {} as FormSubmissionState
-        }
-      ] as unknown as DetailItemField[]
+      const items = /** @type {DetailItemField[]} */ (
+        /** @type {unknown} */ ([
+          {
+            name: 'email',
+            label: 'Email address',
+            field: mockTextField,
+            state: /** @type {FormSubmissionState} */ ({
+              email: 'test@example.com'
+            })
+          },
+          {
+            name: 'payment',
+            label: 'Payment',
+            field: mockPaymentField,
+            state: /** @type {FormSubmissionState} */ ({})
+          }
+        ])
+      )
 
       const result = buildMainRecords(items, translator)
 
@@ -264,7 +276,9 @@ describe('Submission helpers', () => {
       }
 
       const result = buildMainRecords(
-        [repeaterItem as unknown as DetailItemField],
+        [
+          /** @type {DetailItemField} */ (/** @type {unknown} */ (repeaterItem))
+        ],
         translator
       )
 
@@ -272,21 +286,23 @@ describe('Submission helpers', () => {
     })
 
     it('should JSON stringify GeospatialField', () => {
-      const mockGeospatialField = Object.create(
-        GeospatialField.prototype
-      ) as GeospatialField
+      const mockGeospatialField = /** @type {GeospatialField} */ (
+        Object.create(GeospatialField.prototype)
+      )
       mockGeospatialField.name = 'geospatial'
 
-      const items = [
-        {
-          name: 'geospatial',
-          label: 'Site features',
-          field: mockGeospatialField,
-          state: {
-            geospatial: validSingleState
-          } as FormSubmissionState
-        }
-      ] as unknown as DetailItemField[]
+      const items = /** @type {DetailItemField[]} */ (
+        /** @type {unknown} */ ([
+          {
+            name: 'geospatial',
+            label: 'Site features',
+            field: mockGeospatialField,
+            state: /** @type {FormSubmissionState} */ ({
+              geospatial: validSingleState
+            })
+          }
+        ])
+      )
 
       const result = buildMainRecords(items, translator)
 
@@ -302,22 +318,24 @@ describe('Submission helpers', () => {
     })
 
     it('should send empty string for optional GeospatialField', () => {
-      const mockGeospatialField = Object.create(
-        GeospatialField.prototype
-      ) as GeospatialField
+      const mockGeospatialField = /** @type {GeospatialField} */ (
+        Object.create(GeospatialField.prototype)
+      )
       mockGeospatialField.name = 'geospatial'
       mockGeospatialField.options = { required: false }
 
-      const items = [
-        {
-          name: 'geospatial',
-          label: 'Site features',
-          field: mockGeospatialField,
-          state: {
-            geospatial: undefined
-          } as FormSubmissionState
-        }
-      ] as unknown as DetailItemField[]
+      const items = /** @type {DetailItemField[]} */ (
+        /** @type {unknown} */ ([
+          {
+            name: 'geospatial',
+            label: 'Site features',
+            field: mockGeospatialField,
+            state: /** @type {FormSubmissionState} */ ({
+              geospatial: undefined
+            })
+          }
+        ])
+      )
 
       const result = buildMainRecords(items, translator)
 
@@ -334,19 +352,21 @@ describe('Submission helpers', () => {
 
   describe('buildRepeaterRecords', () => {
     it('should return empty array when no repeater items', () => {
-      const mockField = Object.create(TextField.prototype) as TextField
+      const mockField = /** @type {TextField} */ (
+        Object.create(TextField.prototype)
+      )
 
       const items = [
         {
           name: 'textField',
           label: 'Text',
           field: mockField,
-          state: {} as FormSubmissionState
+          state: /** @type {FormSubmissionState} */ ({})
         }
       ]
 
       const result = buildRepeaterRecords(
-        items as unknown as DetailItemField[],
+        /** @type {DetailItemField[]} */ (/** @type {unknown} */ (items)),
         translator
       )
 
@@ -354,7 +374,9 @@ describe('Submission helpers', () => {
     })
 
     it('should process repeater items correctly', () => {
-      const mockSubField = Object.create(TextField.prototype) as TextField
+      const mockSubField = /** @type {TextField} */ (
+        Object.create(TextField.prototype)
+      )
       mockSubField.getDisplayStringFromState = jest
         .fn()
         .mockReturnValue('123 Main St')
@@ -372,7 +394,9 @@ describe('Submission helpers', () => {
                 name: 'street',
                 label: 'Street',
                 field: mockSubField,
-                state: { street: '123 Main St' } as FormSubmissionState
+                state: /** @type {FormSubmissionState} */ ({
+                  street: '123 Main St'
+                })
               }
             ]
           ]
@@ -380,7 +404,7 @@ describe('Submission helpers', () => {
       ]
 
       const result = buildRepeaterRecords(
-        items as unknown as DetailItemField[],
+        /** @type {DetailItemField[]} */ (/** @type {unknown} */ (items)),
         translator
       )
 
@@ -391,29 +415,33 @@ describe('Submission helpers', () => {
     })
 
     it('should JSON stringify GeospatialField', () => {
-      const mockGeospatialField = Object.create(
-        GeospatialField.prototype
-      ) as GeospatialField
+      const mockGeospatialField = /** @type {GeospatialField} */ (
+        Object.create(GeospatialField.prototype)
+      )
       mockGeospatialField.name = 'geospatial'
 
-      const items = [
-        {
-          name: 'features',
-          label: 'Site features repeater',
-          subItems: [
-            [
-              {
-                name: 'geospatial',
-                label: 'Site features',
-                field: mockGeospatialField,
-                state: {
-                  geospatial: validSingleState
-                } as FormSubmissionState
-              } as unknown as DetailItemField[]
+      const items = /** @type {DetailItemField[]} */ (
+        /** @type {unknown} */ ([
+          {
+            name: 'features',
+            label: 'Site features repeater',
+            subItems: [
+              [
+                /** @type {DetailItemField[]} */ (
+                  /** @type {unknown} */ ({
+                    name: 'geospatial',
+                    label: 'Site features',
+                    field: mockGeospatialField,
+                    state: /** @type {FormSubmissionState} */ ({
+                      geospatial: validSingleState
+                    })
+                  })
+                )
+              ]
             ]
-          ]
-        }
-      ] as unknown as DetailItemField[]
+          }
+        ])
+      )
 
       const result = buildRepeaterRecords(items, translator)
 
@@ -437,30 +465,34 @@ describe('Submission helpers', () => {
     })
 
     it('should send empty string for optional GeospatialField', () => {
-      const mockGeospatialField = Object.create(
-        GeospatialField.prototype
-      ) as GeospatialField
+      const mockGeospatialField = /** @type {GeospatialField} */ (
+        Object.create(GeospatialField.prototype)
+      )
       mockGeospatialField.name = 'geospatial'
       mockGeospatialField.options = { required: false }
 
-      const items = [
-        {
-          name: 'features',
-          label: 'Site features repeater',
-          subItems: [
-            [
-              {
-                name: 'geospatial',
-                label: 'Site features',
-                field: mockGeospatialField,
-                state: {
-                  geospatial: undefined
-                } as FormSubmissionState
-              } as unknown as DetailItemField[]
+      const items = /** @type {DetailItemField[]} */ (
+        /** @type {unknown} */ ([
+          {
+            name: 'features',
+            label: 'Site features repeater',
+            subItems: [
+              [
+                /** @type {DetailItemField[]} */ (
+                  /** @type {unknown} */ ({
+                    name: 'geospatial',
+                    label: 'Site features',
+                    field: mockGeospatialField,
+                    state: /** @type {FormSubmissionState} */ ({
+                      geospatial: undefined
+                    })
+                  })
+                )
+              ]
             ]
-          ]
-        }
-      ] as unknown as DetailItemField[]
+          }
+        ])
+      )
 
       const result = buildRepeaterRecords(items, translator)
 
@@ -498,8 +530,11 @@ describe('buildConditionEvaluations', () => {
    * unanswered form reaches submission with keys present but empty
    * @param {FormState} evaluationState
    */
-  const build = (evaluationState: FormState) =>
-    buildConditionEvaluations(model, { evaluationState } as FormContext)
+  const build = (evaluationState) =>
+    buildConditionEvaluations(
+      model,
+      /** @type {FormContext} */ ({ evaluationState })
+    )
 
   it('should ignore condition if condition not found', () => {
     const badModel = new FormModel(joinedConditionsDefinition, {
@@ -507,8 +542,14 @@ describe('buildConditionEvaluations', () => {
     })
     // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
     delete badModel.conditions[isBobConditionId]
-    const badBuild = (evaluationState: FormState) =>
-      buildConditionEvaluations(badModel, { evaluationState } as FormContext)
+    /**
+     * @param {FormState} evaluationState
+     */
+    const badBuild = (evaluationState) =>
+      buildConditionEvaluations(
+        badModel,
+        /** @type {FormContext} */ ({ evaluationState })
+      )
 
     const evaluations = badBuild({ userName: null, isOverEighteen: null })
 
@@ -645,7 +686,10 @@ describe('buildConditionEvaluations', () => {
     const v1Model = new FormModel(definition, { basePath: '/' })
 
     expect(
-      buildConditionEvaluations(v1Model, { evaluationState: {} } as FormContext)
+      buildConditionEvaluations(
+        v1Model,
+        /** @type {FormContext} */ ({ evaluationState: {} })
+      )
     ).toEqual([])
   })
 
@@ -654,3 +698,8 @@ describe('buildConditionEvaluations', () => {
     expect(isAnswered(['abc'])).toBe(true)
   })
 })
+
+/**
+ * @import { DetailItemField } from '~/src/server/plugins/engine/models/types.js'
+ * @import { FormContext, FormState, FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+ */

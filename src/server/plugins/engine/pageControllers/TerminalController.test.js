@@ -4,8 +4,10 @@ import { serverWithSaveAndExit } from '~/src/server/plugins/engine/pageControlle
 import definition from '~/test/form/definitions/basic.js'
 
 describe('TerminalController', () => {
-  let model: FormModel
-  let controller1: TerminalPageController
+  /** @type {FormModel} */
+  let model
+  /** @type {TerminalPageController} */
+  let controller1
 
   beforeEach(() => {
     const { pages } = definition

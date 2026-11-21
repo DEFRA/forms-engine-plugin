@@ -1,61 +1,64 @@
-import { ComponentType, ControllerType, type Page } from '@defra/forms-model'
+import { ComponentType, ControllerType } from '@defra/forms-model'
 
-import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import {
   checkSaveAndExitRepeater,
   copyNotYetValidatedState,
   prefillStateFromQueryParameters,
   stripParam
 } from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
-import {
-  type AnyFormRequest,
-  type FormContext
-} from '~/src/server/plugins/engine/types.js'
-import { type FormsService, type Services } from '~/src/server/types.js'
 
 const mockGetCacheService = jest.fn()
 const mockCacheService = { setState: jest.fn() }
 
 jest.mock('~/src/server/plugins/engine/helpers.ts', () => ({
   __esModule: true,
-  getCacheService: (...args: unknown[]) =>
-    mockGetCacheService(...args) as unknown
+  /**
+   * @param {...unknown} args
+   */
+  getCacheService: (...args) =>
+    /** @type {unknown} */ (mockGetCacheService(...args))
 }))
 
 function buildMockPage(
   pagesOverride = {},
   stateOverride = {},
-  servicesOverride = {} as Services
+  servicesOverride = /** @type {Services} */ ({})
 ) {
-  return {
-    model: {
-      def: {
-        metadata: {
-          submission: { code: 'TEST-CODE' }
-        } as { submission: { code: string } },
-        pages: pagesOverride
-      },
-      getFormContext: jest.fn().mockReturnValue({
-        isForceAccess: false,
-        data: {}
-      }),
-      services: servicesOverride
-    } as unknown as FormModel,
-    ...stateOverride
-  } as unknown as PageControllerClass
+  return /** @type {PageControllerClass} */ (
+    /** @type {unknown} */ ({
+      model: /** @type {FormModel} */ (
+        /** @type {unknown} */ ({
+          def: {
+            metadata: /** @type {{ submission: { code: string } }} */ ({
+              submission: { code: 'TEST-CODE' }
+            }),
+            pages: pagesOverride
+          },
+          getFormContext: jest.fn().mockReturnValue({
+            isForceAccess: false,
+            data: {}
+          }),
+          services: servicesOverride
+        })
+      ),
+      ...stateOverride
+    })
+  )
 }
 
 describe('State helpers', () => {
   describe('prefillStateFromQueryParameters', () => {
     const mockGetState = jest.fn()
     const mockMergeState = jest.fn()
-    const mockRequestPrefill: AnyFormRequest = {
-      app: {},
-      yar: { flash: () => [] },
-      params: { path: 'test-path' },
-      query: {}
-    } as unknown as AnyFormRequest
+    /** @type {AnyFormRequest} */
+    const mockRequestPrefill = /** @type {AnyFormRequest} */ (
+      /** @type {unknown} */ ({
+        app: {},
+        yar: { flash: () => [] },
+        params: { path: 'test-path' },
+        query: {}
+      })
+    )
 
     it('should not add any state if no params', async () => {
       const mockPagePrefill = buildMockPage([], {
@@ -73,26 +76,30 @@ describe('State helpers', () => {
     })
 
     it('should ignore if no params (but some hidden fields)', async () => {
-      const mockRequest2 = {
-        ...mockRequestPrefill,
-        query: {}
-      } as unknown as AnyFormRequest
+      const mockRequest2 = /** @type {AnyFormRequest} */ (
+        /** @type {unknown} */ ({
+          ...mockRequestPrefill,
+          query: {}
+        })
+      )
 
       const mockPagePrefill = buildMockPage(
         [
-          {
-            components: [
-              {
-                type: ComponentType.HiddenField,
-                name: 'param2'
-              },
-              {
-                type: ComponentType.HiddenField,
-                name: 'param4'
-              }
-            ],
-            next: []
-          } as unknown as Page
+          /** @type {Page} */ (
+            /** @type {unknown} */ ({
+              components: [
+                {
+                  type: ComponentType.HiddenField,
+                  name: 'param2'
+                },
+                {
+                  type: ComponentType.HiddenField,
+                  name: 'param4'
+                }
+              ],
+              next: []
+            })
+          )
         ],
         {
           getState: mockGetState,
@@ -107,31 +114,35 @@ describe('State helpers', () => {
     })
 
     it('should only add state where param names match hidden field names', async () => {
-      const mockRequest2 = {
-        ...mockRequestPrefill,
-        query: {
-          param1: 'val1',
-          param2: 'val2',
-          param3: 'val3',
-          param4: 'val4'
-        }
-      } as unknown as AnyFormRequest
+      const mockRequest2 = /** @type {AnyFormRequest} */ (
+        /** @type {unknown} */ ({
+          ...mockRequestPrefill,
+          query: {
+            param1: 'val1',
+            param2: 'val2',
+            param3: 'val3',
+            param4: 'val4'
+          }
+        })
+      )
 
       const mockPagePrefill = buildMockPage(
         [
-          {
-            components: [
-              {
-                type: ComponentType.HiddenField,
-                name: 'param2'
-              },
-              {
-                type: ComponentType.HiddenField,
-                name: 'param4'
-              }
-            ],
-            next: []
-          } as unknown as Page
+          /** @type {Page} */ (
+            /** @type {unknown} */ ({
+              components: [
+                {
+                  type: ComponentType.HiddenField,
+                  name: 'param2'
+                },
+                {
+                  type: ComponentType.HiddenField,
+                  name: 'param4'
+                }
+              ],
+              next: []
+            })
+          )
         ],
         {
           getState: mockGetState.mockResolvedValue({}),
@@ -153,38 +164,44 @@ describe('State helpers', () => {
     })
 
     it('should call lookup function for formId', async () => {
-      const mockRequest3 = {
-        ...mockRequestPrefill,
-        query: {
-          formId: 'c644804b-2f23-4c96-a2fc-ad4975974723'
-        }
-      } as unknown as AnyFormRequest
+      const mockRequest3 = /** @type {AnyFormRequest} */ (
+        /** @type {unknown} */ ({
+          ...mockRequestPrefill,
+          query: {
+            formId: 'c644804b-2f23-4c96-a2fc-ad4975974723'
+          }
+        })
+      )
 
       const mockPagePrefill = buildMockPage(
         [
-          {
-            components: [
-              {
-                type: ComponentType.HiddenField,
-                name: 'formId'
-              }
-            ],
-            next: []
-          } as unknown as Page
+          /** @type {Page} */ (
+            /** @type {unknown} */ ({
+              components: [
+                {
+                  type: ComponentType.HiddenField,
+                  name: 'formId'
+                }
+              ],
+              next: []
+            })
+          )
         ],
         {
           getState: mockGetState.mockResolvedValue({}),
           mergeState: mockMergeState
         },
-        {
-          formsService: {
-            getFormMetadata: jest.fn(),
-            getFormMetadataById: jest
-              .fn()
-              .mockResolvedValue({ title: 'My looked-up form name' }),
-            getFormDefinition: jest.fn()
-          } as unknown as FormsService
-        } as Services
+        /** @type {Services} */ ({
+          formsService: /** @type {FormsService} */ (
+            /** @type {unknown} */ ({
+              getFormMetadata: jest.fn(),
+              getFormMetadataById: jest
+                .fn()
+                .mockResolvedValue({ title: 'My looked-up form name' }),
+              getFormDefinition: jest.fn()
+            })
+          )
+        })
       )
 
       await prefillStateFromQueryParameters(mockRequest3, mockPagePrefill)
@@ -228,6 +245,7 @@ describe('State helpers', () => {
     })
 
     it('should handle no params', () => {
+      /** @type {FormQuery} */
       const params = {}
       expect(stripParam(params, 'anyParam')).toBeUndefined()
     })
@@ -238,32 +256,38 @@ describe('State helpers', () => {
       mockGetCacheService.mockReturnValue(mockCacheService)
     })
     it('should ignore if no invalid state', async () => {
-      const mockRequest = {} as AnyFormRequest
-      const mockContext = {
-        state: { abc: '123' },
-        payload: {}
-      } as unknown as FormContext
+      const mockRequest = /** @type {AnyFormRequest} */ ({})
+      const mockContext = /** @type {FormContext} */ (
+        /** @type {unknown} */ ({
+          state: { abc: '123' },
+          payload: {}
+        })
+      )
       await copyNotYetValidatedState(mockRequest, mockContext)
       expect(mockContext.state).toEqual({ abc: '123' })
       expect(mockContext.payload).toEqual({})
     })
 
     it('should ignore if wrong path', async () => {
-      const mockRequest = {
-        url: {
-          pathname: '/form-page1'
-        }
-      } as unknown as AnyFormRequest
-      const mockContext = {
-        state: {
-          abc: '123',
-          __stateNotYetValidated: {
-            def: '456',
-            __currentPagePath: '/root'
+      const mockRequest = /** @type {AnyFormRequest} */ (
+        /** @type {unknown} */ ({
+          url: {
+            pathname: '/form-page1'
           }
-        },
-        payload: {}
-      } as unknown as FormContext
+        })
+      )
+      const mockContext = /** @type {FormContext} */ (
+        /** @type {unknown} */ ({
+          state: {
+            abc: '123',
+            __stateNotYetValidated: {
+              def: '456',
+              __currentPagePath: '/root'
+            }
+          },
+          payload: {}
+        })
+      )
       await copyNotYetValidatedState(mockRequest, mockContext)
       expect(mockContext.state).toEqual({
         abc: '123',
@@ -276,21 +300,25 @@ describe('State helpers', () => {
     })
 
     it('should apply if correct path', async () => {
-      const mockRequest = {
-        url: {
-          pathname: '/form-page1'
-        }
-      } as unknown as AnyFormRequest
-      const mockContext = {
-        state: {
-          abc: '123',
-          __stateNotYetValidated: {
-            def: '456',
-            __currentPagePath: '/form-page1'
+      const mockRequest = /** @type {AnyFormRequest} */ (
+        /** @type {unknown} */ ({
+          url: {
+            pathname: '/form-page1'
           }
-        },
-        payload: {}
-      } as unknown as FormContext
+        })
+      )
+      const mockContext = /** @type {FormContext} */ (
+        /** @type {unknown} */ ({
+          state: {
+            abc: '123',
+            __stateNotYetValidated: {
+              def: '456',
+              __currentPagePath: '/form-page1'
+            }
+          },
+          payload: {}
+        })
+      )
       await copyNotYetValidatedState(mockRequest, mockContext)
       expect(mockContext.state).toEqual({
         abc: '123',
@@ -303,30 +331,37 @@ describe('State helpers', () => {
   })
 
   describe('checkSaveAndExitRepeater', () => {
-    function createMockContextWithPath(path: string) {
-      return {
-        state: {
-          abc: '123',
-          __stateNotYetValidated: {
-            def: '456',
-            __currentPagePath: path
-          }
-        },
-        payload: {}
-      } as unknown as FormContext
+    /**
+     * @param {string} path
+     */
+    function createMockContextWithPath(path) {
+      return /** @type {FormContext} */ (
+        /** @type {unknown} */ ({
+          state: {
+            abc: '123',
+            __stateNotYetValidated: {
+              def: '456',
+              __currentPagePath: path
+            }
+          },
+          payload: {}
+        })
+      )
     }
 
-    const mockModel = {
-      def: {
-        pages: [
-          {
-            controller: ControllerType.Repeat,
-            path: '/personal_details'
-          }
-        ]
-      },
-      basePath: 'form/preview/draft/repeater-test'
-    } as unknown as FormModel
+    const mockModel = /** @type {FormModel} */ (
+      /** @type {unknown} */ ({
+        def: {
+          pages: [
+            {
+              controller: ControllerType.Repeat,
+              path: '/personal_details'
+            }
+          ]
+        },
+        basePath: 'form/preview/draft/repeater-test'
+      })
+    )
 
     it('should return undefined if url does not end in a guid', () => {
       const mockContext = createMockContextWithPath(
@@ -358,3 +393,12 @@ describe('State helpers', () => {
     })
   })
 })
+
+/**
+ * @import { Page } from '@defra/forms-model'
+ * @import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+ * @import { PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
+ * @import { AnyFormRequest, FormContext } from '~/src/server/plugins/engine/types.js'
+ * @import { FormQuery } from '~/src/server/routes/types.js'
+ * @import { FormsService, Services } from '~/src/server/types.js'
+ */

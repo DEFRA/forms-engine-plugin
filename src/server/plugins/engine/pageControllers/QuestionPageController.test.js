@@ -1,7 +1,4 @@
-import { type PageQuestion } from '@defra/forms-model'
-
 import { getForm } from '~/src/server/plugins/engine/configureEnginePlugin.js'
-import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
@@ -10,19 +7,7 @@ import {
 } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { serverWithSaveAndExit } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
-import {
-  FileStatus,
-  UploadStatus,
-  type FormContext,
-  type FormPageViewModel,
-  type FormState,
-  type FormSubmissionState
-} from '~/src/server/plugins/engine/types.js'
-import {
-  type FormRequest,
-  type FormRequestPayload,
-  type FormResponseToolkit
-} from '~/src/server/routes/types.js'
+import { FileStatus, UploadStatus } from '~/src/server/plugins/engine/types.js'
 import { CacheService } from '~/src/server/services/cacheService.js'
 import conditionalReveal from '~/test/form/definitions/conditional-reveal.js'
 import definitionConditionsBasic, {
@@ -38,17 +23,26 @@ const translator = new FormModel(definitionConditionsBasic, {
 }).createTranslator()
 
 describe('QuestionPageController', () => {
-  let page1: PageQuestion
-  let page1Url: URL
+  /** @type {PageQuestion} */
+  let page1
+  /** @type {URL} */
+  let page1Url
 
-  let page2: PageQuestion
-  let page2Url: URL
+  /** @type {PageQuestion} */
+  let page2
+  /** @type {URL} */
+  let page2Url
 
-  let model: FormModel
-  let controller1: QuestionPageController
-  let controller2: QuestionPageController
-  let requestPage1: FormRequest
-  let requestPage2: FormRequest
+  /** @type {FormModel} */
+  let model
+  /** @type {QuestionPageController} */
+  let controller1
+  /** @type {QuestionPageController} */
+  let controller2
+  /** @type {FormRequest} */
+  let requestPage1
+  /** @type {FormRequest} */
+  let requestPage2
 
   beforeEach(() => {
     const { pages } = definitionConditionsBasic
@@ -66,29 +60,33 @@ describe('QuestionPageController', () => {
     controller1 = new QuestionPageController(model, page1)
     controller2 = new QuestionPageController(model, page2)
 
-    requestPage1 = buildFormRequest({
-      method: 'get',
-      url: page1Url,
-      path: page1Url.pathname,
-      params: {
-        path: 'first-page',
-        slug: 'test'
-      },
-      query: {},
-      app: { model }
-    } as FormRequest)
+    requestPage1 = buildFormRequest(
+      /** @type {FormRequest} */ ({
+        method: 'get',
+        url: page1Url,
+        path: page1Url.pathname,
+        params: {
+          path: 'first-page',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+    )
 
-    requestPage2 = buildFormRequest({
-      method: 'get',
-      url: page2Url,
-      path: page2Url.pathname,
-      params: {
-        path: 'second-page',
-        slug: 'test'
-      },
-      query: {},
-      app: { model }
-    } as FormRequest)
+    requestPage2 = buildFormRequest(
+      /** @type {FormRequest} */ ({
+        method: 'get',
+        url: page2Url,
+        path: page2Url.pathname,
+        params: {
+          path: 'second-page',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+    )
   })
 
   describe('Properties', () => {
@@ -190,8 +188,10 @@ describe('QuestionPageController', () => {
   })
 
   describe('Component view models', () => {
-    let viewModel1: FormPageViewModel
-    let viewModel2: FormPageViewModel
+    /** @type {FormPageViewModel} */
+    let viewModel1
+    /** @type {FormPageViewModel} */
+    let viewModel2
 
     beforeEach(() => {
       viewModel1 = controller1.getViewModel(
@@ -217,17 +217,19 @@ describe('QuestionPageController', () => {
     })
 
     it('passes the request query to the components', () => {
-      const request = buildFormRequest({
-        method: 'get',
-        url: page1Url,
-        path: page1Url.pathname,
-        params: {
-          path: 'first-page',
-          slug: 'test'
-        },
-        query: { force: '' },
-        app: { model }
-      } as FormRequest)
+      const request = buildFormRequest(
+        /** @type {FormRequest} */ ({
+          method: 'get',
+          url: page1Url,
+          path: page1Url.pathname,
+          params: {
+            path: 'first-page',
+            slug: 'test'
+          },
+          query: { force: '' },
+          app: { model }
+        })
+      )
 
       const getComponentViewModel = jest.spyOn(
         controller1.collection,
@@ -323,7 +325,8 @@ describe('QuestionPageController', () => {
       const controller = new QuestionPageController(model, pages[7])
 
       // The state below shows we said we had a UKPassport and entered details for an applicant
-      const state: FormSubmissionState = {
+      /** @type {FormSubmissionState} */
+      const state = {
         $$__referenceNumber: 'foobar',
         ukPassport: true,
         numberOfApplicants: 2,
@@ -477,7 +480,8 @@ describe('QuestionPageController', () => {
       const controller = new QuestionPageController(model, pages[0])
 
       // The state below shows we said we had a UKPassport and entered details for an applicant
-      const state: FormSubmissionState = { $$__referenceNumber: 'foobar' }
+      /** @type {FormSubmissionState} */
+      const state = { $$__referenceNumber: 'foobar' }
 
       const request = buildFormContextRequest({
         method: 'get',
@@ -537,7 +541,8 @@ describe('QuestionPageController', () => {
       const controller = new QuestionPageController(model, pages[0])
 
       // The state below shows we said we had a UKPassport and entered details for an applicant
-      const state: FormSubmissionState = { $$__referenceNumber: 'foobar' }
+      /** @type {FormSubmissionState} */
+      const state = { $$__referenceNumber: 'foobar' }
 
       const request = buildFormContextRequest({
         method: 'get',
@@ -599,7 +604,8 @@ describe('QuestionPageController', () => {
 
       const controller = new QuestionPageController(model, pages[0])
 
-      const state: FormSubmissionState = { $$__referenceNumber: 'foobar' }
+      /** @type {FormSubmissionState} */
+      const state = { $$__referenceNumber: 'foobar' }
 
       let request = buildFormContextRequest({
         method: 'get',
@@ -804,9 +810,12 @@ describe('QuestionPageController', () => {
   })
 
   describe('Form journey', () => {
-    let context: FormContext
-    let contextNo: FormContext
-    let contextYes: FormContext
+    /** @type {FormContext} */
+    let context
+    /** @type {FormContext} */
+    let contextNo
+    /** @type {FormContext} */
+    let contextYes
 
     beforeEach(() => {
       // Empty state
@@ -863,7 +872,8 @@ describe('QuestionPageController', () => {
       code: jest.fn().mockImplementation(() => response)
     }
 
-    const h: FormResponseToolkit = {
+    /** @type {FormResponseToolkit} */
+    const h = {
       redirect: jest.fn().mockReturnValue(response),
       view: jest.fn(),
       continue: Symbol('continue')
@@ -888,7 +898,8 @@ describe('QuestionPageController', () => {
     })
 
     it('supports GET route handler', async () => {
-      const state: FormState = { yesNoField: false }
+      /** @type {FormState} */
+      const state = { yesNoField: false }
 
       for (const controller of [controller1, controller2]) {
         jest
@@ -953,7 +964,8 @@ describe('QuestionPageController', () => {
 
     describe('setState', () => {
       it('should skip set for preview URL direct access', async () => {
-        const state: FormSubmissionState = { yesNoField: false }
+        /** @type {FormSubmissionState} */
+        const state = { yesNoField: false }
         const updated = await controller1.setState(requestPage1, state)
 
         expect(updated).toBe(state)
@@ -963,11 +975,13 @@ describe('QuestionPageController', () => {
 
     describe('mergeState', () => {
       it('should skip merge for preview URL direct access', async () => {
-        const state: FormSubmissionState = {
+        /** @type {FormSubmissionState} */
+        const state = {
           yesNoField: false
         }
 
-        const update: FormSubmissionState = {
+        /** @type {FormSubmissionState} */
+        const update = {
           dateField__day: 5,
           dateField__month: 1,
           dateField__year: 2024
@@ -993,14 +1007,21 @@ describe('QuestionPageController', () => {
 })
 
 describe('QuestionPageController V2', () => {
-  let page1Url: URL
-  let page2Url: URL
+  /** @type {URL} */
+  let page1Url
+  /** @type {URL} */
+  let page2Url
 
-  let model: FormModel
-  let controller1: QuestionPageController
-  let controller2: QuestionPageController
-  let requestPage1: FormRequest
-  let requestPage2: FormRequest
+  /** @type {FormModel} */
+  let model
+  /** @type {QuestionPageController} */
+  let controller1
+  /** @type {QuestionPageController} */
+  let controller2
+  /** @type {FormRequest} */
+  let requestPage1
+  /** @type {FormRequest} */
+  let requestPage2
 
   beforeEach(() => {
     page1Url = new URL('http://example.com/test/first-page')
@@ -1013,29 +1034,33 @@ describe('QuestionPageController V2', () => {
     controller1 = model.pages[0] // new QuestionPageController(model, page1)
     controller2 = model.pages[1] // new QuestionPageController(model, page2)
 
-    requestPage1 = buildFormRequest({
-      method: 'get',
-      url: page1Url,
-      path: page1Url.pathname,
-      params: {
-        path: 'first-page',
-        slug: 'test'
-      },
-      query: {},
-      app: { model }
-    } as FormRequest)
+    requestPage1 = buildFormRequest(
+      /** @type {FormRequest} */ ({
+        method: 'get',
+        url: page1Url,
+        path: page1Url.pathname,
+        params: {
+          path: 'first-page',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+    )
 
-    requestPage2 = buildFormRequest({
-      method: 'get',
-      url: page2Url,
-      path: page2Url.pathname,
-      params: {
-        path: 'second-page',
-        slug: 'test'
-      },
-      query: {},
-      app: { model }
-    } as FormRequest)
+    requestPage2 = buildFormRequest(
+      /** @type {FormRequest} */ ({
+        method: 'get',
+        url: page2Url,
+        path: page2Url.pathname,
+        params: {
+          path: 'second-page',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+    )
   })
 
   describe('Properties', () => {
@@ -1136,8 +1161,10 @@ describe('QuestionPageController V2', () => {
   })
 
   describe('Component view models', () => {
-    let viewModel1: FormPageViewModel
-    let viewModel2: FormPageViewModel
+    /** @type {FormPageViewModel} */
+    let viewModel1
+    /** @type {FormPageViewModel} */
+    let viewModel2
 
     beforeEach(() => {
       viewModel1 = controller1.getViewModel(
@@ -1232,7 +1259,8 @@ describe('QuestionPageController V2', () => {
       const controller = new QuestionPageController(model, pages[7])
 
       // The state below shows we said we had a UKPassport and entered details for an applicant
-      const state: FormSubmissionState = {
+      /** @type {FormSubmissionState} */
+      const state = {
         $$__referenceNumber: 'foobar',
         ukPassport: true,
         numberOfApplicants: 2,
@@ -1388,9 +1416,12 @@ describe('QuestionPageController V2', () => {
   })
 
   describe('Form journey', () => {
-    let context: FormContext
-    let contextNo: FormContext
-    let contextYes: FormContext
+    /** @type {FormContext} */
+    let context
+    /** @type {FormContext} */
+    let contextNo
+    /** @type {FormContext} */
+    let contextYes
 
     beforeEach(() => {
       // Empty state
@@ -1436,7 +1467,8 @@ describe('QuestionPageController V2', () => {
       code: jest.fn().mockImplementation(() => response)
     }
 
-    const h: FormResponseToolkit = {
+    /** @type {FormResponseToolkit} */
+    const h = {
       redirect: jest.fn().mockReturnValue(response),
       view: jest.fn(),
       continue: Symbol('continue')
@@ -1461,7 +1493,8 @@ describe('QuestionPageController V2', () => {
     })
 
     it('supports GET route handler', async () => {
-      const state: FormState = { yesNoField: false }
+      /** @type {FormState} */
+      const state = { yesNoField: false }
 
       for (const controller of [controller1, controller2]) {
         jest
@@ -1526,7 +1559,8 @@ describe('QuestionPageController V2', () => {
 
     describe('setState', () => {
       it('should skip set for preview URL direct access', async () => {
-        const state: FormSubmissionState = { yesNoField: false }
+        /** @type {FormSubmissionState} */
+        const state = { yesNoField: false }
         const updated = await controller1.setState(requestPage1, state)
 
         expect(updated).toBe(state)
@@ -1536,11 +1570,13 @@ describe('QuestionPageController V2', () => {
 
     describe('mergeState', () => {
       it('should skip merge for preview URL direct access', async () => {
-        const state: FormSubmissionState = {
+        /** @type {FormSubmissionState} */
+        const state = {
           yesNoField: false
         }
 
-        const update: FormSubmissionState = {
+        /** @type {FormSubmissionState} */
+        const update = {
           dateField__day: 5,
           dateField__month: 1,
           dateField__year: 2024
@@ -1566,9 +1602,12 @@ describe('QuestionPageController V2', () => {
 })
 
 describe('Save and Exit functionality', () => {
-  let model: FormModel
-  let controller1: QuestionPageController
-  let requestPage1: FormRequest
+  /** @type {FormModel} */
+  let model
+  /** @type {QuestionPageController} */
+  let controller1
+  /** @type {FormRequest} */
+  let requestPage1
 
   beforeEach(() => {
     const { pages } = definitionConditionsBasic
@@ -1579,24 +1618,27 @@ describe('Save and Exit functionality', () => {
 
     controller1 = new QuestionPageController(model, pages[0])
 
-    requestPage1 = buildFormRequest({
-      method: 'get',
-      url: new URL('http://example.com/test/first-page'),
-      path: '/test/first-page',
-      params: {
-        path: 'first-page',
-        slug: 'test'
-      },
-      query: {},
-      app: { model }
-    } as FormRequest)
+    requestPage1 = buildFormRequest(
+      /** @type {FormRequest} */ ({
+        method: 'get',
+        url: new URL('http://example.com/test/first-page'),
+        path: '/test/first-page',
+        params: {
+          path: 'first-page',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+    )
   })
 
   const response = {
     code: jest.fn().mockImplementation(() => response)
   }
 
-  const h: FormResponseToolkit = {
+  /** @type {FormResponseToolkit} */
+  const h = {
     redirect: jest.fn().mockReturnValue(response),
     view: jest.fn(),
     continue: Symbol('continue')
@@ -1618,25 +1660,30 @@ describe('Save and Exit functionality', () => {
   describe('handleSaveAndExit', () => {
     it('should invoke saveAndExit plugin option', () => {
       const saveAndExitMock = jest.fn(() => ({}))
-      const state: FormSubmissionState = {
+      /** @type {FormSubmissionState} */
+      const state = {
         $$__referenceNumber: 'foobar',
         yesNoField: true
       }
-      const request = {
-        ...requestPage1,
-        server: {
-          plugins: {
-            'forms-engine-plugin': {
-              saveAndExit: saveAndExitMock,
-              cacheService: {
-                clearState: jest.fn()
-              } as unknown as CacheService
+      const request = /** @type {FormRequestPayload} */ (
+        /** @type {unknown} */ ({
+          ...requestPage1,
+          server: {
+            plugins: {
+              'forms-engine-plugin': {
+                saveAndExit: saveAndExitMock,
+                cacheService: /** @type {CacheService} */ (
+                  /** @type {unknown} */ ({
+                    clearState: jest.fn()
+                  })
+                )
+              }
             }
-          }
-        },
-        method: 'post',
-        payload: { yesNoField: true, action: 'save-and-exit' }
-      } as unknown as FormRequestPayload
+          },
+          method: 'post',
+          payload: { yesNoField: true, action: 'save-and-exit' }
+        })
+      )
 
       const context = model.getFormContext(request, state)
 
@@ -1647,23 +1694,26 @@ describe('Save and Exit functionality', () => {
 
     it('should throw if saveAndExit option not provided', () => {
       const saveAndExitMock = jest.fn()
-      const state: FormSubmissionState = {
+      /** @type {FormSubmissionState} */
+      const state = {
         $$__referenceNumber: 'foobar',
         yesNoField: true
       }
-      const request = {
-        ...requestPage1,
-        server: {
-          plugins: {
-            'forms-engine-plugin': {
-              // No function
-              saveAndExit: undefined
+      const request = /** @type {FormRequestPayload} */ (
+        /** @type {unknown} */ ({
+          ...requestPage1,
+          server: {
+            plugins: {
+              'forms-engine-plugin': {
+                // No function
+                saveAndExit: undefined
+              }
             }
-          }
-        },
-        method: 'post',
-        payload: { yesNoField: true, action: 'save-and-exit' }
-      } as unknown as FormRequestPayload
+          },
+          method: 'post',
+          payload: { yesNoField: true, action: 'save-and-exit' }
+        })
+      )
 
       const context = model.getFormContext(request, state)
 
@@ -1677,15 +1727,18 @@ describe('Save and Exit functionality', () => {
 
   describe('POST handler with save-and-exit action', () => {
     it('should handle FormAction.SaveAndExit', async () => {
-      const state: FormSubmissionState = {
+      /** @type {FormSubmissionState} */
+      const state = {
         $$__referenceNumber: 'foobar',
         yesNoField: true
       }
-      const request = {
-        ...requestPage1,
-        method: 'post',
-        payload: { yesNoField: true, action: 'save-and-exit' }
-      } as unknown as FormRequestPayload
+      const request = /** @type {FormRequestPayload} */ (
+        /** @type {unknown} */ ({
+          ...requestPage1,
+          method: 'post',
+          payload: { yesNoField: true, action: 'save-and-exit' }
+        })
+      )
 
       const context = model.getFormContext(request, state)
 
@@ -1706,15 +1759,18 @@ describe('Save and Exit functionality', () => {
     })
 
     it('should not call handleSaveAndExit for continue action', async () => {
-      const state: FormSubmissionState = {
+      /** @type {FormSubmissionState} */
+      const state = {
         $$__referenceNumber: 'foobar',
         yesNoField: true
       }
-      const request = {
-        ...requestPage1,
-        method: 'post',
-        payload: { yesNoField: true, action: 'continue' }
-      } as unknown as FormRequestPayload
+      const request = /** @type {FormRequestPayload} */ (
+        /** @type {unknown} */ ({
+          ...requestPage1,
+          method: 'post',
+          payload: { yesNoField: true, action: 'continue' }
+        })
+      )
 
       const context = model.getFormContext(request, state)
 
@@ -1743,12 +1799,17 @@ describe('Save and Exit functionality', () => {
 })
 
 describe('QuestionPageController translator support', () => {
-  let page1: PageQuestion
-  let page1Url: URL
+  /** @type {PageQuestion} */
+  let page1
+  /** @type {URL} */
+  let page1Url
 
-  let model: FormModel
-  let controller1: QuestionPageController
-  let requestPage1: FormRequest
+  /** @type {FormModel} */
+  let model
+  /** @type {QuestionPageController} */
+  let controller1
+  /** @type {FormRequest} */
+  let requestPage1
 
   beforeEach(() => {
     const { pages } = definitionConditionsBasic
@@ -1762,23 +1823,26 @@ describe('QuestionPageController translator support', () => {
 
     controller1 = new QuestionPageController(model, page1)
 
-    requestPage1 = buildFormRequest({
-      method: 'get',
-      url: page1Url,
-      path: page1Url.pathname,
-      params: {
-        path: 'first-page',
-        slug: 'test'
-      },
-      query: {},
-      app: { model }
-    } as FormRequest)
+    requestPage1 = buildFormRequest(
+      /** @type {FormRequest} */ ({
+        method: 'get',
+        url: page1Url,
+        path: page1Url.pathname,
+        params: {
+          path: 'first-page',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+    )
   })
 
   describe('getViewModel with translator', () => {
     it('uses mock t from translator for plugin strings', () => {
-      const mockT = jest.fn((key: string) => `translated:${key}`)
-      const translator: Translator = {
+      const mockT = jest.fn((/** @type {string} */ key) => `translated:${key}`)
+      /** @type {Translator} */
+      const translator = {
         t: mockT,
         tPage: jest.fn((_, prop) => `content:${prop}`),
         tComponent: jest.fn((_, prop) => `content:${prop}`),
@@ -1789,17 +1853,19 @@ describe('QuestionPageController translator support', () => {
       }
 
       // Use a request with returnUrl so that getBackLink calls t() for back link text
-      const requestWithReturn = buildFormRequest({
-        method: 'get',
-        url: page1Url,
-        path: page1Url.pathname,
-        params: {
-          path: 'first-page',
-          slug: 'test'
-        },
-        query: { returnUrl: '/test/summary' },
-        app: { model }
-      } as FormRequest)
+      const requestWithReturn = buildFormRequest(
+        /** @type {FormRequest} */ ({
+          method: 'get',
+          url: page1Url,
+          path: page1Url.pathname,
+          params: {
+            path: 'first-page',
+            slug: 'test'
+          },
+          query: { returnUrl: '/test/summary' },
+          app: { model }
+        })
+      )
 
       const context = model.getFormContext(requestWithReturn, {
         $$__referenceNumber: 'foobar'
@@ -1812,14 +1878,16 @@ describe('QuestionPageController translator support', () => {
     })
 
     it('uses mock tPage from translator for page entity', () => {
-      const mockT = jest.fn((key: string) => key)
+      const mockT = jest.fn((/** @type {string} */ key) => key)
       const mockTPage = jest.fn(
-        (_entity: unknown, prop: string) => `content:${prop}`
+        (/** @type {unknown} */ _entity, /** @type {string} */ prop) =>
+          `content:${prop}`
       )
 
-      const translator: Translator = {
+      /** @type {Translator} */
+      const translator = {
         t: mockT,
-        tPage: mockTPage as Translator['tPage'],
+        tPage: /** @type {Translator['tPage']} */ (mockTPage),
         tComponent: jest.fn(() => ''),
         tSection: jest.fn(() => ''),
         tListItem: jest.fn(() => ''),
@@ -1841,7 +1909,8 @@ describe('QuestionPageController translator support', () => {
 
     it('uses translator.t for back link text when translator is supplied', () => {
       const mockT = jest.fn().mockReturnValue('Back to check answers')
-      const mockTranslatorLocal: Translator = {
+      /** @type {Translator} */
+      const mockTranslatorLocal = {
         t: mockT,
         tPage: stubTranslator.tPage,
         tComponent: stubTranslator.tComponent,
@@ -1852,17 +1921,19 @@ describe('QuestionPageController translator support', () => {
       }
 
       // Use a request with returnUrl so that getBackLink calls translator.t for back link text
-      const requestWithReturn = buildFormRequest({
-        method: 'get',
-        url: page1Url,
-        path: page1Url.pathname,
-        params: {
-          path: 'first-page',
-          slug: 'test'
-        },
-        query: { returnUrl: '/test/summary' },
-        app: { model }
-      } as FormRequest)
+      const requestWithReturn = buildFormRequest(
+        /** @type {FormRequest} */ ({
+          method: 'get',
+          url: page1Url,
+          path: page1Url.pathname,
+          params: {
+            path: 'first-page',
+            slug: 'test'
+          },
+          query: { returnUrl: '/test/summary' },
+          app: { model }
+        })
+      )
 
       const context = model.getFormContext(requestWithReturn, {
         $$__referenceNumber: 'foobar'
@@ -1875,9 +1946,12 @@ describe('QuestionPageController translator support', () => {
   })
 
   describe('QuestionPageController V2 - PaymentField (DF-832)', () => {
-    let model: FormModel
-    let choicePage: QuestionPageController
-    let paymentPage: QuestionPageController
+    /** @type {FormModel} */
+    let model
+    /** @type {QuestionPageController} */
+    let choicePage
+    /** @type {QuestionPageController} */
+    let paymentPage
 
     beforeEach(() => {
       model = new FormModel(definitionPaymentV2Conditional, {
@@ -1890,16 +1964,21 @@ describe('QuestionPageController translator support', () => {
     })
 
     describe('getNextPath', () => {
-      const buildRequest = (pathname: string) => {
+      /**
+       * @param {string} pathname
+       */
+      const buildRequest = (pathname) => {
         const url = new URL(`http://example.com/test${pathname}`)
-        return buildFormRequest({
-          method: 'get',
-          url,
-          path: url.pathname,
-          params: { path: pathname.replace('/', ''), slug: 'test' },
-          query: {},
-          app: { model }
-        } as FormRequest)
+        return buildFormRequest(
+          /** @type {FormRequest} */ ({
+            method: 'get',
+            url,
+            path: url.pathname,
+            params: { path: pathname.replace('/', ''), slug: 'test' },
+            query: {},
+            app: { model }
+          })
+        )
       }
 
       it('skips payment pages in forward navigation (users reach via CYA)', () => {
@@ -1941,14 +2020,16 @@ describe('QuestionPageController translator support', () => {
     describe('getViewModel - resolved payment amount', () => {
       const buildPaymentRequest = () => {
         const url = new URL('http://example.com/test/payment')
-        return buildFormRequest({
-          method: 'get',
-          url,
-          path: url.pathname,
-          params: { path: 'payment', slug: 'test' },
-          query: {},
-          app: { model }
-        } as FormRequest)
+        return buildFormRequest(
+          /** @type {FormRequest} */ ({
+            method: 'get',
+            url,
+            path: url.pathname,
+            params: { path: 'payment', slug: 'test' },
+            query: {},
+            app: { model }
+          })
+        )
       }
 
       it('overrides displayed amount using resolveAmount with full form state', () => {
@@ -2015,14 +2096,16 @@ describe('QuestionPageController translator support', () => {
 
       it('allows Save & Exit on non-payment pages', () => {
         const url = new URL('http://example.com/test/choice')
-        const request = buildFormRequest({
-          method: 'get',
-          url,
-          path: url.pathname,
-          params: { path: 'choice', slug: 'test' },
-          query: {},
-          app: { model }
-        } as FormRequest)
+        const request = buildFormRequest(
+          /** @type {FormRequest} */ ({
+            method: 'get',
+            url,
+            path: url.pathname,
+            params: { path: 'choice', slug: 'test' },
+            query: {},
+            app: { model }
+          })
+        )
 
         const context = model.getFormContext(request, {
           $$__referenceNumber: 'foobar'
@@ -2042,14 +2125,16 @@ describe('QuestionPageController translator support', () => {
     describe('getViewModel - showSubmitButton based on paymentState', () => {
       const buildPaymentRequest = () => {
         const url = new URL('http://example.com/test/payment')
-        return buildFormRequest({
-          method: 'get',
-          url,
-          path: url.pathname,
-          params: { path: 'payment', slug: 'test' },
-          query: {},
-          app: { model }
-        } as FormRequest)
+        return buildFormRequest(
+          /** @type {FormRequest} */ ({
+            method: 'get',
+            url,
+            path: url.pathname,
+            params: { path: 'payment', slug: 'test' },
+            query: {},
+            app: { model }
+          })
+        )
       }
 
       it('shows submit button when no payment pre-auth captured yet', () => {
@@ -2072,20 +2157,25 @@ describe('QuestionPageController translator support', () => {
         // being present means pre-auth was captured → hasIncompletePayment
         // is false → showSubmitButton is true.
         const request = buildPaymentRequest()
-        const context = model.getFormContext(request, {
-          $$__referenceNumber: 'foobar',
-          yesNoField: false,
-          paymentField: {
-            paymentId: 'p-1',
-            amount: 99,
-            description: 'Test payment',
-            preAuth: {
-              status: 'success',
-              paymentId: 'p-1',
-              amount: 99
-            }
-          }
-        } as unknown as FormSubmissionState)
+        const context = model.getFormContext(
+          request,
+          /** @type {FormSubmissionState} */ (
+            /** @type {unknown} */ ({
+              $$__referenceNumber: 'foobar',
+              yesNoField: false,
+              paymentField: {
+                paymentId: 'p-1',
+                amount: 99,
+                description: 'Test payment',
+                preAuth: {
+                  status: 'success',
+                  paymentId: 'p-1',
+                  amount: 99
+                }
+              }
+            })
+          )
+        )
 
         const viewModel = paymentPage.getViewModel(request, context, translator)
 
@@ -2103,21 +2193,23 @@ describe('QuestionPageController with Welsh translations', () => {
 
     const controller = new QuestionPageController(
       model,
-      definitionFieldsRequiredTranslated.pages[0] as PageQuestion
+      /** @type {PageQuestion} */ (definitionFieldsRequiredTranslated.pages[0])
     )
 
     const url = new URL('http://example.com/test/components')
-    const request = buildFormRequest({
-      method: 'get',
-      url,
-      path: url.pathname,
-      params: {
-        path: 'components',
-        slug: 'test'
-      },
-      query: {},
-      app: { model }
-    } as FormRequest)
+    const request = buildFormRequest(
+      /** @type {FormRequest} */ ({
+        method: 'get',
+        url,
+        path: url.pathname,
+        params: {
+          path: 'components',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+    )
 
     const context = model.getFormContext(
       request,
@@ -2134,3 +2226,10 @@ describe('QuestionPageController with Welsh translations', () => {
     )
   })
 })
+
+/**
+ * @import { PageQuestion } from '@defra/forms-model'
+ * @import { Translator } from '~/src/server/plugins/engine/i18n/types.js'
+ * @import { FormContext, FormPageViewModel, FormState, FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+ * @import { FormRequest, FormRequestPayload, FormResponseToolkit } from '~/src/server/routes/types.js'
+ */

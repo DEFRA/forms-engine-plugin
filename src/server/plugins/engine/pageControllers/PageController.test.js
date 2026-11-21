@@ -1,20 +1,17 @@
-import { type ResponseToolkit } from '@hapi/hapi'
-
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { buildFormRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { serverWithSaveAndExit } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
-import {
-  type FormRequest,
-  type FormResponseToolkit
-} from '~/src/server/routes/types.js'
 import definition from '~/test/form/definitions/basic.js'
 
 describe('PageController', () => {
-  let model: FormModel
-  let controller1: PageController
-  let controller2: PageController
+  /** @type {FormModel} */
+  let model
+  /** @type {PageController} */
+  let controller1
+  /** @type {PageController} */
+  let controller2
 
   const testBasePath = `${FORM_PREFIX}/test`
 
@@ -140,19 +137,22 @@ describe('PageController', () => {
   describe('Route handlers', () => {
     const page1Url = new URL('http://example.com/test/licence')
 
-    const request = buildFormRequest({
-      method: 'get',
-      url: page1Url,
-      path: page1Url.pathname,
-      params: {
-        path: 'licence',
-        slug: 'test'
-      },
-      query: {},
-      app: { model }
-    } as FormRequest)
+    const request = buildFormRequest(
+      /** @type {FormRequest} */ ({
+        method: 'get',
+        url: page1Url,
+        path: page1Url.pathname,
+        params: {
+          path: 'licence',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+    )
 
-    const h: FormResponseToolkit = {
+    /** @type {FormResponseToolkit} */
+    const h = {
       redirect: jest.fn(),
       view: jest.fn(),
       continue: Symbol('continue')
@@ -205,15 +205,19 @@ describe('PageController', () => {
     })
 
     it('supports save and exit functionality', async () => {
-      const mockRequest = buildFormRequest({
-        ...request,
-        payload: { saveAndExit: true }
-      } as FormRequest)
+      const mockRequest = buildFormRequest(
+        /** @type {FormRequest} */ ({
+          ...request,
+          payload: { saveAndExit: true }
+        })
+      )
 
-      const mockResponse = {
-        redirect: jest.fn(),
-        view: jest.fn()
-      } as unknown as ResponseToolkit
+      const mockResponse = /** @type {ResponseToolkit} */ (
+        /** @type {unknown} */ ({
+          redirect: jest.fn(),
+          view: jest.fn()
+        })
+      )
 
       await controller1.makeGetRouteHandler()(
         mockRequest,
@@ -245,3 +249,8 @@ describe('PageController', () => {
     })
   })
 })
+
+/**
+ * @import { ResponseToolkit } from '@hapi/hapi'
+ * @import { FormRequest, FormResponseToolkit } from '~/src/server/routes/types.js'
+ */

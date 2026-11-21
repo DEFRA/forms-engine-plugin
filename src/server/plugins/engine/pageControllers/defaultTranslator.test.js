@@ -1,30 +1,18 @@
 import { randomUUID } from 'node:crypto'
 
-import { ComponentType, type FormDefinition } from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { type FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   ItemField,
   SummaryViewModel
 } from '~/src/server/plugins/engine/models/SummaryViewModel.js'
-import { type FileUploadPageController } from '~/src/server/plugins/engine/pageControllers/FileUploadPageController.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
-import { type RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { StartPageController } from '~/src/server/plugins/engine/pageControllers/StartPageController.js'
-import {
-  getFormSubmissionData,
-  type SummaryPageController
-} from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
+import { getFormSubmissionData } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { PaymentSubmissionError } from '~/src/server/plugins/engine/pageControllers/errors.js'
-import {
-  type FormContext,
-  type FormContextRequest,
-  type FormSubmissionState
-} from '~/src/server/plugins/engine/types.js'
-import { type FormRequest } from '~/src/server/routes/types.js'
 import basicDefinition from '~/test/form/definitions/basic.js'
 import fileUploadDefinition from '~/test/form/definitions/file-upload-basic.js'
 import repeatDefinition from '~/test/form/definitions/repeat.js'
@@ -32,14 +20,17 @@ import repeatDefinition from '~/test/form/definitions/repeat.js'
 // A v4 caller passes no translator. Page controller methods then use
 // `context.translator`, and English when the context has none. Each page gets
 // an id and a Welsh title, so that a page title shows the translator language.
-function welshModel(definition: FormDefinition) {
+/**
+ * @param {FormDefinition} definition
+ */
+function welshModel(definition) {
   const pages = definition.pages.map((page) => ({
     ...page,
     id: randomUUID()
   }))
 
   return new FormModel(
-    {
+    /** @type {FormDefinition} */ ({
       ...definition,
       pages,
       metadata: {
@@ -52,12 +43,16 @@ function welshModel(definition: FormDefinition) {
           )
         }
       }
-    } as FormDefinition,
+    }),
     { basePath: 'test' }
   )
 }
 
-function buildRequest(path: string, query = {}): FormContextRequest {
+/**
+ * @param {string} path
+ * @returns {FormContextRequest}
+ */
+function buildRequest(path, query = {}) {
   const url = new URL(`/test${path}`, 'http://example.com')
 
   return buildFormContextRequest({
@@ -70,11 +65,12 @@ function buildRequest(path: string, query = {}): FormContextRequest {
   })
 }
 
-function contexts(
-  model: FormModel,
-  request: FormContextRequest,
-  state: FormSubmissionState
-) {
+/**
+ * @param {FormModel} model
+ * @param {FormContextRequest} request
+ * @param {FormSubmissionState} state
+ */
+function contexts(model, request, state) {
   return {
     welsh: model.getFormContext(
       request,
@@ -86,12 +82,19 @@ function contexts(
   }
 }
 
-function changeLinkText({ checkAnswers }: SummaryViewModel) {
+/**
+ * @param {SummaryViewModel} param0
+ */
+function changeLinkText({ checkAnswers }) {
   return checkAnswers[0].summaryList.rows[0].actions?.items[0].text
 }
 
 class V4QuestionPageController extends QuestionPageController {
-  backLink(request: FormContextRequest, context: FormContext) {
+  /**
+   * @param {FormContextRequest} request
+   * @param {FormContext} context
+   */
+  backLink(request, context) {
     return this.getBackLink(request, context)
   }
 }
@@ -104,10 +107,8 @@ describe('Page controller methods with no translator', () => {
 
   describe('repeat form', () => {
     const model = welshModel(repeatDefinition)
-    const [repeat, summary] = model.pages as [
-      RepeatPageController,
-      SummaryPageController
-    ]
+    const [repeat, summary] =
+      /** @type {[RepeatPageController, SummaryPageController]} */ (model.pages)
 
     it('RepeatPageController.getViewModel', () => {
       const request = buildRequest('/pizza-order')
@@ -189,7 +190,9 @@ describe('Page controller methods with no translator', () => {
     })
     const request = buildRequest(basicDefinition.pages[0].path)
     const { welsh, none } = contexts(model, request, state)
-    const formRequest = request as unknown as FormRequest
+    const formRequest = /** @type {FormRequest} */ (
+      /** @type {unknown} */ (request)
+    )
 
     expect(controller.getViewModel(formRequest, welsh).pageTitle).toBe(
       'Welsh Buy a rod fishing licence'
@@ -201,17 +204,19 @@ describe('Page controller methods with no translator', () => {
 
   it('FileUploadPageController.getViewModel', () => {
     const model = welshModel(fileUploadDefinition)
-    const [controller] = model.pages as [FileUploadPageController]
+    const [controller] = /** @type {[FileUploadPageController]} */ (model.pages)
     const request = buildRequest(controller.path)
-    const uploadState = {
-      ...state,
-      upload: {
-        [controller.path]: {
-          upload: { uploadId: 'id', uploadUrl: 'url', statusUrl: 'url' },
-          files: []
+    const uploadState = /** @type {FormSubmissionState} */ (
+      /** @type {unknown} */ ({
+        ...state,
+        upload: {
+          [controller.path]: {
+            upload: { uploadId: 'id', uploadUrl: 'url', statusUrl: 'url' },
+            files: []
+          }
         }
-      }
-    } as unknown as FormSubmissionState
+      })
+    )
     const { welsh, none } = contexts(model, request, uploadState)
 
     expect(controller.getViewModel(request, welsh).pageTitle).toBe(
@@ -224,17 +229,19 @@ describe('Page controller methods with no translator', () => {
 
   it('PaymentSubmissionError.checkPaymentAmount', () => {
     const model = welshModel(basicDefinition)
-    const [component] = new ComponentCollection(
-      [
-        {
-          title: 'Payment',
-          name: 'payment',
-          type: ComponentType.PaymentField,
-          options: { amount: 100, description: 'Licence fee' }
-        }
-      ],
-      { model }
-    ).fields as FormComponent[]
+    const [component] = /** @type {FormComponent[]} */ (
+      new ComponentCollection(
+        [
+          {
+            title: 'Payment',
+            name: 'payment',
+            type: ComponentType.PaymentField,
+            options: { amount: 100, description: 'Licence fee' }
+          }
+        ],
+        { model }
+      ).fields
+    )
 
     expect(() =>
       PaymentSubmissionError.checkPaymentAmount(500, 100, component)
@@ -246,3 +253,13 @@ describe('Page controller methods with no translator', () => {
     )
   })
 })
+
+/**
+ * @import { FormDefinition } from '@defra/forms-model'
+ * @import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+ * @import { FileUploadPageController } from '~/src/server/plugins/engine/pageControllers/FileUploadPageController.js'
+ * @import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
+ * @import { SummaryPageController } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
+ * @import { FormContext, FormContextRequest, FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+ * @import { FormRequest } from '~/src/server/routes/types.js'
+ */

@@ -1,17 +1,9 @@
-import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   SummaryPageController,
   submitForm
 } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 import { buildFormRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
-import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
-import {
-  type FormRequest,
-  type FormRequestPayload,
-  type FormResponseToolkit
-} from '~/src/server/routes/types.js'
-import { type CacheService } from '~/src/server/services/cacheService.js'
 import definition from '~/test/form/definitions/basic.js'
 import definitionPaymentV2Conditional from '~/test/form/definitions/payment-v2-conditional.js'
 
@@ -37,14 +29,18 @@ const welshTranslator = new FormModel(
 ).createTranslator('cy')
 
 describe('SummaryPageController', () => {
-  let model: FormModel
-  let controller: SummaryPageController
-  let requestPage: FormRequest
+  /** @type {FormModel} */
+  let model
+  /** @type {SummaryPageController} */
+  let controller
+  /** @type {FormRequest} */
+  let requestPage
 
   const response = {
     code: jest.fn().mockImplementation(() => response)
   }
-  const h: FormResponseToolkit = {
+  /** @type {FormResponseToolkit} */
+  const h = {
     redirect: jest.fn().mockReturnValue(response),
     view: jest.fn(),
     continue: Symbol('continue')
@@ -61,45 +57,51 @@ describe('SummaryPageController', () => {
       controller: 'summary'
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    controller = new SummaryPageController(model, mockPage as any)
+    controller = new SummaryPageController(model, /** @type {any} */ (mockPage))
 
-    requestPage = buildFormRequest({
-      method: 'get',
-      url: new URL('http://example.com/test/summary'),
-      path: '/test/summary',
-      params: {
-        path: 'summary',
-        slug: 'test'
-      },
-      query: {},
-      app: { model }
-    } as FormRequest)
+    requestPage = buildFormRequest(
+      /** @type {FormRequest} */ ({
+        method: 'get',
+        url: new URL('http://example.com/test/summary'),
+        path: '/test/summary',
+        params: {
+          path: 'summary',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+    )
   })
 
   describe('handleSaveAndExit', () => {
     it('should invoke saveAndExit plugin option', async () => {
       const saveAndExitMock = jest.fn(() => ({}))
-      const state: FormSubmissionState = {
+      /** @type {FormSubmissionState} */
+      const state = {
         $$__referenceNumber: 'foobar',
         licenceLength: 365,
         fullName: 'John Smith'
       }
-      const request = {
-        ...requestPage,
-        server: {
-          plugins: {
-            'forms-engine-plugin': {
-              saveAndExit: saveAndExitMock,
-              cacheService: {
-                clearState: jest.fn()
-              } as unknown as CacheService
+      const request = /** @type {FormRequestPayload} */ (
+        /** @type {unknown} */ ({
+          ...requestPage,
+          server: {
+            plugins: {
+              'forms-engine-plugin': {
+                saveAndExit: saveAndExitMock,
+                cacheService: /** @type {CacheService} */ (
+                  /** @type {unknown} */ ({
+                    clearState: jest.fn()
+                  })
+                )
+              }
             }
-          }
-        },
-        method: 'post',
-        payload: { fullName: 'John Smith', action: 'save-and-exit' }
-      } as unknown as FormRequestPayload
+          },
+          method: 'post',
+          payload: { fullName: 'John Smith', action: 'save-and-exit' }
+        })
+      )
 
       const context = model.getFormContext(request, state)
 
@@ -115,19 +117,24 @@ describe('SummaryPageController', () => {
 
   describe('per-request translator in makeGetRouteHandler', () => {
     it('should create a per-request translator and pass t to the view', async () => {
-      const mockTranslator: Translator = {
+      /** @type {Translator} */
+      const mockTranslator = {
         t: jest.fn().mockReturnValue('translated'),
-        tPage: jest.fn().mockReturnValue('content') as Translator['tPage'],
-        tComponent: jest
-          .fn()
-          .mockReturnValue('content') as Translator['tComponent'],
-        tSection: jest
-          .fn()
-          .mockReturnValue('content') as Translator['tSection'],
-        tListItem: jest
-          .fn()
-          .mockReturnValue('content') as Translator['tListItem'],
-        tForm: jest.fn().mockReturnValue('content') as Translator['tForm'],
+        tPage: /** @type {Translator['tPage']} */ (
+          jest.fn().mockReturnValue('content')
+        ),
+        tComponent: /** @type {Translator['tComponent']} */ (
+          jest.fn().mockReturnValue('content')
+        ),
+        tSection: /** @type {Translator['tSection']} */ (
+          jest.fn().mockReturnValue('content')
+        ),
+        tListItem: /** @type {Translator['tListItem']} */ (
+          jest.fn().mockReturnValue('content')
+        ),
+        tForm: /** @type {Translator['tForm']} */ (
+          jest.fn().mockReturnValue('content')
+        ),
         language: 'en-GB'
       }
 
@@ -138,9 +145,12 @@ describe('SummaryPageController', () => {
       // Mock model.services.formsService so hasMissingNotificationEmail does not throw
       jest
         .spyOn(model.services.formsService, 'getFormMetadata')
-        .mockResolvedValue({ notificationEmail: 'test@test.com' } as never)
+        .mockResolvedValue(
+          /** @type {never} */ ({ notificationEmail: 'test@test.com' })
+        )
 
-      const state: FormSubmissionState = {
+      /** @type {FormSubmissionState} */
+      const state = {
         $$__referenceNumber: 'foobar',
         licenceLength: 365,
         fullName: 'John Smith'
@@ -161,14 +171,18 @@ describe('SummaryPageController', () => {
 })
 
 describe('SummaryPageController - Payment (DF-832)', () => {
-  let model: FormModel
-  let controller: SummaryPageController
-  let requestPage: FormRequest
+  /** @type {FormModel} */
+  let model
+  /** @type {SummaryPageController} */
+  let controller
+  /** @type {FormRequest} */
+  let requestPage
 
   const response = {
     code: jest.fn().mockImplementation(() => response)
   }
-  const h: FormResponseToolkit = {
+  /** @type {FormResponseToolkit} */
+  const h = {
     redirect: jest.fn().mockReturnValue(response),
     view: jest.fn(),
     continue: Symbol('continue')
@@ -179,40 +193,47 @@ describe('SummaryPageController - Payment (DF-832)', () => {
       basePath: 'test'
     })
 
-    controller = model.pages.find(
-      (p) => p.path === '/summary'
-    ) as SummaryPageController
+    controller = /** @type {SummaryPageController} */ (
+      model.pages.find((p) => p.path === '/summary')
+    )
 
-    requestPage = buildFormRequest({
-      method: 'get',
-      url: new URL('http://example.com/test/summary'),
-      path: '/test/summary',
-      params: {
-        path: 'summary',
-        slug: 'test'
-      },
-      query: {},
-      app: { model }
-    } as FormRequest)
+    requestPage = buildFormRequest(
+      /** @type {FormRequest} */ ({
+        method: 'get',
+        url: new URL('http://example.com/test/summary'),
+        path: '/test/summary',
+        params: {
+          path: 'summary',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+    )
   })
 
   describe('GET handler: paymentComplete=true', () => {
     it('auto-submits without going through reconcile/view when paymentComplete=true', async () => {
-      const state: FormSubmissionState = {
+      /** @type {FormSubmissionState} */
+      const state = {
         $$__referenceNumber: 'foobar',
         yesNoField: false
       }
-      const request = {
-        ...requestPage,
-        query: { paymentComplete: 'true' }
-      } as unknown as FormRequest
+      const request = /** @type {FormRequest} */ (
+        /** @type {unknown} */ ({
+          ...requestPage,
+          query: { paymentComplete: 'true' }
+        })
+      )
 
       const context = model.getFormContext(request, state)
 
       const handleFormSubmitSpy = jest
         .spyOn(controller, 'handleFormSubmit')
         .mockResolvedValue(
-          undefined as unknown as ReturnType<typeof controller.handleFormSubmit>
+          /** @type {ReturnType<typeof controller.handleFormSubmit>} */ (
+            /** @type {unknown} */ (undefined)
+          )
         )
 
       const getHandler = controller.makeGetRouteHandler()
@@ -224,36 +245,43 @@ describe('SummaryPageController - Payment (DF-832)', () => {
     })
 
     it('follows the normal CYA render path when paymentComplete is absent', async () => {
-      const cacheService = {
-        resetComponentStates: jest.fn()
-      } as unknown as CacheService
+      const cacheService = /** @type {CacheService} */ (
+        /** @type {unknown} */ ({
+          resetComponentStates: jest.fn()
+        })
+      )
 
-      const state: FormSubmissionState = {
+      /** @type {FormSubmissionState} */
+      const state = {
         $$__referenceNumber: 'foobar',
         yesNoField: false
       }
-      const request = {
-        ...requestPage,
-        server: {
-          plugins: {
-            'forms-engine-plugin': { cacheService }
+      const request = /** @type {FormRequest} */ (
+        /** @type {unknown} */ ({
+          ...requestPage,
+          server: {
+            plugins: {
+              'forms-engine-plugin': { cacheService }
+            }
           }
-        }
-      } as unknown as FormRequest
+        })
+      )
 
       const context = model.getFormContext(request, state)
 
       jest
         .spyOn(controller, 'handleFormSubmit')
         .mockResolvedValue(
-          undefined as unknown as ReturnType<typeof controller.handleFormSubmit>
+          /** @type {ReturnType<typeof controller.handleFormSubmit>} */ (
+            /** @type {unknown} */ (undefined)
+          )
         )
       // Avoid hitting hasMissingNotificationEmail's real implementation
       jest
         .spyOn(
-          controller as unknown as {
-            hasMissingNotificationEmail: () => Promise<boolean>
-          },
+          /** @type {{ hasMissingNotificationEmail: () => Promise<boolean> }} */ (
+            /** @type {unknown} */ (controller)
+          ),
           'hasMissingNotificationEmail'
         )
         .mockResolvedValue(false)
@@ -268,40 +296,47 @@ describe('SummaryPageController - Payment (DF-832)', () => {
 
   describe('reconcilePaymentState', () => {
     it('resets payment component state when resolved amount has changed since pre-auth', async () => {
-      const cacheService = {
-        resetComponentStates: jest.fn().mockResolvedValue(undefined)
-      } as unknown as CacheService
+      const cacheService = /** @type {CacheService} */ (
+        /** @type {unknown} */ ({
+          resetComponentStates: jest.fn().mockResolvedValue(undefined)
+        })
+      )
 
       // yesNoField=false resolves to £99 (see fixture), but the stored
       // pre-auth is at £50 (the base amount). This mismatch should
       // trigger a reset of paymentField's stored state.
-      const state: FormSubmissionState = {
-        $$__referenceNumber: 'foobar',
-        yesNoField: false,
-        paymentField: {
-          paymentId: 'stale-id',
-          amount: 50,
-          description: 'Test payment',
-          preAuth: { status: 'success' }
-        }
-      } as unknown as FormSubmissionState
-
-      const request = {
-        ...requestPage,
-        server: {
-          plugins: {
-            'forms-engine-plugin': { cacheService }
+      /** @type {FormSubmissionState} */
+      const state = /** @type {FormSubmissionState} */ (
+        /** @type {unknown} */ ({
+          $$__referenceNumber: 'foobar',
+          yesNoField: false,
+          paymentField: {
+            paymentId: 'stale-id',
+            amount: 50,
+            description: 'Test payment',
+            preAuth: { status: 'success' }
           }
-        }
-      } as unknown as FormRequest
+        })
+      )
+
+      const request = /** @type {FormRequest} */ (
+        /** @type {unknown} */ ({
+          ...requestPage,
+          server: {
+            plugins: {
+              'forms-engine-plugin': { cacheService }
+            }
+          }
+        })
+      )
 
       const context = model.getFormContext(request, state)
 
       jest
         .spyOn(
-          controller as unknown as {
-            hasMissingNotificationEmail: () => Promise<boolean>
-          },
+          /** @type {{ hasMissingNotificationEmail: () => Promise<boolean> }} */ (
+            /** @type {unknown} */ (controller)
+          ),
           'hasMissingNotificationEmail'
         )
         .mockResolvedValue(false)
@@ -315,38 +350,45 @@ describe('SummaryPageController - Payment (DF-832)', () => {
     })
 
     it('does not reset payment state when stored amount matches resolved amount', async () => {
-      const cacheService = {
-        resetComponentStates: jest.fn()
-      } as unknown as CacheService
+      const cacheService = /** @type {CacheService} */ (
+        /** @type {unknown} */ ({
+          resetComponentStates: jest.fn()
+        })
+      )
 
       // yesNoField=false resolves to £99; stored pre-auth also at £99.
-      const state: FormSubmissionState = {
-        $$__referenceNumber: 'foobar',
-        yesNoField: false,
-        paymentField: {
-          paymentId: 'fresh-id',
-          amount: 99,
-          description: 'Test payment',
-          preAuth: { status: 'success' }
-        }
-      } as unknown as FormSubmissionState
-
-      const request = {
-        ...requestPage,
-        server: {
-          plugins: {
-            'forms-engine-plugin': { cacheService }
+      /** @type {FormSubmissionState} */
+      const state = /** @type {FormSubmissionState} */ (
+        /** @type {unknown} */ ({
+          $$__referenceNumber: 'foobar',
+          yesNoField: false,
+          paymentField: {
+            paymentId: 'fresh-id',
+            amount: 99,
+            description: 'Test payment',
+            preAuth: { status: 'success' }
           }
-        }
-      } as unknown as FormRequest
+        })
+      )
+
+      const request = /** @type {FormRequest} */ (
+        /** @type {unknown} */ ({
+          ...requestPage,
+          server: {
+            plugins: {
+              'forms-engine-plugin': { cacheService }
+            }
+          }
+        })
+      )
 
       const context = model.getFormContext(request, state)
 
       jest
         .spyOn(
-          controller as unknown as {
-            hasMissingNotificationEmail: () => Promise<boolean>
-          },
+          /** @type {{ hasMissingNotificationEmail: () => Promise<boolean> }} */ (
+            /** @type {unknown} */ (controller)
+          ),
           'hasMissingNotificationEmail'
         )
         .mockResolvedValue(false)
@@ -358,31 +400,36 @@ describe('SummaryPageController - Payment (DF-832)', () => {
     })
 
     it('does nothing when no paymentState is stored yet', async () => {
-      const cacheService = {
-        resetComponentStates: jest.fn()
-      } as unknown as CacheService
+      const cacheService = /** @type {CacheService} */ (
+        /** @type {unknown} */ ({
+          resetComponentStates: jest.fn()
+        })
+      )
 
-      const state: FormSubmissionState = {
+      /** @type {FormSubmissionState} */
+      const state = {
         $$__referenceNumber: 'foobar',
         yesNoField: false
       }
 
-      const request = {
-        ...requestPage,
-        server: {
-          plugins: {
-            'forms-engine-plugin': { cacheService }
+      const request = /** @type {FormRequest} */ (
+        /** @type {unknown} */ ({
+          ...requestPage,
+          server: {
+            plugins: {
+              'forms-engine-plugin': { cacheService }
+            }
           }
-        }
-      } as unknown as FormRequest
+        })
+      )
 
       const context = model.getFormContext(request, state)
 
       jest
         .spyOn(
-          controller as unknown as {
-            hasMissingNotificationEmail: () => Promise<boolean>
-          },
+          /** @type {{ hasMissingNotificationEmail: () => Promise<boolean> }} */ (
+            /** @type {unknown} */ (controller)
+          ),
           'hasMissingNotificationEmail'
         )
         .mockResolvedValue(false)
@@ -403,30 +450,34 @@ describe('SummaryPageController - Payment (DF-832)', () => {
      * bypasses payment capture entirely — that way finaliseComponents
      * still succeeds but no captured payment exists when submitForm
      * evaluates hasPaymentBeenCaptured.
+     * @param {{ captured: boolean }} param0
      */
-    function buildSubmitHarness({ captured }: { captured: boolean }) {
-      const state: FormSubmissionState = captured
-        ? ({
-            $$__referenceNumber: 'foobar',
-            yesNoField: false,
-            paymentField: {
-              paymentId: 'p-1',
-              amount: 99,
-              description: 'Test payment',
-              reference: 'ref-1',
-              preAuth: { status: 'success' },
-              capture: { status: 'success' }
-            }
-          } as unknown as FormSubmissionState)
-        : ({
+    function buildSubmitHarness({ captured }) {
+      /** @type {FormSubmissionState} */
+      const state = captured
+        ? /** @type {FormSubmissionState} */ (
+            /** @type {unknown} */ ({
+              $$__referenceNumber: 'foobar',
+              yesNoField: false,
+              paymentField: {
+                paymentId: 'p-1',
+                amount: 99,
+                description: 'Test payment',
+                reference: 'ref-1',
+                preAuth: { status: 'success' },
+                capture: { status: 'success' }
+              }
+            })
+          )
+        : /** @type {FormSubmissionState} */ ({
             $$__referenceNumber: 'foobar',
             yesNoField: true
-          } as FormSubmissionState)
+          })
 
       const outputSubmit = jest.fn()
       const formSubmissionSubmit = jest.fn()
 
-      model.services = {
+      model.services = /** @type {typeof model.services} */ ({
         ...model.services,
         formSubmissionService: {
           ...model.services.formSubmissionService,
@@ -438,25 +489,31 @@ describe('SummaryPageController - Payment (DF-832)', () => {
           ...model.services.outputService,
           submit: outputSubmit
         }
-      } as typeof model.services
+      })
 
-      const request = {
-        ...requestPage,
-        params: { ...requestPage.params, path: 'summary' },
-        yar: { id: 'session-id', set: jest.fn(), get: jest.fn() },
-        logger: { info: jest.fn(), error: jest.fn() }
-      } as unknown as FormRequestPayload
+      const request = /** @type {FormRequestPayload} */ (
+        /** @type {unknown} */ ({
+          ...requestPage,
+          params: { ...requestPage.params, path: 'summary' },
+          yar: { id: 'session-id', set: jest.fn(), get: jest.fn() },
+          logger: { info: jest.fn(), error: jest.fn() }
+        })
+      )
 
       const context = model.getFormContext(request, state)
 
-      const viewModel = {
-        context,
-        details: []
-      } as unknown as Parameters<typeof submitForm>[3]
+      const viewModel = /** @type {Parameters<typeof submitForm>[3]} */ (
+        /** @type {unknown} */ ({
+          context,
+          details: []
+        })
+      )
 
-      const formMetadata = {
-        contact: { online: { url: '/help' } }
-      } as unknown as Parameters<typeof submitForm>[1]
+      const formMetadata = /** @type {Parameters<typeof submitForm>[1]} */ (
+        /** @type {unknown} */ ({
+          contact: { online: { url: '/help' } }
+        })
+      )
 
       return {
         request,
@@ -528,11 +585,10 @@ describe('SummaryPageController - Payment (DF-832)', () => {
         translator
       )
       const paymentCall = formSubmissionSubmit.mock.calls[0][0]
-      const paymentItems = paymentCall.main as unknown as {
-        name: string
-        title: string
-        value: string
-      }[]
+      const paymentItems =
+        /** @type {{ name: string, title: string, value: string }[]} */ (
+          /** @type {unknown} */ (paymentCall.main)
+        )
       expect(paymentItems).toHaveLength(4)
       expect(paymentItems[0]).toEqual({
         name: 'paymentField_paymentDescription',
@@ -587,3 +643,10 @@ describe('SummaryPageController - Payment (DF-832)', () => {
     })
   })
 })
+
+/**
+ * @import { Translator } from '~/src/server/plugins/engine/i18n/types.js'
+ * @import { FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+ * @import { FormRequest, FormRequestPayload, FormResponseToolkit } from '~/src/server/routes/types.js'
+ * @import { CacheService } from '~/src/server/services/cacheService.js'
+ */
