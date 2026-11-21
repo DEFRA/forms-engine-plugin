@@ -9,7 +9,7 @@ import { findPackageRoot } from '~/src/server/plugins/engine/vision.js'
 import { devtoolContext } from '~/src/server/plugins/nunjucks/context.js'
 
 /**
- * @param {RouteConfig} [routeConfig]
+ * @param {RouteConfig} [param0]
  * @param {CacheService} [cache]
  * @returns {Promise<{
  *   plugin: typeof plugin
@@ -70,7 +70,7 @@ export const configureEnginePlugin = async (
       ordnanceSurveyApiKey,
       ordnanceSurveyApiSecret,
       /**
-       * @param {AnyFormRequest} request
+       * @param {AnyFormRequest} param0
        */
       getLanguage: ({ query, yar }) => {
         if ('language' in query) {
