@@ -1,3 +1,4 @@
+import Boom from '@hapi/boom'
 import { StatusCodes } from 'http-status-codes'
 
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
@@ -39,7 +40,7 @@ export class PaymentService {
    * @param {string} returnUrl
    * @param {string} reference
    * @param {boolean} isLivePayment
-   * @param {{ formId: string, slug: string, language: string } | undefined } metadata
+   * @param {({ formId: string, slug: string, language: string } & Record<string, string>) | undefined} metadata
    * @param {string} [email] - optional email to prepopulate on GOV.UK Pay
    */
   async createPayment(
@@ -234,9 +235,13 @@ export class PaymentService {
     } catch (err) {
       const error = /** @type {Error} */ (err)
       if (!error.message.includes('401 Unauthorized')) {
+         
+        const details = Boom.isBoom(error)
+          ? JSON.stringify(error.data.payload ?? '')
+          : ''
         logger.error(
           error,
-          `[payment] Error creating payment for reference=${payload.reference}: ${error.message}`
+          `[payment] Error creating payment for reference=${payload.reference}: ${error.message} ${details}`
         )
       }
       throw err

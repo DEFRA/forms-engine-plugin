@@ -23,6 +23,7 @@ import {
   PaymentPreAuthError,
   PaymentSubmissionError
 } from '~/src/server/plugins/engine/pageControllers/errors.js'
+import { DEFAULT_REFERENCE_NUMBER } from '~/src/server/plugins/engine/referenceNumbers.js'
 import {
   type FormContext,
   type FormRequestPayload,
@@ -230,6 +231,27 @@ export class PaymentField extends FormComponent {
     return options.amount
   }
 
+  static getReference(state: FormState, request: FormRequestPayload) {
+    const forceReferenceNumber =
+      'force' in request.query ? DEFAULT_REFERENCE_NUMBER : undefined
+    return (state.$$__referenceNumber ?? forceReferenceNumber) as string
+  }
+
+  // Builds metadata for the payment request,
+  // splitting long slugs into multiple fields if necessary
+  // since the payment gateway restricts each metadata value to 100 chars
+  static buildMetadata(formId: string, slug: string, language: string) {
+    const metadata: Record<string, string> & {
+      formId: string
+      slug: string
+      language: string
+    } = { formId, slug: slug.slice(0, 100), language }
+    for (let offset = 100; offset < slug.length; offset += 100) {
+      metadata[`slug${offset / 100 + 1}`] = slug.slice(offset, offset + 100)
+    }
+    return metadata
+  }
+
   /**
    * Dispatcher for external redirect to GOV.UK Pay
    */
@@ -266,7 +288,7 @@ export class PaymentField extends FormComponent {
 
     const uuid = randomUUID()
 
-    const reference = state.$$__referenceNumber as string
+    const reference = PaymentField.getReference(state, request)
     const resolvedAmount = PaymentField.resolveAmount(options, model, state)
 
     // Zero-amount safety net (page skip should prevent this, but defensive)
@@ -278,6 +300,7 @@ export class PaymentField extends FormComponent {
       tComponent(args.component, 'paymentDescription') || options.description
 
     const slug = `/${model.basePath}`
+    const metadata = PaymentField.buildMetadata(formId, slug, language)
 
     const payCallbackUrl = `${baseUrl}/payment-callback?uuid=${uuid}`
     const paymentPageUrl = args.sourceUrl
@@ -295,7 +318,7 @@ export class PaymentField extends FormComponent {
       payCallbackUrl,
       reference,
       isLivePayment,
-      { formId, slug, language },
+      metadata,
       prefilledEmail
     )
 
