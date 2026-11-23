@@ -8,6 +8,7 @@ import { type LanguageMessages } from 'joi'
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { type RenderContext } from '~/src/server/plugins/engine/components/types.js'
 import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
+import { DEFAULT_REFERENCE_NUMBER } from '~/src/server/plugins/engine/referenceNumbers.js'
 import {
   type FormContext,
   type FormRequestPayload
@@ -284,6 +285,12 @@ export class FormComponent extends ComponentBase {
       baseErrors: [],
       advancedSettingsErrors: []
     }
+  }
+
+  static getReference(state: FormState, request: FormRequestPayload): string {
+    const forceReferenceNumber =
+      'force' in request.query ? DEFAULT_REFERENCE_NUMBER : undefined
+    return (state.$$__referenceNumber ?? forceReferenceNumber) as string
   }
 
   onSubmit(

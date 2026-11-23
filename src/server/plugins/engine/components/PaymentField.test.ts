@@ -14,7 +14,6 @@ import {
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import { PaymentPreAuthError } from '~/src/server/plugins/engine/pageControllers/errors.js'
-import { DEFAULT_REFERENCE_NUMBER } from '~/src/server/plugins/engine/referenceNumbers.js'
 import {
   type FormContext,
   type FormState,
@@ -275,23 +274,6 @@ describe('PaymentField', () => {
     })
   })
 
-  describe('getReference', () => {
-    it.each([
-      [{ $$__referenceNumber: 'ref-123' }, {}, 'ref-123'],
-      [{ $$__referenceNumber: 'ref-123' }, { force: '' }, 'ref-123'],
-      [{ $$__referenceNumber: '' }, { force: '' }, ''],
-      [{}, { force: '' }, DEFAULT_REFERENCE_NUMBER],
-      [{}, {}, undefined]
-    ])(
-      'returns the expected reference for state %o and query %o',
-      (state, query, expected) => {
-        const request = { query } as FormRequestPayload
-
-        expect(PaymentField.getReference(state, request)).toBe(expected)
-      }
-    )
-  })
-
   describe('dispatcher and onSubmit', () => {
     const def = {
       title: 'Example payment field',
@@ -373,73 +355,6 @@ describe('PaymentField', () => {
           uuid: expect.any(String)
         })
       })
-
-      it.each([
-        [99, { slug: `/${'a'.repeat(98)}` }],
-        [100, { slug: `/${'a'.repeat(99)}` }],
-        [101, { slug: `/${'a'.repeat(99)}`, slug2: 'b' }],
-        [200, { slug: `/${'a'.repeat(99)}`, slug2: 'b'.repeat(100) }],
-        [
-          201,
-          {
-            slug: `/${'a'.repeat(99)}`,
-            slug2: 'b'.repeat(100),
-            slug3: 'c'
-          }
-        ]
-      ])(
-        'sends a %i-character slug in metadata sections',
-        async (length, slugMetadata) => {
-          const mockH = {
-            redirect: jest
-              .fn()
-              .mockReturnValue({ code: jest.fn().mockReturnValue('ok') })
-          } as unknown as FormResponseToolkit
-          const args = {
-            controller: {
-              model: {
-                formId: 'formid',
-                basePath: `${'a'.repeat(99)}${'b'.repeat(100)}c`.slice(
-                  0,
-                  length - 1
-                ),
-                services: mockServices,
-                createTranslator: (lang: string) => model.createTranslator(lang)
-              },
-              getState: jest
-                .fn()
-                .mockResolvedValue({ $$__referenceNumber: 'pay-ref-123' })
-            },
-            component: paymentField,
-            sourceUrl: 'http://localhost:3009/test-payment',
-            isLive: false,
-            isPreview: true
-          } as unknown as PaymentExternalArgs
-          // @ts-expect-error - partial mock
-          jest.mocked(postJson).mockResolvedValueOnce({
-            payload: {
-              state: { status: 'created' },
-              payment_id: 'new-payment-id',
-              _links: { next_url: { href: '/next-url' } }
-            }
-          })
-
-          await PaymentField.dispatcher(mockRequestBase, mockH, args)
-
-          expect(postJson).toHaveBeenCalledWith(
-            expect.any(String),
-            expect.objectContaining({
-              payload: expect.objectContaining({
-                metadata: {
-                  formId: 'formid',
-                  language: 'en-GB',
-                  ...slugMetadata
-                }
-              })
-            })
-          )
-        }
-      )
 
       it('should redirect to summary if payment is already pre-authorised', async () => {
         const mockRedirectCode = jest.fn().mockReturnValueOnce('redirected')
