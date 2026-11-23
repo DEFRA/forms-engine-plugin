@@ -14,6 +14,7 @@ import {
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import { PaymentPreAuthError } from '~/src/server/plugins/engine/pageControllers/errors.js'
+import { DEFAULT_REFERENCE_NUMBER } from '~/src/server/plugins/engine/referenceNumbers.js'
 import {
   type FormContext,
   type FormState,
@@ -272,6 +273,23 @@ describe('PaymentField', () => {
         expect(errors.advancedSettingsErrors).toBeEmpty()
       })
     })
+  })
+
+  describe('getReference', () => {
+    it.each([
+      [{ $$__referenceNumber: 'ref-123' }, {}, 'ref-123'],
+      [{ $$__referenceNumber: 'ref-123' }, { force: '' }, 'ref-123'],
+      [{ $$__referenceNumber: '' }, { force: '' }, ''],
+      [{}, { force: '' }, DEFAULT_REFERENCE_NUMBER],
+      [{}, {}, undefined]
+    ])(
+      'returns the expected reference for state %o and query %o',
+      (state, query, expected) => {
+        const request = { query } as FormRequestPayload
+
+        expect(PaymentField.getReference(state, request)).toBe(expected)
+      }
+    )
   })
 
   describe('dispatcher and onSubmit', () => {
