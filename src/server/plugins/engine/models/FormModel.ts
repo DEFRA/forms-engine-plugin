@@ -69,6 +69,7 @@ import {
   type PageControllerClass
 } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
+import { DEFAULT_REFERENCE_NUMBER } from '~/src/server/plugins/engine/referenceNumbers.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import {
   type FormContext,
@@ -77,7 +78,10 @@ import {
   type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
-import { FormAction } from '~/src/server/routes/types.js'
+import {
+  FormAction,
+  type FormRequestPayload
+} from '~/src/server/routes/types.js'
 import { merge } from '~/src/server/services/cacheService.js'
 import { type Services } from '~/src/server/types.js'
 
@@ -621,6 +625,16 @@ export class FormModel {
       )
       .filter((comp) => comp.type === ComponentType.PaymentField).length
     return numOfPaymentFields > 1
+  }
+
+  /**
+   * Returns the reference number from state, falling back to the default
+   * reference number when previewing with `?force`
+   */
+  getReference(state: FormState, request: FormRequestPayload): string {
+    const forceReferenceNumber =
+      'force' in request.query ? DEFAULT_REFERENCE_NUMBER : undefined
+    return (state.$$__referenceNumber ?? forceReferenceNumber) as string
   }
 }
 

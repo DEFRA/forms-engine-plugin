@@ -12,8 +12,12 @@ import { todayAsDateOnly } from '~/src/server/plugins/engine/date-helper.js'
 import { SchemaValidationError } from '~/src/server/plugins/engine/errors.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
+import { DEFAULT_REFERENCE_NUMBER } from '~/src/server/plugins/engine/referenceNumbers.js'
 import { type FormContextRequest } from '~/src/server/plugins/engine/types.js'
-import { FormAction } from '~/src/server/routes/types.js'
+import {
+  FormAction,
+  type FormRequestPayload
+} from '~/src/server/routes/types.js'
 import { V2 as definitionV2 } from '~/test/form/definitions/conditions-basic.js'
 import definition from '~/test/form/definitions/conditions-escaping.js'
 import conditionsListDefinition from '~/test/form/definitions/conditions-list.js'
@@ -831,5 +835,23 @@ describe('FormModel - Joined Conditions', () => {
         'Invalid form definition: Only one payment question is allowed per form'
       )
     })
+  })
+
+  describe('getReference', () => {
+    it.each([
+      [{ $$__referenceNumber: 'ref-123' }, {}, 'ref-123'],
+      [{ $$__referenceNumber: 'ref-123' }, { force: '' }, 'ref-123'],
+      [{ $$__referenceNumber: '' }, { force: '' }, ''],
+      [{}, { force: '' }, DEFAULT_REFERENCE_NUMBER],
+      [{}, {}, undefined]
+    ])(
+      'returns the expected reference for state %o and query %o',
+      (state, query, expected) => {
+        const model = new FormModel(definition, { basePath: 'test' })
+        const request = { query } as FormRequestPayload
+
+        expect(model.getReference(state, request)).toBe(expected)
+      }
+    )
   })
 })

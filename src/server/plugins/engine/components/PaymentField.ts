@@ -266,7 +266,7 @@ export class PaymentField extends FormComponent {
 
     const uuid = randomUUID()
 
-    const reference = FormComponent.getReference(state, request)
+    const reference = model.getReference(state, request)
     const resolvedAmount = PaymentField.resolveAmount(options, model, state)
 
     // Zero-amount safety net (page skip should prevent this, but defensive)
