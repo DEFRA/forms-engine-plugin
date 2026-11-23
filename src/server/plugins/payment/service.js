@@ -236,7 +236,8 @@ export class PaymentService {
       const error = /** @type {Error} */ (err)
       if (!error.message.includes('401 Unauthorized')) {
         const details = Boom.isBoom(error)
-          ? JSON.stringify(error.data.payload ?? '')
+          ? // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            JSON.stringify(error.data.payload ?? '')
           : ''
         logger.error(
           error,
