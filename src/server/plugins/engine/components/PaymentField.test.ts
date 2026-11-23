@@ -314,7 +314,7 @@ describe('PaymentField', () => {
               name: 'PaymentModel',
               services: mockServices,
               createTranslator: (lang: string) => model.createTranslator(lang),
-              getReference: model.getReference.bind(model)
+              getReference: jest.fn().mockReturnValue('pay-ref-123')
             },
             getState: jest
               .fn()
@@ -371,7 +371,7 @@ describe('PaymentField', () => {
               name: 'PaymentModel',
               services: mockServices,
               createTranslator: (lang: string) => model.createTranslator(lang),
-              getReference: model.getReference.bind(model)
+              getReference: jest.fn().mockReturnValue('pay-ref-123')
             },
             getState: jest.fn().mockResolvedValueOnce({
               $$__referenceNumber: 'pay-ref-123',
@@ -428,7 +428,7 @@ describe('PaymentField', () => {
               name: 'PaymentModel',
               services: mockServices,
               createTranslator: (lang: string) => model.createTranslator(lang),
-              getReference: model.getReference.bind(model)
+              getReference: jest.fn().mockReturnValue('pay-ref-123')
             },
             getState: jest
               .fn()
@@ -484,7 +484,7 @@ describe('PaymentField', () => {
               name: 'PaymentModel',
               services: mockServices,
               createTranslator: (lang: string) => model.createTranslator(lang),
-              getReference: model.getReference.bind(model)
+              getReference: jest.fn().mockReturnValue('pay-ref-123')
             },
             getState: jest
               .fn()
@@ -873,7 +873,7 @@ describe('PaymentField', () => {
               'cond-zero': { fn: () => true }
             },
             createTranslator: (lang: string) => model.createTranslator(lang),
-            getReference: model.getReference.bind(model)
+            getReference: jest.fn().mockReturnValue('ref-123')
           },
           getState: jest.fn().mockResolvedValueOnce({
             $$__referenceNumber: 'ref-123'
@@ -921,7 +921,7 @@ describe('PaymentField', () => {
               'cond-100': { fn: () => true }
             },
             createTranslator: (lang: string) => model.createTranslator(lang),
-            getReference: model.getReference.bind(model)
+            getReference: jest.fn().mockReturnValue('ref-123')
           },
           getState: jest.fn().mockResolvedValueOnce({
             $$__referenceNumber: 'ref-123'
@@ -976,7 +976,7 @@ describe('PaymentField', () => {
             services: mockServices,
             conditions: {},
             createTranslator: (lang: string) => model.createTranslator(lang),
-            getReference: model.getReference.bind(model)
+            getReference: jest.fn().mockReturnValue('ref-123')
           },
           getState: jest.fn().mockResolvedValueOnce({
             $$__referenceNumber: 'ref-123',
@@ -1035,7 +1035,7 @@ describe('PaymentField', () => {
             services: mockServices,
             conditions: {},
             createTranslator: (lang: string) => model.createTranslator(lang),
-            getReference: model.getReference.bind(model)
+            getReference: jest.fn().mockReturnValue('ref-123')
           },
           getState: jest.fn().mockResolvedValueOnce({
             $$__referenceNumber: 'ref-123'
@@ -1093,7 +1093,7 @@ describe('PaymentField', () => {
             services: mockServices,
             conditions: {},
             createTranslator: (lang: string) => model.createTranslator(lang),
-            getReference: model.getReference.bind(model)
+            getReference: jest.fn().mockReturnValue('ref-123')
           },
           getState: jest.fn().mockResolvedValueOnce({
             $$__referenceNumber: 'ref-123',
