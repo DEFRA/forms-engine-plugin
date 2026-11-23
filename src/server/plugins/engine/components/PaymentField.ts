@@ -241,11 +241,13 @@ export class PaymentField extends FormComponent {
   // splitting long slugs into multiple fields if necessary
   // since the payment gateway restricts each metadata value to 100 chars
   static buildMetadata(formId: string, slug: string, language: string) {
+    // metadata with first part of slug
     const metadata: Record<string, string> & {
       formId: string
       slug: string
       language: string
     } = { formId, slug: slug.slice(0, 100), language }
+    // Add additional slug parts if the slug exceeds 100 characters
     for (let offset = 100; offset < slug.length; offset += 100) {
       metadata[`slug${offset / 100 + 1}`] = slug.slice(offset, offset + 100)
     }
