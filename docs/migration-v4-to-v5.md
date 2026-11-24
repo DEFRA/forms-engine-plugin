@@ -202,15 +202,17 @@ These changes affect code that imports from `@defra/forms-engine-plugin/engine/*
 - `engine/components/constants.js` is removed. Use `translator.t('common.optional')` in place of `optionalText`. `optionalText` was `' (optional)'` with a leading space, and the translation is `'(optional)'` with no space.
 - `unavailableViewModel(metadata)` in `engine/models/unavailable-view-model.js` takes `(metadata, definition, language)`, so that the unavailable page can show the form title in the user's language.
 - `getLocationFieldViewModel(component, viewModel, payload, errors)` in `engine/components/LocationFieldHelpers.js` takes `(component, viewModel, context)`, where `context` is a `RenderContext`.
-- In the hapi type declarations, `server.plugins['forms-engine-plugin']` has a required `generateReferenceNumber` function. TypeScript test code that builds this object needs the new property. The plugin option itself is optional: see [Reference numbers](#reference-numbers).
+- In the hapi type declarations, `server.plugins['forms-engine-plugin']` has a new, required `generateReferenceNumber` property. At registration, the plugin sets it to the `generateReferenceNumber` plugin option, or to the built-in generator when you do not supply the option. See [Reference numbers](#reference-numbers).
 
 ## Reference numbers
 
-v5 adds an optional [`generateReferenceNumber` plugin option](./plugin-options#generatereferencenumber). You need no change to upgrade.
+v5 adds an optional plugin registration option, [`generateReferenceNumber`](./plugin-options#generatereferencenumber). It is a function that takes the form's `referenceNumberPrefix` and returns a promise of the reference number. You need no change to upgrade.
 
-Without the option, the plugin makes reference numbers as v4 does: one random number per session, when the session starts, in the format `XXX-XXX-XXX` or `PREFIX-XXX-XXX`. The plugin does not check these numbers against earlier ones, so two sessions can get the same number.
+When you supply it, the plugin calls your function once per session, when the session starts, and shows the user the number that your function returns. Use it when you want a server-side service to make the reference number, for example to make numbers that are unique across all submissions.
 
-Supply the option when you want a server-side service to make the reference number, for example to make numbers that are unique across all submissions. The plugin calls your function once per session, with the `referenceNumberPrefix` from the form definition, and shows the user the number that your service returns.
+When you do not supply it, the plugin makes the reference number as v4 does: one random alphanumeric reference per session, when the session starts, in the format `XXX-XXX-XXX` or `PREFIX-XXX-XXX`. The plugin does not check these references against earlier ones, so two sessions can get the same reference.
+
+In both cases, the function that the plugin uses is available at `server.plugins['forms-engine-plugin'].generateReferenceNumber`.
 
 ## Deploying v5
 
