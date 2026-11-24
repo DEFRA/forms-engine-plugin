@@ -212,7 +212,7 @@ The `generateReferenceNumber` option replaces the function that makes the refere
 export type GenerateReferenceNumberHandler = (prefix?: string) => Promise<string>
 ```
 
-Use it when another service owns the reference numbers, so that the number the user sees is the one your service stores:
+Use it when a server-side service makes the reference numbers, for example to make references that are unique across all submissions, so that the number the user sees is the one your service stores:
 
 ```js
 await server.register({
@@ -226,7 +226,9 @@ await server.register({
 })
 ```
 
-Without this option, the plugin makes a random reference in the format `XXX-XXX-XXX`, or `PREFIX-XXX-XXX` when the form has a prefix.
+Without this option, the plugin makes one random alphanumeric reference per session, in the format `XXX-XXX-XXX`, or `PREFIX-XXX-XXX` when the form has a prefix. The plugin does not check these references against earlier ones, so two sessions can get the same reference.
+
+In both cases, the function that the plugin uses is available at `server.plugins['forms-engine-plugin'].generateReferenceNumber`.
 
 ### saveAndExit
 

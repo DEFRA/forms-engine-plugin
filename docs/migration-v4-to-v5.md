@@ -1,6 +1,6 @@
 # Migrating from v4 to v5
 
-This guide lists the changes you must make to move an application from `@defra/forms-engine-plugin` v4 to v5. For new capabilities in v5, such as [multi-language support](./features/multi-language), see [Features](./features).
+This guide lists the changes you must make to move an application from `@defra/forms-engine-plugin` v4 to v5. For new capabilities in v5, such as [multi-language support](./features/multi-language) and the [`generateReferenceNumber` plugin option](./plugin-options#generatereferencenumber), see [Features](./features) and [Plugin options](./plugin-options).
 
 v5 keeps the v4 plugin options, service interfaces and page controller methods. New arguments, such as the translator, are optional and come last. Most applications need only the runtime and dependency changes, and the client build changes if they show maps. To show a custom page controller in Welsh, see [Multi-language support](./features/multi-language#translate-text-in-custom-page-controllers).
 
@@ -202,17 +202,7 @@ These changes affect code that imports from `@defra/forms-engine-plugin/engine/*
 - `engine/components/constants.js` is removed. Use `translator.t('common.optional')` in place of `optionalText`. `optionalText` was `' (optional)'` with a leading space, and the translation is `'(optional)'` with no space.
 - `unavailableViewModel(metadata)` in `engine/models/unavailable-view-model.js` takes `(metadata, definition, language)`, so that the unavailable page can show the form title in the user's language.
 - `getLocationFieldViewModel(component, viewModel, payload, errors)` in `engine/components/LocationFieldHelpers.js` takes `(component, viewModel, context)`, where `context` is a `RenderContext`.
-- In the hapi type declarations, `server.plugins['forms-engine-plugin']` has a new, required `generateReferenceNumber` property. At registration, the plugin sets it to the `generateReferenceNumber` plugin option, or to the built-in generator when you do not supply the option. See [Reference numbers](#reference-numbers).
-
-## Reference numbers
-
-v5 adds an optional plugin registration option, [`generateReferenceNumber`](./plugin-options#generatereferencenumber). It is a function that takes the form's `referenceNumberPrefix` and returns a promise of the reference number. You need no change to upgrade.
-
-When you supply it, the plugin calls your function once per session, when the session starts, and shows the user the number that your function returns. Use it when you want a server-side service to make the reference number, for example to make numbers that are unique across all submissions.
-
-When you do not supply it, the plugin makes the reference number as v4 does: one random alphanumeric reference per session, when the session starts, in the format `XXX-XXX-XXX` or `PREFIX-XXX-XXX`. The plugin does not check these references against earlier ones, so two sessions can get the same reference.
-
-In both cases, the function that the plugin uses is available at `server.plugins['forms-engine-plugin'].generateReferenceNumber`.
+- In the hapi type declarations, `server.plugins['forms-engine-plugin']` has a new, required `generateReferenceNumber` property. At registration, the plugin sets it to the `generateReferenceNumber` plugin option, or to the built-in generator when you do not supply the option. You do not have to supply it: without it, the plugin makes reference numbers as v4 does. See [generateReferenceNumber](./plugin-options#generatereferencenumber).
 
 ## Deploying v5
 
