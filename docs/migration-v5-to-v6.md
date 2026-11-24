@@ -16,7 +16,7 @@ In v6 the plugin's source is JavaScript with JSDoc types, not TypeScript. The pl
 
 ## Optional class fields
 
-JSDoc has no way to make a class field optional. A field that was `id?: string` is now `id: string | undefined` in the type declarations of these classes:
+A class field declared in JavaScript is always present, so JSDoc can type it but cannot make it optional. A field that was `id?: string` is now `id: string | undefined` in the type declarations of these classes:
 
 | Class                       | Fields                                                                                                                                                                                    |
 | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
