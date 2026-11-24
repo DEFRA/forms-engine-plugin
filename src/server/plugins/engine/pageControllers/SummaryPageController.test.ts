@@ -527,9 +527,7 @@ describe('SummaryPageController - Payment (DF-832)', () => {
         'notify@example.com',
         translator
       )
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const paymentCall = formSubmissionSubmit.mock.calls[0][0]
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const paymentItems = paymentCall.main as unknown as {
         name: string
         title: string
@@ -556,7 +554,6 @@ describe('SummaryPageController - Payment (DF-832)', () => {
         title: 'Payment date',
         value: ''
       })
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       expect(paymentCall.language).toBeUndefined()
     })
 
@@ -585,9 +582,7 @@ describe('SummaryPageController - Payment (DF-832)', () => {
         'notify@example.com',
         welshTranslator
       )
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const paymentCall = formSubmissionSubmit.mock.calls[0][0]
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       expect(paymentCall.language).toBe('cy')
     })
   })

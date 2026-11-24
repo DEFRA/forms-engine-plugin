@@ -48,7 +48,6 @@ export function validatePluginOptions(options) {
     throw new Error('Invalid plugin options', result.error)
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return result.value
 }
 

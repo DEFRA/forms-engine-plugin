@@ -451,7 +451,6 @@ describe('Adapter v1 formatter', () => {
 
     const body = format(context, items, model, submitResponse, formStatus)
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     expect(() => JSON.parse(body)).not.toThrow()
     expect(typeof body).toBe('string')
   })
