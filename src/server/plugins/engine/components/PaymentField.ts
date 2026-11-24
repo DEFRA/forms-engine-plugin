@@ -266,7 +266,7 @@ export class PaymentField extends FormComponent {
 
     const uuid = randomUUID()
 
-    const reference = state.$$__referenceNumber as string
+    const reference = model.getReference(state, request)
     const resolvedAmount = PaymentField.resolveAmount(options, model, state)
 
     // Zero-amount safety net (page skip should prevent this, but defensive)
@@ -276,8 +276,6 @@ export class PaymentField extends FormComponent {
 
     const description =
       tComponent(args.component, 'paymentDescription') || options.description
-
-    const slug = `/${model.basePath}`
 
     const payCallbackUrl = `${baseUrl}/payment-callback?uuid=${uuid}`
     const paymentPageUrl = args.sourceUrl
@@ -295,7 +293,7 @@ export class PaymentField extends FormComponent {
       payCallbackUrl,
       reference,
       isLivePayment,
-      { formId, slug, language },
+      { formId, language },
       prefilledEmail
     )
 

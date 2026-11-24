@@ -1,3 +1,6 @@
+import Boom from '@hapi/boom'
+
+import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { EN_GB } from '~/src/server/constants.js'
 import { PaymentService } from '~/src/server/plugins/payment/service.js'
 import { get, post, postJson } from '~/src/server/services/httpService.js'
@@ -108,6 +111,38 @@ describe('payment service', () => {
       )
       expect(res).toBeUndefined()
     })
+  })
+
+  describe('postToPayProvider', () => {
+    it.each([
+      [
+        { code: 'P0100', description: 'Invalid metadata' },
+        '{"code":"P0100","description":"Invalid metadata"}'
+      ],
+      [undefined, '""']
+    ])(
+      'logs Boom error details and rethrows the error',
+      async (details, loggedDetails) => {
+        const error = Boom.badRequest('Pay error', { payload: details })
+        const logError = jest
+          .spyOn(logger, 'error')
+          .mockImplementation(() => undefined)
+        jest.mocked(postJson).mockRejectedValueOnce(error)
+        const payload = {
+          amount: 100,
+          description: 'Payment description',
+          reference: 'ABC-DEF-123',
+          return_url: 'http://localhost:3009/payment-callback-handler',
+          language: 'en'
+        }
+
+        await expect(service.postToPayProvider(payload)).rejects.toBe(error)
+        expect(logError).toHaveBeenCalledWith(
+          error,
+          `[payment] Error creating payment for reference=ABC-DEF-123: Pay error ${loggedDetails}`
+        )
+      }
+    )
   })
 
   describe('getPaymentStatus', () => {
