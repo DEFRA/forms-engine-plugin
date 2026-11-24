@@ -564,7 +564,7 @@ export {
  * A detail item specifically for files
  * @typedef {Omit<DetailItemField, 'field'> & {
  *   field: FileUploadField
- * }} FileUploadFieldDetailitem
+ * }} FileUploadFieldDetailItem
  */
 
 /**
