@@ -13,6 +13,7 @@ In v6 the plugin's source is JavaScript with JSDoc types, not TypeScript. The pl
 | [`LocationFieldBase` is not `abstract` in the types](#locationfieldbase)    | Code that subclasses `LocationFieldBase`                                     | Trivial |
 | [`SchemaValidationError.cause` is enumerable](#schemavalidationerror-cause) | Code that serialises errors with `JSON.stringify` or copies their properties | Trivial |
 | [`FileUploadFieldDetailitem` is renamed](#fileuploadfielddetailitem)        | TypeScript code that imports `FileUploadFieldDetailitem`                     | Trivial |
+| [`ADDITIONAL_IDENTIFIER` is not an enum](#additional_identifier)            | TypeScript code that uses `ADDITIONAL_IDENTIFIER.Confirmation` as a type     | Trivial |
 
 ## Optional class fields
 
@@ -94,6 +95,23 @@ After:
 
 ```ts
 import { type FileUploadFieldDetailItem } from '@defra/forms-engine-plugin/engine/types.js'
+```
+
+## ADDITIONAL_IDENTIFIER
+
+`ADDITIONAL_IDENTIFIER`, from `@defra/forms-engine-plugin/cache-service.js`, is now a read-only object rather than a TypeScript enum. Its value has not changed, so `ADDITIONAL_IDENTIFIER.Confirmation` is still `':confirmation'` and the keys the cache service writes are the same as before. As a type, `ADDITIONAL_IDENTIFIER` is now the union of its values: the string `':confirmation'` is accepted wherever that type is expected, and a member such as `ADDITIONAL_IDENTIFIER.Confirmation` can no longer be used as a type on its own.
+
+Before:
+
+```ts
+const id: ADDITIONAL_IDENTIFIER.Confirmation = ADDITIONAL_IDENTIFIER.Confirmation
+```
+
+After:
+
+```ts
+const id: typeof ADDITIONAL_IDENTIFIER.Confirmation =
+  ADDITIONAL_IDENTIFIER.Confirmation
 ```
 
 ## Other changes to the type declarations
