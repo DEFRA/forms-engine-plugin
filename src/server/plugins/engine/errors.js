@@ -1,5 +1,3 @@
-import { type ValidationError } from 'joi'
-
 /**
  * Base class for errors caused by an invalid form definition — whether it
  * fails schema validation or passes the schema but cannot be used by the
@@ -13,7 +11,11 @@ import { type ValidationError } from 'joi'
  * details such as file paths, configuration values or secrets.
  */
 export class InvalidFormDefinitionError extends Error {
-  constructor(message: string, options?: ErrorOptions) {
+  /**
+   * @param {string} message
+   * @param {ErrorOptions} [options]
+   */
+  constructor(message, options) {
     super(message, options)
     this.name = 'InvalidFormDefinitionError'
   }
@@ -24,9 +26,17 @@ export class InvalidFormDefinitionError extends Error {
  * evaluatable expression (e.g. it references the wrong component or list).
  */
 export class ConditionBuildError extends InvalidFormDefinitionError {
-  public readonly conditionName: string
+  /**
+   * @readonly
+   * @type {string}
+   */
+  conditionName
 
-  constructor(conditionName: string, options?: ErrorOptions) {
+  /**
+   * @param {string} conditionName
+   * @param {ErrorOptions} [options]
+   */
+  constructor(conditionName, options) {
     super(`Failed to build condition '${conditionName}'`, options)
     this.name = 'ConditionBuildError'
     this.conditionName = conditionName
@@ -38,9 +48,16 @@ export class ConditionBuildError extends InvalidFormDefinitionError {
  * registered by the host application.
  */
 export class UnknownPageControllerError extends InvalidFormDefinitionError {
-  public readonly controllerName: string
+  /**
+   * @readonly
+   * @type {string}
+   */
+  controllerName
 
-  constructor(controllerName: string) {
+  /**
+   * @param {string} controllerName
+   */
+  constructor(controllerName) {
     super(`Page controller ${controllerName} does not exist`)
     this.name = 'UnknownPageControllerError'
     this.controllerName = controllerName
@@ -51,9 +68,16 @@ export class UnknownPageControllerError extends InvalidFormDefinitionError {
  * Thrown when a component declares a type with no registered implementation.
  */
 export class UnknownComponentTypeError extends InvalidFormDefinitionError {
-  public readonly componentType: string
+  /**
+   * @readonly
+   * @type {string}
+   */
+  componentType
 
-  constructor(componentType: string) {
+  /**
+   * @param {string} componentType
+   */
+  constructor(componentType) {
     super(`Component type ${componentType} does not exist`)
     this.name = 'UnknownComponentTypeError'
     this.componentType = componentType
@@ -68,11 +92,24 @@ export class UnknownComponentTypeError extends InvalidFormDefinitionError {
  */
 export class SchemaValidationError extends InvalidFormDefinitionError {
   // Error types `cause` as unknown; this constructor only accepts a Joi
-  // ValidationError, so narrow the declaration for consumers (type-only).
-  declare cause: ValidationError
+  // ValidationError, so narrow the declaration for consumers. As a class
+  // field, `cause` keeps the value the Error constructor set and is
+  // enumerable.
+  /** @type {Joi.ValidationError} */
+  // @ts-expect-error TS2729: the base constructor has already set it
+  cause = this.cause
 
-  constructor(cause: ValidationError) {
+  /**
+   * @param {Joi.ValidationError} cause
+   */
+  constructor(cause) {
     super(`Invalid form definition: ${cause.message}`, { cause })
     this.name = 'SchemaValidationError'
   }
 }
+
+/**
+ * The default import rather than the named `ValidationError`, so that `tsc`
+ * keeps the import in `errors.d.ts`. TypeScript 7 no longer needs this.
+ * @import Joi from 'joi'
+ */
