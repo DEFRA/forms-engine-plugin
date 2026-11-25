@@ -1,11 +1,5 @@
-import {
-  hasComponentsEvenIfNoNext,
-  type FormMetadata,
-  type Page,
-  type SubmitPayload
-} from '@defra/forms-model'
+import { hasComponentsEvenIfNoNext } from '@defra/forms-model'
 import Boom from '@hapi/boom'
-import { type RouteOptions } from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
 
 import {
@@ -20,16 +14,7 @@ import {
   createError,
   getCacheService
 } from '~/src/server/plugins/engine/helpers.js'
-import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
-import {
-  SummaryViewModel,
-  type FormModel
-} from '~/src/server/plugins/engine/models/index.js'
-import {
-  type Detail,
-  type DetailItem,
-  type DetailItemField
-} from '~/src/server/plugins/engine/models/types.js'
+import { SummaryViewModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
   InvalidComponentStateError,
@@ -42,25 +27,17 @@ import {
   buildRepeaterRecords
 } from '~/src/server/plugins/engine/pageControllers/helpers/submission.js'
 import {
-  type FormConfirmationState,
-  type FormContext,
-  type FormContextRequest
-} from '~/src/server/plugins/engine/types.js'
-import {
   DEFAULT_PAYMENT_HELP_URL,
   formatCurrency,
   formatPaymentDate
 } from '~/src/server/plugins/payment/helper.js'
-import {
-  FormAction,
-  type FormRequest,
-  type FormRequestPayload,
-  type FormRequestPayloadRefs,
-  type FormResponseToolkit
-} from '~/src/server/routes/types.js'
+import { FormAction } from '~/src/server/routes/types.js'
 
 export class SummaryPageController extends QuestionPageController {
-  declare pageDef: Page
+  /** @type {Page} */
+  // @ts-expect-error TS2729: the base constructor has already set it
+  pageDef = this.pageDef
+
   allowSaveAndExit = true
 
   /**
@@ -70,29 +47,50 @@ export class SummaryPageController extends QuestionPageController {
   /**
    * Finds the PaymentField component across all pages in the model.
    * Payment pages are skipped in the normal page walk
+   * @private
+   * @returns {PaymentField | undefined}
    */
-  private findPaymentField(): PaymentField | undefined {
+  findPaymentField() {
     return this.model.pages
       .flatMap((page) => page.collection.fields)
-      .find((field): field is PaymentField => field instanceof PaymentField)
+      .find(
+        /**
+         * @returns {field is PaymentField}
+         */
+        (field) => field instanceof PaymentField
+      )
   }
 
-  constructor(model: FormModel, pageDef: Page) {
+  /**
+   * @param {FormModel} model
+   * @param {Page} pageDef
+   */
+  constructor(model, pageDef) {
     super(model, pageDef)
-    this.viewName = 'summary'
+    this.viewName = /** @type {QuestionPageController['viewName']} */ (
+      'summary'
+    )
 
     // Components collection
-    this.collection = new ComponentCollection(
-      hasComponentsEvenIfNoNext(pageDef) ? pageDef.components : [],
-      { model, page: this }
+    this.collection = /** @type {QuestionPageController['collection']} */ (
+      new ComponentCollection(
+        hasComponentsEvenIfNoNext(pageDef) ? pageDef.components : [],
+        { model, page: this }
+      )
     )
   }
 
+  /**
+   * @param {FormContextRequest} request
+   * @param {FormContext} context
+   * @param {Translator} [translator]
+   * @returns {SummaryViewModel}
+   */
   getSummaryViewModel(
-    request: FormContextRequest,
-    context: FormContext,
-    translator: Translator = context.translator ?? this.model.createTranslator()
-  ): SummaryViewModel {
+    request,
+    context,
+    translator = context.translator ?? this.model.createTranslator()
+  ) {
     const { t } = translator
 
     const viewModel = new SummaryViewModel(request, this, context, translator)
@@ -148,13 +146,13 @@ export class SummaryPageController extends QuestionPageController {
     return viewModel
   }
 
-  private buildPaymentDetails(
-    paymentField: PaymentField,
-    paymentState: NonNullable<
-      ReturnType<PaymentField['getPaymentStateFromState']>
-    >,
-    translator: Translator
-  ) {
+  /**
+   * @private
+   * @param {PaymentField} paymentField
+   * @param {NonNullable<ReturnType<PaymentField['getPaymentStateFromState']>>} paymentState
+   * @param {Translator} translator
+   */
+  buildPaymentDetails(paymentField, paymentState, translator) {
     const { t } = translator
     const rows = [
       {
@@ -193,11 +191,12 @@ export class SummaryPageController extends QuestionPageController {
    * Returns an async function. This is called in plugin.js when there is a GET request at `/{id}/{path*}`,
    */
   makeGetRouteHandler() {
-    return async (
-      request: FormRequest,
-      context: FormContext,
-      h: FormResponseToolkit
-    ) => {
+    /**
+     * @param {FormRequest} request
+     * @param {FormContext} context
+     * @param {FormResponseToolkit} h
+     */
+    return async (request, context, h) => {
       const { viewName } = this
 
       const translator = this.getTranslator(request)
@@ -207,7 +206,7 @@ export class SummaryPageController extends QuestionPageController {
       // showing CYA again. The payment is already pre-authorized.
       if (request.query.paymentComplete === 'true') {
         return this.handleFormSubmit(
-          request as unknown as FormRequestPayload,
+          /** @type {FormRequestPayload} */ (/** @type {unknown} */ (request)),
           context,
           h
         )
@@ -228,11 +227,11 @@ export class SummaryPageController extends QuestionPageController {
   /**
    * Checks if the resolved payment amount has changed since pre-auth
    * and invalidates stale payment state if so.
+   * @private
+   * @param {FormRequest} request
+   * @param {FormContext} context
    */
-  private async reconcilePaymentState(
-    request: FormRequest,
-    context: FormContext
-  ) {
+  async reconcilePaymentState(request, context) {
     const paymentField = this.findPaymentField()
 
     if (!paymentField) {
@@ -257,11 +256,12 @@ export class SummaryPageController extends QuestionPageController {
    * If a form is incomplete, a user will be redirected to the start page.
    */
   makePostRouteHandler() {
-    return async (
-      request: FormRequestPayload,
-      context: FormContext,
-      h: FormResponseToolkit
-    ) => {
+    /**
+     * @param {FormRequestPayload} request
+     * @param {FormContext} context
+     * @param {FormResponseToolkit} h
+     */
+    return async (request, context, h) => {
       const { action } = request.payload
       if (action === FormAction.SaveAndExit) {
         return this.handleSaveAndExit(request, context, h)
@@ -271,11 +271,12 @@ export class SummaryPageController extends QuestionPageController {
     }
   }
 
-  async handleFormSubmit(
-    request: FormRequestPayload,
-    context: FormContext,
-    h: FormResponseToolkit
-  ) {
+  /**
+   * @param {FormRequestPayload} request
+   * @param {FormContext} context
+   * @param {FormResponseToolkit} h
+   */
+  async handleFormSubmit(request, context, h) {
     const { model } = this
     const { params } = request
 
@@ -309,11 +310,14 @@ export class SummaryPageController extends QuestionPageController {
       }
     }
 
-    await cacheService.setConfirmationState(request, {
-      confirmed: true,
-      formId: context.state.formId,
-      referenceNumber: context.referenceNumber
-    } as FormConfirmationState)
+    await cacheService.setConfirmationState(
+      request,
+      /** @type {FormConfirmationState} */ ({
+        confirmed: true,
+        formId: context.state.formId,
+        referenceNumber: context.referenceNumber
+      })
+    )
 
     await cacheService.clearState(request)
 
@@ -322,12 +326,12 @@ export class SummaryPageController extends QuestionPageController {
 
   /**
    * Handles errors during form submission
+   * @private
+   * @param {unknown} error
+   * @param {FormRequestPayload} request
+   * @param {FormResponseToolkit} h
    */
-  private async handleSubmissionError(
-    error: unknown,
-    request: FormRequestPayload,
-    h: FormResponseToolkit
-  ) {
+  async handleSubmissionError(error, request, h) {
     if (error instanceof InvalidComponentStateError) {
       return this.handleInvalidComponentStateError(error, request, h)
     }
@@ -345,12 +349,12 @@ export class SummaryPageController extends QuestionPageController {
 
   /**
    * Handles InvalidComponentStateError during submission
+   * @private
+   * @param {InvalidComponentStateError} error
+   * @param {FormRequestPayload} request
+   * @param {FormResponseToolkit} h
    */
-  private async handleInvalidComponentStateError(
-    error: InvalidComponentStateError,
-    request: FormRequestPayload,
-    h: FormResponseToolkit
-  ) {
+  async handleInvalidComponentStateError(error, request, h) {
     const cacheService = getCacheService(request.server)
 
     const govukError = createError(error.component.name, error.userMessage)
@@ -364,12 +368,12 @@ export class SummaryPageController extends QuestionPageController {
 
   /**
    * Handles PaymentPreAuthError during submission
+   * @private
+   * @param {PaymentPreAuthError} error
+   * @param {FormRequestPayload} request
+   * @param {FormResponseToolkit} h
    */
-  private async handlePaymentPreAuthError(
-    error: PaymentPreAuthError,
-    request: FormRequestPayload,
-    h: FormResponseToolkit
-  ) {
+  async handlePaymentPreAuthError(error, request, h) {
     const cacheService = getCacheService(request.server)
 
     if (error.shouldResetState) {
@@ -405,12 +409,12 @@ export class SummaryPageController extends QuestionPageController {
 
   /**
    * Handles PaymentSubmissionError during submission
+   * @private
+   * @param {PaymentSubmissionError} error
+   * @param {FormRequestPayload} request
+   * @param {FormResponseToolkit} h
    */
-  private handlePaymentSubmissionError(
-    error: PaymentSubmissionError,
-    request: FormRequestPayload,
-    h: FormResponseToolkit
-  ) {
+  handlePaymentSubmissionError(error, request, h) {
     const { t } = this.getTranslator(request)
 
     const helpUrl = error.helpLink ?? DEFAULT_PAYMENT_HELP_URL
@@ -429,7 +433,10 @@ export class SummaryPageController extends QuestionPageController {
     return this.proceed(request, h)
   }
 
-  get postRouteOptions(): RouteOptions<FormRequestPayloadRefs> {
+  /**
+   * @returns {RouteOptions<FormRequestPayloadRefs>}
+   */
+  get postRouteOptions() {
     return {
       ext: {
         onPreHandler: {
@@ -442,14 +449,23 @@ export class SummaryPageController extends QuestionPageController {
   }
 }
 
+/**
+ * @param {FormContext} context
+ * @param {FormMetadata} formMetadata
+ * @param {FormRequestPayload} request
+ * @param {SummaryViewModel} summaryViewModel
+ * @param {FormModel} model
+ * @param {string} emailAddress
+ * @param {Translator} [translator]
+ */
 export async function submitForm(
-  context: FormContext,
-  formMetadata: FormMetadata,
-  request: FormRequestPayload,
-  summaryViewModel: SummaryViewModel,
-  model: FormModel,
-  emailAddress: string,
-  translator: Translator = context.translator ?? model.createTranslator()
+  context,
+  formMetadata,
+  request,
+  summaryViewModel,
+  model,
+  emailAddress,
+  translator = context.translator ?? model.createTranslator()
 ) {
   await finaliseComponents(request, formMetadata, context, model)
 
@@ -504,11 +520,11 @@ export async function submitForm(
 
 /**
  * Checks if any payment component has been captured
+ * @param {FormContext} context
+ * @param {FormModel} model
+ * @returns {boolean}
  */
-function hasPaymentBeenCaptured(
-  context: FormContext,
-  model: FormModel
-): boolean {
+function hasPaymentBeenCaptured(context, model) {
   for (const page of model.pages) {
     for (const field of page.collection.fields) {
       if (field instanceof PaymentField) {
@@ -528,13 +544,12 @@ function hasPaymentBeenCaptured(
  * Examples include:
  * - file uploads which are 'persisted' before submission
  * - payments which are 'captured' before submission
+ * @param {FormRequestPayload} request
+ * @param {FormMetadata} metadata
+ * @param {FormContext} context
+ * @param {FormModel} model
  */
-async function finaliseComponents(
-  request: FormRequestPayload,
-  metadata: FormMetadata,
-  context: FormContext,
-  model: FormModel
-) {
+async function finaliseComponents(request, metadata, context, model) {
   // Get fields from relevant pages (normal components)
   // plus PaymentField from all pages (payment page is skipped in the page walk)
   const allFields = new Set([
@@ -549,18 +564,27 @@ async function finaliseComponents(
   }
 }
 
+/**
+ * @param {FormModel} model
+ * @param {DetailItem[]} items
+ * @param {string} retrievalKey
+ * @param {string} sessionId
+ * @param {Translator} translator
+ * @param {string} referenceNumber
+ */
 function submitData(
-  model: FormModel,
-  items: DetailItem[],
-  retrievalKey: string,
-  sessionId: string,
-  translator: Translator,
-  referenceNumber: string
+  model,
+  items,
+  retrievalKey,
+  sessionId,
+  translator,
+  referenceNumber
 ) {
   const { formSubmissionService } = model.services
   const { submit } = formSubmissionService
 
-  const payload: SubmitPayload = {
+  /** @type {SubmitPayload} */
+  const payload = {
     sessionId,
     retrievalKey,
     referenceNumber,
@@ -575,11 +599,17 @@ function submitData(
   return submit(payload)
 }
 
+/**
+ * @param {FormContext} context
+ * @param {Detail[]} details
+ * @param {FormModel} model
+ * @param {Translator} [translator]
+ */
 export function getFormSubmissionData(
-  context: FormContext,
-  details: Detail[],
-  model: FormModel,
-  translator: Translator = context.translator ?? model.createTranslator()
+  context,
+  details,
+  model,
+  translator = context.translator ?? model.createTranslator()
 ) {
   const items = context.relevantPages
     .map(({ href }) =>
@@ -597,13 +627,14 @@ export function getFormSubmissionData(
 /**
  * Gets DetailItems for PaymentField components
  * PaymentField is excluded from summaryDetails for UI but needs to be in submission data
+ * @param {FormContext} context
+ * @param {Translator} translator
+ * @param {FormModel} model
+ * @returns {DetailItemField[]}
  */
-function getPaymentFieldItems(
-  context: FormContext,
-  translator: Translator,
-  model: FormModel
-): DetailItemField[] {
-  const items: DetailItemField[] = []
+function getPaymentFieldItems(context, translator, model) {
+  /** @type {DetailItemField[]} */
+  const items = []
 
   for (const page of model.pages) {
     for (const field of page.collection.fields) {
@@ -624,3 +655,13 @@ function getPaymentFieldItems(
 
   return items
 }
+
+/**
+ * @import { FormMetadata, Page, SubmitPayload } from '@defra/forms-model'
+ * @import { RouteOptions } from '@hapi/hapi'
+ * @import { Translator } from '~/src/server/plugins/engine/i18n/types.js'
+ * @import { FormModel } from '~/src/server/plugins/engine/models/index.js'
+ * @import { Detail, DetailItem, DetailItemField } from '~/src/server/plugins/engine/models/types.js'
+ * @import { FormConfirmationState, FormContext, FormContextRequest } from '~/src/server/plugins/engine/types.js'
+ * @import { FormRequest, FormRequestPayload, FormRequestPayloadRefs, FormResponseToolkit } from '~/src/server/routes/types.js'
+ */

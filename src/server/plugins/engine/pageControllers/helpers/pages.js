@@ -1,21 +1,24 @@
-import {
-  ControllerType,
-  controllerNameFromPath,
-  type Page
-} from '@defra/forms-model'
+import { ControllerType, controllerNameFromPath } from '@defra/forms-model'
 
 import { UnknownPageControllerError } from '~/src/server/plugins/engine/errors.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import * as PageControllers from '~/src/server/plugins/engine/pageControllers/index.js'
 
-export type PageControllerClass = InstanceType<PageControllerType>
-export type PageControllerType =
-  (typeof PageControllers)[keyof typeof PageControllers]
+/**
+ * @typedef {InstanceType<PageControllerType>} PageControllerClass
+ */
+/* eslint-disable jsdoc/valid-types -- the JSDoc type parser rejects indexed access on `typeof`; tsc reads it */
+/**
+ * @typedef {(typeof PageControllers)[keyof typeof PageControllers]} PageControllerType
+ */
+/* eslint-enable jsdoc/valid-types */
 
 /**
  * Creates page instance for each {@link Page} type
+ * @param {FormModel} model
+ * @param {Page} pageDef
+ * @returns {PageControllerClass}
  */
-export function createPage(model: FormModel, pageDef: Page) {
+export function createPage(model, pageDef) {
   const controllerName = controllerNameFromPath(pageDef.controller)
 
   if (!pageDef.controller) {
@@ -27,7 +30,8 @@ export function createPage(model: FormModel, pageDef: Page) {
     pageDef.controller = controllerName
   }
 
-  let controller: PageControllerClass | undefined
+  /** @type {PageControllerClass | undefined} */
+  let controller
 
   switch (pageDef.controller) {
     case ControllerType.Start:
@@ -62,7 +66,9 @@ export function createPage(model: FormModel, pageDef: Page) {
   if (typeof controller === 'undefined') {
     if (model.controllers?.[pageDef.controller]) {
       const Ctrl = model.controllers[pageDef.controller]
-      controller = new Ctrl(model, pageDef) as unknown as PageControllerClass // type assertion needed because TS can't verify custom controller structure
+      controller = /** @type {PageControllerClass} */ (
+        /** @type {unknown} */ (new Ctrl(model, pageDef))
+      ) // type assertion needed because TS can't verify custom controller structure
     }
   }
 
@@ -72,3 +78,8 @@ export function createPage(model: FormModel, pageDef: Page) {
 
   return controller
 }
+
+/**
+ * @import { Page } from '@defra/forms-model'
+ * @import { FormModel } from '~/src/server/plugins/engine/models/index.js'
+ */

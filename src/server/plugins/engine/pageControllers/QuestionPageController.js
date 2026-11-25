@@ -5,13 +5,9 @@ import {
   hasComponents,
   hasNext,
   hasRepeater,
-  isPaymentPage,
-  type Link,
-  type Page
+  isPaymentPage
 } from '@defra/forms-model'
 import Boom from '@hapi/boom'
-import { type RouteOptions } from '@hapi/hapi'
-import { type ValidationErrorItem } from 'joi'
 
 import {
   COMPONENT_STATE_ERROR,
@@ -21,7 +17,6 @@ import {
 } from '~/src/server/constants.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { PaymentField } from '~/src/server/plugins/engine/components/PaymentField.js'
-import { type BackLink } from '~/src/server/plugins/engine/components/types.js'
 import {
   checkFormStatus,
   getCacheService,
@@ -30,32 +25,11 @@ import {
   normalisePath,
   proceed
 } from '~/src/server/plugins/engine/helpers.js'
-import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { prefillStateFromQueryParameters } from '~/src/server/plugins/engine/pageControllers/helpers/state.js'
-import {
-  type AnyFormRequest,
-  type FormContext,
-  type FormContextRequest,
-  type FormPageViewModel,
-  type FormPayload,
-  type FormPayloadParams,
-  type FormState,
-  type FormStateValue,
-  type FormSubmissionState
-} from '~/src/server/plugins/engine/types.js'
 import { getComponentsByType } from '~/src/server/plugins/engine/validationHelpers.js'
 import { formatCurrency } from '~/src/server/plugins/payment/helper.js'
-import {
-  FormAction,
-  FormStatus,
-  type FormRequest,
-  type FormRequestPayload,
-  type FormRequestPayloadRefs,
-  type FormRequestRefs,
-  type FormResponseToolkit
-} from '~/src/server/routes/types.js'
+import { FormAction, FormStatus } from '~/src/server/routes/types.js'
 import {
   actionSchema,
   crumbSchema,
@@ -64,11 +38,17 @@ import {
 import { merge } from '~/src/server/services/cacheService.js'
 
 export class QuestionPageController extends PageController {
-  collection: ComponentCollection
+  /** @type {ComponentCollection} */
+  collection
+
   errorSummaryTitle = 'There is a problem'
   allowSaveAndExit = true
 
-  constructor(model: FormModel, pageDef: Page) {
+  /**
+   * @param {FormModel} model
+   * @param {Page} pageDef
+   */
+  constructor(model, pageDef) {
     super(model, pageDef)
 
     // Components collection
@@ -83,7 +63,10 @@ export class QuestionPageController extends PageController {
     })
   }
 
-  get next(): Link[] {
+  /**
+   * @returns {Link[]}
+   */
+  get next() {
     const { def, pageDef } = this
 
     if (!hasNext(pageDef)) {
@@ -101,7 +84,10 @@ export class QuestionPageController extends PageController {
     })
   }
 
-  get allowContinue(): boolean {
+  /**
+   * @returns {boolean}
+   */
+  get allowContinue() {
     if (this.model.engine === Engine.V2) {
       return this.pageDef.controller !== ControllerType.Terminal
     }
@@ -109,22 +95,26 @@ export class QuestionPageController extends PageController {
     return this.next.length > 0
   }
 
-  getItemId(request?: FormContextRequest) {
+  /**
+   * @param {FormContextRequest} [request]
+   */
+  getItemId(request) {
     const { itemId } = this.getFormParams(request)
     return itemId ?? request?.params.itemId
   }
 
   /**
    * Used for mapping form payloads and errors to govuk-frontend's template api, so a page can be rendered
-   * @param request - the hapi request
-   * @param context - the form context
-   * @param translator - optional per-request translator pair
+   * @param {FormContextRequest} request - the hapi request
+   * @param {FormContext} context - the form context
+   * @param {Translator} [translator] - optional per-request translator pair
+   * @returns {FormPageViewModel}
    */
   getViewModel(
-    request: FormContextRequest,
-    context: FormContext,
-    translator: Translator = context.translator ?? this.model.createTranslator()
-  ): FormPageViewModel {
+    request,
+    context,
+    translator = context.translator ?? this.model.createTranslator()
+  ) {
     const { collection, viewModel } = this
     const { query } = request
     const { payload, errors } = context
@@ -216,7 +206,10 @@ export class QuestionPageController extends PageController {
     for (const comp of components) {
       if ('amount' in comp.model && 'paymentState' in comp.model) {
         const paymentField = this.collection.fields.find(
-          (f): f is PaymentField => f instanceof PaymentField
+          /**
+           * @returns {f is PaymentField}
+           */
+          (f) => f instanceof PaymentField
         )
         if (paymentField) {
           const resolvedAmount = PaymentField.resolveAmount(
@@ -231,9 +224,10 @@ export class QuestionPageController extends PageController {
 
     const hasIncompletePayment = components.some(({ model }) => {
       if ('paymentState' in model) {
-        const paymentState = model.paymentState as
-          | { preAuth?: { status?: string } }
-          | undefined
+        const paymentState =
+          /** @type {{ preAuth?: { status?: string } } | undefined} */ (
+            model.paymentState
+          )
         return !paymentState?.preAuth?.status
       }
       return false
@@ -255,7 +249,11 @@ export class QuestionPageController extends PageController {
     }
   }
 
-  getRelevantPath(request: AnyFormRequest, context: FormContext) {
+  /**
+   * @param {AnyFormRequest} request
+   * @param {FormContext} context
+   */
+  getRelevantPath(request, context) {
     const { paths } = context
 
     const startPath = this.getStartPath()
@@ -268,8 +266,9 @@ export class QuestionPageController extends PageController {
 
   /**
    * Apply conditions to evaluation state to determine next page path
+   * @param {FormContext} context
    */
-  getNextPath(context: FormContext) {
+  getNextPath(context) {
     const { model, next, path } = this
     const { evaluationState } = context
 
@@ -329,11 +328,11 @@ export class QuestionPageController extends PageController {
 
   /**
    * Gets the form payload (from state) for this page only
+   * @param {FormContextRequest | undefined} request
+   * @param {FormSubmissionState} state
+   * @returns {FormPayload}
    */
-  getFormDataFromState(
-    request: FormContextRequest | undefined,
-    state: FormSubmissionState
-  ): FormPayload {
+  getFormDataFromState(request, state) {
     const { collection } = this
 
     // Form params from request
@@ -350,8 +349,10 @@ export class QuestionPageController extends PageController {
 
   /**
    * Gets form params (from payload) for this page only
+   * @param {FormContextRequest} [request]
+   * @returns {FormPayloadParams}
    */
-  getFormParams(request?: FormContextRequest): FormPayloadParams {
+  getFormParams(request) {
     const { payload } = request ?? {}
 
     const result = paramsSchema.validate(payload, {
@@ -359,22 +360,31 @@ export class QuestionPageController extends PageController {
       stripUnknown: true
     })
 
-    return result.value as FormPayloadParams
+    return /** @type {FormPayloadParams} */ (result.value)
   }
 
-  getStateFromValidForm(
-    request: FormContextRequest,
-    state: FormSubmissionState,
-    payload: FormPayload
-  ): FormState {
+  /**
+   * @param {FormContextRequest} request
+   * @param {FormSubmissionState} state
+   * @param {FormPayload} payload
+   * @returns {FormState}
+   */
+  getStateFromValidForm(request, state, payload) {
     return this.collection.getStateFromValidForm(payload)
   }
 
-  getErrors(details?: ValidationErrorItem[], language?: string) {
+  /**
+   * @param {ValidationErrorItem[]} [details]
+   * @param {string} [language]
+   */
+  getErrors(details, language) {
     return getErrors(details, language)
   }
 
-  async getState(request: AnyFormRequest) {
+  /**
+   * @param {AnyFormRequest} request
+   */
+  async getState(request) {
     const { query } = request
 
     // Skip get for preview URL direct access
@@ -387,7 +397,11 @@ export class QuestionPageController extends PageController {
     return cacheService.getState(request)
   }
 
-  async setState(request: AnyFormRequest, state: FormSubmissionState) {
+  /**
+   * @param {AnyFormRequest} request
+   * @param {FormSubmissionState} state
+   */
+  async setState(request, state) {
     const { query } = request
 
     // Skip set for preview URL direct access
@@ -400,11 +414,12 @@ export class QuestionPageController extends PageController {
     return cacheService.setState(request, state)
   }
 
-  async mergeState(
-    request: AnyFormRequest,
-    state: FormSubmissionState,
-    update: object
-  ) {
+  /**
+   * @param {AnyFormRequest} request
+   * @param {FormSubmissionState} state
+   * @param {object} update
+   */
+  async mergeState(request, state, update) {
     const { query } = request
 
     // Merge state before set
@@ -420,11 +435,12 @@ export class QuestionPageController extends PageController {
     return cacheService.setState(request, updated)
   }
 
-  filterConditionalComponents(
-    viewModel: FormPageViewModel,
-    model: FormModel,
-    evaluationState: Partial<Record<string, FormStateValue>>
-  ) {
+  /**
+   * @param {FormPageViewModel} viewModel
+   * @param {FormModel} model
+   * @param {Partial<Record<string, FormStateValue>>} evaluationState
+   */
+  filterConditionalComponents(viewModel, model, evaluationState) {
     // Filter our components based on their conditions using our evaluated state
     let filtered = viewModel.components.filter((component) => {
       if (
@@ -469,11 +485,12 @@ export class QuestionPageController extends PageController {
   }
 
   makeGetRouteHandler() {
-    return async (
-      request: FormRequest,
-      context: FormContext,
-      h: FormResponseToolkit
-    ) => {
+    /**
+     * @param {FormRequest} request
+     * @param {FormContext} context
+     * @param {FormResponseToolkit} h
+     */
+    return async (request, context, h) => {
       const { collection, model, viewName } = this
       const { evaluationState } = context
 
@@ -490,6 +507,7 @@ export class QuestionPageController extends PageController {
       viewModel.errors = collection.getViewErrors(viewModel.errors, translator)
 
       const flashedError = request.yar.flash(COMPONENT_STATE_ERROR)
+      /** @type {FormSubmissionError[]} */
       const flashedErrors = !Array.isArray(flashedError) ? [flashedError] : []
 
       viewModel.errors = (viewModel.errors ?? []).concat(flashedErrors)
@@ -521,10 +539,11 @@ export class QuestionPageController extends PageController {
     }
   }
 
-  async hasMissingNotificationEmail(
-    request: FormRequest,
-    context: FormContext
-  ) {
+  /**
+   * @param {FormRequest} request
+   * @param {FormContext} context
+   */
+  async hasMissingNotificationEmail(request, context) {
     const { path } = this
     const { params } = request
     const { isForceAccess } = context
@@ -545,14 +564,17 @@ export class QuestionPageController extends PageController {
 
   /**
    * Get the back link for a given progress.
+   * @protected
+   * @param {FormContextRequest} request
+   * @param {FormContext} context
+   * @param {(key: string, opts?: Record<string, unknown>) => string} [t]
+   * @returns {BackLink | undefined}
    */
-  protected getBackLink(
-    request: FormContextRequest,
-    context: FormContext,
-    t: (key: string, opts?: Record<string, unknown>) => string = (
-      context.translator ?? this.model.createTranslator()
-    ).t
-  ): BackLink | undefined {
+  getBackLink(
+    request,
+    context,
+    t = (context.translator ?? this.model.createTranslator()).t
+  ) {
     const { pageDef } = this
     const { path, query } = request
     const { returnUrl } = query
@@ -590,11 +612,12 @@ export class QuestionPageController extends PageController {
   }
 
   makePostRouteHandler() {
-    return async (
-      request: FormRequestPayload,
-      context: FormContext,
-      h: FormResponseToolkit
-    ) => {
+    /**
+     * @param {FormRequestPayload} request
+     * @param {FormContext} context
+     * @param {FormResponseToolkit} h
+     */
+    return async (request, context, h) => {
       const { collection, viewName, model } = this
       const { isForceAccess, state, evaluationState } = context
       const action = request.payload.action
@@ -643,11 +666,13 @@ export class QuestionPageController extends PageController {
     }
   }
 
-  private async dispatchExternal(
-    request: FormRequestPayload,
-    h: FormResponseToolkit,
-    context: FormContext
-  ) {
+  /**
+   * @private
+   * @param {FormRequestPayload} request
+   * @param {FormResponseToolkit} h
+   * @param {FormContext} context
+   */
+  async dispatchExternal(request, h, context) {
     const { externalComponents } = getComponentsByType()
     const action = request.payload.action ?? ''
 
@@ -662,10 +687,9 @@ export class QuestionPageController extends PageController {
       .slice(1)
       .map((arg) => arg.split(':'))
 
-    const args = Object.fromEntries(externalActionArgs) as Record<
-      string,
-      string
-    >
+    const args = /** @type {Record<string, string>} */ (
+      Object.fromEntries(externalActionArgs)
+    )
 
     const componentName = externalActionsWithArgs[0]
     const component = this.model.componentDefMap.get(componentName)
@@ -708,11 +732,12 @@ export class QuestionPageController extends PageController {
     })
   }
 
-  proceed(
-    request: FormContextRequest,
-    h: FormResponseToolkit,
-    nextPath?: string
-  ) {
+  /**
+   * @param {FormContextRequest} request
+   * @param {FormResponseToolkit} h
+   * @param {string} [nextPath]
+   */
+  proceed(request, h, nextPath) {
     const nextUrl = nextPath
       ? this.getHref(nextPath) // Redirect to next page
       : this.href // Redirect to current page (refresh)
@@ -722,12 +747,11 @@ export class QuestionPageController extends PageController {
 
   /**
    * Handle save-and-exit action
+   * @param {FormRequestPayload} request
+   * @param {FormContext} context
+   * @param {FormResponseToolkit} h
    */
-  handleSaveAndExit(
-    request: FormRequestPayload,
-    context: FormContext,
-    h: FormResponseToolkit
-  ) {
+  handleSaveAndExit(request, context, h) {
     const saveAndExit = getSaveAndExitHelpers(request.server)
 
     if (!saveAndExit) {
@@ -739,8 +763,9 @@ export class QuestionPageController extends PageController {
 
   /**
    * {@link https://hapi.dev/api/?v=20.1.2#route-options}
+   * @returns {RouteOptions<FormRequestRefs>}
    */
-  get getRouteOptions(): RouteOptions<FormRequestRefs> {
+  get getRouteOptions() {
     return {
       ext: {
         onPostHandler: {
@@ -754,8 +779,9 @@ export class QuestionPageController extends PageController {
 
   /**
    * {@link https://hapi.dev/api/?v=20.1.2#route-options}
+   * @returns {RouteOptions<FormRequestPayloadRefs>}
    */
-  get postRouteOptions(): RouteOptions<FormRequestPayloadRefs> {
+  get postRouteOptions() {
     return {
       payload: {
         parse: true,
@@ -772,3 +798,14 @@ export class QuestionPageController extends PageController {
     }
   }
 }
+
+/**
+ * @import { Link, Page } from '@defra/forms-model'
+ * @import { RouteOptions } from '@hapi/hapi'
+ * @import { ValidationErrorItem } from 'joi'
+ * @import { BackLink } from '~/src/server/plugins/engine/components/types.js'
+ * @import { Translator } from '~/src/server/plugins/engine/i18n/types.js'
+ * @import { FormModel } from '~/src/server/plugins/engine/models/index.js'
+ * @import { AnyFormRequest, FormContext, FormContextRequest, FormPageViewModel, FormPayload, FormPayloadParams, FormState, FormStateValue, FormSubmissionError, FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+ * @import { FormRequest, FormRequestPayload, FormRequestPayloadRefs, FormRequestRefs, FormResponseToolkit } from '~/src/server/routes/types.js'
+ */

@@ -1,43 +1,31 @@
 import { randomUUID } from 'crypto'
 
-import { type PageRepeat, type Repeat } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import Joi from 'joi'
 
 import { isRepeatState } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { redirectPath } from '~/src/server/plugins/engine/helpers.js'
-import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
-import {
-  type FormContext,
-  type FormContextRequest,
-  type FormPageViewModel,
-  type FormPayload,
-  type FormSubmissionState,
-  type ItemDeletePageViewModel,
-  type RepeatItemState,
-  type RepeatListState,
-  type RepeaterSummaryPageViewModel,
-  type SummaryList,
-  type SummaryListAction
-} from '~/src/server/plugins/engine/types.js'
-import {
-  FormAction,
-  type FormRequest,
-  type FormRequestPayload,
-  type FormResponseToolkit
-} from '~/src/server/routes/types.js'
+import { FormAction } from '~/src/server/routes/types.js'
 
 export class RepeatPageController extends QuestionPageController {
-  declare pageDef: PageRepeat
+  /** @type {PageRepeat} */
+  // @ts-expect-error TS2729: the base constructor has already set it
+  pageDef = this.pageDef
 
   listSummaryViewName = 'repeat-list-summary'
   listDeleteViewName = 'item-delete'
-  repeat: Repeat
+
+  /** @type {Repeat} */
+  repeat
+
   allowSaveAndExit = true
 
-  constructor(model: FormModel, pageDef: PageRepeat) {
+  /**
+   * @param {FormModel} model
+   * @param {PageRepeat} pageDef
+   */
+  constructor(model, pageDef) {
     super(model, pageDef)
 
     this.repeat = pageDef.repeat
@@ -46,7 +34,9 @@ export class RepeatPageController extends QuestionPageController {
     const itemId = Joi.string().uuid().required()
 
     this.collection.formSchema = this.collection.formSchema.append({ itemId })
-    this.collection.stateSchema = Joi.object<RepeatItemState>().keys({
+    this.collection.stateSchema = /** @type {ObjectSchema<RepeatItemState>} */ (
+      Joi.object()
+    ).keys({
       [options.name]: Joi.array()
         .items(this.collection.stateSchema.append({ itemId }))
         .min(schema.min)
@@ -61,7 +51,10 @@ export class RepeatPageController extends QuestionPageController {
     return [repeat.options.name, ...super.keys]
   }
 
-  getFormParams(request?: FormContextRequest) {
+  /**
+   * @param {FormContextRequest} [request]
+   */
+  getFormParams(request) {
     const params = super.getFormParams(request)
 
     // Apply an itemId to the form payload
@@ -72,10 +65,11 @@ export class RepeatPageController extends QuestionPageController {
     return params
   }
 
-  getFormDataFromState(
-    request: FormContextRequest | undefined,
-    state: FormSubmissionState
-  ) {
+  /**
+   * @param {FormContextRequest | undefined} request
+   * @param {FormSubmissionState} state
+   */
+  getFormDataFromState(request, state) {
     const { repeat } = this
 
     const params = this.getFormParams(request)
@@ -103,11 +97,12 @@ export class RepeatPageController extends QuestionPageController {
     }
   }
 
-  getStateFromValidForm(
-    request: FormContextRequest,
-    state: FormSubmissionState,
-    payload: FormPayload
-  ) {
+  /**
+   * @param {FormContextRequest} request
+   * @param {FormSubmissionState} state
+   * @param {FormPayload} payload
+   */
+  getStateFromValidForm(request, state, payload) {
     const itemId = this.getItemId(request)
 
     if (!itemId) {
@@ -118,7 +113,8 @@ export class RepeatPageController extends QuestionPageController {
     const item = this.getItemFromList(list, itemId)
 
     const itemState = super.getStateFromValidForm(request, state, payload)
-    const updated: RepeatItemState = { ...itemState, itemId }
+    /** @type {RepeatItemState} */
+    const updated = { ...itemState, itemId }
     const newList = [...list]
 
     if (!item) {
@@ -134,16 +130,27 @@ export class RepeatPageController extends QuestionPageController {
     }
   }
 
-  proceed(request: FormContextRequest, h: FormResponseToolkit) {
+  /**
+   * @param {FormContextRequest} request
+   * @param {FormResponseToolkit} h
+   */
+  proceed(request, h) {
     const nextPath = this.getSummaryPath(request)
     return super.proceed(request, h, nextPath)
   }
 
-  getItemFromList(list: RepeatListState, itemId?: string) {
+  /**
+   * @param {RepeatListState} list
+   * @param {string} [itemId]
+   */
+  getItemFromList(list, itemId) {
     return list.find((item) => item.itemId === itemId)
   }
 
-  getListFromState(state: FormSubmissionState) {
+  /**
+   * @param {FormSubmissionState} state
+   */
+  getListFromState(state) {
     const { name } = this.repeat.options
     const values = state[name]
 
@@ -151,11 +158,12 @@ export class RepeatPageController extends QuestionPageController {
   }
 
   makeGetRouteHandler() {
-    return async (
-      request: FormRequest,
-      context: FormContext,
-      h: FormResponseToolkit
-    ) => {
+    /**
+     * @param {FormRequest} request
+     * @param {FormContext} context
+     * @param {FormResponseToolkit} h
+     */
+    return async (request, context, h) => {
       const { path } = this
       const { query } = request
       const { state } = context
@@ -179,11 +187,12 @@ export class RepeatPageController extends QuestionPageController {
   }
 
   makeGetListSummaryRouteHandler() {
-    return (
-      request: FormRequest,
-      context: FormContext,
-      h: FormResponseToolkit
-    ) => {
+    /**
+     * @param {FormRequest} request
+     * @param {FormContext} context
+     * @param {FormResponseToolkit} h
+     */
+    return (request, context, h) => {
       const { path } = this
       const { query } = request
       const { state } = context
@@ -239,11 +248,12 @@ export class RepeatPageController extends QuestionPageController {
   }
 
   makePostListSummaryRouteHandler() {
-    return (
-      request: FormRequestPayload,
-      context: FormContext,
-      h: FormResponseToolkit
-    ) => {
+    /**
+     * @param {FormRequestPayload} request
+     * @param {FormContext} context
+     * @param {FormResponseToolkit} h
+     */
+    return (request, context, h) => {
       const { path, repeat } = this
       const { query } = request
       const { schema } = repeat
@@ -318,11 +328,12 @@ export class RepeatPageController extends QuestionPageController {
   }
 
   makeGetItemDeleteRouteHandler() {
-    return (
-      request: FormRequest,
-      context: FormContext,
-      h: FormResponseToolkit
-    ) => {
+    /**
+     * @param {FormRequest} request
+     * @param {FormContext} context
+     * @param {FormResponseToolkit} h
+     */
+    return (request, context, h) => {
       const { viewModel } = this
       const { state } = context
 
@@ -343,25 +354,29 @@ export class RepeatPageController extends QuestionPageController {
 
       const { title } = this.repeat.options
 
-      return h.view(this.listDeleteViewName, {
-        ...viewModel,
-        context,
-        backLink: this.getBackLink(request, context, t),
-        pageTitle: t('pages.repeater.removeAnswer'),
-        itemTitle: `${title} ${list.indexOf(item) + 1}`,
-        buttonConfirm: { text: t('pages.repeater.remove') },
-        buttonCancel: { text: t('pages.repeater.cancel') },
-        t
-      } satisfies ItemDeletePageViewModel)
+      return h.view(
+        this.listDeleteViewName,
+        /** @satisfies {ItemDeletePageViewModel} */ ({
+          ...viewModel,
+          context,
+          backLink: this.getBackLink(request, context, t),
+          pageTitle: t('pages.repeater.removeAnswer'),
+          itemTitle: `${title} ${list.indexOf(item) + 1}`,
+          buttonConfirm: { text: t('pages.repeater.remove') },
+          buttonCancel: { text: t('pages.repeater.cancel') },
+          t
+        })
+      )
     }
   }
 
   makePostItemDeleteRouteHandler() {
-    return async (
-      request: FormRequestPayload,
-      context: FormContext,
-      h: FormResponseToolkit
-    ) => {
+    /**
+     * @param {FormRequestPayload} request
+     * @param {FormContext} context
+     * @param {FormResponseToolkit} h
+     */
+    return async (request, context, h) => {
       const { repeat } = this
       const { state } = context
 
@@ -396,11 +411,17 @@ export class RepeatPageController extends QuestionPageController {
     }
   }
 
+  /**
+   * @param {FormContextRequest} request
+   * @param {FormContext} context
+   * @param {Translator} [translator]
+   * @returns {FormPageViewModel}
+   */
   getViewModel(
-    request: FormContextRequest,
-    context: FormContext,
-    translator: Translator = context.translator ?? this.model.createTranslator()
-  ): FormPageViewModel {
+    request,
+    context,
+    translator = context.translator ?? this.model.createTranslator()
+  ) {
     const { state } = context
     const { tPage } = translator
 
@@ -423,12 +444,19 @@ export class RepeatPageController extends QuestionPageController {
     }
   }
 
+  /**
+   * @param {FormContextRequest} request
+   * @param {FormContext} context
+   * @param {RepeatListState} list
+   * @param {Translator} [translator]
+   * @returns {RepeaterSummaryPageViewModel}
+   */
   getListSummaryViewModel(
-    request: FormContextRequest,
-    context: FormContext,
-    list: RepeatListState,
-    translator: Translator = context.translator ?? this.model.createTranslator()
-  ): RepeaterSummaryPageViewModel {
+    request,
+    context,
+    list,
+    translator = context.translator ?? this.model.createTranslator()
+  ) {
     const { collection, href, repeat } = this
     const { query } = request
     const { isForceAccess, errors } = context
@@ -437,7 +465,8 @@ export class RepeatPageController extends QuestionPageController {
 
     const title = tPage(this.pageDef, 'repeatTitle') || repeat.options.title
 
-    const summaryList: SummaryList = {
+    /** @type {SummaryList} */
+    const summaryList = {
       classes: 'govuk-summary-list--long-actions',
       rows: []
     }
@@ -450,7 +479,8 @@ export class RepeatPageController extends QuestionPageController {
       const summaryPath = this.getSummaryPath(request)
 
       list.forEach((item, index) => {
-        const items: SummaryListAction[] = []
+        /** @type {SummaryListAction[]} */
+        const items = []
 
         // Remove summary list actions from previews
         if (!isForceAccess) {
@@ -510,7 +540,10 @@ export class RepeatPageController extends QuestionPageController {
     }
   }
 
-  getSummaryPath(request?: FormContextRequest) {
+  /**
+   * @param {FormContextRequest} [request]
+   */
+  getSummaryPath(request) {
     const { path } = this
 
     const summaryPath = super.getSummaryPath()
@@ -526,3 +559,12 @@ export class RepeatPageController extends QuestionPageController {
     })
   }
 }
+
+/**
+ * @import { PageRepeat, Repeat } from '@defra/forms-model'
+ * @import { ObjectSchema } from 'joi'
+ * @import { Translator } from '~/src/server/plugins/engine/i18n/types.js'
+ * @import { FormModel } from '~/src/server/plugins/engine/models/index.js'
+ * @import { FormContext, FormContextRequest, FormPageViewModel, FormPayload, FormSubmissionState, ItemDeletePageViewModel, RepeatItemState, RepeatListState, RepeaterSummaryPageViewModel, SummaryList, SummaryListAction } from '~/src/server/plugins/engine/types.js'
+ * @import { FormRequest, FormRequestPayload, FormResponseToolkit } from '~/src/server/routes/types.js'
+ */

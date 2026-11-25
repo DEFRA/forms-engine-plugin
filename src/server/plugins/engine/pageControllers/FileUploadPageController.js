@@ -1,53 +1,33 @@
-import { ComponentType, type PageFileUpload } from '@defra/forms-model'
+import { ComponentType } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { wait } from '@hapi/hoek'
 import { StatusCodes } from 'http-status-codes'
-import { type ValidationErrorItem } from 'joi'
 
 import {
   FileUploadField,
   tempItemSchema
 } from '~/src/server/plugins/engine/components/FileUploadField.js'
-import { type FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import {
   getCacheService,
   getError,
   getExponentialBackoffDelay
 } from '~/src/server/plugins/engine/helpers.js'
-import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import { getProxyUrlForLocalDevelopment } from '~/src/server/plugins/engine/pageControllers/helpers/index.js'
 import {
   getUploadStatus,
   initiateUpload
 } from '~/src/server/plugins/engine/services/uploadService.js'
-import {
-  FileStatus,
-  UploadStatus,
-  type AnyFormRequest,
-  type FeaturedFormPageViewModel,
-  type FileState,
-  type FileUpload,
-  type FormContext,
-  type FormContextRequest,
-  type FormSubmissionError,
-  type FormSubmissionState,
-  type ItemDeletePageViewModel,
-  type UploadInitiateResponse,
-  type UploadStatusFileResponse
-} from '~/src/server/plugins/engine/types.js'
-import {
-  type FormRequest,
-  type FormRequestPayload,
-  type FormResponseToolkit
-} from '~/src/server/routes/types.js'
+import { FileStatus, UploadStatus } from '~/src/server/plugins/engine/types.js'
 import { joinWithOr } from '~/src/server/utils/utils.js'
 
 const MAX_UPLOADS = 25
 const CDP_UPLOAD_TIMEOUT_MS = 60000 // 1 minute
 
-export function prepareStatus(status: UploadStatusFileResponse) {
+/**
+ * @param {UploadStatusFileResponse} status
+ */
+export function prepareStatus(status) {
   const file = status.form.file
   const isPending = file.fileStatus === FileStatus.pending
 
@@ -58,27 +38,40 @@ export function prepareStatus(status: UploadStatusFileResponse) {
   return status
 }
 
-function prepareFileState(fileState: FileState) {
+/**
+ * @param {FileState} fileState
+ */
+function prepareFileState(fileState) {
   prepareStatus(fileState.status)
 
   return fileState
 }
 
 export class FileUploadPageController extends QuestionPageController {
-  declare pageDef: PageFileUpload
+  /** @type {PageFileUpload} */
+  // @ts-expect-error TS2729: the base constructor has already set it
+  pageDef = this.pageDef
 
-  fileUpload: FileUploadField
+  /** @type {FileUploadField} */
+  fileUpload
+
   fileDeleteViewName = 'item-delete'
 
-  constructor(model: FormModel, pageDef: PageFileUpload) {
+  /**
+   * @param {FormModel} model
+   * @param {PageFileUpload} pageDef
+   */
+  constructor(model, pageDef) {
     super(model, pageDef)
 
     const { collection } = this
 
     // Get the file upload fields from the collection
     const fileUploads = collection.fields.filter(
-      (field): field is FileUploadField =>
-        field.type === ComponentType.FileUploadField
+      /**
+       * @returns {field is FileUploadField}
+       */
+      (field) => field.type === ComponentType.FileUploadField
     )
 
     const fileUpload = fileUploads.at(0)
@@ -99,17 +92,19 @@ export class FileUploadPageController extends QuestionPageController {
 
     // Assign the file upload component to the controller
     this.fileUpload = fileUpload
-    this.viewName = 'file-upload'
+    this.viewName = /** @type {QuestionPageController['viewName']} */ (
+      'file-upload'
+    )
   }
 
   /**
    * Get supplementary state keys for clearing file upload state.
    * Returns the nested upload path for FileUploadField components only.
-   * @param component - The component to get supplementary state keys for
-   * @returns Array containing the nested upload path, e.g., ["upload['/page-path']"]
+   * @param {FormComponent} component - The component to get supplementary state keys for
+   * @returns {string[]} Array containing the nested upload path, e.g., ["upload['/page-path']"]
    * or ['upload'] if no page path is available. Returns empty array for non-FileUploadField components.
    */
-  getStateKeys(component: FormComponent): string[] {
+  getStateKeys(component) {
     // Only return upload keys for FileUploadField components
     if (!(component instanceof FileUploadField)) {
       return []
@@ -119,10 +114,11 @@ export class FileUploadPageController extends QuestionPageController {
     return pagePath ? [`upload['${pagePath}']`] : ['upload']
   }
 
-  getFormDataFromState(
-    request: FormContextRequest | undefined,
-    state: FormSubmissionState
-  ) {
+  /**
+   * @param {FormContextRequest | undefined} request
+   * @param {FormSubmissionState} state
+   */
+  getFormDataFromState(request, state) {
     const { fileUpload } = this
 
     const payload = super.getFormDataFromState(request, state)
@@ -134,7 +130,10 @@ export class FileUploadPageController extends QuestionPageController {
     return payload
   }
 
-  async getState(request: AnyFormRequest) {
+  /**
+   * @param {AnyFormRequest} request
+   */
+  async getState(request) {
     const { fileUpload } = this
 
     // Get the actual state
@@ -149,8 +148,9 @@ export class FileUploadPageController extends QuestionPageController {
 
   /**
    * Get the uploaded files from state.
+   * @param {FormSubmissionState} state
    */
-  getFilesFromState(state: FormSubmissionState) {
+  getFilesFromState(state) {
     const { path } = this
 
     const uploadState = state.upload?.[path]
@@ -159,8 +159,9 @@ export class FileUploadPageController extends QuestionPageController {
 
   /**
    * Get the initiated upload from state.
+   * @param {FormSubmissionState} state
    */
-  getUploadFromState(state: FormSubmissionState) {
+  getUploadFromState(state) {
     const { path } = this
 
     const uploadState = state.upload?.[path]
@@ -168,11 +169,12 @@ export class FileUploadPageController extends QuestionPageController {
   }
 
   makeGetItemDeleteRouteHandler() {
-    return (
-      request: FormRequest,
-      context: FormContext,
-      h: FormResponseToolkit
-    ) => {
+    /**
+     * @param {FormRequest} request
+     * @param {FormContext} context
+     * @param {FormResponseToolkit} h
+     */
+    return (request, context, h) => {
       const { viewModel } = this
       const { params } = request
       const { state } = context
@@ -192,26 +194,30 @@ export class FileUploadPageController extends QuestionPageController {
       const translator = this.getTranslator(request)
       const { t } = translator
 
-      return h.view(this.fileDeleteViewName, {
-        ...viewModel,
-        context,
-        backLink: this.getBackLink(request, context, t),
-        pageTitle: t('pages.fileUpload.removeFileTitle'),
-        itemTitle: filename,
-        confirmation: { text: t('pages.fileUpload.removeFileBody') },
-        buttonConfirm: { text: t('pages.fileUpload.removeFileButton') },
-        buttonCancel: { text: t('pages.fileUpload.cancel') },
-        t
-      } satisfies ItemDeletePageViewModel)
+      return h.view(
+        this.fileDeleteViewName,
+        /** @satisfies {ItemDeletePageViewModel} */ ({
+          ...viewModel,
+          context,
+          backLink: this.getBackLink(request, context, t),
+          pageTitle: t('pages.fileUpload.removeFileTitle'),
+          itemTitle: filename,
+          confirmation: { text: t('pages.fileUpload.removeFileBody') },
+          buttonConfirm: { text: t('pages.fileUpload.removeFileButton') },
+          buttonCancel: { text: t('pages.fileUpload.cancel') },
+          t
+        })
+      )
     }
   }
 
   makePostItemDeleteRouteHandler() {
-    return async (
-      request: FormRequestPayload,
-      context: FormContext,
-      h: FormResponseToolkit
-    ) => {
+    /**
+     * @param {FormRequestPayload} request
+     * @param {FormContext} context
+     * @param {FormResponseToolkit} h
+     */
+    return async (request, context, h) => {
       const { path } = this
       const { state } = context
 
@@ -227,11 +233,16 @@ export class FileUploadPageController extends QuestionPageController {
     }
   }
 
-  getErrors(details?: ValidationErrorItem[], language?: string) {
+  /**
+   * @param {ValidationErrorItem[]} [details]
+   * @param {string} [language]
+   */
+  getErrors(details, language) {
     const { fileUpload } = this
 
     if (details) {
-      const errors: FormSubmissionError[] = []
+      /** @type {FormSubmissionError[]} */
+      const errors = []
 
       details.forEach((error) => {
         const isUploadError = error.path[0] === fileUpload.name
@@ -245,7 +256,7 @@ export class FileUploadPageController extends QuestionPageController {
           const { context, path, type } = error
 
           if (type === 'object.unknown' && path.at(-1) === 'errorMessage') {
-            const value = context?.value as string | undefined
+            const value = /** @type {string | undefined} */ (context?.value)
 
             if (value) {
               const name = fileUpload.name
@@ -262,11 +273,17 @@ export class FileUploadPageController extends QuestionPageController {
     }
   }
 
+  /**
+   * @param {FormContextRequest} request
+   * @param {FormContext} context
+   * @param {Translator} [translator]
+   * @returns {FeaturedFormPageViewModel}
+   */
   getViewModel(
-    request: FormContextRequest,
-    context: FormContext,
-    translator: Translator = context.translator ?? this.model.createTranslator()
-  ): FeaturedFormPageViewModel {
+    request,
+    context,
+    translator = context.translator ?? this.model.createTranslator()
+  ) {
     const { fileUpload } = this
     const { state } = context
     const { t } = translator
@@ -318,13 +335,11 @@ export class FileUploadPageController extends QuestionPageController {
    *
    * If an upload exists and hasn't been consumed
    * it gets re-used, otherwise we initiate a new one.
-   * @param request - the hapi request
-   * @param state - the form state
+   * @private
+   * @param {AnyFormRequest} request - the hapi request
+   * @param {FormSubmissionState} state - the form state
    */
-  private async refreshUpload(
-    request: AnyFormRequest,
-    state: FormSubmissionState
-  ) {
+  async refreshUpload(request, state) {
     state = await this.checkUploadStatus(request, state)
 
     return state
@@ -333,15 +348,13 @@ export class FileUploadPageController extends QuestionPageController {
   /**
    * If an upload exists and hasn't been consumed
    * it gets re-used, otherwise a new one is initiated.
-   * @param request - the hapi request
-   * @param state - the form state
-   * @param depth - the number of retries so far
+   * @private
+   * @param {AnyFormRequest} request - the hapi request
+   * @param {FormSubmissionState} state - the form state
+   * @param {number} [depth] - the number of retries so far
+   * @returns {Promise<FormSubmissionState>}
    */
-  private async checkUploadStatus(
-    request: AnyFormRequest,
-    state: FormSubmissionState,
-    depth = 1
-  ): Promise<FormSubmissionState> {
+  async checkUploadStatus(request, state, depth = 1) {
     const upload = this.getUploadFromState(state)
     const files = this.getFilesFromState(state)
 
@@ -437,39 +450,36 @@ export class FileUploadPageController extends QuestionPageController {
    * Processes the uploaded files from a CDP status response.
    * Complete files are added to state, rejected/pending files
    * have their error messages flashed.
-   * @param request - the hapi request
-   * @param state - the form state
-   * @param validatedItem - the Joi-validated upload item
-   * @param files - the current files array from state
-   * @param upload - the current upload initiation response
+   * @private
+   * @param {AnyFormRequest} request - the hapi request
+   * @param {FormSubmissionState} state - the form state
+   * @param {FileState} validatedItem - the Joi-validated upload item
+   * @param {FileState[]} files - the current files array from state
+   * @param {UploadInitiateResponse | undefined} upload - the current upload initiation response
    */
-  private async processUploadedFiles(
-    request: AnyFormRequest,
-    state: FormSubmissionState,
-    validatedItem: FileState,
-    files: FileState[],
-    upload: UploadInitiateResponse | undefined
-  ) {
+  async processUploadedFiles(request, state, validatedItem, files, upload) {
     const { uploadId } = validatedItem
     const validatedStatus = validatedItem.status
-    const rawFile = validatedStatus.form.file as unknown as
-      | FileUpload
-      | FileUpload[]
+    const rawFile = /** @type {FileUpload | FileUpload[]} */ (
+      /** @type {unknown} */ (validatedStatus.form.file)
+    )
     const uploadedFiles = Array.isArray(rawFile) ? rawFile : [rawFile]
 
-    const allErrors: FormSubmissionError[] = []
+    /** @type {FormSubmissionError[]} */
+    const allErrors = []
 
     const translator = this.getTranslator(request)
     const { t } = translator
 
     for (const file of uploadedFiles) {
       if (file.fileStatus === FileStatus.complete) {
-        const perFileState: FileState = {
+        /** @type {FileState} */
+        const perFileState = {
           uploadId,
-          status: {
+          status: /** @type {FileState['status']} */ ({
             ...validatedStatus,
             form: { file }
-          } as FileState['status']
+          })
         }
         files.unshift(prepareFileState(perFileState))
       } else {
@@ -502,17 +512,15 @@ export class FileUploadPageController extends QuestionPageController {
 
   /**
    * Process the error parameters so any arrays get expanded (joined), ready to be passed into the error message
-   * @param errorParams - received from the file upload (may be a number, a string, or a string array)
-   * @param finalSeparator - 'or' in English, and 'neu' in Welsh
+   * @private
+   * @param {Record<string, number | string | string[]> | undefined} errorParams - received from the file upload (may be a number, a string, or a string array)
+   * @param {string} finalSeparator - 'or' in English, and 'neu' in Welsh
    */
-  private expandErrorParams(
-    errorParams: Record<string, number | string | string[]> | undefined,
-    finalSeparator: string
-  ) {
+  expandErrorParams(errorParams, finalSeparator) {
     if (!errorParams) {
       return {}
     }
-    const expanded = {} as Record<string, number | string>
+    const expanded = /** @type {Record<string, number | string>} */ ({})
     for (const [key, value] of Object.entries(errorParams)) {
       if (Array.isArray(value)) {
         expanded[key] = joinWithOr(value, finalSeparator)
@@ -526,14 +534,12 @@ export class FileUploadPageController extends QuestionPageController {
   /**
    * Checks the payload for a file getting removed
    * and removes it from the upload files if found
-   * @param request - the hapi request
-   * @param state - the form state
+   * @private
+   * @param {FormRequestPayload} request - the hapi request
+   * @param {FormSubmissionState} state - the form state
    * @returns updated state if any files have been removed
    */
-  private async checkRemovedFiles(
-    request: FormRequestPayload,
-    state: FormSubmissionState
-  ) {
+  async checkRemovedFiles(request, state) {
     const { path } = this
     const { params } = request
 
@@ -555,13 +561,11 @@ export class FileUploadPageController extends QuestionPageController {
 
   /**
    * Initiates a CDP file upload and stores in the upload state
-   * @param request - the hapi request
-   * @param state - the form state
+   * @private
+   * @param {AnyFormRequest} request - the hapi request
+   * @param {FormSubmissionState} state - the form state
    */
-  private async initiateAndStoreNewUpload(
-    request: AnyFormRequest,
-    state: FormSubmissionState
-  ) {
+  async initiateAndStoreNewUpload(request, state) {
     const { fileUpload, href, path } = this
     const { options, schema } = fileUpload
     const { getFormMetadata } = this.model.services.formsService
@@ -569,7 +573,8 @@ export class FileUploadPageController extends QuestionPageController {
     const files = this.getFilesFromState(state)
 
     // Reset the upload in state
-    let upload: UploadInitiateResponse | undefined
+    /** @type {UploadInitiateResponse | undefined} */
+    let upload
 
     // Don't initiate anymore after minimum of `schema.max` or MAX_UPLOADS
     const max = Math.min(schema.max ?? MAX_UPLOADS, MAX_UPLOADS)
@@ -597,3 +602,13 @@ export class FileUploadPageController extends QuestionPageController {
     })
   }
 }
+
+/**
+ * @import { PageFileUpload } from '@defra/forms-model'
+ * @import { ValidationErrorItem } from 'joi'
+ * @import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+ * @import { Translator } from '~/src/server/plugins/engine/i18n/types.js'
+ * @import { FormModel } from '~/src/server/plugins/engine/models/index.js'
+ * @import { AnyFormRequest, FeaturedFormPageViewModel, FileState, FileUpload, FormContext, FormContextRequest, FormSubmissionError, FormSubmissionState, ItemDeletePageViewModel, UploadInitiateResponse, UploadStatusFileResponse } from '~/src/server/plugins/engine/types.js'
+ * @import { FormRequest, FormRequestPayload, FormResponseToolkit } from '~/src/server/routes/types.js'
+ */

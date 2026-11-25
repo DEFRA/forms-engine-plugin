@@ -1,55 +1,55 @@
-import {
-  ControllerPath,
-  type Events,
-  type FormDefinition,
-  type Page,
-  type Section
-} from '@defra/forms-model'
+import { ControllerPath } from '@defra/forms-model'
 import Boom from '@hapi/boom'
-import { type Lifecycle, type RouteOptions, type Server } from '@hapi/hapi'
 
-import { type ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { type FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import {
   getSaveAndExitHelpers,
   getStartPath,
   normalisePath
 } from '~/src/server/plugins/engine/helpers.js'
-import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
-import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
-import {
-  type AnyFormRequest,
-  type FormContext,
-  type PageViewModelBase
-} from '~/src/server/plugins/engine/types.js'
-import {
-  type FormRequest,
-  type FormRequestPayload,
-  type FormRequestPayloadRefs,
-  type FormRequestRefs,
-  type FormResponseToolkit
-} from '~/src/server/routes/types.js'
 import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 export class PageController {
   /**
    * The base class for all page controllers. Page controllers are responsible for generating the get and post route handlers when a user navigates to `/{id}/{path*}`.
+   * @type {FormDefinition}
    */
-  def: FormDefinition
-  name?: string
-  model: FormModel
-  pageDef: Page
-  id?: string
-  title: string
-  section?: Section
-  condition?: ExecutableCondition
-  events?: Events
-  collection?: ComponentCollection
+  def
+
+  /** @type {string | undefined} */
+  name
+
+  /** @type {FormModel} */
+  model
+
+  /** @type {Page} */
+  pageDef
+
+  /** @type {string | undefined} */
+  id
+
+  /** @type {string} */
+  title
+
+  /** @type {Section | undefined} */
+  section
+
+  /** @type {ExecutableCondition | undefined} */
+  condition
+
+  /** @type {Events | undefined} */
+  events
+
+  /** @type {ComponentCollection | undefined} */
+  collection
+
   viewName = 'index'
   allowSaveAndExit = false
 
-  constructor(model: FormModel, pageDef: Page) {
+  /**
+   * @param {FormModel} model
+   * @param {Page} pageDef
+   */
+  constructor(model, pageDef) {
     const { def } = model
 
     this.def = def
@@ -91,19 +91,24 @@ export class PageController {
 
   /**
    * {@link https://hapi.dev/api/?v=20.1.2#route-options}
+   * @returns {RouteOptions<FormRequestRefs>}
    */
-  get getRouteOptions(): RouteOptions<FormRequestRefs> {
+  get getRouteOptions() {
     return {}
   }
 
   /**
    * {@link https://hapi.dev/api/?v=20.1.2#route-options}
+   * @returns {RouteOptions<FormRequestPayloadRefs>}
    */
-  get postRouteOptions(): RouteOptions<FormRequestPayloadRefs> {
+  get postRouteOptions() {
     return {}
   }
 
-  get viewModel(): PageViewModelBase {
+  /**
+   * @returns {PageViewModelBase}
+   */
+  get viewModel() {
     const { name, section, title } = this
 
     const showTitle = true
@@ -134,7 +139,11 @@ export class PageController {
     return def.phaseBanner?.phase
   }
 
-  getHref(path: string): string {
+  /**
+   * @param {string} path
+   * @returns {string}
+   */
+  getHref(path) {
     const basePath = this.model.basePath
 
     if (path === '/') {
@@ -164,15 +173,19 @@ export class PageController {
     return ControllerPath.Status.valueOf()
   }
 
-  protected getTranslator(request: AnyFormRequest): Translator {
+  /**
+   * @protected
+   * @param {AnyFormRequest} request
+   * @returns {Translator}
+   */
+  getTranslator(request) {
     return this.model.createTranslator(resolveLanguage(request))
   }
 
-  makeGetRouteHandler(): (
-    request: FormRequest,
-    context: FormContext,
-    h: FormResponseToolkit
-  ) => ReturnType<Lifecycle.Method<FormRequestRefs>> {
+  /**
+   * @returns {(request: FormRequest, context: FormContext, h: FormResponseToolkit) => ReturnType<Lifecycle.Method<FormRequestRefs>>}
+   */
+  makeGetRouteHandler() {
     return (request, context, h) => {
       const { viewModel, viewName } = this
       const { t } = this.getTranslator(request)
@@ -183,11 +196,11 @@ export class PageController {
     }
   }
 
-  makePostRouteHandler(): (
-    request: FormRequestPayload,
-    context: FormContext,
-    h: FormResponseToolkit
-  ) => ReturnType<Lifecycle.Method<FormRequestPayloadRefs>> {
+  // eslint-disable-next-line jsdoc/require-returns-check -- the method only throws; the return type is what subclasses implement
+  /**
+   * @returns {(request: FormRequestPayload, context: FormContext, h: FormResponseToolkit) => ReturnType<Lifecycle.Method<FormRequestPayloadRefs>>}
+   */
+  makePostRouteHandler() {
     throw Boom.badRequest('Unsupported POST route handler for this page')
   }
 
@@ -200,14 +213,30 @@ export class PageController {
    *
    * Returns an empty array by default. Override in subclasses to provide
    * page-specific supplementary state keys (e.g., upload state, cached data).
-   * @param _component - The component to get supplementary state keys for (optional)
-   * @returns Array of supplementary state keys to clear (excluding the component name itself)
+   * @param {FormComponent} [_component] - The component to get supplementary state keys for (optional)
+   * @returns {string[]} Array of supplementary state keys to clear (excluding the component name itself)
    */
-  getStateKeys(_component?: FormComponent): string[] {
+  getStateKeys(_component) {
     return []
   }
 
-  shouldShowSaveAndExit(server: Server): boolean {
+  /**
+   * @param {Server} server
+   * @returns {boolean}
+   */
+  shouldShowSaveAndExit(server) {
     return getSaveAndExitHelpers(server) !== undefined && this.allowSaveAndExit
   }
 }
+
+/**
+ * @import { Events, FormDefinition, Page, Section } from '@defra/forms-model'
+ * @import { Lifecycle, RouteOptions, Server } from '@hapi/hapi'
+ * @import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+ * @import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+ * @import { Translator } from '~/src/server/plugins/engine/i18n/types.js'
+ * @import { FormModel } from '~/src/server/plugins/engine/models/index.js'
+ * @import { ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
+ * @import { AnyFormRequest, FormContext, PageViewModelBase } from '~/src/server/plugins/engine/types.js'
+ * @import { FormRequest, FormRequestPayload, FormRequestPayloadRefs, FormRequestRefs, FormResponseToolkit } from '~/src/server/routes/types.js'
+ */

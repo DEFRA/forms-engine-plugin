@@ -1,21 +1,20 @@
-import { type PageStatus } from '@defra/forms-model'
-
 import { getCacheService } from '~/src/server/plugins/engine/helpers.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
-import { type FormContext } from '~/src/server/plugins/engine/types.js'
-import {
-  type FormRequest,
-  type FormResponseToolkit
-} from '~/src/server/routes/types.js'
 import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 export class StatusPageController extends QuestionPageController {
-  declare pageDef: PageStatus
+  /** @type {PageStatus} */
+  // @ts-expect-error TS2729: the base constructor has already set it
+  pageDef = this.pageDef
+
   allowSaveAndExit = false
   showReferenceNumber = false
 
-  constructor(model: FormModel, pageDef: PageStatus) {
+  /**
+   * @param {FormModel} model
+   * @param {PageStatus} pageDef
+   */
+  constructor(model, pageDef) {
     super(model, pageDef)
     this.viewName = 'confirmation'
     this.showReferenceNumber = model.def.options?.showReferenceNumber ?? false
@@ -26,11 +25,12 @@ export class StatusPageController extends QuestionPageController {
   }
 
   makeGetRouteHandler() {
-    return async (
-      request: FormRequest,
-      context: FormContext,
-      h: FormResponseToolkit
-    ) => {
+    /**
+     * @param {FormRequest} request
+     * @param {FormContext} context
+     * @param {FormResponseToolkit} h
+     */
+    return async (request, context, h) => {
       const { viewModel, viewName } = this
 
       const language = resolveLanguage(request)
@@ -72,3 +72,10 @@ export class StatusPageController extends QuestionPageController {
     }
   }
 }
+
+/**
+ * @import { PageStatus } from '@defra/forms-model'
+ * @import { FormModel } from '~/src/server/plugins/engine/models/index.js'
+ * @import { FormContext } from '~/src/server/plugins/engine/types.js'
+ * @import { FormRequest, FormResponseToolkit } from '~/src/server/routes/types.js'
+ */

@@ -89,7 +89,7 @@ Components throw the exception in their `onSubmit()` method when they detect inv
 
 The exception is caught and handled by the **SummaryPageController** during form submission.
 
-**Location**: `src/server/plugins/engine/pageControllers/SummaryPageController.ts`
+**Location**: `src/server/plugins/engine/pageControllers/SummaryPageController.js`
 
 The controller:
 

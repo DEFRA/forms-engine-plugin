@@ -1,7 +1,4 @@
-import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
-import { type FormContext } from '~/src/server/plugins/engine/types.js'
-import { type FormRequest } from '~/src/server/routes/types.js'
 
 export class StartPageController extends QuestionPageController {
   /**
@@ -12,10 +9,15 @@ export class StartPageController extends QuestionPageController {
 
   allowSaveAndExit = false
 
+  /**
+   * @param {FormRequest} request
+   * @param {FormContext} context
+   * @param {Translator} [translator]
+   */
   getViewModel(
-    request: FormRequest,
-    context: FormContext,
-    translator: Translator = context.translator ?? this.model.createTranslator()
+    request,
+    context,
+    translator = context.translator ?? this.model.createTranslator()
   ) {
     return {
       ...super.getViewModel(request, context, translator),
@@ -23,3 +25,9 @@ export class StartPageController extends QuestionPageController {
     }
   }
 }
+
+/**
+ * @import { Translator } from '~/src/server/plugins/engine/i18n/types.js'
+ * @import { FormContext } from '~/src/server/plugins/engine/types.js'
+ * @import { FormRequest } from '~/src/server/routes/types.js'
+ */
