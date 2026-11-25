@@ -11,7 +11,7 @@ import { get, post, postJson } from '~/src/server/services/httpService.js'
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
-jest.mock('~/src/server/services/httpService.ts')
+jest.mock('~/src/server/services/httpService.js')
 
 const translator = new FormModel(definition, {
   basePath: '/'

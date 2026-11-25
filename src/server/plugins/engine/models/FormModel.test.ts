@@ -26,7 +26,7 @@ import fieldsRequiredDefinition from '~/test/form/definitions/fields-required.js
 import joinedConditionsDefinition from '~/test/form/definitions/joined-conditions-simple-v2.js'
 import paymentDefinition from '~/test/form/definitions/payment.js'
 
-jest.mock('~/src/server/plugins/engine/date-helper.ts')
+jest.mock('~/src/server/plugins/engine/date-helper.js')
 
 describe('FormModel', () => {
   beforeEach(() => {

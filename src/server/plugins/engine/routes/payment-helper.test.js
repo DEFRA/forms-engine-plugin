@@ -4,7 +4,7 @@ import {
 } from '~/src/server/plugins/engine/routes/payment-helper.js'
 import { get } from '~/src/server/services/httpService.js'
 
-jest.mock('~/src/server/services/httpService.ts')
+jest.mock('~/src/server/services/httpService.js')
 
 describe('payment helper', () => {
   const uuid = '5a54c2fe-da49-4202-8cd3-2121eaca03c3'

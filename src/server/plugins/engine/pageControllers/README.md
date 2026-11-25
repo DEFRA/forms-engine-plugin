@@ -25,4 +25,4 @@ Form pages could have specific controllers and this is specified inside the Form
 
 Previously controllers were dynamically loaded from the file system, this is why you see a path such as `./pages/summary.js`. This feature has never been used since the application was forked and so it has been deprecated.
 
-To keep backward compatibility with legacy forms JSON we have the `getPageController` helper dealing with the possibility of a controller value being a file path or a class name (see `helpers.ts`)
+To keep backward compatibility with legacy forms JSON we have the `getPageController` helper dealing with the possibility of a controller value being a file path or a class name (see `helpers.js`)

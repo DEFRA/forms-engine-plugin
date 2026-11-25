@@ -6,7 +6,7 @@ import { result as queryResult } from '~/src/server/plugins/postcode-lookup/test
 import { result as uprnResult } from '~/src/server/plugins/postcode-lookup/test/__stubs__/uprn.js'
 import { getJson } from '~/src/server/services/httpService.js'
 
-jest.mock('~/src/server/services/httpService.ts')
+jest.mock('~/src/server/services/httpService.js')
 
 describe('Postcode lookup service', () => {
   describe('searchByPostcode', () => {

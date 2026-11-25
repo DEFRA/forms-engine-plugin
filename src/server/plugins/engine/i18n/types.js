@@ -1,0 +1,65 @@
+/**
+ * Structure of the `translations` block in a form definition.
+ * Also used to derive the valid property keys for the typed tX functions.
+ * @typedef {Record<string, FormDefinitionTranslation>} FormDefinitionTranslations
+ */
+
+/* eslint-disable jsdoc/require-property-description */
+/**
+ * @typedef {object} FormDefinitionTranslation
+ * @property {Record<string, Partial<{ title: string; repeatTitle: string }>>} pages
+ * @property {Record<
+ *   string,
+ *   Partial<{
+ *     title: string
+ *     hint: string
+ *     content: string
+ *     shortDescription: string
+ *     errorDescription: string
+ *     paymentDescription: string
+ *     instructionText: string
+ *   }>
+ * >} components - ComponentDef is a discriminated union; Pick across the full union is not feasible.
+ * The four keys below are the complete set of translatable component properties.
+ * @property {Record<string, Partial<Pick<Section, 'title'>>>} sections
+ * @property {Record<string, Partial<Pick<Item, 'text' | 'hint'>>>} listItems
+ * @property {Record<string, string>} form
+ */
+/* eslint-enable jsdoc/require-property-description */
+
+/**
+ * @typedef {FormDefinitionTranslations[string]} EntityTranslations
+ */
+
+/**
+ * Scoped translator returned by model.createTranslator(language).
+ * t          — plugin namespace (UI strings, buttons, errors, sub-field labels)
+ * tForm      — form namespace: form attributes, currently only form name
+ * tPage      — form namespace: page titles
+ * tComponent — form namespace: component titles, hints, shortDescriptions
+ * tSection   — form namespace: section titles
+ * tListItem  — form namespace: list item text
+ * language   - current language
+ * @typedef {{
+ *   t: (key: string, opts?: Record<string, unknown>) => string
+ *   tForm: (prop: string) => string
+ *   tPage: (page: Page, prop: keyof EntityTranslations['pages'][string]) => string
+ *   tComponent: (
+ *     component: ComponentDef,
+ *     prop: keyof EntityTranslations['components'][string]
+ *   ) => string
+ *   tSection: (
+ *     section: Section,
+ *     prop: keyof EntityTranslations['sections'][string]
+ *   ) => string
+ *   tListItem: (
+ *     item: Item,
+ *     prop: keyof EntityTranslations['listItems'][string]
+ *   ) => string
+ *   language: string
+ * }} Translator
+ */
+
+/**
+ * @import { ComponentDef, Item, Page, Section } from '@defra/forms-model'
+ */

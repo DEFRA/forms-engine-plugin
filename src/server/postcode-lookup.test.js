@@ -6,9 +6,9 @@ import * as fixtures from '~/test/fixtures/index.js'
 
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
 jest.mock('~/src/server/plugins/engine/services/uploadService.js')
-jest.mock('~/src/server/plugins/engine/helpers.ts', () => {
+jest.mock('~/src/server/plugins/engine/helpers.js', () => {
   const actual = /** @type {typeof engineHelpers} */ (
-    jest.requireActual('~/src/server/plugins/engine/helpers.ts')
+    jest.requireActual('~/src/server/plugins/engine/helpers.js')
   )
 
   return {

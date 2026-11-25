@@ -1,7 +1,7 @@
 import { getPageHref } from '~/src/server/plugins/engine/index.js'
 import { href } from '~/src/server/plugins/nunjucks/filters/href.js'
 
-jest.mock('~/src/server/plugins/engine/index.ts', () => ({
+jest.mock('~/src/server/plugins/engine/index.js', () => ({
   getPageHref: jest.fn()
 }))
 

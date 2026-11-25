@@ -16,7 +16,7 @@ import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
-jest.mock('~/src/server/utils/notify.ts')
+jest.mock('~/src/server/utils/notify.js')
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
 jest.mock('~/src/server/plugins/engine/services/formSubmissionService.js')
 
