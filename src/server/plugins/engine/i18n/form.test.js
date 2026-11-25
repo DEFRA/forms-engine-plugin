@@ -1,28 +1,28 @@
-import {
-  FormStatus,
-  type FormDefinition,
-  type FormMetadata
-} from '@defra/forms-model'
+import { FormStatus } from '@defra/forms-model'
 
 import { getCachedPluginTranslator } from '~/src/server/plugins/engine/i18n/form.js'
-import { type AnyFormRequest } from '~/src/server/plugins/engine/types.js'
 import englishDefinition from '~/test/form/definitions/basic.js'
 import welshDefinition from '~/test/form/definitions/fields-required-translated.js'
 
-function buildRequest(definition: FormDefinition) {
-  return {
-    server: {
-      plugins: { 'forms-engine-plugin': {} },
-      app: { model: { def: definition } }
-    }
-  } as unknown as AnyFormRequest
+/**
+ * @param {FormDefinition} definition
+ */
+function buildRequest(definition) {
+  return /** @type {AnyFormRequest} */ (
+    /** @type {unknown} */ ({
+      server: {
+        plugins: { 'forms-engine-plugin': {} },
+        app: { model: { def: definition } }
+      }
+    })
+  )
 }
 
 describe('getCachedPluginTranslator', () => {
   it('uses Welsh when the form has Welsh translations', async () => {
     const translator = await getCachedPluginTranslator(
       buildRequest(welshDefinition),
-      { id: 'welsh-form' } as FormMetadata,
+      /** @type {FormMetadata} */ ({ id: 'welsh-form' }),
       FormStatus.Draft,
       'cy'
     )
@@ -36,7 +36,7 @@ describe('getCachedPluginTranslator', () => {
   it('uses English when the form has no Welsh translations', async () => {
     const translator = await getCachedPluginTranslator(
       buildRequest(englishDefinition),
-      { id: 'english-form' } as FormMetadata,
+      /** @type {FormMetadata} */ ({ id: 'english-form' }),
       FormStatus.Draft,
       'cy'
     )
@@ -45,3 +45,8 @@ describe('getCachedPluginTranslator', () => {
     expect(translator.t('postcodeLookup.findAddress')).toBe('Find address')
   })
 })
+
+/**
+ * @import { FormDefinition, FormMetadata } from '@defra/forms-model'
+ * @import { AnyFormRequest } from '~/src/server/plugins/engine/types.js'
+ */

@@ -125,7 +125,7 @@ function extractRepeaters(item, translator) {
 
 /**
  * Returns the "files" section of the response body
- * @param {FileUploadFieldDetailitem} item - the file upload item in the form
+ * @param {FileUploadFieldDetailItem} item - the file upload item in the form
  * @returns the file upload data
  */
 function extractFileUploads(item) {
@@ -141,7 +141,7 @@ function extractFileUploads(item) {
 
 /**
  * @param {DetailItemField} item
- * @returns {item is FileUploadFieldDetailitem}
+ * @returns {item is FileUploadFieldDetailItem}
  */
 function isFileUploadFieldItem(item) {
   return item.field instanceof FileUploadField
@@ -151,7 +151,7 @@ function isFileUploadFieldItem(item) {
  * A detail item specifically for files
  * @typedef {Omit<DetailItemField, 'field'> & {
  *   field: FileUploadField
- * }} FileUploadFieldDetailitem
+ * }} FileUploadFieldDetailItem
  */
 
 /**

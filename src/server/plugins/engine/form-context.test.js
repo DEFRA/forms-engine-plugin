@@ -1,23 +1,17 @@
-import { type Request } from '@hapi/hapi'
-
 import {
   getFirstJourneyPage,
   getFormContext,
   getFormModel,
-  resolveFormModel,
-  type FormModelOptions
+  resolveFormModel
 } from '~/src/server/plugins/engine/form-context.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
-import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
-import { type FormContext } from '~/src/server/plugins/engine/types.js'
 import { FormStatus } from '~/src/server/routes/types.js'
-import { type FormsService, type Services } from '~/src/server/types.js'
 
 const mockGetCacheService = jest.fn()
 const mockCacheService = { getState: jest.fn() }
 const mockCheckEmailAddressForLiveFormSubmission = jest.fn()
 
-jest.mock('~/src/server/plugins/engine/models/index.ts', () => ({
+jest.mock('~/src/server/plugins/engine/models/index.js', () => ({
   __esModule: true,
   FormModel: jest.fn()
 }))
@@ -44,38 +38,52 @@ jest.mock('~/src/server/plugins/engine/pageControllers/index.ts', () => {
 })
 
 jest.mock('~/src/server/plugins/engine/helpers.js', () => ({
-  ...jest.requireActual<object>('~/src/server/plugins/engine/helpers.js'),
-  getCacheService: (...args: unknown[]): unknown =>
-    mockGetCacheService(...args),
-  checkEmailAddressForLiveFormSubmission: (...args: unknown[]): unknown =>
+  .../** @type {object} */ (
+    jest.requireActual('~/src/server/plugins/engine/helpers.js')
+  ),
+  /**
+   * @param {...unknown} args
+   * @returns {unknown}
+   */
+  getCacheService: (...args) => mockGetCacheService(...args),
+  /**
+   * @param {...unknown} args
+   * @returns {unknown}
+   */
+  checkEmailAddressForLiveFormSubmission: (...args) =>
     mockCheckEmailAddressForLiveFormSubmission(...args)
 }))
 
-const mockServices: {
-  formsService: { getFormMetadata: jest.Mock; getFormDefinition: jest.Mock }
-} = jest.requireMock('~/src/server/plugins/engine/services/index.js')
+/** @type {{ formsService: { getFormMetadata: jest.Mock, getFormDefinition: jest.Mock } }} */
+const mockServices = jest.requireMock(
+  '~/src/server/plugins/engine/services/index.js'
+)
 const mockFormsService = mockServices.formsService
 
-const { FormModel }: { FormModel: jest.Mock } = jest.requireMock(
-  '~/src/server/plugins/engine/models/index.ts'
+/** @type {{ FormModel: jest.Mock }} */
+const { FormModel } = jest.requireMock(
+  '~/src/server/plugins/engine/models/index.js'
 )
 
-const {
-  TerminalPageController: MockTerminalPageController
-}: { TerminalPageController: new () => { path: string } } = jest.requireMock(
+/** @type {{ TerminalPageController: new () => { path: string } }} */
+const { TerminalPageController: MockTerminalPageController } = jest.requireMock(
   '~/src/server/plugins/engine/pageControllers/index.ts'
 )
 
 describe('getFormContext helper', () => {
-  const request = {
-    yar: { set: jest.fn(), get: jest.fn() } as unknown as Request['yar'],
-    server: {
-      app: {},
-      realm: { modifiers: { route: { prefix: '' } } },
-      // eslint-disable-next-line no-useless-computed-key
-      plugins: { ['forms-engine-plugin']: { getLanguage: () => 'en-GB' } }
-    } as unknown as Request['server']
-  } satisfies Pick<Request, 'yar' | 'server'>
+  const request = /** @satisfies {Pick<Request, 'yar' | 'server'>} */ ({
+    yar: /** @type {Request['yar']} */ (
+      /** @type {unknown} */ ({ set: jest.fn(), get: jest.fn() })
+    ),
+    server: /** @type {Request['server']} */ (
+      /** @type {unknown} */ ({
+        app: {},
+        realm: { modifiers: { route: { prefix: '' } } },
+        // eslint-disable-next-line no-useless-computed-key
+        plugins: { ['forms-engine-plugin']: { getLanguage: () => 'en-GB' } }
+      })
+    )
+  })
   const slug = 'tb-origin'
   const cachedState = { answered: true }
   const returnedContext = { errors: [] }
@@ -87,7 +95,8 @@ describe('getFormContext helper', () => {
     notificationEmail: 'test@example.com'
   }
   const definition = { pages: [] }
-  let formModel: { getFormContext: jest.Mock; createTranslator: jest.Mock }
+  /** @type {{ getFormContext: jest.Mock, createTranslator: jest.Mock }} */
+  let formModel
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -96,7 +105,11 @@ describe('getFormContext helper', () => {
       createTranslator: jest.fn().mockReturnValue({})
     }
     FormModel.mockImplementation(
-      (_definition: unknown, modelOptions: FormModelOptions) =>
+      /**
+       * @param {unknown} _definition
+       * @param {FormModelOptions} modelOptions
+       */
+      (_definition, modelOptions) =>
         Object.assign(formModel, { basePath: modelOptions.basePath })
     )
     mockFormsService.getFormMetadata.mockResolvedValue(metadata)
@@ -119,11 +132,8 @@ describe('getFormContext helper', () => {
       errors
     })
 
-    const summaryRequest: {
-      params: Record<string, string>
-      path: string
-      url: URL
-    } = mockCacheService.getState.mock.calls[0][0]
+    /** @type {{ params: Record<string, string>, path: string, url: URL }} */
+    const summaryRequest = mockCacheService.getState.mock.calls[0][0]
 
     expect(summaryRequest.params).toEqual({
       path: 'summary',
@@ -165,9 +175,12 @@ describe('getFormModel helper', () => {
       }
     }
   }
-  let formsService: FormsService
-  let services: Services
-  let formModelInstance: { id: string }
+  /** @type {FormsService} */
+  let formsService
+  /** @type {Services} */
+  let services
+  /** @type {{ id: string }} */
+  let formModelInstance
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -250,15 +263,19 @@ describe('resolveFormModel helper', () => {
     live: { updatedAt: new Date('2024-10-15T10:00:00Z') },
     notificationEmail: 'enrique.chase@defra.gov.uk'
   }
-  let server: Request['server']
-  let formModelInstance: { id: string }
+  /** @type {Request['server']} */
+  let server
+  /** @type {{ id: string }} */
+  let formModelInstance
 
   beforeEach(() => {
     jest.clearAllMocks()
-    server = {
-      app: {},
-      realm: { modifiers: { route: { prefix: '/forms/' } } }
-    } as unknown as Request['server']
+    server = /** @type {Request['server']} */ (
+      /** @type {unknown} */ ({
+        app: {},
+        realm: { modifiers: { route: { prefix: '/forms/' } } }
+      })
+    )
     formModelInstance = { id: 'form-model-instance' }
     FormModel.mockImplementation(() => formModelInstance)
     mockFormsService.getFormMetadata.mockResolvedValue(metadata)
@@ -356,8 +373,12 @@ describe('resolveFormModel helper', () => {
 })
 
 describe('getFirstJourneyPage helper', () => {
-  const buildPage = (path: string, keys: string[] = []) =>
-    ({ path, keys }) as unknown as PageControllerClass
+  /**
+   * @param {string} path
+   * @param {string[]} [keys]
+   */
+  const buildPage = (path, keys = []) =>
+    /** @type {PageControllerClass} */ (/** @type {unknown} */ ({ path, keys }))
 
   test('returns undefined when no context or relevant target path is available', () => {
     expect(getFirstJourneyPage()).toBeUndefined()
@@ -368,7 +389,8 @@ describe('getFirstJourneyPage helper', () => {
     const startPage = buildPage('/start')
     const nextPage = buildPage('/animals')
 
-    const context: Pick<FormContext, 'relevantPages'> = {
+    /** @type {Pick<FormContext, 'relevantPages'>} */
+    const context = {
       relevantPages: [startPage, nextPage]
     }
 
@@ -377,11 +399,16 @@ describe('getFirstJourneyPage helper', () => {
 
   test('steps back from terminal pages to the previous relevant page', () => {
     const startPage = buildPage('/start')
-    const exitPage = Object.assign(new MockTerminalPageController(), {
-      path: '/stop'
-    }) as unknown as PageControllerClass
+    const exitPage = /** @type {PageControllerClass} */ (
+      /** @type {unknown} */ (
+        Object.assign(new MockTerminalPageController(), {
+          path: '/stop'
+        })
+      )
+    )
 
-    const context: Pick<FormContext, 'relevantPages'> = {
+    /** @type {Pick<FormContext, 'relevantPages'>} */
+    const context = {
       relevantPages: [startPage, exitPage]
     }
 
@@ -389,11 +416,16 @@ describe('getFirstJourneyPage helper', () => {
   })
 
   test('returns the terminal page when it is the only relevant page available', () => {
-    const exitPage = Object.assign(new MockTerminalPageController(), {
-      path: '/stop'
-    }) as unknown as PageControllerClass
+    const exitPage = /** @type {PageControllerClass} */ (
+      /** @type {unknown} */ (
+        Object.assign(new MockTerminalPageController(), {
+          path: '/stop'
+        })
+      )
+    )
 
-    const context: Pick<FormContext, 'relevantPages'> = {
+    /** @type {Pick<FormContext, 'relevantPages'>} */
+    const context = {
       relevantPages: [exitPage]
     }
 
@@ -402,5 +434,9 @@ describe('getFirstJourneyPage helper', () => {
 })
 
 /**
- * @import { FormContext } from '../types.js'
+ * @import { Request } from '@hapi/hapi'
+ * @import { FormModelOptions } from '~/src/server/plugins/engine/form-context.js'
+ * @import { PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
+ * @import { FormContext } from '~/src/server/plugins/engine/types.js'
+ * @import { FormsService, Services } from '~/src/server/types.js'
  */

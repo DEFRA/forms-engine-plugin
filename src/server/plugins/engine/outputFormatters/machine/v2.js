@@ -150,7 +150,7 @@ function extractRepeaters(item) {
 
 /**
  * Returns the "files" section of the response body
- * @param {FileUploadFieldDetailitem} item - the file upload item in the form
+ * @param {FileUploadFieldDetailItem} item - the file upload item in the form
  * @returns {FormAdapterFile[]} the file upload data
  */
 function extractFileUploads(item) {
@@ -168,7 +168,7 @@ function extractFileUploads(item) {
 
 /**
  * @param {DetailItemField} item
- * @returns {item is FileUploadFieldDetailitem}
+ * @returns {item is FileUploadFieldDetailItem}
  */
 function isFileUploadFieldItem(item) {
   return item.field instanceof FileUploadField
@@ -211,5 +211,5 @@ function extractPayment(item) {
  * @import { checkFormStatus } from '~/src/server/plugins/engine/helpers.js'
  * @import { FormModel } from '~/src/server/plugins/engine/models/index.js'
  * @import { DetailItem, DetailItemField, DetailItemRepeat } from '~/src/server/plugins/engine/models/types.js'
- * @import { FileUploadFieldDetailitem, FormAdapterFile, FormContext, RichFormValue } from '~/src/server/plugins/engine/types.js'
+ * @import { FileUploadFieldDetailItem, FormAdapterFile, FormContext, RichFormValue } from '~/src/server/plugins/engine/types.js'
  */

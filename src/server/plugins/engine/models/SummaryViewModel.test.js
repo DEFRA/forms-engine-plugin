@@ -1,11 +1,4 @@
-import {
-  type FormDefinition,
-  type PageQuestion,
-  type RadiosFieldComponent
-} from '@defra/forms-model'
-
 import { FORM_PREFIX } from '~/src/server/constants.js'
-import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
 import {
   FormModel,
   SummaryViewModel
@@ -14,15 +7,7 @@ import { SummaryPageController } from '~/src/server/plugins/engine/pageControlle
 import { buildFormContextRequest } from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
 import { serverWithSaveAndExit } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
-import {
-  createPage,
-  type PageControllerClass
-} from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
-import {
-  type FormContext,
-  type FormContextRequest,
-  type FormState
-} from '~/src/server/plugins/engine/types.js'
+import { createPage } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import v2Definition from '~/test/form/definitions/conditions-relative-dates-v2.js'
 import definition from '~/test/form/definitions/repeat-mixed.js'
 const basePath = `${FORM_PREFIX}/test`
@@ -31,12 +16,18 @@ describe('SummaryViewModel', () => {
   const itemId1 = 'abc-123'
   const itemId2 = 'xyz-987'
 
-  let model: FormModel
-  let page: PageControllerClass
-  let pageUrl: URL
-  let request: FormContextRequest
-  let context: FormContext
-  let summaryViewModel: SummaryViewModel
+  /** @type {FormModel} */
+  let model
+  /** @type {PageControllerClass} */
+  let page
+  /** @type {URL} */
+  let pageUrl
+  /** @type {FormContextRequest} */
+  let request
+  /** @type {FormContext} */
+  let context
+  /** @type {SummaryViewModel} */
+  let summaryViewModel
 
   beforeEach(() => {
     model = new FormModel(definition, {
@@ -62,11 +53,11 @@ describe('SummaryViewModel', () => {
   describe.each([
     {
       description: '0 items',
-      state: {
+      state: /** @satisfies {FormState} */ ({
         $$__referenceNumber: 'foobar',
         orderType: 'collection',
         pizza: []
-      } satisfies FormState,
+      }),
       keys: [
         'How would you like to receive your pizza?',
         'Pizza',
@@ -80,7 +71,7 @@ describe('SummaryViewModel', () => {
     },
     {
       description: '1 item',
-      state: {
+      state: /** @satisfies {FormState} */ ({
         $$__referenceNumber: 'foobar',
         orderType: 'delivery',
         pizza: [
@@ -90,7 +81,7 @@ describe('SummaryViewModel', () => {
             itemId: itemId1
           }
         ]
-      } satisfies FormState,
+      }),
       keys: [
         'How would you like to receive your pizza?',
         'Pizza',
@@ -104,7 +95,7 @@ describe('SummaryViewModel', () => {
     },
     {
       description: '2 items',
-      state: {
+      state: /** @satisfies {FormState} */ ({
         $$__referenceNumber: 'foobar',
         orderType: 'delivery',
         pizza: [
@@ -119,7 +110,7 @@ describe('SummaryViewModel', () => {
             itemId: itemId2
           }
         ]
-      } satisfies FormState,
+      }),
       keys: [
         'How would you like to receive your pizza?',
         'Pizza',
@@ -313,16 +304,20 @@ describe('SummaryViewModel', () => {
 
   it('should use correct summary labels', () => {
     request.query.force = '' // Preview URL '?force'
-    const state = {
+    const state = /** @satisfies {FormState} */ ({
       $$__referenceNumber: 'foobar',
       orderType: 'collection',
       pizza: []
-    } satisfies FormState
+    })
 
     // Setup an optional question
-    const definitionOptional = structuredClone(definition) as FormDefinition
-    const firstPage = definitionOptional.pages[0] as PageQuestion
-    const firstComponent = firstPage.components[0] as RadiosFieldComponent
+    const definitionOptional = /** @type {FormDefinition} */ (
+      structuredClone(definition)
+    )
+    const firstPage = /** @type {PageQuestion} */ (definitionOptional.pages[0])
+    const firstComponent = /** @type {RadiosFieldComponent} */ (
+      firstPage.components[0]
+    )
     firstComponent.options.required = false
 
     const model = new FormModel(definitionOptional, {
@@ -363,11 +358,16 @@ describe('SummaryViewModel', () => {
 })
 
 describe('SummaryViewModel with per-request Translator', () => {
-  let model: FormModel
-  let page: PageControllerClass
-  let request: FormContextRequest
-  let context: FormContext
-  let mockTranslator: Translator
+  /** @type {FormModel} */
+  let model
+  /** @type {PageControllerClass} */
+  let page
+  /** @type {FormContextRequest} */
+  let request
+  /** @type {FormContext} */
+  let context
+  /** @type {Translator} */
+  let mockTranslator
 
   beforeEach(() => {
     model = new FormModel(definition, {
@@ -391,23 +391,28 @@ describe('SummaryViewModel with per-request Translator', () => {
 
     mockTranslator = {
       t: jest.fn().mockReturnValue('mocked'),
-      tPage: jest.fn().mockReturnValue('mocked-content') as Translator['tPage'],
-      tComponent: jest
-        .fn()
-        .mockReturnValue('mocked-content') as Translator['tComponent'],
-      tSection: jest
-        .fn()
-        .mockReturnValue('mocked-content') as Translator['tSection'],
-      tListItem: jest
-        .fn()
-        .mockReturnValue('mocked-content') as Translator['tListItem'],
-      tForm: jest.fn().mockReturnValue('mocked-content') as Translator['tForm'],
+      tPage: /** @type {Translator['tPage']} */ (
+        jest.fn().mockReturnValue('mocked-content')
+      ),
+      tComponent: /** @type {Translator['tComponent']} */ (
+        jest.fn().mockReturnValue('mocked-content')
+      ),
+      tSection: /** @type {Translator['tSection']} */ (
+        jest.fn().mockReturnValue('mocked-content')
+      ),
+      tListItem: /** @type {Translator['tListItem']} */ (
+        jest.fn().mockReturnValue('mocked-content')
+      ),
+      tForm: /** @type {Translator['tForm']} */ (
+        jest.fn().mockReturnValue('mocked-content')
+      ),
       language: 'en-GB'
     }
   })
 
   it('should use the provided translator t function for plugin keys like pages.summary.change', () => {
-    const state: FormState = {
+    /** @type {FormState} */
+    const state = {
       $$__referenceNumber: 'foobar',
       orderType: 'collection',
       pizza: []
@@ -426,7 +431,8 @@ describe('SummaryViewModel with per-request Translator', () => {
   })
 
   it('should use the provided translator t function for pages.summary.notProvided', () => {
-    const state: FormState = {
+    /** @type {FormState} */
+    const state = {
       $$__referenceNumber: 'foobar',
       orderType: 'collection',
       pizza: []
@@ -445,7 +451,8 @@ describe('SummaryViewModel with per-request Translator', () => {
   })
 
   it('should use stubTranslator when no specific translation assertions needed', () => {
-    const state: FormState = {
+    /** @type {FormState} */
+    const state = {
       $$__referenceNumber: 'foobar',
       orderType: 'collection',
       pizza: []
@@ -463,9 +470,12 @@ describe('SummaryViewModel with per-request Translator', () => {
 })
 
 describe('SummaryPageController', () => {
-  let model: FormModel
-  let controller: SummaryPageController
-  let request: FormContextRequest
+  /** @type {FormModel} */
+  let model
+  /** @type {SummaryPageController} */
+  let controller
+  /** @type {FormContextRequest} */
+  let request
 
   beforeEach(() => {
     model = new FormModel(definition, {
@@ -494,7 +504,8 @@ describe('SummaryPageController', () => {
     })
 
     it('should handle save and exit from summary page', () => {
-      const state: FormState = {
+      /** @type {FormState} */
+      const state = {
         $$__referenceNumber: 'foobar',
         orderType: 'collection',
         pizza: []
@@ -511,7 +522,8 @@ describe('SummaryPageController', () => {
     })
 
     it('should display correct page title for v1 form', () => {
-      const state: FormState = {
+      /** @type {FormState} */
+      const state = {
         $$__referenceNumber: 'foobar',
         orderType: 'collection',
         pizza: []
@@ -530,7 +542,8 @@ describe('SummaryPageController', () => {
     })
 
     it('should display default page title for v2 form when title not provided', () => {
-      const state: FormState = {
+      /** @type {FormState} */
+      const state = {
         $$__referenceNumber: 'foobar',
         orderType: 'collection',
         pizza: []
@@ -568,7 +581,8 @@ describe('SummaryPageController', () => {
     })
 
     it('should display override page title for v2 form when title supplied', () => {
-      const state: FormState = {
+      /** @type {FormState} */
+      const state = {
         $$__referenceNumber: 'foobar',
         orderType: 'collection',
         pizza: []
@@ -608,3 +622,10 @@ describe('SummaryPageController', () => {
     })
   })
 })
+
+/**
+ * @import { FormDefinition, PageQuestion, RadiosFieldComponent } from '@defra/forms-model'
+ * @import { Translator } from '~/src/server/plugins/engine/i18n/types.js'
+ * @import { PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
+ * @import { FormContext, FormContextRequest, FormState } from '~/src/server/plugins/engine/types.js'
+ */

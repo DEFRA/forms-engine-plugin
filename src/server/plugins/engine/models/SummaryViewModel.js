@@ -1,76 +1,77 @@
-import {
-  SchemaVersion,
-  type ComponentDef,
-  type Section
-} from '@defra/forms-model'
+import { SchemaVersion } from '@defra/forms-model'
 
 import { PaymentField } from '~/src/server/plugins/engine/components/PaymentField.js'
-import { type PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
-import {
-  getAnswer,
-  type Field
-} from '~/src/server/plugins/engine/components/helpers/components.js'
-import {
-  type BackLink,
-  type ComponentViewModel
-} from '~/src/server/plugins/engine/components/types.js'
+import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
 import {
   evaluateTemplate,
   getError,
   getPageHref
 } from '~/src/server/plugins/engine/helpers.js'
-import { type Translator } from '~/src/server/plugins/engine/i18n/types.js'
-import {
-  type Detail,
-  type DetailItem,
-  type DetailItemField,
-  type DetailItemRepeat
-} from '~/src/server/plugins/engine/models/types.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
-import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
-import {
-  type CheckAnswers,
-  type FormContext,
-  type FormContextRequest,
-  type FormState,
-  type FormSubmissionError,
-  type SummaryListAction,
-  type SummaryListRow
-} from '~/src/server/plugins/engine/types.js'
 
 export class SummaryViewModel {
   /**
    * Responsible for parsing state values to the govuk-frontend summary list template
    */
 
-  page: PageControllerClass
-  pageTitle: string
-  declaration?: string
-  details: Detail[]
-  checkAnswers: CheckAnswers[]
-  context: FormContext
-  name: string | undefined
-  backLink?: BackLink
-  feedbackLink?: string
-  phaseTag?: string
-  errors?: FormSubmissionError[]
-  serviceUrl: string
-  hasMissingNotificationEmail?: boolean
-  components?: ComponentViewModel[]
+  /** @type {PageControllerClass} */
+  page
+  /** @type {string} */
+  pageTitle
+  /** @type {string | undefined} */
+  declaration
+  /** @type {Detail[]} */
+  details
+  /** @type {CheckAnswers[]} */
+  checkAnswers
+  /** @type {FormContext} */
+  context
+  /** @type {string | undefined} */
+  name
+  /** @type {BackLink | undefined} */
+  backLink
+  /** @type {string | undefined} */
+  feedbackLink
+  /** @type {string | undefined} */
+  phaseTag
+  /** @type {FormSubmissionError[] | undefined} */
+  errors
+  /** @type {string} */
+  serviceUrl
+  /** @type {boolean | undefined} */
+  hasMissingNotificationEmail
+  /** @type {ComponentViewModel[] | undefined} */
+  components
   allowSaveAndExit = false
-  paymentState?: PaymentState
-  paymentDetails?: CheckAnswers
-  t: (key: string, opts?: Record<string, unknown>) => string
-  private readonly _translator!: Translator
-  paymentRequired?: boolean
-  paymentPreAuthorized?: boolean
+  /** @type {PaymentState | undefined} */
+  paymentState
+  /** @type {CheckAnswers | undefined} */
+  paymentDetails
+  /** @type {(key: string, opts?: Record<string, unknown>) => string} */
+  t
+  /**
+   * @private
+   * @readonly
+   * @type {Translator}
+   */
+  _translator
+  /** @type {boolean | undefined} */
+  paymentRequired
+  /** @type {boolean | undefined} */
+  paymentPreAuthorized
 
+  /**
+   * @param {FormContextRequest} request
+   * @param {PageControllerClass} page
+   * @param {FormContext} context
+   * @param {Translator} [translator]
+   */
   constructor(
-    request: FormContextRequest,
-    page: PageControllerClass,
-    context: FormContext,
-    translator: Translator = context.translator ?? page.model.createTranslator()
+    request,
+    page,
+    context,
+    translator = context.translator ?? page.model.createTranslator()
   ) {
     const { model } = page
     const { basePath, def, sections } = model
@@ -102,55 +103,66 @@ export class SummaryViewModel {
     this.details = this.summaryDetails(request, sections, translator)
 
     // Format check answers
-    this.checkAnswers = this.details.map((detail): CheckAnswers => {
-      const { title } = detail
+    this.checkAnswers = this.details.map(
+      /** @returns {CheckAnswers} */
+      (detail) => {
+        const { title } = detail
 
-      const rows = detail.items.map((item): SummaryListRow => {
-        const items: SummaryListAction[] = []
+        const rows = detail.items.map(
+          /** @returns {SummaryListRow} */
+          (item) => {
+            /** @type {SummaryListAction[]} */
+            const items = []
 
-        // Remove summary list actions from previews
-        if (!isForceAccess) {
-          items.push({
-            href: item.href,
-            text: t('pages.summary.change'),
-            classes: 'govuk-link--no-visited-state',
-            visuallyHiddenText: item.label
-          })
-        }
+            // Remove summary list actions from previews
+            if (!isForceAccess) {
+              items.push({
+                href: item.href,
+                text: t('pages.summary.change'),
+                classes: 'govuk-link--no-visited-state',
+                visuallyHiddenText: item.label
+              })
+            }
+
+            return {
+              key: {
+                text: evaluateTemplate(item.title, context)
+              },
+              value: {
+                classes: 'app-prose-scope',
+                html: item.value || t('pages.summary.notProvided')
+              },
+              actions: {
+                items
+              }
+            }
+          }
+        )
 
         return {
-          key: {
-            text: evaluateTemplate(item.title, context)
-          },
-          value: {
-            classes: 'app-prose-scope',
-            html: item.value || t('pages.summary.notProvided')
-          },
-          actions: {
-            items
-          }
+          title: title ? { text: title } : undefined,
+          summaryList: { rows }
         }
-      })
-
-      return {
-        title: title ? { text: title } : undefined,
-        summaryList: { rows }
       }
-    })
+    )
   }
 
-  private summaryDetails(
-    request: FormContextRequest,
-    sections: Section[],
-    translator: Translator
-  ) {
+  /**
+   * @private
+   * @param {FormContextRequest} request
+   * @param {Section[]} sections
+   * @param {Translator} translator
+   */
+  summaryDetails(request, sections, translator) {
     const { context, errors } = this
     const { relevantPages, state } = context
 
-    const details: Detail[] = []
+    /** @type {Detail[]} */
+    const details = []
 
     ;[...sections, undefined].forEach((section) => {
-      const items: DetailItem[] = []
+      /** @type {DetailItem[]} */
+      const items = []
 
       const sectionPages = relevantPages.filter(
         (page) => page.section === section
@@ -203,16 +215,15 @@ export class SummaryViewModel {
 /**
  * Creates a repeater detail item
  * @see {@link DetailItemField}
+ * @param {RepeatPageController} page
+ * @param {FormState} state
+ * @param {object} options
+ * @param {string} options.path
+ * @param {FormSubmissionError[]} [options.errors]
+ * @param {Translator} translator
+ * @returns {DetailItemRepeat}
  */
-function ItemRepeat(
-  page: RepeatPageController,
-  state: FormState,
-  options: {
-    path: string
-    errors?: FormSubmissionError[]
-  },
-  translator: Translator
-): DetailItemRepeat {
+function ItemRepeat(page, state, options, translator) {
   const { collection, repeat } = page
   const { name } = repeat.options
   const { t, tPage } = translator
@@ -244,25 +255,32 @@ function ItemRepeat(
 /**
  * Creates a form field detail item
  * @see {@link DetailItemField}
+ * @param {PageControllerClass} page
+ * @param {FormState} state
+ * @param {Field} field
+ * @param {object} options
+ * @param {string} options.path
+ * @param {FormSubmissionError[]} [options.errors]
+ * @param {Translator} [translator]
+ * @returns {DetailItemField}
  */
 export function ItemField(
-  page: PageControllerClass,
-  state: FormState,
-  field: Field,
-  options: {
-    path: string
-    errors?: FormSubmissionError[]
-  },
-  translator: Translator = page.model.createTranslator()
-): DetailItemField {
+  page,
+  state,
+  field,
+  options,
+  translator = page.model.createTranslator()
+) {
   // FormComponent doesn't expose shortDescription/title as raw def properties,
   // so build a lookup object with English values to let tComponent's GUID lookup fire.
-  const fieldDef = {
-    id: field.id,
-    type: field.type,
-    shortDescription: field.label,
-    title: field.title
-  } as unknown as ComponentDef
+  const fieldDef = /** @type {ComponentDef} */ (
+    /** @type {unknown} */ ({
+      id: field.id,
+      type: field.type,
+      shortDescription: field.label,
+      title: field.title
+    })
+  )
   const rawLabel = translator.tComponent(fieldDef, 'shortDescription')
   const translatedLabel = rawLabel !== '' ? rawLabel : field.label
   const rawTitle = translator.tComponent(fieldDef, 'title')
@@ -285,3 +303,14 @@ export function ItemField(
     field
   }
 }
+
+/**
+ * @import { ComponentDef, Section } from '@defra/forms-model'
+ * @import { PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
+ * @import { Field } from '~/src/server/plugins/engine/components/helpers/components.js'
+ * @import { BackLink, ComponentViewModel } from '~/src/server/plugins/engine/components/types.js'
+ * @import { Translator } from '~/src/server/plugins/engine/i18n/types.js'
+ * @import { Detail, DetailItem, DetailItemField, DetailItemRepeat } from '~/src/server/plugins/engine/models/types.js'
+ * @import { PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers/pages.js'
+ * @import { CheckAnswers, FormContext, FormContextRequest, FormState, FormSubmissionError, SummaryListAction, SummaryListRow } from '~/src/server/plugins/engine/types.js'
+ */
