@@ -13,7 +13,7 @@ jest.mock('~/src/server/plugins/nunjucks/environment.js', () => ({
 }))
 
 jest.mock(
-  '~/src/server/plugins/engine/components/helpers/components.ts',
+  '~/src/server/plugins/engine/components/helpers/components.js',
   () => ({ createComponent: jest.fn() })
 )
 
@@ -26,7 +26,7 @@ import {
   writePreviewPartial
 } from './generate-component-previews.js'
 
-import { createComponent } from '~/src/server/plugins/engine/components/helpers/components.ts'
+import { createComponent } from '~/src/server/plugins/engine/components/helpers/components.js'
 import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
 import { environment } from '~/src/server/plugins/nunjucks/environment.js'
 
