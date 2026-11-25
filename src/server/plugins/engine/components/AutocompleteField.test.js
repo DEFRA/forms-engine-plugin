@@ -1,0 +1,411 @@
+import { ComponentType } from '@defra/forms-model'
+import lowerFirst from 'lodash/lowerFirst.js'
+
+import { AutocompleteField } from '~/src/server/plugins/engine/components/AutocompleteField.js'
+import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
+import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
+import {
+  listNumber,
+  listNumberExamples,
+  listString,
+  listStringExamples
+} from '~/test/fixtures/list.js'
+import definition from '~/test/form/definitions/blank.js'
+import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
+
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
+
+describe.each([
+  {
+    component: /** @satisfies {AutocompleteFieldComponent} */ ({
+      title: 'String list',
+      name: 'myComponent',
+      type: ComponentType.AutocompleteField,
+      list: 'listString',
+      options: {}
+    }),
+
+    options: {
+      list: listString,
+      examples: listStringExamples,
+      allow: ['1', '2', '3', '4'],
+      notInList: '5',
+      shortDescription: 'My string list'
+    }
+  },
+  {
+    component: /** @satisfies {AutocompleteFieldComponent} */ ({
+      title: 'Number list',
+      name: 'myComponent',
+      type: ComponentType.AutocompleteField,
+      list: 'listNumber',
+      options: {}
+    }),
+
+    options: {
+      list: listNumber,
+      examples: listNumberExamples,
+      allow: [1, 2, 3, 4],
+      notInList: 5,
+      shortDescription: 'My number list'
+    }
+  }
+])('AutocompleteField: $component.title', ({ component: def, options }) => {
+  /** @type {FormModel} */
+  let model
+  /** @type {ComponentCollection} */
+  let collection
+  /** @type {Field} */
+  let field
+
+  beforeEach(() => {
+    const updated = structuredClone(definition)
+    updated.lists = [options.list]
+
+    model = new FormModel(updated, {
+      basePath: 'test'
+    })
+
+    collection = new ComponentCollection([def], { model })
+    field = collection.fields[0]
+  })
+
+  describe('Defaults', () => {
+    describe('Schema', () => {
+      it('uses component title as label', () => {
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
+
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({
+            flags: expect.objectContaining({ label: def.title })
+          })
+        )
+      })
+
+      it('uses component name as keys', () => {
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
+
+        expect(field.keys).toEqual(['myComponent'])
+        expect(field.collection).toBeUndefined()
+
+        for (const key of field.keys) {
+          expect(keys).toHaveProperty(key)
+        }
+      })
+
+      it('is required by default', () => {
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
+
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({
+            flags: expect.objectContaining({
+              presence: 'required'
+            })
+          })
+        )
+      })
+
+      it('is optional when configured', () => {
+        const collectionOptional = new ComponentCollection(
+          [{ ...def, options: { required: false } }],
+          { model }
+        )
+
+        const { formSchema } = collectionOptional
+        const { keys } = formSchema.describe()
+
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({
+            allow: expect.arrayContaining([''])
+          })
+        )
+
+        const result = collectionOptional.validate(getFormData(''))
+        expect(result.errors).toBeUndefined()
+      })
+
+      it('adds the select error for an invalid optional value', () => {
+        const collectionOptional = new ComponentCollection(
+          [{ ...def, options: { required: false } }],
+          { model }
+        )
+
+        const result = collectionOptional.validate(getFormData('invalid'))
+
+        expect(result.errors?.[0].text).toBe(`Select ${lowerFirst(def.title)}`)
+      })
+
+      it('is configured with autocomplete suggestions', () => {
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
+
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({
+            allow: options.allow,
+            type: options.list.type
+          })
+        )
+      })
+
+      it.each([...options.allow])(
+        'accepts valid list item (value: %s)',
+        (value) => {
+          const result = collection.validate(getFormData(value))
+          expect(result.errors).toBeUndefined()
+        }
+      )
+
+      it('adds errors for empty value', () => {
+        const result = collection.validate(getFormData(''))
+
+        expect(result.errors).toEqual([
+          expect.objectContaining({
+            text: `Enter ${lowerFirst(def.title)}`
+          })
+        ])
+      })
+
+      it('adds errors for empty value if shortDescription exists', () => {
+        collection = new ComponentCollection(
+          [{ ...def, shortDescription: options.shortDescription }],
+          { model }
+        )
+        const result = collection.validate(getFormData(''))
+
+        expect(result.errors).toEqual([
+          expect.objectContaining({
+            text: `Enter ${lowerFirst(options.shortDescription)}`
+          })
+        ])
+      })
+
+      it('adds errors for empty value if shortDescription exists but is empty', () => {
+        collection = new ComponentCollection(
+          [{ ...def, shortDescription: '' }],
+          { model }
+        )
+        const result = collection.validate(getFormData(''))
+
+        expect(result.errors).toEqual([
+          expect.objectContaining({
+            text: `Enter ${lowerFirst(def.title)}`
+          })
+        ])
+      })
+
+      it('adds errors for invalid values', () => {
+        const result1 = collection.validate(getFormData('invalid'))
+        const result2 = collection.validate(
+          // @ts-expect-error - Allow invalid param for test
+          getFormData({ unknown: 'invalid' })
+        )
+
+        expect(result1.errors).toBeTruthy()
+        expect(result2.errors).toBeTruthy()
+      })
+    })
+
+    describe('State', () => {
+      it.each([...options.examples])('returns text from state', (item) => {
+        const state1 = getFormState(item.value)
+        const state2 = getFormState(null)
+
+        const answer1 = getAnswer(field, state1, undefined, translator)
+        const answer2 = getAnswer(field, state2, undefined, translator)
+
+        expect(answer1).toBe(item.text)
+        expect(answer2).toBe('')
+      })
+
+      it.each([...options.examples])('returns payload from state', (item) => {
+        const state1 = getFormState(item.value)
+        const state2 = getFormState(null)
+
+        const payload1 = field.getFormDataFromState(state1)
+        const payload2 = field.getFormDataFromState(state2)
+
+        expect(payload1).toEqual(getFormData(item.value))
+        expect(payload2).toEqual(getFormData())
+      })
+
+      it.each([...options.examples])('returns value from state', (item) => {
+        const state1 = getFormState(item.value)
+        const state2 = getFormState(null)
+
+        const value1 = field.getFormValueFromState(state1)
+        const value2 = field.getFormValueFromState(state2)
+
+        expect(value1).toBe(item.value)
+        expect(value2).toBeUndefined()
+      })
+
+      it.each([...options.examples])(
+        'returns context for conditions and form submission',
+        (item) => {
+          const state1 = getFormState(item.value)
+          const state2 = getFormState(null)
+
+          const value1 = field.getContextValueFromState(state1)
+          const value2 = field.getContextValueFromState(state2)
+
+          expect(value1).toEqual(item.value)
+          expect(value2).toBeNull()
+        }
+      )
+
+      it.each([...options.examples])('returns state from payload', (item) => {
+        const payload1 = getFormData(item.value)
+        const payload2 = getFormData()
+
+        const value1 = field.getStateFromValidForm(payload1)
+        const value2 = field.getStateFromValidForm(payload2)
+
+        expect(value1).toEqual(getFormState(item.value))
+        expect(value2).toEqual(getFormState(null))
+      })
+    })
+
+    describe('View model', () => {
+      it('sets Nunjucks component defaults', () => {
+        const item = options.examples[0]
+
+        const viewModel = field.getViewModel({
+          payload: getFormData(item.value),
+          translator: stubTranslator
+        })
+
+        expect(viewModel).toEqual(
+          expect.objectContaining({
+            label: { text: def.title },
+            name: 'myComponent',
+            id: 'myComponent',
+            value: item.value
+          })
+        )
+      })
+
+      it.each([...options.examples])(
+        'sets Nunjucks component autocomplete suggestions',
+        (item) => {
+          const viewModel = field.getViewModel({
+            payload: getFormData(item.value),
+            translator: stubTranslator
+          })
+
+          expect(viewModel.items?.[0]).toMatchObject({
+            value: '' // First item is always empty
+          })
+
+          expect(viewModel.items).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({
+                text: item.text,
+                value: item.value,
+                selected: true
+              })
+            ])
+          )
+        }
+      )
+    })
+
+    describe('Autocomplete suggestions', () => {
+      it('returns autocomplete suggestions', () => {
+        expect(field).toMatchObject({
+          items: options.list.items
+        })
+      })
+
+      it('returns autocomplete suggestions matching type', () => {
+        expect(field).toMatchObject({
+          values: expect.arrayContaining([])
+        })
+      })
+
+      it('returns empty items when missing', () => {
+        const model = new FormModel(definition, {
+          basePath: 'test'
+        })
+
+        const { items } = new AutocompleteField(def, { model })
+        expect(items).toEqual([])
+      })
+    })
+
+    describe('AllPossibleErrors', () => {
+      it('should return errors', () => {
+        const errors = field.getAllPossibleErrors()
+        expect(errors.baseErrors).not.toBeEmpty()
+        expect(errors.advancedSettingsErrors).toBeEmpty()
+      })
+    })
+
+    describe('Validation', () => {
+      describe.each([
+        {
+          description: 'Use short description if it exists',
+          component: /** @satisfies {AutocompleteFieldComponent} */ ({
+            ...def,
+            title: 'What is your example text?',
+            shortDescription: 'Your example text'
+          }),
+          assertions: [
+            {
+              input: getFormData(''),
+              output: {
+                value: getFormData(''),
+                errors: [
+                  expect.objectContaining({
+                    text: 'Enter your example text'
+                  })
+                ]
+              }
+            },
+            {
+              input: getFormData('5'),
+              output: {
+                value: getFormData(options.notInList),
+                errors: [
+                  expect.objectContaining({
+                    text: 'Enter your example text'
+                  })
+                ]
+              }
+            }
+          ]
+        }
+      ])('$description', ({ component, assertions }) => {
+        /** @type {ComponentCollection} */
+        let collection
+
+        beforeEach(() => {
+          collection = new ComponentCollection([component], { model })
+        })
+
+        it.each([...assertions])(
+          'validates custom example',
+          ({ input, output }) => {
+            const result = collection.validate(input)
+            expect(result).toEqual(output)
+          }
+        )
+      })
+    })
+  })
+})
+
+/**
+ * @import { AutocompleteFieldComponent } from '@defra/forms-model'
+ * @import { Field } from '~/src/server/plugins/engine/components/helpers/components.js'
+ */

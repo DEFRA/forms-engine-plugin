@@ -1,0 +1,2235 @@
+import { getForm } from '~/src/server/plugins/engine/configureEnginePlugin.js'
+import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
+import {
+  buildFormContextRequest,
+  buildFormRequest
+} from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
+import { serverWithSaveAndExit } from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
+import { FileStatus, UploadStatus } from '~/src/server/plugins/engine/types.js'
+import { CacheService } from '~/src/server/services/cacheService.js'
+import conditionalReveal from '~/test/form/definitions/conditional-reveal.js'
+import definitionConditionsBasic, {
+  V2 as definitionConditionsBasicV2
+} from '~/test/form/definitions/conditions-basic.js'
+import definitionConditionsComplex from '~/test/form/definitions/conditions-complex.js'
+import definitionConditionsDates from '~/test/form/definitions/conditions-dates.js'
+import definitionFieldsRequiredTranslated from '~/test/form/definitions/fields-required-translated.js'
+import definitionPaymentV2Conditional from '~/test/form/definitions/payment-v2-conditional.js'
+
+const translator = new FormModel(definitionConditionsBasic, {
+  basePath: '/'
+}).createTranslator()
+
+describe('QuestionPageController', () => {
+  /** @type {PageQuestion} */
+  let page1
+  /** @type {URL} */
+  let page1Url
+
+  /** @type {PageQuestion} */
+  let page2
+  /** @type {URL} */
+  let page2Url
+
+  /** @type {FormModel} */
+  let model
+  /** @type {QuestionPageController} */
+  let controller1
+  /** @type {QuestionPageController} */
+  let controller2
+  /** @type {FormRequest} */
+  let requestPage1
+  /** @type {FormRequest} */
+  let requestPage2
+
+  beforeEach(() => {
+    const { pages } = definitionConditionsBasic
+
+    page1 = pages[0]
+    page1Url = new URL('http://example.com/test/first-page')
+
+    page2 = pages[1]
+    page2Url = new URL('http://example.com/test/second-page')
+
+    model = new FormModel(definitionConditionsBasic, {
+      basePath: 'test'
+    })
+
+    controller1 = new QuestionPageController(model, page1)
+    controller2 = new QuestionPageController(model, page2)
+
+    requestPage1 = buildFormRequest(
+      /** @type {FormRequest} */ ({
+        method: 'get',
+        url: page1Url,
+        path: page1Url.pathname,
+        params: {
+          path: 'first-page',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+    )
+
+    requestPage2 = buildFormRequest(
+      /** @type {FormRequest} */ ({
+        method: 'get',
+        url: page2Url,
+        path: page2Url.pathname,
+        params: {
+          path: 'second-page',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+    )
+  })
+
+  describe('Properties', () => {
+    it('returns path', () => {
+      expect(controller1).toHaveProperty('path', '/first-page')
+      expect(controller2).toHaveProperty('path', '/second-page')
+    })
+
+    it('returns href', () => {
+      expect(controller1).toHaveProperty('href', '/test/first-page')
+      expect(controller2).toHaveProperty('href', '/test/second-page')
+    })
+
+    it('returns keys', () => {
+      expect(controller1).toHaveProperty('keys', ['yesNoField'])
+      expect(controller2).toHaveProperty('keys', [
+        'dateField',
+        'dateField__day',
+        'dateField__month',
+        'dateField__year',
+        'multilineTextField'
+      ])
+    })
+
+    it('returns the page section', () => {
+      expect(controller1).toHaveProperty('section', undefined)
+      expect(controller2).toHaveProperty('section', {
+        name: 'marriage',
+        title: 'Your marriage',
+        hideTitle: false
+      })
+    })
+  })
+
+  describe('Path methods', () => {
+    describe('Next getter', () => {
+      it('returns page links', () => {
+        expect(controller1).toHaveProperty('next', [
+          { path: '/second-page' },
+          { path: '/summary', condition: 'isPreviouslyMarried' }
+        ])
+
+        expect(controller2).toHaveProperty('next', [{ path: '/summary' }])
+      })
+
+      it('returns page links (none found)', () => {
+        const pageDef1 = structuredClone(controller1.pageDef)
+        const pageDef2 = structuredClone(controller2.pageDef)
+
+        controller1.pageDef = pageDef1
+        controller2.pageDef = pageDef2
+
+        // @ts-expect-error - Allow invalid property for test
+        controller1.pageDef.next = []
+
+        // @ts-expect-error - Allow invalid property for test
+        delete controller2.pageDef.next
+
+        expect(controller1).toHaveProperty('next', [])
+        expect(controller2).toHaveProperty('next', [])
+      })
+    })
+  })
+
+  describe('Component collection', () => {
+    it('returns the components for the page', () => {
+      const { components: components1 } = controller1.collection
+      const { components: components2 } = controller2.collection
+
+      expect(components1).toHaveLength(1)
+      expect(components1[0].name).toBe('yesNoField')
+
+      expect(components2).toHaveLength(3)
+      expect(components2[0].name).toBe('detailsField')
+      expect(components2[1].name).toBe('dateField')
+      expect(components2[2].name).toBe('multilineTextField')
+    })
+
+    it('returns the fields for the page', () => {
+      const { fields: fields1 } = controller1.collection
+      const { fields: fields2 } = controller2.collection
+
+      expect(fields1).toHaveLength(1)
+      expect(fields1[0].name).toBe('yesNoField')
+
+      expect(fields2).toHaveLength(2)
+      expect(fields2[0].name).toBe('dateField')
+      expect(fields2[1].name).toBe('multilineTextField')
+    })
+
+    it('returns the guidance for the page', () => {
+      const { guidance: guidance1 } = controller1.collection
+      const { guidance: guidance2 } = controller2.collection
+
+      expect(guidance1).toHaveLength(0)
+      expect(guidance2).toHaveLength(1)
+      expect(guidance2[0].name).toBe('detailsField')
+    })
+  })
+
+  describe('Component view models', () => {
+    /** @type {FormPageViewModel} */
+    let viewModel1
+    /** @type {FormPageViewModel} */
+    let viewModel2
+
+    beforeEach(() => {
+      viewModel1 = controller1.getViewModel(
+        requestPage1,
+        model.getFormContext(requestPage1, { $$__referenceNumber: 'foobar' }),
+        stubTranslator
+      )
+
+      viewModel2 = controller2.getViewModel(
+        requestPage2,
+        model.getFormContext(requestPage2, { $$__referenceNumber: 'foobar' }),
+        stubTranslator
+      )
+    })
+
+    it('builds the view model in English without a translator', () => {
+      const viewModel = controller1.getViewModel(
+        requestPage1,
+        model.getFormContext(requestPage1, { $$__referenceNumber: 'foobar' })
+      )
+
+      expect(viewModel).toHaveProperty('pageTitle', 'Previous marriages')
+    })
+
+    it('passes the request query to the components', () => {
+      const request = buildFormRequest(
+        /** @type {FormRequest} */ ({
+          method: 'get',
+          url: page1Url,
+          path: page1Url.pathname,
+          params: {
+            path: 'first-page',
+            slug: 'test'
+          },
+          query: { force: '' },
+          app: { model }
+        })
+      )
+
+      const getComponentViewModel = jest.spyOn(
+        controller1.collection,
+        'getViewModel'
+      )
+
+      controller1.getViewModel(
+        request,
+        model.getFormContext(request, { $$__referenceNumber: 'foobar' })
+      )
+
+      expect(getComponentViewModel).toHaveBeenCalledWith(
+        expect.objectContaining({ query: { force: '' } })
+      )
+    })
+
+    it('hides the page title for single form component pages', () => {
+      // Page 1 hides page title (single component)
+      expect(viewModel1).toHaveProperty('showTitle', false)
+      expect(viewModel1).toHaveProperty('pageTitle', 'Previous marriages')
+
+      // Page 2 shows page title (multiple components)
+      expect(viewModel2).toHaveProperty('showTitle', true)
+      expect(viewModel2).toHaveProperty(
+        'pageTitle',
+        'When will you get married?'
+      )
+    })
+
+    it('returns the component view models for the page', () => {
+      const { components: components1 } = viewModel1
+      const { components: components2 } = viewModel2
+
+      expect(components1).toHaveLength(1)
+      expect(components2).toHaveLength(3)
+
+      // Page 1, component 1, default label
+      expect(components1[0].model).toHaveProperty('label', {
+        text: 'Have you previously been married?'
+      })
+
+      // Page 1, component 1, optional legend
+      expect(components1[0].model).toHaveProperty('fieldset', {
+        legend: {
+          text: 'Previous marriages',
+          classes: 'govuk-fieldset__legend--l',
+          isPageHeading: true
+        }
+      })
+
+      // Page 2, component 1, content only
+      expect(components2[0].model).toEqual({
+        attributes: {},
+        summaryHtml: 'Find out more',
+        html: 'Some content goes here'
+      })
+
+      // Page 2, component 2, default label
+      expect(components2[1].model).toHaveProperty('label', {
+        text: 'Date of marriage',
+        classes: 'govuk-label--m'
+      })
+
+      // Page 2, component 2, optional legend
+      expect(components2[1].model).toHaveProperty('fieldset', {
+        legend: {
+          text: 'Date of marriage',
+          classes: 'govuk-fieldset__legend--m'
+        }
+      })
+
+      // Page 2, component 3, default label
+      expect(components2[2].model).toHaveProperty('label', {
+        text: 'Remarks',
+        classes: 'govuk-label--m'
+      })
+
+      // Page 2, component 3, optional legend
+      expect(components2[2].model).not.toHaveProperty('fieldset')
+    })
+  })
+
+  describe('Condition evaluation context', () => {
+    it('filters state by journey pages', () => {
+      const { pages } = definitionConditionsComplex
+
+      const model = new FormModel(definitionConditionsComplex, {
+        basePath: 'test'
+      })
+
+      // Selected page appears after convergence and contains a conditional field
+      // This is the page we're theoretically browsing to
+      const controller = new QuestionPageController(model, pages[7])
+
+      // The state below shows we said we had a UKPassport and entered details for an applicant
+      /** @type {FormSubmissionState} */
+      const state = {
+        $$__referenceNumber: 'foobar',
+        ukPassport: true,
+        numberOfApplicants: 2,
+        applicantOneFirstName: 'Enrique',
+        applicantOneMiddleName: null,
+        applicantOneLastName: 'Chase',
+        applicantOneAddress__addressLine1: 'AddressLine1',
+        applicantOneAddress__addressLine2: 'AddressLine2',
+        applicantOneAddress__town: 'Town',
+        applicantOneAddress__postcode: 'Postcode',
+        applicantTwoFirstName: 'John',
+        applicantTwoMiddleName: null,
+        applicantTwoLastName: 'Doe',
+        applicantTwoAddress__addressLine1: 'AddressLine1',
+        applicantTwoAddress__addressLine2: 'AddressLine2',
+        applicantTwoAddress__town: 'Town',
+        applicantTwoAddress__postcode: 'Postcode'
+      }
+
+      let request = buildFormContextRequest({
+        method: 'get',
+        url: new URL('http://example.com/test/applicant-one-address'),
+        path: '/test/applicant-one-address',
+        params: {
+          path: 'applicant-one-address',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+
+      // Calculate our context based on the page we're attempting to load and the above state we provide
+      let context = controller.model.getFormContext(request, state)
+      const { evaluationState: stateBefore } = context
+
+      // Our context should know our first applicant
+      expect(stateBefore).toEqual({
+        numberOfApplicants: 2,
+        ukPassport: true,
+        applicantOneFirstName: 'Enrique',
+        applicantOneMiddleName: null,
+        applicantOneLastName: 'Chase',
+        applicantOneAddress: [
+          'AddressLine1',
+          'AddressLine2',
+          'Town',
+          'Postcode'
+        ],
+        applicantTwoAddress: null,
+        applicantTwoFirstName: null,
+        applicantTwoLastName: null,
+        applicantTwoMiddleName: null
+      })
+
+      // Our context should know which pages are relevant
+      expect(context.paths).toEqual([
+        '/uk-passport',
+        '/how-many-people',
+        '/applicant-one-name',
+        '/applicant-one-address'
+      ])
+
+      // Now mark that we don't have a UK Passport
+      state.ukPassport = false
+
+      request = buildFormContextRequest({
+        method: 'get',
+        url: new URL('http://example.com/test/summary'),
+        path: '/test/summary',
+        params: {
+          path: 'summary',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+
+      // And recalculate our context
+      context = controller.model.getFormContext(request, state)
+      const { evaluationState: stateAfter } = context
+
+      // Our context should no longer list pages about our applicant
+      expect(context.paths).toEqual([
+        '/uk-passport',
+        '/testconditions',
+        '/summary'
+      ])
+
+      // Our evaluation context should have default values for irrelevant fields
+      expect(stateAfter).toEqual({
+        ukPassport: false,
+        numberOfApplicants: null,
+        applicantOneFirstName: null,
+        applicantOneMiddleName: null,
+        applicantOneLastName: null,
+        applicantOneAddress: null,
+        applicantTwoAddress: null,
+        applicantTwoFirstName: null,
+        applicantTwoLastName: null,
+        applicantTwoMiddleName: null
+      })
+    })
+
+    it('combines state values for date fields', () => {
+      const { pages } = definitionConditionsDates
+
+      const model = new FormModel(definitionConditionsDates, {
+        basePath: 'test'
+      })
+
+      const controller = new QuestionPageController(model, pages[0])
+
+      const request = buildFormContextRequest({
+        method: 'get',
+        url: new URL('http://example.com/test/page-one'),
+        path: '/test/page-one',
+        params: {
+          path: 'page-one',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+
+      const context = controller.model.getFormContext(request, {
+        $$__referenceNumber: 'foobar',
+        dateField__day: 5,
+        dateField__month: 1,
+        dateField__year: 2024
+      })
+
+      // Ensure dates are transformed to yyyy-MM-dd format
+      expect(context.evaluationState).toHaveProperty('dateField', '2024-01-05')
+
+      // Unlike relevant state which has the individual date parts
+      expect(context.relevantState).not.toHaveProperty('dateField')
+      expect(context.relevantState).toMatchObject({
+        dateField__day: 5,
+        dateField__month: 1,
+        dateField__year: 2024
+      })
+    })
+
+    it('filters on condition A', () => {
+      const { pages } = conditionalReveal
+
+      const model = new FormModel(conditionalReveal, {
+        basePath: 'test'
+      })
+
+      const controller = new QuestionPageController(model, pages[0])
+
+      // The state below shows we said we had a UKPassport and entered details for an applicant
+      /** @type {FormSubmissionState} */
+      const state = { $$__referenceNumber: 'foobar' }
+
+      const request = buildFormContextRequest({
+        method: 'get',
+        url: new URL('http://example.com/test/page-one'),
+        path: '/test/first-page',
+        params: {
+          path: 'first-page',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+
+      const context = controller.model.getFormContext(request, state)
+      const evaluationState = { animalType: 'Barn owl' }
+
+      const viewModel = controller.getViewModel(
+        request,
+        context,
+        stubTranslator
+      )
+
+      const filtered = controller.filterConditionalComponents(
+        viewModel,
+        model,
+        evaluationState
+      )
+
+      expect(filtered).toHaveLength(2)
+      expect(filtered[0].model.content).toBe('This is info for Barn owls')
+      expect(filtered[1].model.label?.text).toBe('Select from the list')
+      expect(filtered[1].model.items).toEqual([
+        {
+          checked: false,
+          condition: 'isBarnOwl',
+          selected: false,
+          text: 'Option 1',
+          value: '1'
+        },
+        {
+          checked: false,
+          condition: 'isBarnOwl',
+          selected: false,
+          text: 'Option 2',
+          value: '2'
+        }
+      ])
+    })
+
+    it('filters on condition B', () => {
+      const { pages } = conditionalReveal
+
+      const model = new FormModel(conditionalReveal, {
+        basePath: 'test'
+      })
+
+      const controller = new QuestionPageController(model, pages[0])
+
+      // The state below shows we said we had a UKPassport and entered details for an applicant
+      /** @type {FormSubmissionState} */
+      const state = { $$__referenceNumber: 'foobar' }
+
+      const request = buildFormContextRequest({
+        method: 'get',
+        url: new URL('http://example.com/test/page-one'),
+        path: '/test/first-page',
+        params: {
+          path: 'first-page',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+
+      const context = controller.model.getFormContext(request, state)
+      const evaluationState = { animalType: 'Swan' }
+
+      const viewModel = controller.getViewModel(
+        request,
+        context,
+        stubTranslator
+      )
+
+      const filtered = controller.filterConditionalComponents(
+        viewModel,
+        model,
+        evaluationState
+      )
+
+      expect(filtered).toHaveLength(2)
+      expect(filtered[0].model.content).toBe('This is info for other breeds')
+      expect(filtered[1].model.label?.text).toBe('Select from the list')
+      expect(filtered[1].model.items).toEqual([
+        {
+          checked: false,
+          condition: 'notBarnOwl',
+          selected: false,
+          text: 'Option 3',
+          value: '3'
+        },
+        {
+          checked: false,
+          condition: 'notBarnOwl',
+          selected: false,
+          text: 'Option 4',
+          value: '4'
+        }
+      ])
+    })
+
+    it('correctly initialises default values', async () => {
+      const components = await getForm(
+        '../../../../test/form/definitions/components.json'
+      )
+      const { pages } = components
+
+      const model = new FormModel(components, {
+        basePath: 'test'
+      })
+
+      const controller = new QuestionPageController(model, pages[0])
+
+      /** @type {FormSubmissionState} */
+      const state = { $$__referenceNumber: 'foobar' }
+
+      let request = buildFormContextRequest({
+        method: 'get',
+        url: new URL('http://example.com/test/all-components'),
+        path: '/test/all-components',
+        params: {
+          path: 'all-components',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+
+      // Calculate our context based on the page we're attempting to load and the above state we provide
+      let context = controller.model.getFormContext(request, state)
+
+      // Context paths should be all pages up to the one we requested
+      expect(context.paths).toEqual(['/all-components'])
+
+      // Our context should have default values for all input fields
+      expect(context.evaluationState).toEqual({
+        textField: null,
+        multilineTextField: null,
+        numberField: null,
+        datePartsField: null,
+        monthYearField: null,
+        yesNoField: null,
+        emailAddressField: null,
+        telephoneNumberField: null,
+        addressField: null,
+        radiosField: null,
+        selectField: null,
+        autocompleteField: null,
+        checkboxesSingle: [],
+        checkboxesMultiple: [],
+        checkboxesSingleNumber: [],
+        checkboxesMultipleNumber: [],
+        fileUpload: null,
+        declaration: false
+      })
+
+      Object.assign(state, {
+        textField: 'Text field',
+        multilineTextField: 'Multiline text field',
+        numberField: 1,
+        datePartsField__day: 12,
+        datePartsField__month: 12,
+        datePartsField__year: 2012,
+        monthYearField__month: 12,
+        monthYearField__year: 2012,
+        yesNoField: 'true',
+        emailAddressField: 'user@email.com',
+        telephoneNumberField: '+447900000000',
+        addressField__addressLine1: 'Address line 1',
+        addressField__addressLine2: 'Address line 2',
+        addressField__town: 'Town or city',
+        addressField__county: 'Cheshire',
+        addressField__postcode: 'CW1 1AB',
+        addressField__uprn: '',
+        radiosField: 'privateLimitedCompany',
+        selectField: 910400000,
+        autocompleteField: 910400044,
+        checkboxesSingle: ['Shetland'],
+        checkboxesMultiple: ['Arabian', 'Shire', 'Race'],
+        checkboxesSingleNumber: [1],
+        checkboxesMultipleNumber: [0, 1],
+        declaration: true
+      })
+
+      request = buildFormContextRequest({
+        method: 'get',
+        url: new URL('http://example.com/test/methodology-statement'),
+        path: '/test/methodology-statement',
+        params: {
+          path: 'methodology-statement',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+
+      // Calculate our context based on the page we're attempting to load and the above state we provide
+      context = controller.model.getFormContext(request, state)
+
+      // Context paths should be all pages up to the one we requested
+      expect(context.paths).toEqual([
+        '/all-components',
+        '/methodology-statement'
+      ])
+
+      // Our context should have evaluation state values for relevant fields and default values for everything else
+      expect(context.evaluationState).toEqual({
+        textField: 'Text field',
+        multilineTextField: 'Multiline text field',
+        numberField: 1,
+        datePartsField: '2012-12-12',
+        monthYearField: '2012-12',
+        yesNoField: null,
+        emailAddressField: 'user@email.com',
+        telephoneNumberField: '+447900000000',
+        addressField: [
+          'Address line 1',
+          'Address line 2',
+          'Town or city',
+          'Cheshire',
+          'CW1 1AB'
+        ],
+        radiosField: 'privateLimitedCompany',
+        selectField: 910400000,
+        autocompleteField: 910400044,
+        checkboxesSingle: ['Shetland'],
+        checkboxesMultiple: ['Arabian', 'Shire', 'Race'],
+        checkboxesSingleNumber: [1],
+        checkboxesMultipleNumber: [0, 1],
+        fileUpload: null,
+        declaration: true
+      })
+
+      Object.assign(state, {
+        fileUpload: [
+          {
+            uploadId: '348e1878-59c0-4d2e-a52b-e5042ad729f0',
+            status: {
+              uploadStatus: UploadStatus.ready,
+              metadata: {
+                retrievalKey: 'enrique.chase@defra.gov.uk'
+              },
+              form: {
+                file: {
+                  fileId: 'fd5db541-179c-4107-a4d0-149d09672ffc',
+                  filename: 'test.jpg',
+                  fileStatus: FileStatus.complete,
+                  contentLength: 3671
+                }
+              },
+              numberOfRejectedFiles: 0
+            }
+          }
+        ]
+      })
+
+      request = buildFormContextRequest({
+        method: 'get',
+        url: new URL('http://example.com/test/summary'),
+        path: '/test/summary',
+        params: {
+          path: 'summary',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+
+      // Calculate our context based on the page we're attempting to load and the above state we provide
+      context = controller.model.getFormContext(request, state)
+
+      // Context paths should be all pages up to the one we requested
+      expect(context.paths).toEqual([
+        '/all-components',
+        '/methodology-statement',
+        '/summary'
+      ])
+
+      // Our context should now have evaluation state values all fields
+      expect(context.evaluationState).toEqual({
+        textField: 'Text field',
+        multilineTextField: 'Multiline text field',
+        numberField: 1,
+        datePartsField: '2012-12-12',
+        monthYearField: '2012-12',
+        yesNoField: null,
+        emailAddressField: 'user@email.com',
+        telephoneNumberField: '+447900000000',
+        addressField: [
+          'Address line 1',
+          'Address line 2',
+          'Town or city',
+          'Cheshire',
+          'CW1 1AB'
+        ],
+        radiosField: 'privateLimitedCompany',
+        selectField: 910400000,
+        autocompleteField: 910400044,
+        checkboxesSingle: ['Shetland'],
+        checkboxesMultiple: ['Arabian', 'Shire', 'Race'],
+        checkboxesSingleNumber: [1],
+        checkboxesMultipleNumber: [0, 1],
+        fileUpload: ['fd5db541-179c-4107-a4d0-149d09672ffc'],
+        declaration: true
+      })
+    })
+  })
+
+  describe('Form validation', () => {
+    it('includes all field errors', () => {
+      const result1 = controller1.collection.validate()
+      const result2 = controller2.collection.validate()
+
+      expect(result1.errors).toHaveLength(1)
+      expect(result2.errors).toHaveLength(4)
+    })
+  })
+
+  describe('Form journey', () => {
+    /** @type {FormContext} */
+    let context
+    /** @type {FormContext} */
+    let contextNo
+    /** @type {FormContext} */
+    let contextYes
+
+    beforeEach(() => {
+      // Empty state
+      context = model.getFormContext(requestPage1, {
+        $$__referenceNumber: 'foobar'
+      })
+
+      // Question 1: Selected 'No'
+      contextNo = model.getFormContext(requestPage1, {
+        $$__referenceNumber: 'foobar',
+        yesNoField: false
+      })
+
+      // Question 1: Selected 'Yes'
+      contextYes = model.getFormContext(requestPage1, {
+        $$__referenceNumber: 'foobar',
+        yesNoField: true
+      })
+    })
+
+    describe('Next getter', () => {
+      it('returns the next page links', () => {
+        expect(controller1).toHaveProperty('next', [
+          { path: '/second-page' },
+          { path: '/summary', condition: 'isPreviouslyMarried' }
+        ])
+
+        expect(controller2).toHaveProperty('next', [{ path: '/summary' }])
+      })
+    })
+
+    describe('Next', () => {
+      it('returns the next page path', () => {
+        expect(controller1.getNextPath(context)).toBe('/second-page')
+        expect(controller1.getNextPath(contextNo)).toBe('/second-page')
+        expect(controller1.getNextPath(contextYes)).toBe('/summary')
+
+        expect(controller2.getNextPath(context)).toBe('/summary')
+        expect(controller2.getNextPath(contextNo)).toBe('/summary')
+        expect(controller2.getNextPath(contextYes)).toBe('/summary')
+      })
+    })
+
+    describe('Summary', () => {
+      it('returns the summary path', () => {
+        expect(controller1.getSummaryPath()).toBe('/summary')
+        expect(controller2.getSummaryPath()).toBe('/summary')
+      })
+    })
+  })
+
+  describe('Route handlers', () => {
+    const response = {
+      code: jest.fn().mockImplementation(() => response)
+    }
+
+    /** @type {FormResponseToolkit} */
+    const h = {
+      redirect: jest.fn().mockReturnValue(response),
+      view: jest.fn(),
+      continue: Symbol('continue')
+    }
+
+    it('returns default route options', () => {
+      expect(controller1.getRouteOptions).toMatchObject({
+        ext: {
+          onPostHandler: {
+            method: expect.any(Function)
+          }
+        }
+      })
+
+      expect(controller1.postRouteOptions).toMatchObject({
+        ext: {
+          onPostHandler: {
+            method: expect.any(Function)
+          }
+        }
+      })
+    })
+
+    it('supports GET route handler', async () => {
+      /** @type {FormState} */
+      const state = { yesNoField: false }
+
+      for (const controller of [controller1, controller2]) {
+        jest
+          .spyOn(controller, 'hasMissingNotificationEmail')
+          .mockResolvedValue(false)
+
+        jest.spyOn(controller, 'getState').mockResolvedValue(state)
+      }
+
+      expect(() => controller1.makeGetRouteHandler()).not.toThrow()
+      expect(() => controller1.makeGetRouteHandler()).toBeInstanceOf(Function)
+
+      await controller1.makeGetRouteHandler()(
+        requestPage1,
+        model.getFormContext(requestPage1, { $$__referenceNumber: 'foobar' }),
+        h
+      )
+
+      await controller2.makeGetRouteHandler()(
+        requestPage2,
+        model.getFormContext(requestPage2, { $$__referenceNumber: 'foobar' }),
+        h
+      )
+
+      expect(h.view).toHaveBeenNthCalledWith(
+        1,
+        controller1.viewName,
+        expect.objectContaining({
+          pageTitle: 'Previous marriages',
+          sectionTitle: undefined
+        })
+      )
+
+      expect(h.view).toHaveBeenNthCalledWith(
+        2,
+        controller2.viewName,
+        expect.objectContaining({
+          pageTitle: 'When will you get married?',
+          sectionTitle: 'Your marriage'
+        })
+      )
+    })
+  })
+
+  describe('State', () => {
+    beforeEach(() => {
+      jest.spyOn(CacheService.prototype, 'getState')
+      jest.spyOn(CacheService.prototype, 'setState')
+
+      // Preview URL '?force'
+      requestPage1.query.force = ''
+    })
+
+    describe('getState', () => {
+      it('should skip get for preview URL direct access', async () => {
+        const state = await controller1.getState(requestPage1)
+
+        expect(state).toEqual({})
+        expect(CacheService.prototype.getState).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('setState', () => {
+      it('should skip set for preview URL direct access', async () => {
+        /** @type {FormSubmissionState} */
+        const state = { yesNoField: false }
+        const updated = await controller1.setState(requestPage1, state)
+
+        expect(updated).toBe(state)
+        expect(CacheService.prototype.setState).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('mergeState', () => {
+      it('should skip merge for preview URL direct access', async () => {
+        /** @type {FormSubmissionState} */
+        const state = {
+          yesNoField: false
+        }
+
+        /** @type {FormSubmissionState} */
+        const update = {
+          dateField__day: 5,
+          dateField__month: 1,
+          dateField__year: 2024
+        }
+
+        const updated = await controller1.mergeState(
+          requestPage1,
+          state,
+          update
+        )
+
+        expect(updated).toEqual({
+          yesNoField: false,
+          dateField__day: 5,
+          dateField__month: 1,
+          dateField__year: 2024
+        })
+
+        expect(CacheService.prototype.setState).not.toHaveBeenCalled()
+      })
+    })
+  })
+})
+
+describe('QuestionPageController V2', () => {
+  /** @type {URL} */
+  let page1Url
+  /** @type {URL} */
+  let page2Url
+
+  /** @type {FormModel} */
+  let model
+  /** @type {QuestionPageController} */
+  let controller1
+  /** @type {QuestionPageController} */
+  let controller2
+  /** @type {FormRequest} */
+  let requestPage1
+  /** @type {FormRequest} */
+  let requestPage2
+
+  beforeEach(() => {
+    page1Url = new URL('http://example.com/test/first-page')
+    page2Url = new URL('http://example.com/test/second-page')
+
+    model = new FormModel(definitionConditionsBasicV2, {
+      basePath: 'test'
+    })
+
+    controller1 = model.pages[0] // new QuestionPageController(model, page1)
+    controller2 = model.pages[1] // new QuestionPageController(model, page2)
+
+    requestPage1 = buildFormRequest(
+      /** @type {FormRequest} */ ({
+        method: 'get',
+        url: page1Url,
+        path: page1Url.pathname,
+        params: {
+          path: 'first-page',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+    )
+
+    requestPage2 = buildFormRequest(
+      /** @type {FormRequest} */ ({
+        method: 'get',
+        url: page2Url,
+        path: page2Url.pathname,
+        params: {
+          path: 'second-page',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+    )
+  })
+
+  describe('Properties', () => {
+    it('returns path', () => {
+      expect(controller1).toHaveProperty('path', '/first-page')
+      expect(controller2).toHaveProperty('path', '/second-page')
+    })
+
+    it('returns href', () => {
+      expect(controller1).toHaveProperty('href', '/test/first-page')
+      expect(controller2).toHaveProperty('href', '/test/second-page')
+    })
+
+    it('returns keys', () => {
+      expect(controller1).toHaveProperty('keys', ['yesNoField'])
+      expect(controller2).toHaveProperty('keys', [
+        'dateField',
+        'dateField__day',
+        'dateField__month',
+        'dateField__year',
+        'multilineTextField'
+      ])
+    })
+
+    it('returns the page section', () => {
+      expect(controller1).toHaveProperty('section', undefined)
+      expect(controller2.section).toEqual(
+        expect.objectContaining({
+          name: 'marriage',
+          title: 'Your marriage',
+          hideTitle: false
+        })
+      )
+    })
+  })
+
+  describe('Path methods', () => {
+    describe('Next getter', () => {
+      it('returns page links', () => {
+        expect(controller1).toHaveProperty('next', [])
+
+        expect(controller2).toHaveProperty('next', [])
+      })
+
+      it('returns page links (none found)', () => {
+        const pageDef1 = structuredClone(controller1.pageDef)
+        const pageDef2 = structuredClone(controller2.pageDef)
+
+        controller1.pageDef = pageDef1
+        controller2.pageDef = pageDef2
+
+        // @ts-expect-error - Allow invalid property for test
+        controller1.pageDef.next = []
+
+        // @ts-expect-error - Allow invalid property for test
+        delete controller2.pageDef.next
+
+        expect(controller1).toHaveProperty('next', [])
+        expect(controller2).toHaveProperty('next', [])
+      })
+    })
+  })
+
+  describe('Component collection', () => {
+    it('returns the components for the page', () => {
+      const { components: components1 } = controller1.collection
+      const { components: components2 } = controller2.collection
+
+      expect(components1).toHaveLength(1)
+      expect(components1[0].name).toBe('yesNoField')
+
+      expect(components2).toHaveLength(3)
+      expect(components2[0].name).toBe('detailsField')
+      expect(components2[1].name).toBe('dateField')
+      expect(components2[2].name).toBe('multilineTextField')
+    })
+
+    it('returns the fields for the page', () => {
+      const { fields: fields1 } = controller1.collection
+      const { fields: fields2 } = controller2.collection
+
+      expect(fields1).toHaveLength(1)
+      expect(fields1[0].name).toBe('yesNoField')
+
+      expect(fields2).toHaveLength(2)
+      expect(fields2[0].name).toBe('dateField')
+      expect(fields2[1].name).toBe('multilineTextField')
+    })
+
+    it('returns the guidance for the page', () => {
+      const { guidance: guidance1 } = controller1.collection
+      const { guidance: guidance2 } = controller2.collection
+
+      expect(guidance1).toHaveLength(0)
+      expect(guidance2).toHaveLength(1)
+      expect(guidance2[0].name).toBe('detailsField')
+    })
+  })
+
+  describe('Component view models', () => {
+    /** @type {FormPageViewModel} */
+    let viewModel1
+    /** @type {FormPageViewModel} */
+    let viewModel2
+
+    beforeEach(() => {
+      viewModel1 = controller1.getViewModel(
+        requestPage1,
+        model.getFormContext(requestPage1, { $$__referenceNumber: 'foobar' }),
+        stubTranslator
+      )
+
+      viewModel2 = controller2.getViewModel(
+        requestPage2,
+        model.getFormContext(requestPage2, { $$__referenceNumber: 'foobar' }),
+        stubTranslator
+      )
+    })
+
+    it('hides the page title for single form component pages', () => {
+      // Page 1 hides page title (single component)
+      expect(viewModel1).toHaveProperty('showTitle', false)
+      expect(viewModel1).toHaveProperty('pageTitle', 'Previous marriages')
+
+      // Page 2 shows page title (multiple components)
+      expect(viewModel2).toHaveProperty('showTitle', true)
+      expect(viewModel2).toHaveProperty(
+        'pageTitle',
+        'When will you get married?'
+      )
+    })
+
+    it('returns the component view models for the page', () => {
+      const { components: components1 } = viewModel1
+      const { components: components2 } = viewModel2
+
+      expect(components1).toHaveLength(1)
+      expect(components2).toHaveLength(3)
+
+      // Page 1, component 1, default label
+      expect(components1[0].model).toHaveProperty('label', {
+        text: 'Have you previously been married?'
+      })
+
+      // Page 1, component 1, optional legend
+      expect(components1[0].model).toHaveProperty('fieldset', {
+        legend: {
+          text: 'Previous marriages',
+          classes: 'govuk-fieldset__legend--l',
+          isPageHeading: true
+        }
+      })
+
+      // Page 2, component 1, content only
+      expect(components2[0].model).toEqual({
+        attributes: {},
+        summaryHtml: 'Find out more',
+        html: 'Some content goes here'
+      })
+
+      // Page 2, component 2, default label
+      expect(components2[1].model).toHaveProperty('label', {
+        text: 'Date of marriage',
+        classes: 'govuk-label--m'
+      })
+
+      // Page 2, component 2, optional legend
+      expect(components2[1].model).toHaveProperty('fieldset', {
+        legend: {
+          text: 'Date of marriage',
+          classes: 'govuk-fieldset__legend--m'
+        }
+      })
+
+      // Page 2, component 3, default label
+      expect(components2[2].model).toHaveProperty('label', {
+        text: 'Remarks',
+        classes: 'govuk-label--m'
+      })
+
+      // Page 2, component 3, optional legend
+      expect(components2[2].model).not.toHaveProperty('fieldset')
+    })
+  })
+
+  describe('Condition evaluation context', () => {
+    it('filters state by journey pages', () => {
+      const { pages } = definitionConditionsComplex
+
+      const model = new FormModel(definitionConditionsComplex, {
+        basePath: 'test'
+      })
+
+      // Selected page appears after convergence and contains a conditional field
+      // This is the page we're theoretically browsing to
+      const controller = new QuestionPageController(model, pages[7])
+
+      // The state below shows we said we had a UKPassport and entered details for an applicant
+      /** @type {FormSubmissionState} */
+      const state = {
+        $$__referenceNumber: 'foobar',
+        ukPassport: true,
+        numberOfApplicants: 2,
+        applicantOneFirstName: 'Enrique',
+        applicantOneMiddleName: null,
+        applicantOneLastName: 'Chase',
+        applicantOneAddress__addressLine1: 'AddressLine1',
+        applicantOneAddress__addressLine2: 'AddressLine2',
+        applicantOneAddress__town: 'Town',
+        applicantOneAddress__postcode: 'Postcode',
+        applicantTwoFirstName: 'John',
+        applicantTwoMiddleName: null,
+        applicantTwoLastName: 'Doe',
+        applicantTwoAddress__addressLine1: 'AddressLine1',
+        applicantTwoAddress__addressLine2: 'AddressLine2',
+        applicantTwoAddress__town: 'Town',
+        applicantTwoAddress__postcode: 'Postcode'
+      }
+
+      let request = buildFormContextRequest({
+        method: 'get',
+        url: new URL('http://example.com/test/applicant-one-address'),
+        path: '/test/applicant-one-address',
+        params: {
+          path: 'applicant-one-address',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+
+      // Calculate our context based on the page we're attempting to load and the above state we provide
+      let context = controller.model.getFormContext(request, state)
+      const { evaluationState: stateBefore } = context
+
+      // Our context should know our first applicant
+      expect(stateBefore).toEqual({
+        numberOfApplicants: 2,
+        ukPassport: true,
+        applicantOneFirstName: 'Enrique',
+        applicantOneMiddleName: null,
+        applicantOneLastName: 'Chase',
+        applicantOneAddress: [
+          'AddressLine1',
+          'AddressLine2',
+          'Town',
+          'Postcode'
+        ],
+        applicantTwoAddress: null,
+        applicantTwoFirstName: null,
+        applicantTwoLastName: null,
+        applicantTwoMiddleName: null
+      })
+
+      // Our context should know which pages are relevant
+      expect(context.paths).toEqual([
+        '/uk-passport',
+        '/how-many-people',
+        '/applicant-one-name',
+        '/applicant-one-address'
+      ])
+
+      // Now mark that we don't have a UK Passport
+      state.ukPassport = false
+
+      request = buildFormContextRequest({
+        method: 'get',
+        url: new URL('http://example.com/test/summary'),
+        path: '/test/summary',
+        params: {
+          path: 'summary',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+
+      // And recalculate our context
+      context = controller.model.getFormContext(request, state)
+      const { evaluationState: stateAfter } = context
+
+      // Our context should no longer list pages about our applicant
+      expect(context.paths).toEqual([
+        '/uk-passport',
+        '/testconditions',
+        '/summary'
+      ])
+
+      // Our evaluation context should have default values for irrelevant fields
+      expect(stateAfter).toEqual({
+        ukPassport: false,
+        numberOfApplicants: null,
+        applicantOneFirstName: null,
+        applicantOneMiddleName: null,
+        applicantOneLastName: null,
+        applicantOneAddress: null,
+        applicantTwoAddress: null,
+        applicantTwoFirstName: null,
+        applicantTwoLastName: null,
+        applicantTwoMiddleName: null
+      })
+    })
+
+    it('combines state values for date fields', () => {
+      const { pages } = definitionConditionsDates
+
+      const model = new FormModel(definitionConditionsDates, {
+        basePath: 'test'
+      })
+
+      const controller = new QuestionPageController(model, pages[0])
+
+      const request = buildFormContextRequest({
+        method: 'get',
+        url: new URL('http://example.com/test/page-one'),
+        path: '/test/page-one',
+        params: {
+          path: 'page-one',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+
+      const context = controller.model.getFormContext(request, {
+        $$__referenceNumber: 'foobar',
+        dateField__day: 5,
+        dateField__month: 1,
+        dateField__year: 2024
+      })
+
+      // Ensure dates are transformed to yyyy-MM-dd format
+      expect(context.evaluationState).toHaveProperty('dateField', '2024-01-05')
+
+      // Unlike relevant state which has the individual date parts
+      expect(context.relevantState).not.toHaveProperty('dateField')
+      expect(context.relevantState).toMatchObject({
+        dateField__day: 5,
+        dateField__month: 1,
+        dateField__year: 2024
+      })
+    })
+  })
+
+  describe('Form validation', () => {
+    it('includes all field errors', () => {
+      const result1 = controller1.collection.validate()
+      const result2 = controller2.collection.validate()
+
+      expect(result1.errors).toHaveLength(1)
+      expect(result2.errors).toHaveLength(4)
+    })
+  })
+
+  describe('Form journey', () => {
+    /** @type {FormContext} */
+    let context
+    /** @type {FormContext} */
+    let contextNo
+    /** @type {FormContext} */
+    let contextYes
+
+    beforeEach(() => {
+      // Empty state
+      context = model.getFormContext(requestPage1, {
+        $$__referenceNumber: 'foobar'
+      })
+
+      // Question 1: Selected 'No'
+      contextNo = model.getFormContext(requestPage1, {
+        $$__referenceNumber: 'foobar',
+        yesNoField: false
+      })
+
+      // Question 1: Selected 'Yes'
+      contextYes = model.getFormContext(requestPage1, {
+        $$__referenceNumber: 'foobar',
+        yesNoField: true
+      })
+    })
+
+    describe('Next', () => {
+      it('returns the next page path', () => {
+        expect(controller1.getNextPath(context)).toBe('/summary')
+        expect(controller1.getNextPath(contextNo)).toBe('/second-page')
+        expect(controller1.getNextPath(contextYes)).toBe('/summary')
+
+        expect(controller2.getNextPath(context)).toBe('/summary')
+        expect(controller2.getNextPath(contextNo)).toBe('/summary')
+        expect(controller2.getNextPath(contextYes)).toBe('/summary')
+      })
+    })
+
+    describe('Summary', () => {
+      it('returns the summary path', () => {
+        expect(controller1.getSummaryPath()).toBe('/summary')
+        expect(controller2.getSummaryPath()).toBe('/summary')
+      })
+    })
+  })
+
+  describe('Route handlers', () => {
+    const response = {
+      code: jest.fn().mockImplementation(() => response)
+    }
+
+    /** @type {FormResponseToolkit} */
+    const h = {
+      redirect: jest.fn().mockReturnValue(response),
+      view: jest.fn(),
+      continue: Symbol('continue')
+    }
+
+    it('returns default route options', () => {
+      expect(controller1.getRouteOptions).toMatchObject({
+        ext: {
+          onPostHandler: {
+            method: expect.any(Function)
+          }
+        }
+      })
+
+      expect(controller1.postRouteOptions).toMatchObject({
+        ext: {
+          onPostHandler: {
+            method: expect.any(Function)
+          }
+        }
+      })
+    })
+
+    it('supports GET route handler', async () => {
+      /** @type {FormState} */
+      const state = { yesNoField: false }
+
+      for (const controller of [controller1, controller2]) {
+        jest
+          .spyOn(controller, 'hasMissingNotificationEmail')
+          .mockResolvedValue(false)
+
+        jest.spyOn(controller, 'getState').mockResolvedValue(state)
+      }
+
+      expect(() => controller1.makeGetRouteHandler()).not.toThrow()
+      expect(() => controller1.makeGetRouteHandler()).toBeInstanceOf(Function)
+
+      await controller1.makeGetRouteHandler()(
+        requestPage1,
+        model.getFormContext(requestPage1, { $$__referenceNumber: 'foobar' }),
+        h
+      )
+
+      await controller2.makeGetRouteHandler()(
+        requestPage2,
+        model.getFormContext(requestPage2, { $$__referenceNumber: 'foobar' }),
+        h
+      )
+
+      expect(h.view).toHaveBeenNthCalledWith(
+        1,
+        controller1.viewName,
+        expect.objectContaining({
+          pageTitle: 'Previous marriages',
+          sectionTitle: undefined
+        })
+      )
+
+      expect(h.view).toHaveBeenNthCalledWith(
+        2,
+        controller2.viewName,
+        expect.objectContaining({
+          pageTitle: 'When will you get married?',
+          sectionTitle: 'Your marriage'
+        })
+      )
+    })
+  })
+
+  describe('State', () => {
+    beforeEach(() => {
+      jest.spyOn(CacheService.prototype, 'getState')
+      jest.spyOn(CacheService.prototype, 'setState')
+
+      // Preview URL '?force'
+      requestPage1.query.force = ''
+    })
+
+    describe('getState', () => {
+      it('should skip get for preview URL direct access', async () => {
+        const state = await controller1.getState(requestPage1)
+
+        expect(state).toEqual({})
+        expect(CacheService.prototype.getState).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('setState', () => {
+      it('should skip set for preview URL direct access', async () => {
+        /** @type {FormSubmissionState} */
+        const state = { yesNoField: false }
+        const updated = await controller1.setState(requestPage1, state)
+
+        expect(updated).toBe(state)
+        expect(CacheService.prototype.setState).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('mergeState', () => {
+      it('should skip merge for preview URL direct access', async () => {
+        /** @type {FormSubmissionState} */
+        const state = {
+          yesNoField: false
+        }
+
+        /** @type {FormSubmissionState} */
+        const update = {
+          dateField__day: 5,
+          dateField__month: 1,
+          dateField__year: 2024
+        }
+
+        const updated = await controller1.mergeState(
+          requestPage1,
+          state,
+          update
+        )
+
+        expect(updated).toEqual({
+          yesNoField: false,
+          dateField__day: 5,
+          dateField__month: 1,
+          dateField__year: 2024
+        })
+
+        expect(CacheService.prototype.setState).not.toHaveBeenCalled()
+      })
+    })
+  })
+})
+
+describe('Save and Exit functionality', () => {
+  /** @type {FormModel} */
+  let model
+  /** @type {QuestionPageController} */
+  let controller1
+  /** @type {FormRequest} */
+  let requestPage1
+
+  beforeEach(() => {
+    const { pages } = definitionConditionsBasic
+
+    model = new FormModel(definitionConditionsBasic, {
+      basePath: 'test'
+    })
+
+    controller1 = new QuestionPageController(model, pages[0])
+
+    requestPage1 = buildFormRequest(
+      /** @type {FormRequest} */ ({
+        method: 'get',
+        url: new URL('http://example.com/test/first-page'),
+        path: '/test/first-page',
+        params: {
+          path: 'first-page',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+    )
+  })
+
+  const response = {
+    code: jest.fn().mockImplementation(() => response)
+  }
+
+  /** @type {FormResponseToolkit} */
+  const h = {
+    redirect: jest.fn().mockReturnValue(response),
+    view: jest.fn(),
+    continue: Symbol('continue')
+  }
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    jest.spyOn(CacheService.prototype, 'setState')
+  })
+
+  describe('shouldShowSaveAndExit', () => {
+    it('should return true by default', () => {
+      expect(controller1.shouldShowSaveAndExit(serverWithSaveAndExit)).toBe(
+        true
+      )
+    })
+  })
+
+  describe('handleSaveAndExit', () => {
+    it('should invoke saveAndExit plugin option', () => {
+      const saveAndExitMock = jest.fn(() => ({}))
+      /** @type {FormSubmissionState} */
+      const state = {
+        $$__referenceNumber: 'foobar',
+        yesNoField: true
+      }
+      const request = /** @type {FormRequestPayload} */ (
+        /** @type {unknown} */ ({
+          ...requestPage1,
+          server: {
+            plugins: {
+              'forms-engine-plugin': {
+                saveAndExit: saveAndExitMock,
+                cacheService: /** @type {CacheService} */ (
+                  /** @type {unknown} */ ({
+                    clearState: jest.fn()
+                  })
+                )
+              }
+            }
+          },
+          method: 'post',
+          payload: { yesNoField: true, action: 'save-and-exit' }
+        })
+      )
+
+      const context = model.getFormContext(request, state)
+
+      controller1.handleSaveAndExit(request, context, h)
+
+      expect(saveAndExitMock).toHaveBeenCalledWith(request, h, context)
+    })
+
+    it('should throw if saveAndExit option not provided', () => {
+      const saveAndExitMock = jest.fn()
+      /** @type {FormSubmissionState} */
+      const state = {
+        $$__referenceNumber: 'foobar',
+        yesNoField: true
+      }
+      const request = /** @type {FormRequestPayload} */ (
+        /** @type {unknown} */ ({
+          ...requestPage1,
+          server: {
+            plugins: {
+              'forms-engine-plugin': {
+                // No function
+                saveAndExit: undefined
+              }
+            }
+          },
+          method: 'post',
+          payload: { yesNoField: true, action: 'save-and-exit' }
+        })
+      )
+
+      const context = model.getFormContext(request, state)
+
+      expect(() => controller1.handleSaveAndExit(request, context, h)).toThrow(
+        'Server misconfigured for save and exit'
+      )
+
+      expect(saveAndExitMock).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('POST handler with save-and-exit action', () => {
+    it('should handle FormAction.SaveAndExit', async () => {
+      /** @type {FormSubmissionState} */
+      const state = {
+        $$__referenceNumber: 'foobar',
+        yesNoField: true
+      }
+      const request = /** @type {FormRequestPayload} */ (
+        /** @type {unknown} */ ({
+          ...requestPage1,
+          method: 'post',
+          payload: { yesNoField: true, action: 'save-and-exit' }
+        })
+      )
+
+      const context = model.getFormContext(request, state)
+
+      jest.spyOn(controller1, 'getState').mockResolvedValue({})
+      jest
+        .spyOn(controller1, 'handleSaveAndExit')
+        .mockReturnValue(h.redirect('/custom-save-and-exit'))
+      jest.spyOn(controller1, 'setState').mockResolvedValue(state)
+
+      const postHandler = controller1.makePostRouteHandler()
+      await postHandler(request, context, h)
+
+      expect(controller1.handleSaveAndExit).toHaveBeenCalledWith(
+        request,
+        context,
+        h
+      )
+    })
+
+    it('should not call handleSaveAndExit for continue action', async () => {
+      /** @type {FormSubmissionState} */
+      const state = {
+        $$__referenceNumber: 'foobar',
+        yesNoField: true
+      }
+      const request = /** @type {FormRequestPayload} */ (
+        /** @type {unknown} */ ({
+          ...requestPage1,
+          method: 'post',
+          payload: { yesNoField: true, action: 'continue' }
+        })
+      )
+
+      const context = model.getFormContext(request, state)
+
+      jest.spyOn(controller1, 'getState').mockResolvedValue({})
+      jest
+        .spyOn(controller1, 'handleSaveAndExit')
+        .mockReturnValue(h.redirect('/custom-save-and-exit'))
+      jest.spyOn(controller1, 'setState').mockResolvedValue(state)
+
+      const mockResponse = {
+        code: jest.fn().mockReturnValue({ redirect: jest.fn() })
+      }
+
+      const mockH = {
+        redirect: jest.fn().mockReturnValue(mockResponse),
+        view: jest.fn(),
+        continue: Symbol('continue')
+      }
+
+      const postHandler = controller1.makePostRouteHandler()
+      await postHandler(request, context, mockH)
+
+      expect(controller1.handleSaveAndExit).not.toHaveBeenCalled()
+    })
+  })
+})
+
+describe('QuestionPageController translator support', () => {
+  /** @type {PageQuestion} */
+  let page1
+  /** @type {URL} */
+  let page1Url
+
+  /** @type {FormModel} */
+  let model
+  /** @type {QuestionPageController} */
+  let controller1
+  /** @type {FormRequest} */
+  let requestPage1
+
+  beforeEach(() => {
+    const { pages } = definitionConditionsBasic
+
+    page1 = pages[0]
+    page1Url = new URL('http://example.com/test/first-page')
+
+    model = new FormModel(definitionConditionsBasic, {
+      basePath: 'test'
+    })
+
+    controller1 = new QuestionPageController(model, page1)
+
+    requestPage1 = buildFormRequest(
+      /** @type {FormRequest} */ ({
+        method: 'get',
+        url: page1Url,
+        path: page1Url.pathname,
+        params: {
+          path: 'first-page',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+    )
+  })
+
+  describe('getViewModel with translator', () => {
+    it('uses mock t from translator for plugin strings', () => {
+      const mockT = jest.fn((/** @type {string} */ key) => `translated:${key}`)
+      /** @type {Translator} */
+      const translator = {
+        t: mockT,
+        tPage: jest.fn((_, prop) => `content:${prop}`),
+        tComponent: jest.fn((_, prop) => `content:${prop}`),
+        tSection: jest.fn((_, prop) => `content:${prop}`),
+        tListItem: jest.fn((_, prop) => `content:${prop}`),
+        tForm: jest.fn((prop) => `content:${prop}`),
+        language: 'en-GB'
+      }
+
+      // Use a request with returnUrl so that getBackLink calls t() for back link text
+      const requestWithReturn = buildFormRequest(
+        /** @type {FormRequest} */ ({
+          method: 'get',
+          url: page1Url,
+          path: page1Url.pathname,
+          params: {
+            path: 'first-page',
+            slug: 'test'
+          },
+          query: { returnUrl: '/test/summary' },
+          app: { model }
+        })
+      )
+
+      const context = model.getFormContext(requestWithReturn, {
+        $$__referenceNumber: 'foobar'
+      })
+
+      controller1.getViewModel(requestWithReturn, context, translator)
+
+      // The translator's t should have been called for back link text
+      expect(mockT).toHaveBeenCalledWith('pages.question.backToCheckAnswers')
+    })
+
+    it('uses mock tPage from translator for page entity', () => {
+      const mockT = jest.fn((/** @type {string} */ key) => key)
+      const mockTPage = jest.fn(
+        (/** @type {unknown} */ _entity, /** @type {string} */ prop) =>
+          `content:${prop}`
+      )
+
+      /** @type {Translator} */
+      const translator = {
+        t: mockT,
+        tPage: /** @type {Translator['tPage']} */ (mockTPage),
+        tComponent: jest.fn(() => ''),
+        tSection: jest.fn(() => ''),
+        tListItem: jest.fn(() => ''),
+        tForm: jest.fn(() => ''),
+        language: 'en-GB'
+      }
+
+      const context = model.getFormContext(requestPage1, {
+        $$__referenceNumber: 'foobar'
+      })
+
+      controller1.getViewModel(requestPage1, context, translator)
+
+      expect(mockTPage).toHaveBeenCalledWith(
+        expect.objectContaining({ path: page1.path }),
+        'title'
+      )
+    })
+
+    it('uses translator.t for back link text when translator is supplied', () => {
+      const mockT = jest.fn().mockReturnValue('Back to check answers')
+      /** @type {Translator} */
+      const mockTranslatorLocal = {
+        t: mockT,
+        tPage: stubTranslator.tPage,
+        tComponent: stubTranslator.tComponent,
+        tSection: stubTranslator.tSection,
+        tListItem: stubTranslator.tListItem,
+        tForm: stubTranslator.tForm,
+        language: 'en-GB'
+      }
+
+      // Use a request with returnUrl so that getBackLink calls translator.t for back link text
+      const requestWithReturn = buildFormRequest(
+        /** @type {FormRequest} */ ({
+          method: 'get',
+          url: page1Url,
+          path: page1Url.pathname,
+          params: {
+            path: 'first-page',
+            slug: 'test'
+          },
+          query: { returnUrl: '/test/summary' },
+          app: { model }
+        })
+      )
+
+      const context = model.getFormContext(requestWithReturn, {
+        $$__referenceNumber: 'foobar'
+      })
+
+      controller1.getViewModel(requestWithReturn, context, mockTranslatorLocal)
+
+      expect(mockT).toHaveBeenCalledWith('pages.question.backToCheckAnswers')
+    })
+  })
+
+  describe('QuestionPageController V2 - PaymentField (DF-832)', () => {
+    /** @type {FormModel} */
+    let model
+    /** @type {QuestionPageController} */
+    let choicePage
+    /** @type {QuestionPageController} */
+    let paymentPage
+
+    beforeEach(() => {
+      model = new FormModel(definitionPaymentV2Conditional, {
+        basePath: 'test'
+      })
+
+      // Page order in fixture: choice, gated, payment, summary
+      choicePage = /** @type {QuestionPageController} */ model.pages[0]
+      paymentPage = /** @type {QuestionPageController} */ model.pages[2]
+    })
+
+    describe('getNextPath', () => {
+      /**
+       * @param {string} pathname
+       */
+      const buildRequest = (pathname) => {
+        const url = new URL(`http://example.com/test${pathname}`)
+        return buildFormRequest(
+          /** @type {FormRequest} */ ({
+            method: 'get',
+            url,
+            path: url.pathname,
+            params: { path: pathname.replace('/', ''), slug: 'test' },
+            query: {},
+            app: { model }
+          })
+        )
+      }
+
+      it('skips payment pages in forward navigation (users reach via CYA)', () => {
+        // From the "choice" page with "yes" answered, the gated page's
+        // condition evaluates true. Payment comes after gated, but must
+        // be skipped so the walk lands on summary.
+        const request = buildRequest('/choice')
+        const context = model.getFormContext(request, {
+          $$__referenceNumber: 'foobar',
+          yesNoField: true
+        })
+
+        const next = choicePage.getNextPath(context)
+
+        expect(next).toBe('/gated')
+
+        // From the gated page the next real page would be the payment page,
+        // but forward navigation skips it and lands on summary.
+        const gatedPage = /** @type {QuestionPageController} */ model.pages[1]
+        expect(gatedPage.getNextPath(context)).toBe('/summary')
+      })
+
+      it('skips payment pages even when their condition would pass', () => {
+        // The payment page has no page-level condition, so only the
+        // isPaymentPage skip can cause it to be excluded.
+        const request = buildRequest('/choice')
+        const context = model.getFormContext(request, {
+          $$__referenceNumber: 'foobar',
+          yesNoField: false
+        })
+
+        // With "no", the gated page's condition fails so the walk from
+        // /choice should skip both /gated (condition) and /payment (payment)
+        // and land directly on the summary.
+        expect(choicePage.getNextPath(context)).toBe('/summary')
+      })
+    })
+
+    describe('getViewModel - resolved payment amount', () => {
+      const buildPaymentRequest = () => {
+        const url = new URL('http://example.com/test/payment')
+        return buildFormRequest(
+          /** @type {FormRequest} */ ({
+            method: 'get',
+            url,
+            path: url.pathname,
+            params: { path: 'payment', slug: 'test' },
+            query: {},
+            app: { model }
+          })
+        )
+      }
+
+      it('overrides displayed amount using resolveAmount with full form state', () => {
+        // yesNoField = false selects the £99 conditional amount.
+        // The payload for the payment page on its own would not know that
+        // — the controller must reach into context.evaluationState.
+        const request = buildPaymentRequest()
+        const context = model.getFormContext(request, {
+          $$__referenceNumber: 'foobar',
+          yesNoField: false
+        })
+
+        const viewModel = paymentPage.getViewModel(request, context, translator)
+        const paymentComp = viewModel.components.find(
+          (c) => 'amount' in c.model && 'paymentState' in c.model
+        )
+
+        expect(paymentComp).toBeDefined()
+        expect(paymentComp?.model).toHaveProperty('amount', '£99.00')
+      })
+
+      it('overrides displayed amount to £0 when zero-amount condition matches', () => {
+        // yesNoField = true selects the £0 conditional amount (first in list)
+        const request = buildPaymentRequest()
+        const context = model.getFormContext(request, {
+          $$__referenceNumber: 'foobar',
+          yesNoField: true
+        })
+
+        const viewModel = paymentPage.getViewModel(request, context, translator)
+        const paymentComp = viewModel.components.find(
+          (c) => 'amount' in c.model && 'paymentState' in c.model
+        )
+
+        expect(paymentComp?.model).toHaveProperty('amount', '£0.00')
+      })
+
+      it('falls back to base amount when no condition matches', () => {
+        // Empty state → no conditions match → base £50
+        const request = buildPaymentRequest()
+        const context = model.getFormContext(request, {
+          $$__referenceNumber: 'foobar'
+        })
+
+        const viewModel = paymentPage.getViewModel(request, context, translator)
+        const paymentComp = viewModel.components.find(
+          (c) => 'amount' in c.model && 'paymentState' in c.model
+        )
+
+        expect(paymentComp?.model).toHaveProperty('amount', '£50.00')
+      })
+
+      it('suppresses Save & Exit on payment pages', () => {
+        const request = buildPaymentRequest()
+        const context = model.getFormContext(request, {
+          $$__referenceNumber: 'foobar',
+          yesNoField: false
+        })
+
+        const viewModel = paymentPage.getViewModel(request, context, translator)
+
+        expect(viewModel).toHaveProperty('allowSaveAndExit', false)
+      })
+
+      it('allows Save & Exit on non-payment pages', () => {
+        const url = new URL('http://example.com/test/choice')
+        const request = buildFormRequest(
+          /** @type {FormRequest} */ ({
+            method: 'get',
+            url,
+            path: url.pathname,
+            params: { path: 'choice', slug: 'test' },
+            query: {},
+            app: { model }
+          })
+        )
+
+        const context = model.getFormContext(request, {
+          $$__referenceNumber: 'foobar'
+        })
+
+        // The default FormModel server may not have save-and-exit plugin
+        // loaded, so we check via shouldShowSaveAndExit being the driver
+        // rather than isPaymentPage for this page.
+        jest.spyOn(choicePage, 'shouldShowSaveAndExit').mockReturnValue(true)
+
+        const viewModel = choicePage.getViewModel(request, context, translator)
+
+        expect(viewModel).toHaveProperty('allowSaveAndExit', true)
+      })
+    })
+
+    describe('getViewModel - showSubmitButton based on paymentState', () => {
+      const buildPaymentRequest = () => {
+        const url = new URL('http://example.com/test/payment')
+        return buildFormRequest(
+          /** @type {FormRequest} */ ({
+            method: 'get',
+            url,
+            path: url.pathname,
+            params: { path: 'payment', slug: 'test' },
+            query: {},
+            app: { model }
+          })
+        )
+      }
+
+      it('shows submit button when no payment pre-auth captured yet', () => {
+        // No paymentState on form state → hasIncompletePayment is true
+        // → showSubmitButton is false.
+        const request = buildPaymentRequest()
+        const context = model.getFormContext(request, {
+          $$__referenceNumber: 'foobar',
+          yesNoField: false
+        })
+
+        const viewModel = paymentPage.getViewModel(request, context, translator)
+
+        expect(viewModel).toHaveProperty('showSubmitButton', false)
+      })
+
+      it('shows submit button when pre-auth has a captured status', () => {
+        // The PaymentField persists paymentId/amount/description at the top
+        // of its state slot, with preAuth nested under it. preAuth.status
+        // being present means pre-auth was captured → hasIncompletePayment
+        // is false → showSubmitButton is true.
+        const request = buildPaymentRequest()
+        const context = model.getFormContext(
+          request,
+          /** @type {FormSubmissionState} */ (
+            /** @type {unknown} */ ({
+              $$__referenceNumber: 'foobar',
+              yesNoField: false,
+              paymentField: {
+                paymentId: 'p-1',
+                amount: 99,
+                description: 'Test payment',
+                preAuth: {
+                  status: 'success',
+                  paymentId: 'p-1',
+                  amount: 99
+                }
+              }
+            })
+          )
+        )
+
+        const viewModel = paymentPage.getViewModel(request, context, translator)
+
+        expect(viewModel).toHaveProperty('showSubmitButton', true)
+      })
+    })
+  })
+})
+
+describe('QuestionPageController with Welsh translations', () => {
+  it('builds the view model in the language of the form context', () => {
+    const model = new FormModel(definitionFieldsRequiredTranslated, {
+      basePath: 'test'
+    })
+
+    const controller = new QuestionPageController(
+      model,
+      /** @type {PageQuestion} */ (definitionFieldsRequiredTranslated.pages[0])
+    )
+
+    const url = new URL('http://example.com/test/components')
+    const request = buildFormRequest(
+      /** @type {FormRequest} */ ({
+        method: 'get',
+        url,
+        path: url.pathname,
+        params: {
+          path: 'components',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      })
+    )
+
+    const context = model.getFormContext(
+      request,
+      { $$__referenceNumber: 'foobar' },
+      undefined,
+      model.createTranslator('cy')
+    )
+
+    const viewModel = controller.getViewModel(request, context)
+
+    expect(viewModel).toHaveProperty(
+      'pageTitle',
+      'Welsh fields required translated'
+    )
+  })
+})
+
+/**
+ * @import { PageQuestion } from '@defra/forms-model'
+ * @import { Translator } from '~/src/server/plugins/engine/i18n/types.js'
+ * @import { FormContext, FormPageViewModel, FormState, FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+ * @import { FormRequest, FormRequestPayload, FormResponseToolkit } from '~/src/server/routes/types.js'
+ */

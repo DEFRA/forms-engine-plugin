@@ -1,0 +1,497 @@
+import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
+import {
+  buildFormContextRequest,
+  buildFormRequest
+} from '~/src/server/plugins/engine/pageControllers/__stubs__/request.js'
+import {
+  server,
+  serverWithSaveAndExit
+} from '~/src/server/plugins/engine/pageControllers/__stubs__/server.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
+import definition from '~/test/form/definitions/repeat.js'
+
+describe('RepeatPageController', () => {
+  const itemId1 = 'abc-123'
+  const itemId2 = 'xyz-987'
+
+  /** @type {URL} */
+  let pageUrl
+  /** @type {URL} */
+  let pageItemUrl
+  /** @type {URL} */
+  let pageSummaryUrl
+
+  /** @type {FormModel} */
+  let model
+  /** @type {RepeatPageController} */
+  let controller
+  /** @type {FormContextRequest} */
+  let requestPage
+  /** @type {FormContextRequest} */
+  let requestPageItem
+  /** @type {FormContextRequest} */
+  let requestPageSummary
+
+  beforeEach(() => {
+    const { pages } = definition
+
+    pageUrl = new URL('/repeat/pizza-order', 'http://example.com')
+
+    pageItemUrl = new URL(
+      `${pageUrl.pathname}/${itemId1}`,
+      'http://example.com'
+    )
+
+    pageSummaryUrl = new URL(
+      `${pageUrl.pathname}/summary`,
+      'http://example.com'
+    )
+
+    model = new FormModel(definition, {
+      basePath: 'test'
+    })
+
+    controller = new RepeatPageController(model, pages[0])
+
+    requestPage = buildFormContextRequest({
+      method: 'get',
+      url: pageUrl,
+      path: pageUrl.pathname,
+      params: {
+        path: 'pizza-order',
+        slug: 'repeat'
+      },
+      query: {},
+      app: { model }
+    })
+
+    requestPageItem = {
+      method: 'get',
+      url: pageItemUrl,
+      path: pageItemUrl.pathname,
+      params: {
+        path: 'pizza-order',
+        slug: 'repeat',
+        itemId: itemId1
+      },
+      query: {},
+      app: { model },
+      server
+    }
+
+    requestPageSummary = {
+      method: 'get',
+      url: pageSummaryUrl,
+      path: pageSummaryUrl.pathname,
+      params: {
+        path: 'pizza-order',
+        slug: 'repeat'
+      },
+      query: {},
+      app: { model },
+      server
+    }
+  })
+
+  describe('Properties', () => {
+    it('returns summary view name', () => {
+      expect(controller).toHaveProperty(
+        'listSummaryViewName',
+        'repeat-list-summary'
+      )
+    })
+
+    it('returns delete view name', () => {
+      expect(controller).toHaveProperty('listDeleteViewName', 'item-delete')
+    })
+
+    it('returns repeater config', () => {
+      expect(controller).toHaveProperty('repeat', {
+        options: {
+          name: 'pizza',
+          title: 'Pizza'
+        },
+        schema: {
+          max: 3,
+          min: 2
+        }
+      })
+    })
+  })
+
+  describe('Path methods', () => {
+    describe('Summary path', () => {
+      it('returns path to summary page', () => {
+        expect(controller.getSummaryPath()).toBe('/summary')
+      })
+
+      it('returns path to repeater summary page', () => {
+        expect(controller.getSummaryPath(requestPage)).toBe(
+          '/pizza-order/summary'
+        )
+      })
+    })
+  })
+
+  describe('Item view model', () => {
+    /** @type {FormPageViewModel} */
+    let viewModel
+
+    beforeEach(() => {
+      viewModel = controller.getViewModel(
+        requestPageItem,
+        model.getFormContext(requestPageItem, {
+          $$__referenceNumber: 'foobar'
+        }),
+        stubTranslator
+      )
+    })
+
+    it('updates section title with repeater title and count', () => {
+      expect(viewModel).toHaveProperty('sectionTitle', 'Food: Pizza 1')
+    })
+  })
+
+  describe.each([
+    {
+      description: 'No items',
+      list: /** @satisfies {RepeatListState} */ ([]),
+      viewModel: {
+        pageTitle: 'You have added 0 answers',
+        showTitle: true,
+        sectionTitle: 'Food'
+      }
+    },
+    {
+      description: '1 item',
+      list: /** @satisfies {RepeatListState} */ ([
+        {
+          itemId: itemId1,
+          toppings: 'Ham',
+          quantity: 2
+        }
+      ]),
+      viewModel: {
+        pageTitle: 'You have added 1 answer',
+        showTitle: true,
+        sectionTitle: 'Food'
+      }
+    },
+    {
+      description: '2 items',
+      list: /** @satisfies {RepeatListState} */ ([
+        {
+          itemId: itemId1,
+          toppings: 'Ham',
+          quantity: 2
+        },
+        {
+          itemId: itemId2,
+          toppings: 'Cheese',
+          quantity: 1
+        }
+      ]),
+      viewModel: {
+        pageTitle: 'You have added 2 answers',
+        showTitle: true,
+        sectionTitle: 'Food'
+      }
+    }
+  ])(
+    'List summary view model ($description)',
+    ({ list, viewModel: expected }) => {
+      /** @type {RepeaterSummaryPageViewModel} */
+      let viewModel
+
+      beforeEach(() => {
+        viewModel = controller.getListSummaryViewModel(
+          requestPageSummary,
+          model.getFormContext(requestPageSummary, {
+            $$__referenceNumber: 'foobar'
+          }),
+          list,
+          stubTranslator
+        )
+      })
+
+      it('should customise page title', () => {
+        expect(viewModel).toHaveProperty('pageTitle', expected.pageTitle)
+        expect(viewModel).toHaveProperty('showTitle', expected.showTitle)
+      })
+
+      it('should extend default view model', () => {
+        const defaults = controller.viewModel
+
+        expect(viewModel).toHaveProperty('name', defaults.name)
+        expect(viewModel).toHaveProperty('page', defaults.page)
+        expect(viewModel).toHaveProperty('sectionTitle', expected.sectionTitle)
+        expect(viewModel).toHaveProperty('isStartPage', defaults.isStartPage)
+        expect(viewModel).toHaveProperty('serviceUrl', defaults.serviceUrl)
+        expect(viewModel).toHaveProperty('feedbackLink', defaults.feedbackLink)
+
+        // Unless overridden
+        expect(viewModel).not.toHaveProperty('pageTitle', defaults.pageTitle)
+      })
+    }
+  )
+
+  describe('Form validation', () => {
+    it('includes title text and errors', () => {
+      const result = controller.collection.validate()
+
+      expect(result.errors).toEqual(
+        /** @satisfies {FormSubmissionError[]} */ ([
+          {
+            path: ['toppings'],
+            href: '#toppings',
+            name: 'toppings',
+            text: 'Select toppings',
+            context: {
+              key: 'toppings',
+              label: 'Toppings',
+              title: 'Toppings'
+            }
+          },
+          {
+            path: ['quantity'],
+            href: '#quantity',
+            name: 'quantity',
+            text: 'Enter quantity',
+            context: {
+              key: 'quantity',
+              label: 'Quantity',
+              title: 'Quantity'
+            }
+          },
+          {
+            path: ['itemId'],
+            href: '#itemId',
+            name: 'itemId',
+            text: 'Select itemId',
+            context: {
+              key: 'itemId',
+              label: 'itemId'
+            }
+          }
+        ])
+      )
+    })
+
+    it('includes all field errors', () => {
+      const result = controller.collection.validate()
+      expect(result.errors).toHaveLength(3)
+    })
+  })
+
+  describe('GET list summary route handler', () => {
+    /** @type {RepeatListState} */
+    const validList = [
+      {
+        itemId: '00000000-0000-4000-8000-000000000001',
+        toppings: 'Ham',
+        quantity: 2
+      },
+      {
+        itemId: '00000000-0000-4000-8000-000000000002',
+        toppings: 'Cheese',
+        quantity: 1
+      }
+    ]
+
+    it('renders the summary when all list items are valid', () => {
+      const request = buildFormRequest(
+        /** @type {FormRequest} */ (/** @type {unknown} */ (requestPageSummary))
+      )
+      const context = model.getFormContext(request, {
+        pizza: validList,
+        $$__referenceNumber: 'foobar'
+      })
+      const h = /** @type {FormResponseToolkit} */ (
+        /** @type {unknown} */ ({
+          redirect: jest.fn().mockReturnValue({ code: jest.fn() }),
+          view: jest.fn(),
+          continue: Symbol('continue')
+        })
+      )
+
+      controller.makeGetListSummaryRouteHandler()(request, context, h)
+
+      expect(h.redirect).not.toHaveBeenCalled()
+      expect(h.view).toHaveBeenCalledWith(
+        controller.listSummaryViewName,
+        expect.objectContaining({
+          pageTitle: 'You have added 2 answers'
+        })
+      )
+    })
+
+    it('redirects to the first invalid item while preserving return query parameters', () => {
+      const invalidItemId = '00000000-0000-4000-8000-000000000002'
+      const request = buildFormRequest(
+        /** @type {FormRequest} */ (
+          /** @type {unknown} */ ({
+            ...requestPageSummary,
+            query: {
+              returnUrl: '/test/summary',
+              force: 'true'
+            }
+          })
+        )
+      )
+      const context = model.getFormContext(request, {
+        pizza: [
+          validList[0],
+          {
+            ...validList[1],
+            toppings: ''
+          }
+        ],
+        $$__referenceNumber: 'foobar'
+      })
+      const redirect = jest.fn()
+      const h = /** @type {FormResponseToolkit} */ (
+        /** @type {unknown} */ ({
+          redirect: redirect.mockReturnValue({ code: jest.fn() }),
+          view: jest.fn(),
+          continue: Symbol('continue')
+        })
+      )
+
+      controller.makeGetListSummaryRouteHandler()(request, context, h)
+
+      expect(h.view).not.toHaveBeenCalled()
+      expect(redirect).toHaveBeenCalledWith(
+        expect.stringContaining(invalidItemId)
+      )
+      expect(redirect).toHaveBeenCalledWith(
+        expect.stringContaining('returnUrl=%2Ftest%2Fsummary')
+      )
+      expect(redirect).toHaveBeenCalledWith(
+        expect.stringContaining('force=true')
+      )
+    })
+  })
+
+  describe('shouldShowSaveAndExit', () => {
+    it('should return true when save and exit is enabled', () => {
+      expect(controller.shouldShowSaveAndExit(serverWithSaveAndExit)).toBe(true)
+    })
+  })
+
+  describe('getViewModel with Translator', () => {
+    it('passes translator through to super.getViewModel without throwing', () => {
+      const mockT = jest.fn((/** @type {string} */ key) => `translated:${key}`)
+      /** @type {Translator} */
+      const translator = {
+        t: mockT,
+        tPage: jest.fn(() => ''),
+        tComponent: jest.fn(() => ''),
+        tSection: jest.fn(() => ''),
+        tListItem: jest.fn(() => ''),
+        tForm: jest.fn(() => ''),
+        language: 'en-GB'
+      }
+
+      const context = model.getFormContext(requestPageItem, {
+        $$__referenceNumber: 'foobar'
+      })
+
+      const viewModel = controller.getViewModel(
+        requestPageItem,
+        context,
+        translator
+      )
+
+      // RepeatPageController.getViewModel extends super — result must still have sectionTitle
+      expect(viewModel).toHaveProperty('sectionTitle')
+    })
+
+    it('uses translator.tPage for page title when translator is supplied', () => {
+      const mockT = jest.fn((/** @type {string} */ key) => `translated:${key}`)
+      const mockTPage = jest.fn(() => 'translated-title')
+      const mockTComponent = jest.fn(() => 'translated-title2')
+      /** @type {Translator} */
+      const translator = {
+        t: mockT,
+        tPage: /** @type {Translator['tPage']} */ (mockTPage),
+        tComponent: /** @type {Translator['tComponent']} */ (mockTComponent),
+        tSection: jest.fn(() => ''),
+        tListItem: jest.fn(() => ''),
+        tForm: jest.fn(() => ''),
+        language: 'en-GB'
+      }
+
+      const context = model.getFormContext(requestPageItem, {
+        $$__referenceNumber: 'foobar'
+      })
+
+      const viewModel = controller.getViewModel(
+        requestPageItem,
+        context,
+        translator
+      )
+
+      expect(mockTComponent).toHaveBeenCalled()
+      // expect(mockTPage).toHaveBeenCalled()
+      expect(viewModel).toHaveProperty('pageTitle', 'translated-title')
+    })
+  })
+
+  describe('getListSummaryViewModel with Translator', () => {
+    /** @type {RepeatListState} */
+    const list = [{ itemId: 'abc-123', toppings: 'Ham', quantity: 2 }]
+
+    it('calls the supplied translator t for plugin strings', () => {
+      const mockT = jest.fn((/** @type {string} */ key) => `translated:${key}`)
+      /** @type {Translator} */
+      const translator = {
+        t: mockT,
+        tPage: jest.fn(() => ''),
+        tComponent: jest.fn(() => ''),
+        tSection: jest.fn(() => ''),
+        tListItem: jest.fn(() => ''),
+        tForm: jest.fn(() => ''),
+        language: 'en-GB'
+      }
+
+      const context = model.getFormContext(requestPageSummary, {
+        $$__referenceNumber: 'foobar'
+      })
+
+      const viewModel = controller.getListSummaryViewModel(
+        requestPageSummary,
+        context,
+        list,
+        translator
+      )
+
+      expect(mockT).toHaveBeenCalledWith(
+        'pages.repeater.pageTitle',
+        expect.anything()
+      )
+      expect(viewModel.pageTitle).toBe('translated:pages.repeater.pageTitle')
+    })
+
+    it('uses stubTranslator when no specific translation assertions needed', () => {
+      const context = model.getFormContext(requestPageSummary, {
+        $$__referenceNumber: 'foobar'
+      })
+
+      const viewModel = controller.getListSummaryViewModel(
+        requestPageSummary,
+        context,
+        list,
+        stubTranslator
+      )
+
+      expect(viewModel).toHaveProperty('pageTitle')
+    })
+  })
+})
+
+/**
+ * @import { Translator } from '~/src/server/plugins/engine/i18n/types.js'
+ * @import { FormContextRequest, FormPageViewModel, FormSubmissionError, RepeatListState, RepeaterSummaryPageViewModel } from '~/src/server/plugins/engine/types.js'
+ * @import { FormRequest, FormResponseToolkit } from '~/src/server/routes/types.js'
+ */

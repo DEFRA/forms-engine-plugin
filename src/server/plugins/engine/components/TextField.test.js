@@ -1,0 +1,715 @@
+import { ComponentType } from '@defra/forms-model'
+
+import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
+import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
+import definition from '~/test/form/definitions/blank.js'
+import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
+
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
+
+describe('TextField', () => {
+  /** @type {FormModel} */
+  let model
+
+  beforeEach(() => {
+    model = new FormModel(definition, {
+      basePath: 'test'
+    })
+  })
+
+  describe('Defaults', () => {
+    /** @type {TextFieldComponent} */
+    let def
+    /** @type {ComponentCollection} */
+    let collection
+    /** @type {Field} */
+    let field
+
+    beforeEach(() => {
+      def = /** @satisfies {TextFieldComponent} */ ({
+        title: 'Example text field',
+        name: 'myComponent',
+        type: ComponentType.TextField,
+        options: {},
+        schema: {}
+      })
+
+      collection = new ComponentCollection([def], { model })
+      field = collection.fields[0]
+    })
+
+    describe('Schema', () => {
+      it('uses component title as label as default', () => {
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
+
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({
+            flags: expect.objectContaining({
+              label: 'Example text field'
+            })
+          })
+        )
+      })
+
+      it('uses component name as keys', () => {
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
+
+        expect(field.keys).toEqual(['myComponent'])
+        expect(field.collection).toBeUndefined()
+
+        for (const key of field.keys) {
+          expect(keys).toHaveProperty(key)
+        }
+      })
+
+      it('is required by default', () => {
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
+
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({
+            flags: expect.objectContaining({
+              presence: 'required'
+            })
+          })
+        )
+      })
+
+      it('is optional when configured', () => {
+        const collectionOptional = new ComponentCollection(
+          [{ ...def, options: { required: false } }],
+          { model }
+        )
+
+        const { formSchema } = collectionOptional
+        const { keys } = formSchema.describe()
+
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({ allow: [''] })
+        )
+
+        const result = collectionOptional.validate(getFormData(''))
+        expect(result.errors).toBeUndefined()
+      })
+
+      it('accepts valid values', () => {
+        const result1 = collection.validate(getFormData('Text'))
+        const result2 = collection.validate(getFormData('Text field'))
+
+        expect(result1.errors).toBeUndefined()
+        expect(result2.errors).toBeUndefined()
+      })
+
+      it('adds errors for empty value', () => {
+        const result = collection.validate(getFormData(''))
+
+        expect(result.errors).toEqual([
+          expect.objectContaining({
+            text: 'Enter example text field'
+          })
+        ])
+      })
+
+      it('adds errors for invalid values', () => {
+        const result1 = collection.validate(getFormData(['invalid']))
+        const result2 = collection.validate(
+          // @ts-expect-error - Allow invalid param for test
+          getFormData({ unknown: 'invalid' })
+        )
+
+        expect(result1.errors).toBeTruthy()
+        expect(result2.errors).toBeTruthy()
+      })
+
+      it('uses translated shortDescription as #label in validation error when translator provided', () => {
+        const componentId = 'b68df7f1-d4f4-4c17-83c8-402f584906c9'
+        const cyModel = new FormModel(
+          {
+            ...definition,
+            metadata: {
+              language: 'en-GB',
+              translations: {
+                cy: {
+                  components: {
+                    [componentId]: {
+                      title: 'Beth yw eich enw olaf?',
+                      shortDescription: 'Eich enw olaf'
+                    }
+                  },
+                  pages: {},
+                  sections: {},
+                  listItems: {}
+                }
+              }
+            }
+          },
+          { basePath: 'test' }
+        )
+
+        /** @type {TextFieldComponent} */
+        const cyDef = {
+          id: componentId,
+          title: 'What is your last name?',
+          name: 'applicantLastName',
+          shortDescription: 'Your last name',
+          type: ComponentType.TextField,
+          options: { required: true },
+          schema: {}
+        }
+
+        const cyCollection = new ComponentCollection([cyDef], {
+          model: cyModel
+        })
+        const translator = cyModel.createTranslator('cy')
+        const result = cyCollection.validate(
+          { applicantLastName: '' },
+          translator
+        )
+
+        expect(result.errors).toEqual([
+          expect.objectContaining({ text: 'Nodwch eich enw olaf' })
+        ])
+      })
+    })
+
+    describe('State', () => {
+      it('returns text from state', () => {
+        const state1 = getFormState('Text field')
+        const state2 = getFormState(null)
+
+        const answer1 = getAnswer(field, state1, undefined, translator)
+        const answer2 = getAnswer(field, state2, undefined, translator)
+
+        expect(answer1).toBe('Text field')
+        expect(answer2).toBe('')
+      })
+
+      it('returns payload from state', () => {
+        const state1 = getFormState('Text field')
+        const state2 = getFormState(null)
+
+        const payload1 = field.getFormDataFromState(state1)
+        const payload2 = field.getFormDataFromState(state2)
+
+        expect(payload1).toEqual(getFormData('Text field'))
+        expect(payload2).toEqual(getFormData())
+      })
+
+      it('returns value from state', () => {
+        const state1 = getFormState('Text field')
+        const state2 = getFormState(null)
+
+        const value1 = field.getFormValueFromState(state1)
+        const value2 = field.getFormValueFromState(state2)
+
+        expect(value1).toBe('Text field')
+        expect(value2).toBeUndefined()
+      })
+
+      it('returns context for conditions and form submission', () => {
+        const state1 = getFormState('Text field')
+        const state2 = getFormState(null)
+
+        const value1 = field.getContextValueFromState(state1)
+        const value2 = field.getContextValueFromState(state2)
+
+        expect(value1).toBe('Text field')
+        expect(value2).toBeNull()
+      })
+
+      it('returns state from payload', () => {
+        const payload1 = getFormData('Text field')
+        const payload2 = getFormData()
+
+        const value1 = field.getStateFromValidForm(payload1)
+        const value2 = field.getStateFromValidForm(payload2)
+
+        expect(value1).toEqual(getFormState('Text field'))
+        expect(value2).toEqual(getFormState(null))
+      })
+    })
+
+    describe('View model', () => {
+      it('sets Nunjucks component defaults', () => {
+        const viewModel = field.getViewModel({
+          payload: getFormData('Text field'),
+          translator: stubTranslator
+        })
+
+        expect(viewModel).toEqual(
+          expect.objectContaining({
+            label: { text: def.title },
+            name: 'myComponent',
+            id: 'myComponent',
+            value: 'Text field'
+          })
+        )
+      })
+    })
+
+    describe('Without a translator', () => {
+      it('builds the view model in English', () => {
+        def.options.required = false
+
+        const viewModel = field.getViewModel({
+          payload: getFormData('Text field')
+        })
+
+        expect(viewModel.label).toEqual({
+          text: 'Example text field (optional)'
+        })
+      })
+
+      it('returns errors and display text in English', () => {
+        const errors = [
+          {
+            path: ['myComponent'],
+            href: '#myComponent',
+            name: 'myComponent',
+            text: 'Enter example text field'
+          }
+        ]
+
+        expect(field.getViewErrors(errors)).toEqual(errors)
+        expect(
+          field.getDisplayStringFromState(getFormState('Text field'))
+        ).toBe('Text field')
+        expect(getAnswer(field, getFormState('Text field'))).toBe('Text field')
+      })
+    })
+
+    describe('getViewModel with Translator', () => {
+      it('calls tComponent for the field title', () => {
+        const tComponent = jest.fn().mockReturnValue('Translated title')
+        const t = jest.fn().mockReturnValue('(optional)')
+        const viewModel = field.getViewModel({
+          payload: {},
+          translator: {
+            t,
+            tComponent,
+            tPage: jest.fn(),
+            tSection: jest.fn(),
+            tListItem: jest.fn(),
+            tForm: jest.fn(),
+            language: 'en-GB'
+          }
+        })
+        expect(tComponent).toHaveBeenCalledWith(field.def, 'title')
+        expect(viewModel.label.text).toBe('Translated title')
+      })
+
+      it('calls tComponent for the hint when hint is set', () => {
+        const hintDef = { ...def, hint: 'Enter your name' }
+        const hintCollection = new ComponentCollection([hintDef], { model })
+        const hintField = hintCollection.fields[0]
+        const tComponent = jest.fn().mockReturnValue('Translated hint')
+        const t = jest.fn().mockReturnValue('')
+        const viewModel = hintField.getViewModel({
+          payload: {},
+          translator: {
+            t,
+            tComponent,
+            tPage: jest.fn(),
+            tSection: jest.fn(),
+            tListItem: jest.fn(),
+            tForm: jest.fn(),
+            language: 'en-GB'
+          }
+        })
+        expect(tComponent).toHaveBeenCalledWith(hintField.def, 'hint')
+        expect(viewModel.hint?.text).toBe('Translated hint')
+      })
+
+      it('calls t for common.optional when field is optional', () => {
+        const optDef = { ...def, options: { required: false } }
+        const optCollection = new ComponentCollection([optDef], { model })
+        const optField = optCollection.fields[0]
+        const tComponent = jest.fn().mockReturnValue('Title')
+        const t = jest.fn().mockReturnValue('(optional)')
+        optField.getViewModel({
+          payload: {},
+          translator: {
+            t,
+            tComponent,
+            tPage: jest.fn(),
+            tSection: jest.fn(),
+            tListItem: jest.fn(),
+            tForm: jest.fn(),
+            language: 'en-GB'
+          }
+        })
+        expect(t).toHaveBeenCalledWith('common.optional')
+      })
+
+      it('falls back to English when no translator supplied', () => {
+        const viewModel = field.getViewModel({
+          payload: {},
+          translator: stubTranslator
+        })
+        expect(viewModel.label.text).toBe('Example text field')
+      })
+    })
+
+    describe('AllPossibleErrors', () => {
+      it('should return errors', () => {
+        const errors = field.getAllPossibleErrors()
+        expect(errors.baseErrors).not.toBeEmpty()
+        expect(errors.advancedSettingsErrors).not.toBeEmpty()
+      })
+    })
+  })
+
+  describe('Validation', () => {
+    describe.each([
+      {
+        description: 'Use error description if it exists',
+        component: /** @satisfies {TextFieldComponent} */ ({
+          title: 'What is your example text?',
+          errorDescription: 'Example text',
+          shortDescription: 'Your example text',
+          name: 'myComponent',
+          type: ComponentType.TextField,
+          options: {},
+          schema: {}
+        }),
+        assertions: [
+          {
+            input: getFormData(''),
+            output: {
+              value: getFormData(''),
+              errors: [
+                expect.objectContaining({
+                  text: 'Enter example text'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description:
+          'Use short description if it exists and error description does not',
+        component: /** @satisfies {TextFieldComponent} */ ({
+          title: 'What is your example text?',
+          shortDescription: 'Your example text',
+          name: 'myComponent',
+          type: ComponentType.TextField,
+          options: {},
+          schema: {}
+        }),
+        assertions: [
+          {
+            input: getFormData(''),
+            output: {
+              value: getFormData(''),
+              errors: [
+                expect.objectContaining({
+                  text: 'Enter your example text'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Trim empty spaces',
+        component: /** @satisfies {TextFieldComponent} */ ({
+          title: 'Example text field',
+          name: 'myComponent',
+          type: ComponentType.TextField,
+          options: {},
+          schema: {}
+        }),
+        assertions: [
+          {
+            input: getFormData('  Leading spaces'),
+            output: { value: getFormData('Leading spaces') }
+          },
+          {
+            input: getFormData('Trailing spaces  '),
+            output: { value: getFormData('Trailing spaces') }
+          },
+          {
+            input: getFormData('  Mixed spaces and new lines \n\n'),
+            output: { value: getFormData('Mixed spaces and new lines') }
+          }
+        ]
+      },
+      {
+        description: 'Schema min and max',
+        component: /** @satisfies {TextFieldComponent} */ ({
+          title: 'Example text field',
+          name: 'myComponent',
+          type: ComponentType.TextField,
+          options: {},
+          schema: {
+            min: 5,
+            max: 8
+          }
+        }),
+        assertions: [
+          {
+            input: getFormData('Text'),
+            output: {
+              value: getFormData('Text'),
+              errors: [
+                expect.objectContaining({
+                  text: 'Example text field must be 5 characters or more'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData('Text field'),
+            output: {
+              value: getFormData('Text field'),
+              errors: [
+                expect.objectContaining({
+                  text: 'Example text field must be 8 characters or less'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Schema length',
+        component: /** @satisfies {TextFieldComponent} */ ({
+          title: 'Example text field',
+          name: 'myComponent',
+          type: ComponentType.TextField,
+          options: {},
+          schema: {
+            length: 4
+          }
+        }),
+        assertions: [
+          {
+            input: getFormData('Text'),
+            output: { value: getFormData('Text') }
+          },
+          {
+            input: getFormData('Text field'),
+            output: {
+              value: getFormData('Text field'),
+              errors: [
+                expect.objectContaining({
+                  text: 'Example text field length must be 4 characters long'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Schema regex',
+        component: /** @satisfies {TextFieldComponent} */ ({
+          title: 'Example text field',
+          name: 'myComponent',
+          type: ComponentType.TextField,
+          options: {},
+          schema: {
+            regex: '^[a-zA-Z]{1,2}\\d[a-zA-Z\\d]?\\s?\\d[a-zA-Z]{2}$'
+          }
+        }),
+        assertions: [
+          {
+            input: getFormData('SW1P'),
+            output: {
+              value: getFormData('SW1P'),
+              errors: [
+                expect.objectContaining({
+                  text: 'Enter a valid example text field'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData('SW1P 4DF'),
+            output: { value: getFormData('SW1P 4DF') }
+          }
+        ]
+      },
+      {
+        description: 'Custom validation message',
+        component: /** @satisfies {TextFieldComponent} */ ({
+          title: 'Example text field',
+          name: 'myComponent',
+          type: ComponentType.TextField,
+          options: {
+            customValidationMessage: 'This is a custom error',
+            customValidationMessages: {
+              'any.required': 'This is not used',
+              'string.empty': 'This is not used',
+              'string.max': 'This is not used',
+              'string.min': 'This is not used'
+            }
+          },
+          schema: {
+            min: 5,
+            max: 8
+          }
+        }),
+        assertions: [
+          {
+            input: getFormData(),
+            output: {
+              value: getFormData(''),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom error'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData(''),
+            output: {
+              value: getFormData(''),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom error'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData('Text'),
+            output: {
+              value: getFormData('Text'),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom error'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData('Text field'),
+            output: {
+              value: getFormData('Text field'),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom error'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Custom validation messages (multiple)',
+        component: /** @satisfies {TextFieldComponent} */ ({
+          title: 'Example text field',
+          name: 'myComponent',
+          type: ComponentType.TextField,
+          options: {
+            customValidationMessages: {
+              'any.required': 'This is a custom required error',
+              'string.empty': 'This is a custom empty string error',
+              'string.max': 'This is a custom max length error',
+              'string.min': 'This is a custom min length error'
+            }
+          },
+          schema: {
+            min: 5,
+            max: 8
+          }
+        }),
+        assertions: [
+          {
+            input: getFormData(),
+            output: {
+              value: getFormData(''),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom required error'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData(''),
+            output: {
+              value: getFormData(''),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom empty string error'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData('Text'),
+            output: {
+              value: getFormData('Text'),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom min length error'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData('Text field'),
+            output: {
+              value: getFormData('Text field'),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom max length error'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Optional field',
+        component: /** @satisfies {TextFieldComponent} */ ({
+          title: 'Example text field',
+          name: 'myComponent',
+          type: ComponentType.TextField,
+          options: {
+            required: false
+          },
+          schema: {}
+        }),
+        assertions: [
+          {
+            input: getFormData(''),
+            output: { value: getFormData('') }
+          }
+        ]
+      }
+    ])('$description', ({ component: def, assertions }) => {
+      /** @type {ComponentCollection} */
+      let collection
+
+      beforeEach(() => {
+        collection = new ComponentCollection([def], { model })
+      })
+
+      it.each([...assertions])(
+        'validates custom example',
+        ({ input, output }) => {
+          const result = collection.validate(input)
+          expect(result).toEqual(output)
+        }
+      )
+    })
+  })
+})
+
+/**
+ * @import { TextFieldComponent } from '@defra/forms-model'
+ * @import { Field } from '~/src/server/plugins/engine/components/helpers/components.js'
+ */

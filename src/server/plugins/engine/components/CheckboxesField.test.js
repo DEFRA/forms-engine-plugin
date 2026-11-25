@@ -1,0 +1,590 @@
+import { ComponentType } from '@defra/forms-model'
+import { toLower } from 'lodash'
+import lowerFirst from 'lodash/lowerFirst.js'
+import { outdent } from 'outdent'
+
+import { CheckboxesField } from '~/src/server/plugins/engine/components/CheckboxesField.js'
+import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import { getAnswer } from '~/src/server/plugins/engine/components/helpers/components.js'
+import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { stubTranslator } from '~/src/server/plugins/engine/pageControllers/__stubs__/translator.js'
+import {
+  listNumber,
+  listNumberExamples,
+  listString,
+  listStringExamples
+} from '~/test/fixtures/list.js'
+import definition from '~/test/form/definitions/blank.js'
+import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
+
+const translator = new FormModel(definition, {
+  basePath: '/'
+}).createTranslator()
+
+describe.each([
+  {
+    component: /** @satisfies {CheckboxesFieldComponent} */ ({
+      title: 'String list title',
+      shortDescription: 'String list',
+      name: 'myComponent',
+      type: ComponentType.CheckboxesField,
+      list: 'listString',
+      options: {}
+    }),
+
+    options: {
+      label: 'string list',
+      list: listString,
+      examples: listStringExamples,
+      allow: ['1', '2', '3', '4'],
+      deny: ['5', '6', '7', '8']
+    }
+  },
+  {
+    component: /** @satisfies {CheckboxesFieldComponent} */ ({
+      title: 'Number list title',
+      name: 'myComponent',
+      shortDescription: 'Number list',
+      type: ComponentType.CheckboxesField,
+      list: 'listNumber',
+      options: {}
+    }),
+
+    options: {
+      label: 'number list',
+      list: listNumber,
+      examples: listNumberExamples,
+      allow: [1, 2, 3, 4],
+      deny: [5, 6, 7, 8]
+    }
+  }
+])('CheckboxesField: $component.title', ({ component: def, options }) => {
+  const updated = structuredClone(definition)
+  updated.lists = [options.list]
+
+  /** @type {FormModel} */
+  let model
+  /** @type {ComponentCollection} */
+  let collection
+  /** @type {Field} */
+  let field
+
+  beforeEach(() => {
+    model = new FormModel(updated, {
+      basePath: 'test'
+    })
+
+    collection = new ComponentCollection([def], { model })
+    field = collection.fields[0]
+  })
+
+  describe('Defaults', () => {
+    describe('Schema', () => {
+      it('uses component short description as label', () => {
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
+
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({
+            flags: expect.objectContaining({ label: def.shortDescription })
+          })
+        )
+      })
+
+      it('uses component name as keys', () => {
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
+
+        expect(field.keys).toEqual(['myComponent'])
+        expect(field.collection).toBeUndefined()
+
+        for (const key of field.keys) {
+          expect(keys).toHaveProperty(key)
+        }
+      })
+
+      it('is required by default', () => {
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
+
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({
+            flags: expect.objectContaining({
+              presence: 'required'
+            })
+          })
+        )
+      })
+
+      it('is optional when configured', () => {
+        const collectionOptional = new ComponentCollection(
+          [{ ...def, options: { required: false } }],
+          { model }
+        )
+
+        const { formSchema } = collectionOptional
+        const { keys } = formSchema.describe()
+
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({
+            flags: expect.objectContaining({
+              presence: 'optional'
+            })
+          })
+        )
+
+        const result = collectionOptional.validate(getFormData())
+        expect(result.errors).toBeUndefined()
+      })
+
+      it('is configured for single values', () => {
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
+
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({
+            flags: expect.objectContaining({
+              single: true
+            })
+          })
+        )
+      })
+
+      it('is configured with checkbox items', () => {
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
+
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({
+            items: [
+              {
+                allow: options.allow,
+                flags: {
+                  label: def.shortDescription,
+                  only: true
+                },
+                type: options.list.type
+              }
+            ]
+          })
+        )
+      })
+
+      it('is configured with min/max items', () => {
+        const collectionLimited = new ComponentCollection(
+          [{ ...def, schema: { min: 2, max: 4 } }],
+          { model }
+        )
+        const { formSchema } = collectionLimited
+        const { keys } = formSchema.describe()
+
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({
+            items: [
+              {
+                allow: options.allow,
+                flags: {
+                  label: def.shortDescription,
+                  only: true
+                },
+                type: options.list.type
+              }
+            ],
+            rules: [
+              { args: { limit: 2 }, name: 'min' },
+              { args: { limit: 4 }, name: 'max' }
+            ]
+          })
+        )
+      })
+
+      it('is configured with length items', () => {
+        const collectionLimited = new ComponentCollection(
+          [{ ...def, schema: { length: 3 } }],
+          { model }
+        )
+        const { formSchema } = collectionLimited
+        const { keys } = formSchema.describe()
+
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({
+            items: [
+              {
+                allow: options.allow,
+                flags: {
+                  label: def.shortDescription,
+                  only: true
+                },
+                type: options.list.type
+              }
+            ],
+            rules: [{ args: { limit: 3 }, name: 'length' }]
+          })
+        )
+      })
+
+      it('adds errors for empty value', () => {
+        const result = collection.validate(getFormData())
+
+        expect(result.errors).toEqual([
+          expect.objectContaining({
+            text: `Select ${lowerFirst(options.label)}`
+          })
+        ])
+      })
+
+      it.each([...options.allow])(
+        'accepts valid checkbox single item',
+        (value) => {
+          const result = collection.validate(getFormData(value))
+          expect(result.errors).toBeUndefined()
+        }
+      )
+
+      it.each([...options.allow])(
+        'accepts valid checkbox array item',
+        (value) => {
+          const result = collection.validate(getFormData([value]))
+          expect(result.errors).toBeUndefined()
+        }
+      )
+
+      it.each([...options.deny])(
+        'rejects invalid checkbox single item',
+        (value) => {
+          const result = collection.validate(getFormData(value))
+
+          expect(result.errors).toEqual([
+            expect.objectContaining({
+              text: `Select ${toLower(def.shortDescription)}`
+            })
+          ])
+        }
+      )
+
+      it.each([...options.deny])(
+        'rejects invalid checkbox array item',
+        (value) => {
+          const result = collection.validate(getFormData([value]))
+
+          expect(result.errors).toEqual([
+            expect.objectContaining({
+              text: `Select ${lowerFirst(options.label)}`
+            })
+          ])
+        }
+      )
+
+      it('adds errors for invalid values', () => {
+        const result1 = collection.validate(getFormData('invalid'))
+        const result2 = collection.validate(
+          getFormData(['invalid1', 'invalid2'])
+        )
+
+        const result3 = collection.validate(
+          // @ts-expect-error - Allow invalid param for test
+          getFormData({ unknown: 'invalid' })
+        )
+
+        expect(result1.errors).toBeTruthy()
+        expect(result2.errors).toBeTruthy()
+        expect(result3.errors).toBeTruthy()
+      })
+    })
+
+    describe('State', () => {
+      it.each([...options.examples])(
+        'returns text from state (single)',
+        (item) => {
+          const state1 = getFormState([item.value])
+          const state2 = getFormState(null)
+
+          const answer1 = getAnswer(field, state1, undefined, translator)
+          const answer2 = getAnswer(field, state2, undefined, translator)
+
+          expect(answer1).toBe(outdent`
+            <ul>
+            <li>${item.text}</li>
+            </ul>
+          `)
+
+          expect(answer2).toBe('')
+        }
+      )
+
+      it('returns text from state (multiple)', () => {
+        const item1 = options.examples[0]
+        const item2 = options.examples[2]
+
+        const state = getFormState([item1.value, item2.value])
+        const answer = getAnswer(field, state, undefined, translator)
+
+        expect(answer).toBe(outdent`
+          <ul>
+          <li>${item1.text}</li>
+          <li>${item2.text}</li>
+          </ul>
+        `)
+      })
+
+      it.each([...options.examples])('returns payload from state', (item) => {
+        const state1 = getFormState([item.value])
+        const state2 = getFormState(null)
+
+        const payload1 = field.getFormDataFromState(state1)
+        const payload2 = field.getFormDataFromState(state2)
+
+        expect(payload1).toEqual(getFormData([item.value]))
+        expect(payload2).toEqual(getFormData())
+      })
+
+      it.each([...options.examples])('returns value from state', (item) => {
+        const state1 = getFormState([item.value])
+        const state2 = getFormState(null)
+
+        const value1 = field.getFormValueFromState(state1)
+        const value2 = field.getFormValueFromState(state2)
+
+        expect(value1).toEqual([item.value])
+        expect(value2).toBeUndefined()
+      })
+
+      it.each([...options.examples])(
+        'returns context for conditions and form submission',
+        (item) => {
+          const state1 = getFormState([item.value])
+          const state2 = getFormState(null)
+
+          const value1 = field.getContextValueFromState(state1)
+          const value2 = field.getContextValueFromState(state2)
+
+          expect(value1).toEqual([item.value])
+          expect(value2).toEqual([])
+        }
+      )
+
+      it.each([...options.examples])('returns state from payload', (item) => {
+        const payload1 = getFormData([item.value])
+        const payload2 = getFormData()
+
+        const value1 = field.getStateFromValidForm(payload1)
+        const value2 = field.getStateFromValidForm(payload2)
+
+        expect(value1).toEqual(getFormState([item.value]))
+        expect(value2).toEqual(getFormState(null))
+      })
+    })
+
+    describe('View model', () => {
+      it('sets Nunjucks component defaults', () => {
+        const item = options.examples[0]
+
+        const viewModel = field.getViewModel({
+          payload: getFormData([item.value]),
+          translator: stubTranslator
+        })
+
+        expect(viewModel).toEqual(
+          expect.objectContaining({
+            label: { text: def.title },
+            name: 'myComponent',
+            id: 'myComponent',
+            value: [item.value]
+          })
+        )
+      })
+
+      it.each([...options.examples])(
+        'sets Nunjucks component checkbox items',
+        (item) => {
+          const viewModel = field.getViewModel({
+            payload: getFormData([item.value]),
+            translator: stubTranslator
+          })
+
+          expect(viewModel.items?.[0]).not.toMatchObject({
+            value: '' // First item is never empty
+          })
+
+          expect(viewModel.items).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({
+                text: item.text,
+                value: item.value,
+                checked: true
+              })
+            ])
+          )
+        }
+      )
+    })
+
+    describe('Checkbox items', () => {
+      it('returns checkbox items', () => {
+        expect(field).toHaveProperty('items', options.list.items)
+      })
+
+      it('returns checkbox items matching type', () => {
+        expect(field).toHaveProperty('values', expect.arrayContaining([]))
+      })
+
+      it('returns empty items when missing', () => {
+        const model = new FormModel(definition, {
+          basePath: 'test'
+        })
+
+        const { items } = new CheckboxesField(def, { model })
+        expect(items).toEqual([])
+      })
+    })
+
+    describe('AllPossibleErrors', () => {
+      it('should return errors', () => {
+        const errors = field.getAllPossibleErrors()
+        expect(errors.baseErrors).not.toBeEmpty()
+        expect(errors.advancedSettingsErrors).not.toBeEmpty()
+      })
+    })
+
+    describe('getDisplayStringFromFormValue', () => {
+      it('returns empty string when value is undefined', () => {
+        const checkboxField = /** @type {CheckboxesField} */ (field)
+        const result = checkboxField.getDisplayStringFromFormValue(
+          undefined,
+          translator
+        )
+        expect(result).toBe('')
+      })
+
+      it('returns empty string when value is empty array', () => {
+        const checkboxField = /** @type {CheckboxesField} */ (field)
+        const result = checkboxField.getDisplayStringFromFormValue(
+          [],
+          translator
+        )
+        expect(result).toBe('')
+      })
+
+      it.each([...options.examples])(
+        'returns text for single selected value',
+        (item) => {
+          const checkboxField = /** @type {CheckboxesField} */ (field)
+          const result = checkboxField.getDisplayStringFromFormValue(
+            [item.value],
+            translator
+          )
+          expect(result).toBe(item.text)
+        }
+      )
+
+      it('returns comma-separated text for multiple selected values', () => {
+        const checkboxField = /** @type {CheckboxesField} */ (field)
+        const item1 = options.examples[0]
+        const item2 = options.examples[2]
+
+        const result = checkboxField.getDisplayStringFromFormValue(
+          [item1.value, item2.value],
+          translator
+        )
+
+        expect(result).toBe(`${item1.text}, ${item2.text}`)
+      })
+    })
+  })
+
+  describe('Validation', () => {
+    describe.each([
+      {
+        description: 'Schema min and max',
+        component: /** @satisfies {CheckboxesFieldComponent} */ ({
+          title: 'Example checkboxes field',
+          name: 'myComponent',
+          type: ComponentType.CheckboxesField,
+          options: {},
+          list: 'listString',
+          schema: {
+            min: 1,
+            max: 2
+          }
+        }),
+        assertions: [
+          {
+            input: getFormData([]),
+            output: {
+              value: getFormData([]),
+              errors: [
+                expect.objectContaining({
+                  text: 'Select at least 1 option from the list'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData(['1', '2', '3']),
+            output: {
+              value: getFormData(['1', '2', '3']),
+              errors: [
+                expect.objectContaining({
+                  text: 'Only 2 options can be selected from the list'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Schema length',
+        component: /** @satisfies {CheckboxesFieldComponent} */ ({
+          title: 'Example checkboxes field',
+          name: 'myComponent',
+          type: ComponentType.CheckboxesField,
+          options: {},
+          list: 'listString',
+          schema: {
+            length: 4
+          }
+        }),
+        assertions: [
+          {
+            input: getFormData(['1', '2', '3', '4', '4']),
+            output: {
+              value: getFormData(['1', '2', '3', '4', '4']),
+              errors: [
+                expect.objectContaining({
+                  text: 'Select only 4 options from the list'
+                })
+              ]
+            }
+          }
+        ]
+      }
+    ])('$description', ({ component: def, assertions }) => {
+      /** @type {ComponentCollection} */
+      let collection
+
+      beforeEach(() => {
+        collection = new ComponentCollection([def], { model })
+      })
+
+      it.each([...assertions])(
+        'validates custom example',
+        ({ input, output }) => {
+          const result = collection.validate(input)
+          expect(result).toEqual(output)
+        }
+      )
+    })
+  })
+})
+
+/**
+ * @import { CheckboxesFieldComponent } from '@defra/forms-model'
+ * @import { Field } from '~/src/server/plugins/engine/components/helpers/components.js'
+ */
