@@ -627,6 +627,7 @@ export interface FormAdapterSubmissionMessagePayload {
    * from the form definition themselves.
    */
   conditionEvaluations?: SubmitConditionEvaluation[]
+  publicRetrievalId: string
 }
 
 export interface FormAdapterSubmissionMessage extends FormAdapterSubmissionMessagePayload {
