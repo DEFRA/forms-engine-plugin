@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-
 import { type PaymentState } from '~/src/server/plugins/engine/components/PaymentField.types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { format } from '~/src/server/plugins/engine/outputFormatters/machine/v2.js'

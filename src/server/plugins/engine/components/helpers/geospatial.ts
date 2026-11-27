@@ -37,7 +37,6 @@ const Joi = JoiBase.extend({
         }
 
         try {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           return { value: Bourne.parse(value) }
         } catch {
           const result = {
@@ -49,7 +48,6 @@ const Joi = JoiBase.extend({
         }
       } else {
         return {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           value
         }
       }
@@ -163,7 +161,6 @@ export function getGeospatialSchema(
     )
 
     if (!countryFeature) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return value
     }
 
@@ -175,7 +172,6 @@ export function getGeospatialSchema(
       })
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return value
   }
 
@@ -197,7 +193,6 @@ export function getEastingNorthingCountryValidator(
     )
 
     if (!countryFeature) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return value
     }
 
@@ -206,7 +201,6 @@ export function getEastingNorthingCountryValidator(
     )
 
     if (!eastingNorthing) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return value
     }
 
@@ -228,7 +222,6 @@ export function getEastingNorthingCountryValidator(
       )
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return value
   }
 

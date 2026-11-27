@@ -370,7 +370,6 @@ export function evaluateTemplate(
     components: context.componentDefMap
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return engine.parseAndRenderSync(template, context.relevantState, {
     globals
   })

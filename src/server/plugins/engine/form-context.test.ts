@@ -123,7 +123,6 @@ describe('getFormContext helper', () => {
       params: Record<string, string>
       path: string
       url: URL
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     } = mockCacheService.getState.mock.calls[0][0]
 
     expect(summaryRequest.params).toEqual({
