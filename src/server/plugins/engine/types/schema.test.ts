@@ -59,6 +59,8 @@ describe('Schema validation', () => {
     }
   }
 
+  const publicRetrievalId = '987776f5-a532-4acb-b3e6-b58ebb0094b1'
+
   describe('formAdapterSubmissionMessageMetaSchema', () => {
     const validMeta: FormAdapterSubmissionMessageMeta = {
       schemaVersion: FormAdapterSubmissionSchemaVersion.V1,
@@ -188,7 +190,8 @@ describe('Schema validation', () => {
             ImxIOP: 'Joe Bloggs'
           }
         }
-      }
+      },
+      publicRetrievalId
     }
 
     it('should validate complete payload', () => {
@@ -288,7 +291,8 @@ describe('Schema validation', () => {
         meta,
         data: validData,
         result,
-        conditionEvaluations: [evaluation]
+        conditionEvaluations: [evaluation],
+        publicRetrievalId
       })
       expect(error).toBeUndefined()
     })
@@ -298,7 +302,8 @@ describe('Schema validation', () => {
         meta,
         data: validData,
         result,
-        conditionEvaluations: []
+        conditionEvaluations: [],
+        publicRetrievalId
       })
       expect(error).toBeUndefined()
     })
@@ -307,7 +312,8 @@ describe('Schema validation', () => {
       const { error } = formAdapterSubmissionMessagePayloadSchema.validate({
         meta,
         data: validData,
-        result
+        result,
+        publicRetrievalId
       })
       expect(error).toBeUndefined()
     })

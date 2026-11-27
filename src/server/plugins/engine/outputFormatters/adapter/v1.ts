@@ -1,3 +1,5 @@
+import crypto from 'node:crypto'
+
 import {
   Engine,
   type FormMetadata,
@@ -102,7 +104,8 @@ export function format(
     conditionEvaluations:
       model.engine === Engine.V2
         ? buildConditionEvaluations(model, context)
-        : []
+        : [],
+    publicRetrievalId: crypto.randomUUID()
   }
 
   return JSON.stringify(payload)

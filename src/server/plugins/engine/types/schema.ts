@@ -96,5 +96,10 @@ export const formAdapterSubmissionMessagePayloadSchema =
       .optional()
       .description(
         'Outcome of every condition in the form definition, evaluated against the final answers at submission'
+      ),
+    publicRetrievalId: Joi.string()
+      .required()
+      .description(
+        'Unique public identifier for the submission used for retrieval'
       )
   })
